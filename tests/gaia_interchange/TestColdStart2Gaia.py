@@ -5,8 +5,8 @@ from rdflib.namespace import SKOS
 
 from flexnlp.utils.io_utils import CharSource
 from flexnlp_sandbox.formats.tac.coldstart import ColdStartKBLoader
-from gaia_interchange.coldstart2gaia import ColdStartToGaiaConverter, BlankNodeGenerator, \
-    AIDA_PROGRAM_ONTOLOGY, AIDA
+from gaia_interchange.aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY, AIDA
+from gaia_interchange.coldstart2gaia import ColdStartToGaiaConverter, BlankNodeGenerator
 
 
 class TestColdstartToGaia(TestCase):

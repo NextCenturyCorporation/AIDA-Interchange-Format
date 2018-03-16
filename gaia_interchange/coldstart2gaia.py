@@ -4,39 +4,24 @@ Converts ColdStart++ knowledge bases to the GAIA interchange format.
 import logging
 import sys
 from abc import ABCMeta, abstractmethod
+from collections import defaultdict
 from pathlib import Path
+from typing import Dict, Any, MutableMapping, Optional, Union
 from uuid import uuid4
 
 from attr import attrs
-from typing import Dict, Any, MutableMapping, Optional, Tuple, Union
-
-from collections import defaultdict
-
 from rdflib import Graph, URIRef, BNode, Literal, RDF
-from rdflib.namespace import SKOS, ClosedNamespace
-from rdflib.plugins.serializers.turtle import TurtleSerializer
+from rdflib.namespace import SKOS
 
 from flexnlp.parameters import YAMLParametersLoader, Parameters
 from flexnlp.utils.attrutils import attrib_instance_of
-from flexnlp.utils.io_utils import CharSource, CharSink
+from flexnlp.utils.io_utils import CharSource
 from flexnlp.utils.preconditions import check_arg, check_not_none
 from flexnlp_sandbox.formats.tac.coldstart import ColdStartKB, ColdStartKBLoader, TypeAssertion, \
     EntityNode, Node, EventNode, EntityMentionAssertion, CANONICAL_MENTION, LinkAssertion
+from gaia_interchange.aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY, AIDA
 
 _log = logging.getLogger(__name__)
-
-# these could be changed to darpa.mil if the interchange format is adopted program-wide
-# TODO: temporarily extend these to include all ColdStart entity types - #2
-AIDA_PROGRAM_ONTOLOGY = ClosedNamespace(
-    uri=URIRef("http://www.isi.edu/aida/programOntology#"),
-    terms=["Person", "Organization"])
-
-AIDA = ClosedNamespace(
-    uri=URIRef("http://www.isi.edu/aida/interchangeOntology#"),
-    terms=["system", "confidence", "confidenceValue", "justifiedBy",
-           "source", "startOffset", "endOffsetInclusive", "link", "linkTarget",
-           # classes
-           "TextProvenance", "LinkAssertion"])
 
 
 class NodeGenerator(metaclass=ABCMeta):
