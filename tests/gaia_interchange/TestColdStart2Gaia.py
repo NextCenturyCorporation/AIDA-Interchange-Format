@@ -21,7 +21,7 @@ class TestColdstartToGaia(TestCase):
         cs_kb = ColdStartKBLoader().load(
             CharSource.from_string(TestColdstartToGaia._CS_FOR_ENTITY_TEST))
         system_node = URIRef("http://www.isi.edu/conversionTest")
-        converted_rdf = TestColdstartToGaia._CONVERTER.convertColdStartToGaia(
+        converted_rdf = TestColdstartToGaia._CONVERTER.convert_coldstart_to_gaia(
             str(system_node), cs_kb)
 
         # build the correct answer graph
