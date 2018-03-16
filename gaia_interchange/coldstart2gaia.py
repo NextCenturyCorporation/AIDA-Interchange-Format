@@ -21,19 +21,22 @@ from flexnlp.utils.attrutils import attrib_instance_of
 from flexnlp.utils.io_utils import CharSource, CharSink
 from flexnlp.utils.preconditions import check_arg, check_not_none
 from flexnlp_sandbox.formats.tac.coldstart import ColdStartKB, ColdStartKBLoader, TypeAssertion, \
-    EntityNode, Node, EventNode, EntityMentionAssertion, CANONICAL_MENTION
+    EntityNode, Node, EventNode, EntityMentionAssertion, CANONICAL_MENTION, LinkAssertion
 
 _log = logging.getLogger(__name__)
 
 # these could be changed to darpa.mil if the interchange format is adopted program-wide
+# TODO: temporarily extend these to include all ColdStart entity types - #2
 AIDA_PROGRAM_ONTOLOGY = ClosedNamespace(
     uri=URIRef("http://www.isi.edu/aida/programOntology#"),
-    terms=["Person"])
+    terms=["Person", "Organization"])
 
 AIDA = ClosedNamespace(
     uri=URIRef("http://www.isi.edu/aida/interchangeOntology#"),
     terms=["system", "confidence", "confidenceValue", "justifiedBy",
-           "TextProvenance", "source", "startOffset", "endOffsetInclusive"])
+           "source", "startOffset", "endOffsetInclusive", "link", "linkTarget",
+           # classes
+           "TextProvenance", "LinkAssertion"])
 
 
 class NodeGenerator(metaclass=ABCMeta):
@@ -106,6 +109,8 @@ class ColdStartToGaiaConverter:
         def to_ontology_type(ontology_type: str) -> URIRef:
             if ontology_type == "PER":
                 return AIDA_PROGRAM_ONTOLOGY.Person
+            elif ontology_type == "ORG":
+                return AIDA_PROGRAM_ONTOLOGY.Organization
             else:
                 raise NotImplementedError("Cannot interpret ontology type " + ontology_type)
 
@@ -136,8 +141,8 @@ class ColdStartToGaiaConverter:
                 # TODO: because skos:preferredLabel isn't reified we can't attach info
                 # on the generating system
                 g.add((entity_uri, SKOS.prefLabel, Literal(cs_assertion.obj)))
-            # TODO: for the moment we toss away information about other mentions
-            # because our interchange format doesn't account for them
+            # TODO: incorporate mention strings as part of the vector associated with
+            # provenances : #6
             for justification in cs_assertion.justifications.predicate_justifications:
                 justification_node = BNode()
                 mark_single_assertion_confidence(justification_node, confidence)
@@ -146,19 +151,35 @@ class ColdStartToGaiaConverter:
                 g.add((justification_node, RDF.type, AIDA.TextProvenance))
                 g.add((justification_node, AIDA.source, Literal(
                     cs_assertion.justifications.doc_id)))
-                # TODO: check boundaries
                 g.add((justification_node, AIDA.startOffset, Literal(justification.start)))
                 # +1 because Span end is exclusive but interchange format is inclusive
                 g.add((justification_node, AIDA.endOffsetInclusive, Literal(justification.end + 1)))
                 g.add((entity_uri, AIDA.justifiedBy, justification_node))
 
-            # TODO: need stopgap for non-canonical mentions
-            # TODO: what is normalized mention?
-            # TODO: do we want to encode distinctions between pronomial and nominal mentions?
+                # put mention string as the prefLabel of the justification
+                g.add((justification_node, SKOS.prefLabel, Literal(cs_assertion.obj)))
+
+            # TODO: handle translation of value-typed mentions - #7
+            return True
+
+        def _translate_link(g: Graph, cs_assertion: LinkAssertion,
+                            confidence: Optional[float]) -> bool:
+            entity_uri = to_uri(cs_assertion.sbj)
+            link_assertion = BNode()
+            g.add((entity_uri, AIDA.link, link_assertion))
+            # how do we want to handle links to external KBs? currently we just store
+            # them as strings
+            g.add((link_assertion, AIDA.linkTarget, Literal(cs_assertion.global_id)))
+            if confidence is not None:
+                confidence_node = BNode()
+                g.add((link_assertion, AIDA.confidence, confidence_node))
+                g.add((confidence_node, AIDA.confidenceValue, Literal(confidence)))
+
             return True
 
         assertions_to_translator = { TypeAssertion : _translate_type,
-                                     EntityMentionAssertion : _translate_entity_mention}
+                                     EntityMentionAssertion : _translate_entity_mention,
+                                     LinkAssertion: _translate_link}
 
         untranslatable_assertions: MutableMapping[str, int] = defaultdict(int)
 
@@ -167,7 +188,7 @@ class ColdStartToGaiaConverter:
 
         for assertion in cs_kb.all_assertions:
             confidence = cs_kb.assertions_to_confidences.get(assertion, None)
-            assertion_translator = assertions_to_translator[assertion.__class__]
+            assertion_translator = assertions_to_translator.get(assertion.__class__, None)
             if not (assertion_translator and assertion_translator(g, assertion, confidence)):
                 untranslatable_assertions[str(assertion.__class__)] += 1
 
@@ -182,24 +203,21 @@ class ColdStartToGaiaConverter:
         return g
 
 
-def custom_serialize(g: Graph) -> str:
-    turtle_serializer = TurtleSerializer()
-    turtle_serializer.addNamespace('aida:', AIDA)
-    turtle_serializer.addNamespace('aidaProgamOntology:', AIDA_PROGRAM_ONTOLOGY)
-    turtle_serializer.serialize()
-
-
 def main(params: Parameters) -> None:
     coldstart_kb_file = params.existing_file('input_coldstart_file')
-    output_interchange_file = params.existing_file('output_interchange_file')
+    output_interchange_file = params.creatable_file('output_interchange_file')
+    system_uri = params.string('system_uri')
+
     _log.info("Converting {!s} from ColdStart KB format to GAIA interchange format and "
               "writing it to {!s}".format(coldstart_kb_file, output_interchange_file))
 
     converted_graph = ColdStartToGaiaConverter().convertColdStartToGaia(
-        ColdStartKBLoader().load(coldstart_kb_file))
-    raise NotImplementedError("Do serialization")
+        system_uri, ColdStartKBLoader().load(
+            CharSource.from_gzipped_file(coldstart_kb_file, 'utf-8')))
+    with open(output_interchange_file, 'wb') as out:
+        converted_graph.serialize(destination=out, format='turtle')
 
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:
-        main(YAMLParametersLoader.load(Path(sys.argv[1])))
+        main(YAMLParametersLoader().load(Path(sys.argv[1])))
