@@ -137,6 +137,7 @@ class ColdStartToGaiaConverter:
                 rdf_assertion = self.assertion_node_generator.next_node()
                 entity = to_identifier(cs_assertion.sbj)
                 ontology_type = to_ontology_type(cs_assertion.obj)
+                g.add((rdf_assertion, RDF.type, RDF.Statement))
                 g.add((rdf_assertion, RDF.subject, entity))
                 g.add((rdf_assertion, RDF.predicate, RDF.type))
                 g.add((rdf_assertion, RDF.object, ontology_type))
@@ -178,7 +179,7 @@ class ColdStartToGaiaConverter:
 
         # translate ColdStart link assertions
         def translate_link(g: Graph, cs_assertion: LinkAssertion,
-                            confidence: Optional[float]) -> bool:
+                           confidence: Optional[float]) -> bool:
             entity_uri = to_identifier(cs_assertion.sbj)
             link_assertion = BNode()
             g.add((entity_uri, AIDA.link, link_assertion))
