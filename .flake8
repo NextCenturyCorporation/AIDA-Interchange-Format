@@ -1,0 +1,16 @@
+[flake8]
+exclude =
+    # __init__.py file imports raise warnings about unused imports
+    __init__.py
+ignore =
+    # False positives on imports used only in generic type annotations
+    F401
+    # In conflict with modern PEP8, see https://gitlab.com/pycqa/flake8/issues/139
+    W503
+    # the next two are hanging indent errors. We exclude these because pylint
+    # already catches them and in a few places we need to manually suppress
+    # them to avoid fighting with PyCharm. We'd rather just add one
+    # suppression comment.
+    E128
+    E131
+max-line-length = 100
