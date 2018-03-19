@@ -77,6 +77,23 @@ class ColdStartToGaiaConverter:
     assertion_node_generator: NodeGenerator = attrib_instance_of(NodeGenerator,
                                                                  default=BlankNodeGenerator())
 
+    @staticmethod
+    def from_parameters(params: Parameters) -> 'ColdStartToGaiaConverter':
+        """
+        Configure conversion process from parameters
+
+        If 'base_uri' is present, then assertions, entities, and events will have assigned URIs
+        instead of being blank nodes.
+        """
+        if 'base_uri' in params:
+            base_uri = params.string('base_uri')
+            return ColdStartToGaiaConverter(
+                entity_node_generator=UUIDNodeGenerator(base_uri + "/entities"),
+                event_node_generator=UUIDNodeGenerator(base_uri + "/events"),
+                assertion_node_generator=UUIDNodeGenerator(base_uri + "/assertions"))
+        else:
+            return ColdStartToGaiaConverter()
+
     def convert_coldstart_to_gaia(self, system_uri: str, cs_kb: ColdStartKB) -> Graph:
         # stores a mapping of ColdStart objects to their URIs in the interchange format
         object_to_uri: Dict[Any, Union[BNode, URIRef]] = dict()
@@ -232,13 +249,13 @@ def main(params: Parameters) -> None:
     output_interchange_file = params.creatable_file('output_interchange_file')
     # the URI to be used to identify the system which generated this ColdStart KB
     system_uri = params.string('system_uri')
+    converter = ColdStartToGaiaConverter.from_parameters(params)
 
     _log.info("Loading Coldstart KB from {!s}".format(coldstart_kb_file))
     coldstart_kb = ColdStartKBLoader().load(
         CharSource.from_gzipped_file(coldstart_kb_file, 'utf-8'))
     _log.info("Converting ColdStart KB to RDF graph")
-    converted_graph = ColdStartToGaiaConverter().convert_coldstart_to_gaia(
-        system_uri, coldstart_kb)
+    converted_graph = converter.convert_coldstart_to_gaia(system_uri, coldstart_kb)
     _log.info("Serializing RDF graph in Turtle format to {!s}".format(output_interchange_file))
     with open(output_interchange_file, 'wb') as out:
         converted_graph.serialize(destination=out, format='turtle')
