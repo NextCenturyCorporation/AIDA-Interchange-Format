@@ -3,6 +3,7 @@ package edu.isi.gaia
 import com.google.common.collect.ImmutableMultiset
 import mu.KLogging
 import org.apache.jena.rdf.model.*
+import org.apache.jena.sparql.pfunction.library.str
 import org.apache.jena.vocabulary.RDF
 import org.apache.jena.vocabulary.SKOS
 import org.apache.jena.vocabulary.XSD
@@ -42,6 +43,11 @@ object AidaSyntaxOntology {
     val LINK_ASSERTION = ResourceFactory.createProperty(_namespace + "LinkAssertion")!!
 }
 
+private class Memoize<Arg, Result>(val f: (Arg) -> Result) : (Arg) -> Result {
+    private val cache = mutableMapOf<Arg, Result>()
+    override fun invoke(arg: Arg) = cache.getOrPut(arg, {f(arg)})
+}
+
 object AidaProgramOntology {
     val _namespace: String = "http://www.isi.edu/aida/programOntology#"
     val PERSON = ResourceFactory.createResource(_namespace + "Person")!!
@@ -57,14 +63,45 @@ object AidaProgramOntology {
             "LIFE.DIE", "LIFE.INJURE", "MANUFACTURE.ARTIFACT", "MOVEMENT.TRANSPORT-ARTIFACT",
             "MOVEMENT.TRANSPORT-PERSON", "PERSONNEL.ELECT", "PERSONNEL.END-POSITION",
             "PERSONNEL.START-POSITION", "TRANSACTION.TRANSACTION", "TRANSACTION.TRANSFER-MONEY",
-            "TRANSACTION.TRANSFER-OWNERSHIP")
-            .map { it to ResourceFactory.createResource(_namespace + it.toLowerCase())}
+            "TRANSACTION.TRANSFER-OWNERSHIP", "children", "parents", "other_family", "other_family",
+            "parents", "children", "siblings", "siblings", "spouse", "spouse",
+            "employee_or_member_of", "employees_or_members", "schools_attended", "students",
+            "city_of_birth", "births_in_city", "stateorprovince_of_birth",
+            "births_in_stateorprovince", "country_of_birth", "births_in_country",
+            "cities_of_residence", "residents_of_city",
+            "statesorprovinces_of_residence", "residents_of_stateorprovince",
+            "countries_of_residence", "residents_of_country",
+            "city_of_death", "deaths_in_city",
+            "stateorprovince_of_death", "deaths_in_stateorprovince",
+            "country_of_death", "deaths_in_country",
+            "shareholders", "holds_shares_in",
+            "founded_by", "organizations_founded",
+            "top_members_employees", "top_member_employee_of",
+            "member_of", "members",
+            "members", "member_of",
+            "parents", "subsidiaries",
+            "subsidiaries", "parents",
+            "city_of_headquarters", "headquarters_in_city",
+            "stateorprovince_of_headquarters", "headquarters_in_stateorprovince",
+            "country_of_headquarters", "headquarters_in_country",
+            "alternate_names", "alternate_names", "date_of_birth",
+            "political_religious_affiliation", "age", "number_of_employees_members",
+            "origin", "date_founded", "date_of_death", "date_dissolved",
+            "cause_of_death", "website", "title", "religion", "charges"
+            )
+            .map { it to ResourceFactory.createResource(_namespace + it.toLowerCase()) }
             .toMap()
 
     // realis types
     val ACTUAL = ResourceFactory.createResource(_namespace + "Actual")!!
     val GENERIC = ResourceFactory.createResource(_namespace + "Generic")!!
     val OTHER = ResourceFactory.createResource(_namespace + "Other")!!
+
+    val likes = ResourceFactory.createResource(_namespace + "likes")!!
+    val dislikes = ResourceFactory.createResource(_namespace + "dislikes")!!
+
+    val ontologizeEventType: (String) -> Resource = Memoize( {eventType: String ->
+        ResourceFactory.createResource(_namespace + eventType)})
 }
 
 
@@ -159,6 +196,11 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
         // TODO: This is temporarily hardcoded but will eventually need to be configurable
         // @xujun: you will need to extend this hardcoding
         fun toOntologyType(ontology_type: String): Resource {
+            // can't go in the when statement because it has an arbitrary boolean condition
+            if (':' in ontology_type) {
+                return AidaProgramOntology.ontologizeEventType(ontology_type)
+            }
+
             return when (ontology_type) {
                 "PER" -> AidaProgramOntology.PERSON
                 "ORG" -> AidaProgramOntology.ORGANIZATION
@@ -199,6 +241,12 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
             Realis.other -> AidaProgramOntology.OTHER
         }
 
+        fun markWithConfidenceAndSystem(assertion: Resource, confidence: Double?) {
+            if (confidence != null) {
+                markSingleAssertionConfidence(assertion, confidence)
+            }
+            associate_with_system(assertion)
+        }
 
         // translate ColdStart entity mentions
         fun translateMention(cs_assertion: MentionAssertion, confidence: Double?)
@@ -223,7 +271,16 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
                 associate_with_system(realisNode)
             }
 
-            for (justification in cs_assertion.justifications.predicate_justifications) {
+            registerJustifications(entityResource, cs_assertion.justifications,
+                    cs_assertion.string, confidence)
+
+            return true
+        }
+
+        fun registerJustifications(resource: Resource,
+                                   provenance: Provenance, string: String?=null,
+                                   confidence: Double?=null) {
+            for (justification in provenance.predicate_justifications) {
                 val justification_node = model.createResource()
                 if (confidence != null) {
                     markSingleAssertionConfidence(justification_node, confidence)
@@ -231,20 +288,18 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
                 associate_with_system(justification_node)
                 justification_node.addProperty(RDF.type, AidaSyntaxOntology.TEXT_PROVENANCE)
                 justification_node.addProperty(AidaSyntaxOntology.SOURCE,
-                        model.createTypedLiteral(cs_assertion.justifications.doc_id))
+                        model.createTypedLiteral(provenance.doc_id))
                 justification_node.addProperty(AidaSyntaxOntology.START_OFFSET,
                         model.createTypedLiteral(justification.start))
                 justification_node.addProperty(AidaSyntaxOntology.END_OFFSET_INCLUSIVE,
                         model.createTypedLiteral(justification.end_inclusive))
-                entityResource.addProperty(AidaSyntaxOntology.JUSTIFIED_BY, justification_node)
+                resource.addProperty(AidaSyntaxOntology.JUSTIFIED_BY, justification_node)
 
-                // put mention string as the prefLabel of the justification
-                justification_node.addProperty(SKOS.prefLabel,
-                        model.createTypedLiteral(cs_assertion.string))
+                if (string != null) {
+                    justification_node.addProperty(SKOS.prefLabel,
+                            model.createTypedLiteral(string))
+                }
             }
-
-            // TODO: handle translation of value-typed mentions-#7
-            return true
         }
 
         // translate ColdStart link assertions
@@ -257,10 +312,7 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
             linkAssertion.addProperty(RDF.type, AidaSyntaxOntology.LINK_ASSERTION)
             linkAssertion.addProperty(AidaSyntaxOntology.LINK_TARGET,
                     model.createTypedLiteral(cs_assertion.global_id))
-            if (confidence != null) {
-                markSingleAssertionConfidence(linkAssertion, confidence)
-            }
-            associate_with_system(linkAssertion)
+            markWithConfidenceAndSystem(linkAssertion, confidence)
 
             return true
         }
@@ -269,13 +321,42 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
             val subjectResouce = toResource(csAssertion.subject)
             val objectResource = toResource(csAssertion.obj)
             val relationAssertion = assertionNodeGenerator.nextNode(model)
-            relationAssertion.addProperty(RDF.type, RDF.Statement)
+            relationAssertion.addProperty(RDF.type, toOntologyType(csAssertion.relationType))
             relationAssertion.addProperty(RDF.subject, subjectResouce)
             relationAssertion.addProperty(RDF.`object`, objectResource)
-            if (confidence != null) {
-                markSingleAssertionConfidence(relationAssertion, confidence)
+            markWithConfidenceAndSystem(relationAssertion, confidence)
+            registerJustifications(relationAssertion, csAssertion.justifications)
+            return true
+        }
+
+        fun translateSentiment(csAssertion: SentimentAssertion, confidence: Double?) : Boolean {
+            fun toSentimentType(sentiment: String) = when (sentiment) {
+                "likes" -> AidaProgramOntology.likes
+                "dislikes" -> AidaProgramOntology.dislikes
+                else -> throw RuntimeException("Unknown sentiment $sentiment")
             }
-            associate_with_system(relationAssertion)
+
+            val subjectResouce = toResource(csAssertion.subject)
+            val objectResource = toResource(csAssertion.obj)
+            val sentimentAssertion = assertionNodeGenerator.nextNode(model)
+            sentimentAssertion.addProperty(RDF.type, toSentimentType(csAssertion.sentiment))
+            sentimentAssertion.addProperty(RDF.subject, subjectResouce)
+            sentimentAssertion.addProperty(RDF.`object`, objectResource)
+            markWithConfidenceAndSystem(sentimentAssertion, confidence)
+            registerJustifications(sentimentAssertion, csAssertion.justifications)
+            return true
+        }
+
+        fun translateEventArgument(csAssertion: EventArgumentAssertion, confidence: Double?)
+                : Boolean {
+            val subjectResource = toResource(csAssertion.subject)
+            val objectResource = toResource(csAssertion.argument)
+            val eventArgumentAssertion = assertionNodeGenerator.nextNode(model)
+            eventArgumentAssertion.addProperty(RDF.type, toOntologyType(csAssertion.argument_role))
+            eventArgumentAssertion.addProperty(RDF.subject, subjectResource)
+            eventArgumentAssertion.addProperty(RDF.`object`, objectResource)
+            markWithConfidenceAndSystem(eventArgumentAssertion, confidence)
+            registerJustifications(eventArgumentAssertion, csAssertion.justifications)
             return true
         }
 
@@ -291,7 +372,9 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
                     is TypeAssertion -> translateType(assertion, confidence)
                     is MentionAssertion -> translateMention(assertion, confidence)
                     is LinkAssertion -> translateLink(assertion, confidence)
+                    is SentimentAssertion -> translateSentiment(assertion, confidence)
                     is RelationAssertion -> translateRelation(assertion, confidence)
+                    is EventArgumentAssertion -> translateEventArgument(assertion, confidence)
                     else -> false
                 }
 

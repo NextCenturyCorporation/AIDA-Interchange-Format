@@ -82,6 +82,10 @@ data class RelationAssertion(override val subject: Node, val relationType: Strin
                         val obj: Node, val justifications: Provenance)
     : Assertion
 
+data class SentimentAssertion(override val subject: Node, val sentiment: String,
+                             val obj: Node, val justifications: Provenance)
+    : Assertion
+
 data class EventArgumentAssertion(override val subject: Node, val argument_role: String,
                              val realis: Realis, val argument: Node,
                              val justifications: Provenance) : Assertion {
@@ -116,7 +120,7 @@ class ColdStartKBLoader {
 
         val _JUSTIFICATION_PAT = Regex("""^(.+):(\d+)-(\d+)$""")
         val _SPAN_PAT = Regex("""(\d+)-(\d+)""")
-        val _ASSERTION_PAT = Regex("""^(.+?)\.?(other|generic|actual)?$""")
+        val _ASSERTION_PAT = Regex("""^(?:per|org|gpe|loc|fac)?:?(.+?)\.?(other|generic|actual)?$""")
 
         val idToNode: MutableMap<String, Node> = HashMap()
 
@@ -235,6 +239,9 @@ class ColdStartKBLoader {
             }
         }
 
+        val SENTIMENT_RELATIONS = setOf("likes", "dislikes")
+        val INVERSE_SENTIMENT_RELATIONS = setOf("is_disliked_by", "is_liked_by")
+
         private fun parsePredicate(fields: List<String>): Pair<Assertion, Double?>? {
             require(fields.size == 5) {
                 "Wrong number of fields in predicate " +
@@ -243,6 +250,12 @@ class ColdStartKBLoader {
             val match = _ASSERTION_PAT.matchEntire(fields[_ASSERTION_TYPE])
             val (relation_type, realis) = match?.destructured
                     ?: throw RuntimeException("Unknown assertion type " + fields[_ASSERTION_TYPE])
+
+            if (relation_type in INVERSE_SENTIMENT_RELATIONS) {
+                // both relations and their inverses are present; we only want to process one
+                // direction
+                return null;
+            }
 
             val subjectNode = toNode(fields[_SBJ_NODE_ID])
             val objectNode = toNode(fields[_OBJ_NODE_ID])
@@ -253,17 +266,26 @@ class ColdStartKBLoader {
                 return null
             }
 
-            if (subjectNode is EventNode) {
-                if (realis.isEmpty()) throw IOException("Invalid empty realis on event argument")
-                return Pair(EventArgumentAssertion(
+            return when {
+                relation_type in SENTIMENT_RELATIONS -> Pair(SentimentAssertion(
                         subjectNode,
                         relation_type,
-                        Realis.valueOf(realis),
                         objectNode,
                         toJustificationSpan(fields[_JST_STRING])),
                         fields[_CONF_FLOAT].toDouble())
-            } else {
-                return Pair(
+
+                subjectNode is EventNode -> {
+                    if (realis.isEmpty()) throw IOException("Invalid empty realis on event argument")
+                    return Pair(EventArgumentAssertion(
+                            subjectNode,
+                            relation_type,
+                            Realis.valueOf(realis),
+                            objectNode,
+                            toJustificationSpan(fields[_JST_STRING])),
+                            fields[_CONF_FLOAT].toDouble())
+                }
+
+                else -> Pair(
                         RelationAssertion(
                                 subjectNode,
                                 relation_type,
