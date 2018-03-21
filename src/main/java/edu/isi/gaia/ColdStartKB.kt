@@ -33,13 +33,13 @@ interface Assertion {
 
 data class TypeAssertion(override val subject: Node, val type: String) : Assertion {
     init {
-        require(type.length > 0) {"Type cannot be empty" }
+        require(type.isNotEmpty()) {"Type cannot be empty" }
     }
 }
 
 data class LinkAssertion(override val subject: Node, val global_id: String) : Assertion {
     init {
-        require(global_id.length > 0) {"Global ID can't be empty"}
+        require(global_id.isNotEmpty()) {"Global ID can't be empty"}
     }
 }
 
@@ -55,12 +55,8 @@ data class MentionType(val name: String) {
 
 val CANONICAL_MENTION = MentionType("canonical_mention")
 
-val REALIS_TYPES = setOf("actual", "generic", "other")
-
-data class RealisType(val name: String) {
-    init {
-        require(REALIS_TYPES.contains(name)) { "Expected known realis type but got $name"}
-    }
+enum class Realis {
+    actual, generic, other
 }
 
 interface MentionAssertion : Assertion {
@@ -78,19 +74,19 @@ data class StringMentionAssertion(override val subject: StringNode,
                              override val string : String, override val justifications: Provenance)
     : MentionAssertion
 
-data class EventMentionAssertion(override val subject: EventNode, val mention_type: MentionType,
-                            val realis: RealisType, val string : String,
-                            val justifications: Provenance) : Assertion
+data class EventMentionAssertion(override val subject: EventNode, override val mention_type: MentionType,
+                            val realis: Realis, override val string : String,
+                            override val justifications: Provenance) : MentionAssertion
 
 data class RelationAssertion(override val subject: Node, val relationType: String,
                         val obj: Node, val justifications: Provenance)
     : Assertion
 
 data class EventArgumentAssertion(override val subject: Node, val argument_role: String,
-                             val realis: RealisType, val argument: Node,
+                             val realis: Realis, val argument: Node,
                              val justifications: Provenance) : Assertion {
     init {
-        require(argument_role.length > 0) { "Empty argument role not allowed" }
+        require(argument_role.isNotEmpty()) { "Empty argument role not allowed" }
     }
 }
 
@@ -216,7 +212,7 @@ class ColdStartKBLoader {
                 return Pair(
                         EventMentionAssertion(subjectNode,
                                 MentionType(mention_type),
-                                RealisType(realis),
+                                Realis.valueOf(realis),
                                 mention_string,
                                 toJustificationSpan(fields[_JST_STRING])),
                         confidence)
@@ -262,7 +258,7 @@ class ColdStartKBLoader {
                 return Pair(EventArgumentAssertion(
                         subjectNode,
                         relation_type,
-                        RealisType(realis),
+                        Realis.valueOf(realis),
                         objectNode,
                         toJustificationSpan(fields[_JST_STRING])),
                         fields[_CONF_FLOAT].toDouble())

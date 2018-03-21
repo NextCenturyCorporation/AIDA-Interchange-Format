@@ -34,6 +34,8 @@ object AidaSyntaxOntology {
             + "endOffsetInclusive")!!
     val LINK = ResourceFactory.createProperty(_namespace + "link")!!
     val LINK_TARGET = ResourceFactory.createProperty(_namespace + "linkTarget")!!
+    val REALIS = ResourceFactory.createProperty(_namespace + "realis")
+    val REALIS_VALUE = ResourceFactory.createProperty(_namespace + "realisValue")
 
     // classes
     val TEXT_PROVENANCE = ResourceFactory.createProperty(_namespace + "TextProvenance")!!
@@ -42,12 +44,27 @@ object AidaSyntaxOntology {
 
 object AidaProgramOntology {
     val _namespace: String = "http://www.isi.edu/aida/programOntology#"
-    val PERSON = ResourceFactory.createProperty(_namespace + "Person")!!
-    val ORGANIZATION = ResourceFactory.createProperty(_namespace + "Organization")!!
-    val LOCATION = ResourceFactory.createProperty(_namespace + "Location")!!
-    val GPE = ResourceFactory.createProperty(_namespace + "GeopoliticalEntity")!!
-    val FACILITY = ResourceFactory.createProperty(_namespace + "Facility")!!
+    val PERSON = ResourceFactory.createResource(_namespace + "Person")!!
+    val ORGANIZATION = ResourceFactory.createResource(_namespace + "Organization")!!
+    val LOCATION = ResourceFactory.createResource(_namespace + "Location")!!
+    val GPE = ResourceFactory.createResource(_namespace + "GeopoliticalEntity")!!
+    val FACILITY = ResourceFactory.createResource(_namespace + "Facility")!!
+    val STRING = ResourceFactory.createResource(_namespace + "String")
 
+    val EVENT_AND_RELATION_TYPES = listOf("CONFLICT.ATTACK", "CONFLICT.DEMONSTRATE",
+            "CONTACT.BROADCAST", "CONTACT.CONTACT", "CONTACT.CORRESPONDENCE", "CONTACT.MEET",
+            "JUSTICE.ARREST-JAIL",
+            "LIFE.DIE", "LIFE.INJURE", "MANUFACTURE.ARTIFACT", "MOVEMENT.TRANSPORT-ARTIFACT",
+            "MOVEMENT.TRANSPORT-PERSON", "PERSONNEL.ELECT", "PERSONNEL.END-POSITION",
+            "PERSONNEL.START-POSITION", "TRANSACTION.TRANSACTION", "TRANSACTION.TRANSFER-MONEY",
+            "TRANSACTION.TRANSFER-OWNERSHIP")
+            .map { it to ResourceFactory.createResource(_namespace + it.toLowerCase())}
+            .toMap()
+
+    // realis types
+    val ACTUAL = ResourceFactory.createResource(_namespace + "Actual")!!
+    val GENERIC = ResourceFactory.createResource(_namespace + "Generic")!!
+    val OTHER = ResourceFactory.createResource(_namespace + "Other")!!
 }
 
 
@@ -148,6 +165,9 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
                 "LOC" -> AidaProgramOntology.LOCATION
                 "FAC" -> AidaProgramOntology.FACILITY
                 "GPE" -> AidaProgramOntology.GPE
+                "STRING", "String" -> AidaProgramOntology.STRING
+                in AidaProgramOntology.EVENT_AND_RELATION_TYPES.keys ->
+                    AidaProgramOntology.EVENT_AND_RELATION_TYPES.getValue(ontology_type)
                 else -> throw RuntimeException("Unknown ontology type $ontology_type")
             }
         }
@@ -162,20 +182,23 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
                 "Type assertions should not have confidences in " +
                         "ColdStart"
             }
-            if (cs_assertion.subject is EntityNode) {
-                val rdfAssertion = assertionNodeGenerator.nextNode(model)
-                val entity = toResource(cs_assertion.subject)
-                val ontology_type = toOntologyType(cs_assertion.type)
-                rdfAssertion.addProperty(RDF.type, RDF.Statement)
-                rdfAssertion.addProperty(RDF.subject, entity)
-                rdfAssertion.addProperty(RDF.predicate, RDF.type)
-                rdfAssertion.addProperty(RDF.`object`, ontology_type)
-                associate_with_system(rdfAssertion)
-                return true
-            } else {
-                return false
-            }
+            val rdfAssertion = assertionNodeGenerator.nextNode(model)
+            val entity = toResource(cs_assertion.subject)
+            val ontology_type = toOntologyType(cs_assertion.type)
+            rdfAssertion.addProperty(RDF.type, RDF.Statement)
+            rdfAssertion.addProperty(RDF.subject, entity)
+            rdfAssertion.addProperty(RDF.predicate, RDF.type)
+            rdfAssertion.addProperty(RDF.`object`, ontology_type)
+            associate_with_system(rdfAssertion)
+            return true
         }
+
+        fun toRealisType(realis: Realis) = when (realis) {
+            Realis.actual -> AidaProgramOntology.ACTUAL
+            Realis.generic -> AidaProgramOntology.GENERIC
+            Realis.other -> AidaProgramOntology.OTHER
+        }
+
 
         // translate ColdStart entity mentions
         fun translateMention(cs_assertion: MentionAssertion, confidence: Double?)
@@ -190,6 +213,14 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
                 // on the generating system
                 entityResource.addProperty(SKOS.prefLabel,
                         model.createTypedLiteral(cs_assertion.string))
+            }
+
+            if (cs_assertion is EventMentionAssertion) {
+                val realisNode = model.createResource()
+                entityResource.addProperty(AidaSyntaxOntology.REALIS, realisNode)
+                realisNode.addProperty(AidaSyntaxOntology.REALIS_VALUE,
+                        toRealisType(cs_assertion.realis))
+                associate_with_system(realisNode)
             }
 
             for (justification in cs_assertion.justifications.predicate_justifications) {
@@ -223,6 +254,7 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
             entityResource.addProperty(AidaSyntaxOntology.LINK, linkAssertion)
             // how do we want to handle links to external KBs ? currently we just store
             // them as strings
+            linkAssertion.addProperty(RDF.type, AidaSyntaxOntology.LINK_ASSERTION)
             linkAssertion.addProperty(AidaSyntaxOntology.LINK_TARGET,
                     model.createTypedLiteral(cs_assertion.global_id))
             if (confidence != null) {
