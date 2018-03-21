@@ -63,13 +63,20 @@ data class RealisType(val name: String) {
     }
 }
 
-data class EntityMentionAssertion(override val subject: EntityNode, val mention_type: MentionType,
-                             val string : String, val justifications: Provenance)
-    : Assertion
+interface MentionAssertion : Assertion {
+    val mention_type: MentionType
+    val string: String
+    val justifications: Provenance
+}
 
-data class StringMentionAssertion(override val subject: StringNode, val mention_type: MentionType,
-                             val string : String, val justifications: Provenance)
-    : Assertion
+data class EntityMentionAssertion(override val subject: EntityNode, override val mention_type: MentionType,
+                             override val string : String, override val justifications: Provenance)
+    : MentionAssertion
+
+data class StringMentionAssertion(override val subject: StringNode,
+                                  override val mention_type: MentionType,
+                             override val string : String, override val justifications: Provenance)
+    : MentionAssertion
 
 data class EventMentionAssertion(override val subject: EventNode, val mention_type: MentionType,
                             val realis: RealisType, val string : String,

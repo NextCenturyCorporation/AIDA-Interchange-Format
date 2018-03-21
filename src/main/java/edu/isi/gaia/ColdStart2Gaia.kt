@@ -2,25 +2,13 @@ package edu.isi.gaia
 
 import com.google.common.collect.ImmutableMultiset
 import mu.KLogging
-import org.apache.jena.datatypes.RDFDatatype
-import org.apache.jena.graph.Graph
-import org.apache.jena.graph.Triple
 import org.apache.jena.rdf.model.*
-import org.apache.jena.shared.Command
-import org.apache.jena.shared.Lock
-import org.apache.jena.shared.PrefixMapping
-import org.apache.jena.tdb.TDBFactory
 import org.apache.jena.vocabulary.RDF
 import org.apache.jena.vocabulary.SKOS
 import org.apache.jena.vocabulary.XSD
-import java.io.InputStream
-import java.io.OutputStream
-import java.io.Reader
-import java.io.Writer
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Paths
 import java.util.*
-import java.util.function.Supplier
 
 /*
 Converts ColdStart++ knowledge bases to the GAIA interchange format.
@@ -102,7 +90,8 @@ class UUIDNodeGenerator(val baseURI: String) : NodeGenerator {
 
 class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNodeGenerator(),
                               val eventNodeGenerator: NodeGenerator = BlankNodeGenerator(),
-                              val assertionNodeGenerator: NodeGenerator = BlankNodeGenerator()) {
+                              val assertionNodeGenerator: NodeGenerator = BlankNodeGenerator(),
+                              val stringNodeGenerator: NodeGenerator = BlankNodeGenerator()) {
     companion object: KLogging()
 
     /**
@@ -141,6 +130,7 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
                 val rdfNode = when (node) {
                     is EntityNode -> entityNodeGenerator.nextNode(model)
                     is EventNode -> eventNodeGenerator.nextNode(model)
+                    is StringNode -> stringNodeGenerator.nextNode(model)
                     else -> throw RuntimeException("Cannot make a URI for " + node.toString())
                 }
                 object_to_uri.put(node, rdfNode)
@@ -188,7 +178,7 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
         }
 
         // translate ColdStart entity mentions
-        fun translateEntityMention(cs_assertion: EntityMentionAssertion, confidence: Double?)
+        fun translateMention(cs_assertion: MentionAssertion, confidence: Double?)
                 : Boolean {
             if (confidence == null) logger.warn { "Entity mention lacks confidence $cs_assertion" }
 
@@ -238,7 +228,22 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
             if (confidence != null) {
                 markSingleAssertionConfidence(linkAssertion, confidence)
             }
+            associate_with_system(linkAssertion)
 
+            return true
+        }
+
+        fun translateRelation(csAssertion: RelationAssertion, confidence: Double?) : Boolean {
+            val subjectResouce = toResource(csAssertion.subject)
+            val objectResource = toResource(csAssertion.obj)
+            val relationAssertion = assertionNodeGenerator.nextNode(model)
+            relationAssertion.addProperty(RDF.type, RDF.Statement)
+            relationAssertion.addProperty(RDF.subject, subjectResouce)
+            relationAssertion.addProperty(RDF.`object`, objectResource)
+            if (confidence != null) {
+                markSingleAssertionConfidence(relationAssertion, confidence)
+            }
+            associate_with_system(relationAssertion)
             return true
         }
 
@@ -252,8 +257,9 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
                 val confidence = csKB.assertionsToConfidence[assertion]
                 val translated = when (assertion) {
                     is TypeAssertion -> translateType(assertion, confidence)
-                    is EntityMentionAssertion -> translateEntityMention(assertion, confidence)
+                    is MentionAssertion -> translateMention(assertion, confidence)
                     is LinkAssertion -> translateLink(assertion, confidence)
+                    is RelationAssertion -> translateRelation(assertion, confidence)
                     else -> false
                 }
 
