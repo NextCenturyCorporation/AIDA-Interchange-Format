@@ -4,9 +4,11 @@ import com.google.common.collect.ImmutableMultiset
 import mu.KLogging
 import org.apache.jena.rdf.model.*
 import org.apache.jena.sparql.pfunction.library.str
+import org.apache.jena.tdb.TDBFactory
 import org.apache.jena.vocabulary.RDF
 import org.apache.jena.vocabulary.SKOS
 import org.apache.jena.vocabulary.XSD
+import org.slf4j.LoggerFactory
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Paths
 import java.util.*
@@ -417,10 +419,13 @@ fun main(args: Array<String>) {
 
     val tempDir = createTempDir()
 
+    val logger = LoggerFactory.getLogger("main")
+    logger.info("Using temporary directory $tempDir")
+
     try {
-        /*val dataset = TDBFactory.createDataset(tempDir.absolutePath)
-        val model = dataset.defaultModel*/
-        val model = DummyModel()
+        val dataset = TDBFactory.createDataset(tempDir.absolutePath)
+        val model = dataset.defaultModel
+//        val model = DummyModel()
 
         converter.coldstartToGaia("http://www.rpi.edu/coldstart", coldstartKB, model)
 
