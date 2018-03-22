@@ -17,6 +17,7 @@ from rdflib.namespace import SKOS
 from rdflib.term import Identifier
 
 from flexnlp.parameters import YAMLParametersLoader, Parameters
+from flexnlp.utils import logging_utils
 from flexnlp.utils.attrutils import attrib_instance_of
 from flexnlp.utils.io_utils import CharSource
 from flexnlp.utils.preconditions import check_arg, check_not_none, check_isinstance
@@ -58,11 +59,28 @@ class BlankNodeGenerator(NodeGenerator):
 class UUIDNodeGenerator(NodeGenerator):
     """
     A node generation strategy which uses UUIDs appended to a base URI.
+
+    We don't use this currently because UUID generation is very slow in Python.
     """
     base_uri: str = attrib_instance_of(str)
 
     def next_node(self) -> Union[URIRef, BNode]:
         return URIRef(self.base_uri + '/' + str(uuid4()))
+
+
+class SequentialIDNodeGenerator(NodeGenerator):
+    """
+    A node generation strategy which uses sequential indices appended to a base URI.
+    """
+
+    def __init__(self, base_uri: str) -> None:
+        self.next_id = 0
+        self.base_uri = base_uri
+
+    def next_node(self) -> Union[URIRef, BNode]:
+        ret = URIRef(self.base_uri + '/' + str(self.next_id))
+        self.next_id += 1
+        return ret
 
 
 @attrs(frozen=True)
@@ -88,9 +106,9 @@ class ColdStartToGaiaConverter:
         if 'base_uri' in params:
             base_uri = params.string('base_uri')
             return ColdStartToGaiaConverter(
-                entity_node_generator=UUIDNodeGenerator(base_uri + "/entities"),
-                event_node_generator=UUIDNodeGenerator(base_uri + "/events"),
-                assertion_node_generator=UUIDNodeGenerator(base_uri + "/assertions"))
+                entity_node_generator=SequentialIDNodeGenerator(base_uri + "/entities"),
+                event_node_generator=SequentialIDNodeGenerator(base_uri + "/events"),
+                assertion_node_generator=SequentialIDNodeGenerator(base_uri + "/assertions"))
         else:
             return ColdStartToGaiaConverter()
 
@@ -244,6 +262,7 @@ def main(params: Parameters) -> None:
     """
     A single YAML parameter file is expected as input.
     """
+    logging_utils.configure_logging_from(params)
     # Coldstart KB is assumed to be gzip compressed
     coldstart_kb_file = params.existing_file('input_coldstart_gz_file')
     output_interchange_file = params.creatable_file('output_interchange_file')
