@@ -3,15 +3,18 @@ package edu.isi.gaia
 import com.google.common.collect.ImmutableMultiset
 import mu.KLogging
 import org.apache.jena.rdf.model.*
-import org.apache.jena.sparql.pfunction.library.str
+import org.apache.jena.riot.RDFDataMgr
+import org.apache.jena.riot.RDFFormat
 import org.apache.jena.tdb.TDBFactory
 import org.apache.jena.vocabulary.RDF
 import org.apache.jena.vocabulary.SKOS
 import org.apache.jena.vocabulary.XSD
 import org.slf4j.LoggerFactory
 import java.nio.charset.StandardCharsets.UTF_8
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
+import kotlin.coroutines.experimental.EmptyCoroutineContext.plus
 
 /*
 Converts ColdStart++ knowledge bases to the GAIA interchange format.
@@ -222,10 +225,6 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
 
         // translate ColdStart type assertions
         fun translateType(cs_assertion: TypeAssertion, confidence: Double?): Boolean {
-            require(confidence == null) {
-                "Type assertions should not have confidences in " +
-                        "ColdStart"
-            }
             val rdfAssertion = assertionNodeGenerator.nextNode(model)
             val entity = toResource(cs_assertion.subject)
             val ontology_type = toOntologyType(cs_assertion.type)
@@ -233,7 +232,7 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
             rdfAssertion.addProperty(RDF.subject, entity)
             rdfAssertion.addProperty(RDF.predicate, RDF.type)
             rdfAssertion.addProperty(RDF.`object`, ontology_type)
-            associate_with_system(rdfAssertion)
+            markWithConfidenceAndSystem(rdfAssertion, confidence)
             return true
         }
 
@@ -253,8 +252,6 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
         // translate ColdStart entity mentions
         fun translateMention(cs_assertion: MentionAssertion, confidence: Double?)
                 : Boolean {
-            if (confidence == null) logger.warn { "Entity mention lacks confidence $cs_assertion" }
-
             val entityResource = toResource(cs_assertion.subject)
             associate_with_system(entityResource)
             // if this is a canonical mention, then we need to make a skos:preferredLabel triple
@@ -290,7 +287,7 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
                 associate_with_system(justification_node)
                 justification_node.addProperty(RDF.type, AidaSyntaxOntology.TEXT_PROVENANCE)
                 justification_node.addProperty(AidaSyntaxOntology.SOURCE,
-                        model.createTypedLiteral(provenance.doc_id))
+                        model.createTypedLiteral(provenance.docID))
                 justification_node.addProperty(AidaSyntaxOntology.START_OFFSET,
                         model.createTypedLiteral(justification.start))
                 justification_node.addProperty(AidaSyntaxOntology.END_OFFSET_INCLUSIVE,
@@ -384,7 +381,7 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
                     untranslatableAssertionsB.add(assertion.javaClass)
                 }
 
-                if (assertionNum % progressInterval == 0) {
+                if (assertionNum > 0 && assertionNum % progressInterval == 0) {
                     logger.info { "Processed $assertionNum / $numAssertions assertions" }
                 }
             }
@@ -408,30 +405,76 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
 
 fun main(args: Array<String>) {
     val inputKBFile = Paths.get(args[0])
-    val outputRDFFile = Paths.get(args[1])
+    val outputRDFPath = Paths.get(args[1])
+    val mode = args[2]
     val baseUri = "http://www.isi.edu"
 
-    val coldstartKB = ColdStartKBLoader().load(inputKBFile)
+    // we can run in two modes
+    // in one mode, we output one big RDF file for the whole KB. If we do that, we need to
+    // use an uglier output format (Blocked Turtle) or serializing the output takes forever
+    // (see  https://jena.apache.org/documentation/io/rdf-output.html )
+    // if working file by file, we write a separate RDF file for each source document in the CS KB
+    // and can afford to use pretty-printed Turtle on the output
+    val outputFormat: RDFFormat
+    val shatterByDocument: Boolean
+
+    when (mode) {
+        "full" -> {
+            outputFormat = RDFFormat.TURTLE_BLOCKS
+            shatterByDocument = false
+        }
+        "shatter" -> {
+            outputFormat = RDFFormat.TURTLE_PRETTY
+            shatterByDocument = true
+        }
+        else -> throw RuntimeException("Invalid mode $mode")
+    }
+
+    val logger = LoggerFactory.getLogger("main")
+
+    val coldstartKB = ColdStartKBLoader(shatterByDocument = shatterByDocument).load(inputKBFile)
     val converter = ColdStart2GaiaConverter(
             entityNodeGenerator = UUIDNodeGenerator(baseUri + "/entities"),
             eventNodeGenerator = UUIDNodeGenerator(baseUri + "/events"),
             assertionNodeGenerator = UUIDNodeGenerator(baseUri + "/assertions"))
 
-    val tempDir = createTempDir()
+    // conversion logic shared between the two modes
+    fun convertKB(kb: ColdStartKB, model: Model, outPath: Path) {
+        converter.coldstartToGaia("http://www.rpi.edu/coldstart", kb, model)
+        outPath.toFile().bufferedWriter(UTF_8).use {
+            // deprecation is OK because Guava guarantees the writer handles the charset properly
+            @Suppress("DEPRECATION")
+            RDFDataMgr.write(it, model, outputFormat)
+        }
+    }
 
-    val logger = LoggerFactory.getLogger("main")
-    logger.info("Using temporary directory $tempDir")
 
-    try {
-        val dataset = TDBFactory.createDataset(tempDir.absolutePath)
-        val model = dataset.defaultModel
-//        val model = DummyModel()
-
-        converter.coldstartToGaia("http://www.rpi.edu/coldstart", coldstartKB, model)
-
-        outputRDFFile.toFile().bufferedWriter(UTF_8).use { model.write(it, "TURTLE") }
-    } finally {
-        tempDir.deleteRecursively()
+    when (mode) {
+        "full" -> {
+            val tempDir = createTempDir()
+            try {
+                logger.info("Using temporary directory $tempDir")
+                val dataset = TDBFactory.createDataset(tempDir.absolutePath)
+                val model = dataset.defaultModel
+                convertKB(coldstartKB, model, outputRDFPath)
+            } finally {
+                tempDir.deleteRecursively()
+            }
+        }
+        "shatter" -> {
+            outputRDFPath.toFile().mkdirs()
+            var docsProcessed = 0
+            val kbsByDocument = coldstartKB.shatterByDocument()
+            for ((docId, perDocKB) in kbsByDocument) {
+                docsProcessed += 1
+                convertKB(perDocKB, ModelFactory.createDefaultModel(),
+                        outputRDFPath.resolve("$docId.turtle"))
+                if (docsProcessed % 1000 == 0) {
+                    logger.info("Translated $docsProcessed / ${kbsByDocument.size}")
+                }
+            }
+        }
+        else -> throw RuntimeException("Can't happen")
     }
 }
 
