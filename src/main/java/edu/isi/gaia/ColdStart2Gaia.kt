@@ -14,7 +14,6 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
-import kotlin.coroutines.experimental.EmptyCoroutineContext.plus
 
 /*
 Converts ColdStart++ knowledge bases to the GAIA interchange format.
@@ -250,17 +249,22 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
         }
 
         // translate ColdStart entity mentions
-        fun translateMention(cs_assertion: MentionAssertion, confidence: Double?)
-                : Boolean {
+        fun translateMention(cs_assertion: MentionAssertion, confidence: Double?,
+                             objectToCanonicalMentions: Map<Node, Provenance>): Boolean {
             val entityResource = toResource(cs_assertion.subject)
-            associate_with_system(entityResource)
             // if this is a canonical mention, then we need to make a skos:preferredLabel triple
             if (cs_assertion.mention_type == CANONICAL_MENTION) {
                 // TODO: because skos:preferredLabel isn't reified we can't attach info
                 // on the generating system
                 entityResource.addProperty(SKOS.prefLabel,
                         model.createTypedLiteral(cs_assertion.string))
+            } else if (cs_assertion.justifications
+                    == objectToCanonicalMentions.getValue(cs_assertion.subject)) {
+                // this mention assertion just duplicates a canonical mention assertion
+                // so we won't add a duplicate RDF structure for it
+                return false
             }
+            associate_with_system(entityResource)
 
             if (cs_assertion is EventMentionAssertion) {
                 val realisNode = model.createResource()
@@ -364,12 +368,22 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
 
             val progressInterval = 100000
             val numAssertions = csKB.allAssertions.size
+            // when an item has a canonical mention assertion in the ColdStart database, it will
+            // also have a corresponding regular mention assertion.  We don't want duplicate
+            // RDF structures of these in our output, though, so we track what the canonical
+            // mention is for each object so we can block translation of the duplicate mention
+            // assertion in `translateMention`
+            val objectToCanonicalMentons = csKB.allAssertions.filterIsInstance<MentionAssertion>()
+                    .filter { it.mention_type == CANONICAL_MENTION }
+                    .map { it.subject to it.justifications }.toMap()
+
             for ((assertionNum, assertion) in csKB.allAssertions.withIndex()) {
                 // note not all ColdStart assertions have confidences
                 val confidence = csKB.assertionsToConfidence[assertion]
                 val translated = when (assertion) {
                     is TypeAssertion -> translateType(assertion, confidence)
-                    is MentionAssertion -> translateMention(assertion, confidence)
+                    is MentionAssertion -> translateMention(assertion, confidence,
+                            objectToCanonicalMentons)
                     is LinkAssertion -> translateLink(assertion, confidence)
                     is SentimentAssertion -> translateSentiment(assertion, confidence)
                     is RelationAssertion -> translateRelation(assertion, confidence)
