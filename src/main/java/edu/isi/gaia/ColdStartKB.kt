@@ -1,5 +1,6 @@
 package edu.isi.gaia
 
+import com.google.common.collect.*
 import mu.KLogging
 import java.io.IOException
 import java.nio.file.Path
@@ -22,25 +23,30 @@ data class Span (val start: Int, val end_inclusive: Int) {
     }
 }
 
-data class Provenance(val doc_id: String, val predicate_justifications: Set<Span>,
-                 val filler_string: Span? = null, val base_filler: Span? = null,
-                 val additional_justifications: Set<Span> = setOf())
+data class Provenance(val docID: String, val predicate_justifications: Set<Span>,
+                      val filler_string: Span? = null, val base_filler: Span? = null,
+                      val additional_justifications: Set<Span> = setOf())
 
 
 interface Assertion {
     val subject: Node
+    fun nodes() : Set<Node>
 }
 
 data class TypeAssertion(override val subject: Node, val type: String) : Assertion {
     init {
         require(type.isNotEmpty()) {"Type cannot be empty" }
     }
+
+    override fun nodes() = setOf(subject)
 }
 
 data class LinkAssertion(override val subject: Node, val global_id: String) : Assertion {
     init {
         require(global_id.isNotEmpty()) {"Global ID can't be empty"}
     }
+
+    override fun nodes() = setOf(subject)
 }
 
 val MENTION_TYPES = setOf("mention", "pronominal_mention", "nominal_mention",
@@ -59,32 +65,48 @@ enum class Realis {
     actual, generic, other
 }
 
-interface MentionAssertion : Assertion {
+interface JustifiedAssertion : Assertion {
+    val justifications: Provenance
+}
+
+interface MentionAssertion : JustifiedAssertion {
     val mention_type: MentionType
     val string: String
-    val justifications: Provenance
 }
 
 data class EntityMentionAssertion(override val subject: EntityNode, override val mention_type: MentionType,
                              override val string : String, override val justifications: Provenance)
-    : MentionAssertion
+    : MentionAssertion {
+    override fun nodes() = setOf(subject)
+}
 
 data class StringMentionAssertion(override val subject: StringNode,
                                   override val mention_type: MentionType,
                              override val string : String, override val justifications: Provenance)
-    : MentionAssertion
+    : MentionAssertion {
+    override fun nodes() = setOf(subject)
+}
 
 data class EventMentionAssertion(override val subject: EventNode, override val mention_type: MentionType,
                             val realis: Realis, override val string : String,
-                            override val justifications: Provenance) : MentionAssertion
+                            override val justifications: Provenance) : MentionAssertion {
+    override fun nodes() = setOf(subject)
+}
 
 data class RelationAssertion(override val subject: Node, val relationType: String,
                         val obj: Node, val justifications: Provenance)
-    : Assertion
+    : Assertion {
+    override fun nodes() = setOf(subject, obj)
+}
 
 data class SentimentAssertion(override val subject: Node, val sentiment: String,
                              val obj: Node, val justifications: Provenance)
-    : Assertion
+    : Assertion {
+    init {
+        require(sentiment.isNotEmpty()) { "Empty sentiment not allowed" }
+    }
+    override fun nodes() = setOf(subject, obj)
+}
 
 data class EventArgumentAssertion(override val subject: Node, val argument_role: String,
                              val realis: Realis, val argument: Node,
@@ -92,6 +114,7 @@ data class EventArgumentAssertion(override val subject: Node, val argument_role:
     init {
         require(argument_role.isNotEmpty()) { "Empty argument role not allowed" }
     }
+    override fun nodes() = setOf(subject, argument)
 }
 
 data class ColdStartKB(val assertionsToConfidence: Map<Assertion, Double>,
@@ -99,16 +122,55 @@ data class ColdStartKB(val assertionsToConfidence: Map<Assertion, Double>,
     val allAssertions: Set<Assertion> by lazy {
         return@lazy assertionsToConfidence.keys.union(assertionsWithoutConfidences)
     }
+
+    fun shatterByDocument(): Map<String, ColdStartKB> {
+        val nodesToDoc = mutableMapOf<Node, String>()
+        for (justifiedAssertion in allAssertions.filterIsInstance<JustifiedAssertion>()) {
+            val docID = justifiedAssertion.justifications.docID
+            for (node in justifiedAssertion.nodes()) {
+                nodesToDoc.put(node, docID)
+            }
+        }
+
+        val docIDToAssertionB = ImmutableSetMultimap.builder<String, Assertion>()
+        for (assertion in allAssertions) {
+            val docIDsForAssertion = assertion.nodes().map { nodesToDoc[it]!! }.toSet()
+            check(docIDsForAssertion.size == 1)
+            docIDToAssertionB.put(docIDsForAssertion.first(), assertion)
+        }
+
+        fun <K,V> Map<K,V>.copyRestrictingKeys(keysToKeep: Iterable<K>) : Map<K,V> {
+            val meep: Iterable<K> = keysToKeep.filter { it in this }
+            return meep.map{it to getValue(it)}.toMap()
+        }
+
+        return ImmutableMap.copyOf(docIDToAssertionB.build().asMap().mapValues(
+                { (_, assertions) ->
+                    ColdStartKB(assertionsToConfidence.copyRestrictingKeys(assertions),
+                            // the order here is important - `assertions` is much smaller
+                            assertions.intersect(assertionsWithoutConfidences))
+                }))
+    }
 }
 
-class ColdStartKBLoader {
+
+typealias MaybeScoredAssertion = Pair<Assertion, Double?>
+
+class ColdStartKBLoader(val shatterByDocument: Boolean = false) {
+    /**
+     * Loads a TAC KBP 2017 ColdStart++ knowledge-base into a [ColdStartKB]
+     *
+     * If [shatterByDocument] is `true` (default: `false`), this will break all cross-document
+     * coreference links by appending document IDs to entity/event IDs.  This is useful when
+     * using this KB as input to cross-document linking experiments.
+     */
     companion object: KLogging()
 
     fun load(source: Path) : ColdStartKB {
         return Loading().load(source)
     }
 
-    private class Loading {
+    private inner class Loading {
         val _SBJ_NODE_ID = 0
         val _ASSERTION_TYPE = 1
         val _TYPE_STRING = 2
@@ -123,6 +185,12 @@ class ColdStartKBLoader {
         val _ASSERTION_PAT = Regex("""^(?:per|org|gpe|loc|fac)?:?(.+?)\.?(other|generic|actual)?$""")
 
         val idToNode: MutableMap<String, Node> = HashMap()
+        // if `shatterByDocument` is false, this will match `idToNode` exactly
+        // otherwise, it will account for each original ColdStart ID now corresponding to many
+        // per-document entity nodes
+        val rawCSIdToNodesB = ImmutableSetMultimap.builder<String, Node>()!!
+        // this won't be available until the second pass of document processing (see `load`)
+        var rawCSIdToNodes: ImmutableSetMultimap<String, Node>? = null
 
         fun load(source: Path): ColdStartKB {
             val assertionToConfidence = mutableListOf<Pair<Assertion, Double>>()
@@ -130,74 +198,104 @@ class ColdStartKBLoader {
 
             val progress_interval = 100000
 
-            var line_num = 0
-            source.toFile().forEachLine(charset = Charsets.UTF_8) {
-                line_num += 1
-                val line = it.trim()
-                // skip first line which contains a KB label
-                if (line_num > 1 && line.isNotEmpty()) {
-                    // skip blank lines
-                    try {
-                        val (assertion, confidence) = parseLine(line) ?: return@forEachLine
-                        if (confidence != null) {
-                            assertionToConfidence.add(assertion to confidence)
-                        } else {
-                            assertionsWithoutConfidence.add(assertion)
+            // we need to process the file twice (see below), so we factor out common parsing logic
+            fun parseColdStartFile(msg: String, lineProcessor: (List<String>) -> Collection<MaybeScoredAssertion>) {
+                var line_num = 0
+                source.toFile().forEachLine(charset = Charsets.UTF_8) {
+                    line_num += 1
+                    val line = it.trim()
+                    // skip first line which contains a KB label
+                    if (line_num > 1 && line.isNotEmpty()) {
+                        // skip blank lines
+                        try {
+                            val fields = it.split('\t')
+                            for ((assertion, confidence) in lineProcessor(fields)) {
+                                if (confidence != null) {
+                                    assertionToConfidence.add(assertion to confidence)
+                                } else {
+                                    assertionsWithoutConfidence.add(assertion)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            throw IOException("Failure when parsing line $line_num of $source:\n$line",
+                                    e)
                         }
-                    } catch (e: Exception) {
-                        throw IOException("Failure when parsing line $line_num of $source:\n$line",
-                                e)
+                    }
+
+                    if (line_num % progress_interval == 0) {
+                        logger.info { "During pass $msg, processed $line_num lines" }
                     }
                 }
-
-                if (line_num % progress_interval == 0) {
-                    logger.info { "Processed $line_num lines" }
-                }
             }
+
+            // we need to parse the file twice to support shatterByDocument
+            // the reason is that `type` and `link` ColdStart entries don't have any document ID
+            // locally available, so when `shatterByDocument` is enabled and we are breaking up
+            // entities, etc., we don't know what to apply the types and link assertions to.
+            // So on the first pass we determine our set of entity, event, etc. nodes...
+            parseColdStartFile("mentions", {
+                val assertionType = extractAssertionType(it)
+                return@parseColdStartFile when {
+                    assertionType == "type" || assertionType=="link" -> listOf()
+                    MENTION_TYPES.contains(assertionType) -> parseMention(it)
+                    else -> parsePredicate(it)
+                }
+            })
+
+            rawCSIdToNodes = rawCSIdToNodesB.build()
+
+            // and on the second pass we associated types with them. This is trivial if
+            // `shatterByDocument` is not on, but if it is, for each entity, etc. appearing in the
+            // ColdStart KB, we need to add a copy of the type and link assertion for each
+            // entity (etc.) we shattered it into.
+            parseColdStartFile("types/links", {
+                val assertionType = extractAssertionType(it)
+                return@parseColdStartFile when (assertionType) {
+                    "type" -> parseTypeAssertion(it)
+                    "link" -> parseLinkAssertion(it)
+                    else -> listOf()
+                }
+            })
+
             return ColdStartKB(assertionToConfidence.toMap(),
                     assertionsWithoutConfidence.toSet())
         }
 
-        private fun parseLine(line: String): Pair<Assertion, Double?>? {
-            val fields = line.split('\t')
+        private fun extractAssertionType(fields: List<String>) : String {
             val assertionTypeField = fields[_ASSERTION_TYPE]
             val match = _ASSERTION_PAT.matchEntire(assertionTypeField)
-            val assertionType = match?.groups?.get(1)?.value ?:
-                    throw RuntimeException("Unknown assertion type $assertionTypeField")
-
-            return when (assertionType) {
-                "type" -> parseTypeAssertion(fields)
-                "link" -> parseLinkAssertion(fields)
-                else -> if (MENTION_TYPES.contains(assertionType)) {
-                    parseMention(fields)
-                } else {
-                    parsePredicate(fields)
-                }
-            }
+            return match?.groups?.get(1)?.value
+                    ?: throw RuntimeException("Unknown assertion type $assertionTypeField")
         }
 
-        private fun parseTypeAssertion(fields: List<String>): Pair<Assertion, Double?> {
+
+        private fun parseTypeAssertion(fields: List<String>): Collection<MaybeScoredAssertion> {
             // we allow two possible values here because RPI's ColdStart output sometimes has
             // a 1.0 confidence here and some times omits it
             require((fields.size == (_TYPE_STRING + 1))
                     or (fields.size == (_TYPE_STRING + 2)))
             { "Wrong number of fields in type assertion" }
 
-            return Pair(TypeAssertion(toNode(fields[_SBJ_NODE_ID]),
-                    fields[_TYPE_STRING]), null)
-
+            val rawCSSubjectID = fields[_SBJ_NODE_ID]
+            checkNotNull(rawCSIdToNodes)
+            val subjectNodes = rawCSIdToNodes!!.get(rawCSSubjectID)
+            check(subjectNodes.isNotEmpty())
+            return subjectNodes.map { MaybeScoredAssertion(TypeAssertion(it, fields[_TYPE_STRING]), null) }
         }
 
-        private fun parseLinkAssertion(fields: List<String>): Pair<Assertion, Double?> {
+        private fun parseLinkAssertion(fields: List<String>): Collection<MaybeScoredAssertion> {
             require(fields.size == _LINK_STRING + 1)
             { "Wrong number of fields in link assertion" }
 
-            return Pair(LinkAssertion(toNode(fields[_SBJ_NODE_ID]),
-                    fields[_LINK_STRING]), 1.0)
+            val rawCSSubjectID = fields[_SBJ_NODE_ID]
+            checkNotNull(rawCSIdToNodes)
+            val subjectNodes = rawCSIdToNodes!!.get(rawCSSubjectID)
+            check(subjectNodes.isNotEmpty())
 
+            return subjectNodes.map { MaybeScoredAssertion(LinkAssertion(it, fields[_LINK_STRING]), 1.0) }
         }
 
-        private fun parseMention(fields: List<String>): Pair<Assertion, Double?>?  {
+        private fun parseMention(fields: List<String>): Collection<MaybeScoredAssertion>  {
             require(fields.size in 4..5) { "Unknown assertion format" }
 
             val match = _ASSERTION_PAT.matchEntire(fields[_ASSERTION_TYPE])
@@ -207,42 +305,43 @@ class ColdStartKBLoader {
             // strip surrounding "s if present
             val mention_string = fields[_OBJ_STRING].trim('"')
 
-            val subjectNode = toNode(fields[_SBJ_NODE_ID])
+            val provenance = toJustificationSpan(fields[_JST_STRING])
+
+            val subjectNode = toNode(fields[_SBJ_NODE_ID], provenance.docID)
 
             val confidence = if (_CONF_FLOAT < fields.size) fields[_CONF_FLOAT].toDouble() else null
 
-            if (subjectNode is EventNode) {
-                if (realis.isEmpty()) throw IOException("Invalid empty realis on event argument")
-                return Pair(
-                        EventMentionAssertion(subjectNode,
-                                MentionType(mention_type),
-                                Realis.valueOf(realis),
-                                mention_string,
-                                toJustificationSpan(fields[_JST_STRING])),
-                        confidence)
-            } else if (subjectNode is EntityNode) {
-                return Pair(
+            return listOf(when (subjectNode) {
+                is EventNode -> {
+                    if (realis.isEmpty()) throw IOException("Invalid empty realis on event argument")
+                    MaybeScoredAssertion(
+                            EventMentionAssertion(subjectNode,
+                                    MentionType(mention_type),
+                                    Realis.valueOf(realis),
+                                    mention_string,
+                                    provenance),
+                            confidence)
+                }
+                is EntityNode -> MaybeScoredAssertion(
                         EntityMentionAssertion(subjectNode,
                                 MentionType(mention_type),
                                 mention_string,
-                                toJustificationSpan(fields[_JST_STRING])),
+                                provenance),
                         confidence)
-            } else if (subjectNode is StringNode) {
-                return Pair(
+                is StringNode -> MaybeScoredAssertion(
                         StringMentionAssertion(subjectNode,
                                 MentionType(mention_type),
                                 mention_string,
-                                toJustificationSpan(fields[_JST_STRING])),
+                                provenance),
                         confidence)
-            } else {
-                throw IOException("Unknown node type " + fields[_SBJ_NODE_ID])
-            }
+                else -> throw IOException("Unknown node type " + fields[_SBJ_NODE_ID])
+            })
         }
 
         val SENTIMENT_RELATIONS = setOf("likes", "dislikes")
         val INVERSE_SENTIMENT_RELATIONS = setOf("is_disliked_by", "is_liked_by")
 
-        private fun parsePredicate(fields: List<String>): Pair<Assertion, Double?>? {
+        private fun parsePredicate(fields: List<String>): Collection<MaybeScoredAssertion> {
             require(fields.size == 5) {
                 "Wrong number of fields in predicate " +
                         "declaration"
@@ -254,45 +353,46 @@ class ColdStartKBLoader {
             if (relation_type in INVERSE_SENTIMENT_RELATIONS) {
                 // both relations and their inverses are present; we only want to process one
                 // direction
-                return null;
+                return listOf()
             }
 
-            val subjectNode = toNode(fields[_SBJ_NODE_ID])
-            val objectNode = toNode(fields[_OBJ_NODE_ID])
+            val provenance = toJustificationSpan(fields[_JST_STRING])
+            val subjectNode = toNode(fields[_SBJ_NODE_ID], provenance.docID)
+            val objectNode = toNode(fields[_OBJ_NODE_ID], provenance.docID)
 
             if (objectNode is EventNode) {
                 // event arguments are encoded with predicates running in both directions,
                 // but we only keep one of the,
-                return null
+                return listOf()
             }
 
-            return when {
-                relation_type in SENTIMENT_RELATIONS -> Pair(SentimentAssertion(
+            return listOf(when {
+                relation_type in SENTIMENT_RELATIONS -> MaybeScoredAssertion(SentimentAssertion(
                         subjectNode,
                         relation_type,
                         objectNode,
-                        toJustificationSpan(fields[_JST_STRING])),
+                        provenance),
                         fields[_CONF_FLOAT].toDouble())
 
                 subjectNode is EventNode -> {
                     if (realis.isEmpty()) throw IOException("Invalid empty realis on event argument")
-                    return Pair(EventArgumentAssertion(
+                    MaybeScoredAssertion(EventArgumentAssertion(
                             subjectNode,
                             relation_type,
                             Realis.valueOf(realis),
                             objectNode,
-                            toJustificationSpan(fields[_JST_STRING])),
+                            provenance),
                             fields[_CONF_FLOAT].toDouble())
                 }
 
-                else -> Pair(
+                else -> MaybeScoredAssertion(
                         RelationAssertion(
                                 subjectNode,
                                 relation_type,
                                 objectNode,
-                                toJustificationSpan(fields[_JST_STRING])),
+                                provenance),
                         fields[_CONF_FLOAT].toDouble())
-            }
+            })
         }
 
         private fun toJustificationSpan(provenanceString: String) : Provenance {
@@ -333,7 +433,7 @@ class ColdStartKBLoader {
                         throw IOException("Doc IDs must be the same for all spans:" +
                                 " $provenanceString")
                     } else {
-                        return Provenance(doc_id=pred_doc_id,
+                        return Provenance(docID =pred_doc_id,
                                 predicate_justifications=setOf(pred_span),
                                 filler_string=fill_span)
                     }
@@ -349,7 +449,7 @@ class ColdStartKBLoader {
                         throw RuntimeException ("Doc IDs must be the same for all spans: " +
                                 provenanceString)
                     }
-                    return Provenance(doc_id=pred_doc_id,
+                    return Provenance(docID =pred_doc_id,
                             predicate_justifications= pred_span.toSet(),
                             base_filler=base_span,
                             additional_justifications=addi_span.toSet())
@@ -366,7 +466,7 @@ class ColdStartKBLoader {
                         throw IOException("Doc IDs must be the same for all spans: "
                                 + provenanceString)
                     } else {
-                        return Provenance(doc_id = pred_doc_id,
+                        return Provenance(docID = pred_doc_id,
                                 predicate_justifications = pred_span.toSet(),
                                 base_filler = base_span,
                                 additional_justifications = addi_span.toSet(),
@@ -377,23 +477,31 @@ class ColdStartKBLoader {
             }
         }
 
-        private fun toNode(nodeName: String) : Node {
+        private fun toNode(nodeName: String, documentID: String) : Node {
             // as you see each reference to an entity or event with an unknown ID, create a node
             // of the appropriate type and remember it for when we see this ID in the future
 
-            val known = idToNode[nodeName]
+            val trueNodeName = if (shatterByDocument) "$nodeName-$documentID" else nodeName
+
+            val known = idToNode[trueNodeName]
             if (known != null) {
                 return known
             }
 
             val created = when {
-                nodeName.startsWith(":Entity") -> EntityNode()
-                nodeName.startsWith(":Event") -> EventNode()
-                nodeName.startsWith(":String") -> StringNode()
+                trueNodeName.startsWith(":Entity") -> EntityNode()
+                trueNodeName.startsWith(":Event") -> EventNode()
+                trueNodeName.startsWith(":String") -> StringNode()
                 else -> throw IOException("Unknown node type for node name $nodeName")
             }
 
-            idToNode.put(nodeName, created)
+            idToNode.put(trueNodeName, created)
+            if (shatterByDocument) {
+                // if we are shattering by document, we need to keep track of all nodes originating
+                // from the same original ColdStart ID (without the doc ID prefix) so we can
+                // copy type and linking assertions to each of them
+                rawCSIdToNodesB.put(nodeName, created)
+            }
             return created
         }
     }
