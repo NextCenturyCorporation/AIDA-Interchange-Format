@@ -61,6 +61,8 @@ object AidaProgramOntology {
     val FACILITY = ResourceFactory.createResource(_namespace + "Facility")!!
     val STRING = ResourceFactory.createResource(_namespace + "String")
 
+    val ENTITY_TYPES = setOf(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY)
+
     val EVENT_AND_RELATION_TYPES = listOf("CONFLICT.ATTACK", "CONFLICT.DEMONSTRATE",
             "CONTACT.BROADCAST", "CONTACT.CONTACT", "CONTACT.CORRESPONDENCE", "CONTACT.MEET",
             "JUSTICE.ARREST-JAIL",
