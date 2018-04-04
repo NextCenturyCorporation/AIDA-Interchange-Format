@@ -176,10 +176,21 @@ class ColdStartToGaiaConverter:
         # TODO: This is temporarily hardcoded but will eventually need to be configurable
         # @xujun: you will need to extend this hardcoding
         def to_ontology_type(ontology_type: str) -> URIRef:
+#            if ":" in ontology_type:
+#                return AIDA_PROGRAM_ONTOLOGY.
+
             if ontology_type == "PER":
                 return AIDA_PROGRAM_ONTOLOGY.Person
             elif ontology_type == "ORG":
                 return AIDA_PROGRAM_ONTOLOGY.Organization
+            elif ontology_type == "GPE":
+                return AIDA_PROGRAM_ONTOLOGY.Geopolitical
+            elif ontology_type == "LOC":
+                return AIDA_PROGRAM_ONTOLOGY.Location
+            elif ontology_type == "FAC":
+                return AIDA_PROGRAM_ONTOLOGY.Facility
+            elif ontology_type == "STRING" or ontology_type == "String":
+                return AIDA_PROGRAM_ONTOLOGY.String
             else:
                 raise NotImplementedError("Cannot interpret ontology type " + ontology_type)
 
@@ -215,7 +226,7 @@ class ColdStartToGaiaConverter:
                 sbj_entity = to_identifier(assertion.sbj)
                 obj_entity = to_identifier(assertion.obj)
                 rdf_assertion = self.assertion_node_generator.next_node()
-                g.add((rdf_assertion, RDF.type, AIDA.RelationAssertion))
+                g.add((rdf_assertion, RDF.type, to_ontology_type(cs_assertion.relation)))
                 g.add((rdf_assertion, RDF.subject, sbj_entity))
                 g.add((rdf_assertion, RDF.object, obj_entity))
 
