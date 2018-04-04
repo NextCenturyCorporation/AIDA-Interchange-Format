@@ -22,7 +22,8 @@ from flexnlp.utils.attrutils import attrib_instance_of
 from flexnlp.utils.io_utils import CharSource
 from flexnlp.utils.preconditions import check_arg, check_not_none, check_isinstance
 from flexnlp_sandbox.formats.tac.coldstart import ColdStartKB, ColdStartKBLoader, TypeAssertion, \
-    EntityNode, Node, EventNode, EntityMentionAssertion, CANONICAL_MENTION, LinkAssertion
+    EntityNode, Node, EventNode, EntityMentionAssertion, CANONICAL_MENTION, LinkAssertion, \
+    RelationAssertion, Provenance 
 from gaia_interchange.aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY, AIDA
 
 _log = logging.getLogger(__name__)
@@ -137,7 +138,7 @@ class ColdStartToGaiaConverter:
         # converts a ColdStart object to an RDF identifier (node in the RDF graph)
         # if this ColdStart node has been previously converted, we return the same RDF identifier
         def to_identifier(node: Node) -> Identifier:
-            check_arg(isinstance(node, EntityNode))
+            check_arg(isinstance(node, EntityNode) or isinstance(node, EventNode))
             if node not in object_to_uri:
                 if isinstance(node, EntityNode):
                     uri = self.entity_node_generator.next_node()
@@ -147,6 +148,29 @@ class ColdStartToGaiaConverter:
                     raise NotImplementedError("Cannot make a URI for {!s}".format(node))
                 object_to_uri[node] = uri
             return object_to_uri[node]
+
+        # convert a ColdStart justification to a RDF identifier
+        def register_justifications(g: Graph,
+                                    entity: Union[BNode, URIRef], 
+                                    provenance: Provenance,
+                                    string: Optional[str]=None,
+                                    confidence: Optional[float]=None) -> None:
+            for justification in provenance.predicate_justifications:
+                justification_node = BNode()
+                if confidence:
+                    mark_single_assertion_confidence(justification_node, confidence)
+                associate_with_system(justification_node)
+
+                g.add((justification_node, RDF.type, AIDA.TextProvenance))
+                g.add((justification_node, AIDA.source, Literal(provenance.doc_id)))
+                g.add((justification_node, AIDA.startOffset, Literal(justification.start)))
+                # +1 because Span end is exclusive but interchange format is inclusive
+                g.add((justification_node, AIDA.endOffsetInclusive, Literal(justification.end + 1)))
+                g.add((entity, AIDA.justifiedBy, justification_node))
+
+                # put mention string as the prefLabel of the justification
+                if string:
+                    g.add((justification_node, SKOS.prefLabel, Literal(string)))
 
         # converts a ColdStart ontology type to a corresponding RDF identifier
         # TODO: This is temporarily hardcoded but will eventually need to be configurable
@@ -182,6 +206,28 @@ class ColdStartToGaiaConverter:
                 # TODO: handle events, etc.
                 return False
 
+        # translate ColdStart relations:
+        def translate_relation(g: Graph, cs_assertion: RelationAssertion,
+                               confidence: Optional[float]) -> bool:
+            check_not_none(confidence, "Relations must have confidences")
+
+            if isinstance(assertion.sbj, EntityNode):
+                sbj_entity = to_identifier(assertion.sbj)
+                obj_entity = to_identifier(assertion.obj)
+                rdf_assertion = self.assertion_node_generator.next_node()
+                g.add((rdf_assertion, RDF.type, AIDA.RelationAssertion))
+                g.add((rdf_assertion, RDF.subject, sbj_entity))
+                g.add((rdf_assertion, RDF.object, obj_entity))
+
+                if confidence is not None:
+                    confidence_node = BNode()
+                    g.add((rdf_assertion, AIDA.confidence, confidence_node))
+                    g.add((confidence_node, AIDA.confidenceValue, Literal(confidence)))
+
+                register_justifications(g, rdf_assertion, cs_assertion.justifications)
+
+            return True 
+
         # translate ColdStart entity mentions
         def translate_entity_mention(g: Graph, cs_assertion: EntityMentionAssertion,
                                      confidence: Optional[float]) -> bool:
@@ -193,6 +239,11 @@ class ColdStartToGaiaConverter:
                 # TODO: because skos:preferredLabel isn't reified we can't attach info
                 # on the generating system
                 g.add((entity_uri, SKOS.prefLabel, Literal(cs_assertion.obj)))
+
+            register_justifications(g, entity_uri, cs_assertion.justifications,
+                                    cs_assertion.obj, confidence)
+
+            """
             for justification in cs_assertion.justifications.predicate_justifications:
                 justification_node = BNode()
                 mark_single_assertion_confidence(justification_node, confidence)
@@ -208,6 +259,7 @@ class ColdStartToGaiaConverter:
 
                 # put mention string as the prefLabel of the justification
                 g.add((justification_node, SKOS.prefLabel, Literal(cs_assertion.obj)))
+            """
 
             # TODO: handle translation of value-typed mentions - #7
             return True
@@ -231,7 +283,8 @@ class ColdStartToGaiaConverter:
         # map each ColdStart assertion we know how to translate to its translation function
         assertions_to_translator = {TypeAssertion: translate_type,
                                     EntityMentionAssertion: translate_entity_mention,
-                                    LinkAssertion: translate_link}
+                                    LinkAssertion: translate_link,
+                                    RelationAssertion: translate_relation}
 
         # track which assertions we could not translate for later logging
         untranslatable_assertions: MutableMapping[str, int] = defaultdict(int)
@@ -244,6 +297,7 @@ class ColdStartToGaiaConverter:
             confidence = cs_kb.assertions_to_confidences.get(assertion, None)
             assertion_translator = assertions_to_translator.get(assertion.__class__, None)
             if not (assertion_translator and assertion_translator(g, assertion, confidence)):
+                print(assertion)
                 untranslatable_assertions[str(assertion.__class__)] += 1
 
         if untranslatable_assertions:

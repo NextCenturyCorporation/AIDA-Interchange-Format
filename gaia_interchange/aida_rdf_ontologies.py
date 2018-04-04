@@ -6,10 +6,10 @@ from rdflib.namespace import ClosedNamespace
 # TODO: long-term, we need to make the program ontology configurable
 AIDA_PROGRAM_ONTOLOGY = ClosedNamespace(
     uri=URIRef("http://www.isi.edu/aida/programOntology#"),
-    terms=["Person", "Organization"])
+    terms=["Person", "Organization", "Location", "Facility", "Geopolitical"])
 AIDA = ClosedNamespace(
     uri=URIRef("http://www.isi.edu/aida/interchangeOntology#"),
     terms=["system", "confidence", "confidenceValue", "justifiedBy",
            "source", "startOffset", "endOffsetInclusive", "link", "linkTarget",
            # classes
-           "TextProvenance", "LinkAssertion"])
+           "TextProvenance", "LinkAssertion", "RelationAssertion"])
