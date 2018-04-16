@@ -22,9 +22,9 @@ from flexnlp.utils.attrutils import attrib_instance_of
 from flexnlp.utils.io_utils import CharSource
 from flexnlp.utils.preconditions import check_arg, check_not_none, check_isinstance
 from flexnlp_sandbox.formats.tac.coldstart import ColdStartKB, ColdStartKBLoader, TypeAssertion, \
-    EntityNode, Node, EventNode, EntityMentionAssertion, CANONICAL_MENTION, LinkAssertion, \
+    Node, EntityNode, EventNode, StringNode, EntityMentionAssertion, CANONICAL_MENTION, LinkAssertion, \
     RelationAssertion, Provenance 
-from gaia_interchange.aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY, AIDA
+from gaia_interchange.aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY, AIDA, AIDA_PROGRAM_ONTOLOGY_LUT
 
 _log = logging.getLogger(__name__)
 
@@ -93,6 +93,8 @@ class ColdStartToGaiaConverter:
                                                               default=BlankNodeGenerator())
     event_node_generator: NodeGenerator = attrib_instance_of(NodeGenerator,
                                                              default=BlankNodeGenerator())
+    string_node_generator: NodeGenerator = attrib_instance_of(NodeGenerator,
+                                                              default=BlankNodeGenerator())
     assertion_node_generator: NodeGenerator = attrib_instance_of(NodeGenerator,
                                                                  default=BlankNodeGenerator())
 
@@ -138,12 +140,16 @@ class ColdStartToGaiaConverter:
         # converts a ColdStart object to an RDF identifier (node in the RDF graph)
         # if this ColdStart node has been previously converted, we return the same RDF identifier
         def to_identifier(node: Node) -> Identifier:
-            check_arg(isinstance(node, EntityNode) or isinstance(node, EventNode))
+            check_arg(isinstance(node, EntityNode) 
+                      or isinstance(node, EventNode) 
+                      or isinstance(node, StringNode))
             if node not in object_to_uri:
                 if isinstance(node, EntityNode):
                     uri = self.entity_node_generator.next_node()
                 elif isinstance(node, EventNode):
                     uri = self.event_node_generator.next_node()
+                elif isinstance(node, StringNode):
+                    uri = self.string_node_generator.next_node()
                 else:
                     raise NotImplementedError("Cannot make a URI for {!s}".format(node))
                 object_to_uri[node] = uri
@@ -176,21 +182,23 @@ class ColdStartToGaiaConverter:
         # TODO: This is temporarily hardcoded but will eventually need to be configurable
         # @xujun: you will need to extend this hardcoding
         def to_ontology_type(ontology_type: str) -> URIRef:
-#            if ":" in ontology_type:
-#                return AIDA_PROGRAM_ONTOLOGY.
+            if ":" in ontology_type:
+                raise NotImplementedError("Not implemented yet")
 
             if ontology_type == "PER":
                 return AIDA_PROGRAM_ONTOLOGY.Person
             elif ontology_type == "ORG":
                 return AIDA_PROGRAM_ONTOLOGY.Organization
-            elif ontology_type == "GPE":
-                return AIDA_PROGRAM_ONTOLOGY.Geopolitical
             elif ontology_type == "LOC":
                 return AIDA_PROGRAM_ONTOLOGY.Location
             elif ontology_type == "FAC":
                 return AIDA_PROGRAM_ONTOLOGY.Facility
+            elif ontology_type == "GPE":
+                return AIDA_PROGRAM_ONTOLOGY.GeopoliticalEntity
             elif ontology_type == "STRING" or ontology_type == "String":
                 return AIDA_PROGRAM_ONTOLOGY.String
+            elif ontology_type in AIDA_PROGRAM_ONTOLOGY_LUT: 
+                return AIDA_PROGRAM_ONTOLOGY_LUT[ontology_type]
             else:
                 raise NotImplementedError("Cannot interpret ontology type " + ontology_type)
 
@@ -254,24 +262,6 @@ class ColdStartToGaiaConverter:
             register_justifications(g, entity_uri, cs_assertion.justifications,
                                     cs_assertion.obj, confidence)
 
-            """
-            for justification in cs_assertion.justifications.predicate_justifications:
-                justification_node = BNode()
-                mark_single_assertion_confidence(justification_node, confidence)
-                associate_with_system(justification_node)
-
-                g.add((justification_node, RDF.type, AIDA.TextProvenance))
-                g.add((justification_node, AIDA.source, Literal(
-                    cs_assertion.justifications.doc_id)))
-                g.add((justification_node, AIDA.startOffset, Literal(justification.start)))
-                # +1 because Span end is exclusive but interchange format is inclusive
-                g.add((justification_node, AIDA.endOffsetInclusive, Literal(justification.end + 1)))
-                g.add((entity_uri, AIDA.justifiedBy, justification_node))
-
-                # put mention string as the prefLabel of the justification
-                g.add((justification_node, SKOS.prefLabel, Literal(cs_assertion.obj)))
-            """
-
             # TODO: handle translation of value-typed mentions - #7
             return True
 
@@ -308,7 +298,6 @@ class ColdStartToGaiaConverter:
             confidence = cs_kb.assertions_to_confidences.get(assertion, None)
             assertion_translator = assertions_to_translator.get(assertion.__class__, None)
             if not (assertion_translator and assertion_translator(g, assertion, confidence)):
-                print(assertion)
                 untranslatable_assertions[str(assertion.__class__)] += 1
 
         if untranslatable_assertions:
