@@ -23,7 +23,7 @@ from flexnlp.utils.io_utils import CharSource
 from flexnlp.utils.preconditions import check_arg, check_not_none, check_isinstance
 from flexnlp_sandbox.formats.tac.coldstart import ColdStartKB, ColdStartKBLoader, TypeAssertion, \
     Node, EntityNode, EventNode, StringNode, EntityMentionAssertion, CANONICAL_MENTION, LinkAssertion, \
-    RelationAssertion, Provenance 
+    EventMentionAssertion, RelationAssertion, Provenance 
 from gaia_interchange.aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY, AIDA, AIDA_PROGRAM_ONTOLOGY_LUT
 
 _log = logging.getLogger(__name__)
@@ -211,7 +211,7 @@ class ColdStartToGaiaConverter:
                 -> bool:
             check_arg(confidence is None, "Type assertions should not have confidences in "
                                           "ColdStart")
-            if isinstance(assertion.sbj, EntityNode):
+            if isinstance(cs_assertion.sbj, EntityNode):
                 rdf_assertion = self.assertion_node_generator.next_node()
                 entity = to_identifier(cs_assertion.sbj)
                 ontology_type = to_ontology_type(cs_assertion.obj)
@@ -230,13 +230,13 @@ class ColdStartToGaiaConverter:
                                confidence: Optional[float]) -> bool:
             check_not_none(confidence, "Relations must have confidences")
 
-            if isinstance(assertion.sbj, EntityNode):
-                sbj_entity = to_identifier(assertion.sbj)
-                obj_entity = to_identifier(assertion.obj)
+            if isinstance(cs_assertion.sbj, EntityNode):
+                sbj = to_identifier(cs_assertion.sbj)
+                obj = to_identifier(cs_assertion.obj)
                 rdf_assertion = self.assertion_node_generator.next_node()
                 g.add((rdf_assertion, RDF.type, to_ontology_type(cs_assertion.relation)))
-                g.add((rdf_assertion, RDF.subject, sbj_entity))
-                g.add((rdf_assertion, RDF.object, obj_entity))
+                g.add((rdf_assertion, RDF.subject, sbj))
+                g.add((rdf_assertion, RDF.object, obj))
 
                 if confidence is not None:
                     confidence_node = BNode()
@@ -246,6 +246,27 @@ class ColdStartToGaiaConverter:
                 register_justifications(g, rdf_assertion, cs_assertion.justifications)
 
             return True 
+
+        def translate_event_argument(g: Graph, cs_assertion: EventMentionAssertion,
+                                     confidence: Optional[float]) -> bool:
+            check_not_none(confidence, "Relations must have confidences")
+
+            if isinstance(cs_assertion.sbj, EventNode):
+                sbj = to_identifier(cs_assertion.sbj)
+                obj = to_identifier(cs_assertion.argument)
+                rdf_assertion = self.assertion_node_generator.next_node()
+                g.add((rdf_assertion, RDF.type, to_ontology_type(cs_assertion.argument_role)))
+                g.add((rdf_assertion, RDF.subject, sbj))
+                g.add((rdf_assertion, RDF.object, obj))
+
+                if confidence is not None:
+                    confidence_node = BNode()
+                    g.add((rdf_assertion, AIDA.confidence, confidence_node))
+                    g.add((confidence_node, AIDA.confidenceValue, Literal(confidence)))
+
+                register_justifications(g, rdf_assertion, cs_assertion.justifications)
+
+            return True
 
         # translate ColdStart entity mentions
         def translate_entity_mention(g: Graph, cs_assertion: EntityMentionAssertion,
