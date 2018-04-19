@@ -1,0 +1,431 @@
+@prefix : <http://aida.org/ontologies/DataExchangeOntology/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+<http://aida.org/ontologies/DataExchangeOntology> rdf:type owl:Ontology ;
+    rdfs:label "Data Exchange Ontology"^^xsd:string ;
+    rdfs:comment "This ontology is designed to represent information exchanged between TA1, TA2 and TA3 in the AIDA program"^^xsd:string ;
+    owl:versionInfo "Version 0.1"^^xsd:string .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+:Thing a owl:Class ;
+    rdfs:label "AIDA thing" ;
+    skos:definition "All constructs that are produced by AIDA systems." ;
+    .
+
+:KnowledgeGraph a owl:Class ;
+    rdfs:subClassOf :Thing ;
+    rdfs:label "Knowledge Graph" ;
+    skos:definition "A knowledge graph groups together a collection of :KGElements and :Annotations on them" ;
+    skos:note "Use dcterms properties such as dcterms:publisher to describe the KG." ;
+    .
+
+########## Data Representation Classes ##########
+
+:KGElement a owl:Class ;
+    rdfs:subClassOf :Thing ;
+    rdfs:label "Knowledge Graph Element" ;
+    skos:definition "An entity, event, or relationship in the knowledge graph" ;
+    .
+
+:KGNode a owl:Class ;
+    rdfs:subClassOf :KGElement ;
+    rdfs:label "Knowledge Graph Node" ;
+    skos:definition "A node in a knowledge graph" ;
+    .
+
+:Entity a owl:Class ;
+    rdfs:subClassOf :KGNode ;
+    rdfs:label "Entity" ;
+    skos:definition "Some entity in the world (e.g. a person, place, organization, etc.)." ;
+    .
+
+:Event a owl:Class ;
+    rdfs:subClassOf :KGNode ;
+    rdfs:label "Event" ;
+    skos:definition "An event in the world" ;
+    .
+
+:Statement a owl:Class ;
+    rdfs:subClassOf rdf:Statement, :KGElement ;
+    rdfs:label "Statement" ;
+    skos:definition "A statement identified by a TA1 component." ;
+    skos:note "Only :KGNodes are valid subjects and objects of statements"
+    .
+
+:Hypothesis a owl:Class ;
+    rdfs:subClassOf :Thing ;
+    rdfs:label "Hypothesis" ;
+    skos:definition "Represents a hypothesis, which consists of a collection of :Statements." ;
+    .
+
+:Vector a owl:Class ;
+    rdfs:subClassOf :Thing ;
+    rdfs:label "Vector" ;
+    skos:definition "A vector representing information about a :Thing." ;
+    .
+
+:FeatureVector a owl:Class ;
+    rdfs:subClassOf :Vector ;
+    rdfs:label "Feature Vector" ;
+    skos:definition "A vector representing discrete features of a :Thing." ;
+    .
+
+:EmbeddingVector a owl:Class ;
+    rdfs:subClassOf :Vector ;
+    rdfs:label "Embedding Vector" ;
+    skos:definition "A vector representing the embedding of an :Thing in a vector space." ;
+    .
+
+:VectorSpace a owl:Class ;
+    rdfs:subClassOf :Thing ;
+    rdfs:label "Vector space" ;
+    skos:definition "Identifies a vector space." ;
+    .
+
+:PrivateData a owl:Class ;
+    rdfs:subClassOf :Thing ;
+    rdfs:label "Private data" ;
+    skos:definition "Holds arbitrary data whose semantics is not specified." ;
+    .
+
+########## Annotation Classes ##########
+
+:Annotation a owl:Class ;
+    rdfs:subClassOf :Thing ;
+    rdfs:label "AIDA annotation" ;
+    skos:definition "Abstract class to represent annotations on :Things." ;
+    .
+
+:SemanticAnnotation a owl:Class ;
+    rdfs:subClassOf :Annotation ;
+    rdfs:label "Semantic Annotation" ;
+    skos:definition "An annotation encoding the primary output of an AIDA algorithm" ;
+    .
+
+:UncertaintyAnnotation a owl:Class ;
+    rdfs:subClassOf :Annotation ;
+    rdfs:label "Uncertainty Annotation" ;
+    skos:definition "An annotation encoding uncertainty about the true knowledge graph" ;
+    .
+
+:MetadataAnnotation a owl:Class ;
+    rdfs:subClassOf :Annotation ;
+    rdfs:label "Metadate Annotation" ;
+    skos:definition "An annotation encoding information about the provenance, justification, etc. of knowledge graph elements and annotations" ;
+    .
+
+:Provenance a owl:Class ;
+    rdfs:subClassOf :MetadataAnnotation ;
+    rdfs:label "AIDA provenance" ;
+    skos:definition "Represents information about where a set of :Things came from." ;
+    .
+
+:Justification a owl:Class ;
+    rdfs:subClassOf :MetadataAnnotation ;
+    rdfs:label "AIDA justification" ;
+    skos:definition "Represents the supporting evidence for something in input documents, images, etc." ;
+    .
+
+:TextJustification a owl:Class ;
+    rdfs:subClassOf :Justification ;
+    rdfs:label "AIDA text justification" ;
+    skos:definition "Represents the supporting evidence in text for something" ;
+    .
+
+:ImageJustification a owl:Class ;
+    rdfs:subClassOf :Justification ;
+    rdfs:label "AIDA image justification" ;
+    skos:definition "Represents the supporting evidence in an image for something" ;
+    .
+
+:Confidence a owl:Class ;
+    rdfs:subClassOf :UncertaintyAnnotation ;
+    rdfs:label "AIDA confidence" ;
+    skos:definition "Represents confidence information about a set of :KGElements or :SemanticAnnotations." ;
+    .
+
+:Sentiment a owl:Class ;
+    rdfs:subClassOf :SemanticAnnotation ;
+    rdfs:label "AIDA sentiment" ;
+    skos:definition "Represents sentiment information about a set of :KGElements." ;
+    .
+
+:SentimentPolarity a owl:Class ;
+    rdfs:label "AIDA sentiment polarity" ;
+    skos:definition "Represents the polarity of a sentiment" ;
+    .
+
+:Committedness a owl:Class ;
+    rdfs:subClassOf :SemanticAnnotation;
+    rdfs:label "AIDA commited belief value" ;
+    skos:definition "Represents the commitment of a speaker to a statement" ;
+    .
+
+:MutualExclusionConstraint a owl:Class ;
+    rdfs:subClassOf :UncertaintyAnnotation ;
+    rdfs:label "AIDA mutual exclusion constraint" ;
+    skos:definition "Represents mutual exclusion constrains about a set of :KGElements, :SemanticAnnotations, or a :KnowledgeGraph composed of those. Only one is valid." ;
+    .
+
+:MutualExclusionAlternative a owl:Class ;
+    rdfs:subClassOf :UncertaintyAnnotation ;
+    rdfs:label "AIDA mutual exclusion alternative" ;
+    skos:definition "Represents an option in a mutual exclusion constraint." ;
+
+:Cluster a owl:Class ;
+    rdfs:subClassOf :Annotation ;
+    rdfs:label "Cluster" ;
+    skos:definition "Represents a collection of :KGNodes that share some quality." ;
+    .
+
+:SameAsCluster a owl:Class ;
+    rdfs:subClassOf :Cluster ;
+    rdfs:label "Cluster" ;
+    skos:definition "Represents a collection of :KGNodes that are asserted to represent the same concept in the real world." ;
+    skos:note ":Clusters can have annotations to identify their confidence, provenance and other qualities."
+    .
+
+:ClusterMember a owl:Class ;
+    rdfs:subClassOf :SemanticAnnotation ;
+    rdfs:label "Cluster member" ;
+    skos:definition "A reified link to represent membership in a cluster." ;
+    .
+
+:Organization a owl:Class ;
+    rdfs:label "Organization" ;
+    skos:definition "Represents an organization that produces or consumes AIDA data." ;
+    .
+########## Metadata Classes ##########
+
+:System a owl:Class ;
+    rdfs:label "System" ;
+    skos:definition "A computer system used in AIDA." ;
+    .
+
+:Extractor a owl:Class ;
+    rdfs:subClassOf :System ;
+    rdfs:label "Extractor" ;
+    skos:definition "A computer system that extracts data." ;
+    .
+
+:EntityResolver a owl:Class ;
+    rdfs:subClassOf :System ;
+    rdfs:label "Entity resolver" ;
+    skos:definition "A computer system that identifies objects that refer to the same real world entity or event." ;
+    .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:hasSemanticAnnotation a owl:ObjectProperty ;
+    rdfs:domain :KGElement ;
+    rdfs:range :SemanticAnnotation ;
+    rdfs:label "is semantically annotated by" ;
+    .
+
+:alternative a owl:ObjectProperty ;
+    rdfs:domain :MutualExclusionAnnotation ;
+    rdfs:range :MutualExclusionAlternative ;
+    rdfs:label "annotates uncertainty of" ;
+    .
+
+:alternate_graph a owl:ObjectProperty ;
+    rdfs:domain :MutualExclusionAlternative ;
+    # note that a mutual exclusion alternative can be an entire sub-graph
+    rdfs:range :KGElement, :SemanticAnnotation, :KnowledgeGraph ;
+    rdfs:label "alternate graph" ;
+    .
+
+:confidence a owl:ObjectProperty ;
+    rdfs:domain :KGElement, :KnowledgeGraph, :SemanticAnnotation, :MutualExclusionAlternative ;
+    rdfs:range :Confidence ;
+    rdfs:label "annotates uncertainty of" ;
+    .
+
+:hasProvenance a owl:ObjectProperty ;
+    rdfs:domain :Thing ;
+    rdfs:range :Provenance ;
+    rdfs:label "annotates uncertainty of" ;
+    .
+
+:justifiedBy a owl:ObjectProperty ;
+    rdfs:domain :KGElement, :SemanticAnnotation, :UncertaintyAnnotation ;
+    rdfs:range :Justification ;
+    rdfs:label "is justified by" ;
+    .
+
+:containsAssertion a owl:ObjectProperty ;
+    rdfs:domain :KnowledgeGraph ;
+    rdfs:range :KGElement, :Annotation ;
+    rdfs:label "contains" ;
+    skos:definition "Points to the content of a knowledge graph." ;
+    .
+
+:method a owl:ObjectProperty ;
+    rdfs:domain :Provenance ;
+    rdfs:range :System ;
+    rdfs:label "extractor" ;
+    skos:definition "Identifies the computer system that produced the object referred to in a provenance record." ;
+    .
+
+:vector a owl:ObjectProperty ;
+    rdfs:domain :KGElement, :SemanticAnnotation ;
+    rdfs:range :Vector ;
+    rdfs:label "vector" ;
+    skos:definition "A vector representation of a :KGElement or :SemanticAnnotation" ;
+    .
+
+:vectorSpace a owl:ObjectProperty ;
+    rdfs:domain :Vector ;
+    rdfs:range :VectorSpace ;
+    rdfs:label "vector space" ;
+    skos:definition "Identifies the vector space that a vector belongs to." ;
+    .
+
+:privateData a owl:ObjectProperty ;
+    rdfs:domain :Thing ;
+    rdfs:range :PrivateData ;
+    rdfs:label "private data" ;
+    skos:definition "Associates arbitrary data with an :Thing." ;
+    .
+
+:dataOwner a owl:ObjectProperty ;
+    rdfs:domain :PrivateData ;
+    rdfs:range :Organization ;
+    rdfs:label "owner" ;
+    skos:definition "Identifies the organization that owns an :PrivateData object." ;
+    .
+
+:cluster a owl:ObjectProperty ;
+    rdfs:domain :ClusterMember ;
+    rdfs:range :Cluster ;
+    rdfs:label "cluster" ;
+    skos:definition "In a reified :ClusterMember object, indicates the cluster." ;
+    skos:note "The :member property complements this property, indicating the member of the cluster."
+    .
+
+:member a owl:ObjectProperty ;
+    rdfs:domain :ClusterMember ;
+    rdfs:range :KGNode ;
+    rdfs:label "member" ;
+    skos:definition "In a reified :ClusterMember object, indicates the object that belongs to a cluster." ;
+    skos:note "See the :cluster property."
+    .
+
+# TODO: do we need a prototypical string/confidence as well?
+:prototypicalMember a owl:ObjectProperty ;
+    rdfs:domain :Cluster ;
+    rdfs:range :KGNode ;
+    rdfs:label "prototypical member" ;
+    skos:definition "A prototypical member of a cluster." ;
+    skos:note "Every cluster must define a prototypical member" ;
+    .
+
+:hypothesisMember a owl:ObjectProperty ;
+    rdfs:domain :Hypothesis ;
+    rdfs:range :Statement ;
+    rdfs:label "hypothesis member" ;
+    skos:definition "Identifies a member in a :Hypothesis." ;
+    skos:note "The members in an :Hypothesis are a collection of :Statments claimed to be consistent."
+    .
+
+#################################################################
+#    Datatype Properties
+#################################################################
+
+:timestep a owl:DatatypeProperty ;
+    rdfs:domain :Thing ;
+    rdfs:range xsd:integer ;
+    rdfs:label "time step" ;
+    skos:definition "The time step when a particular :Thing was created." ;
+    .
+
+:timestamp a owl:DatatypeProperty ;
+    rdfs:domain :Thing ;
+    rdfs:range xsd:date ;
+    rdfs:label "timestamp" ;
+    skos:definition "The time when a particular :Thing was created." ;
+    .
+
+:source a owl:DatatypeProperty ;
+    rdfs:subPropertyOf dcterms:source ;
+    rdfs:domain :Justification ;
+    rdfs:range xsd:string ;
+    rdfs:label "source" ;
+    skos:definition "The identifier of the document source from which a :Statement was derived." ;
+    .
+
+:startOffset a owl:DatatypeProperty ;
+    rdfs:domain :TextJustification ;
+    rdfs:range xsd:integer ;
+    rdfs:label "start offset" ;
+    skos:definition "The start offset (inclusive) from where an extraction was derived." ;
+    .
+
+:endOffset a owl:DatatypeProperty ;
+    rdfs:domain :TextJustification ;
+    rdfs:range xsd:integer ;
+    rdfs:label "end offset" ;
+    skos:definition "The end offset (inclusive) from where an extraction was derived." ;
+    .
+
+# TODO: add properties for encoding bounding boxes for image, video justifications
+
+:data a owl:DatatypeProperty ;
+    rdfs:domain :Thing ;
+    rdfs:range xsd:string ;
+    rdfs:label "data" ;
+    skos:definition "The string representation of data associated with an object such as a vector." ;
+    skos:note """The representation of data as a serialized string is by defined by convention.
+    It's interpretation depends on the object that holds the data. Here are some suggestions:
+    - For FeatureVector, the data can be the json.dumps of a dictionary containing keys and values.
+      This supports serialization of sparse vectors.
+    - For EmbeddingVector, the data can be comma-separated floating point numbers (or perhaps an encoded binary
+                       representation).
+    """ ;
+    .
+
+:dimensionality a owl:DatatypeProperty ;
+    rdfs:domain :VectorSpace ;
+    rdfs:range xsd:integer ;
+    rdfs:label "dimensionality" ;
+    skos:definition "The number of dimensions in a vector space." ;
+    .
+
+:confidence_value a owl:DatatypeProperty ;
+    rdfs:domain :Confidence ;
+    rdfs:range xsd:float ;
+    rdfs:label "confidence" ;
+    skos:definition "A real number between 0 and 1, representing the confidence assiciated with the existence of and :Thing." ;
+    skos:note ""
+    .
+
+:coherence a owl:DatatypeProperty ;
+    rdfs:domain :Cluster ;
+    rdfs:range xsd:float ;
+    rdfs:label "coherence" ;
+    skos:definition "A real number between 0 and 1, representing the coherence of a cluster." ;
+    skos:note ""
+    .
+
+#################################################################
+#    Individuals
+#################################################################
+
+:positivePolarity a :SentimentPolarity .
+:negativePolarity a :SentimentPolarity .
+
+:hedged a :Committedness .
+:negated a :Committedness .
