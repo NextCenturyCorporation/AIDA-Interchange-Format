@@ -21,11 +21,11 @@ Converts ColdStart++ knowledge bases to the GAIA interchange format.
 See main method for a description of the parameters expected.
  */
 
-// these could be changed to darpa.mil if the interchange format is adopted program-wide
-// TODO: temporarily extend these to include all ColdStart entity types - #2
-// TODO: long-term, we need to make the program ontology configurable
-
-object AidaSyntaxOntology {
+/**
+ * The non-domain-specific portion of the AIDA ontology.
+ */
+object AidaAnnotationOntology {
+    // URI would change from isi.edu to something else if adopted program-wide
     val _namespace: String = "http://www.isi.edu/aida/interchangeOntology#"
 
     // properties
@@ -47,19 +47,25 @@ object AidaSyntaxOntology {
     val LINK_ASSERTION = ResourceFactory.createProperty(_namespace + "LinkAssertion")!!
 }
 
-private class Memoize<Arg, Result>(val f: (Arg) -> Result) : (Arg) -> Result {
+// used in AidaDomainOntology
+private class Memoize<in Arg, out Result>(val f: (Arg) -> Result) : (Arg) -> Result {
     private val cache = mutableMapOf<Arg, Result>()
     override fun invoke(arg: Arg) = cache.getOrPut(arg, {f(arg)})
 }
 
-object AidaProgramOntology {
+/**
+ * The domain ontology.
+ *
+ * For the moment, this is hard-coded to match ColdStart.
+ */
+object AidaDomainOntology {
     val _namespace: String = "http://www.isi.edu/aida/programOntology#"
     val PERSON = ResourceFactory.createResource(_namespace + "Person")!!
     val ORGANIZATION = ResourceFactory.createResource(_namespace + "Organization")!!
     val LOCATION = ResourceFactory.createResource(_namespace + "Location")!!
     val GPE = ResourceFactory.createResource(_namespace + "GeopoliticalEntity")!!
     val FACILITY = ResourceFactory.createResource(_namespace + "Facility")!!
-    val STRING = ResourceFactory.createResource(_namespace + "String")
+    val STRING = ResourceFactory.createResource(_namespace + "String")!!
 
     val ENTITY_TYPES = setOf(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY)
 
@@ -103,6 +109,7 @@ object AidaProgramOntology {
     val GENERIC = ResourceFactory.createResource(_namespace + "Generic")!!
     val OTHER = ResourceFactory.createResource(_namespace + "Other")!!
 
+    // sentiment types
     val likes = ResourceFactory.createResource(_namespace + "likes")!!
     val dislikes = ResourceFactory.createResource(_namespace + "dislikes")!!
 
@@ -111,33 +118,31 @@ object AidaProgramOntology {
 }
 
 
-
+/**
+A strategy for generating RDF graph nodes
+ */
 interface NodeGenerator {
-    /*
-    A strategy for generating RDF graph nodes
-     */
     fun nextNode(model:Model): Resource
 }
 
-class BlankNodeGenerator : NodeGenerator {
-    /*
-    A node generation strategy which always returns blank nodes.
+/**
+A node generation strategy which always returns blank nodes.
 
-    This is useful for testing because we don't need to coordinate entity, event, etc.
-    URIs in order to test isomorphism between graphs.  At runtime, it avoids
-    generating URIs for nodes which only need to be referred to once as part of a
-    large structure (e.g. confidences)
-    */
+This is useful for testing because we don't need to coordinate entity, event, etc.
+URIs in order to test isomorphism between graphs.  At runtime, it avoids
+generating URIs for nodes which only need to be referred to once as part of a
+large structure (e.g. confidences)
+*/
+class BlankNodeGenerator : NodeGenerator {
     override fun nextNode(model: Model): Resource {
         return model.createResource()
     }
 }
 
+/**
+ *     A node generation strategy which uses UUIDs appended to a base URI.
+ */
 class UUIDNodeGenerator(val baseURI: String) : NodeGenerator {
-    /**
-     *     A node generation strategy which uses UUIDs appended to a base URI.
-      */
-
     init {
         require(baseURI.isNotEmpty()){ "Base URI cannot be empty"}
         require(!baseURI.endsWith("/")){ "Base URI cannot end in /"}
@@ -148,6 +153,9 @@ class UUIDNodeGenerator(val baseURI: String) : NodeGenerator {
     }
 }
 
+/**
+ * Can convert a ColdStart++ KB to the GAIA RDF format.
+ */
 class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNodeGenerator(),
                               val eventNodeGenerator: NodeGenerator = BlankNodeGenerator(),
                               val assertionNodeGenerator: NodeGenerator = BlankNodeGenerator(),
@@ -157,30 +165,41 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
     /**
      * Concert a ColdStart KB to an RDFLib graph in the proposed AIDA interchange format.
      */
-
     fun coldstartToGaia(system_uri: String, cs_kb: ColdStartKB, destinationModel: Model) {
         return Conversion(system_uri, destinationModel).convert(cs_kb)
     }
 
-    private inner class Conversion(val system_uri: String, val model: Model) {
+    /**
+     * Bundles together all the state for a conversion process.
+     *
+     * We use an inner class for this so that the converter object itself stays thread-safe.
+     */
+    private inner class Conversion(system_uri: String, val model: Model) {
         // stores a mapping of ColdStart objects to their URIs in the interchange format
         val object_to_uri = mutableMapOf<Any, Resource>()
 
         // this is the URI for the generating system
-        val system_node = model.getResource(system_uri)
+        val system_node = model.getResource(system_uri)!!
 
         // mark a triple as having been generated by this system
         fun associate_with_system(identifier: Resource) {
-            identifier.addProperty(AidaSyntaxOntology.SYSTEM, system_node)
+            identifier.addProperty(AidaAnnotationOntology.SYSTEM, system_node)
         }
 
         fun markSingleAssertionConfidence(reifiedAssertion: Resource, confidence: Double) {
             //  mark an assertion with confidence from this system
             val confidenceBlankNode = model.createResource()
-            reifiedAssertion.addProperty(AidaSyntaxOntology.CONFIDENCE, confidenceBlankNode)
-            confidenceBlankNode.addProperty(AidaSyntaxOntology.CONFIDENCE_VALUE,
+            reifiedAssertion.addProperty(AidaAnnotationOntology.CONFIDENCE, confidenceBlankNode)
+            confidenceBlankNode.addProperty(AidaAnnotationOntology.CONFIDENCE_VALUE,
                     model.createTypedLiteral(confidence))
             associate_with_system(confidenceBlankNode)
+        }
+
+        fun markWithConfidenceAndSystem(assertion: Resource, confidence: Double?) {
+            if (confidence != null) {
+                markSingleAssertionConfidence(assertion, confidence)
+            }
+            associate_with_system(assertion)
         }
 
         // converts a ColdStart object to an RDF identifier (node in the RDF graph)
@@ -199,33 +218,37 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
         }
 
         // converts a ColdStart ontology type to a corresponding RDF identifier
-        // TODO: This is temporarily hardcoded but will eventually need to be configurable
-        // @xujun: you will need to extend this hardcoding
         fun toOntologyType(ontology_type: String): Resource {
             // can't go in the when statement because it has an arbitrary boolean condition
+            // this handles ColdStart event arguments
             if (':' in ontology_type) {
-                return AidaProgramOntology.ontologizeEventType(ontology_type)
+                return AidaDomainOntology.ontologizeEventType(ontology_type)
             }
 
             return when (ontology_type) {
-                "PER" -> AidaProgramOntology.PERSON
-                "ORG" -> AidaProgramOntology.ORGANIZATION
-                "LOC" -> AidaProgramOntology.LOCATION
-                "FAC" -> AidaProgramOntology.FACILITY
-                "GPE" -> AidaProgramOntology.GPE
-                "STRING", "String" -> AidaProgramOntology.STRING
-                in AidaProgramOntology.EVENT_AND_RELATION_TYPES.keys ->
-                    AidaProgramOntology.EVENT_AND_RELATION_TYPES.getValue(ontology_type)
+                "PER" -> AidaDomainOntology.PERSON
+                "ORG" -> AidaDomainOntology.ORGANIZATION
+                "LOC" -> AidaDomainOntology.LOCATION
+                "FAC" -> AidaDomainOntology.FACILITY
+                "GPE" -> AidaDomainOntology.GPE
+                "STRING", "String" -> AidaDomainOntology.STRING
+                in AidaDomainOntology.EVENT_AND_RELATION_TYPES.keys ->
+                    AidaDomainOntology.EVENT_AND_RELATION_TYPES.getValue(ontology_type)
                 else -> throw RuntimeException("Unknown ontology type $ontology_type")
             }
+        }
+
+        fun toRealisType(realis: Realis) = when (realis) {
+            Realis.actual -> AidaDomainOntology.ACTUAL
+            Realis.generic -> AidaDomainOntology.GENERIC
+            Realis.other -> AidaDomainOntology.OTHER
         }
 
         // below are the functions for translating each individual type of ColdStart assertion
         // into the appropriate RDF structures
         // each will return a boolean specifying whether or not the conversion was successful
 
-        // translate ColdStart type assertions
-        fun translateType(cs_assertion: TypeAssertion, confidence: Double?): Boolean {
+        fun translateTypeAssertion(cs_assertion: TypeAssertion, confidence: Double?): Boolean {
             val rdfAssertion = assertionNodeGenerator.nextNode(model)
             val entity = toResource(cs_assertion.subject)
             val ontology_type = toOntologyType(cs_assertion.type)
@@ -237,20 +260,6 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
             return true
         }
 
-        fun toRealisType(realis: Realis) = when (realis) {
-            Realis.actual -> AidaProgramOntology.ACTUAL
-            Realis.generic -> AidaProgramOntology.GENERIC
-            Realis.other -> AidaProgramOntology.OTHER
-        }
-
-        fun markWithConfidenceAndSystem(assertion: Resource, confidence: Double?) {
-            if (confidence != null) {
-                markSingleAssertionConfidence(assertion, confidence)
-            }
-            associate_with_system(assertion)
-        }
-
-        // translate ColdStart entity mentions
         fun translateMention(cs_assertion: MentionAssertion, confidence: Double?,
                              objectToCanonicalMentions: Map<Node, Provenance>): Boolean {
             val entityResource = toResource(cs_assertion.subject)
@@ -270,8 +279,8 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
 
             if (cs_assertion is EventMentionAssertion) {
                 val realisNode = model.createResource()
-                entityResource.addProperty(AidaSyntaxOntology.REALIS, realisNode)
-                realisNode.addProperty(AidaSyntaxOntology.REALIS_VALUE,
+                entityResource.addProperty(AidaAnnotationOntology.REALIS, realisNode)
+                realisNode.addProperty(AidaAnnotationOntology.REALIS_VALUE,
                         toRealisType(cs_assertion.realis))
                 associate_with_system(realisNode)
             }
@@ -285,20 +294,20 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
         fun registerJustifications(resource: Resource,
                                    provenance: Provenance, string: String?=null,
                                    confidence: Double?=null) {
-            for (justification in provenance.predicate_justifications) {
+            for ((start, end_inclusive) in provenance.predicate_justifications) {
                 val justification_node = model.createResource()
                 if (confidence != null) {
                     markSingleAssertionConfidence(justification_node, confidence)
                 }
                 associate_with_system(justification_node)
-                justification_node.addProperty(RDF.type, AidaSyntaxOntology.TEXT_PROVENANCE)
-                justification_node.addProperty(AidaSyntaxOntology.SOURCE,
+                justification_node.addProperty(RDF.type, AidaAnnotationOntology.TEXT_PROVENANCE)
+                justification_node.addProperty(AidaAnnotationOntology.SOURCE,
                         model.createTypedLiteral(provenance.docID))
-                justification_node.addProperty(AidaSyntaxOntology.START_OFFSET,
-                        model.createTypedLiteral(justification.start))
-                justification_node.addProperty(AidaSyntaxOntology.END_OFFSET_INCLUSIVE,
-                        model.createTypedLiteral(justification.end_inclusive))
-                resource.addProperty(AidaSyntaxOntology.JUSTIFIED_BY, justification_node)
+                justification_node.addProperty(AidaAnnotationOntology.START_OFFSET,
+                        model.createTypedLiteral(start))
+                justification_node.addProperty(AidaAnnotationOntology.END_OFFSET_INCLUSIVE,
+                        model.createTypedLiteral(end_inclusive))
+                resource.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification_node)
 
                 if (string != null) {
                     justification_node.addProperty(SKOS.prefLabel,
@@ -311,11 +320,11 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
         fun translateLink(cs_assertion: LinkAssertion, confidence: Double?): Boolean {
             val entityResource = toResource(cs_assertion.subject)
             val linkAssertion = model.createResource()
-            entityResource.addProperty(AidaSyntaxOntology.LINK, linkAssertion)
-            // how do we want to handle links to external KBs ? currently we just store
+            entityResource.addProperty(AidaAnnotationOntology.LINK, linkAssertion)
+            // TODO: how do we want to handle links to external KBs? currently we just store
             // them as strings
-            linkAssertion.addProperty(RDF.type, AidaSyntaxOntology.LINK_ASSERTION)
-            linkAssertion.addProperty(AidaSyntaxOntology.LINK_TARGET,
+            linkAssertion.addProperty(RDF.type, AidaAnnotationOntology.LINK_ASSERTION)
+            linkAssertion.addProperty(AidaAnnotationOntology.LINK_TARGET,
                     model.createTypedLiteral(cs_assertion.global_id))
             markWithConfidenceAndSystem(linkAssertion, confidence)
 
@@ -336,8 +345,8 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
 
         fun translateSentiment(csAssertion: SentimentAssertion, confidence: Double?) : Boolean {
             fun toSentimentType(sentiment: String) = when (sentiment) {
-                "likes" -> AidaProgramOntology.likes
-                "dislikes" -> AidaProgramOntology.dislikes
+                "likes" -> AidaDomainOntology.likes
+                "dislikes" -> AidaDomainOntology.dislikes
                 else -> throw RuntimeException("Unknown sentiment $sentiment")
             }
 
@@ -383,7 +392,7 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
                 // note not all ColdStart assertions have confidences
                 val confidence = csKB.assertionsToConfidence[assertion]
                 val translated = when (assertion) {
-                    is TypeAssertion -> translateType(assertion, confidence)
+                    is TypeAssertion -> translateTypeAssertion(assertion, confidence)
                     is MentionAssertion -> translateMention(assertion, confidence,
                             objectToCanonicalMentons)
                     is LinkAssertion -> translateLink(assertion, confidence)
@@ -411,8 +420,8 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
 
             model.setNsPrefix("rdf", RDF.uri)
             model.setNsPrefix("xsd", XSD.getURI())
-            model.setNsPrefix("aida", AidaSyntaxOntology._namespace)
-            model.setNsPrefix("aidaProgramOntology", AidaProgramOntology._namespace)
+            model.setNsPrefix("aida", AidaAnnotationOntology._namespace)
+            model.setNsPrefix("aidaProgramOntology", AidaDomainOntology._namespace)
             model.setNsPrefix("skos", SKOS.uri)
         }
     }

@@ -86,7 +86,7 @@ class SequentialIDNodeGenerator(NodeGenerator):
 @attrs(frozen=True)
 class ColdStartToGaiaConverter:
     """
-    Concert a ColdStart KB to an RDFLib graph in the proposed AIDA interchange format.
+    Convert a ColdStart KB to an RDFLib graph in the proposed AIDA interchange format.
     """
     entity_node_generator: NodeGenerator = attrib_instance_of(NodeGenerator,
                                                               default=BlankNodeGenerator())
