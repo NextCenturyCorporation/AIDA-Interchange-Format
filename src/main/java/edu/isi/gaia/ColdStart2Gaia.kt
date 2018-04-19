@@ -43,6 +43,10 @@ object AidaAnnotationOntology {
     val REALIS_VALUE = ResourceFactory.createProperty(_namespace + "realisValue")
 
     // classes
+    val ENTITY = ResourceFactory.createProperty(_namespace + "Entity")!!
+    val RELATION = ResourceFactory.createProperty(_namespace + "Relation")!!
+    val EVENT = ResourceFactory.createProperty(_namespace + "Event")!!
+    val CONFIDENCE_CLASS = ResourceFactory.createProperty(_namespace + "Confidence")!!
     val TEXT_PROVENANCE = ResourceFactory.createProperty(_namespace + "TextProvenance")!!
     val LINK_ASSERTION = ResourceFactory.createProperty(_namespace + "LinkAssertion")!!
 }
@@ -50,7 +54,7 @@ object AidaAnnotationOntology {
 // used in AidaDomainOntology
 private class Memoize<in Arg, out Result>(val f: (Arg) -> Result) : (Arg) -> Result {
     private val cache = mutableMapOf<Arg, Result>()
-    override fun invoke(arg: Arg) = cache.getOrPut(arg, {f(arg)})
+    override fun invoke(arg: Arg) = cache.getOrPut(arg, { f(arg) })
 }
 
 /**
@@ -100,7 +104,7 @@ object AidaDomainOntology {
             "political_religious_affiliation", "age", "number_of_employees_members",
             "origin", "date_founded", "date_of_death", "date_dissolved",
             "cause_of_death", "website", "title", "religion", "charges"
-            )
+    )
             .map { it to ResourceFactory.createResource(_namespace + it.toLowerCase()) }
             .toMap()
 
@@ -113,8 +117,9 @@ object AidaDomainOntology {
     val likes = ResourceFactory.createResource(_namespace + "likes")!!
     val dislikes = ResourceFactory.createResource(_namespace + "dislikes")!!
 
-    val ontologizeEventType: (String) -> Resource = Memoize( {eventType: String ->
-        ResourceFactory.createResource(_namespace + eventType)})
+    val ontologizeEventType: (String) -> Resource = Memoize({ eventType: String ->
+        ResourceFactory.createResource(_namespace + eventType)
+    })
 }
 
 
@@ -122,7 +127,7 @@ object AidaDomainOntology {
 A strategy for generating RDF graph nodes
  */
 interface NodeGenerator {
-    fun nextNode(model:Model): Resource
+    fun nextNode(model: Model): Resource
 }
 
 /**
@@ -132,7 +137,7 @@ This is useful for testing because we don't need to coordinate entity, event, et
 URIs in order to test isomorphism between graphs.  At runtime, it avoids
 generating URIs for nodes which only need to be referred to once as part of a
 large structure (e.g. confidences)
-*/
+ */
 class BlankNodeGenerator : NodeGenerator {
     override fun nextNode(model: Model): Resource {
         return model.createResource()
@@ -144,8 +149,8 @@ class BlankNodeGenerator : NodeGenerator {
  */
 class UUIDNodeGenerator(val baseURI: String) : NodeGenerator {
     init {
-        require(baseURI.isNotEmpty()){ "Base URI cannot be empty"}
-        require(!baseURI.endsWith("/")){ "Base URI cannot end in /"}
+        require(baseURI.isNotEmpty()) { "Base URI cannot be empty" }
+        require(!baseURI.endsWith("/")) { "Base URI cannot end in /" }
     }
 
     override fun nextNode(model: Model): Resource {
@@ -160,7 +165,7 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
                               val eventNodeGenerator: NodeGenerator = BlankNodeGenerator(),
                               val assertionNodeGenerator: NodeGenerator = BlankNodeGenerator(),
                               val stringNodeGenerator: NodeGenerator = BlankNodeGenerator()) {
-    companion object: KLogging()
+    companion object : KLogging()
 
     /**
      * Concert a ColdStart KB to an RDFLib graph in the proposed AIDA interchange format.
@@ -189,6 +194,7 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
         fun markSingleAssertionConfidence(reifiedAssertion: Resource, confidence: Double) {
             //  mark an assertion with confidence from this system
             val confidenceBlankNode = model.createResource()
+            confidenceBlankNode.addProperty(RDF.type, AidaAnnotationOntology.CONFIDENCE_CLASS)
             reifiedAssertion.addProperty(AidaAnnotationOntology.CONFIDENCE, confidenceBlankNode)
             confidenceBlankNode.addProperty(AidaAnnotationOntology.CONFIDENCE_VALUE,
                     model.createTypedLiteral(confidence))
@@ -206,11 +212,16 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
         // if this ColdStart node has been previously converted, we return the same RDF identifier
         fun toResource(node: Node): Resource {
             if (!object_to_uri.containsKey(node)) {
-                val rdfNode = when (node) {
-                    is EntityNode -> entityNodeGenerator.nextNode(model)
-                    is EventNode -> eventNodeGenerator.nextNode(model)
-                    is StringNode -> stringNodeGenerator.nextNode(model)
+                val (type, rdfNode) = when (node) {
+                    is EntityNode -> Pair(AidaAnnotationOntology.ENTITY,
+                            entityNodeGenerator.nextNode(model))
+                    is EventNode -> Pair(AidaAnnotationOntology.EVENT,
+                            eventNodeGenerator.nextNode(model))
+                    is StringNode -> Pair(null, stringNodeGenerator.nextNode(model))
                     else -> throw RuntimeException("Cannot make a URI for " + node.toString())
+                }
+                if (type != null) {
+                    rdfNode.addProperty(RDF.type, type)
                 }
                 object_to_uri.put(node, rdfNode)
             }
@@ -292,8 +303,8 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
         }
 
         fun registerJustifications(resource: Resource,
-                                   provenance: Provenance, string: String?=null,
-                                   confidence: Double?=null) {
+                                   provenance: Provenance, string: String? = null,
+                                   confidence: Double? = null) {
             for ((start, end_inclusive) in provenance.predicate_justifications) {
                 val justification_node = model.createResource()
                 if (confidence != null) {
@@ -331,7 +342,7 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
             return true
         }
 
-        fun translateRelation(csAssertion: RelationAssertion, confidence: Double?) : Boolean {
+        fun translateRelation(csAssertion: RelationAssertion, confidence: Double?): Boolean {
             val subjectResouce = toResource(csAssertion.subject)
             val objectResource = toResource(csAssertion.obj)
             val relationAssertion = assertionNodeGenerator.nextNode(model)
@@ -343,7 +354,7 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
             return true
         }
 
-        fun translateSentiment(csAssertion: SentimentAssertion, confidence: Double?) : Boolean {
+        fun translateSentiment(csAssertion: SentimentAssertion, confidence: Double?): Boolean {
             fun toSentimentType(sentiment: String) = when (sentiment) {
                 "likes" -> AidaDomainOntology.likes
                 "dislikes" -> AidaDomainOntology.dislikes
@@ -366,6 +377,7 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
             val subjectResource = toResource(csAssertion.subject)
             val objectResource = toResource(csAssertion.argument)
             val eventArgumentAssertion = assertionNodeGenerator.nextNode(model)
+            // TODO: type should get its own statement here
             eventArgumentAssertion.addProperty(RDF.type, toOntologyType(csAssertion.argument_role))
             eventArgumentAssertion.addProperty(RDF.subject, subjectResource)
             eventArgumentAssertion.addProperty(RDF.`object`, objectResource)
@@ -508,8 +520,8 @@ fun main(args: Array<String>) {
 
 def main(params: Parameters) -> None:
 """
-    A single YAML parameter file is expected as input.
-    """
+A single YAML parameter file is expected as input.
+"""
 logging_utils.configure_logging_from(params)
 # Coldstart KB is assumed to be gzip compressed
 coldstart_kb_file = params.existing_file('input_coldstart_gz_file')
@@ -531,4 +543,4 @@ converted_graph.serialize(destination=out, format='turtle')
 if __name__ == '__main__':
 if len(sys.argv) == 2:
 main(YAMLParametersLoader().load(Path(sys.argv[1])))
-**/
+ **/
