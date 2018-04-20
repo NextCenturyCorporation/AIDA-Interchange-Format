@@ -496,12 +496,10 @@ class ColdStartKBLoader(val shatterByDocument: Boolean = false) {
             }
 
             idToNode.put(trueNodeName, created)
-            if (shatterByDocument) {
-                // if we are shattering by document, we need to keep track of all nodes originating
-                // from the same original ColdStart ID (without the doc ID prefix) so we can
-                // copy type and linking assertions to each of them
-                rawCSIdToNodesB.put(nodeName, created)
-            }
+            // if we are shattering by document, we need to keep track of all nodes originating
+            // from the same original ColdStart ID (without the doc ID prefix) so we can
+            // copy type and linking assertions to each of them
+            rawCSIdToNodesB.put(nodeName, created)
             return created
         }
     }
