@@ -83,6 +83,7 @@
                         <phase>package</phase>
                         <goals><goal>assemble</goal></goals>
                         <configuration>
+                            <extraJvmArguments>-Xmx8G</extraJvmArguments>
                             <programs>
                                 <program>
                                     <mainClass>edu.isi.gaia.ColdStart2GaiaKt</mainClass>
