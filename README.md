@@ -20,3 +20,13 @@ To convert a ColdStart KB, run `target/appassembler/bin/coldstart2Gaia`. It take
 
 * The Python code is not runnable until we release a few internal utilities it uses, which can be done as soon as anyone lets us know they want to try it out.
 * The Python code writes only to document-shattered Turtle files.
+
+# Legal Stuff
+
+This material is based on research sponsored by DARPA under agreement number FA8750-18- 2-0014.
+The U.S. Government is authorized to reproduce and distribute reprints for Governmental purposes
+notwithstanding any copyright notation thereon.
+
+The views and conclusions contained herein are those of the authors and should not be interpreted
+as necessarily representing the official policies or endorsements, either expressed or implied, of
+DARPA or the U.S. Government.
