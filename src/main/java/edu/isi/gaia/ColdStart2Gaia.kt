@@ -49,6 +49,7 @@ object AidaAnnotationOntology {
     val CONFIDENCE_CLASS = ResourceFactory.createProperty(_namespace + "Confidence")!!
     val TEXT_PROVENANCE = ResourceFactory.createProperty(_namespace + "TextProvenance")!!
     val LINK_ASSERTION = ResourceFactory.createProperty(_namespace + "LinkAssertion")!!
+    val KNOWLEDGE_GRAPH = ResourceFactory.createProperty(_namespace + "KnowledgeGraph")
 }
 
 // used in AidaDomainOntology

@@ -535,11 +535,11 @@ internal class DummyModel : Model {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun setNsPrefixes(p0: PrefixMapping?): PrefixMapping {
-        return DummyPrefixMapping()
+    override fun setNsPrefixes(p0: PrefixMapping?): Model? {
+        return this
     }
 
-    override fun setNsPrefixes(p0: MutableMap<String, String>?): PrefixMapping {
+    override fun setNsPrefixes(p0: MutableMap<String, String>?): Model? {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -719,8 +719,8 @@ internal class DummyModel : Model {
         return DummyLiteral()
     }
 
-    override fun setNsPrefix(p0: String?, p1: String?): PrefixMapping {
-        return DummyPrefixMapping()
+    override fun setNsPrefix(p0: String?, p1: String?): Model? {
+        return this
     }
 
     override fun createResource(): Resource {
@@ -875,7 +875,7 @@ internal class DummyModel : Model {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun clearNsPrefixMap(): PrefixMapping {
+    override fun clearNsPrefixMap(): Model? {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -911,7 +911,7 @@ internal class DummyModel : Model {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun removeNsPrefix(p0: String?): PrefixMapping {
+    override fun removeNsPrefix(p0: String?): Model? {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -1067,7 +1067,7 @@ internal class DummyModel : Model {
         return DummyLiteral()
     }
 
-    override fun withDefaultMappings(p0: PrefixMapping?): PrefixMapping {
+    override fun withDefaultMappings(p0: PrefixMapping?): Model? {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
