@@ -1,0 +1,138 @@
+@prefix : <http://aida.org/ontologies/DataExchangeOntology/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+<http://aida.org/ontologies/DomainOntology> rdf:type owl:Ontology ;
+    rdfs:label "Dummy AIDA Domain Ontology"^^xsd:string ;
+    rdfs:comment "A dummy domain ontology for use in AIDA interchange language development"^^xsd:string ;
+    owl:versionInfo "Version 0.1"^^xsd:string .
+
+######################################################
+# Top-level classes
+######################################################
+
+:EntityType a owl:Class ;
+   rdfs:label "AIDA entity type" .
+
+:EventType a owl:Class ;
+   rdfs:label "AIDA event type" .
+   
+:RelationType a owl:Class .
+
+:Realis a owl:Class .
+:dislikes a owl:Class .
+
+###############
+# Realis types
+###############
+
+:Actual a :Realis.
+:Generic a :Realis.
+:Other a :Realis.
+
+#################
+# Sentiments
+#################
+:likes a :Sentiment .
+:dislikes a :Sentiment .
+
+######################################################
+# Entity types
+######################################################
+:Person a :EntityType .
+:Organization a :EntityType .
+:Location a :EntityType .
+:GeopoliticalEntity a :EntityType .
+:Facility a :EntityType .
+# TODO: figure out how to handle strings in the KB properly
+:String a :EntityType .
+
+######################################################
+# Event types
+######################################################
+:CONFLICT.ATTACK a :EventType.
+:CONFLICT.DEMONSTRATE a :EventType.
+:CONTACT.BROADCAST a :EventType.
+:CONTACT.CONTACT a :EventType.
+:CONTACT.CORRESPONDENCE a :EventType.
+:CONTACT.MEET a :EventType.
+:JUSTICE.ARREST-JAIL a :EventType.
+:LIFE.DIE a :EventType.
+:LIFE.INJURE a :EventType.
+:MANUFACTURE.ARTIFACT a :EventType.
+:MOVEMENT.TRANSPORT-ARTIFACT a :EventType.
+:MOVEMENT.TRANSPORT-PERSON a :EventType.
+:PERSONNEL.ELECT a :EventType.
+:PERSONNEL.END-POSITION a :EventType.
+:PERSONNEL.START-POSITION a :EventType.
+:TRANSACTION.TRANSACTION a :EventType.
+:TRANSACTION.TRANSFER-MONEY a :EventType.
+:TRANSACTION.TRANSFER-OWNERSHIP a :EventType.
+
+#########################################################
+# Relation types
+#########################################################
+:children a :RelationType.
+:parents a :RelationType.
+:other_family a :RelationType.
+:siblings a :RelationType.
+:spouse a :RelationType.
+:employee_or_member_of a :RelationType.
+:employees_or_members a :RelationType.
+:schools_attended a :RelationType.
+:students a :RelationType.
+:city_of_birth a :RelationType.
+:births_in_city a :RelationType.
+:stateorprovince_of_birth a :RelationType.
+:births_in_stateorprovince a :RelationType.
+:country_of_birth a :RelationType.
+:births_in_country a :RelationType.
+:cities_of_residence a :RelationType.
+:residents_of_city a :RelationType.
+:statesorprovinces_of_residence a :RelationType.
+:residents_of_stateorprovince a :RelationType.
+:countries_of_residence a :RelationType.
+:residents_of_country a :RelationType.
+:city_of_death a :RelationType.
+:deaths_in_city a :RelationType.
+:stateorprovince_of_death a :RelationType.
+:deaths_in_stateorprovince a :RelationType.
+:country_of_death a :RelationType.
+:deaths_in_country a :RelationType.
+:shareholders a :RelationType.
+:holds_shares_in a :RelationType.
+:founded_by a :RelationType.
+:organizations_founded a :RelationType.
+:top_members_employees a :RelationType.
+:top_member_employee_of a :RelationType.
+:member_of a :RelationType.
+:members a :RelationType.
+:subsidiaries a :RelationType.
+:city_of_headquarters a :RelationType.
+:headquarters_in_city a :RelationType.
+:stateorprovince_of_headquarters a :RelationType.
+:headquarters_in_stateorprovince a :RelationType.
+:country_of_headquarters a :RelationType.
+:headquarters_in_country a :RelationType.
+:alternate_names a :RelationType.
+:date_of_birth a :RelationType.
+:political_religious_affiliation a :RelationType.
+:age a :RelationType.
+:number_of_employees_members a :RelationType.
+:origin a :RelationType.
+:date_founded a :RelationType.
+:date_of_death a :RelationType.
+:date_dissolved a :RelationType.
+:cause_of_death a :RelationType.
+:website a :RelationType.
+:title a :RelationType.
+:religion a :RelationType.
+:charges a :RelationType.
+
+# TODO: event argument types
