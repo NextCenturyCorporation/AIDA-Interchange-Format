@@ -518,33 +518,3 @@ fun main(args: Array<String>) {
         else -> throw RuntimeException("Can't happen")
     }
 }
-
-/**
-
-
-def main(params: Parameters) -> None:
-"""
-A single YAML parameter file is expected as input.
-"""
-logging_utils.configure_logging_from(params)
-# Coldstart KB is assumed to be gzip compressed
-coldstart_kb_file = params.existing_file('input_coldstart_gz_file')
-output_interchange_file = params.creatable_file('output_interchange_file')
-# the URI to be used to identify the system which generated this ColdStart KB
-system_uri = params.string('system_uri')
-converter = ColdStartToGaiaConverter.from_parameters(params)
-
-_log.info("Loading Coldstart KB from {!s}".format(coldstart_kb_file))
-coldstart_kb = ColdStartKBLoader().load(
-CharSource.from_gzipped_file(coldstart_kb_file, 'utf-8'))
-_log.info("Converting ColdStart KB to RDF graph")
-converted_graph = converter.convert_coldstart_to_gaia(system_uri, coldstart_kb)
-_log.info("Serializing RDF graph in Turtle format to {!s}".format(output_interchange_file))
-with open(output_interchange_file, 'wb') as out:
-converted_graph.serialize(destination=out, format='turtle')
-
-
-if __name__ == '__main__':
-if len(sys.argv) == 2:
-main(YAMLParametersLoader().load(Path(sys.argv[1])))
- **/
