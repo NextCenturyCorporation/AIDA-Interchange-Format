@@ -355,6 +355,9 @@ aida:TypeShape
 # Most things may be annotated with a confidence structure.
 # A confidence structure is an annotation node. It is not simply a property because we want to
 # be able to annotate confidence structures with provenance information.
+# By convention, TA1s should attach their confidences to justification objects only.  TA2 should
+# then synthesize these and attach confidences directly to primary KB objects (e.g. relations,
+# events, etc.)
 aida:ConfidenceShape
   a sh:NodeShape ;
   sh:targetClass aida:Confidence ;
