@@ -22,9 +22,10 @@ from flexnlp.utils.attrutils import attrib_instance_of
 from flexnlp.utils.io_utils import CharSource
 from flexnlp.utils.preconditions import check_arg, check_not_none, check_isinstance
 from flexnlp_sandbox.formats.tac.coldstart import ColdStartKB, ColdStartKBLoader, TypeAssertion, \
-    Node, EntityNode, EventNode, StringNode, EntityMentionAssertion, CANONICAL_MENTION, LinkAssertion, \
-    EventMentionAssertion, RelationAssertion, Provenance, RealisType 
-from gaia_interchange.aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY, AIDA, AIDA_PROGRAM_ONTOLOGY_LUT
+    Node, EntityNode, EventNode, StringNode, EntityMentionAssertion, CANONICAL_MENTION, \
+    LinkAssertion, EventMentionAssertion, RelationAssertion, Provenance, RealisType
+from gaia_interchange.aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY, AIDA, \
+    AIDA_PROGRAM_ONTOLOGY_LUT
 
 _log = logging.getLogger(__name__)
 
@@ -140,8 +141,8 @@ class ColdStartToGaiaConverter:
         # converts a ColdStart object to an RDF identifier (node in the RDF graph)
         # if this ColdStart node has been previously converted, we return the same RDF identifier
         def to_identifier(node: Node) -> Identifier:
-            check_arg(isinstance(node, EntityNode) 
-                      or isinstance(node, EventNode) 
+            check_arg(isinstance(node, EntityNode)
+                      or isinstance(node, EventNode)
                       or isinstance(node, StringNode))
             if node not in object_to_uri:
                 if isinstance(node, EntityNode):
@@ -157,7 +158,7 @@ class ColdStartToGaiaConverter:
 
         # convert a ColdStart justification to a RDF identifier
         def register_justifications(g: Graph,
-                                    entity: Union[BNode, URIRef], 
+                                    entity: Union[BNode, URIRef],
                                     provenance: Provenance,
                                     string: Optional[str]=None,
                                     confidence: Optional[float]=None) -> None:
@@ -197,7 +198,7 @@ class ColdStartToGaiaConverter:
                 return AIDA_PROGRAM_ONTOLOGY.GeopoliticalEntity
             elif ontology_type == "STRING" or ontology_type == "String":
                 return AIDA_PROGRAM_ONTOLOGY.String
-            elif ontology_type in AIDA_PROGRAM_ONTOLOGY_LUT: 
+            elif ontology_type in AIDA_PROGRAM_ONTOLOGY_LUT:
                 return AIDA_PROGRAM_ONTOLOGY_LUT[ontology_type]
             else:
                 raise NotImplementedError("Cannot interpret ontology type " + ontology_type)
@@ -255,7 +256,7 @@ class ColdStartToGaiaConverter:
 
                 register_justifications(g, rdf_assertion, cs_assertion.justifications)
 
-            return True 
+            return True
 
         def translate_event_argument(g: Graph, cs_assertion: EventMentionAssertion,
                                      confidence: Optional[float]) -> bool:
@@ -310,7 +311,7 @@ class ColdStartToGaiaConverter:
             realis_node = BNode()
             g.add((entity_uri, AIDA.realis, realis_node))
             g.add((realis_node, AIDA.realisValue, to_realis_type(cs_assertion.realis)))
-            associate_with_system(realis_node)            
+            associate_with_system(realis_node)
 
             register_justifications(g, entity_uri, cs_assertion.justifications,
                                     cs_assertion.obj, confidence)
