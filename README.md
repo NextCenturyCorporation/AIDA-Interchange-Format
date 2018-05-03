@@ -42,10 +42,12 @@ n-triples format (n-triples is used for greater I/O speed).  The following param
     coreference decisions were always "hard".  We provide the user with the option of whether to
     encode these coref decisions in the way they would be encoded in AIDA if there were any
     uncertainty so that users can test these data structures.
-* The optional `attachConfidencesToJustifications` parameter (default `false`) controls whether
+* The optional `restrictConfidencesToJustifications` parameter (default `false`) controls whether
    confidence values are attached directly to the relevant entity/relation/event/sentiment
-   assertion or to their justifications.  The former is how it should be in TA2/TA3, but the
-   latter for messages from TA1 to TA2.
+   assertion or only to their justifications.  The former is how it should be in TA2/TA3, but the
+   latter for messages from TA1 to TA2.  Note this is somewhat imperfect because ColdStart
+   lacks justifications for type and link assertions, so for these confidence information will
+   simply be missing when restricting to justifications.
 
 If `mode` is `SHATTER`, the data related to each document in the ColdStart KB is written to a
 separate AIF file in Turtle format.  In this case, the only other parameter is the directory

@@ -6,7 +6,6 @@ import mu.KLogging
 import org.apache.jena.rdf.model.*
 import org.apache.jena.riot.RDFDataMgr
 import org.apache.jena.riot.RDFFormat
-import org.apache.jena.sparql.vocabulary.EARL.mode
 import org.apache.jena.tdb.TDBFactory
 import org.apache.jena.vocabulary.RDF
 import org.apache.jena.vocabulary.SKOS
@@ -170,13 +169,13 @@ class ColdStart2AidaInterchangeConverter(
         val assertionNodeGenerator: NodeGenerator = BlankNodeGenerator(),
         val stringNodeGenerator: NodeGenerator = BlankNodeGenerator(),
         val useClustersForCoref: Boolean = false,
-        val attachConfidencesToJustifications: Boolean = false) {
+        val restrictConfidencesToJustifications: Boolean = false) {
     companion object : KLogging()
 
     init {
         require(!useClustersForCoref) { "Support for using clusters to represent coref not yet " +
                 "implemented"}
-        require(!attachConfidencesToJustifications) {"Attaching confidences to justifications is" +
+        require(!restrictConfidencesToJustifications) {"Attaching confidences to justifications is" +
                 " not yet implemented"}
     }
 
@@ -205,19 +204,23 @@ class ColdStart2AidaInterchangeConverter(
             identifier.addProperty(AidaAnnotationOntology.SYSTEM, system_node)
         }
 
-        fun markSingleAssertionConfidence(reifiedAssertion: Resource, confidence: Double) {
-            //  mark an assertion with confidence from this system
-            val confidenceBlankNode = model.createResource()
-            confidenceBlankNode.addProperty(RDF.type, AidaAnnotationOntology.CONFIDENCE_CLASS)
-            reifiedAssertion.addProperty(AidaAnnotationOntology.CONFIDENCE, confidenceBlankNode)
-            confidenceBlankNode.addProperty(AidaAnnotationOntology.CONFIDENCE_VALUE,
-                    model.createTypedLiteral(confidence))
-            associate_with_system(confidenceBlankNode)
+        // the confidence for a KB-level assertion (event, relation, etc.) will only be marked
+        // if restrictConfidencesToJustification is false
+        fun markKBAssertionWithConfidenceAndSystem(assertion: Resource, confidence: Double?) {
+            markWithConfidenceAndSystemCommon(assertion,
+                    if (restrictConfidencesToJustifications) null else confidence)
         }
 
-        fun markWithConfidenceAndSystem(assertion: Resource, confidence: Double?) {
+
+        private fun markWithConfidenceAndSystemCommon(assertion: Resource, confidence: Double?) {
             if (confidence != null) {
-                markSingleAssertionConfidence(assertion, confidence)
+                //  mark an assertion with confidence from this system
+                val confidenceBlankNode = model.createResource()
+                confidenceBlankNode.addProperty(RDF.type, AidaAnnotationOntology.CONFIDENCE_CLASS)
+                assertion.addProperty(AidaAnnotationOntology.CONFIDENCE, confidenceBlankNode)
+                confidenceBlankNode.addProperty(AidaAnnotationOntology.CONFIDENCE_VALUE,
+                        model.createTypedLiteral(confidence))
+                associate_with_system(confidenceBlankNode)
             }
             associate_with_system(assertion)
         }
@@ -281,7 +284,7 @@ class ColdStart2AidaInterchangeConverter(
             rdfAssertion.addProperty(RDF.subject, entity)
             rdfAssertion.addProperty(RDF.predicate, RDF.type)
             rdfAssertion.addProperty(RDF.`object`, ontology_type)
-            markWithConfidenceAndSystem(rdfAssertion, confidence)
+            markKBAssertionWithConfidenceAndSystem(rdfAssertion, confidence)
             return true
         }
 
@@ -322,7 +325,7 @@ class ColdStart2AidaInterchangeConverter(
             for ((start, end_inclusive) in provenance.predicate_justifications) {
                 val justification_node = model.createResource()
                 if (confidence != null) {
-                    markSingleAssertionConfidence(justification_node, confidence)
+                    markWithConfidenceAndSystemCommon(justification_node, confidence)
                 }
                 associate_with_system(justification_node)
                 justification_node.addProperty(RDF.type, AidaAnnotationOntology.TEXT_PROVENANCE)
@@ -351,7 +354,7 @@ class ColdStart2AidaInterchangeConverter(
             linkAssertion.addProperty(RDF.type, AidaAnnotationOntology.LINK_ASSERTION)
             linkAssertion.addProperty(AidaAnnotationOntology.LINK_TARGET,
                     model.createTypedLiteral(cs_assertion.global_id))
-            markWithConfidenceAndSystem(linkAssertion, confidence)
+            markKBAssertionWithConfidenceAndSystem(linkAssertion, confidence)
 
             return true
         }
@@ -364,7 +367,7 @@ class ColdStart2AidaInterchangeConverter(
             relationAssertion.addProperty(RDF.subject, subjectResouce)
             relationAssertion.addProperty(RDF.predicate, toOntologyType(csAssertion.relationType))
             relationAssertion.addProperty(RDF.`object`, objectResource)
-            markWithConfidenceAndSystem(relationAssertion, confidence)
+            markKBAssertionWithConfidenceAndSystem(relationAssertion, confidence)
             registerJustifications(relationAssertion, csAssertion.justifications)
             return true
         }
@@ -383,7 +386,7 @@ class ColdStart2AidaInterchangeConverter(
             sentimentAssertion.addProperty(RDF.subject, subjectResouce)
             sentimentAssertion.addProperty(RDF.predicate, toSentimentType(csAssertion.sentiment))
             sentimentAssertion.addProperty(RDF.`object`, objectResource)
-            markWithConfidenceAndSystem(sentimentAssertion, confidence)
+            markKBAssertionWithConfidenceAndSystem(sentimentAssertion, confidence)
             registerJustifications(sentimentAssertion, csAssertion.justifications)
             return true
         }
@@ -398,7 +401,7 @@ class ColdStart2AidaInterchangeConverter(
             eventArgumentAssertion.addProperty(RDF.subject, subjectResource)
             eventArgumentAssertion.addProperty(RDF.predicate, toOntologyType(csAssertion.argument_role))
             eventArgumentAssertion.addProperty(RDF.`object`, objectResource)
-            markWithConfidenceAndSystem(eventArgumentAssertion, confidence)
+            markKBAssertionWithConfidenceAndSystem(eventArgumentAssertion, confidence)
             registerJustifications(eventArgumentAssertion, csAssertion.justifications)
             return true
         }
@@ -501,7 +504,7 @@ fun main(args: Array<String>) {
     // should confidences be attach directly to the entity or assertion they pertain to or to
     // the justifications thereof? When working at the single-document level (TA1 -> TA2), it should
     // be the latter; in TA2 and TA3, the former.
-    val attachConfidencesToJustifications: Boolean
+    val restrictConfidencesToJustifications: Boolean
 
     val mode = params.getEnum("mode", Mode::class.java)!!
     when(mode) {
@@ -510,15 +513,15 @@ fun main(args: Array<String>) {
             outputFormat = RDFFormat.TURTLE_BLOCKS
             breakCrossDocCoref = params.getOptionalBoolean("breakCrossDocCoref").or(false)
             useClustersForCoref = params.getOptionalBoolean("useClustersForCoref").or(false)
-            attachConfidencesToJustifications =
-                    params.getOptionalBoolean("attachConfidencesToJustifications").or(false)
+            restrictConfidencesToJustifications =
+                    params.getOptionalBoolean("restrictConfidencesToJustifications").or(false)
         }
         Mode.SHATTER -> {
             outputPath = params.getCreatableDirectory("outputAIFDirectory").toPath()
             outputFormat = RDFFormat.TURTLE_PRETTY
             breakCrossDocCoref = true
             useClustersForCoref = false
-            attachConfidencesToJustifications = true
+            restrictConfidencesToJustifications = true
         }
     }
 
@@ -533,7 +536,7 @@ fun main(args: Array<String>) {
             eventNodeGenerator = UUIDNodeGenerator(baseUri + "/events"),
             assertionNodeGenerator = UUIDNodeGenerator(baseUri + "/assertions"),
             useClustersForCoref = useClustersForCoref,
-            attachConfidencesToJustifications = attachConfidencesToJustifications)
+            restrictConfidencesToJustifications = restrictConfidencesToJustifications)
 
     // conversion logic shared between the two modes
     fun convertKB(kb: ColdStartKB, model: Model, outPath: Path) {
