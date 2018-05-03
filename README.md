@@ -8,7 +8,7 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
 
 *    code to translate from the TAC KBP Coldstart++ KB format into this format.  Both Python
      (`gaia-interchange/gaia_interchange/coldstart2gaia.py`) and
-     JVM (`gaia-interchange/src/main/java/edu/isi/gaia/ColdStart2Gaia.kt`; usable from Java)
+     JVM (`src/main/java/edu/isi/gaia/ColdStart2AidaInterchange.kt`; usable from Java)
      versions are provided as examples of how to use the format in code.
 
 ## Running the validator
