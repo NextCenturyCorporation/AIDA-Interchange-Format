@@ -47,6 +47,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>edu.isi.vista</groupId>
+            <artifactId>common-core-open</artifactId>
+            <version>7.6.3</version>
+        </dependency>
+
         <!-- for SHACL validation -->
         <dependency>
             <groupId>org.topbraid</groupId>

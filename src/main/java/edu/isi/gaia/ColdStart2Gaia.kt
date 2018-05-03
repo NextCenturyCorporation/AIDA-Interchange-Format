@@ -1,6 +1,8 @@
 package edu.isi.gaia
 
 import com.google.common.collect.ImmutableMultiset
+import edu.isi.nlp.parameters.Parameters
+import edu.isi.nlp.parameters.Parameters.loadSerifStyle
 import mu.KLogging
 import org.apache.jena.rdf.model.*
 import org.apache.jena.riot.RDFDataMgr
@@ -10,6 +12,7 @@ import org.apache.jena.vocabulary.RDF
 import org.apache.jena.vocabulary.SKOS
 import org.apache.jena.vocabulary.XSD
 import org.slf4j.LoggerFactory
+import java.io.File
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -443,12 +446,29 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
     }
 }
 
+/**
+ * The modes the converter can be run in.
+ */
+enum class Mode {
+    /**
+     * Translates the entire ColdStart KB into one big AIF RDF file.
+     */
+    FULL,
+    /**
+     * Translates the content related to each document in the ColdStart KB into its own
+     * separate AIF RDF file.
+     */
+    SHATTER
+}
 
 fun main(args: Array<String>) {
-    val inputKBFile = Paths.get(args[0])
-    val outputRDFPath = Paths.get(args[1])
-    val mode = args[2]
-    val baseUri = "http://www.isi.edu"
+    val params = loadSerifStyle(File(args[0]))
+    val inputKBFile = params.getExistingFile("inputKBFile").toPath()
+    val baseUri = params.getString("baseURI")
+    val systemUri = params.getString("systemURI")
+
+
+    val mode = params.getEnum("mode", Mode::class.java)!!
 
     // we can run in two modes
     // in one mode, we output one big RDF file for the whole KB. If we do that, we need to
@@ -456,23 +476,30 @@ fun main(args: Array<String>) {
     // (see  https://jena.apache.org/documentation/io/rdf-output.html )
     // if working file by file, we write a separate RDF file for each source document in the CS KB
     // and can afford to use pretty-printed Turtle on the output
+    // the mode difference also affects whether we expect the output path to be a file or a
+    // directory
+    val outputPath: Path
     val outputFormat: RDFFormat
     val shatterByDocument: Boolean
 
-    when (mode) {
-        "full" -> {
+    when(mode) {
+        Mode.FULL -> {
+            outputPath = params.getCreatableFile("outputAIFFile").toPath()
             outputFormat = RDFFormat.TURTLE_BLOCKS
             shatterByDocument = false
         }
-        "shatter" -> {
+        Mode.SHATTER -> {
+            outputPath = params.getCreatableDirectory("outputAIFDirectory").toPath()
             outputFormat = RDFFormat.TURTLE_PRETTY
             shatterByDocument = true
         }
-        else -> throw RuntimeException("Invalid mode $mode")
     }
 
     val logger = LoggerFactory.getLogger("main")
 
+    // we need to let the ColdStart KB loader itself know we are shattering by document so it
+    // knows to eliminate the cross-document coreference links which have already been added by
+    // the ColdStart system
     val coldstartKB = ColdStartKBLoader(shatterByDocument = shatterByDocument).load(inputKBFile)
     val converter = ColdStart2GaiaConverter(
             entityNodeGenerator = UUIDNodeGenerator(baseUri + "/entities"),
@@ -481,7 +508,7 @@ fun main(args: Array<String>) {
 
     // conversion logic shared between the two modes
     fun convertKB(kb: ColdStartKB, model: Model, outPath: Path) {
-        converter.coldstartToGaia("http://www.rpi.edu/coldstart", kb, model)
+        converter.coldstartToGaia(systemUri, kb, model)
         outPath.toFile().bufferedWriter(UTF_8).use {
             // deprecation is OK because Guava guarantees the writer handles the charset properly
             @Suppress("DEPRECATION")
@@ -491,30 +518,33 @@ fun main(args: Array<String>) {
 
 
     when (mode) {
-        "full" -> {
+        // converting entire ColdStart KB at once
+        Mode.FULL -> {
+            // we use a temporary directory to back a triple store in case there is too much
+            // to fit in memory
             val tempDir = createTempDir()
             try {
                 logger.info("Using temporary directory $tempDir")
                 val dataset = TDBFactory.createDataset(tempDir.absolutePath)
                 val model = dataset.defaultModel
-                convertKB(coldstartKB, model, outputRDFPath)
+                convertKB(coldstartKB, model, outputPath)
             } finally {
                 tempDir.deleteRecursively()
             }
         }
-        "shatter" -> {
-            outputRDFPath.toFile().mkdirs()
+        // converting document-by-document
+        Mode.SHATTER -> {
+            outputPath.toFile().mkdirs()
             var docsProcessed = 0
             val kbsByDocument = coldstartKB.shatterByDocument()
             for ((docId, perDocKB) in kbsByDocument) {
                 docsProcessed += 1
                 convertKB(perDocKB, ModelFactory.createDefaultModel(),
-                        outputRDFPath.resolve("$docId.turtle"))
+                        outputPath.resolve("$docId.turtle"))
                 if (docsProcessed % 1000 == 0) {
                     logger.info("Translated $docsProcessed / ${kbsByDocument.size}")
                 }
             }
         }
-        else -> throw RuntimeException("Can't happen")
     }
 }
