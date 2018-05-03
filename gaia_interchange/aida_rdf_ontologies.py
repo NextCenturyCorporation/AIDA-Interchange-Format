@@ -8,6 +8,8 @@ from rdflib.namespace import ClosedNamespace
 AIDA_PROGRAM_ONTOLOGY = ClosedNamespace(
     uri=URIRef("http://www.isi.edu/aida/programOntology#"),
     terms=["Person", "Organization", "Location", "Facility", "GeopoliticalEntity", "String",
+           # realis types
+           "Actual", "Generic", "Other",
            # relation types
            "conflict.attack", "conflict.demonstrate",
            "contact.broadcast", "contact.contact", "contact.correspondence", "contact.meet",

@@ -23,7 +23,7 @@ from flexnlp.utils.io_utils import CharSource
 from flexnlp.utils.preconditions import check_arg, check_not_none, check_isinstance
 from flexnlp_sandbox.formats.tac.coldstart import ColdStartKB, ColdStartKBLoader, TypeAssertion, \
     Node, EntityNode, EventNode, StringNode, EntityMentionAssertion, CANONICAL_MENTION, LinkAssertion, \
-    EventMentionAssertion, RelationAssertion, Provenance 
+    EventMentionAssertion, RelationAssertion, Provenance, RealisType 
 from gaia_interchange.aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY, AIDA, AIDA_PROGRAM_ONTOLOGY_LUT
 
 _log = logging.getLogger(__name__)
@@ -175,7 +175,7 @@ class ColdStartToGaiaConverter:
                 g.add((entity, AIDA.justifiedBy, justification_node))
 
                 # put mention string as the prefLabel of the justification
-                if string:
+                if string is not None:
                     g.add((justification_node, SKOS.prefLabel, Literal(string)))
 
         # converts a ColdStart ontology type to a corresponding RDF identifier
@@ -201,6 +201,16 @@ class ColdStartToGaiaConverter:
                 return AIDA_PROGRAM_ONTOLOGY_LUT[ontology_type]
             else:
                 raise NotImplementedError("Cannot interpret ontology type " + ontology_type)
+
+        def to_realis_type(realis: RealisType) -> URIRef:
+            if realis.name == "actual":
+                return AIDA_PROGRAM_ONTOLOGY.Actual
+            elif realis.name == "generic":
+                return AIDA_PROGRAM_ONTOLOGY.Generic
+            elif realis.name == "other":
+                return AIDA_PROGRAM_ONTOLOGY.Other
+            else:
+                raise NotImplementedError("Cannot interpret ontology type " + realis.name)
 
         # below are the functions for translating each individual type of ColdStart assertion
         # into the appropriate RDF structures
@@ -286,6 +296,28 @@ class ColdStartToGaiaConverter:
             # TODO: handle translation of value-typed mentions - #7
             return True
 
+        def translate_event_mention(g: Graph, cs_assertion: EventMentionAssertion,
+                                    confidence: Optional[float]) -> bool:
+            check_not_none(confidence, "Event mentions must have confidences")
+            entity_uri = to_identifier(assertion.sbj)
+            associate_with_system(entity_uri)
+            # if this is a canonical mention, then we need to make a skos:preferredLabel triple
+            if cs_assertion.type == CANONICAL_MENTION:
+                # TODO: because skos:preferredLabel isn't reified we can't attach info
+                # on the generating system
+                g.add((entity_uri, SKOS.prefLabel, Literal(cs_assertion.obj)))
+
+            realis_node = BNode()
+            g.add((entity_uri, AIDA.realis, realis_node))
+            g.add((realis_node, AIDA.realisValue, to_realis_type(cs_assertion.realis)))
+            associate_with_system(realis_node)            
+
+            register_justifications(g, entity_uri, cs_assertion.justifications,
+                                    cs_assertion.obj, confidence)
+
+            # TODO: handle translation of value-typed mentions - #7
+            return True
+
         # translate ColdStart link assertions
         def translate_link(g: Graph, cs_assertion: LinkAssertion,
                            confidence: Optional[float]) -> bool:
@@ -306,7 +338,8 @@ class ColdStartToGaiaConverter:
         assertions_to_translator = {TypeAssertion: translate_type,
                                     EntityMentionAssertion: translate_entity_mention,
                                     LinkAssertion: translate_link,
-                                    RelationAssertion: translate_relation}
+                                    RelationAssertion: translate_relation,
+                                    EventMentionAssertion: translate_event_argument}
 
         # track which assertions we could not translate for later logging
         untranslatable_assertions: MutableMapping[str, int] = defaultdict(int)
