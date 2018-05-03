@@ -1,7 +1,6 @@
 # gaia-interchange
 
-This repository contains resources to support GAIA's proposed DARPA AIDA inter-TA interchange
-format.  It consists of:
+This repository contains resources to support the AIDA Interchange Format (AIF).  It consists of:
 
 *    a formal representation of the format in terms of an OWL ontology in `interchange-format.ttl`.
      This ontology can be validated using the SHACL constraints file in
@@ -21,13 +20,30 @@ To be added soon.
 If you don't have it already, install Apache Maven.  From the root of this repository, run
 `mvn install`.   Repeat `mvn install` if you pull an updated version of the code.
 
-To convert a ColdStart KB, run `target/appassembler/bin/coldstart2Gaia`. It takes three arguments:
-* the ColdStart KB to convert
-* the output path
-*     one of `full` or `shatter`. If `full`, the output KB is written to a single file in blocked
-      Turtle format.  If `shatter`, the output path is interpreted as a directory and a separate
-      document-level KB will be written in pretty-printed Turtle format for each file mentioned
-      in the KB.
+To convert a ColdStart KB, run `target/appassembler/bin/coldstart2AidaInterchange`. It takes a
+single argument, a key-value parameter file where keys and values are separated by `:`s.  There
+are four parameters which are always required:
+* `inputKBFile`: the path to the ColdStart KB to convert
+* `baseUri`: the URI path to use as the base for generated assertions URIs, entity URIs, etc.  For
+    example `http://www.isi.edu/aida`
+* `systemUri`: a URI path to identify the system which generated the ColdStart output. For
+    example `http://www.rpi.edu/tinkerbell`
+* `mode`: must be `FULL` or `SHATTER`, as explained below.
+
+If `mode` is `FULL`, then the entire ColdStartKB is converted into a single AIF RDF file in
+n-triples format (n-triples is used for greater I/O speed).  `outputAIFFile` will specify the path
+to write this file to.  Additionally, cross document coreference information present in the
+ColdStartKB can be discarded by setting the optional parameter `breakCrossDocCoref` to `true`
+(default `false`). The optional `useClustersForCoref` parameter (default `false`) specifies whether
+to use the "clusters" provided by the AIF format for representing coreference.  While in AIDA there
+can be uncertainty about coreference, making these clusters useful, in ColdStart coreference
+decisions were always "hard".  We provide the user with the option of whether to encode these
+coref decisions in the way they would be encoded in AIDA if there were any uncertainty so
+that users can test these data structures.
+
+If `mode` is `SHATTER`, the data related to each document in the ColdStart KB is written to a
+separate AIF file in Turtle format.  In this case, the only other parameter is the directory
+to write the output to (`outputAIFDirectory`).
 
 ## Running the Python converter
 

@@ -99,7 +99,7 @@
                             <extraJvmArguments>-Xmx8G</extraJvmArguments>
                             <programs>
                                 <program>
-                                    <mainClass>edu.isi.gaia.ColdStart2GaiaKt</mainClass>
+                                    <mainClass>edu.isi.gaia.ColdStart2AidaInterchangeKt</mainClass>
                                     <name>coldstart2Gaia</name>
                                 </program>
                             </programs>

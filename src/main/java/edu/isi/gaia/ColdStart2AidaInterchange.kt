@@ -6,6 +6,7 @@ import mu.KLogging
 import org.apache.jena.rdf.model.*
 import org.apache.jena.riot.RDFDataMgr
 import org.apache.jena.riot.RDFFormat
+import org.apache.jena.sparql.vocabulary.EARL.mode
 import org.apache.jena.tdb.TDBFactory
 import org.apache.jena.vocabulary.RDF
 import org.apache.jena.vocabulary.SKOS
@@ -17,7 +18,7 @@ import java.nio.file.Path
 import java.util.*
 
 /*
-Converts ColdStart++ knowledge bases to the GAIA interchange format.
+Converts ColdStart++ knowledge bases to the AIDA Interchange Format (AIF).
 
 See main method for a description of the parameters expected.
  */
@@ -161,13 +162,14 @@ class UUIDNodeGenerator(val baseURI: String) : NodeGenerator {
 }
 
 /**
- * Can convert a ColdStart++ KB to the GAIA RDF format.
+ * Can convert a ColdStart++ KB to the AIDA Interchange Format (AIF).
  */
-class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNodeGenerator(),
-                              val eventNodeGenerator: NodeGenerator = BlankNodeGenerator(),
-                              val assertionNodeGenerator: NodeGenerator = BlankNodeGenerator(),
-                              val stringNodeGenerator: NodeGenerator = BlankNodeGenerator(),
-                              val useClustersForCoref: Boolean = false) {
+class ColdStart2AidaInterchangeConverter(
+        val entityNodeGenerator: NodeGenerator = BlankNodeGenerator(),
+        val eventNodeGenerator: NodeGenerator = BlankNodeGenerator(),
+        val assertionNodeGenerator: NodeGenerator = BlankNodeGenerator(),
+        val stringNodeGenerator: NodeGenerator = BlankNodeGenerator(),
+        val useClustersForCoref: Boolean = false) {
     companion object : KLogging()
 
     init {
@@ -178,7 +180,8 @@ class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNode
     /**
      * Concert a ColdStart KB to an RDFLib graph in the proposed AIDA interchange format.
      */
-    fun coldstartToGaia(system_uri: String, cs_kb: ColdStartKB, destinationModel: Model) {
+    fun coldstartToAidaInterchange(system_uri: String, cs_kb: ColdStartKB,
+                                   destinationModel: Model) {
         return Conversion(system_uri, destinationModel).convert(cs_kb)
     }
 
@@ -471,11 +474,6 @@ fun main(args: Array<String>) {
     val baseUri = params.getString("baseURI")
     val systemUri = params.getString("systemURI")
 
-
-    val mode = params.getEnum("mode", Mode::class.java)!!
-
-
-
     // we can run in two modes
     // in one mode, we output one big RDF file for the whole KB. If we do that, we need to
     // use an uglier output format (Blocked Turtle) or serializing the output takes forever
@@ -498,6 +496,7 @@ fun main(args: Array<String>) {
     // that users can test these data structures
     val useClustersForCoref: Boolean
 
+    val mode = params.getEnum("mode", Mode::class.java)!!
     when(mode) {
         Mode.FULL -> {
             outputPath = params.getCreatableFile("outputAIFFile").toPath()
@@ -519,7 +518,7 @@ fun main(args: Array<String>) {
     // knows to eliminate the cross-document coreference links which have already been added by
     // the ColdStart system
     val coldstartKB = ColdStartKBLoader(breakCrossDocCoref = breakCrossDocCoref).load(inputKBFile)
-    val converter = ColdStart2GaiaConverter(
+    val converter = ColdStart2AidaInterchangeConverter(
             entityNodeGenerator = UUIDNodeGenerator(baseUri + "/entities"),
             eventNodeGenerator = UUIDNodeGenerator(baseUri + "/events"),
             assertionNodeGenerator = UUIDNodeGenerator(baseUri + "/assertions"),
@@ -527,7 +526,7 @@ fun main(args: Array<String>) {
 
     // conversion logic shared between the two modes
     fun convertKB(kb: ColdStartKB, model: Model, outPath: Path) {
-        converter.coldstartToGaia(systemUri, kb, model)
+        converter.coldstartToAidaInterchange(systemUri, kb, model)
         outPath.toFile().bufferedWriter(UTF_8).use {
             // deprecation is OK because Guava guarantees the writer handles the charset properly
             @Suppress("DEPRECATION")
