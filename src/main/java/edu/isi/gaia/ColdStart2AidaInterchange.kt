@@ -169,12 +169,15 @@ class ColdStart2AidaInterchangeConverter(
         val eventNodeGenerator: NodeGenerator = BlankNodeGenerator(),
         val assertionNodeGenerator: NodeGenerator = BlankNodeGenerator(),
         val stringNodeGenerator: NodeGenerator = BlankNodeGenerator(),
-        val useClustersForCoref: Boolean = false) {
+        val useClustersForCoref: Boolean = false,
+        val attachConfidencesToJustifications: Boolean = false) {
     companion object : KLogging()
 
     init {
         require(!useClustersForCoref) { "Support for using clusters to represent coref not yet " +
                 "implemented"}
+        require(!attachConfidencesToJustifications) {"Attaching confidences to justifications is" +
+                " not yet implemented"}
     }
 
     /**
@@ -495,6 +498,10 @@ fun main(args: Array<String>) {
     // coref decisions in the way they would be encoded in AIDA if there were any uncertainty so
     // that users can test these data structures
     val useClustersForCoref: Boolean
+    // should confidences be attach directly to the entity or assertion they pertain to or to
+    // the justifications thereof? When working at the single-document level (TA1 -> TA2), it should
+    // be the latter; in TA2 and TA3, the former.
+    val attachConfidencesToJustifications: Boolean
 
     val mode = params.getEnum("mode", Mode::class.java)!!
     when(mode) {
@@ -503,12 +510,15 @@ fun main(args: Array<String>) {
             outputFormat = RDFFormat.TURTLE_BLOCKS
             breakCrossDocCoref = params.getOptionalBoolean("breakCrossDocCoref").or(false)
             useClustersForCoref = params.getOptionalBoolean("useClustersForCoref").or(false)
+            attachConfidencesToJustifications =
+                    params.getOptionalBoolean("attachConfidencesToJustifications").or(false)
         }
         Mode.SHATTER -> {
             outputPath = params.getCreatableDirectory("outputAIFDirectory").toPath()
             outputFormat = RDFFormat.TURTLE_PRETTY
             breakCrossDocCoref = true
             useClustersForCoref = false
+            attachConfidencesToJustifications = true
         }
     }
 
@@ -522,7 +532,8 @@ fun main(args: Array<String>) {
             entityNodeGenerator = UUIDNodeGenerator(baseUri + "/entities"),
             eventNodeGenerator = UUIDNodeGenerator(baseUri + "/events"),
             assertionNodeGenerator = UUIDNodeGenerator(baseUri + "/assertions"),
-            useClustersForCoref = useClustersForCoref)
+            useClustersForCoref = useClustersForCoref,
+            attachConfidencesToJustifications = attachConfidencesToJustifications)
 
     // conversion logic shared between the two modes
     fun convertKB(kb: ColdStartKB, model: Model, outPath: Path) {

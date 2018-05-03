@@ -31,19 +31,27 @@ are four parameters which are always required:
 * `mode`: must be `FULL` or `SHATTER`, as explained below.
 
 If `mode` is `FULL`, then the entire ColdStartKB is converted into a single AIF RDF file in
-n-triples format (n-triples is used for greater I/O speed).  `outputAIFFile` will specify the path
-to write this file to.  Additionally, cross document coreference information present in the
-ColdStartKB can be discarded by setting the optional parameter `breakCrossDocCoref` to `true`
-(default `false`). The optional `useClustersForCoref` parameter (default `false`) specifies whether
-to use the "clusters" provided by the AIF format for representing coreference.  While in AIDA there
-can be uncertainty about coreference, making these clusters useful, in ColdStart coreference
-decisions were always "hard".  We provide the user with the option of whether to encode these
-coref decisions in the way they would be encoded in AIDA if there were any uncertainty so
-that users can test these data structures.
+n-triples format (n-triples is used for greater I/O speed).  The following parameters then
+ apply:
+ * `outputAIFFile` will specify the path to write this file to.
+ * cross document coreference information present in the ColdStartKB can be discarded by setting
+     the optional parameter `breakCrossDocCoref` to `true` (default `false`).
+* The optional `useClustersForCoref` parameter (default `false`) specifies whether
+    to use the "clusters" provided by the AIF format for representing coreference.  While in AIDA
+    there can be uncertainty about coreference, making these clusters useful, in ColdStart
+    coreference decisions were always "hard".  We provide the user with the option of whether to
+    encode these coref decisions in the way they would be encoded in AIDA if there were any
+    uncertainty so that users can test these data structures.
+* The optional `attachConfidencesToJustifications` parameter (default `false`) controls whether
+   confidence values are attached directly to the relevant entity/relation/event/sentiment
+   assertion or to their justifications.  The former is how it should be in TA2/TA3, but the
+   latter for messages from TA1 to TA2.
 
 If `mode` is `SHATTER`, the data related to each document in the ColdStart KB is written to a
 separate AIF file in Turtle format.  In this case, the only other parameter is the directory
-to write the output to (`outputAIFDirectory`).
+to write the output to (`outputAIFDirectory`).  The values of `breakCrossDocCoref`,
+`useClustersForCoref`, and `attachConfidencesToJustifications` are fixed at `true`, `false`,
+and `true`, respectively.
 
 ## Running the Python converter
 
