@@ -1,7 +1,6 @@
 package edu.isi.gaia
 
 import com.google.common.collect.ImmutableMultiset
-import edu.isi.nlp.parameters.Parameters
 import edu.isi.nlp.parameters.Parameters.loadSerifStyle
 import mu.KLogging
 import org.apache.jena.rdf.model.*
@@ -15,7 +14,6 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.util.*
 
 /*
@@ -168,8 +166,14 @@ class UUIDNodeGenerator(val baseURI: String) : NodeGenerator {
 class ColdStart2GaiaConverter(val entityNodeGenerator: NodeGenerator = BlankNodeGenerator(),
                               val eventNodeGenerator: NodeGenerator = BlankNodeGenerator(),
                               val assertionNodeGenerator: NodeGenerator = BlankNodeGenerator(),
-                              val stringNodeGenerator: NodeGenerator = BlankNodeGenerator()) {
+                              val stringNodeGenerator: NodeGenerator = BlankNodeGenerator(),
+                              val useClustersForCoref: Boolean = false) {
     companion object : KLogging()
+
+    init {
+        require(!useClustersForCoref) { "Support for using clusters to represent coref not yet " +
+                "implemented"}
+    }
 
     /**
      * Concert a ColdStart KB to an RDFLib graph in the proposed AIDA interchange format.
@@ -470,6 +474,8 @@ fun main(args: Array<String>) {
 
     val mode = params.getEnum("mode", Mode::class.java)!!
 
+
+
     // we can run in two modes
     // in one mode, we output one big RDF file for the whole KB. If we do that, we need to
     // use an uglier output format (Blocked Turtle) or serializing the output takes forever
@@ -480,18 +486,30 @@ fun main(args: Array<String>) {
     // directory
     val outputPath: Path
     val outputFormat: RDFFormat
-    val shatterByDocument: Boolean
+
+    // the ColdStart format already includes cross-document coref information. If this is true,
+    // we throw this information away during conversion
+
+    val breakCrossDocCoref: Boolean
+    // In AIDA, there can be uncertainty about coreference, so the AIDA interchange format provides
+    // a means of representing coreference uncertainty.  In ColdStart, however, coref
+    // decisions were always "hard". We provide the user with the option of whether to encode these
+    // coref decisions in the way they would be encoded in AIDA if there were any uncertainty so
+    // that users can test these data structures
+    val useClustersForCoref: Boolean
 
     when(mode) {
         Mode.FULL -> {
             outputPath = params.getCreatableFile("outputAIFFile").toPath()
             outputFormat = RDFFormat.TURTLE_BLOCKS
-            shatterByDocument = false
+            breakCrossDocCoref = params.getOptionalBoolean("breakCrossDocCoref").or(false)
+            useClustersForCoref = params.getOptionalBoolean("useClustersForCoref").or(false)
         }
         Mode.SHATTER -> {
             outputPath = params.getCreatableDirectory("outputAIFDirectory").toPath()
             outputFormat = RDFFormat.TURTLE_PRETTY
-            shatterByDocument = true
+            breakCrossDocCoref = true
+            useClustersForCoref = false
         }
     }
 
@@ -500,11 +518,12 @@ fun main(args: Array<String>) {
     // we need to let the ColdStart KB loader itself know we are shattering by document so it
     // knows to eliminate the cross-document coreference links which have already been added by
     // the ColdStart system
-    val coldstartKB = ColdStartKBLoader(shatterByDocument = shatterByDocument).load(inputKBFile)
+    val coldstartKB = ColdStartKBLoader(breakCrossDocCoref = breakCrossDocCoref).load(inputKBFile)
     val converter = ColdStart2GaiaConverter(
             entityNodeGenerator = UUIDNodeGenerator(baseUri + "/entities"),
             eventNodeGenerator = UUIDNodeGenerator(baseUri + "/events"),
-            assertionNodeGenerator = UUIDNodeGenerator(baseUri + "/assertions"))
+            assertionNodeGenerator = UUIDNodeGenerator(baseUri + "/assertions"),
+            useClustersForCoref = useClustersForCoref)
 
     // conversion logic shared between the two modes
     fun convertKB(kb: ColdStartKB, model: Model, outPath: Path) {
