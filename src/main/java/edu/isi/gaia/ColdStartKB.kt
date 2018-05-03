@@ -123,8 +123,16 @@ data class ColdStartKB(val assertionsToConfidence: Map<Assertion, Double>,
         return@lazy assertionsToConfidence.keys.union(assertionsWithoutConfidences)
     }
 
+    /**
+     * Get this ColdStartKB split into one mini-KB per document.
+     *
+     * @return A map from a document ID to a mini-ColdStartKB containing only items
+     * with justifications in that document.
+     */
     fun shatterByDocument(): Map<String, ColdStartKB> {
         val nodesToDoc = mutableMapOf<Node, String>()
+
+        // a node is in a document if it has any justification in that document
         for (justifiedAssertion in allAssertions.filterIsInstance<JustifiedAssertion>()) {
             val docID = justifiedAssertion.justifications.docID
             for (node in justifiedAssertion.nodes()) {
@@ -132,6 +140,8 @@ data class ColdStartKB(val assertionsToConfidence: Map<Assertion, Double>,
             }
         }
 
+        // group assertions by what document they come from
+        // we can determine this by examining what nodes are involved.
         val docIDToAssertionB = ImmutableSetMultimap.builder<String, Assertion>()
         for (assertion in allAssertions) {
             val docIDsForAssertion = assertion.nodes().map { nodesToDoc[it]!! }.toSet()
@@ -139,9 +149,9 @@ data class ColdStartKB(val assertionsToConfidence: Map<Assertion, Double>,
             docIDToAssertionB.put(docIDsForAssertion.first(), assertion)
         }
 
+        // add an extension function to Map to make a copy keeping only the specified keys
         fun <K,V> Map<K,V>.copyRestrictingKeys(keysToKeep: Iterable<K>) : Map<K,V> {
-            val meep: Iterable<K> = keysToKeep.filter { it in this }
-            return meep.map{it to getValue(it)}.toMap()
+            return keysToKeep.filter { it in this }.map{it to getValue(it)}.toMap()
         }
 
         return ImmutableMap.copyOf(docIDToAssertionB.build().asMap().mapValues(
