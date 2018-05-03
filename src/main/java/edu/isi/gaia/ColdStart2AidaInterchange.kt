@@ -40,8 +40,11 @@ object AidaAnnotationOntology {
             + "endOffsetInclusive")!!
     val LINK = ResourceFactory.createProperty(_namespace + "link")!!
     val LINK_TARGET = ResourceFactory.createProperty(_namespace + "linkTarget")!!
-    val REALIS = ResourceFactory.createProperty(_namespace + "realis")
-    val REALIS_VALUE = ResourceFactory.createProperty(_namespace + "realisValue")
+    val REALIS = ResourceFactory.createProperty(_namespace + "realis")!!
+    val REALIS_VALUE = ResourceFactory.createProperty(_namespace + "realisValue")!!
+    val PROTOTYPE = ResourceFactory.createProperty(_namespace + "prototype")!!
+    val CLUSTER_PROPERTY = ResourceFactory.createProperty(_namespace + "cluster")!!
+    val CLUSTER_MEMBER = ResourceFactory.createProperty(_namespace + "clusterMember")!!
 
     // classes
     val ENTITY = ResourceFactory.createProperty(_namespace + "Entity")!!
@@ -50,7 +53,9 @@ object AidaAnnotationOntology {
     val CONFIDENCE_CLASS = ResourceFactory.createProperty(_namespace + "Confidence")!!
     val TEXT_PROVENANCE = ResourceFactory.createProperty(_namespace + "TextProvenance")!!
     val LINK_ASSERTION = ResourceFactory.createProperty(_namespace + "LinkAssertion")!!
-    val KNOWLEDGE_GRAPH = ResourceFactory.createProperty(_namespace + "KnowledgeGraph")
+    val KNOWLEDGE_GRAPH = ResourceFactory.createProperty(_namespace + "KnowledgeGraph")!!
+    val SAME_AS_CLUSTER = ResourceFactory.createProperty(_namespace + "SameAsCluster")!!
+    val CLUSTER_MEMBERSHIP = ResourceFactory.createProperty(_namespace + "ClusterMembership")!!
 }
 
 // used in AidaDomainOntology
@@ -168,6 +173,7 @@ class ColdStart2AidaInterchangeConverter(
         val eventNodeGenerator: NodeGenerator = BlankNodeGenerator(),
         val assertionNodeGenerator: NodeGenerator = BlankNodeGenerator(),
         val stringNodeGenerator: NodeGenerator = BlankNodeGenerator(),
+        val clusterNodeGenerator: NodeGenerator = BlankNodeGenerator(),
         val useClustersForCoref: Boolean = false,
         val restrictConfidencesToJustifications: Boolean = false) {
     companion object : KLogging()
@@ -240,6 +246,7 @@ class ColdStart2AidaInterchangeConverter(
                 if (type != null) {
                     rdfNode.addProperty(RDF.type, type)
                 }
+
                 object_to_uri.put(node, rdfNode)
             }
             return object_to_uri.getValue(node)
@@ -285,7 +292,34 @@ class ColdStart2AidaInterchangeConverter(
             rdfAssertion.addProperty(RDF.predicate, RDF.type)
             rdfAssertion.addProperty(RDF.`object`, ontology_type)
             markKBAssertionWithConfidenceAndSystem(rdfAssertion, confidence)
+
+            // when requested to use clusters, we need to generate a cluster for each entity
+            // and event the first time it is mentioned
+            // we trigger this on the type assertion because such an assertion should occur
+            // exactly once on each coreffable object
+            val isCoreffableObject = cs_assertion.subject is EntityNode
+                    || cs_assertion.subject is EventNode
+            if (useClustersForCoref && isCoreffableObject) {
+                makeCluster(entity)
+            }
             return true
+        }
+
+        /**
+         * this is used only when useClusterForCoref is true. See documentation of that parameter
+         * for details.
+         */
+        fun makeCluster(entityOrEvent: Resource) {
+            val clusterNode: Resource = clusterNodeGenerator.nextNode(model)
+            clusterNode.addProperty(RDF.type, AidaAnnotationOntology.SAME_AS_CLUSTER)
+            clusterNode.addProperty(AidaAnnotationOntology.PROTOTYPE, entityOrEvent)
+            associate_with_system(clusterNode)
+            val clusterLinkAssertion = assertionNodeGenerator.nextNode(model)
+            clusterLinkAssertion.addProperty(RDF.type,
+                    AidaAnnotationOntology.CLUSTER_MEMBERSHIP)
+            clusterLinkAssertion.addProperty(AidaAnnotationOntology.CLUSTER_PROPERTY, clusterNode)
+            clusterLinkAssertion.addProperty(AidaAnnotationOntology.CLUSTER_MEMBER, entityOrEvent)
+            markWithConfidenceAndSystemCommon(clusterLinkAssertion, 1.0)
         }
 
         fun translateMention(cs_assertion: MentionAssertion, confidence: Double?,
@@ -495,12 +529,6 @@ fun main(args: Array<String>) {
     // we throw this information away during conversion
 
     val breakCrossDocCoref: Boolean
-    // In AIDA, there can be uncertainty about coreference, so the AIDA interchange format provides
-    // a means of representing coreference uncertainty.  In ColdStart, however, coref
-    // decisions were always "hard". We provide the user with the option of whether to encode these
-    // coref decisions in the way they would be encoded in AIDA if there were any uncertainty so
-    // that users can test these data structures
-    val useClustersForCoref: Boolean
     // should confidences be attach directly to the entity or assertion they pertain to or to
     // the justifications thereof? When working at the single-document level (TA1 -> TA2), it should
     // be the latter; in TA2 and TA3, the former.
@@ -512,7 +540,6 @@ fun main(args: Array<String>) {
             outputPath = params.getCreatableFile("outputAIFFile").toPath()
             outputFormat = RDFFormat.TURTLE_BLOCKS
             breakCrossDocCoref = params.getOptionalBoolean("breakCrossDocCoref").or(false)
-            useClustersForCoref = params.getOptionalBoolean("useClustersForCoref").or(false)
             restrictConfidencesToJustifications =
                     params.getOptionalBoolean("restrictConfidencesToJustifications").or(false)
         }
@@ -520,10 +547,16 @@ fun main(args: Array<String>) {
             outputPath = params.getCreatableDirectory("outputAIFDirectory").toPath()
             outputFormat = RDFFormat.TURTLE_PRETTY
             breakCrossDocCoref = true
-            useClustersForCoref = false
             restrictConfidencesToJustifications = true
         }
     }
+
+    // In AIDA, there can be uncertainty about coreference, so the AIDA interchange format provides
+    // a means of representing coreference uncertainty.  In ColdStart, however, coref
+    // decisions were always "hard". We provide the user with the option of whether to encode these
+    // coref decisions in the way they would be encoded in AIDA if there were any uncertainty so
+    // that users can test these data structures
+    val useClustersForCoref = params.getOptionalBoolean("useClustersForCoref").or(false)
 
     val logger = LoggerFactory.getLogger("main")
 
@@ -535,6 +568,7 @@ fun main(args: Array<String>) {
             entityNodeGenerator = UUIDNodeGenerator(baseUri + "/entities"),
             eventNodeGenerator = UUIDNodeGenerator(baseUri + "/events"),
             assertionNodeGenerator = UUIDNodeGenerator(baseUri + "/assertions"),
+            clusterNodeGenerator = UUIDNodeGenerator(baseUri + "/clusters"),
             useClustersForCoref = useClustersForCoref,
             restrictConfidencesToJustifications = restrictConfidencesToJustifications)
 

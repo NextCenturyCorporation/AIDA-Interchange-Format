@@ -36,12 +36,6 @@ n-triples format (n-triples is used for greater I/O speed).  The following param
  * `outputAIFFile` will specify the path to write this file to.
  * cross document coreference information present in the ColdStartKB can be discarded by setting
      the optional parameter `breakCrossDocCoref` to `true` (default `false`).
-* The optional `useClustersForCoref` parameter (default `false`) specifies whether
-    to use the "clusters" provided by the AIF format for representing coreference.  While in AIDA
-    there can be uncertainty about coreference, making these clusters useful, in ColdStart
-    coreference decisions were always "hard".  We provide the user with the option of whether to
-    encode these coref decisions in the way they would be encoded in AIDA if there were any
-    uncertainty so that users can test these data structures.
 * The optional `restrictConfidencesToJustifications` parameter (default `false`) controls whether
    confidence values are attached directly to the relevant entity/relation/event/sentiment
    assertion or only to their justifications.  The former is how it should be in TA2/TA3, but the
@@ -54,6 +48,15 @@ separate AIF file in Turtle format.  In this case, the only other parameter is t
 to write the output to (`outputAIFDirectory`).  The values of `breakCrossDocCoref`,
 `useClustersForCoref`, and `attachConfidencesToJustifications` are fixed at `true`, `false`,
 and `true`, respectively.
+
+The following optional parameters are available in both modes:
+* `useClustersForCoref` parameter (default `false`) specifies whether
+      to use the "clusters" provided by the AIF format for representing coreference.  While in AIDA
+      there can be uncertainty about coreference, making these clusters useful, in ColdStart
+      coreference decisions were always "hard".  We provide the user with the option of whether to
+      encode these coref decisions in the way they would be encoded in AIDA if there were any
+      uncertainty so that users can test these data structures.
+
 
 ## Running the Python converter
 
