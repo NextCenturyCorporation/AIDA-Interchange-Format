@@ -83,7 +83,8 @@ object AidaDomainOntology {
     val EVENT_AND_RELATION_TYPES = listOf("CONFLICT.ATTACK", "CONFLICT.DEMONSTRATE",
             "CONTACT.BROADCAST", "CONTACT.CONTACT", "CONTACT.CORRESPONDENCE", "CONTACT.MEET",
             "JUSTICE.ARREST-JAIL",
-            "LIFE.DIE", "LIFE.INJURE", "MANUFACTURE.ARTIFACT", "MOVEMENT.TRANSPORT-ARTIFACT",
+            "LIFE.DIE", "LIFE.INJURE", "MANUFACTURE.ARTIFACT",
+            "MOVEMENT.TRANSPORT-ARTIFACT",
             "MOVEMENT.TRANSPORT-PERSON", "PERSONNEL.ELECT", "PERSONNEL.END-POSITION",
             "PERSONNEL.START-POSITION", "TRANSACTION.TRANSACTION", "TRANSACTION.TRANSFER-MONEY",
             "TRANSACTION.TRANSFER-OWNERSHIP", "children", "parents", "other_family", "other_family",
@@ -110,8 +111,14 @@ object AidaDomainOntology {
             "alternate_names", "alternate_names", "date_of_birth",
             "political_religious_affiliation", "age", "number_of_employees_members",
             "origin", "date_founded", "date_of_death", "date_dissolved",
-            "cause_of_death", "website", "title", "religion", "charges"
-    )
+            "cause_of_death", "website", "title", "religion", "charges",
+            // needed to read RPI ColdStart output
+            "CONTACT.PHONEWRITE", "BUSINESS.DECLAREBANKRUPTCY", "BUSINESS.ENDORG",
+            "BUSINESS.MERGEORG", "BUSINESS.STARTORG", "MOVEMENT.TRANSPORT", "JUSTICE.ACQUIT",
+            "JUSTICE.APPEAL", "JUSTICE.CHARGEINDICT", "JUSTICE.CONVICT", "JUSTICE.EXECUTE",
+            "JUSTICE.EXTRADITE", "JUSTICE.FINE", "JUSTICE.RELEASEPAROLE", "JUSTICE.SENTENCE",
+            "JUSTICE.SUE", "JUSTICE.TRIALHEARING", "LIFE.BEBORN", "LIFE.MARRY", "LIFE.DIVORCE",
+            "PERSONNEL.NOMINATE")
             .map { it to ResourceFactory.createResource(_namespace + it.toLowerCase()) }
             .toMap()
 
