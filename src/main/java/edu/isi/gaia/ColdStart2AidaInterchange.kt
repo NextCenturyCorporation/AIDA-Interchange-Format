@@ -178,13 +178,6 @@ class ColdStart2AidaInterchangeConverter(
         val restrictConfidencesToJustifications: Boolean = false) {
     companion object : KLogging()
 
-    init {
-        require(!useClustersForCoref) { "Support for using clusters to represent coref not yet " +
-                "implemented"}
-        require(!restrictConfidencesToJustifications) {"Attaching confidences to justifications is" +
-                " not yet implemented"}
-    }
-
     /**
      * Concert a ColdStart KB to an RDFLib graph in the proposed AIDA interchange format.
      */
