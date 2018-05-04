@@ -1,11 +1,13 @@
 package edu.isi.gaia
 
 import com.google.common.collect.ImmutableMultiset
+import com.google.common.collect.ImmutableSet
 import edu.isi.nlp.parameters.Parameters.loadSerifStyle
 import mu.KLogging
 import org.apache.jena.rdf.model.*
 import org.apache.jena.riot.RDFDataMgr
 import org.apache.jena.riot.RDFFormat
+import org.apache.jena.sparql.function.library.leviathan.log
 import org.apache.jena.tdb.TDBFactory
 import org.apache.jena.vocabulary.RDF
 import org.apache.jena.vocabulary.SKOS
@@ -173,6 +175,22 @@ class UUIDNodeGenerator(val baseURI: String) : NodeGenerator {
 }
 
 /**
+ * Allows logging of the types of all ColdStart assertions which could not be translated
+ */
+class UntranslatableColdstartAssertionTypeLogger {
+    private val untranslatableAssertionTypesB = ImmutableMultiset.builder<Class<Assertion>>()
+
+    fun observe(assertion: Assertion) {
+        untranslatableAssertionTypesB.add(assertion.javaClass)
+    }
+
+    fun logUntranslatableTypesMessage() : String {
+        val untranslatable = untranslatableAssertionTypesB.build()
+        return "The following ColdStart assertions could not be translated: $untranslatable"
+    }
+}
+
+/**
  * Can convert a ColdStart++ KB to the AIDA Interchange Format (AIF).
  */
 class ColdStart2AidaInterchangeConverter(
@@ -187,10 +205,19 @@ class ColdStart2AidaInterchangeConverter(
 
     /**
      * Concert a ColdStart KB to an RDFLib graph in the proposed AIDA interchange format.
+     *
+     * {@code system_uri) is the URI to mark as generating all content produced from this ColdStart
+     * KB.
+     * {@code cs_kb} is the ColdStart KB to translate.
+     * {@code destinationModel} is the JENA {@link Model} which will be populated with the AIF
+     * translation of the ColdStart KB contents.
+     * The optional parameter {@code untranslatableAssertionListener} allows the user to take
+     * action on assertions the converter doesn't know how to deal with.
      */
-    fun coldstartToAidaInterchange(system_uri: String, cs_kb: ColdStartKB,
-                                   destinationModel: Model) {
-        return Conversion(system_uri, destinationModel).convert(cs_kb)
+    fun coldstartToAidaInterchange(
+            system_uri: String, cs_kb: ColdStartKB, destinationModel: Model,
+            untranslatableAssertionListener: (Assertion) -> Unit = {} ) {
+        return Conversion(system_uri, destinationModel, untranslatableAssertionListener).convert(cs_kb)
     }
 
     /**
@@ -198,7 +225,8 @@ class ColdStart2AidaInterchangeConverter(
      *
      * We use an inner class for this so that the converter object itself stays thread-safe.
      */
-    private inner class Conversion(system_uri: String, val model: Model) {
+    private inner class Conversion(system_uri: String, val model: Model,
+                                   val untranslatableAssertionListener: (Assertion) -> Unit) {
         // stores a mapping of ColdStart objects to their URIs in the interchange format
         val object_to_uri = mutableMapOf<Any, Resource>()
 
@@ -469,19 +497,12 @@ class ColdStart2AidaInterchangeConverter(
                 }
 
                 if (!translated) {
-                    untranslatableAssertionsB.add(assertion.javaClass)
+                    untranslatableAssertionListener(assertion)
                 }
 
                 if (assertionNum > 0 && assertionNum % progressInterval == 0) {
                     logger.info { "Processed $assertionNum / $numAssertions assertions" }
                 }
-            }
-
-            val untranslatableAssertions = untranslatableAssertionsB.build()
-
-            if (!untranslatableAssertions.isEmpty()) {
-                logger.warn("The following ColdStart assertions could not be translated: "
-                        + untranslatableAssertions.toString())
             }
 
             model.setNsPrefix("rdf", RDF.uri)
@@ -572,9 +593,16 @@ fun main(args: Array<String>) {
             useClustersForCoref = useClustersForCoref,
             restrictConfidencesToJustifications = restrictConfidencesToJustifications)
 
+    // this will track which assertions could not be converted. This is useful for debugging.
+    // we pull this out into its own object instead of doing it inside the conversion method
+    // so that it will aggregate results across doc-level KB conversions when running in shatter
+    // mode
+    val untranslatableAssertionListener = UntranslatableColdstartAssertionTypeLogger()
+
     // conversion logic shared between the two modes
     fun convertKB(kb: ColdStartKB, model: Model, outPath: Path) {
-        converter.coldstartToAidaInterchange(systemUri, kb, model)
+        converter.coldstartToAidaInterchange(systemUri, kb, model,
+                untranslatableAssertionListener = untranslatableAssertionListener::observe)
         outPath.toFile().bufferedWriter(UTF_8).use {
             // deprecation is OK because Guava guarantees the writer handles the charset properly
             @Suppress("DEPRECATION")
@@ -613,4 +641,7 @@ fun main(args: Array<String>) {
             }
         }
     }
+
+    ColdStart2AidaInterchangeConverter.logger.info(
+            untranslatableAssertionListener.logUntranslatableTypesMessage())
 }
