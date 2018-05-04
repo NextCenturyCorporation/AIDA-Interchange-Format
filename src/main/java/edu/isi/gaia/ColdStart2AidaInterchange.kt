@@ -1,8 +1,13 @@
 package edu.isi.gaia
 
+import com.google.common.base.Charsets
+import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableMultiset
 import com.google.common.collect.ImmutableSet
+import com.google.common.io.Files
+import edu.isi.nlp.files.FileUtils
 import edu.isi.nlp.parameters.Parameters.loadSerifStyle
+import edu.isi.nlp.symbols.Symbol
 import mu.KLogging
 import org.apache.jena.rdf.model.*
 import org.apache.jena.riot.RDFDataMgr
@@ -629,16 +634,38 @@ fun main(args: Array<String>) {
         // converting document-by-document
         Mode.SHATTER -> {
             outputPath.toFile().mkdirs()
+            // for the convenience of programs processing the output, we provide
+            // a list of all doc-level turtle files generated and a file mapping from doc IDs
+            // to these files
+            val outputFileList = mutableListOf<File>()
+            val outputFileMap = ImmutableMap.builder<Symbol, File>()
+
             var docsProcessed = 0
             val kbsByDocument = coldstartKB.shatterByDocument()
             for ((docId, perDocKB) in kbsByDocument) {
                 docsProcessed += 1
+                val outputFile = outputPath.resolve("$docId.turtle")
                 convertKB(perDocKB, ModelFactory.createDefaultModel(),
-                        outputPath.resolve("$docId.turtle"))
+                        outputFile)
+
+                outputFileList.add(outputFile.toFile())
+                outputFileMap.put(Symbol.from(docId), outputFile.toFile())
+
                 if (docsProcessed % 1000 == 0) {
                     logger.info("Translated $docsProcessed / ${kbsByDocument.size}")
                 }
             }
+
+
+            val listFile = outputPath.resolve("translated_files.list").toFile()
+            FileUtils.writeFileList(outputFileList,
+                    Files.asCharSink(listFile, Charsets.UTF_8))
+            val mapFile = outputPath.resolve("translated_files.map").toFile()
+            FileUtils.writeSymbolToFileMap(outputFileMap.build(),
+                    Files.asCharSink(mapFile, Charsets.UTF_8))
+            ColdStart2AidaInterchangeConverter.logger.info(
+                    "Wrote list and map of translated files to $listFile and $mapFile " +
+                            "respectively")
         }
     }
 
