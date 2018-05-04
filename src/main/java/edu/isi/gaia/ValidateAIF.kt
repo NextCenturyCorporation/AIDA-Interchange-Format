@@ -1,5 +1,7 @@
 package edu.isi.gaia
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
 import com.google.common.base.Charsets
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.Iterators
@@ -9,8 +11,10 @@ import edu.isi.nlp.parameters.Parameters
 import mu.KLogging
 import org.apache.jena.rdf.model.Model
 import org.apache.jena.rdf.model.ModelFactory
-import org.apache.jena.sparql.function.library.leviathan.log
+import org.apache.jena.rdf.model.Property
+import org.apache.jena.sparql.function.library.leviathan.root
 import org.apache.jena.util.FileUtils
+import org.slf4j.LoggerFactory
 import org.topbraid.shacl.validation.ValidationUtil
 import java.io.File
 import java.io.Reader
@@ -44,6 +48,9 @@ object ValidateAIF {
             System.exit(1)
         }
 
+        // prevent too much logging from obscuring the actual problems
+        (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.INFO
+
         val params = Parameters.loadSerifStyle(File(args[0]))
 
         // this is an RDF model which uses SHACL to encode constraints on the AIF
@@ -60,20 +67,44 @@ object ValidateAIF {
             ImmutableList.of(params.getExistingFile("kbToValidate"))
         }
 
+        var allValid = true
         for (fileToValidate in filesToValidate) {
             log.logger.info { "Validating $fileToValidate" }
             val dataToBeValidated = Files.asCharSource(fileToValidate, Charsets.UTF_8)
                     .openBufferedStream().use { loadModel(it) }
-            validateKB(shapeModel, dataToBeValidated)
+            allValid = validateKB(shapeModel, dataToBeValidated) || allValid
         }
 
-        // TODO: return non-zero exit code on failure
+        if (!allValid) {
+            // failure code if anything fails to validate
+            System.exit(1)
+        }
     }
 
-    private fun validateKB(shapeModel: Model, dataToBeValidated: Model) {
+    /**
+     * Returns whether or not the KB is valid
+     */
+    private fun validateKB(shapeModel: Model, dataToBeValidated: Model) : Boolean {
+        var valid = true
+        // we short-circuit because earlier validation failures may make later
+        // validation attempts misleading nonsense
+        valid = valid && validateAgainstShacl(dataToBeValidated, shapeModel)
+        return valid
+    }
+
+    /**
+     * Validates against the SHACL file to ensure that resources have the required properties
+     * (and in some cases, only the required properties) of the proper types.  Returns true if
+     * validation passes.
+     */
+    private fun validateAgainstShacl(dataToBeValidated: Model, shapeModel: Model) : Boolean {
         // do SHACL validation
         val report = ValidationUtil.validateModel(dataToBeValidated, shapeModel, true)
-        report.model.write(System.out, FileUtils.langTurtle)
-
+        val valid = report.getRequiredProperty(
+                shapeModel.createProperty("http://www.w3.org/ns/shacl#conforms")).boolean
+        if (!valid) {
+            report.model.write(System.out, FileUtils.langTurtle)
+        }
+        return valid
     }
 }
