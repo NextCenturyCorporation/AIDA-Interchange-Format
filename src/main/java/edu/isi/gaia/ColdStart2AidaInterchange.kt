@@ -376,13 +376,15 @@ class ColdStart2AidaInterchangeConverter(
             }
             associate_with_system(entityResource)
 
-            if (cs_assertion is EventMentionAssertion) {
-                val realisNode = model.createResource()
-                entityResource.addProperty(AidaAnnotationOntology.REALIS, realisNode)
-                realisNode.addProperty(AidaAnnotationOntology.REALIS_VALUE,
-                        toRealisType(cs_assertion.realis))
-                associate_with_system(realisNode)
-            }
+            // for the moment, we don't do anything with realis because it is unclear how it
+            // fits into AIDA
+//            if (cs_assertion is EventMentionAssertion) {
+//                val realisNode = model.createResource()
+//                entityResource.addProperty(AidaAnnotationOntology.REALIS, realisNode)
+//                realisNode.addProperty(AidaAnnotationOntology.REALIS_VALUE,
+//                        toRealisType(cs_assertion.realis))
+//                associate_with_system(realisNode)
+//            }
 
             registerJustifications(entityResource, cs_assertion.justifications,
                     cs_assertion.string, confidence)
