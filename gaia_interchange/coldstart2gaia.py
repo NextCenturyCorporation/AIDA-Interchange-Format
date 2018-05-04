@@ -23,7 +23,8 @@ from flexnlp.utils.io_utils import CharSource
 from flexnlp.utils.preconditions import check_arg, check_not_none, check_isinstance
 from flexnlp_sandbox.formats.tac.coldstart import ColdStartKB, ColdStartKBLoader, TypeAssertion, \
     Node, EntityNode, EventNode, StringNode, EntityMentionAssertion, CANONICAL_MENTION, \
-    LinkAssertion, EventMentionAssertion, RelationAssertion, Provenance, RealisType
+    LinkAssertion, EventMentionAssertion, RelationAssertion, Provenance, RealisType, \
+    EventArgumentAssertion
 from gaia_interchange.aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY, AIDA, \
     AIDA_PROGRAM_ONTOLOGY_LUT
 
@@ -138,6 +139,11 @@ class ColdStartToGaiaConverter:
             g.add((confidence_blank_node, AIDA.confidenceValue, Literal(confidence)))
             g.add((confidence_blank_node, AIDA.system, system_node))
 
+        def mark_with_confidence_and_system(assertion, confidence: float) -> None:
+            if confidence is not None:
+                mark_single_assertion_confidence(assertion, confidence)
+            associate_with_system(assertion)
+
         # converts a ColdStart object to an RDF identifier (node in the RDF graph)
         # if this ColdStart node has been previously converted, we return the same RDF identifier
         def to_identifier(node: Node) -> Identifier:
@@ -245,20 +251,18 @@ class ColdStartToGaiaConverter:
                 sbj = to_identifier(cs_assertion.sbj)
                 obj = to_identifier(cs_assertion.obj)
                 rdf_assertion = self.assertion_node_generator.next_node()
+                g.add((rdf_assertion, RDF.type, RDF.Statement))
                 g.add((rdf_assertion, RDF.type, to_ontology_type(cs_assertion.relation)))
                 g.add((rdf_assertion, RDF.subject, sbj))
                 g.add((rdf_assertion, RDF.object, obj))
 
-                if confidence is not None:
-                    confidence_node = BNode()
-                    g.add((rdf_assertion, AIDA.confidence, confidence_node))
-                    g.add((confidence_node, AIDA.confidenceValue, Literal(confidence)))
+                mark_with_confidence_and_system(rdf_assertion, confidence)
 
                 register_justifications(g, rdf_assertion, cs_assertion.justifications)
 
             return True
 
-        def translate_event_argument(g: Graph, cs_assertion: EventMentionAssertion,
+        def translate_event_argument(g: Graph, cs_assertion: EventArgumentAssertion,
                                      confidence: Optional[float]) -> bool:
             check_not_none(confidence, "Relations must have confidences")
 
@@ -266,14 +270,12 @@ class ColdStartToGaiaConverter:
                 sbj = to_identifier(cs_assertion.sbj)
                 obj = to_identifier(cs_assertion.argument)
                 rdf_assertion = self.assertion_node_generator.next_node()
+                g.add((rdf_assertion, RDF.type, RDF.Statement))
                 g.add((rdf_assertion, RDF.type, to_ontology_type(cs_assertion.argument_role)))
                 g.add((rdf_assertion, RDF.subject, sbj))
                 g.add((rdf_assertion, RDF.object, obj))
 
-                if confidence is not None:
-                    confidence_node = BNode()
-                    g.add((rdf_assertion, AIDA.confidence, confidence_node))
-                    g.add((confidence_node, AIDA.confidenceValue, Literal(confidence)))
+                mark_with_confidence_and_system(rdf_assertion, confidence)
 
                 register_justifications(g, rdf_assertion, cs_assertion.justifications)
 
@@ -328,19 +330,17 @@ class ColdStartToGaiaConverter:
             # how do we want to handle links to external KBs? currently we just store
             # them as strings
             g.add((link_assertion, AIDA.linkTarget, Literal(cs_assertion.global_id)))
-            if confidence is not None:
-                confidence_node = BNode()
-                g.add((link_assertion, AIDA.confidence, confidence_node))
-                g.add((confidence_node, AIDA.confidenceValue, Literal(confidence)))
+            mark_with_confidence_and_system(link_assertion, confidence)
 
             return True
 
         # map each ColdStart assertion we know how to translate to its translation function
         assertions_to_translator = {TypeAssertion: translate_type,
+                                    EventArgumentAssertion: translate_event_argument,
                                     EntityMentionAssertion: translate_entity_mention,
+                                    EventMentionAssertion: translate_event_mention,
                                     LinkAssertion: translate_link,
-                                    RelationAssertion: translate_relation,
-                                    EventMentionAssertion: translate_event_argument}
+                                    RelationAssertion: translate_relation}
 
         # track which assertions we could not translate for later logging
         untranslatable_assertions: MutableMapping[str, int] = defaultdict(int)
