@@ -6,10 +6,21 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
      This ontology can be validated using the SHACL constraints file in
      `src/main/resources/edu/isi/gaia/aida_ontology.shacl`.
 
+*    utilities to make it easier to work with this format.  JVM utilities are in
+     `src/main/java/edu/isi/gaia/AIFUtils.java`. These can be used from any JVM language by
+     doing `mvn install` on this repo and adding a Maven dependency on
+      `edu.isi:gaia-interchange-kotlin:1.0.0-SNAPSHOT`.  Next Century will be adding a Python
+      translation of these utilities soon.
+
+*    examples of how to use AIF. These are given in the unit tests under
+     `src/text/java/edu/isi/gaia/ExamplesAndVlaidationTests`.  Next Century will be translating
+     these to Python soon.
+
 *    code to translate from the TAC KBP Coldstart++ KB format into this format.  Both Python
      (`gaia-interchange/gaia_interchange/coldstart2gaia.py`) and
      JVM (`src/main/java/edu/isi/gaia/ColdStart2AidaInterchange.kt`; usable from Java)
-     versions are provided as examples of how to use the format in code.
+     versions are provided as examples of how to use the format in code, but the Python version is
+     out-of-date.
 
 ## Running the validator
 
