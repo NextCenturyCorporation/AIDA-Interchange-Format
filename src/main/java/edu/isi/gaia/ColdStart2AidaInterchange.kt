@@ -73,8 +73,6 @@ object AidaAnnotationOntology {
     @JvmField
     val ENTITY_CLASS = ResourceFactory.createResource(_namespace + "Entity")!!
     @JvmField
-    val RELATION_CLASS = ResourceFactory.createResource(_namespace + "Relation")!!
-    @JvmField
     val EVENT_CLASS = ResourceFactory.createResource(_namespace + "Event")!!
     @JvmField
     val CONFIDENCE_CLASS = ResourceFactory.createResource(_namespace + "Confidence")!!
