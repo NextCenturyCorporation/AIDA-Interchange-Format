@@ -1,6 +1,7 @@
 package edu.isi.gaia
 
-import com.google.common.collect.*
+import com.google.common.collect.ImmutableMap
+import com.google.common.collect.ImmutableSetMultimap
 import mu.KLogging
 import java.io.IOException
 import java.nio.file.Path
@@ -348,7 +349,7 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
             })
         }
 
-        val SENTIMENT_RELATIONS = setOf("likes", "dislikes")
+        val SENTIMENT_RELATIONS = setOf("LIKES", "DISLIKES")
         val INVERSE_SENTIMENT_RELATIONS = setOf("is_disliked_by", "is_liked_by")
 
         private fun parsePredicate(fields: List<String>): Collection<MaybeScoredAssertion> {

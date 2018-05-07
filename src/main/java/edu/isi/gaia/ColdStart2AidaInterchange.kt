@@ -35,36 +35,57 @@ See main method for a description of the parameters expected.
  */
 object AidaAnnotationOntology {
     // URI would change from isi.edu to something else if adopted program-wide
-    val _namespace: String = "http://www.isi.edu/aida/interchangeOntology#"
+    internal val _namespace: String = "http://www.isi.edu/aida/interchangeOntology#"
 
     // properties
+    @JvmField
     val SYSTEM_PROPERTY = ResourceFactory.createProperty(_namespace + "system")!!
+    @JvmField
     val CONFIDENCE = ResourceFactory.createProperty(_namespace + "confidence")!!
+    @JvmField
     val CONFIDENCE_VALUE = ResourceFactory.createProperty(_namespace + "confidenceValue")!!
+    @JvmField
     val JUSTIFIED_BY = ResourceFactory.createProperty(_namespace + "justifiedBy")!!
+    @JvmField
     val SOURCE = ResourceFactory.createProperty(_namespace + "source")!!
+    @JvmField
     val START_OFFSET = ResourceFactory.createProperty(_namespace + "startOffset")!!
+    @JvmField
     val END_OFFSET_INCLUSIVE = ResourceFactory.createProperty(_namespace
             + "endOffsetInclusive")!!
+    @JvmField
     val LINK = ResourceFactory.createProperty(_namespace + "link")!!
+    @JvmField
     val LINK_TARGET = ResourceFactory.createProperty(_namespace + "linkTarget")!!
-    val REALIS = ResourceFactory.createProperty(_namespace + "realis")!!
-    val REALIS_VALUE = ResourceFactory.createProperty(_namespace + "realisValue")!!
+    // realis is currently disabled because it probably won't be used in AIDA
+    //val REALIS = ResourceFactory.createProperty(_namespace + "realis")!!
+    //val REALIS_VALUE = ResourceFactory.createProperty(_namespace + "realisValue")!!
+    @JvmField
     val PROTOTYPE = ResourceFactory.createProperty(_namespace + "prototype")!!
+    @JvmField
     val CLUSTER_PROPERTY = ResourceFactory.createProperty(_namespace + "cluster")!!
+    @JvmField
     val CLUSTER_MEMBER = ResourceFactory.createProperty(_namespace + "clusterMember")!!
 
     // classes
+    @JvmField
     val SYSTEM_CLASS = ResourceFactory.createResource(_namespace + "System")
+    @JvmField
     val ENTITY_CLASS = ResourceFactory.createResource(_namespace + "Entity")!!
-    val RELATION = ResourceFactory.createResource(_namespace + "Relation")!!
-    val EVENT = ResourceFactory.createResource(_namespace + "Event")!!
+    @JvmField
+    val RELATION_CLASS = ResourceFactory.createResource(_namespace + "Relation")!!
+    @JvmField
+    val EVENT_CLASS = ResourceFactory.createResource(_namespace + "Event")!!
+    @JvmField
     val CONFIDENCE_CLASS = ResourceFactory.createResource(_namespace + "Confidence")!!
+    @JvmField
     val TEXT_JUSTIFICATION_CLASS = ResourceFactory.createResource(_namespace + "TextProvenance")!!
-    val LINK_ASSERTION = ResourceFactory.createResource(_namespace + "LinkAssertion")!!
-    val KNOWLEDGE_GRAPH = ResourceFactory.createResource(_namespace + "KnowledgeGraph")!!
-    val SAME_AS_CLUSTER = ResourceFactory.createResource(_namespace + "SameAsCluster")!!
-    val CLUSTER_MEMBERSHIP = ResourceFactory.createResource(_namespace + "ClusterMembership")!!
+    @JvmField
+    val LINK_ASSERTION_CLASS = ResourceFactory.createResource(_namespace + "LinkAssertion")!!
+    @JvmField
+    val SAME_AS_CLUSTER_CLASS = ResourceFactory.createResource(_namespace + "SameAsCluster")!!
+    @JvmField
+    val CLUSTER_MEMBERSHIP_CLASS = ResourceFactory.createResource(_namespace + "ClusterMembership")!!
 }
 
 // used in AidaDomainOntology
@@ -79,16 +100,25 @@ private class Memoize<in Arg, out Result>(val f: (Arg) -> Result) : (Arg) -> Res
  * For the moment, this is hard-coded to match ColdStart.
  */
 object AidaDomainOntology {
-    val _namespace: String = "http://www.isi.edu/aida/programOntology#"
+    internal val _namespace: String = "http://www.isi.edu/aida/programOntology#"
+
+    @JvmField
     val PERSON = ResourceFactory.createResource(_namespace + "Person")!!
+    @JvmField
     val ORGANIZATION = ResourceFactory.createResource(_namespace + "Organization")!!
+    @JvmField
     val LOCATION = ResourceFactory.createResource(_namespace + "Location")!!
+    @JvmField
     val GPE = ResourceFactory.createResource(_namespace + "GeopoliticalEntity")!!
+    @JvmField
     val FACILITY = ResourceFactory.createResource(_namespace + "Facility")!!
+    @JvmField
     val STRING = ResourceFactory.createResource(_namespace + "String")!!
 
+    @JvmField
     val ENTITY_TYPES = setOf(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY)
 
+    @JvmField
     val EVENT_AND_RELATION_TYPES = listOf("CONFLICT.ATTACK", "CONFLICT.DEMONSTRATE",
             "CONTACT.BROADCAST", "CONTACT.CONTACT", "CONTACT.CORRESPONDENCE", "CONTACT.MEET",
             "JUSTICE.ARREST-JAIL",
@@ -137,9 +167,12 @@ object AidaDomainOntology {
     val OTHER = ResourceFactory.createResource(_namespace + "Other")!!
 
     // sentiment types
-    val likes = ResourceFactory.createResource(_namespace + "likes")!!
-    val dislikes = ResourceFactory.createResource(_namespace + "dislikes")!!
+    @JvmField
+    val LIKES = ResourceFactory.createResource(_namespace + "LIKES")!!
+    @JvmField
+    val DISLIKES = ResourceFactory.createResource(_namespace + "DISLIKES")!!
 
+    @JvmStatic
     val ontologizeEventType: (String) -> Resource = Memoize({ eventType: String ->
         ResourceFactory.createResource(_namespace + eventType)
     })
@@ -278,7 +311,7 @@ class ColdStart2AidaInterchangeConverter(
                 val (type, rdfNode) = when (node) {
                     is EntityNode -> Pair(AidaAnnotationOntology.ENTITY_CLASS,
                             entityNodeGenerator.nextNode(model))
-                    is EventNode -> Pair(AidaAnnotationOntology.EVENT,
+                    is EventNode -> Pair(AidaAnnotationOntology.EVENT_CLASS,
                             eventNodeGenerator.nextNode(model))
                     is StringNode -> Pair(null, stringNodeGenerator.nextNode(model))
                     else -> throw RuntimeException("Cannot make a URI for " + node.toString())
@@ -351,12 +384,12 @@ class ColdStart2AidaInterchangeConverter(
          */
         fun makeCluster(entityOrEvent: Resource) {
             val clusterNode: Resource = clusterNodeGenerator.nextNode(model)
-            clusterNode.addProperty(RDF.type, AidaAnnotationOntology.SAME_AS_CLUSTER)
+            clusterNode.addProperty(RDF.type, AidaAnnotationOntology.SAME_AS_CLUSTER_CLASS)
             clusterNode.addProperty(AidaAnnotationOntology.PROTOTYPE, entityOrEvent)
             associate_with_system(clusterNode)
             val clusterLinkAssertion = assertionNodeGenerator.nextNode(model)
             clusterLinkAssertion.addProperty(RDF.type,
-                    AidaAnnotationOntology.CLUSTER_MEMBERSHIP)
+                    AidaAnnotationOntology.CLUSTER_MEMBERSHIP_CLASS)
             clusterLinkAssertion.addProperty(AidaAnnotationOntology.CLUSTER_PROPERTY, clusterNode)
             clusterLinkAssertion.addProperty(AidaAnnotationOntology.CLUSTER_MEMBER, entityOrEvent)
             markWithConfidenceAndSystemCommon(clusterLinkAssertion, 1.0)
@@ -427,7 +460,7 @@ class ColdStart2AidaInterchangeConverter(
             entityResource.addProperty(AidaAnnotationOntology.LINK, linkAssertion)
             // TODO: how do we want to handle links to external KBs? currently we just store
             // them as strings
-            linkAssertion.addProperty(RDF.type, AidaAnnotationOntology.LINK_ASSERTION)
+            linkAssertion.addProperty(RDF.type, AidaAnnotationOntology.LINK_ASSERTION_CLASS)
             linkAssertion.addProperty(AidaAnnotationOntology.LINK_TARGET,
                     model.createTypedLiteral(cs_assertion.global_id))
             markKBAssertionWithConfidenceAndSystem(linkAssertion, confidence)
@@ -450,8 +483,8 @@ class ColdStart2AidaInterchangeConverter(
 
         fun translateSentiment(csAssertion: SentimentAssertion, confidence: Double?): Boolean {
             fun toSentimentType(sentiment: String) = when (sentiment) {
-                "likes" -> AidaDomainOntology.likes
-                "dislikes" -> AidaDomainOntology.dislikes
+                "LIKES" -> AidaDomainOntology.LIKES
+                "DISLIKES" -> AidaDomainOntology.DISLIKES
                 else -> throw RuntimeException("Unknown sentiment $sentiment")
             }
 
