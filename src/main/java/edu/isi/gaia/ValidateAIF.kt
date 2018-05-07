@@ -46,7 +46,7 @@ class ValidateAIF {
         @JvmStatic
         fun main(args: Array<String>) {
             if (args.size != 1) {
-                print("Usage: validateGraph paramFile")
+                print("Usage: validateAIF paramFile")
                 System.exit(1)
             }
 

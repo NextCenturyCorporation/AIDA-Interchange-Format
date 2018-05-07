@@ -22,11 +22,21 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
      versions are provided as examples of how to use the format in code, but the Python version is
      out-of-date.
 
-## Running the validator
+# Installation
 
-To be added soon.
+* To install the JVM code, do `mvn install` from the root of this repository using Apache Maven.
+* The Python code is not currently set up for installation; just add it to your `PYTHONPATH`.
 
-## Running the Kotlin converter
+# Running the validator
+
+To run the validator, run `target/appassembler/bin/validateAIF` with a single argument, a parameter
+file. The parameter file should have keys and values separated by `:`. It should have either the
+parameter `kbToValidatie` pointing to the single Turtle format KB to validate, or it should have
+`kbsToValidate` pointing to a file listing the paths of the Turtle format KBs to validate.
+
+# Running the ColdStart -> AIF Converter
+
+# Kotlin
 
 If you don't have it already, install Apache Maven.  From the root of this repository, run
 `mvn install`.   Repeat `mvn install` if you pull an updated version of the code.
@@ -69,7 +79,7 @@ The following optional parameters are available in both modes:
       uncertainty so that users can test these data structures.
 
 
-## Running the Python converter
+# Python
 
 *    The Python code is not runnable until we release a few internal utilities it uses, which can
      be done as soon as anyone lets us know they want to try it out.
