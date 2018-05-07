@@ -11,7 +11,6 @@ import mu.KLogging
 import org.apache.jena.rdf.model.Model
 import org.apache.jena.rdf.model.ModelFactory
 import org.apache.jena.rdf.model.Resource
-import org.apache.jena.rdf.model.ResourceFactory
 import org.apache.jena.riot.RDFDataMgr
 import org.apache.jena.riot.RDFFormat
 import org.apache.jena.tdb.TDBFactory
@@ -29,152 +28,6 @@ Converts ColdStart++ knowledge bases to the AIDA Interchange Format (AIF).
 
 See main method for a description of the parameters expected.
  */
-
-/**
- * The non-domain-specific portion of the AIDA ontology.
- */
-object AidaAnnotationOntology {
-    // URI would change from isi.edu to something else if adopted program-wide
-    internal val _namespace: String = "http://www.isi.edu/aida/interchangeOntology#"
-
-    // properties
-    @JvmField
-    val SYSTEM_PROPERTY = ResourceFactory.createProperty(_namespace + "system")!!
-    @JvmField
-    val CONFIDENCE = ResourceFactory.createProperty(_namespace + "confidence")!!
-    @JvmField
-    val CONFIDENCE_VALUE = ResourceFactory.createProperty(_namespace + "confidenceValue")!!
-    @JvmField
-    val JUSTIFIED_BY = ResourceFactory.createProperty(_namespace + "justifiedBy")!!
-    @JvmField
-    val SOURCE = ResourceFactory.createProperty(_namespace + "source")!!
-    @JvmField
-    val START_OFFSET = ResourceFactory.createProperty(_namespace + "startOffset")!!
-    @JvmField
-    val END_OFFSET_INCLUSIVE = ResourceFactory.createProperty(_namespace
-            + "endOffsetInclusive")!!
-    @JvmField
-    val LINK = ResourceFactory.createProperty(_namespace + "link")!!
-    @JvmField
-    val LINK_TARGET = ResourceFactory.createProperty(_namespace + "linkTarget")!!
-    // realis is currently disabled because it probably won't be used in AIDA
-    //val REALIS = ResourceFactory.createProperty(_namespace + "realis")!!
-    //val REALIS_VALUE = ResourceFactory.createProperty(_namespace + "realisValue")!!
-    @JvmField
-    val PROTOTYPE = ResourceFactory.createProperty(_namespace + "prototype")!!
-    @JvmField
-    val CLUSTER_PROPERTY = ResourceFactory.createProperty(_namespace + "cluster")!!
-    @JvmField
-    val CLUSTER_MEMBER = ResourceFactory.createProperty(_namespace + "clusterMember")!!
-
-    // classes
-    @JvmField
-    val SYSTEM_CLASS = ResourceFactory.createResource(_namespace + "System")
-    @JvmField
-    val ENTITY_CLASS = ResourceFactory.createResource(_namespace + "Entity")!!
-    @JvmField
-    val EVENT_CLASS = ResourceFactory.createResource(_namespace + "Event")!!
-    @JvmField
-    val CONFIDENCE_CLASS = ResourceFactory.createResource(_namespace + "Confidence")!!
-    @JvmField
-    val TEXT_JUSTIFICATION_CLASS = ResourceFactory.createResource(_namespace + "TextProvenance")!!
-    @JvmField
-    val LINK_ASSERTION_CLASS = ResourceFactory.createResource(_namespace + "LinkAssertion")!!
-    @JvmField
-    val SAME_AS_CLUSTER_CLASS = ResourceFactory.createResource(_namespace + "SameAsCluster")!!
-    @JvmField
-    val CLUSTER_MEMBERSHIP_CLASS = ResourceFactory.createResource(_namespace + "ClusterMembership")!!
-}
-
-// used in AidaDomainOntology
-private class Memoize<in Arg, out Result>(val f: (Arg) -> Result) : (Arg) -> Result {
-    private val cache = mutableMapOf<Arg, Result>()
-    override fun invoke(arg: Arg) = cache.getOrPut(arg, { f(arg) })
-}
-
-/**
- * The domain ontology.
- *
- * For the moment, this is hard-coded to match ColdStart.
- */
-object AidaDomainOntology {
-    internal val _namespace: String = "http://www.isi.edu/aida/programOntology#"
-
-    @JvmField
-    val PERSON = ResourceFactory.createResource(_namespace + "Person")!!
-    @JvmField
-    val ORGANIZATION = ResourceFactory.createResource(_namespace + "Organization")!!
-    @JvmField
-    val LOCATION = ResourceFactory.createResource(_namespace + "Location")!!
-    @JvmField
-    val GPE = ResourceFactory.createResource(_namespace + "GeopoliticalEntity")!!
-    @JvmField
-    val FACILITY = ResourceFactory.createResource(_namespace + "Facility")!!
-    @JvmField
-    val STRING = ResourceFactory.createResource(_namespace + "String")!!
-
-    @JvmField
-    val ENTITY_TYPES = setOf(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY)
-
-    @JvmField
-    val EVENT_AND_RELATION_TYPES = listOf("CONFLICT.ATTACK", "CONFLICT.DEMONSTRATE",
-            "CONTACT.BROADCAST", "CONTACT.CONTACT", "CONTACT.CORRESPONDENCE", "CONTACT.MEET",
-            "JUSTICE.ARREST-JAIL",
-            "LIFE.DIE", "LIFE.INJURE", "MANUFACTURE.ARTIFACT",
-            "MOVEMENT.TRANSPORT-ARTIFACT",
-            "MOVEMENT.TRANSPORT-PERSON", "PERSONNEL.ELECT", "PERSONNEL.END-POSITION",
-            "PERSONNEL.START-POSITION", "TRANSACTION.TRANSACTION", "TRANSACTION.TRANSFER-MONEY",
-            "TRANSACTION.TRANSFER-OWNERSHIP", "children", "parents", "other_family", "other_family",
-            "parents", "children", "siblings", "siblings", "spouse", "spouse",
-            "employee_or_member_of", "employees_or_members", "schools_attended", "students",
-            "city_of_birth", "births_in_city", "stateorprovince_of_birth",
-            "births_in_stateorprovince", "country_of_birth", "births_in_country",
-            "cities_of_residence", "residents_of_city",
-            "statesorprovinces_of_residence", "residents_of_stateorprovince",
-            "countries_of_residence", "residents_of_country",
-            "city_of_death", "deaths_in_city",
-            "stateorprovince_of_death", "deaths_in_stateorprovince",
-            "country_of_death", "deaths_in_country",
-            "shareholders", "holds_shares_in",
-            "founded_by", "organizations_founded",
-            "top_members_employees", "top_member_employee_of",
-            "member_of", "members",
-            "members", "member_of",
-            "parents", "subsidiaries",
-            "subsidiaries", "parents",
-            "city_of_headquarters", "headquarters_in_city",
-            "stateorprovince_of_headquarters", "headquarters_in_stateorprovince",
-            "country_of_headquarters", "headquarters_in_country",
-            "alternate_names", "alternate_names", "date_of_birth",
-            "political_religious_affiliation", "age", "number_of_employees_members",
-            "origin", "date_founded", "date_of_death", "date_dissolved",
-            "cause_of_death", "website", "title", "religion", "charges",
-            // needed to read RPI ColdStart output
-            "CONTACT.PHONEWRITE", "BUSINESS.DECLAREBANKRUPTCY", "BUSINESS.ENDORG",
-            "BUSINESS.MERGEORG", "BUSINESS.STARTORG", "MOVEMENT.TRANSPORT", "JUSTICE.ACQUIT",
-            "JUSTICE.APPEAL", "JUSTICE.CHARGEINDICT", "JUSTICE.CONVICT", "JUSTICE.EXECUTE",
-            "JUSTICE.EXTRADITE", "JUSTICE.FINE", "JUSTICE.RELEASEPAROLE", "JUSTICE.SENTENCE",
-            "JUSTICE.SUE", "JUSTICE.TRIALHEARING", "LIFE.BEBORN", "LIFE.MARRY", "LIFE.DIVORCE",
-            "PERSONNEL.NOMINATE")
-            .map { it to ResourceFactory.createResource(_namespace + it.toLowerCase()) }
-            .toMap()
-
-    // realis types
-    val ACTUAL = ResourceFactory.createResource(_namespace + "Actual")!!
-    val GENERIC = ResourceFactory.createResource(_namespace + "Generic")!!
-    val OTHER = ResourceFactory.createResource(_namespace + "Other")!!
-
-    // sentiment types
-    @JvmField
-    val LIKES = ResourceFactory.createResource(_namespace + "LIKES")!!
-    @JvmField
-    val DISLIKES = ResourceFactory.createResource(_namespace + "DISLIKES")!!
-
-    @JvmStatic
-    val ontologizeEventType: (String) -> Resource = Memoize({ eventType: String ->
-        ResourceFactory.createResource(_namespace + eventType)
-    })
-}
 
 
 /**
@@ -710,3 +563,4 @@ fun main(args: Array<String>) {
     ColdStart2AidaInterchangeConverter.logger.info(
             untranslatableAssertionListener.logUntranslatableTypesMessage())
 }
+
