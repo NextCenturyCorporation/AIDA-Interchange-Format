@@ -47,11 +47,24 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>edu.isi.vista</groupId>
+            <artifactId>common-core-open</artifactId>
+            <version>7.6.3</version>
+        </dependency>
+
         <!-- for SHACL validation -->
         <dependency>
             <groupId>org.topbraid</groupId>
             <artifactId>shacl</artifactId>
             <version>1.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.1.0</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -93,8 +106,13 @@
                             <extraJvmArguments>-Xmx8G</extraJvmArguments>
                             <programs>
                                 <program>
-                                    <mainClass>edu.isi.gaia.ColdStart2GaiaKt</mainClass>
+                                    <mainClass>edu.isi.gaia.ColdStart2AidaInterchangeKt</mainClass>
                                     <name>coldstart2Gaia</name>
+                                </program>
+
+                                <program>
+                                    <mainClass>edu.isi.gaia.ValidateAIF</mainClass>
+                                    <name>validateAIF</name>
                                 </program>
                             </programs>
                         </configuration>

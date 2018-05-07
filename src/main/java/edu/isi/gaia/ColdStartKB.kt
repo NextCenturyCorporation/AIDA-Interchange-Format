@@ -1,6 +1,7 @@
 package edu.isi.gaia
 
-import com.google.common.collect.*
+import com.google.common.collect.ImmutableMap
+import com.google.common.collect.ImmutableSetMultimap
 import mu.KLogging
 import java.io.IOException
 import java.nio.file.Path
@@ -123,8 +124,16 @@ data class ColdStartKB(val assertionsToConfidence: Map<Assertion, Double>,
         return@lazy assertionsToConfidence.keys.union(assertionsWithoutConfidences)
     }
 
+    /**
+     * Get this ColdStartKB split into one mini-KB per document.
+     *
+     * @return A map from a document ID to a mini-ColdStartKB containing only items
+     * with justifications in that document.
+     */
     fun shatterByDocument(): Map<String, ColdStartKB> {
         val nodesToDoc = mutableMapOf<Node, String>()
+
+        // a node is in a document if it has any justification in that document
         for (justifiedAssertion in allAssertions.filterIsInstance<JustifiedAssertion>()) {
             val docID = justifiedAssertion.justifications.docID
             for (node in justifiedAssertion.nodes()) {
@@ -132,6 +141,8 @@ data class ColdStartKB(val assertionsToConfidence: Map<Assertion, Double>,
             }
         }
 
+        // group assertions by what document they come from
+        // we can determine this by examining what nodes are involved.
         val docIDToAssertionB = ImmutableSetMultimap.builder<String, Assertion>()
         for (assertion in allAssertions) {
             val docIDsForAssertion = assertion.nodes().map { nodesToDoc[it]!! }.toSet()
@@ -139,9 +150,9 @@ data class ColdStartKB(val assertionsToConfidence: Map<Assertion, Double>,
             docIDToAssertionB.put(docIDsForAssertion.first(), assertion)
         }
 
+        // add an extension function to Map to make a copy keeping only the specified keys
         fun <K,V> Map<K,V>.copyRestrictingKeys(keysToKeep: Iterable<K>) : Map<K,V> {
-            val meep: Iterable<K> = keysToKeep.filter { it in this }
-            return meep.map{it to getValue(it)}.toMap()
+            return keysToKeep.filter { it in this }.map{it to getValue(it)}.toMap()
         }
 
         return ImmutableMap.copyOf(docIDToAssertionB.build().asMap().mapValues(
@@ -156,11 +167,11 @@ data class ColdStartKB(val assertionsToConfidence: Map<Assertion, Double>,
 
 typealias MaybeScoredAssertion = Pair<Assertion, Double?>
 
-class ColdStartKBLoader(val shatterByDocument: Boolean = false) {
+class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
     /**
      * Loads a TAC KBP 2017 ColdStart++ knowledge-base into a [ColdStartKB]
      *
-     * If [shatterByDocument] is `true` (default: `false`), this will break all cross-document
+     * If [breakCrossDocCoref] is `true` (default: `false`), this will break all cross-document
      * coreference links by appending document IDs to entity/event IDs.  This is useful when
      * using this KB as input to cross-document linking experiments.
      */
@@ -185,7 +196,7 @@ class ColdStartKBLoader(val shatterByDocument: Boolean = false) {
         val _ASSERTION_PAT = Regex("""^(?:per|org|gpe|loc|fac)?:?(.+?)\.?(other|generic|actual)?$""")
 
         val idToNode: MutableMap<String, Node> = HashMap()
-        // if `shatterByDocument` is false, this will match `idToNode` exactly
+        // if `breakCrossDocCoref` is false, this will match `idToNode` exactly
         // otherwise, it will account for each original ColdStart ID now corresponding to many
         // per-document entity nodes
         val rawCSIdToNodesB = ImmutableSetMultimap.builder<String, Node>()!!
@@ -228,9 +239,9 @@ class ColdStartKBLoader(val shatterByDocument: Boolean = false) {
                 }
             }
 
-            // we need to parse the file twice to support shatterByDocument
+            // we need to parse the file twice to support breakCrossDocCoref
             // the reason is that `type` and `link` ColdStart entries don't have any document ID
-            // locally available, so when `shatterByDocument` is enabled and we are breaking up
+            // locally available, so when `breakCrossDocCoref` is enabled and we are breaking up
             // entities, etc., we don't know what to apply the types and link assertions to.
             // So on the first pass we determine our set of entity, event, etc. nodes...
             parseColdStartFile("mentions", {
@@ -245,7 +256,7 @@ class ColdStartKBLoader(val shatterByDocument: Boolean = false) {
             rawCSIdToNodes = rawCSIdToNodesB.build()
 
             // and on the second pass we associated types with them. This is trivial if
-            // `shatterByDocument` is not on, but if it is, for each entity, etc. appearing in the
+            // `breakCrossDocCoref` is not on, but if it is, for each entity, etc. appearing in the
             // ColdStart KB, we need to add a copy of the type and link assertion for each
             // entity (etc.) we shattered it into.
             parseColdStartFile("types/links", {
@@ -338,7 +349,7 @@ class ColdStartKBLoader(val shatterByDocument: Boolean = false) {
             })
         }
 
-        val SENTIMENT_RELATIONS = setOf("likes", "dislikes")
+        val SENTIMENT_RELATIONS = setOf("LIKES", "DISLIKES")
         val INVERSE_SENTIMENT_RELATIONS = setOf("is_disliked_by", "is_liked_by")
 
         private fun parsePredicate(fields: List<String>): Collection<MaybeScoredAssertion> {
@@ -481,7 +492,7 @@ class ColdStartKBLoader(val shatterByDocument: Boolean = false) {
             // as you see each reference to an entity or event with an unknown ID, create a node
             // of the appropriate type and remember it for when we see this ID in the future
 
-            val trueNodeName = if (shatterByDocument) "$nodeName-$documentID" else nodeName
+            val trueNodeName = if (breakCrossDocCoref) "$nodeName-$documentID" else nodeName
 
             val known = idToNode[trueNodeName]
             if (known != null) {
