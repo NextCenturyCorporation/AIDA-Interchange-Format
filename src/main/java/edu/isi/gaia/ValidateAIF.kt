@@ -16,7 +16,6 @@ import java.io.File
 import java.io.Reader
 
 
-
 fun loadModel(reader: Reader) : Model {
     val ret = ModelFactory.createOntologyModel()
 
@@ -89,6 +88,7 @@ class ValidateAIF {
         // we short-circuit because earlier validation failures may make later
         // validation attempts misleading nonsense
         valid = valid && validateAgainstShacl(dataToBeValidated)
+        valid = valid && ensureConfidencesInZeroOne(dataToBeValidated)
         return valid
     }
 
@@ -103,8 +103,26 @@ class ValidateAIF {
         val valid = report.getRequiredProperty(
                 shaclModel.createProperty("http://www.w3.org/ns/shacl#conforms")).boolean
         if (!valid) {
-            report.model.write(System.out, FileUtils.langTurtle)
+            report.model.write(System.err, FileUtils.langTurtle)
         }
         return valid
+    }
+
+    private fun ensureConfidencesInZeroOne(dataToBeValidated: Model): Boolean {
+        val badVals = mutableSetOf<Double>()
+        dataToBeValidated.listObjectsOfProperty(AidaAnnotationOntology.CONFIDENCE_VALUE).forEach {
+            // we can assume all objects of confidenceValue are double-valued literals
+            // or else we would have failed SHACL validation
+            val floatVal = it.asLiteral().double
+            if (floatVal < 0 || floatVal > 1.0) {
+                badVals.add(floatVal)
+            }
+        }
+        if (!badVals.isEmpty()) {
+            // TODO: provide more context for this error
+            System.err.println("The following confidence values outside the range [0, 1.0] were " +
+                    "found: $badVals")
+        }
+        return badVals.isEmpty()
     }
 }
