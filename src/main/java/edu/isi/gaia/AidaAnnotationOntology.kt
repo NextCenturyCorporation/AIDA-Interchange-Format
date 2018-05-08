@@ -49,7 +49,12 @@ object AidaAnnotationOntology {
     @JvmField
     val NONE_OF_THE_ABOVE_PROPERTY =
             ResourceFactory.createProperty(NAMESPACE + "noneOfTheAbove")!!
-
+    @JvmField
+    val DEPENDS_ON_HYPOTHESIS =
+            ResourceFactory.createProperty(NAMESPACE + "dependsOnHypothesis")!!
+    @JvmField
+    val HYPOTHESIS_CONTENT_PROPERTY =
+            ResourceFactory.createProperty(NAMESPACE + "hypothesisContent")!!
 
     // classes
     @JvmField
@@ -78,4 +83,7 @@ object AidaAnnotationOntology {
     @JvmField
     val MUTUAL_EXCLUSION_ALTERNATIVE_CLASS =
             ResourceFactory.createResource(NAMESPACE + "MutualExclusionAlternative")!!
+    @JvmField
+    val HYPOTHESIS_CLASS =
+            ResourceFactory.createResource(NAMESPACE + "Hypothesis")
 }

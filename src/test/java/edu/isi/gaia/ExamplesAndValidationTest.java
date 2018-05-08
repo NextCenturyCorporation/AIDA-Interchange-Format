@@ -1,7 +1,10 @@
 package edu.isi.gaia;
 
+import static edu.isi.gaia.AIFUtils.makeHypothesis;
+import static edu.isi.gaia.AIFUtils.makeRelation;
 import static edu.isi.gaia.AIFUtils.markAsMutuallyExclusive;
 import static edu.isi.gaia.AIFUtils.markAsPossibleClusterMember;
+import static edu.isi.gaia.AIFUtils.markDependsOnHypothesis;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -127,6 +130,10 @@ public class ExamplesAndValidationTest {
       final Resource uncertainPlaceOfBirthEntity = AIFUtils
           .makeEntity(model, "http://www.test.edu/entities/4", system);
 
+      // whatever this place turns out to refer to, we're sure it's where they live
+      makeRelation(model, "http://www.test.edu/relations/1", personEntity,
+          "livesIn", uncertainPlaceOfBirthEntity, system, 1.0);
+
       // we use clusters to represent uncertainty about identity
       // we make two clusters, one for Louisville and one for Cambridge
       final Resource louisvilleCluster = AIFUtils.makeClusterWithPrototype(model,
@@ -144,7 +151,6 @@ public class ExamplesAndValidationTest {
           ImmutableMap.of(ImmutableSet.of(placeOfBirthInCambridgeCluster), 0.4,
               ImmutableSet.of(placeOfBirthInLouisvilleCluster), 0.6),
           system, null);
-
     }
 
     @Test
@@ -233,6 +239,59 @@ public class ExamplesAndValidationTest {
       // we also mark confidence 0.2 that neither of these are true
       markAsMutuallyExclusive(model, ImmutableMap.of(bobHitFredAssertions, 0.6,
           fredHitBobAssertions, 0.2), system, 0.2);
+    }
+
+    @Test
+    void twoHypotheses() {
+      final Model model = createModel();
+
+      // every AIF needs an object for the system responsible for creating it
+      final Resource system = AIFUtils.makeSystemWithURI(model,
+          "http://www.test.edu/testSystem");
+
+      // we want to represent that we know, regardless of hypothesis, that there is a person
+      // named Bob, two companies (Google and Amazon), and two places (Seattle and California).
+      final Resource bob = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Bob",
+          system);
+      AIFUtils.markType(model, "http://www.test.org/assertions/1",
+          bob, AidaDomainOntology.PERSON, system, 1.0);
+      final Resource google = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Google",
+          system);
+      AIFUtils.markType(model, "http://www.test.org/assertions/2",
+          google, AidaDomainOntology.ORGANIZATION, system, 1.0);
+      final Resource amazon = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Amazon",
+          system);
+      AIFUtils.markType(model, "http://www.test.org/assertions/3",
+          amazon, AidaDomainOntology.ORGANIZATION, system, 1.0);
+      final Resource seattle = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Seattle",
+          system);
+      AIFUtils.markType(model, "http://www.test.org/assertions/4",
+          seattle, AidaDomainOntology.GPE, system, 1.0);
+      final Resource california = AIFUtils
+          .makeEntity(model, "http://www.test.edu/entities/California",
+              system);
+      AIFUtils.markType(model, "http://www.test.org/assertions/5",
+          california, AidaDomainOntology.GPE, system, 1.0);
+
+      // under the background hypothesis that Bob lives in Seattle, we believe he works for Amazon
+      final Resource bobLivesInSeattle = makeRelation(model, "http://www.test.edu/relations/1",
+          bob, "livesIn", seattle, system, 1.0);
+      final Resource bobLivesInSeattleHypothesis = makeHypothesis(model,
+          "http://www.test.edu/hypotheses/1", ImmutableSet.of(bobLivesInSeattle),
+          system);
+      final Resource bobWorksForAmazon = makeRelation(model, "http://www.test.edu/relations/2",
+          bob, "worksFor", amazon, system, 1.0);
+      markDependsOnHypothesis(bobWorksForAmazon, bobLivesInSeattleHypothesis);
+
+      // under the background hypothesis that Bob lives in California, we believe he works for Google
+      final Resource bobLivesInCalifornia = makeRelation(model, "http://www.test.edu/relations/3",
+          bob, "livesIn", california, system, 1.0);
+      final Resource bobLivesInCaliforniaHypothesis = makeHypothesis(model,
+          "http://www.test.edu/hypotheses/2", ImmutableSet.of(bobLivesInCalifornia),
+          system);
+      final Resource bobWorksForGoogle = makeRelation(model, "http://www.test.edu/relations/4",
+          bob, "worksFor", google, system, 1.0);
+      markDependsOnHypothesis(bobWorksForGoogle, bobLivesInCalifornia);
     }
   }
 

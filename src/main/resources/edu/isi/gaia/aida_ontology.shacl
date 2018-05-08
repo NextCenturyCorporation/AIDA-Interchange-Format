@@ -70,6 +70,9 @@ aida:EntityShape
   # may provide justifications for its existence
   sh:property aida:JustificationPropertyShape ;
 
+  # may depend on a hypothesis
+  sh:property aida:DependsOnHypothesisPropertyShape ;
+
   # no other properties are allowed
   sh:closed true ;
   # except rdf:type
@@ -101,6 +104,9 @@ aida:EventShape
 
   # may provide one or more justifications for its existence
   sh:property aida:JustificationPropertyShape ;
+
+  # may depend on a hypothesis
+  sh:property aida:DependsOnHypothesisPropertyShape ;
 
   # no other properties are allowed
   sh:closed true ;
@@ -151,6 +157,9 @@ aida:EventArgumentShape
   # may provide one or more justifications for its existence
   sh:property aida:JustificationPropertyShape ;
 
+  # may depend on a hypothesis
+  sh:property aida:DependsOnHypothesisPropertyShape ;
+
   # no other properties are allowed
   sh:closed true ;
   # except rdf:type
@@ -197,6 +206,9 @@ aida:RelationShape
 
   # may provide one or more justifications for its existence
   sh:property aida:JustificationPropertyShape ;
+
+  # may depend on a hypothesis
+  sh:property aida:DependsOnHypothesisPropertyShape ;
 
   # no other properties are allowed
   sh:closed true ;
@@ -247,6 +259,9 @@ aida:SentimentShape
   # may provide one or more justifications for its existence
   sh:property aida:JustificationPropertyShape ;
 
+  # may depend on a hypothesis
+  sh:property aida:DependsOnHypothesisPropertyShape ;
+
   # no other properties are allowed
   sh:closed true ;
   # except rdf:type
@@ -296,6 +311,9 @@ aida:TypeShape
    # may provide one or more justifications for its existence
    sh:property aida:JustificationPropertyShape ;
 
+   # may depend on a hypothesis
+   sh:property aida:DependsOnHypothesisPropertyShape ;
+
    # no other properties are allowed
    sh:closed true ;
    # except rdf:type
@@ -321,7 +339,13 @@ aida:ConfidenceShape
     sh:maxCount 1 ] ;
 
     # may specify what system(s) this confidence came from
-    sh:property aida:SystemPropertyShape .
+    sh:property aida:SystemPropertyShape ;
+
+    # may depend on a hypothesis
+    sh:property aida:DependsOnHypothesisPropertyShape ;
+
+    sh:closed true
+    .
 
 aida:ConfidencePropertyShape
    a sh:PropertyShape ;
@@ -387,6 +411,10 @@ aida:TextJustificationShape
    sh:property aida:RequiredConfidencePropertyShape ;
    # may provide an optional source system
    sh:property aida:SystemPropertyShape ;
+
+   # may depend on a hypothesis
+   sh:property aida:DependsOnHypothesisPropertyShape ;
+
    # no other properties are allowed
    sh:closed true ;
    # except rdf:type
@@ -420,6 +448,9 @@ aida:LinkAssertionShape
 
    # may provide one or more justifications for the link
    sh:property aida:JustificationPropertyShape ;
+
+  # may depend on a hypothesis
+  sh:property aida:DependsOnHypothesisPropertyShape ;
 
   # no other properties are allowed
   sh:closed true ;
@@ -469,6 +500,9 @@ aida:ClusterShape
    # may provide an one or more source systems
    sh:property aida:SystemPropertyShape ;
 
+  # may depend on a hypothesis
+  sh:property aida:DependsOnHypothesisPropertyShape ;
+
    sh:closed true .
 
 # we declare that other entities might be in the cluster by using ClusterMember assertions
@@ -504,6 +538,9 @@ aida:ClusterMemberShape
    # may provide one or more justifications for the link
    sh:property aida:JustificationPropertyShape ;
 
+  # may depend on a hypothesis
+  sh:property aida:DependsOnHypothesisPropertyShape ;
+
    sh:closed true .
 
 # A Subgraph is a collection of content and annotation nodes.  They are used to talk about
@@ -535,6 +572,9 @@ aida:ContentGraphShape
 
   # may provide an one or more source systems
   sh:property aida:SystemPropertyShape ;
+
+  # may depend on a hypothesis
+  sh:property aida:DependsOnHypothesisPropertyShape ;
 
   # and can't contain anything else
   sh:closed true ;
@@ -569,6 +609,9 @@ aida:MutualExclusionConstraintShape
    # may provide one or more justifications for the link
    sh:property aida:JustificationPropertyShape ;
 
+  # may depend on a hypothesis
+  sh:property aida:DependsOnHypothesisPropertyShape ;
+
     sh:closed true ;
 
     sh:ignoredProperties ( rdf:type ).
@@ -592,6 +635,23 @@ aida:MutualExclusionAlternativeShape
     sh:ignoredProperties ( rdf:type )
     .
 
+aida:HypothesisShape
+   a sh:NodeShape ;
+   sh:targetClass aida:Hypothesis ;
 
-# TODO: private data
+   sh:property [
+    sh:property aida:hypothesisContent ;
+    sh:class aida:Subgraph ;
+    sh:minCount 1 ;
+    sh:maxCount 1] ;
+
+   sh:property aida:SystemPropertyShape ;
+   sh:closed true ;
+   sh:ignoredProperties ( rdf:type ) .
+
+aida:DependsOnHypothesisPropertyShape
+  a sh:PropertyShape ;
+  sh:path aida:dependsOnHypothesis ;
+  sh:class aida:Hypothesis .
+
 

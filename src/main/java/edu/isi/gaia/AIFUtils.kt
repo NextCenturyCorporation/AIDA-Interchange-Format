@@ -53,6 +53,30 @@ object AIFUtils {
     }
 
     /**
+     * Makes a relation of type [relationType] between [firstArg] and [secondArg].
+     *
+     * If [confidence] is non-null the relation is marked with the given [confidence]
+     *
+     * @return The relaton object
+     */
+    @JvmStatic
+    fun makeRelation(model: Model, relationUri: String, firstArg: Resource, relationType: String,
+                     secondArg: Resource, system: Resource, confidence: Double?): Resource {
+        val relation = model.createResource(relationUri)
+        markSystem(relation, system)
+        relation.addProperty(RDF.type, RDF.Statement)
+        relation.addProperty(RDF.subject, firstArg)
+        relation.addProperty(RDF.predicate, AidaDomainOntology.relationType(relationType))
+        relation.addProperty(RDF.`object`, secondArg)
+
+        if (confidence != null) {
+            markConfidence(model, relation, confidence, system)
+        }
+
+        return relation
+    }
+
+    /**
      * Create an event
      *
      * @param [eventUri] can be any unique string.
@@ -252,5 +276,34 @@ object AIFUtils {
         markConfidence(model, clusterMemberAssertion, confidence = confidence, system = system)
         markSystem(clusterMemberAssertion, system)
         return clusterMemberAssertion
+    }
+
+    /**
+     * Create a hypothesis
+     *
+     * You can then indicate that some other object depends on this hypothesis using
+     * [markDependsOnHypothesis].
+     *
+     * @return The hypothesis resource.
+     */
+    @JvmStatic
+    fun makeHypothesis(model: Model, hypothesisURI: String, hypothesisContent: Set<Resource>,
+                       system: Resource): Resource {
+        require(!hypothesisContent.isEmpty()) { "A hypothesis must have content" }
+        val hypothesis = model.createResource(hypothesisURI)!!
+        hypothesis.addProperty(RDF.type, AidaAnnotationOntology.HYPOTHESIS_CLASS)
+        markSystem(hypothesis, system)
+
+        val subgraph = model.createResource()
+        subgraph.addProperty(RDF.type, AidaAnnotationOntology.SUBGRAPH_CLASS)
+        hypothesisContent.forEach { subgraph.addProperty(AidaAnnotationOntology.GRAPH_CONTAINS, it) }
+        hypothesis.addProperty(AidaAnnotationOntology.HYPOTHESIS_CONTENT_PROPERTY, subgraph)
+
+        return hypothesis
+    }
+
+    @JvmStatic
+    fun markDependsOnHypothesis(depender: Resource, hypothesis: Resource) {
+        depender.addProperty(AidaAnnotationOntology.DEPENDS_ON_HYPOTHESIS, hypothesis)
     }
 }
