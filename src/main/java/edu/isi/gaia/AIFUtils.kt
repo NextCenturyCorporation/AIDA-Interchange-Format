@@ -127,10 +127,51 @@ object AIFUtils {
 
     /**
      * Mark the given resources as mutually exclusive.
+     *
+     * @param [alternatives] is a map from the collection of edges which form a sub-graph for
+     * an alternative to the confidence associated with an alternative.
+     *
+     * @param [noneOfTheAboveProb] - if non-null, the given confidence will be applied to the
+     * "none of the above" option.
      */
     @JvmStatic
-    fun markAsMutuallyExclusive(model: Model, toMark: Collection<Resource>,
-                                system: Resource): Resource {
-        throw NotImplementedError("Not implemented yet")
+    fun markAsMutuallyExclusive(model: Model, alternatives: Map<out Collection<Resource>, Double>,
+                                system: Resource, noneOfTheAboveProb: Double? = null): Resource {
+        require(alternatives.size >= 2) {
+            "Must have at least two mutually exclusive things when " +
+                    "making a mutual exclusion constraint, but got $alternatives"
+        }
+
+        val mutualExclusionAssertion = model.createResource()!!
+        mutualExclusionAssertion.addProperty(RDF.type, AidaAnnotationOntology.MUTUAL_EXCLUSION_CLASS)
+        markSystem(mutualExclusionAssertion, system)
+
+        alternatives.forEach {
+            val alternative = model.createResource()
+            alternative.addProperty(RDF.type,
+                    AidaAnnotationOntology.MUTUAL_EXCLUSION_ALTERNATIVE_CLASS)
+
+
+            val alternativeGraph = model.createResource()
+            alternativeGraph.addProperty(RDF.type, AidaAnnotationOntology.SUBGRAPH_CLASS)
+            for (edge in it.key) {
+                alternativeGraph.addProperty(AidaAnnotationOntology.GRAPH_CONTAINS, edge)
+            }
+
+            alternative.addProperty(AidaAnnotationOntology.ALTERNATIVE_GRAPH_PROPERTY,
+                    alternativeGraph)
+
+            markConfidence(model, alternative, it.value, system)
+
+            mutualExclusionAssertion.addProperty(AidaAnnotationOntology.ALTERNATIVE_PROPERTY,
+                    alternative)
+        }
+
+        if (noneOfTheAboveProb != null) {
+            mutualExclusionAssertion.addProperty(AidaAnnotationOntology.NONE_OF_THE_ABOVE_PROPERTY,
+                    model.createTypedLiteral(noneOfTheAboveProb))
+        }
+
+        return mutualExclusionAssertion
     }
 }

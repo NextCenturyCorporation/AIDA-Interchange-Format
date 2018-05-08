@@ -38,8 +38,21 @@ object AidaAnnotationOntology {
     val CLUSTER_PROPERTY = ResourceFactory.createProperty(_namespace + "cluster")!!
     @JvmField
     val CLUSTER_MEMBER = ResourceFactory.createProperty(_namespace + "clusterMember")!!
+    @JvmField
+    val GRAPH_CONTAINS = ResourceFactory.createProperty(_namespace + "subgraphContains")!!
+    @JvmField
+    val ALTERNATIVE_PROPERTY = ResourceFactory.createProperty(_namespace + "alternative")!!
+    @JvmField
+    val ALTERNATIVE_GRAPH_PROPERTY = ResourceFactory.createProperty(_namespace
+            + "alternativeGraph")!!
+    @JvmField
+    val NONE_OF_THE_ABOVE_PROPERTY =
+            ResourceFactory.createProperty(_namespace + "noneOfTheAbove")!!
+
 
     // classes
+    @JvmField
+    val SUBGRAPH_CLASS = ResourceFactory.createResource(_namespace + "Subgraph")
     @JvmField
     val SYSTEM_CLASS = ResourceFactory.createResource(_namespace + "System")
     @JvmField
@@ -49,11 +62,19 @@ object AidaAnnotationOntology {
     @JvmField
     val CONFIDENCE_CLASS = ResourceFactory.createResource(_namespace + "Confidence")!!
     @JvmField
-    val TEXT_JUSTIFICATION_CLASS = ResourceFactory.createResource(_namespace + "TextProvenance")!!
+    val TEXT_JUSTIFICATION_CLASS =
+            ResourceFactory.createResource(_namespace + "TextProvenance")!!
     @JvmField
     val LINK_ASSERTION_CLASS = ResourceFactory.createResource(_namespace + "LinkAssertion")!!
     @JvmField
     val SAME_AS_CLUSTER_CLASS = ResourceFactory.createResource(_namespace + "SameAsCluster")!!
     @JvmField
-    val CLUSTER_MEMBERSHIP_CLASS = ResourceFactory.createResource(_namespace + "ClusterMembership")!!
+    val CLUSTER_MEMBERSHIP_CLASS =
+            ResourceFactory.createResource(_namespace + "ClusterMembership")!!
+    @JvmField
+    val MUTUAL_EXCLUSION_CLASS =
+            ResourceFactory.createResource(_namespace + "MutualExclusion")!!
+    @JvmField
+    val MUTUAL_EXCLUSION_ALTERNATIVE_CLASS =
+            ResourceFactory.createResource(_namespace + "MutualExclusionAlternative")!!
 }

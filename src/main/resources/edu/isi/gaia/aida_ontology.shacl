@@ -41,55 +41,6 @@
 # property patterns across node types.  You will frequently see that node shapes refer to property
 # shapes which will be defined later in the document.
 
-# A KnowledgeGraph is a collection of content and annotation nodes.  KnowledgeGraphs are used for
-# two purposes: first, to talk about sub-graphs of the full knowledge graph for when we need to
-# specify confidences or mutual exclusion constraints over large structures; second, to provide
-# a root graph which must contain all GKG content. This root graph assists in validation.
-#
-# We currently require there to be exactly one root graph from which all other graph elements
-# can be reached.  As far as I know these constraints cannot be easily expressed in SHACL so we
-# handle it manually in the validator.
-aida:ContentGraphShape
-  # note this is a declaration of a set of node constraints
-  a sh:NodeShape ;
-  # and that these contains apply to nodes of type aida:KnowledgeGraph
-  sh:targetClass aida:KnowledgeGraph ;
-  # a KnowledgeGraph can have a property (=outgoing labelled edge)
-  sh:property [
-     # which is called "containsAssertion"
-     # TODO: change name from assertion to something better
-     sh:path aida:containsAssertion ;
-     # every content graph must contain at least one content assertion
-     sh:minCount 1 ;
-     # the contained nodes must be of the content node types
-     sh:exone (
-          [sh:class aida:Entity]
-          [sh:class aida:Event]
-          [sh:class aida:Relation]
-          [sh:class aida:SentimentAssertion] )
-  ] ;
-
-  # a knowledge graph may optionally be marked as the "root knowledge graph".
-  sh:property [
-    sh:path aida:rootGraph ;
-    sh:dataType xsd:bool ;
-    sh:maxCount 1
-  ];
-
-  # a graph may provide a confidence
-  # this is not useful for a root graph but is for when we want to make confidence assertions
-  # about sub-graphs instead of single edges
-  # TODO: enforce that confidence cannot be present if rootGraph=True
-  sh:property aida:ConfidencePropertyShape ;
-
-  # may provide an one or more source systems
-  sh:property aida:SystemPropertyShape ;
-
-  # and can't contain anything else
-  sh:closed true ;
-  # (except the rdf:type assertion)
-  sh:ignoredProperties (rdf:type) .
-
 # the first type of content node is an entity, which represents some non-event thing in the world
 # (e.g. a person, place, thing, etc.)
 # Each entity must have at least one assertion giving it a type which is a sub-class of
@@ -548,6 +499,41 @@ aida:ClusterMemberShape
 
    sh:closed true .
 
+# A Subgraph is a collection of content and annotation nodes.  They are used to talk about
+# sub-graphs of the full knowledge graph for when we need to specify confidences or mutual
+# exclusion constraints over large structures
+aida:ContentGraphShape
+  # note this is a declaration of a set of node constraints
+  a sh:NodeShape ;
+  # and that these contains apply to nodes of type aida:KnowledgeGraph
+  sh:targetClass aida:Subgraph ;
+  # a Subgraph can have a property (=outgoing labelled edge)
+  sh:property [
+     # which is called "subGraphContains"
+     sh:path aida:subgraphContains ;
+     # every content graph must contain at least one content assertion
+     sh:minCount 1 ;
+     # the contained nodes must be of the content node types
+     sh:exone (
+          [sh:class aida:Entity]
+          [sh:class aida:Event]
+          [sh:class aida:Relation]
+          [sh:class aida:SentimentAssertion] )
+  ] ;
+
+  # a graph may provide a confidence
+  # this is not useful for a root graph but is for when we want to make confidence assertions
+  # about sub-graphs instead of single edges
+  sh:property aida:ConfidencePropertyShape ;
+
+  # may provide an one or more source systems
+  sh:property aida:SystemPropertyShape ;
+
+  # and can't contain anything else
+  sh:closed true ;
+  # (except the rdf:type assertion)
+  sh:ignoredProperties (rdf:type) .
+
 # Sometimes we need to indicate that either one set of assertions about the world should be
 # included in a graph *or* some other set of assertions should. In these cases we use a
 # MutualExclusionConstraints
@@ -576,7 +562,9 @@ aida:MutualExclusionConstraintShape
    # may provide one or more justifications for the link
    sh:property aida:JustificationPropertyShape ;
 
-    sh:closed true .
+    sh:closed true ;
+
+    sh:ignoredProperties ( rdf:type ).
 
 aida:MutualExclusionAlternativeShape
    a sh:NodeShape ;
@@ -584,17 +572,18 @@ aida:MutualExclusionAlternativeShape
 
    # there must be at least one graph edge in this alternative
    # each edge is included by making it the object of a alternate_graph property
-   # TODO: enforce that such a sub-graph cannot have rootGraph=True
    sh:property [
       a sh:PropertyShape ;
-      sh:path aida:alternate_graph ;
-      sh:class aida:KnowledgeGraph ;
+      sh:path aida:alternativeGraph ;
+      sh:class aida:Subgraph ;
       sh:minCount 1 ] ;
 
     # each alternative must specify confidence
     sh:property aida:ConfidencePropertyShape ;
 
-    sh:closed true .
+    sh:closed true ;
+    sh:ignoredProperties ( rdf:type )
+    .
 
 # TODO: private data
 
