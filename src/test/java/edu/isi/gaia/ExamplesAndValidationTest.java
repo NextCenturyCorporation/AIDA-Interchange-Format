@@ -49,7 +49,7 @@ public class ExamplesAndValidationTest {
     // entity's type directly on the entity, but rather make a separate assertion for it
     // its URI doesn't matter either
     final Resource typeAssertion = AIFUtils.markType(model, "http://www.test.org/assertions/1",
-        entity, AidaDomainOntology.PERSON, system);
+        entity, AidaDomainOntology.PERSON, system, 1.0);
 
     // the justification provides the evidence for our claim about the entity's type
     // we attach this justification to both the type assertion and the entity object
@@ -74,9 +74,9 @@ public class ExamplesAndValidationTest {
 
     final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1", system);
     final Resource entityIsAPerson = AIFUtils.markType(model, "http://www.test.org/assertions/1",
-        entity, AidaDomainOntology.PERSON, system);
+        entity, AidaDomainOntology.PERSON, system, 0.5);
     final Resource entityIsAnOrganization = AIFUtils.markType(model, "http://www.test.org/assertions/2",
-        entity, AidaDomainOntology.ORGANIZATION, system);
+        entity, AidaDomainOntology.ORGANIZATION, system, 0.2);
 
     final Resource justificationIsAPerson = AIFUtils.markTextJustification(model,
         ImmutableSet.of(entity, entityIsAPerson), "NYT_ENG_201181231", 42, 14, system);
@@ -105,17 +105,17 @@ public class ExamplesAndValidationTest {
     final Resource personEntity = AIFUtils
         .makeEntity(model, "http://www.test.edu/entities/1", system);
     AIFUtils.markType(model, "http://www.test.org/assertions/1",
-        personEntity, AidaDomainOntology.PERSON, system);
+        personEntity, AidaDomainOntology.PERSON, system, 1.0);
 
     // create entities for the two locations
     final Resource louisvilleEntity = AIFUtils
         .makeEntity(model, "http://www.test.edu/entities/2", system);
     AIFUtils.markType(model, "http://www.test.org/assertions/2",
-        louisvilleEntity, AidaDomainOntology.GPE, system);
+        louisvilleEntity, AidaDomainOntology.GPE, system, 1.0);
     final Resource cambridgeEntity = AIFUtils
         .makeEntity(model, "http://www.test.edu/entities/3", system);
     AIFUtils.markType(model, "http://www.test.org/assertions/3",
-        cambridgeEntity, AidaDomainOntology.GPE, system);
+        cambridgeEntity, AidaDomainOntology.GPE, system, 1.0);
 
     // create an entity for the uncertain place of birth
     final Resource uncertainPlaceOfBirthEntity = AIFUtils
@@ -156,18 +156,18 @@ public class ExamplesAndValidationTest {
     // mark the event as a Personnel.Elect event; type is encoded separately so we can express
     // uncertainty about type
     AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
-        AidaDomainOntology.eventType("PERSONNEL.ELECT"), system);
+        AidaDomainOntology.eventType("PERSONNEL.ELECT"), system, 1.0);
 
     // create the two entities involved in the event
     final Resource electee = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
         system);
     AIFUtils.markType(model, "http://www.test.edu/assertions/6", electee,
-        AidaDomainOntology.PERSON, system);
+        AidaDomainOntology.PERSON, system, 1.0);
 
     final Resource electionCountry = AIFUtils.makeEntity(model,
         "http://www.test.edu/entities/2", system);
     AIFUtils.markType(model, "http://www.test.edu/assertions/7", electionCountry,
-        AidaDomainOntology.GPE, system);
+        AidaDomainOntology.GPE, system, 1.0);
 
     // link those entities to the event
     AIFUtils.markAsEventArgument(model, event, AidaDomainOntology.eventArgumentType("Person"),
@@ -197,18 +197,18 @@ public class ExamplesAndValidationTest {
     // mark the event as a Personnel.Elect event; type is encoded separately so we can express
     // uncertainty about type
     AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
-        AidaDomainOntology.eventType("CONFLICT.ATTACK"), system);
+        AidaDomainOntology.eventType("CONFLICT.ATTACK"), system, 1.0);
 
     // create the two entities involved in the event
     final Resource bob = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
         system);
     AIFUtils.markType(model, "http://www.test.edu/assertions/6", bob,
-        AidaDomainOntology.PERSON, system);
+        AidaDomainOntology.PERSON, system, 1.0);
 
     final Resource fred = AIFUtils.makeEntity(model,
         "http://www.test.edu/entities/2", system);
     AIFUtils.markType(model, "http://www.test.edu/assertions/7", fred,
-        AidaDomainOntology.PERSON, system);
+        AidaDomainOntology.PERSON, system, 1.0);
 
     // we link all possible argument fillers to the event
     final ImmutableSet<Resource> bobHitFredAssertions = ImmutableSet.of(

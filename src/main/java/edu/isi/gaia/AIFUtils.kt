@@ -99,13 +99,16 @@ object AIFUtils {
      */
     @JvmStatic
     fun markType(model: Model, typeAssertionUri: String, entityOrEvent: Resource,
-                 type: Resource, system: Resource): Resource {
+                 type: Resource, system: Resource, confidence: Double?): Resource {
         val typeAssertion = model.createResource(typeAssertionUri)!!
         typeAssertion.addProperty(RDF.type, RDF.Statement)
         typeAssertion.addProperty(RDF.subject, entityOrEvent)
         typeAssertion.addProperty(RDF.predicate, RDF.type)
         typeAssertion.addProperty(RDF.`object`, type)
         typeAssertion.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system)
+        if (confidence != null) {
+            markConfidence(model, typeAssertion, confidence, system)
+        }
         return typeAssertion
     }
 
