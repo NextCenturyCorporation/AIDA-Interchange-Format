@@ -403,8 +403,8 @@ class ColdStart2AidaInterchangeConverter(
 
             model.setNsPrefix("rdf", RDF.uri)
             model.setNsPrefix("xsd", XSD.getURI())
-            model.setNsPrefix("aida", AidaAnnotationOntology._namespace)
-            model.setNsPrefix("aidaProgramOntology", AidaDomainOntology._namespace)
+            model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE)
+            model.setNsPrefix("aidaProgramOntology", AidaDomainOntology.NAMESPACE)
             model.setNsPrefix("skos", SKOS.uri)
         }
     }

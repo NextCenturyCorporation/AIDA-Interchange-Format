@@ -15,20 +15,21 @@ private class Memoize<in Arg, out Result>(val f: (Arg) -> Result) : (Arg) -> Res
  * For the moment, this is hard-coded to match ColdStart.
  */
 object AidaDomainOntology {
-    internal val _namespace: String = "http://www.isi.edu/aida/programOntology#"
+    @JvmField
+    val NAMESPACE: String = "http://www.isi.edu/aida/programOntology#"
 
     @JvmField
-    val PERSON = ResourceFactory.createResource(_namespace + "Person")!!
+    val PERSON = ResourceFactory.createResource(NAMESPACE + "Person")!!
     @JvmField
-    val ORGANIZATION = ResourceFactory.createResource(_namespace + "Organization")!!
+    val ORGANIZATION = ResourceFactory.createResource(NAMESPACE + "Organization")!!
     @JvmField
-    val LOCATION = ResourceFactory.createResource(_namespace + "Location")!!
+    val LOCATION = ResourceFactory.createResource(NAMESPACE + "Location")!!
     @JvmField
-    val GPE = ResourceFactory.createResource(_namespace + "GeopoliticalEntity")!!
+    val GPE = ResourceFactory.createResource(NAMESPACE + "GeopoliticalEntity")!!
     @JvmField
-    val FACILITY = ResourceFactory.createResource(_namespace + "Facility")!!
+    val FACILITY = ResourceFactory.createResource(NAMESPACE + "Facility")!!
     @JvmField
-    val STRING = ResourceFactory.createResource(_namespace + "String")!!
+    val STRING = ResourceFactory.createResource(NAMESPACE + "String")!!
 
     @JvmField
     val ENTITY_TYPES = setOf(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY)
@@ -73,22 +74,22 @@ object AidaDomainOntology {
             "JUSTICE.EXTRADITE", "JUSTICE.FINE", "JUSTICE.RELEASEPAROLE", "JUSTICE.SENTENCE",
             "JUSTICE.SUE", "JUSTICE.TRIALHEARING", "LIFE.BEBORN", "LIFE.MARRY", "LIFE.DIVORCE",
             "PERSONNEL.NOMINATE")
-            .map { it to ResourceFactory.createResource(_namespace + it.toLowerCase()) }
+            .map { it to ResourceFactory.createResource(NAMESPACE + it.toLowerCase()) }
             .toMap()
 
     // realis types
-    val ACTUAL = ResourceFactory.createResource(_namespace + "Actual")!!
-    val GENERIC = ResourceFactory.createResource(_namespace + "Generic")!!
-    val OTHER = ResourceFactory.createResource(_namespace + "Other")!!
+    val ACTUAL = ResourceFactory.createResource(NAMESPACE + "Actual")!!
+    val GENERIC = ResourceFactory.createResource(NAMESPACE + "Generic")!!
+    val OTHER = ResourceFactory.createResource(NAMESPACE + "Other")!!
 
     // sentiment types
     @JvmField
-    val LIKES = ResourceFactory.createResource(_namespace + "LIKES")!!
+    val LIKES = ResourceFactory.createResource(NAMESPACE + "LIKES")!!
     @JvmField
-    val DISLIKES = ResourceFactory.createResource(_namespace + "DISLIKES")!!
+    val DISLIKES = ResourceFactory.createResource(NAMESPACE + "DISLIKES")!!
 
     @JvmStatic
     val ontologizeEventType: (String) -> Resource = Memoize({ eventType: String ->
-        ResourceFactory.createResource(_namespace + eventType)
+        ResourceFactory.createResource(NAMESPACE + eventType)
     })
 }
