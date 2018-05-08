@@ -28,24 +28,6 @@ internal class ExamplesAndValidationTest {
 
     private val validator = ValidateAIF()
 
-    // we dump the test name and the model in Turtle format so that whenever the user
-    // runs the tests, they will also get the examples
-    private fun dumpAndAssertValid(model: Model, testName: String) {
-        System.out.println(testName)
-        RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY)
-        assertTrue { validator.validateKB(model) }
-    }
-
-    private fun createModel(): Model {
-        val model = ModelFactory.createDefaultModel()
-        model.setNsPrefix("rdf", RDF.uri)
-        model.setNsPrefix("xsd", XSD.getURI())
-        model.setNsPrefix("aida", AidaAnnotationOntology._namespace)
-        model.setNsPrefix("aidaProgramOntology", AidaDomainOntology._namespace)
-        model.setNsPrefix("skos", SKOS.uri)
-        return model
-    }
-
     @Nested
     internal inner class TA1Examples {
         @Test
@@ -130,5 +112,24 @@ internal class ExamplesAndValidationTest {
     @Nested
     internal inner class ValidationFailures {
 
+    }
+
+    // we dump the test name and the model in Turtle format so that whenever the user
+    // runs the tests, they will also get the examples
+    private fun dumpAndAssertValid(model: Model, testName: String) {
+        System.out.println(testName)
+        RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY)
+        assertTrue { validator.validateKB(model) }
+    }
+
+    private fun createModel(): Model {
+        val model = ModelFactory.createDefaultModel()
+        // adding namespace prefixes makes the Turtle output more readable
+        model.setNsPrefix("rdf", RDF.uri)
+        model.setNsPrefix("xsd", XSD.getURI())
+        model.setNsPrefix("aida", AidaAnnotationOntology._namespace)
+        model.setNsPrefix("aidaProgramOntology", AidaDomainOntology._namespace)
+        model.setNsPrefix("skos", SKOS.uri)
+        return model
     }
 }
