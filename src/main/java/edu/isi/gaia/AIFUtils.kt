@@ -133,6 +133,8 @@ object AIFUtils {
      *
      * @param [noneOfTheAboveProb] - if non-null, the given confidence will be applied to the
      * "none of the above" option.
+     *
+     * @return The mutual exclusion assertion.
      */
     @JvmStatic
     fun markAsMutuallyExclusive(model: Model, alternatives: Map<out Collection<Resource>, Double>,
@@ -173,5 +175,44 @@ object AIFUtils {
         }
 
         return mutualExclusionAssertion
+    }
+
+    /**
+     * Create a "same-as" cluster.
+     *
+     * A same-as cluster is used to represent multiple entities which might be the same, but we
+     * aren't sure. (If we were sure, they would just be a single node).
+     *
+     * Every cluster requires a [prototype] - an entity or event that we are *certain* is in the
+     * cluster.
+     *
+     * @return The cluster created
+     */
+    @JvmStatic
+    fun makeClusterWithPrototype(model: Model, clusterUri: String, prototype: Resource,
+                                 system: Resource): Resource {
+        val cluster = model.createResource(clusterUri)!!
+        cluster.addProperty(RDF.type, AidaAnnotationOntology.SAME_AS_CLUSTER_CLASS)
+        cluster.addProperty(AidaAnnotationOntology.PROTOTYPE, prototype)
+        markSystem(cluster, system)
+        return cluster
+    }
+
+    /**
+     * Mark an entity or event as a possible member of a cluster.
+     *
+     * @return The cluster membership assertion
+     */
+    @JvmStatic
+    fun markAsPossibleClusterMember(model: Model, possibleClusterMember: Resource,
+                                    cluster: Resource, confidence: Double,
+                                    system: Resource): Resource {
+        val clusterMemberAssertion = model.createResource()
+        clusterMemberAssertion.addProperty(RDF.type, AidaAnnotationOntology.CLUSTER_MEMBERSHIP_CLASS)
+        clusterMemberAssertion.addProperty(AidaAnnotationOntology.CLUSTER_PROPERTY, cluster)
+        clusterMemberAssertion.addProperty(AidaAnnotationOntology.CLUSTER_MEMBER, possibleClusterMember)
+        markConfidence(model, clusterMemberAssertion, confidence = confidence, system = system)
+        markSystem(clusterMemberAssertion, system)
+        return clusterMemberAssertion
     }
 }

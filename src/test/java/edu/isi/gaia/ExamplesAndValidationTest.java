@@ -1,5 +1,6 @@
 package edu.isi.gaia;
 
+import static edu.isi.gaia.AIFUtils.markAsPossibleClusterMember;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ch.qos.logback.classic.Level;
@@ -93,6 +94,49 @@ public class ExamplesAndValidationTest {
 
   @Test
   void createARelationBetweenTwoEntitiesWhereThereIsUncertaintyAboutIdentityOfOneArgument() {
+    final Model model = createModel();
+
+    // every AIF needs an object for the system responsible for creating it
+    final Resource system = AIFUtils.makeSystemWithURI(model, "http://www.test.edu/testSystem");
+
+    // we want to represent a "city_of_birth" relation for a person, but we aren't sure whether
+    // they were born in Louisville or Cambridge
+    final Resource personEntity = AIFUtils
+        .makeEntity(model, "http://www.test.edu/entities/1", system);
+    AIFUtils.markType(model, "http://www.test.org/assertions/1",
+        personEntity, AidaDomainOntology.PERSON, system);
+
+    // create entities for the two locations
+    final Resource louisvilleEntity = AIFUtils
+        .makeEntity(model, "http://www.test.edu/entities/2", system);
+    AIFUtils.markType(model, "http://www.test.org/assertions/2",
+        louisvilleEntity, AidaDomainOntology.GPE, system);
+    final Resource cambridgeEntity = AIFUtils
+        .makeEntity(model, "http://www.test.edu/entities/3", system);
+    AIFUtils.markType(model, "http://www.test.org/assertions/3",
+        cambridgeEntity, AidaDomainOntology.GPE, system);
+
+    // create an entity for the uncertain place of birth
+    final Resource uncertainPlaceOfBirthEntity = AIFUtils
+        .makeEntity(model, "http://www.test.edu/entities/4", system);
+
+    // we use clusters to represent uncertainty about identity
+    // we make two clusters, one for Louisville and one for Cambridge
+    final Resource louisvilleCluster = AIFUtils.makeClusterWithPrototype(model,
+        "http://www.test.edu/clusters/1", louisvilleEntity, system);
+    final Resource cambridgeCluster = AIFUtils.makeClusterWithPrototype(model,
+        "http://www.test.edu/clusters/2", cambridgeEntity, system);
+
+    // the uncertain place of birth is either Louisville or Cambridge
+    final Resource placeOfBirthInLouisvilleCluster = markAsPossibleClusterMember(model,
+        uncertainPlaceOfBirthEntity, louisvilleCluster, 0.4, system);
+    final Resource placeOfBirthInCambridgeCluster = markAsPossibleClusterMember(model,
+        uncertainPlaceOfBirthEntity, cambridgeCluster, 0.6, system);
+    // but not both
+    AIFUtils.markAsMutuallyExclusive(model,
+        ImmutableMap.of(ImmutableSet.of(placeOfBirthInCambridgeCluster), 0.4,
+            ImmutableSet.of(placeOfBirthInLouisvilleCluster), 0.6),
+        system, null);
 
   }
 
