@@ -8,9 +8,12 @@ import com.google.common.io.Files
 import com.google.common.io.Resources
 import edu.isi.nlp.parameters.Parameters
 import mu.KLogging
+import org.apache.jena.query.QueryExecutionFactory
+import org.apache.jena.query.QueryFactory
 import org.apache.jena.rdf.model.Model
 import org.apache.jena.rdf.model.ModelFactory
 import org.apache.jena.util.FileUtils
+import org.apache.jena.vocabulary.RDF
 import org.topbraid.shacl.validation.ValidationUtil
 import java.io.File
 import java.io.Reader
@@ -84,12 +87,11 @@ class ValidateAIF {
      * Returns whether or not the KB is valid
      */
     fun validateKB(dataToBeValidated: Model): Boolean {
-        var valid = true
         // we short-circuit because earlier validation failures may make later
         // validation attempts misleading nonsense
-        valid = valid && validateAgainstShacl(dataToBeValidated)
-        valid = valid && ensureConfidencesInZeroOne(dataToBeValidated)
-        return valid
+        return validateAgainstShacl(dataToBeValidated)
+                && ensureConfidencesInZeroOne(dataToBeValidated)
+                && ensureEveryEntityAndEventHasAType(dataToBeValidated)
     }
 
     /**
@@ -124,5 +126,42 @@ class ValidateAIF {
                     "found: $badVals")
         }
         return badVals.isEmpty()
+    }
+
+    // used by ensureEveryEntityAndEventHasAType below
+    private val ENSURE_TYPE_SPARQL_QUERY = """
+        PREFIX rdf: <${RDF.uri}>
+        PREFIX aida: <${AidaAnnotationOntology.NAMESPACE}>
+
+        SELECT ?entityOrEvent
+        WHERE {
+           {?entityOrEvent a aida:Entity} UNION  {?entityOrEvent a aida:Event}
+           FILTER NOT EXISTS {
+           ?typeAssertion a rdf:Statement .
+           ?typeAssertion rdf:predicate rdf:type .
+           ?typeAssertion rdf:subject ?entityOrEvent .
+            }
+        }
+        """
+
+    private fun ensureEveryEntityAndEventHasAType(dataToBeValidated: Model): Boolean {
+        // it is okay if there are multiple type assertions (in case of uncertainty)
+        // but there has to be at least one
+        // TODO: we would like to make sure if there are multiple, then they must be in some sort
+        // of mutual exclusion relationship. This may be complicated and slow, however, so we
+        // don't do it yet
+        val query = QueryFactory.create(ENSURE_TYPE_SPARQL_QUERY)
+        val queryExecution = QueryExecutionFactory.create(query, dataToBeValidated)
+        val results = queryExecution.execSelect()
+
+        var valid = true
+        while (results.hasNext()) {
+            val match = results.nextSolution()
+            val typelessEntityOrEvent = match.getResource("entityOrEvent")
+            System.err.println("Entity or event ${typelessEntityOrEvent.uri} has no type " +
+                    "assertion")
+            valid = false
+        }
+        return valid
     }
 }

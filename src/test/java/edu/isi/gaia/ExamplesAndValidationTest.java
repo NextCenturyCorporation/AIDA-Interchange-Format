@@ -260,6 +260,34 @@ public class ExamplesAndValidationTest {
 
       assertFalse(validator.validateKB(model));
     }
+
+    @Test
+    void entityMissingType() {
+      // having multiple type assertions in case of uncertainty is ok, but there must always
+      // be at least one type assertion
+      final Model model = createModel();
+
+      final Resource system = AIFUtils.makeSystemWithURI(model,
+          "http://www.test.edu/testSystem");
+
+      AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
+          system);
+      assertFalse(validator.validateKB(model));
+    }
+
+    @Test
+    void eventMissingType() {
+      // having multiple type assertions in case of uncertainty is ok, but there must always
+      // be at least one type assertion
+      final Model model = createModel();
+
+      final Resource system = AIFUtils.makeSystemWithURI(model,
+          "http://www.test.edu/testSystem");
+
+      AIFUtils.makeEntity(model, "http://www.test.edu/events/1",
+          system);
+      assertFalse(validator.validateKB(model));
+    }
   }
 
   // we dump the test name and the model in Turtle format so that whenever the user
