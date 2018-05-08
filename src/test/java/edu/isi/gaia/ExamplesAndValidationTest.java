@@ -284,7 +284,23 @@ public class ExamplesAndValidationTest {
       final Resource system = AIFUtils.makeSystemWithURI(model,
           "http://www.test.edu/testSystem");
 
-      AIFUtils.makeEntity(model, "http://www.test.edu/events/1",
+      AIFUtils.makeEvent(model, "http://www.test.edu/events/1",
+          system);
+      assertFalse(validator.validateKB(model));
+    }
+
+    @Test
+    void justificationMissingConfidence() {
+      // having multiple type assertions in case of uncertainty is ok, but there must always
+      // be at least one type assertion
+      final Model model = createModel();
+
+      final Resource system = AIFUtils.makeSystemWithURI(model,
+          "http://www.test.edu/testSystem");
+
+      final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/events/1",
+          system);
+      AIFUtils.markTextJustification(model, entity, "FOO", 14, 56,
           system);
       assertFalse(validator.validateKB(model));
     }

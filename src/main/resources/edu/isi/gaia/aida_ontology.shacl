@@ -328,6 +328,13 @@ aida:ConfidencePropertyShape
    sh:path aida:confidence ;
    sh:nodeShape aida:ConfidenceShape .
 
+# use this instead of aida:ConfidencePropertyShape when you wish to force confidences to be present
+aida:RequiredConfidencePropertyShape
+   a sh:PropertyShape ;
+   sh:path aida:confidence ;
+   sh:nodeShape aida:ConfidenceShape ;
+   sh:minCount 1 .
+
 # Most things may be annotated with what system produced them
 # To do this, we need to declare nodes which represent the systems
 aida:SystemShape
@@ -377,7 +384,7 @@ aida:TextJustificationShape
       sh:path skos:prefLabel ;
       sh:datatype xsd:string ];
    # justifications may provide a confidence but do not have to
-   sh:property aida:ConfidencePropertyShape ;
+   sh:property aida:RequiredConfidencePropertyShape ;
    # may provide an optional source system
    sh:property aida:SystemPropertyShape ;
    # no other properties are allowed
@@ -584,6 +591,7 @@ aida:MutualExclusionAlternativeShape
     sh:closed true ;
     sh:ignoredProperties ( rdf:type )
     .
+
 
 # TODO: private data
 
