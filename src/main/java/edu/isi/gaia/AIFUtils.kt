@@ -53,6 +53,41 @@ object AIFUtils {
     }
 
     /**
+     * Create an event
+     *
+     * @param [eventUri] can be any unique string.
+     * @param [system] The system object for the system which created this event.
+     */
+    @JvmStatic
+    fun makeEvent(model: Model, eventUri: String, system: Resource): Resource {
+        val event = model.createResource(eventUri)!!
+        event.addProperty(RDF.type, AidaAnnotationOntology.EVENT_CLASS)
+        event.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system)
+        return event
+    }
+
+    /**
+     * Marks an entity as filling an argument role for an event.
+     *
+     * @return The created event argument assertion
+     */
+    @JvmStatic
+    fun markAsEventArgument(model: Model, event: Resource, argumentType: Resource,
+                            argumentFiller: Resource, system: Resource,
+                            confidence: Double?): Resource {
+        val argAssertion = model.createResource()!!
+        argAssertion.addProperty(RDF.type, RDF.Statement)
+        argAssertion.addProperty(RDF.subject, event)
+        argAssertion.addProperty(RDF.predicate, argumentType)
+        argAssertion.addProperty(RDF.`object`, argumentFiller)
+        markSystem(argAssertion, system)
+        if (confidence != null) {
+            markConfidence(model, argAssertion, confidence = confidence, system = system)
+        }
+        return argAssertion
+    }
+
+    /**
      * Mark an entity or event as having a specified type.
      *
      * This is marked with a separate assertion so that uncertainty about type can be expressed.

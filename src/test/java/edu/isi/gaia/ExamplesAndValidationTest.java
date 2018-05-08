@@ -1,5 +1,6 @@
 package edu.isi.gaia;
 
+import static edu.isi.gaia.AIFUtils.markAsMutuallyExclusive;
 import static edu.isi.gaia.AIFUtils.markAsPossibleClusterMember;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -142,17 +143,90 @@ public class ExamplesAndValidationTest {
 
   @Test
   void createAnEvent() {
+    final Model model = createModel();
 
+    // every AIF needs an object for the system responsible for creating it
+    final Resource system = AIFUtils.makeSystemWithURI(model,
+        "http://www.test.edu/testSystem");
+
+    // we make a resource for the event itself
+    final Resource event = AIFUtils.makeEvent(model,
+        "http://www.test.edu/events/1", system);
+
+    // mark the event as a Personnel.Elect event; type is encoded separately so we can express
+    // uncertainty about type
+    AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
+        AidaDomainOntology.eventType("PERSONNEL.ELECT"), system);
+
+    // create the two entities involved in the event
+    final Resource electee = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
+        system);
+    AIFUtils.markType(model, "http://www.test.edu/assertions/6", electee,
+        AidaDomainOntology.PERSON, system);
+
+    final Resource electionCountry = AIFUtils.makeEntity(model,
+        "http://www.test.edu/entities/2", system);
+    AIFUtils.markType(model, "http://www.test.edu/assertions/7", electionCountry,
+        AidaDomainOntology.GPE, system);
+
+    // link those entities to the event
+    AIFUtils.markAsEventArgument(model, event, AidaDomainOntology.eventArgumentType("Person"),
+        electee, system, 0.785);
+    AIFUtils.markAsEventArgument(model, event, AidaDomainOntology.eventArgumentType("Place"),
+        electionCountry, system, 0.589);
   }
 
   @Test
   void labelSentimentRegardingAnEntity() {
-
+    // TODO
   }
 
   @Test
   void useSubgraphConfidencesToShowMutuallyExclusiveLinkedEventArgumentOptions() {
+    // we want to say that either Fred hit Bob or Bob hit Fred, but we aren't sure which
+    final Model model = createModel();
 
+    // every AIF needs an object for the system responsible for creating it
+    final Resource system = AIFUtils.makeSystemWithURI(model,
+        "http://www.test.edu/testSystem");
+
+    // we make a resource for the event itself
+    final Resource event = AIFUtils.makeEvent(model,
+        "http://www.test.edu/events/1", system);
+
+    // mark the event as a Personnel.Elect event; type is encoded separately so we can express
+    // uncertainty about type
+    AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
+        AidaDomainOntology.eventType("CONFLICT.ATTACK"), system);
+
+    // create the two entities involved in the event
+    final Resource bob = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
+        system);
+    AIFUtils.markType(model, "http://www.test.edu/assertions/6", bob,
+        AidaDomainOntology.PERSON, system);
+
+    final Resource fred = AIFUtils.makeEntity(model,
+        "http://www.test.edu/entities/2", system);
+    AIFUtils.markType(model, "http://www.test.edu/assertions/7", fred,
+        AidaDomainOntology.PERSON, system);
+
+    // we link all possible argument fillers to the event
+    final ImmutableSet<Resource> bobHitFredAssertions = ImmutableSet.of(
+        AIFUtils.markAsEventArgument(model, event,
+            AidaDomainOntology.eventArgumentType("Attacker"), bob, system, null),
+        AIFUtils.markAsEventArgument(model, event,
+            AidaDomainOntology.eventArgumentType("Target"), fred, system, null));
+
+    final ImmutableSet<Resource> fredHitBobAssertions = ImmutableSet.of(
+        AIFUtils.markAsEventArgument(model, event,
+            AidaDomainOntology.eventArgumentType("Attacker"), fred, system, null),
+        AIFUtils.markAsEventArgument(model, event,
+            AidaDomainOntology.eventArgumentType("Target"), bob, system, null));
+
+    // then we mark these as mutually exclusive
+    // we also mark confidence 0.2 that neither of these are true
+    markAsMutuallyExclusive(model, ImmutableMap.of(bobHitFredAssertions, 0.6,
+        fredHitBobAssertions, 0.2), system, 0.2);
   }
 
   // we dump the test name and the model in Turtle format so that whenever the user

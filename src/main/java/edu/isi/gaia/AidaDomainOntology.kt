@@ -34,8 +34,7 @@ object AidaDomainOntology {
     @JvmField
     val ENTITY_TYPES = setOf(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY)
 
-    @JvmField
-    val EVENT_AND_RELATION_TYPES = listOf("CONFLICT.ATTACK", "CONFLICT.DEMONSTRATE",
+    internal val EVENT_AND_RELATION_TYPES = listOf("CONFLICT.ATTACK", "CONFLICT.DEMONSTRATE",
             "CONTACT.BROADCAST", "CONTACT.CONTACT", "CONTACT.CORRESPONDENCE", "CONTACT.MEET",
             "JUSTICE.ARREST-JAIL",
             "LIFE.DIE", "LIFE.INJURE", "MANUFACTURE.ARTIFACT",
@@ -88,8 +87,21 @@ object AidaDomainOntology {
     @JvmField
     val DISLIKES = ResourceFactory.createResource(NAMESPACE + "DISLIKES")!!
 
-    @JvmStatic
-    val ontologizeEventType: (String) -> Resource = Memoize({ eventType: String ->
+    private val ontologizeEventType: (String) -> Resource = Memoize({ eventType: String ->
         ResourceFactory.createResource(NAMESPACE + eventType)
     })
+
+    @JvmStatic
+    fun relationType(relationName: String): Resource = EVENT_AND_RELATION_TYPES[relationName]
+            ?: throw NoSuchElementException("Unknown relation type: $relationName. Known relation " +
+                    "and event types ${EVENT_AND_RELATION_TYPES.keys}")
+
+    @JvmStatic
+    fun eventType(eventName: String): Resource = EVENT_AND_RELATION_TYPES[eventName]
+            ?: throw NoSuchElementException("Unknown event type: $eventName. Known relation " +
+                    "and event types: ${EVENT_AND_RELATION_TYPES.keys}")
+
+    @JvmStatic
+    fun eventArgumentType(argName: String): Resource = ontologizeEventType(argName)
+
 }

@@ -181,7 +181,7 @@ class ColdStart2AidaInterchangeConverter(
             // can't go in the when statement because it has an arbitrary boolean condition
             // this handles ColdStart event arguments
             if (':' in ontology_type) {
-                return AidaDomainOntology.ontologizeEventType(ontology_type)
+                return AidaDomainOntology.eventType(ontology_type)
             }
 
             return when (ontology_type) {
