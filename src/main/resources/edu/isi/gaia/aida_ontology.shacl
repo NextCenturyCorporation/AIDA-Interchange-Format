@@ -40,6 +40,10 @@
 # graph in various ways.  It will also define reusable "property shapes" which can capture common
 # property patterns across node types.  You will frequently see that node shapes refer to property
 # shapes which will be defined later in the document.
+#
+# You may wonder why we don't use shape inheritance, even though SHACL supports it. The reason
+# is that inheritance interacts badly with sh:closed, which sees only locally defined properties.
+# Since the closed property is useful for validation purposes, we put up with the duplication.
 
 # the first type of content node is an entity, which represents some non-event thing in the world
 # (e.g. a person, place, thing, etc.)
@@ -72,6 +76,9 @@ aida:EntityShape
 
   # may depend on a hypothesis
   sh:property aida:DependsOnHypothesisPropertyShape ;
+
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
 
   # no other properties are allowed
   sh:closed true ;
@@ -107,6 +114,9 @@ aida:EventShape
 
   # may depend on a hypothesis
   sh:property aida:DependsOnHypothesisPropertyShape ;
+
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
 
   # no other properties are allowed
   sh:closed true ;
@@ -160,6 +170,9 @@ aida:EventArgumentShape
   # may depend on a hypothesis
   sh:property aida:DependsOnHypothesisPropertyShape ;
 
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
+
   # no other properties are allowed
   sh:closed true ;
   # except rdf:type
@@ -209,6 +222,9 @@ aida:RelationShape
 
   # may depend on a hypothesis
   sh:property aida:DependsOnHypothesisPropertyShape ;
+
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
 
   # no other properties are allowed
   sh:closed true ;
@@ -262,6 +278,9 @@ aida:SentimentShape
   # may depend on a hypothesis
   sh:property aida:DependsOnHypothesisPropertyShape ;
 
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
+
   # no other properties are allowed
   sh:closed true ;
   # except rdf:type
@@ -314,6 +333,9 @@ aida:TypeShape
    # may depend on a hypothesis
    sh:property aida:DependsOnHypothesisPropertyShape ;
 
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
+
    # no other properties are allowed
    sh:closed true ;
    # except rdf:type
@@ -343,6 +365,9 @@ aida:ConfidenceShape
 
     # may depend on a hypothesis
     sh:property aida:DependsOnHypothesisPropertyShape ;
+
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
 
     sh:closed true
     .
@@ -415,6 +440,9 @@ aida:TextJustificationShape
    # may depend on a hypothesis
    sh:property aida:DependsOnHypothesisPropertyShape ;
 
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
+
    # no other properties are allowed
    sh:closed true ;
    # except rdf:type
@@ -451,6 +479,9 @@ aida:LinkAssertionShape
 
   # may depend on a hypothesis
   sh:property aida:DependsOnHypothesisPropertyShape ;
+
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
 
   # no other properties are allowed
   sh:closed true ;
@@ -503,6 +534,9 @@ aida:ClusterShape
   # may depend on a hypothesis
   sh:property aida:DependsOnHypothesisPropertyShape ;
 
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
+
    sh:closed true .
 
 # we declare that other entities might be in the cluster by using ClusterMember assertions
@@ -541,6 +575,9 @@ aida:ClusterMemberShape
   # may depend on a hypothesis
   sh:property aida:DependsOnHypothesisPropertyShape ;
 
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
+
    sh:closed true .
 
 # A Subgraph is a collection of content and annotation nodes.  They are used to talk about
@@ -575,6 +612,9 @@ aida:ContentGraphShape
 
   # may depend on a hypothesis
   sh:property aida:DependsOnHypothesisPropertyShape ;
+
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
 
   # and can't contain anything else
   sh:closed true ;
@@ -612,6 +652,9 @@ aida:MutualExclusionConstraintShape
   # may depend on a hypothesis
   sh:property aida:DependsOnHypothesisPropertyShape ;
 
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
+
     sh:closed true ;
 
     sh:ignoredProperties ( rdf:type ).
@@ -646,6 +689,10 @@ aida:HypothesisShape
     sh:maxCount 1] ;
 
    sh:property aida:SystemPropertyShape ;
+
+     # may bear system-private data
+     sh:property aida:PrivateDataPropertyShape ;
+
    sh:closed true ;
    sh:ignoredProperties ( rdf:type ) .
 
@@ -654,4 +701,19 @@ aida:DependsOnHypothesisPropertyShape
   sh:path aida:dependsOnHypothesis ;
   sh:class aida:Hypothesis .
 
+aida:PrivateDataShape
+   sh:targetClass aida:PrivateData ;
+   sh:property aida:RequiredSystemPropertyShape ;
+   sh:property aida:JsonContentPropertyShape ;
+   # this class is not closed, so you can stick whatever else you want here
+   .
 
+aida:PrivateDataPropertyShape
+   a sh:PropertyShape ;
+   sh:path aida:privateData ;
+   sh:class aida:PrivateData .
+
+aida:JsonContentPropertyShape
+   a sh:PropertyShape ;
+   sh:path aida:jsonContent ;
+   sh:class xsd:string .

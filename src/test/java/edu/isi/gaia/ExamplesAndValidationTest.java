@@ -69,6 +69,10 @@ public class ExamplesAndValidationTest {
       // in TA1 -> TA2 communications, we attach confidences at the level of justifications
       AIFUtils.markConfidence(model, justification, 0.973, system);
 
+      // let's mark our entity with some arbitrary system-private data. You can attach such data
+      // to nearly anything
+      AIFUtils.markPrivateData(model, entity, "{ 'hello' : 'world' }", system);
+
       dumpAndAssertValid(model, "create an entity of type person with textual " +
           "justification and confidence");
     }

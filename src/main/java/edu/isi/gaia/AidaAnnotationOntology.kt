@@ -55,6 +55,12 @@ object AidaAnnotationOntology {
     @JvmField
     val HYPOTHESIS_CONTENT_PROPERTY =
             ResourceFactory.createProperty(NAMESPACE + "hypothesisContent")!!
+    @JvmField
+    val PRIVATE_DATA_PROPERTY =
+            ResourceFactory.createProperty(NAMESPACE + "privateData")!!
+    @JvmField
+    val JSON_CONTENT_PROPERTY =
+            ResourceFactory.createProperty(NAMESPACE + "jsonContent")!!
 
     // classes
     @JvmField
@@ -85,5 +91,8 @@ object AidaAnnotationOntology {
             ResourceFactory.createResource(NAMESPACE + "MutualExclusionAlternative")!!
     @JvmField
     val HYPOTHESIS_CLASS =
-            ResourceFactory.createResource(NAMESPACE + "Hypothesis")
+            ResourceFactory.createResource(NAMESPACE + "Hypothesis")!!
+    @JvmField
+    val PRIVATE_DATA_CLASS =
+            ResourceFactory.createResource(NAMESPACE + "PrivateData")!!
 }

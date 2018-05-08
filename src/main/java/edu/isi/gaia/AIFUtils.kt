@@ -306,4 +306,18 @@ object AIFUtils {
     fun markDependsOnHypothesis(depender: Resource, hypothesis: Resource) {
         depender.addProperty(AidaAnnotationOntology.DEPENDS_ON_HYPOTHESIS, hypothesis)
     }
+
+    @JvmStatic
+    fun markPrivateData(model: Model, resource: Resource, jsonContent: String, system: Resource):
+            Resource {
+        val privateData = model.createResource()
+        privateData.addProperty(RDF.type, AidaAnnotationOntology.PRIVATE_DATA_CLASS)
+        privateData.addProperty(AidaAnnotationOntology.JSON_CONTENT_PROPERTY,
+                model.createLiteral(jsonContent))
+        markSystem(privateData, system)
+
+        resource.addProperty(AidaAnnotationOntology.PRIVATE_DATA_PROPERTY, privateData)
+
+        return privateData
+    }
 }
