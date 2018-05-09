@@ -84,6 +84,9 @@ public class ExamplesAndValidationTest {
       AIFUtils.markAudioJustification(model, ImmutableSet.of(entity, typeAssertion),
           "NYT_ENG_201181231", 4.566, 9.876, system, 0.789);
 
+      // also we can link this entity to something in an external KB
+      AIFUtils.linkToExternalKB(model, entity, "freebase:FOO", system, .398);
+
       // let's mark our entity with some arbitrary system-private data. You can attach such data
       // to nearly anything
       AIFUtils.markPrivateData(model, entity, "{ 'hello' : 'world' }", system);
@@ -149,7 +152,8 @@ public class ExamplesAndValidationTest {
 
       // whatever this place turns out to refer to, we're sure it's where they live
       makeRelation(model, "http://www.test.edu/relations/1", personEntity,
-          "cities_of_residence", uncertainPlaceOfBirthEntity, system, 1.0);
+          AidaDomainOntology.relationType("cities_of_residence"),
+          uncertainPlaceOfBirthEntity, system, 1.0);
 
       // we use clusters to represent uncertainty about identity
       // we make two clusters, one for Louisville and one for Cambridge
@@ -292,22 +296,26 @@ public class ExamplesAndValidationTest {
 
       // under the background hypothesis that Bob lives in Seattle, we believe he works for Amazon
       final Resource bobLivesInSeattle = makeRelation(model, "http://www.test.edu/relations/1",
-          bob, "cities_of_residence", seattle, system, 1.0);
+          bob, AidaDomainOntology.relationType("cities_of_residence"),
+          seattle, system, 1.0);
       final Resource bobLivesInSeattleHypothesis = makeHypothesis(model,
           "http://www.test.edu/hypotheses/1", ImmutableSet.of(bobLivesInSeattle),
           system);
       final Resource bobWorksForAmazon = makeRelation(model, "http://www.test.edu/relations/2",
-          bob, "employee_or_member_of", amazon, system, 1.0);
+          bob, AidaDomainOntology.relationType("employee_or_member_of"),
+          amazon, system, 1.0);
       markDependsOnHypothesis(bobWorksForAmazon, bobLivesInSeattleHypothesis);
 
       // under the background hypothesis that Bob lives in California, we believe he works for Google
       final Resource bobLivesInCalifornia = makeRelation(model, "http://www.test.edu/relations/3",
-          bob, "cities_of_residence", california, system, 1.0);
+          bob, AidaDomainOntology.relationType("cities_of_residence"),
+          california, system, 1.0);
       final Resource bobLivesInCaliforniaHypothesis = makeHypothesis(model,
           "http://www.test.edu/hypotheses/2", ImmutableSet.of(bobLivesInCalifornia),
           system);
       final Resource bobWorksForGoogle = makeRelation(model, "http://www.test.edu/relations/4",
-          bob, "employee_or_member_of", google, system, 1.0);
+          bob, AidaDomainOntology.relationType("employee_or_member_of"),
+          google, system, 1.0);
       markDependsOnHypothesis(bobWorksForGoogle, bobLivesInCaliforniaHypothesis);
     }
   }

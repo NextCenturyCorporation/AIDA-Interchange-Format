@@ -71,26 +71,26 @@ interface JustifiedAssertion : Assertion {
 }
 
 interface MentionAssertion : JustifiedAssertion {
-    val mention_type: MentionType
+    val mentionType: MentionType
     val string: String
 }
 
-data class EntityMentionAssertion(override val subject: EntityNode, override val mention_type: MentionType,
-                             override val string : String, override val justifications: Provenance)
+data class EntityMentionAssertion(override val subject: EntityNode, override val mentionType: MentionType,
+                                  override val string: String, override val justifications: Provenance)
     : MentionAssertion {
     override fun nodes() = setOf(subject)
 }
 
 data class StringMentionAssertion(override val subject: StringNode,
-                                  override val mention_type: MentionType,
-                             override val string : String, override val justifications: Provenance)
+                                  override val mentionType: MentionType,
+                                  override val string: String, override val justifications: Provenance)
     : MentionAssertion {
     override fun nodes() = setOf(subject)
 }
 
-data class EventMentionAssertion(override val subject: EventNode, override val mention_type: MentionType,
-                            val realis: Realis, override val string : String,
-                            override val justifications: Provenance) : MentionAssertion {
+data class EventMentionAssertion(override val subject: EventNode, override val mentionType: MentionType,
+                                 val realis: Realis, override val string: String,
+                                 override val justifications: Provenance) : MentionAssertion {
     override fun nodes() = setOf(subject)
 }
 
@@ -137,7 +137,7 @@ data class ColdStartKB(val assertionsToConfidence: Map<Assertion, Double>,
         for (justifiedAssertion in allAssertions.filterIsInstance<JustifiedAssertion>()) {
             val docID = justifiedAssertion.justifications.docID
             for (node in justifiedAssertion.nodes()) {
-                nodesToDoc.put(node, docID)
+                nodesToDoc[node] = docID
             }
         }
 

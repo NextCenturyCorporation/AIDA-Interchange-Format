@@ -60,13 +60,13 @@ object AIFUtils {
      * @return The relaton object
      */
     @JvmStatic
-    fun makeRelation(model: Model, relationUri: String, firstArg: Resource, relationType: String,
+    fun makeRelation(model: Model, relationUri: String, firstArg: Resource, relationType: Resource,
                      secondArg: Resource, system: Resource, confidence: Double?): Resource {
         val relation = model.createResource(relationUri)
         markSystem(relation, system)
         relation.addProperty(RDF.type, RDF.Statement)
         relation.addProperty(RDF.subject, firstArg)
-        relation.addProperty(RDF.predicate, AidaDomainOntology.relationType(relationType))
+        relation.addProperty(RDF.predicate, relationType)
         relation.addProperty(RDF.`object`, secondArg)
 
         if (confidence != null) {
@@ -452,5 +452,20 @@ object AIFUtils {
         resource.addProperty(AidaAnnotationOntology.PRIVATE_DATA_PROPERTY, privateData)
 
         return privateData
+    }
+
+    @JvmStatic
+    fun linkToExternalKB(model: Model, toLink: Resource, externalKbId: String, system: Resource,
+                         confidence: Double?): Resource {
+        val linkAssertion = model.createResource()!!
+        toLink.addProperty(AidaAnnotationOntology.LINK, linkAssertion)
+        linkAssertion.addProperty(RDF.type, AidaAnnotationOntology.LINK_ASSERTION_CLASS)
+        linkAssertion.addProperty(AidaAnnotationOntology.LINK_TARGET,
+                model.createTypedLiteral(externalKbId))
+        markSystem(linkAssertion, system)
+        if (confidence != null) {
+            markConfidence(model, linkAssertion, confidence, system)
+        }
+        return linkAssertion
     }
 }
