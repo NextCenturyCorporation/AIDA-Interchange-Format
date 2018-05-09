@@ -27,6 +27,27 @@ object AidaAnnotationOntology {
     val END_OFFSET_INCLUSIVE = ResourceFactory.createProperty(NAMESPACE
             + "endOffsetInclusive")!!
     @JvmField
+    val START_TIMESTAMP = ResourceFactory.createProperty(NAMESPACE + "startTimestamp")!!
+    @JvmField
+    val END_TIMESTAMP = ResourceFactory.createProperty(NAMESPACE
+            + "endTimestamp")!!
+    @JvmField
+    val BOUNDING_BOX_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "boundingBox")!!
+    @JvmField
+    val BOUNDING_BOX_UPPER_LEFT_X = ResourceFactory.createProperty(
+            NAMESPACE + "boundingBoxUpperLeftX")!!
+    @JvmField
+    val BOUNDING_BOX_UPPER_LEFT_Y = ResourceFactory.createProperty(
+            NAMESPACE + "boundingBoxUpperLeftY")!!
+    @JvmField
+    val BOUNDING_BOX_LOWER_RIGHT_X = ResourceFactory.createProperty(
+            NAMESPACE + "boundingBoxLowerRightX")!!
+    @JvmField
+    val BOUNDING_BOX_LOWER_RIGHT_Y = ResourceFactory.createProperty(
+            NAMESPACE + "boundingBoxLowerRightY")!!
+    @JvmField
+    val KEY_FRAME = ResourceFactory.createProperty(NAMESPACE + "keyFrame")!!
+    @JvmField
     val LINK = ResourceFactory.createProperty(NAMESPACE + "link")!!
     @JvmField
     val LINK_TARGET = ResourceFactory.createProperty(NAMESPACE + "linkTarget")!!
@@ -75,7 +96,19 @@ object AidaAnnotationOntology {
     val CONFIDENCE_CLASS = ResourceFactory.createResource(NAMESPACE + "Confidence")!!
     @JvmField
     val TEXT_JUSTIFICATION_CLASS =
-            ResourceFactory.createResource(NAMESPACE + "TextProvenance")!!
+            ResourceFactory.createResource(NAMESPACE + "TextJustification")!!
+    @JvmField
+    val BOUNDING_BOX_CLASS =
+            ResourceFactory.createResource(NAMESPACE + "BoundingBox")!!
+    @JvmField
+    val IMAGE_JUSTIFICATION_CLASS =
+            ResourceFactory.createResource(NAMESPACE + "ImageJustification")!!
+    @JvmField
+    val AUDIO_JUSTIFICATION_CLASS =
+            ResourceFactory.createResource(NAMESPACE + "AudioJustification")!!
+    @JvmField
+    val VIDEO_JUSTIFICATION_CLASS =
+            ResourceFactory.createResource(NAMESPACE + "VideoJustification")!!
     @JvmField
     val LINK_ASSERTION_CLASS = ResourceFactory.createResource(NAMESPACE + "LinkAssertion")!!
     @JvmField

@@ -345,7 +345,7 @@ aida:TypeShape
 
 # Most things may be annotated with a confidence structure.
 # A confidence structure is an annotation node. It is not simply a property because we want to
-# be able to annotate confidence structures with provenance information.
+# be able to annotate confidence structures with what systems produced them, etc.
 # By convention, TA1s should attach their confidences to justification objects only.  TA2 should
 # then synthesize these and attach confidences directly to primary KB objects (e.g. relations,
 # events, etc.)
@@ -369,7 +369,8 @@ aida:ConfidenceShape
   # may bear system-private data
   sh:property aida:PrivateDataPropertyShape ;
 
-    sh:closed true
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type)
     .
 
 aida:ConfidencePropertyShape
@@ -406,10 +407,9 @@ aida:SystemPropertyShape
 
 
 # Systems need to provide justifications from text, image, video, etc. for the assertions they make
-# Currently we just support textual justifications but others will be added in the future.
 aida:TextJustificationShape
    a sh:NodeShape ;
-   sh:targetClass aida:TextProvenance ;
+   sh:targetClass aida:TextJustification ;
    # each justification must have exactly one source document ID
    sh:property [
      sh:path aida:source ;
@@ -432,8 +432,155 @@ aida:TextJustificationShape
    sh:property [
       sh:path skos:prefLabel ;
       sh:datatype xsd:string ];
-   # justifications may provide a confidence but do not have to
+
+   # justifications must provide confidences
    sh:property aida:RequiredConfidencePropertyShape ;
+
+   # may provide an optional source system
+   sh:property aida:SystemPropertyShape ;
+
+   # may depend on a hypothesis
+   sh:property aida:DependsOnHypothesisPropertyShape ;
+
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
+
+   # no other properties are allowed
+   sh:closed true ;
+   # except rdf:type
+   sh:ignoredProperties (rdf:type) .
+
+aida:AudioJustificationShape
+   a sh:NodeShape ;
+   sh:targetClass aida:AudioJustification ;
+   # each justification must have exactly one source document ID
+   sh:property [
+     sh:path aida:source ;
+     sh:datatype xsd:string ;
+     sh:minCount 1;
+     sh:maxCount 1 ];
+   sh:property [
+      sh:path aida:startTimestamp ;
+      sh:datatype xsd:double ;
+      sh:minCount 1;
+      sh:maxCount 1 ];
+
+    sh:property [
+       sh:path aida:endTimestamp ;
+       sh:datatype xsd:double ;
+       sh:minCount 1;
+       sh:maxCount 1 ];
+
+   # justifications must provide confidences
+   sh:property aida:RequiredConfidencePropertyShape ;
+
+   # may provide an optional source system
+   sh:property aida:SystemPropertyShape ;
+
+   # may depend on a hypothesis
+   sh:property aida:DependsOnHypothesisPropertyShape ;
+
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
+
+   # no other properties are allowed
+   sh:closed true ;
+   # except rdf:type
+   sh:ignoredProperties (rdf:type) .
+
+# bounding boxes are used by both image and video justifications
+aida:BoundingBoxShape
+   a sh:NodeShape ;
+   sh:targetClass aida:BoundingBox ;
+
+   sh:property [
+    sh:path aida:boundingBoxUpperLeftX ;
+    sh:datatype xsd:int ;
+    sh:minCount 1;
+    sh:maxCount 1] ;
+
+   sh:property [
+    sh:path aida:boundingBoxUpperLeftY ;
+    sh:datatype xsd:int ;
+    sh:minCount 1;
+    sh:maxCount 1] ;
+
+   sh:property [
+    sh:path aida:boundingBoxLowerRightX ;
+    sh:datatype xsd:int ;
+    sh:minCount 1;
+    sh:maxCount 1] ;
+
+   sh:property [
+    sh:path aida:boundingBoxLowerRightY ;
+    sh:datatype xsd:int ;
+    sh:minCount 1;
+    sh:maxCount 1] ;
+
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type)
+    .
+
+aida:BoundingBoxPropertyShape
+   a sh:PropertyShape ;
+   sh:path aida:boundingBox ;
+   sh:class aida:BoundingBox ;
+   sh:minCount 1 ;
+   sh:maxCount 1 .
+
+aida:ImageJustificationShape
+   a sh:NodeShape ;
+   sh:targetClass aida:ImageJustification ;
+   # each image justification must have exactly one source document ID
+   sh:property [
+     sh:path aida:source ;
+     sh:datatype xsd:string ;
+     sh:minCount 1;
+     sh:maxCount 1 ];
+
+   sh:property aida:BoundingBoxPropertyShape ;
+
+   # justifications must provide confidences
+   sh:property aida:RequiredConfidencePropertyShape ;
+
+   # may provide an optional source system
+   sh:property aida:SystemPropertyShape ;
+
+   # may depend on a hypothesis
+   sh:property aida:DependsOnHypothesisPropertyShape ;
+
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
+
+   # no other properties are allowed
+   sh:closed true ;
+   # except rdf:type
+   sh:ignoredProperties (rdf:type) .
+
+aida:VideoJustificationShape
+   a sh:NodeShape ;
+   sh:targetClass aida:VideoJustification ;
+   # each video justification must have exactly one source document ID
+   sh:property [
+     sh:path aida:source ;
+     sh:datatype xsd:string ;
+     sh:minCount 1;
+     sh:maxCount 1 ];
+
+   # for now, we assume video justifications can only occur at keyframes
+   # since we don't have examples, we don't know how key frames are specified, so for now
+   # we use a string
+   sh:property [
+       sh:path aida:keyFrame ;
+       sh:datatype xsd:string ;
+       sh:mintCount 1;
+       sh:maxCount 1 ] ;
+
+   sh:property aida:BoundingBoxPropertyShape ;
+
+   # justifications must provide confidences
+   sh:property aida:RequiredConfidencePropertyShape ;
+
    # may provide an optional source system
    sh:property aida:SystemPropertyShape ;
 
@@ -451,7 +598,11 @@ aida:TextJustificationShape
 aida:JustificationPropertyShape
    a sh:PropertyShape ;
    sh:path aida:justifiedBy ;
-   sh:class aida:TextProvenance .
+   sh:exone (
+    [sh:class aida:TextJustification]
+     [sh:class aida:ImageJustification]
+      [sh:class aida:AudioJustification]
+       [sh:class aida:VideoJustification]).
 
 # use to express that an AIDA Entity is the same thing as something in an external knowledge base
 aida:LinkAssertionShape
@@ -716,4 +867,4 @@ aida:PrivateDataPropertyShape
 aida:JsonContentPropertyShape
    a sh:PropertyShape ;
    sh:path aida:jsonContent ;
-   sh:class xsd:string .
+   sh:datatype xsd:string .

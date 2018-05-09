@@ -12,6 +12,8 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import edu.isi.gaia.AIFUtils.BoundingBox;
+import edu.isi.gaia.AIFUtils.Point;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
@@ -41,7 +43,7 @@ public class ExamplesAndValidationTest {
   class ValidExamples {
 
     @Test
-    void createAnEntityOfTypePersonWithTextualJustificationAndConfidence() {
+    void createAnEntityOfTypePersonWithAllJustificationTypesAndConfidence() {
       final Model model = createModel();
 
       // every AIF needs an object for the system responsible for creating it
@@ -62,12 +64,25 @@ public class ExamplesAndValidationTest {
       // the justification provides the evidence for our claim about the entity's type
       // we attach this justification to both the type assertion and the entity object
       // itself, since it provides evidence both for the entity's existence and its type.
-      final Resource justification = AIFUtils.markTextJustification(model,
-          ImmutableSet.of(entity, typeAssertion), "NYT_ENG_201181231",
-          42, 14, system);
-
       // in TA1 -> TA2 communications, we attach confidences at the level of justifications
-      AIFUtils.markConfidence(model, justification, 0.973, system);
+      AIFUtils.markTextJustification(model, ImmutableSet.of(entity, typeAssertion),
+          "NYT_ENG_201181231", 42, 143, system, 0.973);
+
+      // let's suppose we also have evidence from an image
+      AIFUtils.markImageJustification(model, ImmutableSet.of(entity, typeAssertion),
+          "NYT_ENG_201181231_03",
+          new BoundingBox(new Point(123, 45), new Point(167, 98)),
+          system, 0.123);
+
+      // and also a video
+      AIFUtils.markVideoJustification(model, ImmutableSet.of(entity, typeAssertion),
+          "NYT_ENG_201181231_03", "keyframe ID",
+          new BoundingBox(new Point(234, 56), new Point(345, 101)),
+          system, 0.234);
+
+      // and even audio!
+      AIFUtils.markAudioJustification(model, ImmutableSet.of(entity, typeAssertion),
+          "NYT_ENG_201181231", 4.566, 9.876, system, 0.789);
 
       // let's mark our entity with some arbitrary system-private data. You can attach such data
       // to nearly anything
@@ -91,14 +106,12 @@ public class ExamplesAndValidationTest {
           .markType(model, "http://www.test.org/assertions/2",
               entity, AidaDomainOntology.ORGANIZATION, system, 0.2);
 
-      final Resource justificationIsAPerson = AIFUtils.markTextJustification(model,
-          ImmutableSet.of(entity, entityIsAPerson), "NYT_ENG_201181231", 42, 14, system);
-      AIFUtils.markConfidence(model, justificationIsAPerson, 0.6, system);
+      AIFUtils.markTextJustification(model, ImmutableSet.of(entity, entityIsAPerson),
+          "NYT_ENG_201181231",
+          42, 143, system, 0.6);
 
-      final Resource justificationIsAnOrg = AIFUtils.markTextJustification(model,
-          ImmutableSet.of(entity, entityIsAnOrganization),
-          "NYT_ENG_201181231", 343, 367, system);
-      AIFUtils.markConfidence(model, justificationIsAnOrg, 0.3, system);
+      AIFUtils.markTextJustification(model, ImmutableSet.of(entity, entityIsAnOrganization),
+          "NYT_ENG_201181231", 343, 367, system, 0.3);
 
       AIFUtils.markAsMutuallyExclusive(model, ImmutableMap.of(ImmutableSet.of(entityIsAPerson), 0.5,
           ImmutableSet.of(entityIsAnOrganization), 0.2), system, null);
@@ -136,7 +149,7 @@ public class ExamplesAndValidationTest {
 
       // whatever this place turns out to refer to, we're sure it's where they live
       makeRelation(model, "http://www.test.edu/relations/1", personEntity,
-          "livesIn", uncertainPlaceOfBirthEntity, system, 1.0);
+          "cities_of_residence", uncertainPlaceOfBirthEntity, system, 1.0);
 
       // we use clusters to represent uncertainty about identity
       // we make two clusters, one for Louisville and one for Cambridge
@@ -279,23 +292,23 @@ public class ExamplesAndValidationTest {
 
       // under the background hypothesis that Bob lives in Seattle, we believe he works for Amazon
       final Resource bobLivesInSeattle = makeRelation(model, "http://www.test.edu/relations/1",
-          bob, "livesIn", seattle, system, 1.0);
+          bob, "cities_of_residence", seattle, system, 1.0);
       final Resource bobLivesInSeattleHypothesis = makeHypothesis(model,
           "http://www.test.edu/hypotheses/1", ImmutableSet.of(bobLivesInSeattle),
           system);
       final Resource bobWorksForAmazon = makeRelation(model, "http://www.test.edu/relations/2",
-          bob, "worksFor", amazon, system, 1.0);
+          bob, "employee_or_member_of", amazon, system, 1.0);
       markDependsOnHypothesis(bobWorksForAmazon, bobLivesInSeattleHypothesis);
 
       // under the background hypothesis that Bob lives in California, we believe he works for Google
       final Resource bobLivesInCalifornia = makeRelation(model, "http://www.test.edu/relations/3",
-          bob, "livesIn", california, system, 1.0);
+          bob, "cities_of_residence", california, system, 1.0);
       final Resource bobLivesInCaliforniaHypothesis = makeHypothesis(model,
           "http://www.test.edu/hypotheses/2", ImmutableSet.of(bobLivesInCalifornia),
           system);
       final Resource bobWorksForGoogle = makeRelation(model, "http://www.test.edu/relations/4",
-          bob, "worksFor", google, system, 1.0);
-      markDependsOnHypothesis(bobWorksForGoogle, bobLivesInCalifornia);
+          bob, "employee_or_member_of", google, system, 1.0);
+      markDependsOnHypothesis(bobWorksForGoogle, bobLivesInCaliforniaHypothesis);
     }
   }
 
@@ -363,8 +376,21 @@ public class ExamplesAndValidationTest {
 
       final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/events/1",
           system);
-      AIFUtils.markTextJustification(model, entity, "FOO", 14, 56,
-          system);
+
+      // below is just the content of AIFUtils.markTextJustification, except without the required
+      // confidence
+
+      final Resource justification = model.createResource();
+      justification.addProperty(RDF.type, AidaAnnotationOntology.TEXT_JUSTIFICATION_CLASS);
+      // the document ID for the justifying source document
+      justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral("FOO"));
+      justification.addProperty(AidaAnnotationOntology.START_OFFSET,
+          model.createTypedLiteral(14));
+      justification.addProperty(AidaAnnotationOntology.END_OFFSET_INCLUSIVE,
+          model.createTypedLiteral(56));
+      justification.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
+      entity.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification);
+
       assertFalse(validator.validateKB(model));
     }
   }
