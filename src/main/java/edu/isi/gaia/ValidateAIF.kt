@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.google.common.base.Charsets
 import com.google.common.collect.ImmutableList
+import com.google.common.io.CharSource
 import com.google.common.io.Files
 import com.google.common.io.Resources
 import edu.isi.nlp.parameters.Parameters
@@ -12,6 +13,7 @@ import org.apache.jena.query.QueryExecutionFactory
 import org.apache.jena.query.QueryFactory
 import org.apache.jena.rdf.model.Model
 import org.apache.jena.rdf.model.ModelFactory
+import org.apache.jena.shared.JenaException
 import org.apache.jena.util.FileUtils
 import org.apache.jena.vocabulary.RDF
 import org.topbraid.shacl.validation.ValidationUtil
@@ -35,7 +37,7 @@ val LACKS_TYPES_QUERY = """
     }
     """
 
-class ValidateAIF {
+class ValidateAIF(private val domainModel: Model) {
     private val shaclModel = Resources.asCharSource(
             Resources.getResource("edu/isi/gaia/aida_ontology.shacl"), Charsets.UTF_8)
             .openBufferedStream().use {
@@ -45,10 +47,39 @@ class ValidateAIF {
     companion object {
         private val log = KLogging()
 
+        // data will always be interpreted in the context of these two ontology files
+        private val PRELOAD_ONTOLOGIES = listOf("edu/isi/gaia/interchange-ontology.ttl",
+                "edu/isi/gaia/aida-domain-common.ttl")
+                .map { Resources.getResource(it) }
+                .map { Resources.asCharSource(it, Charsets.UTF_8) }
+
+        @JvmStatic
+        fun createForDomainOntologySource(domainOntologySource: CharSource): ValidateAIF {
+            val ret = ModelFactory.createOntologyModel()
+
+            // ensure what file name an RDF syntax error occurs in is printed, which
+            // doesn't happen by default
+            fun loadOntologyWithFriendlyError(ontologySource: CharSource) = try {
+                ontologySource.openBufferedStream().use {
+                    ret.read(it, "urn:x-base", FileUtils.langTurtle)
+                }
+            } catch (jenaException: JenaException) {
+                throw RuntimeException("While parsing domain ontology $ontologySource:",
+                        jenaException)
+            }
+
+            // load all the hard-coded ontologies and also the user-specified domain ontology
+            PRELOAD_ONTOLOGIES
+                    .union(listOf(domainOntologySource))
+                    .forEach({ loadOntologyWithFriendlyError(it) })
+
+            return ValidateAIF(ret)
+        }
+
         @JvmStatic
         fun main(args: Array<String>) {
             if (args.size != 1) {
-                print("Usage: validateAIF paramFile")
+                print("Usage: validateAIF paramFile\n\tSee repo README for details.")
                 System.exit(1)
             }
 
@@ -56,9 +87,11 @@ class ValidateAIF {
             (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.INFO
 
             val params = Parameters.loadSerifStyle(File(args[0]))
+            val domainOntologyFile = params.getExistingFile("domainOntology")
 
             // this is an RDF model which uses SHACL to encode constraints on the AIF
-            val validator = ValidateAIF()
+            val validator = ValidateAIF.createForDomainOntologySource(
+                    Files.asCharSource(domainOntologyFile, Charsets.UTF_8))
 
             val fileList = params.getOptionalExistingFile("kbsToValidate")
             val filesToValidate = if (fileList.isPresent) {
@@ -87,11 +120,16 @@ class ValidateAIF {
      * Returns whether or not the KB is valid
      */
     fun validateKB(dataToBeValidated: Model): Boolean {
+        // we unify the given KB with the background and domain KBs before validation
+        // this is required so that constraints like "the object of a type must be an
+        // entity type" will know what types are in fact entity types
+        val unionModel = ModelFactory.createUnion(domainModel, dataToBeValidated)
+
         // we short-circuit because earlier validation failures may make later
         // validation attempts misleading nonsense
-        return validateAgainstShacl(dataToBeValidated)
-                && ensureConfidencesInZeroOne(dataToBeValidated)
-                && ensureEveryEntityAndEventHasAType(dataToBeValidated)
+        return validateAgainstShacl(unionModel)
+                && ensureConfidencesInZeroOne(unionModel)
+                && ensureEveryEntityAndEventHasAType(unionModel)
     }
 
     /**

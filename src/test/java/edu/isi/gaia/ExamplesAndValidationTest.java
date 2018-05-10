@@ -13,8 +13,10 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.io.Resources;
 import edu.isi.gaia.AIFUtils.BoundingBox;
 import edu.isi.gaia.AIFUtils.Point;
+import kotlin.text.Charsets;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
@@ -38,7 +40,9 @@ public class ExamplesAndValidationTest {
     ((Logger)org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
   }
 
-  private final ValidateAIF validator = new ValidateAIF();
+  private final ValidateAIF validator = ValidateAIF.createForDomainOntologySource(
+      Resources.asCharSource(Resources.getResource("edu/isi/gaia/coldstart-ontology.ttl"),
+          Charsets.UTF_8));
 
   @Nested
   class ValidExamples {
@@ -433,7 +437,7 @@ public class ExamplesAndValidationTest {
     model.setNsPrefix("rdf", RDF.uri);
     model.setNsPrefix("xsd", XSD.getURI());
     model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
-    model.setNsPrefix("aidaProgramOntology", ColdStartOntology.NAMESPACE);
+    model.setNsPrefix("coldstart", ColdStartOntology.NAMESPACE);
     model.setNsPrefix("skos", SKOS.uri);
     return model;
   }

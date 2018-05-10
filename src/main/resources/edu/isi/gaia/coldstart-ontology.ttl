@@ -1,5 +1,5 @@
 @prefix : <http://nist.gov/ontologies/ColdstartOntology#> .
-@prefix aidaCommon:  <http://darpa.mil/ontologies/AidaDomainOntologiesCommon> .
+@prefix aidaCommon:  <http://darpa.mil/ontologies/AidaDomainOntologiesCommon#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .

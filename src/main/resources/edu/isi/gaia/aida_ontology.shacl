@@ -46,7 +46,7 @@
 # the first type of content node is an entity, which represents some non-event thing in the world
 # (e.g. a person, place, thing, etc.)
 # Each entity must have at least one assertion giving it a type which is a sub-class of
-# aidaDomainCommon:entityType (see type assertions below)
+# aidaDomainCommon:EntityType (see type assertions below)
 # TODO: enforce the above
 aida:EntityShape
   a sh:NodeShape ;
