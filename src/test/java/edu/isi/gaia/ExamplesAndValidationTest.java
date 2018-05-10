@@ -66,17 +66,17 @@ public class ExamplesAndValidationTest {
       // itself, since it provides evidence both for the entity's existence and its type.
       // in TA1 -> TA2 communications, we attach confidences at the level of justifications
       AIFUtils.markTextJustification(model, ImmutableSet.of(entity, typeAssertion),
-          "NYT_ENG_201181231", 42, 143, system, 0.973);
+          "NYT_ENG_20181231", 42, 143, system, 0.973);
 
       // let's suppose we also have evidence from an image
       AIFUtils.markImageJustification(model, ImmutableSet.of(entity, typeAssertion),
-          "NYT_ENG_201181231_03",
+          "NYT_ENG_20181231_03",
           new BoundingBox(new Point(123, 45), new Point(167, 98)),
           system, 0.123);
 
       // and also a video
       AIFUtils.markVideoJustification(model, ImmutableSet.of(entity, typeAssertion),
-          "NYT_ENG_201181231_03", "keyframe ID",
+          "NYT_ENG_20181231_03", "keyframe ID",
           new BoundingBox(new Point(234, 56), new Point(345, 101)),
           system, 0.234);
 

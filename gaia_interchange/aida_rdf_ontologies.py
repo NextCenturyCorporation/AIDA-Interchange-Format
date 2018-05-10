@@ -120,11 +120,19 @@ AIDA_PROGRAM_ONTOLOGY_LUT = {
     "TRANSACTION.TRANSFER-OWNERSHIP": AIDA_PROGRAM_ONTOLOGY['transaction.transfer-ownership'],
     "website": AIDA_PROGRAM_ONTOLOGY.website}
 
-
-AIDA = ClosedNamespace(
+AIDA_ANNOTATION = ClosedNamespace(
     uri=URIRef("http://www.isi.edu/aida/interchangeOntology#"),
-    terms=["system", "confidence", "confidenceValue", "justifiedBy",
-           "source", "startOffset", "endOffsetInclusive", "link", "linkTarget",
-           "realis", "realisValue",
-           # classes
-           "TextProvenance", "LinkAssertion"])
+    terms=[
+      # Classes,
+      'Confidence',
+      'Entity',
+      'System',
+      'TextJustification',
+      # Properties
+      'confidence',
+      'confidenceValue',
+      'endOffsetInclusive',
+      'justifiedBy',
+      'source',
+      'startOffset',
+      'system'])

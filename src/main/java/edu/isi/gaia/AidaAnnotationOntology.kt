@@ -85,9 +85,9 @@ object AidaAnnotationOntology {
 
     // classes
     @JvmField
-    val SUBGRAPH_CLASS = ResourceFactory.createResource(NAMESPACE + "Subgraph")
+    val SUBGRAPH_CLASS = ResourceFactory.createResource(NAMESPACE + "Subgraph")!!
     @JvmField
-    val SYSTEM_CLASS = ResourceFactory.createResource(NAMESPACE + "System")
+    val SYSTEM_CLASS = ResourceFactory.createResource(NAMESPACE + "System")!!
     @JvmField
     val ENTITY_CLASS = ResourceFactory.createResource(NAMESPACE + "Entity")!!
     @JvmField

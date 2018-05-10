@@ -162,6 +162,7 @@ object AIFUtils {
             "End offset $endOffsetInclusive " +
                     "precedes start offset $startOffset"
         })
+        require(startOffset >= 0, { "Start offset must be non-negative but got $startOffset" })
         val justification = model.createResource()
         justification.addProperty(RDF.type, AidaAnnotationOntology.TEXT_JUSTIFICATION_CLASS)
         // the document ID for the justifying source document
