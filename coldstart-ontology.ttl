@@ -1,0 +1,132 @@
+@prefix : <http://nist.gov/ontologies/ColdstartOntology#> .
+@prefix aidaCommon:  <http://darpa.mil/ontologies/AidaDomainOntologiesCommon> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+
+<http://nist.gov/ontologies/ColdStartOntology#> rdf:type owl:Ontology ;
+    rdfs:label "Coldstart Ontology"^^xsd:string ;
+    rdfs:comment "Enough of the NIST TAC KBP ColdStart ontology to convert ColdStart output to AIF"^^xsd:string ;
+    owl:versionInfo "Version 0.1"^^xsd:string .
+
+######################################################
+# Top-level classes
+######################################################
+
+:Realis a owl:Class .
+:dislikes a owl:Class .
+
+###############
+# Realis types
+###############
+
+:Actual a :Realis.
+:Generic a :Realis.
+:Other a :Realis.
+
+#################
+# Sentiments
+#################
+:likes a :Sentiment .
+:dislikes a :Sentiment .
+
+######################################################
+# Entity types
+######################################################
+:Person a aidaCommon:EntityType .
+:Organization a aidaCommon:EntityType .
+:Location a aidaCommon:EntityType .
+:GeopoliticalEntity a aidaCommon:EntityType .
+:Facility a aidaCommon:EntityType .
+# TODO: figure out how to handle strings in the KB properly
+:String a aidaCommon:EntityType .
+
+######################################################
+# Event types
+######################################################
+:CONFLICT.ATTACK a aidaCommon:EventType.
+:CONFLICT.DEMONSTRATE a aidaCommon:EventType.
+:CONTACT.BROADCAST a aidaCommon:EventType.
+:CONTACT.CONTACT a aidaCommon:EventType.
+:CONTACT.CORRESPONDENCE a aidaCommon:EventType.
+:CONTACT.MEET a aidaCommon:EventType.
+:JUSTICE.ARREST-JAIL a aidaCommon:EventType.
+:LIFE.DIE a aidaCommon:EventType.
+:LIFE.INJURE a aidaCommon:EventType.
+:MANUFACTURE.ARTIFACT a aidaCommon:EventType.
+:MOVEMENT.TRANSPORT-ARTIFACT a aidaCommon:EventType.
+:MOVEMENT.TRANSPORT-PERSON a aidaCommon:EventType.
+:PERSONNEL.ELECT a aidaCommon:EventType.
+:PERSONNEL.END-POSITION a aidaCommon:EventType.
+:PERSONNEL.START-POSITION a aidaCommon:EventType.
+:TRANSACTION.TRANSACTION a aidaCommon:EventType.
+:TRANSACTION.TRANSFER-MONEY a aidaCommon:EventType.
+:TRANSACTION.TRANSFER-OWNERSHIP a aidaCommon:EventType.
+
+#########################################################
+# Relation types
+#########################################################
+:children a aidaCommon:RelationType.
+:parents a aidaCommon:RelationType.
+:other_family a aidaCommon:RelationType.
+:siblings a aidaCommon:RelationType.
+:spouse a aidaCommon:RelationType.
+:employee_or_member_of a aidaCommon:RelationType.
+:employees_or_members a aidaCommon:RelationType.
+:schools_attended a aidaCommon:RelationType.
+:students a aidaCommon:RelationType.
+:city_of_birth a aidaCommon:RelationType.
+:births_in_city a aidaCommon:RelationType.
+:stateorprovince_of_birth a aidaCommon:RelationType.
+:births_in_stateorprovince a aidaCommon:RelationType.
+:country_of_birth a aidaCommon:RelationType.
+:births_in_country a aidaCommon:RelationType.
+:cities_of_residence a aidaCommon:RelationType.
+:residents_of_city a aidaCommon:RelationType.
+:statesorprovinces_of_residence a aidaCommon:RelationType.
+:residents_of_stateorprovince a aidaCommon:RelationType.
+:countries_of_residence a aidaCommon:RelationType.
+:residents_of_country a aidaCommon:RelationType.
+:city_of_death a aidaCommon:RelationType.
+:deaths_in_city a aidaCommon:RelationType.
+:stateorprovince_of_death a aidaCommon:RelationType.
+:deaths_in_stateorprovince a aidaCommon:RelationType.
+:country_of_death a aidaCommon:RelationType.
+:deaths_in_country a aidaCommon:RelationType.
+:shareholders a aidaCommon:RelationType.
+:holds_shares_in a aidaCommon:RelationType.
+:founded_by a aidaCommon:RelationType.
+:organizations_founded a aidaCommon:RelationType.
+:top_members_employees a aidaCommon:RelationType.
+:top_member_employee_of a aidaCommon:RelationType.
+:member_of a aidaCommon:RelationType.
+:members a aidaCommon:RelationType.
+:subsidiaries a aidaCommon:RelationType.
+:city_of_headquarters a aidaCommon:RelationType.
+:headquarters_in_city a aidaCommon:RelationType.
+:stateorprovince_of_headquarters a aidaCommon:RelationType.
+:headquarters_in_stateorprovince a aidaCommon:RelationType.
+:country_of_headquarters a aidaCommon:RelationType.
+:headquarters_in_country a aidaCommon:RelationType.
+:alternate_names a aidaCommon:RelationType.
+:date_of_birth a aidaCommon:RelationType.
+:political_religious_affiliation a aidaCommon:RelationType.
+:age a aidaCommon:RelationType.
+:number_of_employees_members a aidaCommon:RelationType.
+:origin a aidaCommon:RelationType.
+:date_founded a aidaCommon:RelationType.
+:date_of_death a aidaCommon:RelationType.
+:date_dissolved a aidaCommon:RelationType.
+:cause_of_death a aidaCommon:RelationType.
+:website a aidaCommon:RelationType.
+:title a aidaCommon:RelationType.
+:religion a aidaCommon:RelationType.
+:charges a aidaCommon:RelationType.
+
+# TODO: event argument types

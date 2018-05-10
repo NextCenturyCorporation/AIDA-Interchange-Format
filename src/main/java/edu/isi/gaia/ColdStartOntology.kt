@@ -3,7 +3,7 @@ package edu.isi.gaia
 import org.apache.jena.rdf.model.Resource
 import org.apache.jena.rdf.model.ResourceFactory
 
-// used in AidaDomainOntology
+// used in ColdStartOntology
 private class Memoize<in Arg, out Result>(val f: (Arg) -> Result) : (Arg) -> Result {
     private val cache = mutableMapOf<Arg, Result>()
     override fun invoke(arg: Arg) = cache.getOrPut(arg, { f(arg) })
@@ -14,9 +14,9 @@ private class Memoize<in Arg, out Result>(val f: (Arg) -> Result) : (Arg) -> Res
  *
  * For the moment, this is hard-coded to match ColdStart.
  */
-object AidaDomainOntology {
+object ColdStartOntology {
     @JvmField
-    val NAMESPACE: String = "http://www.isi.edu/aida/programOntology#"
+    val NAMESPACE: String = "http://nist.gov/ontologies/ColdstartOntology#"
 
     @JvmField
     val PERSON = ResourceFactory.createResource(NAMESPACE + "Person")!!

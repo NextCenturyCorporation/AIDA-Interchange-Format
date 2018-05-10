@@ -1,4 +1,5 @@
-@prefix : <http://aida.org/ontologies/SeedlingOntology/> .
+@prefix : <http://darpa.mil/ontologies/SeedlingOntology/> .
+@prefix aidaCommon:  <http://darpa.mil/ontologies/AidaDomainOntologiesCommon> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -8,7 +9,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
-<http://aida.org/ontologies/SeedlingOntology> rdf:type owl:Ontology ;
+<http://darpa.mil/ontologies/SeedlingOntology/> rdf:type owl:Ontology ;
     rdfs:label "AIDA Domain Ontology for LDC Seedling Corpus"^^xsd:string ;
     rdfs:comment "An ontology for creating messages from LDC data to use in AIDA interchange language development"^^xsd:string ;
     owl:versionInfo "Version 0.1"^^xsd:string .
@@ -16,17 +17,9 @@
 ######################################################
 # Top-level classes
 ######################################################
-:EntityType a owl:Class ;
-   rdfs:label "AIDA entity type" .
 
 :FillerType a owl:Class ;
    rdfs:label "AIDA filler type" .
-
-:EventType a owl:Class ;
-   rdfs:label "AIDA event type" .
-
-:RelationType a owl:Class ;
-    rdfs:subClassOf rdf:Property .
 
 #<owl:Class rdf:about="http://www.semanticweb.org/EREOntology#ERECategory">
 #    <rdfs:subClassOf rdf:resource="http://purl.org/olia/system.owl#UnitOfAnnotation"/>
@@ -57,12 +50,12 @@
 ######################################################
 # Entity types
 ######################################################
-:Facility a :EntityType
-:GeopoliticalEntity a :EntityType
-:Location a :EntityType
-:Organization a :EntityType
-:Person a :EntityType
-:String a :EntityType
+:Facility a aidaCommon:EntityType
+:GeopoliticalEntity a aidaCommon:EntityType
+:Location a aidaCommon:EntityType
+:Organization a aidaCommon:EntityType
+:Person a aidaCommon:EntityType
+:String a aidaCommon:EntityType
 
 ######################################################
 # Filler types
@@ -83,28 +76,28 @@
 ######################################################
 # Relation types
 ######################################################
-:general-affiliation_artifact-political-organization-religious-affiliation a :RelationType .
-:general-affiliation_organization-political-religious-affiliation a :RelationType .
-:general-affiliation_organization-website a :RelationType .
-:general-affiliation_person-age a :RelationType .
-:general-affiliation_person-member-origin-religion-ethnicity a :RelationType .
-:general-affiliation_sponsorship a :RelationType .
-:organization-affiliation_employment-membership a :RelationType .
-:organization-affiliation_founder a :RelationType .
-:organization-affiliation_investor-shareholder a :RelationType .
-:organization-affiliation_leadership a :RelationType .
-:organization-affiliation_ownership a :RelationType .
-:organization-affiliation_student-alum a :RelationType .
-:part-whole_membership a :RelationType .
-:part-whole_subsidiary a :RelationType .
-:personal-social_business a :RelationType .
-:personal-social_family a :RelationType .
-:personal-social_role-title a :RelationType .
-:personal-social_unspecified a :RelationType .
-:physical_located-near a :RelationType .
-:physical_organization-headquarter a :RelationType .
-:physical_organization-location-origin a :RelationType .
-:physical_resident a :RelationType .
+:general-affiliation_artifact-political-organization-religious-affiliation a aidaCommon:RelationType .
+:general-affiliation_organization-political-religious-affiliation a aidaCommon:RelationType .
+:general-affiliation_organization-website a aidaCommon:RelationType .
+:general-affiliation_person-age a aidaCommon:RelationType .
+:general-affiliation_person-member-origin-religion-ethnicity a aidaCommon:RelationType .
+:general-affiliation_sponsorship a aidaCommon:RelationType .
+:organization-affiliation_employment-membership a aidaCommon:RelationType .
+:organization-affiliation_founder a aidaCommon:RelationType .
+:organization-affiliation_investor-shareholder a aidaCommon:RelationType .
+:organization-affiliation_leadership a aidaCommon:RelationType .
+:organization-affiliation_ownership a aidaCommon:RelationType .
+:organization-affiliation_student-alum a aidaCommon:RelationType .
+:part-whole_membership a aidaCommon:RelationType .
+:part-whole_subsidiary a aidaCommon:RelationType .
+:personal-social_business a aidaCommon:RelationType .
+:personal-social_family a aidaCommon:RelationType .
+:personal-social_role-title a aidaCommon:RelationType .
+:personal-social_unspecified a aidaCommon:RelationType .
+:physical_located-near a aidaCommon:RelationType .
+:physical_organization-headquarter a aidaCommon:RelationType .
+:physical_organization-location-origin a aidaCommon:RelationType .
+:physical_resident a aidaCommon:RelationType .
 
 ######################################################
 # Relation argument types
@@ -165,7 +158,7 @@
 	a :ArgumentType ;
 	rdfs:label arg1 ;
 	:hasEntityType :Organization ;
-	:hasEntityType :EventType ;
+	:hasEntityType aidaCommon:EventType ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :General-affiliation_sponsorship_arg2
@@ -327,7 +320,7 @@
 ######################################################
 # Event types
 ######################################################
-:BUSINESS_DECLARE-BANKRUPTCY a :EventType ;
+:BUSINESS_DECLARE-BANKRUPTCY a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -338,7 +331,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Business_declare-bankruptcy_arg3 .] .
-:BUSINESS_END-BUSINESS a :EventType ;
+:BUSINESS_END-BUSINESS a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -349,7 +342,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Business_end-business_arg3 .] .
-:BUSINESS_MERGE a :EventType ;
+:BUSINESS_MERGE a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -363,7 +356,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Business_merge_arg4 .] .
-:BUSINESS_START-BUSINESS a :EventType ;
+:BUSINESS_START-BUSINESS a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -377,7 +370,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Business_start-business_arg4 .] .
-:CONFLICT_ATTACK a :EventType ;
+:CONFLICT_ATTACK a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -394,7 +387,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Conflict_attack_arg5 .] .
-:CONFLICT_DEMONSTRATE a :EventType ;
+:CONFLICT_DEMONSTRATE a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -405,7 +398,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Conflict_demonstrate_arg3 .] .
-:CONTACT_BROADCAST a :EventType ;
+:CONTACT_BROADCAST a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -419,7 +412,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Contact_broadcast_arg4 .] .
-:CONTACT_CONTACT a :EventType ;
+:CONTACT_CONTACT a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -433,7 +426,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Contact_contact_arg4 .] .
-:CONTACT_CORRESPONDENCE a :EventType ;
+:CONTACT_CORRESPONDENCE a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -447,7 +440,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Contact_correspondence_arg4 .] .
-:CONTACT_MEET a :EventType ;
+:CONTACT_MEET a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -461,7 +454,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Contact_meet_arg4 .] .
-:JUSTICE_ACQUIT a :EventType ;
+:JUSTICE_ACQUIT a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -478,7 +471,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Justice_acquit_arg5 .] .
-:JUSTICE_APPEAL a :EventType ;
+:JUSTICE_APPEAL a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -498,7 +491,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Justice_appeal_arg6 .] .
-:JUSTICE_ARREST-JAIL a :EventType ;
+:JUSTICE_ARREST-JAIL a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -515,7 +508,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Justice_arrest-jail_arg5 .] .
-:JUSTICE_CHARGE-INDICT a :EventType ;
+:JUSTICE_CHARGE-INDICT a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -535,7 +528,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Justice_charge-indict_arg6 .] .
-:JUSTICE_CONVICT a :EventType ;
+:JUSTICE_CONVICT a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -552,7 +545,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Justice_convict_arg5 .] .
-:JUSTICE_EXECUTE a :EventType ;
+:JUSTICE_EXECUTE a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -569,7 +562,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Justice_execute_arg5 .] .
-:JUSTICE_EXTRADITE a :EventType ;
+:JUSTICE_EXTRADITE a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -589,7 +582,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Justice_extradite_arg6 .] .
-:JUSTICE_FINE a :EventType ;
+:JUSTICE_FINE a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -609,7 +602,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Justice_fine_arg6 .] .
-:JUSTICE_PARDON a :EventType ;
+:JUSTICE_PARDON a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -626,7 +619,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Justice_pardon_arg5 .] .
-:JUSTICE_RELEASE-PAROLE a :EventType ;
+:JUSTICE_RELEASE-PAROLE a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -643,7 +636,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Justice_release-parole_arg5 .] .
-:JUSTICE_SENTENCE a :EventType ;
+:JUSTICE_SENTENCE a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -663,7 +656,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Justice_sentence_arg6 .] .
-:JUSTICE_SUE a :EventType ;
+:JUSTICE_SUE a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -683,7 +676,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Justice_sue_arg6 .] .
-:JUSTICE_TRIAL-HEARING a :EventType ;
+:JUSTICE_TRIAL-HEARING a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -703,7 +696,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Justice_trial-hearing_arg6 .] .
-:LIFE_BE-BORN a :EventType ;
+:LIFE_BE-BORN a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -714,7 +707,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Life_be-born_arg3 .] .
-:LIFE_DIE a :EventType ;
+:LIFE_DIE a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -731,7 +724,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Life_die_arg5 .] .
-:LIFE_DIVORCE a :EventType ;
+:LIFE_DIVORCE a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -745,7 +738,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Life_divorce_arg4 .] .
-:LIFE_INJURE a :EventType ;
+:LIFE_INJURE a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -762,7 +755,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Life_injure_arg5 .] .
-:LIFE_MARRY a :EventType ;
+:LIFE_MARRY a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -776,7 +769,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Life_marry_arg4 .] .
-:MANUFACTURE_ARTIFACT a :EventType ;
+:MANUFACTURE_ARTIFACT a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -793,7 +786,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Manufacture_artifact_arg5 .] .
-:MOVEMENT_TRANSPORT-ARTIFACT a :EventType ;
+:MOVEMENT_TRANSPORT-ARTIFACT a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -813,7 +806,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Movement_transport-artifact_arg6 .] .
-:MOVEMENT_TRANSPORT-PERSON a :EventType ;
+:MOVEMENT_TRANSPORT-PERSON a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -833,7 +826,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Movement_transport-person_arg6 .] .
-:PERSONNEL_ELECT a :EventType ;
+:PERSONNEL_ELECT a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -847,7 +840,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Personnel_elect_arg4 .] .
-:PERSONNEL_END-PERSONNEL a :EventType ;
+:PERSONNEL_END-PERSONNEL a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -861,7 +854,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Personnel_end-personnel_arg4 .] .
-:PERSONNEL_NOMINATE a :EventType ;
+:PERSONNEL_NOMINATE a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -875,7 +868,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Personnel_nominate_arg4 .] .
-:PERSONNEL_START-PERSONNEL a :EventType ;
+:PERSONNEL_START-PERSONNEL a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -889,7 +882,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Personnel_start-personnel_arg4 .] .
-:TRANSACTION_TRANSACTION a :EventType ;
+:TRANSACTION_TRANSACTION a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -906,7 +899,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Transaction_transaction_arg5 .] .
-:TRANSACTION_TRANSFER-MONEY a :EventType ;
+:TRANSACTION_TRANSFER-MONEY a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
@@ -926,7 +919,7 @@
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;
 			owl:hasValuesFrom :Transaction_transfer-money_arg6 .] .
-:TRANSACTION_TRANSFER-OWNERSHIP a :EventType ;
+:TRANSACTION_TRANSFER-OWNERSHIP a aidaCommon:EventType ;
 	 rdfs:subClassOf
 		[a owl:Restriction ;
 			owl:onProperty :hasArgType ;

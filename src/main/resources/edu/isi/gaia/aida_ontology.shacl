@@ -2,12 +2,8 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
-@prefix aidaDomain: <http://www.isi.edu/aida/domainOntology#> .
+@prefix aidaDomainCommon: <http://darpa.mil/ontologies/AidaDomainOntologiesCommon#> .
 @prefix aida: <http://www.isi.edu/aida/interchangeOntology#> .
-
-# TODO: make ColdStart translator add systems
-# TODO: mark entities with aida:Entity
-# TODO: forbid extraneous content
 
 # This document is a specification for validating knowledge graphs for the GAIA team's
 # representation model (GKG - GAIA Knowledge GRaphs) for the DARPA AIDA program.
@@ -30,9 +26,11 @@
 #
 # There are two RDF ontologies to be concerned with. What is described and validated here is the
 # "interchange ontology".  The domain working group is also specifying a "domain ontology" (e.g.
-# entity types, event types, etc.).  The domain ontology has not yet been specified, but for
-# now we assume it will include aidaDomain:EntityType, aidaDomain:EventType,
-# and aidaDomain:RelationType to be supertypes of entity, event, and relation types, respectively.
+# entity types, event types, etc.).  The AIDA program domain ontology has not yet been specified.
+# We currently have two available domain ontologies, but for ColdStart and LDC Seedling, both of
+# which have OWL files in the src/main/resources/edu/gaia directory of this repository.
+# We assume all domain ontologies
+# derive their entity, event, and relation types from aidaDomainCommon:EntityType, etc.
 #
 # The explanation of the format will be interleaved with code for performing validation. The
 # validation constraints are written in the "Shapes Constraint Language"
@@ -48,7 +46,7 @@
 # the first type of content node is an entity, which represents some non-event thing in the world
 # (e.g. a person, place, thing, etc.)
 # Each entity must have at least one assertion giving it a type which is a sub-class of
-# aidaDomain:entityType (see type assertions below)
+# aidaDomainCommon:entityType (see type assertions below)
 # TODO: enforce the above
 aida:EntityShape
   a sh:NodeShape ;
@@ -89,7 +87,7 @@ aida:EntityShape
 # the second type of content node is an event, which represents something which happens in the world
 # (e.g. an attack, a marriage, a business acquisition)
 # Each event must have at least one assertion giving it a type which is a sub-class of
-# aidaDomain:eventType
+# aidaDomainCommon:eventType
 # TODO: enforce the above
 aida:EventShape
   a sh:NodeShape ;
@@ -135,8 +133,8 @@ aida:EventArgumentShape
     sh:select """
         SELECT ?this
         WHERE {
-            ?this a rdf:Statement .
-            ?pred a aidaDomain:EventArgumentType .
+            ?this a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement> .
+            ?pred a aidaDomainCommon:EventArgumentType .
             ?this rdf:predicate ?pred .
         }
         """ ;
@@ -190,7 +188,7 @@ aida:RelationShape
         SELECT ?this
         WHERE {
             ?this a rdf:Statement .
-            ?pred a aidaDomain:RelationType .
+            ?pred a aidaDomainCommon:RelationType .
             ?this rdf:predicate ?pred .
         }
         """ ;
@@ -243,7 +241,7 @@ aida:SentimentShape
         SELECT ?this
         WHERE {
             ?this a rdf:Statement .
-            ?pred a aidaDomain:Sentiment .
+            ?pred a aidaDomainCommon:Sentiment .
             ?this rdf:predicate ?pred .
         }
         """ ;
@@ -292,28 +290,38 @@ aida:TypeShape
    a sh:NodeShape ;
 
    # this shape only applies when the predicate of the RDF statement is rdf:type
-  sh:SPARQLTarget [
+   # we use full IRIs for RDF classes and properties below because I couldn't get the
+   # prefixes to work correctly
+  sh:target [
+    a sh:SPARQLTarget ;
+    sh:prefixes rdf: ;
     sh:select """
         SELECT ?this
         WHERE {
-            ?this a rdf:Statement .
-            ?this rdf:predicate rdf:type .
+            ?this a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement> .
+            ?this <http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> .
         }
         """ ;
   ];
+
+  sh:property [
+    sh:path aida:notthere ;
+    sh:mincount 1 ];
 
    # the subject and object properties define the two arguments of the relation
    sh:property [
      sh:path rdf:subject ;
      sh:xone ( [sh:class aida:Entity ]
-               [sh:class aida:Event ] ) ];
+               [sh:class aida:Event ] ) ;
+     sh:message "Subject of type assertion must be entity or event"];
 
    # TODO: can we validate the interaction so that entities are restricted to having entity types
-   # and events are restricted to having event types?
+   # and events are restricted to having event types?  Issue #29
    sh:property [
      sh:path rdf:object ;
-     sh:xone ( [sh:class aidaDomain:EntityType ]
-               [sh:class aidaDomain:EventType ] ) ];
+     sh:xone ( [sh:class aidaDomainCommon:EntityType ]
+               [sh:class aidaDomainCommon:EventType ] ) ;
+     sh:message "Object of type assertion must be an entity or event type"];
     # TODO: handle temporal or string values
 
     # may have zero or more string labels for user consumption
@@ -656,9 +664,9 @@ aida:RdfStatementShape
      sh:path rdf:predicate ;
      sh:exone (
          [ sh:class rdf:type ]
-         [ sh:class aidaDomain:EventArgumentType ]
-         [ sh:class aidaDomain:RelationType ]
-         [ sh:class aidaDomain:Sentiment ] ) ]
+         [ sh:class aidaDomainCommon:EventArgumentType ]
+         [ sh:class aidaDomainCommon:RelationType ]
+         [ sh:class aidaDomainCommon:Sentiment ] ) ]
   .
 
 # Sometimes there is uncertainty about whether or not two entities or events are the same.
