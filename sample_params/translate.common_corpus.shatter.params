@@ -1,0 +1,5 @@
+inputKBFile: /Users/gabbard/projects/gaia/en.ner.linking.rpi_event_aida.cs
+baseURI: http://www.isi.edu/gaia
+systemURI: http://www.rpi.edu
+mode: SHATTER
+outputAIFDirectory: /Users/gabbard/projects/gaia/coldstart-to-interchange/common_corpus_shattered

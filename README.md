@@ -23,6 +23,9 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
 *    code to translate from the TAC KBP Coldstart++ KB format into this format.
      `src/main/java/edu/isi/gaia/ColdStart2AidaInterchange.kt`.
 
+We recommend using Turtle format for AIF when working with single document files (for
+readability) but N-Triples for working with large KBs (for speed).
+
 # Installation
 
 * To install the JVM code, do `mvn install` from the root of this repository using Apache Maven.  Repeat the `mvn install` if you pull an updated version of the code. You can run the tests, which should output the examples, by doing `mvn test`.
@@ -35,7 +38,8 @@ file. The parameter file should have keys and values separated by `:`. It should
 parameter `kbToValidatie` pointing to the single Turtle format KB to validate, or it should have
 `kbsToValidate` pointing to a file listing the paths of the Turtle format KBs to validate.
 Additionally, it must have a parameter `domainOntology` pointing to the OWL file for the domain
-ontology to validate against.
+ontology to validate against.  Beware that validating large KBs can take a long time. There is
+a sample of a validator param file in `sample_params/validate.common_corpus.single.params`
 
 # Running the ColdStart -> AIF Converter
 
@@ -76,6 +80,18 @@ The following optional parameters are available in both modes:
       encode these coref decisions in the way they would be encoded in AIDA if there were any
       uncertainty so that users can test these data structures.
 
+There are sample shatter and single KB param files under `sample_params/translate.*`
+
+# `maxConfidence`
+
+There is an example program showing how to consume AIF data in `edu.isi.gaia.MaxConfidenceEstimator`.
+
+# Contact
+
+AIF was designed by Ryan Gabbard (gabbard@isi.edu) and Pedro Szekely (pszekeley@isi.edu) of USC ISI.
+Gabbard also wrote the initial implementations of the associated tools.  The tools are now
+maintained by Eddie Curley (eddie.curley@nextcentury.com)
+and Clark Dorman (clark.dorman@nextcentury.com) of Next Century.
 
 # Legal Stuff
 
