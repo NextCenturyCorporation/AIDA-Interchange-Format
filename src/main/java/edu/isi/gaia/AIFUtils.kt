@@ -2,7 +2,9 @@ package edu.isi.gaia
 
 import org.apache.jena.rdf.model.Model
 import org.apache.jena.rdf.model.Resource
+import org.apache.jena.tdb.TDBFactory
 import org.apache.jena.vocabulary.RDF
+import org.slf4j.LoggerFactory
 
 /**
  * A convenient interface for creating simple AIF graphs.
@@ -468,5 +470,25 @@ object AIFUtils {
             markConfidence(model, linkAssertion, confidence, system)
         }
         return linkAssertion
+    }
+
+    /**
+     * Run a task on a model when the model might grown too big to fit into memory.
+     *
+     * This hides the setup and cleanup boilerplate for using a Jena TDB model backed by
+     * a temporary directory.
+     */
+    @JvmStatic
+    fun workWithBigModel(workFunction: (Model) -> Unit) {
+        val tempDir = createTempDir()
+        try {
+            LoggerFactory.getLogger("main").info("Using temporary directory $tempDir for " +
+                    "triple store")
+            val dataset = TDBFactory.createDataset(tempDir.absolutePath)
+            val model = dataset.defaultModel
+            workFunction(model)
+        } finally {
+            tempDir.deleteRecursively()
+        }
     }
 }

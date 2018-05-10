@@ -1,5 +1,7 @@
 package edu.isi.gaia
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
 import com.google.common.base.Charsets
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableMultiset
@@ -13,7 +15,6 @@ import org.apache.jena.rdf.model.ModelFactory
 import org.apache.jena.rdf.model.Resource
 import org.apache.jena.riot.RDFDataMgr
 import org.apache.jena.riot.RDFFormat
-import org.apache.jena.tdb.TDBFactory
 import org.apache.jena.vocabulary.RDF
 import org.apache.jena.vocabulary.SKOS
 import org.apache.jena.vocabulary.XSD
@@ -326,7 +327,7 @@ fun main(args: Array<String>) {
     when(mode) {
         Mode.FULL -> {
             outputPath = params.getCreatableFile("outputAIFFile").toPath()
-            outputFormat = RDFFormat.TURTLE_BLOCKS
+            outputFormat = RDFFormat.NTRIPLES
             breakCrossDocCoref = params.getOptionalBoolean("breakCrossDocCoref").or(false)
             restrictConfidencesToJustifications =
                     params.getOptionalBoolean("restrictConfidencesToJustifications").or(false)
@@ -346,7 +347,9 @@ fun main(args: Array<String>) {
     // that users can test these data structures
     val useClustersForCoref = params.getOptionalBoolean("useClustersForCoref").or(false)
 
-    val logger = LoggerFactory.getLogger("main")
+    val logger = LoggerFactory.getLogger("main") as Logger
+    // don't log too much Jena-internal stuff
+    (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.INFO
 
     // we need to let the ColdStart KB loader itself know we are shattering by document so it
     // knows to eliminate the cross-document coreference links which have already been added by
@@ -381,19 +384,8 @@ fun main(args: Array<String>) {
 
     when (mode) {
         // converting entire ColdStart KB at once
-        Mode.FULL -> {
-            // we use a temporary directory to back a triple store in case there is too much
-            // to fit in memory
-            val tempDir = createTempDir()
-            try {
-                logger.info("Using temporary directory $tempDir")
-                val dataset = TDBFactory.createDataset(tempDir.absolutePath)
-                val model = dataset.defaultModel
-                convertKB(coldstartKB, model, outputPath)
-            } finally {
-                tempDir.deleteRecursively()
-            }
-        }
+        Mode.FULL -> AIFUtils.workWithBigModel { convertKB(coldstartKB, it, outputPath) }
+
         // converting document-by-document
         Mode.SHATTER -> {
             outputPath.toFile().mkdirs()
