@@ -9,13 +9,13 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
      reconcile them in the next week*.
 
 *    utilities to make it easier to work with this format.  JVM utilities are in
-     `src/main/java/edu/isi/gaia/AIFUtils.kt`. After installation, these can be used from any
+     `src/main/java/edu/isi/gaia/AIFUtils.kt`. Although written in Kotlin, these can be used from any
      JVM language by adding a Maven dependency on
-      `edu.isi:gaia-interchange-kotlin:1.0.0-SNAPSHOT`.  There is the beginning of a Java translation of
+      `edu.isi:gaia-interchange-kotlin:1.0.0-SNAPSHOT`.  There is the beginning of a Python translation of
       these utilities in `gaia_interchange/aifutils.py`.  Next Century will complete the Python
       translation of these utilities soon.
 
-*    examples of how to use AIF. These are given in the unit tests under
+*    examples of how to use AIF. These are given in Java in the unit tests under
      `src/text/java/edu/isi/gaia/ExamplesAndVlaidationTests`.  There is the beginning of a Python
      translation of these examples in `test/gaia_interchange/Examples.py`.  If you run either set of
      examples, the corresponding Turtle output will be dumped.
@@ -85,6 +85,10 @@ There are sample shatter and single KB param files under `sample_params/translat
 # `maxConfidence`
 
 There is an example program showing how to consume AIF data in `edu.isi.gaia.MaxConfidenceEstimator`.
+
+# Developing
+
+If you need to edit the Kotlin code, just import the POM for this project using IntelliJ IDEA and you should be ready to go.
 
 # Contact
 
