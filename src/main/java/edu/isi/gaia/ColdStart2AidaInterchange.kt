@@ -96,26 +96,26 @@ class ColdStart2AidaInterchangeConverter(
             // can't go in the when statement because it has an arbitrary boolean condition
             // this handles ColdStart event arguments
             if (':' in ontology_type) {
-                return AidaDomainOntology.eventType(ontology_type)
+                return ColdStartOntology.eventType(ontology_type)
             }
 
             return when (ontology_type) {
-                "PER" -> AidaDomainOntology.PERSON
-                "ORG" -> AidaDomainOntology.ORGANIZATION
-                "LOC" -> AidaDomainOntology.LOCATION
-                "FAC" -> AidaDomainOntology.FACILITY
-                "GPE" -> AidaDomainOntology.GPE
-                "STRING", "String" -> AidaDomainOntology.STRING
-                in AidaDomainOntology.EVENT_AND_RELATION_TYPES.keys ->
-                    AidaDomainOntology.EVENT_AND_RELATION_TYPES.getValue(ontology_type)
+                "PER" -> ColdStartOntology.PERSON
+                "ORG" -> ColdStartOntology.ORGANIZATION
+                "LOC" -> ColdStartOntology.LOCATION
+                "FAC" -> ColdStartOntology.FACILITY
+                "GPE" -> ColdStartOntology.GPE
+                "STRING", "String" -> ColdStartOntology.STRING
+                in ColdStartOntology.EVENT_AND_RELATION_TYPES.keys ->
+                    ColdStartOntology.EVENT_AND_RELATION_TYPES.getValue(ontology_type)
                 else -> throw RuntimeException("Unknown ontology type $ontology_type")
             }
         }
 
         fun toRealisType(realis: Realis) = when (realis) {
-            Realis.actual -> AidaDomainOntology.ACTUAL
-            Realis.generic -> AidaDomainOntology.GENERIC
-            Realis.other -> AidaDomainOntology.OTHER
+            Realis.actual -> ColdStartOntology.ACTUAL
+            Realis.generic -> ColdStartOntology.GENERIC
+            Realis.other -> ColdStartOntology.OTHER
         }
 
         // below are the functions for translating each individual type of ColdStart assertion
@@ -199,7 +199,7 @@ class ColdStart2AidaInterchangeConverter(
         fun translateRelation(csAssertion: RelationAssertion, confidence: Double): Boolean {
             AIFUtils.makeRelation(model, assertionIriGenerator.nextIri(),
                     toResource(csAssertion.subject),
-                    AidaDomainOntology.relationType(csAssertion.relationType),
+                    ColdStartOntology.relationType(csAssertion.relationType),
                     toResource(csAssertion.obj), systemNode, confidence)
             return true
         }
@@ -208,8 +208,8 @@ class ColdStart2AidaInterchangeConverter(
 
 
             fun toSentimentType(sentiment: String) = when (sentiment) {
-                "LIKES" -> AidaDomainOntology.LIKES
-                "DISLIKES" -> AidaDomainOntology.DISLIKES
+                "LIKES" -> ColdStartOntology.LIKES
+                "DISLIKES" -> ColdStartOntology.DISLIKES
                 else -> throw RuntimeException("Unknown sentiment $sentiment")
             }
 
@@ -230,7 +230,7 @@ class ColdStart2AidaInterchangeConverter(
             val filler = toResource(csAssertion.argument)
 
             val argAssertion = AIFUtils.markAsEventArgument(model, event,
-                    AidaDomainOntology.eventArgumentType(csAssertion.argument_role),
+                    ColdStartOntology.eventArgumentType(csAssertion.argument_role),
                     filler, systemNode, confidence)
 
             registerJustifications(argAssertion, csAssertion.justifications, null, confidence)
@@ -275,7 +275,7 @@ class ColdStart2AidaInterchangeConverter(
             model.setNsPrefix("rdf", RDF.uri)
             model.setNsPrefix("xsd", XSD.getURI())
             model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE)
-            model.setNsPrefix("aidaProgramOntology", AidaDomainOntology.NAMESPACE)
+            model.setNsPrefix("aidaProgramOntology", ColdStartOntology.NAMESPACE)
             model.setNsPrefix("skos", SKOS.uri)
         }
     }

@@ -2,7 +2,8 @@
 ######################################################
 # Created by LDCOntologyCreator.java on 2018-05-10T15:52:32.811Z
 ######################################################
-@prefix : <http://aida.org/ontologies/SeedlingOntology/> .
+@prefix : <http://darpa.mil/ontologies/SeedlingOntology/> .
+@prefix aidaCommon:  <http://darpa.mil/ontologies/AidaDomainOntologiesCommon> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -12,7 +13,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
-<http://aida.org/ontologies/SeedlingOntology> rdf:type owl:Ontology ;
+<http://darpa.mil/ontologies/SeedlingOntology/> rdf:type owl:Ontology ;
     rdfs:label "AIDA Domain Ontology for LDC Seedling Corpus"^^xsd:string ;
     rdfs:comment "An ontology for creating messages from LDC data to use in AIDA interchange language development"^^xsd:string ;
     owl:versionInfo "Version 0.1"^^xsd:string .
@@ -20,17 +21,9 @@
 ######################################################
 # Top-level classes
 ######################################################
-aidaCommon:EntityType a owl:Class ;
-   rdfs:label "AIDA entity type" .
 
 :FillerType a owl:Class ;
    rdfs:label "AIDA filler type" .
-
-aidaCommon:EventType a owl:Class ;
-   rdfs:label "AIDA event type" .
-
-aidaCommon:RelationType a owl:Class ;
-    rdfs:subClassOf rdf:Property .
 
 #<owl:Class rdf:about="http://www.semanticweb.org/EREOntology#ERECategory">
 #    <rdfs:subClassOf rdf:resource="http://purl.org/olia/system.owl#UnitOfAnnotation"/>

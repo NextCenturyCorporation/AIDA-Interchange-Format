@@ -34,6 +34,8 @@ To run the validator, run `target/appassembler/bin/validateAIF` with a single ar
 file. The parameter file should have keys and values separated by `:`. It should have either the
 parameter `kbToValidatie` pointing to the single Turtle format KB to validate, or it should have
 `kbsToValidate` pointing to a file listing the paths of the Turtle format KBs to validate.
+Additionally, it must have a parameter `domainOntology` pointing to the OWL file for the domain
+ontology to validate against.
 
 # Running the ColdStart -> AIF Converter
 

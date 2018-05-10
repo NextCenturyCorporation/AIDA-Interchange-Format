@@ -181,7 +181,7 @@
 :MutualExclusionAlternative a owl:Class ;
     rdfs:subClassOf :UncertaintyAnnotation ;
     rdfs:label "AIDA mutual exclusion alternative" ;
-    skos:definition "Represents an option in a mutual exclusion constraint." ;
+    skos:definition "Represents an option in a mutual exclusion constraint." .
 
 :Cluster a owl:Class ;
     rdfs:subClassOf :Annotation ;

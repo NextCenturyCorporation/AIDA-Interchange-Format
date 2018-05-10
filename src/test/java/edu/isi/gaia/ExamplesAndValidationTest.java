@@ -5,6 +5,7 @@ import static edu.isi.gaia.AIFUtils.makeRelation;
 import static edu.isi.gaia.AIFUtils.markAsMutuallyExclusive;
 import static edu.isi.gaia.AIFUtils.markAsPossibleClusterMember;
 import static edu.isi.gaia.AIFUtils.markDependsOnHypothesis;
+import static edu.isi.gaia.AIFUtils.markType;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -12,8 +13,10 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.io.Resources;
 import edu.isi.gaia.AIFUtils.BoundingBox;
 import edu.isi.gaia.AIFUtils.Point;
+import kotlin.text.Charsets;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
@@ -37,7 +40,9 @@ public class ExamplesAndValidationTest {
     ((Logger)org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
   }
 
-  private final ValidateAIF validator = new ValidateAIF();
+  private final ValidateAIF validator = ValidateAIF.createForDomainOntologySource(
+      Resources.asCharSource(Resources.getResource("edu/isi/gaia/coldstart-ontology.ttl"),
+          Charsets.UTF_8));
 
   @Nested
   class ValidExamples {
@@ -59,7 +64,7 @@ public class ExamplesAndValidationTest {
       // entity's type directly on the entity, but rather make a separate assertion for it
       // its URI doesn't matter either
       final Resource typeAssertion = AIFUtils.markType(model, "http://www.test.org/assertions/1",
-          entity, AidaDomainOntology.PERSON, system, 1.0);
+          entity, ColdStartOntology.PERSON, system, 1.0);
 
       // the justification provides the evidence for our claim about the entity's type
       // we attach this justification to both the type assertion and the entity object
@@ -104,10 +109,10 @@ public class ExamplesAndValidationTest {
 
       final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1", system);
       final Resource entityIsAPerson = AIFUtils.markType(model, "http://www.test.org/assertions/1",
-          entity, AidaDomainOntology.PERSON, system, 0.5);
+          entity, ColdStartOntology.PERSON, system, 0.5);
       final Resource entityIsAnOrganization = AIFUtils
           .markType(model, "http://www.test.org/assertions/2",
-              entity, AidaDomainOntology.ORGANIZATION, system, 0.2);
+              entity, ColdStartOntology.ORGANIZATION, system, 0.2);
 
       AIFUtils.markTextJustification(model, ImmutableSet.of(entity, entityIsAPerson),
           "NYT_ENG_201181231",
@@ -134,17 +139,17 @@ public class ExamplesAndValidationTest {
       final Resource personEntity = AIFUtils
           .makeEntity(model, "http://www.test.edu/entities/1", system);
       AIFUtils.markType(model, "http://www.test.org/assertions/1",
-          personEntity, AidaDomainOntology.PERSON, system, 1.0);
+          personEntity, ColdStartOntology.PERSON, system, 1.0);
 
       // create entities for the two locations
       final Resource louisvilleEntity = AIFUtils
           .makeEntity(model, "http://www.test.edu/entities/2", system);
       AIFUtils.markType(model, "http://www.test.org/assertions/2",
-          louisvilleEntity, AidaDomainOntology.GPE, system, 1.0);
+          louisvilleEntity, ColdStartOntology.GPE, system, 1.0);
       final Resource cambridgeEntity = AIFUtils
           .makeEntity(model, "http://www.test.edu/entities/3", system);
       AIFUtils.markType(model, "http://www.test.org/assertions/3",
-          cambridgeEntity, AidaDomainOntology.GPE, system, 1.0);
+          cambridgeEntity, ColdStartOntology.GPE, system, 1.0);
 
       // create an entity for the uncertain place of birth
       final Resource uncertainPlaceOfBirthEntity = AIFUtils
@@ -152,7 +157,7 @@ public class ExamplesAndValidationTest {
 
       // whatever this place turns out to refer to, we're sure it's where they live
       makeRelation(model, "http://www.test.edu/relations/1", personEntity,
-          AidaDomainOntology.relationType("cities_of_residence"),
+          ColdStartOntology.relationType("cities_of_residence"),
           uncertainPlaceOfBirthEntity, system, 1.0);
 
       // we use clusters to represent uncertainty about identity
@@ -189,23 +194,23 @@ public class ExamplesAndValidationTest {
       // mark the event as a Personnel.Elect event; type is encoded separately so we can express
       // uncertainty about type
       AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
-          AidaDomainOntology.eventType("PERSONNEL.ELECT"), system, 1.0);
+          ColdStartOntology.eventType("PERSONNEL.ELECT"), system, 1.0);
 
       // create the two entities involved in the event
       final Resource electee = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
           system);
       AIFUtils.markType(model, "http://www.test.edu/assertions/6", electee,
-          AidaDomainOntology.PERSON, system, 1.0);
+          ColdStartOntology.PERSON, system, 1.0);
 
       final Resource electionCountry = AIFUtils.makeEntity(model,
           "http://www.test.edu/entities/2", system);
       AIFUtils.markType(model, "http://www.test.edu/assertions/7", electionCountry,
-          AidaDomainOntology.GPE, system, 1.0);
+          ColdStartOntology.GPE, system, 1.0);
 
       // link those entities to the event
-      AIFUtils.markAsEventArgument(model, event, AidaDomainOntology.eventArgumentType("Person"),
+      AIFUtils.markAsEventArgument(model, event, ColdStartOntology.eventArgumentType("Person"),
           electee, system, 0.785);
-      AIFUtils.markAsEventArgument(model, event, AidaDomainOntology.eventArgumentType("Place"),
+      AIFUtils.markAsEventArgument(model, event, ColdStartOntology.eventArgumentType("Place"),
           electionCountry, system, 0.589);
     }
 
@@ -230,31 +235,31 @@ public class ExamplesAndValidationTest {
       // mark the event as a Personnel.Elect event; type is encoded separately so we can express
       // uncertainty about type
       AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
-          AidaDomainOntology.eventType("CONFLICT.ATTACK"), system, 1.0);
+          ColdStartOntology.eventType("CONFLICT.ATTACK"), system, 1.0);
 
       // create the two entities involved in the event
       final Resource bob = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
           system);
       AIFUtils.markType(model, "http://www.test.edu/assertions/6", bob,
-          AidaDomainOntology.PERSON, system, 1.0);
+          ColdStartOntology.PERSON, system, 1.0);
 
       final Resource fred = AIFUtils.makeEntity(model,
           "http://www.test.edu/entities/2", system);
       AIFUtils.markType(model, "http://www.test.edu/assertions/7", fred,
-          AidaDomainOntology.PERSON, system, 1.0);
+          ColdStartOntology.PERSON, system, 1.0);
 
       // we link all possible argument fillers to the event
       final ImmutableSet<Resource> bobHitFredAssertions = ImmutableSet.of(
           AIFUtils.markAsEventArgument(model, event,
-              AidaDomainOntology.eventArgumentType("Attacker"), bob, system, null),
+              ColdStartOntology.eventArgumentType("Attacker"), bob, system, null),
           AIFUtils.markAsEventArgument(model, event,
-              AidaDomainOntology.eventArgumentType("Target"), fred, system, null));
+              ColdStartOntology.eventArgumentType("Target"), fred, system, null));
 
       final ImmutableSet<Resource> fredHitBobAssertions = ImmutableSet.of(
           AIFUtils.markAsEventArgument(model, event,
-              AidaDomainOntology.eventArgumentType("Attacker"), fred, system, null),
+              ColdStartOntology.eventArgumentType("Attacker"), fred, system, null),
           AIFUtils.markAsEventArgument(model, event,
-              AidaDomainOntology.eventArgumentType("Target"), bob, system, null));
+              ColdStartOntology.eventArgumentType("Target"), bob, system, null));
 
       // then we mark these as mutually exclusive
       // we also mark confidence 0.2 that neither of these are true
@@ -275,46 +280,46 @@ public class ExamplesAndValidationTest {
       final Resource bob = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Bob",
           system);
       AIFUtils.markType(model, "http://www.test.org/assertions/1",
-          bob, AidaDomainOntology.PERSON, system, 1.0);
+          bob, ColdStartOntology.PERSON, system, 1.0);
       final Resource google = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Google",
           system);
       AIFUtils.markType(model, "http://www.test.org/assertions/2",
-          google, AidaDomainOntology.ORGANIZATION, system, 1.0);
+          google, ColdStartOntology.ORGANIZATION, system, 1.0);
       final Resource amazon = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Amazon",
           system);
       AIFUtils.markType(model, "http://www.test.org/assertions/3",
-          amazon, AidaDomainOntology.ORGANIZATION, system, 1.0);
+          amazon, ColdStartOntology.ORGANIZATION, system, 1.0);
       final Resource seattle = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Seattle",
           system);
       AIFUtils.markType(model, "http://www.test.org/assertions/4",
-          seattle, AidaDomainOntology.GPE, system, 1.0);
+          seattle, ColdStartOntology.GPE, system, 1.0);
       final Resource california = AIFUtils
           .makeEntity(model, "http://www.test.edu/entities/California",
               system);
       AIFUtils.markType(model, "http://www.test.org/assertions/5",
-          california, AidaDomainOntology.GPE, system, 1.0);
+          california, ColdStartOntology.GPE, system, 1.0);
 
       // under the background hypothesis that Bob lives in Seattle, we believe he works for Amazon
       final Resource bobLivesInSeattle = makeRelation(model, "http://www.test.edu/relations/1",
-          bob, AidaDomainOntology.relationType("cities_of_residence"),
+          bob, ColdStartOntology.relationType("cities_of_residence"),
           seattle, system, 1.0);
       final Resource bobLivesInSeattleHypothesis = makeHypothesis(model,
           "http://www.test.edu/hypotheses/1", ImmutableSet.of(bobLivesInSeattle),
           system);
       final Resource bobWorksForAmazon = makeRelation(model, "http://www.test.edu/relations/2",
-          bob, AidaDomainOntology.relationType("employee_or_member_of"),
+          bob, ColdStartOntology.relationType("employee_or_member_of"),
           amazon, system, 1.0);
       markDependsOnHypothesis(bobWorksForAmazon, bobLivesInSeattleHypothesis);
 
       // under the background hypothesis that Bob lives in California, we believe he works for Google
       final Resource bobLivesInCalifornia = makeRelation(model, "http://www.test.edu/relations/3",
-          bob, AidaDomainOntology.relationType("cities_of_residence"),
+          bob, ColdStartOntology.relationType("cities_of_residence"),
           california, system, 1.0);
       final Resource bobLivesInCaliforniaHypothesis = makeHypothesis(model,
           "http://www.test.edu/hypotheses/2", ImmutableSet.of(bobLivesInCalifornia),
           system);
       final Resource bobWorksForGoogle = makeRelation(model, "http://www.test.edu/relations/4",
-          bob, AidaDomainOntology.relationType("employee_or_member_of"),
+          bob, ColdStartOntology.relationType("employee_or_member_of"),
           google, system, 1.0);
       markDependsOnHypothesis(bobWorksForGoogle, bobLivesInCaliforniaHypothesis);
     }
@@ -340,7 +345,7 @@ public class ExamplesAndValidationTest {
 
       AIFUtils.markType(model, "http://www.test.org/assertions/1",
           // illegal confidence value - not in [0.0, 1.0]
-          entity, AidaDomainOntology.PERSON, system, 100.0);
+          entity, ColdStartOntology.PERSON, system, 100.0);
 
       assertFalse(validator.validateKB(model));
     }
@@ -370,6 +375,21 @@ public class ExamplesAndValidationTest {
 
       AIFUtils.makeEvent(model, "http://www.test.edu/events/1",
           system);
+      assertFalse(validator.validateKB(model));
+    }
+
+    @Test
+    void nonTypeUsedAsType() {
+      final Model model = createModel();
+
+      final Resource system = AIFUtils.makeSystemWithURI(model,
+          "http://www.test.edu/testSystem");
+
+      final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
+          system);
+      markType(model, "http://www.test.edu/typeAssertion/1", entity,
+          // use a blank node as the bogus entity type
+          model.createResource(), system, 1.0);
       assertFalse(validator.validateKB(model));
     }
 
@@ -417,7 +437,7 @@ public class ExamplesAndValidationTest {
     model.setNsPrefix("rdf", RDF.uri);
     model.setNsPrefix("xsd", XSD.getURI());
     model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
-    model.setNsPrefix("aidaProgramOntology", AidaDomainOntology.NAMESPACE);
+    model.setNsPrefix("coldstart", ColdStartOntology.NAMESPACE);
     model.setNsPrefix("skos", SKOS.uri);
     return model;
   }
