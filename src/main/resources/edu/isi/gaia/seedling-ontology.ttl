@@ -1,6 +1,6 @@
 
 ######################################################
-# Created by LDCOntologyCreator.java on 2018-05-10T15:52:32.811Z
+# Created by LDCOntologyCreator.java on 2018-05-11T13:37:43.130Z
 ######################################################
 @prefix : <http://darpa.mil/ontologies/SeedlingOntology/> .
 @prefix aidaCommon:  <http://darpa.mil/ontologies/AidaDomainOntologiesCommon> .
@@ -21,7 +21,6 @@
 ######################################################
 # Top-level classes
 ######################################################
-
 :FillerType a owl:Class ;
    rdfs:label "AIDA filler type" .
 
@@ -33,7 +32,7 @@
 #<owl:Class rdf:about="http://www.semanticweb.org/EREOntology#EREArgumentType">
 #       <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/EREOntology#ERECategory"/>
 #</owl:Class>
-:ArgumentType a :Category .
+:RelationArgumentType a :Category .
 
 :Realis a owl:Class .
 :dislikes a owl:Class .
@@ -262,14 +261,14 @@
 # Relation argument types
 ######################################################
 :General-affiliation_artifact-political-organization-religious-affiliation_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "arg1" ;
 	:hasEntityType :Vehicle ;
 	:hasEntityType :Commodity ;
 	:hasEntityType :Facility ;
 	:hasEntityType :Weapon .
 :General-affiliation_artifact-political-organization-religious-affiliation_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "arg2" ;
 	:hasEntityType :Side ;
 	:hasEntityType :Organization ;
@@ -277,162 +276,162 @@
 	:hasEntityType :Person ;
 	:hasEntityType :Location .
 :General-affiliation_organization-political-religious-affiliation_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "org" ;
 	:hasEntityType :Organization .
 :General-affiliation_organization-political-religious-affiliation_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "entity" ;
 	:hasEntityType :Side ;
 	:hasEntityType :Organization ;
 	:hasEntityType :Person .
 :General-affiliation_organization-website_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "org" ;
 	:hasEntityType :Organization .
 :General-affiliation_organization-website_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "url" ;
 	:hasEntityType :URL .
 :General-affiliation_person-age_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "per" ;
 	:hasEntityType :Person .
 :General-affiliation_person-age_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "age" ;
 	:hasEntityType :Age .
 :General-affiliation_person-member-origin-religion-ethnicity_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "per" ;
 	:hasEntityType :Person .
 :General-affiliation_person-member-origin-religion-ethnicity_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "entity" ;
 	:hasEntityType :Side ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person ;
 	:hasEntityType :Location .
 :General-affiliation_sponsorship_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "arg1" ;
 	:hasEntityType :Organization ;
-	:hasEntityType aidaCommon:EventType ;
+	:hasEntityType :EventType ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :General-affiliation_sponsorship_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "arg2" ;
 	:hasEntityType :Side ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Organization-affiliation_employment-membership_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "employeemember" ;
 	:hasEntityType :Person .
 :Organization-affiliation_employment-membership_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "org" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity .
 :Organization-affiliation_founder_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "founder" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Organization-affiliation_founder_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "org" ;
 	:hasEntityType :Organization .
 :Organization-affiliation_investor-shareholder_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "investorshareholder" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Organization-affiliation_investor-shareholder_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "org" ;
 	:hasEntityType :Organization .
 :Organization-affiliation_leadership_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "leader" ;
 	:hasEntityType :Person .
 :Organization-affiliation_leadership_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "entity" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity .
 :Organization-affiliation_ownership_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "owner" ;
 	:hasEntityType :Person .
 :Organization-affiliation_ownership_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "org" ;
 	:hasEntityType :Organization .
 :Organization-affiliation_student-alum_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "studentalumni" ;
 	:hasEntityType :Person .
 :Organization-affiliation_student-alum_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "org" ;
 	:hasEntityType :Organization .
 :Part-whole_membership_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "member" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity .
 :Part-whole_membership_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "org" ;
 	:hasEntityType :Organization .
 :Part-whole_subsidiary_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "suborg" ;
 	:hasEntityType :Organization .
 :Part-whole_subsidiary_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "parent" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity .
 :Personal-social_business_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "per" ;
 	:hasEntityType :Person .
 :Personal-social_business_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "per" ;
 	:hasEntityType :Person .
 :Personal-social_family_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "per" ;
 	:hasEntityType :Person .
 :Personal-social_family_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "per" ;
 	:hasEntityType :Person .
 :Personal-social_role-title_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "per" ;
 	:hasEntityType :Person .
 :Personal-social_role-title_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "per" ;
 	:hasEntityType :Title .
 :Personal-social_unspecified_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "per" ;
 	:hasEntityType :Person .
 :Personal-social_unspecified_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "per" ;
 	:hasEntityType :Person .
 :Physical_located-near_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "entity" ;
 	:hasEntityType :Vehicle ;
 	:hasEntityType :Commodity ;
@@ -440,37 +439,37 @@
 	:hasEntityType :Person ;
 	:hasEntityType :Weapon .
 :Physical_located-near_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "loc" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Physical_organization-headquarter_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "org" ;
 	:hasEntityType :Organization .
 :Physical_organization-headquarter_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "loc" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Physical_organization-location-origin_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "org" ;
 	:hasEntityType :Organization .
 :Physical_organization-location-origin_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "loc" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Physical_resident_arg1
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "per" ;
 	:hasEntityType :Person .
 :Physical_resident_arg2
-	a :ArgumentType ;
+	a :RelationArgumentType ;
 	rdfs:label "loc" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
@@ -1103,81 +1102,81 @@
 # Event argument types
 ######################################################
 :Business_declare-bankruptcy_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "org" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Business_declare-bankruptcy_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Business_declare-bankruptcy_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Business_end-business_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "org" ;
 	:hasEntityType :Organization .
 :Business_end-business_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Business_end-business_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Business_merge_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "org" ;
 	:hasEntityType :Organization .
 :Business_merge_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "org" ;
 	:hasEntityType :Organization .
 :Business_merge_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Business_merge_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Business_start-business_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "org" ;
 	:hasEntityType :Organization .
 :Business_start-business_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Business_start-business_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Business_start-business_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "agent" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Conflict_attack_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "attacker" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Conflict_attack_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "target" ;
 	:hasEntityType :Vehicle ;
 	:hasEntityType :Commodity ;
@@ -1187,850 +1186,850 @@
 	:hasEntityType :Weapon ;
 	:hasEntityType :Location .
 :Conflict_attack_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "instrument" ;
 	:hasEntityType :Vehicle ;
 	:hasEntityType :Commodity ;
 	:hasEntityType :Facility ;
 	:hasEntityType :Weapon .
 :Conflict_attack_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Conflict_attack_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Conflict_demonstrate_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "entity" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :Person .
 :Conflict_demonstrate_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Conflict_demonstrate_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Contact_broadcast_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "entity" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Contact_broadcast_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "audience" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Contact_broadcast_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Contact_broadcast_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Contact_contact_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "entity" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Contact_contact_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "entity" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Contact_contact_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Contact_contact_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Contact_correspondence_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "entity" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Contact_correspondence_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "entity" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Contact_correspondence_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Contact_correspondence_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Contact_meet_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "entity" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Contact_meet_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "entity" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Contact_meet_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Contact_meet_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Justice_acquit_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "adjudicator" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_acquit_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "defendant" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_acquit_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "crime" ;
 	:hasEntityType :Crime .
 :Justice_acquit_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Justice_acquit_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Justice_appeal_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "prosecutor" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_appeal_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "adjudicator" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_appeal_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "defendant" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_appeal_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "crime" ;
 	:hasEntityType :Crime .
 :Justice_appeal_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Justice_appeal_arg6
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Justice_arrest-jail_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "agent" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_arrest-jail_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "person" ;
 	:hasEntityType :Person .
 :Justice_arrest-jail_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "crime" ;
 	:hasEntityType :Crime .
 :Justice_arrest-jail_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Justice_arrest-jail_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Justice_charge-indict_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "prosecutor" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_charge-indict_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "adjudicator" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_charge-indict_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "defendant" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_charge-indict_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "crime" ;
 	:hasEntityType :Crime .
 :Justice_charge-indict_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Justice_charge-indict_arg6
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Justice_convict_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "adjudicator" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_convict_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "defendant" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_convict_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "crime" ;
 	:hasEntityType :Crime .
 :Justice_convict_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Justice_convict_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Justice_execute_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "agent" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_execute_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "person" ;
 	:hasEntityType :Person .
 :Justice_execute_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "crime" ;
 	:hasEntityType :Crime .
 :Justice_execute_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Justice_execute_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Justice_extradite_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "agent" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_extradite_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "person" ;
 	:hasEntityType :Person .
 :Justice_extradite_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "crime" ;
 	:hasEntityType :Crime .
 :Justice_extradite_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "origin" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Justice_extradite_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "destination" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Justice_extradite_arg6
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Justice_fine_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "adjudicator" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_fine_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "entity" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_fine_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "money" ;
 	:hasEntityType :Money .
 :Justice_fine_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "crime" ;
 	:hasEntityType :Crime .
 :Justice_fine_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Justice_fine_arg6
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Justice_pardon_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "adjudicator" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_pardon_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "defendant" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_pardon_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "crime" ;
 	:hasEntityType :Crime .
 :Justice_pardon_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Justice_pardon_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Justice_release-parole_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "agent" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_release-parole_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "person" ;
 	:hasEntityType :Person .
 :Justice_release-parole_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "crime" ;
 	:hasEntityType :Crime .
 :Justice_release-parole_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Justice_release-parole_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Justice_sentence_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "adjudicator" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_sentence_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "defendant" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_sentence_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "crime" ;
 	:hasEntityType :Crime .
 :Justice_sentence_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "sentence" ;
 	:hasEntityType :Sentence .
 :Justice_sentence_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Justice_sentence_arg6
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Justice_sue_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "plaintiff" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_sue_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "adjudicator" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_sue_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "defendant" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_sue_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "crime" ;
 	:hasEntityType :Crime .
 :Justice_sue_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Justice_sue_arg6
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Justice_trial-hearing_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "prosecutor" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_trial-hearing_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "adjudicator" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_trial-hearing_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "defendant" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Justice_trial-hearing_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "crime" ;
 	:hasEntityType :Crime .
 :Justice_trial-hearing_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Justice_trial-hearing_arg6
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Life_be-born_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "person" ;
 	:hasEntityType :Person .
 :Life_be-born_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Life_be-born_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Life_die_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "agent" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Life_die_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "victim" ;
 	:hasEntityType :Person .
 :Life_die_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "instrument" ;
 	:hasEntityType :Vehicle ;
 	:hasEntityType :Commodity ;
 	:hasEntityType :Facility ;
 	:hasEntityType :Weapon .
 :Life_die_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Life_die_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Life_divorce_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "person" ;
 	:hasEntityType :Person .
 :Life_divorce_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "person" ;
 	:hasEntityType :Person .
 :Life_divorce_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Life_divorce_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Life_injure_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "agent" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Life_injure_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "victim" ;
 	:hasEntityType :Person .
 :Life_injure_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "instrument" ;
 	:hasEntityType :Vehicle ;
 	:hasEntityType :Commodity ;
 	:hasEntityType :Facility ;
 	:hasEntityType :Weapon .
 :Life_injure_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Life_injure_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Life_marry_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "person" ;
 	:hasEntityType :Person .
 :Life_marry_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "person" ;
 	:hasEntityType :Person .
 :Life_marry_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Life_marry_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Manufacture_artifact_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "agent" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Manufacture_artifact_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "artifact" ;
 	:hasEntityType :Vehicle ;
 	:hasEntityType :Commodity ;
 	:hasEntityType :Facility ;
 	:hasEntityType :Weapon .
 :Manufacture_artifact_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "instrument" ;
 	:hasEntityType :Vehicle ;
 	:hasEntityType :Commodity ;
 	:hasEntityType :Facility ;
 	:hasEntityType :Weapon .
 :Manufacture_artifact_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Manufacture_artifact_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Movement_transport-artifact_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "agent" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Movement_transport-artifact_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "artifact" ;
 	:hasEntityType :Vehicle ;
 	:hasEntityType :Commodity ;
 	:hasEntityType :Facility ;
 	:hasEntityType :Weapon .
 :Movement_transport-artifact_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "instrument" ;
 	:hasEntityType :Vehicle ;
 	:hasEntityType :Weapon .
 :Movement_transport-artifact_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "origin" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Movement_transport-artifact_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "destination" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Movement_transport-artifact_arg6
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Movement_transport-person_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "agent" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Movement_transport-person_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "person" ;
 	:hasEntityType :Person .
 :Movement_transport-person_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "instrument" ;
 	:hasEntityType :Vehicle ;
 	:hasEntityType :Weapon .
 :Movement_transport-person_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "origin" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Movement_transport-person_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "destination" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Movement_transport-person_arg6
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Personnel_elect_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "agent" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Personnel_elect_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "person" ;
 	:hasEntityType :Person .
 :Personnel_elect_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Personnel_elect_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Personnel_end-personnel_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "person" ;
 	:hasEntityType :Person .
 :Personnel_end-personnel_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "entity" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity .
 :Personnel_end-personnel_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Personnel_end-personnel_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Personnel_nominate_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "agent" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Personnel_nominate_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "person" ;
 	:hasEntityType :Person .
 :Personnel_nominate_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Personnel_nominate_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Personnel_start-personnel_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "person" ;
 	:hasEntityType :Person .
 :Personnel_start-personnel_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "entity" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity .
 :Personnel_start-personnel_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Personnel_start-personnel_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Transaction_transaction_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "giver" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Transaction_transaction_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "recipient" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Transaction_transaction_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "beneficiary" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Transaction_transaction_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Transaction_transaction_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Transaction_transfer-money_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "giver" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Transaction_transfer-money_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "recipient" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Transaction_transfer-money_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "beneficiary" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Transaction_transfer-money_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "money" ;
 	:hasEntityType :Money .
 :Transaction_transfer-money_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Transaction_transfer-money_arg6
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
 :Transaction_transfer-ownership_arg1
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "giver" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Transaction_transfer-ownership_arg2
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "recipient" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Transaction_transfer-ownership_arg3
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "beneficiary" ;
 	:hasEntityType :Organization ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Person .
 :Transaction_transfer-ownership_arg4
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "thing" ;
 	:hasEntityType :Vehicle ;
 	:hasEntityType :Organization ;
@@ -2038,12 +2037,12 @@
 	:hasEntityType :Facility ;
 	:hasEntityType :Weapon .
 :Transaction_transfer-ownership_arg5
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "place" ;
 	:hasEntityType :Facility ;
 	:hasEntityType :GeopoliticalEntity ;
 	:hasEntityType :Location .
 :Transaction_transfer-ownership_arg6
-	a :ArgumentType ;
+	a aidaCommon:EventArgumentType ;
 	rdfs:label "time" ;
 	:hasEntityType :Time .
