@@ -73,7 +73,7 @@ object ColdStartOntology {
             "JUSTICE.EXTRADITE", "JUSTICE.FINE", "JUSTICE.RELEASEPAROLE", "JUSTICE.SENTENCE",
             "JUSTICE.SUE", "JUSTICE.TRIALHEARING", "LIFE.BEBORN", "LIFE.MARRY", "LIFE.DIVORCE",
             "PERSONNEL.NOMINATE")
-            .map { it to ResourceFactory.createResource(NAMESPACE + it.toLowerCase()) }
+            .map { it to ResourceFactory.createResource(NAMESPACE + it) }
             .toMap()
 
     // realis types

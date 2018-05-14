@@ -177,6 +177,10 @@ public class ExamplesAndValidationTest {
           ImmutableMap.of(ImmutableSet.of(placeOfBirthInCambridgeCluster), 0.4,
               ImmutableSet.of(placeOfBirthInLouisvilleCluster), 0.6),
           system, null);
+
+      dumpAndAssertValid(model, "create a relation between two entities where there"
+          + "is uncertainty about identity of one argument");
+
     }
 
     @Test
@@ -212,6 +216,8 @@ public class ExamplesAndValidationTest {
           electee, system, 0.785);
       AIFUtils.markAsEventArgument(model, event, ColdStartOntology.eventArgumentType("Place"),
           electionCountry, system, 0.589);
+
+      dumpAndAssertValid(model, "create an event");
     }
 
     @Test
@@ -265,6 +271,8 @@ public class ExamplesAndValidationTest {
       // we also mark confidence 0.2 that neither of these are true
       markAsMutuallyExclusive(model, ImmutableMap.of(bobHitFredAssertions, 0.6,
           fredHitBobAssertions, 0.2), system, 0.2);
+
+      dumpAndAssertValid(model, "sub-graph confidences");
     }
 
     @Test
@@ -322,6 +330,8 @@ public class ExamplesAndValidationTest {
           bob, ColdStartOntology.relationType("employee_or_member_of"),
           google, system, 1.0);
       markDependsOnHypothesis(bobWorksForGoogle, bobLivesInCaliforniaHypothesis);
+
+      dumpAndAssertValid(model, "two hypotheses");
     }
   }
 
