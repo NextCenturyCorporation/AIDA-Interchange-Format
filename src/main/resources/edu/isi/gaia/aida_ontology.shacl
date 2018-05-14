@@ -845,7 +845,8 @@ aida:HypothesisShape
    sh:targetClass aida:Hypothesis ;
 
    sh:property [
-    sh:property aida:hypothesisContent ;
+    a sh:PropertyShape ;
+    sh:path aida:hypothesisContent ;
     sh:class aida:Subgraph ;
     sh:minCount 1 ;
     sh:maxCount 1] ;
