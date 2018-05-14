@@ -196,9 +196,17 @@ class ValidateAIF(private val domainModel: Model) {
         while (results.hasNext()) {
             val match = results.nextSolution()
             val typelessEntityOrEvent = match.getResource("entityOrEvent")
-            System.err.println("Entity or event ${typelessEntityOrEvent.uri} has no type " +
-                    "assertion")
-            valid = false
+
+            // an entity is permitted to lack a type if it is a non-prototype member of a cluster
+            // this could be the case when the entity arises from coreference resolution where
+            // the referents are different types
+            val isNonPrototypeMemberOfCluster = dataToBeValidated.subjectsWithProperty(
+                    AidaAnnotationOntology.CLUSTER_MEMBER, typelessEntityOrEvent).any()
+            if (!isNonPrototypeMemberOfCluster) {
+                System.err.println("Entity or event ${typelessEntityOrEvent.uri} has no type " +
+                        "assertion")
+                valid = false
+            }
         }
         return valid
     }

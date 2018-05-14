@@ -696,7 +696,8 @@ aida:ClusterShape
   # may bear system-private data
   sh:property aida:PrivateDataPropertyShape ;
 
-   sh:closed true .
+   sh:closed true ;
+   sh:ignoredProperties (rdf:type).
 
 # we declare that other entities might be in the cluster by using ClusterMember assertions
 aida:ClusterMemberShape
@@ -737,7 +738,8 @@ aida:ClusterMemberShape
   # may bear system-private data
   sh:property aida:PrivateDataPropertyShape ;
 
-   sh:closed true .
+   sh:closed true ;
+   sh:ignoredProperties (rdf:type).
 
 # A Subgraph is a collection of content and annotation nodes.  They are used to talk about
 # sub-graphs of the full knowledge graph for when we need to specify confidences or mutual
@@ -749,7 +751,7 @@ aida:ContentGraphShape
   sh:targetClass aida:Subgraph ;
   # a Subgraph can have a property (=outgoing labelled edge)
   sh:property [
-     # which is called "subGraphContains"
+     # which is called "subgraphContains"
      sh:path aida:subgraphContains ;
      # every content graph must contain at least one content assertion
      sh:minCount 1 ;
@@ -758,7 +760,8 @@ aida:ContentGraphShape
           [sh:class aida:Entity]
           [sh:class aida:Event]
           [sh:class aida:Relation]
-          [sh:class aida:SentimentAssertion] )
+          [sh:class aida:SentimentAssertion]
+          [sh:class rdf:Statement] )
   ] ;
 
   # a graph may provide a confidence
@@ -798,8 +801,8 @@ aida:MutualExclusionConstraintShape
    # optionally, a confidence value may be given to the "none of the above" option
    sh:property [
       a sh:PropertyShape ;
-      sh:path aida:none-of-the-above;
-      sh:class aida:Confidence ;
+      sh:path aida:noneOfTheAbove;
+      sh:datatype xsd:double ;
       sh:maxCount 1 ] ;
 
    # may provide an one or more source systems
@@ -842,7 +845,8 @@ aida:HypothesisShape
    sh:targetClass aida:Hypothesis ;
 
    sh:property [
-    sh:property aida:hypothesisContent ;
+    a sh:PropertyShape ;
+    sh:path aida:hypothesisContent ;
     sh:class aida:Subgraph ;
     sh:minCount 1 ;
     sh:maxCount 1] ;
