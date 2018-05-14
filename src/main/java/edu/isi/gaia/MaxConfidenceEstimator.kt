@@ -7,14 +7,11 @@ import edu.isi.gaia.AidaAnnotationOntology.JUSTIFIED_BY
 import edu.isi.nlp.parameters.Parameters
 import mu.KLogging
 import org.apache.jena.rdf.model.Model
-import org.apache.jena.rdf.model.Property
 import org.apache.jena.rdf.model.RDFNode
-import org.apache.jena.rdf.model.Resource
 import org.apache.jena.riot.RDFDataMgr
 import org.apache.jena.riot.RDFFormat
 import java.io.File
 import java.nio.charset.StandardCharsets
-import kotlin.coroutines.experimental.buildSequence
 
 // this is an example of some code which works with the AIF format as both a consumer
 // and producer.  It takes AIF as input and, for each assertion which has an attached justification
@@ -85,22 +82,3 @@ class MaxConfidenceEstimator : ConfidenceRestimator {
     }
 }
 
-// the default Jena interface with resource iterators is cumbersom. We use extension methods with
-// lazy sequences to make it nicer
-fun Model.subjectsWithProperty(property: Property): Sequence<Resource> {
-    return buildSequence({
-        val nodeIterator = this@subjectsWithProperty.listSubjectsWithProperty(property)
-        while (nodeIterator.hasNext()) {
-            yield(nodeIterator.nextResource())
-        }
-    })
-}
-
-fun Model.objectsWithProperty(subject: Resource, property: Property): Sequence<RDFNode> {
-    return buildSequence({
-        val nodeIterator = this@objectsWithProperty.listObjectsOfProperty(subject, property)
-        while (nodeIterator.hasNext()) {
-            yield(nodeIterator.nextNode())
-        }
-    })
-}
