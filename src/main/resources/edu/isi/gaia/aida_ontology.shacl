@@ -696,7 +696,8 @@ aida:ClusterShape
   # may bear system-private data
   sh:property aida:PrivateDataPropertyShape ;
 
-   sh:closed true .
+   sh:closed true ;
+   sh:ignoredProperties (rdf:type).
 
 # we declare that other entities might be in the cluster by using ClusterMember assertions
 aida:ClusterMemberShape
@@ -737,7 +738,8 @@ aida:ClusterMemberShape
   # may bear system-private data
   sh:property aida:PrivateDataPropertyShape ;
 
-   sh:closed true .
+   sh:closed true ;
+   sh:ignoredProperties (rdf:type).
 
 # A Subgraph is a collection of content and annotation nodes.  They are used to talk about
 # sub-graphs of the full knowledge graph for when we need to specify confidences or mutual
