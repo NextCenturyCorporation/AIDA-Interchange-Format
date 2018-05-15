@@ -17,7 +17,7 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
 
 *    examples of how to use AIF. These are given in Java in the unit tests under
      `src/text/java/edu/isi/gaia/ExamplesAndVlaidationTests`.  There is the beginning of a Python
-     translation of these examples in `test/gaia_interchange/Examples.py`.  If you run either set of
+     translation of these examples in `tests/gaia_interchange/Examples.py`.  If you run either set of
      examples, the corresponding Turtle output will be dumped.
 
 *    code to translate from the TAC KBP Coldstart++ KB format into this format.
