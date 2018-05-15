@@ -47,7 +47,6 @@
 # (e.g. a person, place, thing, etc.)
 # Each entity must have at least one assertion giving it a type which is a sub-class of
 # aidaDomainCommon:EntityType (see type assertions below)
-# TODO: enforce the above
 aida:EntityShape
   a sh:NodeShape ;
   sh:targetClass aida:Entity ;
@@ -88,7 +87,6 @@ aida:EntityShape
 # (e.g. an attack, a marriage, a business acquisition)
 # Each event must have at least one assertion giving it a type which is a sub-class of
 # aidaDomainCommon:eventType
-# TODO: enforce the above
 aida:EventShape
   a sh:NodeShape ;
   sh:targetClass aida:Event ;
