@@ -20,7 +20,7 @@
 ######################################################
 
 :Realis a owl:Class .
-:dislikes a owl:Class .
+:Sentiment a owl:Class .
 
 ###############
 # Realis types
