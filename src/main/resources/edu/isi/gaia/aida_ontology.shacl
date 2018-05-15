@@ -5,11 +5,11 @@
 @prefix aidaDomainCommon: <http://darpa.mil/ontologies/AidaDomainOntologiesCommon#> .
 @prefix aida: <http://www.isi.edu/aida/interchangeOntology#> .
 
-# This document is a specification for validating knowledge graphs for the GAIA team's
-# representation model (GKG - GAIA Knowledge GRaphs) for the DARPA AIDA program.
+# This document is a specification for validating knowledge graphs for the interchange
+# format for the DARPA AIDA program. This format is called AIF (AIDA Interchange Format)
 #
 # The graph representation is in RDF. You can think of RDF in terms of a directed graph.
-# For GKGs, there are basically two kinds of nodes:
+# For AIFs, there are basically two kinds of nodes:
 #  (a) "content nodes" give the core information about the world we are trying to express.  These
 #     will be either (i) entities (people, places, organizations, etc,), (ii) events (attacks,
 #     marriages, etc.), (iii) relations (e.g. "Jack is married to Sophie"), (iv) assertions that
