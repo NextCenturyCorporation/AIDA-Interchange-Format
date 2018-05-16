@@ -563,9 +563,14 @@ aida:ImageJustificationShape
    # except rdf:type
    sh:ignoredProperties (rdf:type) .
 
-aida:VideoJustificationShape
+# According to NIST, there are two types of video justifications.
+# If an entity/event is shown in a key-frame, it is identified with the key frame ID
+# and bounding box (a KeyFrameVideoJustification). If it occurs outside a key-frame,
+# it is identified by the shot ID with no bounding box (and there should only be one
+# such justification, even if it appears many times in the shot)
+aida:KeyFrameVideoJustificationShape
    a sh:NodeShape ;
-   sh:targetClass aida:VideoJustification ;
+   sh:targetClass aida:KeyFrameVideoJustification ;
    # each video justification must have exactly one source document ID
    sh:property [
      sh:path aida:source ;
@@ -573,9 +578,6 @@ aida:VideoJustificationShape
      sh:minCount 1;
      sh:maxCount 1 ];
 
-   # for now, we assume video justifications can only occur at keyframes
-   # since we don't have examples, we don't know how key frames are specified, so for now
-   # we use a string
    sh:property [
        sh:path aida:keyFrame ;
        sh:datatype xsd:string ;
@@ -601,14 +603,50 @@ aida:VideoJustificationShape
    # except rdf:type
    sh:ignoredProperties (rdf:type) .
 
+aida:ShotVideoJustificationShape
+   a sh:NodeShape ;
+   sh:targetClass aida:ShotVideoJustification ;
+   # each video justification must have exactly one source document ID
+   sh:property [
+     sh:path aida:source ;
+     sh:datatype xsd:string ;
+     sh:minCount 1;
+     sh:maxCount 1 ];
+
+   # to justify entities/events in videos which do not occur at keyframes, bounding boxes
+   # are not used - only the ID of the shot they appear somewhere in (per NIST)
+   sh:property [
+       sh:path aida:shot ;
+       sh:datatype xsd:string ;
+       sh:mintCount 1;
+       sh:maxCount 1 ] ;
+
+   # justifications must provide confidences
+   sh:property aida:RequiredConfidencePropertyShape ;
+
+   # may provide an optional source system
+   sh:property aida:SystemPropertyShape ;
+
+   # may depend on a hypothesis
+   sh:property aida:DependsOnHypothesisPropertyShape ;
+
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
+
+   # no other properties are allowed
+   sh:closed true ;
+   # except rdf:type
+   sh:ignoredProperties (rdf:type) .
+
 aida:JustificationPropertyShape
    a sh:PropertyShape ;
    sh:path aida:justifiedBy ;
    sh:exone (
-    [sh:class aida:TextJustification]
+     [sh:class aida:TextJustification]
      [sh:class aida:ImageJustification]
-      [sh:class aida:AudioJustification]
-       [sh:class aida:VideoJustification]).
+     [sh:class aida:AudioJustification]
+     [sh:class aida:KeyFrameVideoJustification]
+     [sh:class aida:ShotVideoJustification] ).
 
 # use to express that an AIDA Entity is the same thing as something in an external knowledge base
 aida:LinkAssertionShape

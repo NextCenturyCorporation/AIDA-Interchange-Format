@@ -79,11 +79,15 @@ public class ExamplesAndValidationTest {
           new BoundingBox(new Point(123, 45), new Point(167, 98)),
           system, 0.123);
 
-      // and also a video
-      AIFUtils.markVideoJustification(model, ImmutableSet.of(entity, typeAssertion),
+      // and also a video where the entity appears in a keyframe
+      AIFUtils.markKeyFrameVideoJustification(model, ImmutableSet.of(entity, typeAssertion),
           "NYT_ENG_20181231_03", "keyframe ID",
           new BoundingBox(new Point(234, 56), new Point(345, 101)),
           system, 0.234);
+
+      // and also a video where the entity does not appear in a keyframe
+      AIFUtils.markShotVideoJustification(model, ImmutableSet.of(entity, typeAssertion),
+          "SOME_VIDEO", "some shot ID", system, 0.487);
 
       // and even audio!
       AIFUtils.markAudioJustification(model, ImmutableSet.of(entity, typeAssertion),

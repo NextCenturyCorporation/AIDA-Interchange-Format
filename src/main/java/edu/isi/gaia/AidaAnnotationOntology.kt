@@ -48,6 +48,8 @@ object AidaAnnotationOntology {
     @JvmField
     val KEY_FRAME = ResourceFactory.createProperty(NAMESPACE + "keyFrame")!!
     @JvmField
+    val SHOT = ResourceFactory.createProperty(NAMESPACE + "shot")!!
+    @JvmField
     val LINK = ResourceFactory.createProperty(NAMESPACE + "link")!!
     @JvmField
     val LINK_TARGET = ResourceFactory.createProperty(NAMESPACE + "linkTarget")!!
@@ -107,8 +109,11 @@ object AidaAnnotationOntology {
     val AUDIO_JUSTIFICATION_CLASS =
             ResourceFactory.createResource(NAMESPACE + "AudioJustification")!!
     @JvmField
-    val VIDEO_JUSTIFICATION_CLASS =
-            ResourceFactory.createResource(NAMESPACE + "VideoJustification")!!
+    val KEYFRAME_VIDEO_JUSTIFICATION_CLASS =
+            ResourceFactory.createResource(NAMESPACE + "KeyFrameVideoJustification")!!
+    @JvmField
+    val SHOT_VIDEO_JUSTIFICATION_CLASS =
+            ResourceFactory.createResource(NAMESPACE + "ShotVideoJustification")!!
     @JvmField
     val LINK_ASSERTION_CLASS = ResourceFactory.createResource(NAMESPACE + "LinkAssertion")!!
     @JvmField
