@@ -6,7 +6,7 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
      This ontology can be validated using the SHACL constraints file in
      `src/main/resources/edu/isi/gaia/aida_ontology.shacl`. **At the moment the OWL ontology has not
      been brought up-to-date with the latest changes. The SHACL file is a better guide. NCC will
-     reconcile them in the next week*.
+     reconcile them in the next week**.
 
 *    utilities to make it easier to work with this format.  JVM utilities are in
      `src/main/java/edu/isi/gaia/AIFUtils.kt`. Although written in Kotlin, these can be used from any
@@ -16,7 +16,7 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
       translation of these utilities soon.
 
 *    examples of how to use AIF. These are given in Java in the unit tests under
-     `src/text/java/edu/isi/gaia/ExamplesAndVlaidationTests`.  There is the beginning of a Python
+     `src/text/java/edu/isi/gaia/ExamplesAndValidationTests`.  There is the beginning of a Python
      translation of these examples in `tests/gaia_interchange/Examples.py`.  If you run either set of
      examples, the corresponding Turtle output will be dumped.
 
@@ -28,14 +28,16 @@ readability) but N-Triples for working with large KBs (for speed).
 
 # Installation
 
-* To install the JVM code, do `mvn install` from the root of this repository using Apache Maven.  Repeat the `mvn install` if you pull an updated version of the code. You can run the tests, which should output the examples, by doing `mvn test`.
+* To install the JVM code, do `mvn install` from the root of this repository using Apache Maven.
+        Repeat the `mvn install` if you pull an updated version of the code. You can run the tests,
+        which should output the examples, by doing `mvn test`.
 * The Python code is not currently set up for installation; just add it to your `PYTHONPATH`.
 
 # Running the validator
 
 To run the validator, run `target/appassembler/bin/validateAIF` with a single argument, a parameter
 file. The parameter file should have keys and values separated by `:`. It should have either the
-parameter `kbToValidatie` pointing to the single Turtle format KB to validate, or it should have
+parameter `kbToValidate` pointing to the single Turtle format KB to validate, or it should have
 `kbsToValidate` pointing to a file listing the paths of the Turtle format KBs to validate.
 Additionally, it must have a parameter `domainOntology` pointing to the OWL file for the domain
 ontology to validate against.  Beware that validating large KBs can take a long time. There is
@@ -88,7 +90,8 @@ There is an example program showing how to consume AIF data in `edu.isi.gaia.Max
 
 # Developing
 
-If you need to edit the Kotlin code, just import the POM for this project using IntelliJ IDEA and you should be ready to go.
+If you need to edit the Kotlin code, just import the POM for this project using IntelliJ IDEA and
+you should be ready to go.
 
 # Contact
 
