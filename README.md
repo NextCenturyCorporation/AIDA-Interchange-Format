@@ -23,6 +23,9 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
 *    code to translate from the TAC KBP Coldstart++ KB format into this format.
      `src/main/java/edu/isi/gaia/ColdStart2AidaInterchange.kt`.
 
+*    code to translate a simple format for entity and event mentions in images to AIF:
+     `src/main/java/edu/isi/gaia/ImagesToAIF.kt`
+
 We recommend using Turtle format for AIF when working with single document files (for
 readability) but N-Triples for working with large KBs (for speed).
 
@@ -87,6 +90,12 @@ There are sample shatter and single KB param files under `sample_params/translat
 # `maxConfidence`
 
 There is an example program showing how to consume AIF data in `edu.isi.gaia.MaxConfidenceEstimator`.
+
+# `imagesToAif`
+
+There is an example program/utility for converting a simple tab-separated format for images to AIF.
+See class comment on `src/main/java/edu/isi/gaia/ImagesToAIF.kt` for details. You can run this
+program by running `target/appassembler/bin/images2Aif`.
 
 # Developing
 

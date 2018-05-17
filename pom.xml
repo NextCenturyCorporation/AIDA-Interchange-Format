@@ -148,6 +148,11 @@
                                     <mainClass>edu.isi.gaia.ValidateAIF</mainClass>
                                     <name>validateAIF</name>
                                 </program>
+
+                                <program>
+                                    <mainClass>edu.isi.gaia.ImagesToAIF</mainClass>
+                                    <name>images2Aif</name>
+                                </program>
                             </programs>
                         </configuration>
                     </execution>
