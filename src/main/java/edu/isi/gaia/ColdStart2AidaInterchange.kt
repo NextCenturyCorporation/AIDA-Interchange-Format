@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Path
-import java.util.*
 
 /*
 Converts ColdStart++ knowledge bases to the AIDA Interchange Format (AIF).
@@ -426,27 +425,6 @@ fun main(args: Array<String>) {
 
     ColdStart2AidaInterchangeConverter.logger.info(
             untranslatableAssertionListener.logUntranslatableTypesMessage())
-}
-
-/**
-A strategy for generating RDF graph nodes
- */
-interface IriGenerator {
-    fun nextIri(): String
-}
-
-/**
- *     A node generation strategy which uses UUIDs appended to a base URI.
- */
-class UuidIriGenerator(private val baseUri: String = "dummmy") : IriGenerator {
-    init {
-        require(baseUri.isNotEmpty()) { "Base URI cannot be empty" }
-        require(!baseUri.endsWith("/")) { "Base URI cannot end in /" }
-    }
-
-    override fun nextIri(): String {
-        return baseUri + '/' + UUID.randomUUID().toString()
-    }
 }
 
 /**

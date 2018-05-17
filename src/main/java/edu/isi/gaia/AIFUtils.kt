@@ -5,6 +5,7 @@ import org.apache.jena.rdf.model.Resource
 import org.apache.jena.tdb.TDBFactory
 import org.apache.jena.vocabulary.RDF
 import org.slf4j.LoggerFactory
+import java.util.*
 
 /**
  * A convenient interface for creating simple AIF graphs.
@@ -490,5 +491,26 @@ object AIFUtils {
         } finally {
             tempDir.deleteRecursively()
         }
+    }
+}
+
+/**
+A strategy for generating RDF graph nodes
+ */
+interface IriGenerator {
+    fun nextIri(): String
+}
+
+/**
+ *     A node generation strategy which uses UUIDs appended to a base URI.
+ */
+class UuidIriGenerator(private val baseUri: String = "dummmy") : IriGenerator {
+    init {
+        require(baseUri.isNotEmpty()) { "Base URI cannot be empty" }
+        require(!baseUri.endsWith("/")) { "Base URI cannot end in /" }
+    }
+
+    override fun nextIri(): String {
+        return baseUri + '/' + UUID.randomUUID().toString()
     }
 }
