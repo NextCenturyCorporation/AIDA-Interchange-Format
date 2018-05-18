@@ -239,22 +239,28 @@ object AIFUtils {
         return justification
     }
 
+    /**
+     * Marks a justification for something appearing in a key frame of a video.
+     */
     @JvmStatic
-    fun markVideoJustification(model: Model, toMarkOn: Resource, docId: String,
-                               keyFrame: String,
-                               boundingBox: BoundingBox, system: Resource, confidence: Double)
+    fun markKeyFrameVideoJustification(model: Model, toMarkOn: Resource, docId: String,
+                                       keyFrame: String,
+                                       boundingBox: BoundingBox, system: Resource, confidence: Double)
             : Resource {
-        return markVideoJustification(model, setOf(toMarkOn), docId, keyFrame, boundingBox,
+        return markKeyFrameVideoJustification(model, setOf(toMarkOn), docId, keyFrame, boundingBox,
                 system, confidence)
     }
 
+    /**
+     * Marks a justification for something appearing in a key frame of a video.
+     */
     @JvmStatic
-    fun markVideoJustification(model: Model, toMarkOn: Collection<Resource>, docId: String,
-                               keyFrame: String,
-                               boundingBox: BoundingBox, system: Resource, confidence: Double)
+    fun markKeyFrameVideoJustification(model: Model, toMarkOn: Collection<Resource>, docId: String,
+                                       keyFrame: String,
+                                       boundingBox: BoundingBox, system: Resource, confidence: Double)
             : Resource {
         val justification = model.createResource()
-        justification.addProperty(RDF.type, AidaAnnotationOntology.VIDEO_JUSTIFICATION_CLASS)
+        justification.addProperty(RDF.type, AidaAnnotationOntology.KEYFRAME_VIDEO_JUSTIFICATION_CLASS)
         // the document ID for the justifying source document
         justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral(docId))
         justification.addProperty(AidaAnnotationOntology.KEY_FRAME,
@@ -272,6 +278,38 @@ object AIFUtils {
                 model.createTypedLiteral(boundingBox.lowerRight.y))
 
         justification.addProperty(AidaAnnotationOntology.BOUNDING_BOX_PROPERTY, boundingBoxResource)
+        markSystem(justification, system)
+        markConfidence(model, justification, confidence, system)
+
+        toMarkOn.forEach({ it.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification) })
+        return justification
+    }
+
+    /**
+     * Marks a justification for something appearing in a video but not in a key frame.
+     */
+    @JvmStatic
+    fun markShotVideoJustification(model: Model, toMarkOn: Resource, docId: String,
+                                   shotId: String, system: Resource, confidence: Double)
+            : Resource {
+        return markShotVideoJustification(model, setOf(toMarkOn), docId, shotId,
+                system, confidence)
+    }
+
+    /**
+     * Marks a justification for something appearing in a video but not in a key frame.
+     */
+    @JvmStatic
+    fun markShotVideoJustification(model: Model, toMarkOn: Collection<Resource>, docId: String,
+                                   shotId: String, system: Resource, confidence: Double)
+            : Resource {
+        val justification = model.createResource()
+        justification.addProperty(RDF.type, AidaAnnotationOntology.SHOT_VIDEO_JUSTIFICATION_CLASS)
+        // the document ID for the justifying source document
+        justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral(docId))
+        justification.addProperty(AidaAnnotationOntology.SHOT,
+                model.createTypedLiteral(shotId))
+
         markSystem(justification, system)
         markConfidence(model, justification, confidence, system)
 
