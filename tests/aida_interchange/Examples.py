@@ -1,8 +1,8 @@
 import unittest
 from io import BytesIO
 
-from gaia_interchange.aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY
-from gaia_interchange.aifutils import make_system_with_uri, make_entity, \
+from aida_interchange.aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY
+from aida_interchange.aifutils import make_system_with_uri, make_entity, \
   make_graph, mark_type, mark_text_justification
 
 

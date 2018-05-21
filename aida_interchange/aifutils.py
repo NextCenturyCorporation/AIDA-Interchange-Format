@@ -1,6 +1,6 @@
 from rdflib import URIRef, RDF, Graph, BNode, Literal, XSD
 
-from gaia_interchange.aida_rdf_ontologies import AIDA_ANNOTATION
+from aida_interchange.aida_rdf_ontologies import AIDA_ANNOTATION
 
 
 def make_graph():

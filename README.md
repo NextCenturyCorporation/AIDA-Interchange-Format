@@ -12,12 +12,12 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
      `src/main/java/edu/isi/gaia/AIFUtils.kt`. Although written in Kotlin, these can be used from any
      JVM language by adding a Maven dependency on
       `edu.isi:gaia-interchange-kotlin:1.0.0-SNAPSHOT`.  There is the beginning of a Python translation of
-      these utilities in `gaia_interchange/aifutils.py`.  Next Century will complete the Python
+      these utilities in `aida_interchange/aifutils.py`.  Next Century will complete the Python
       translation of these utilities soon.
 
 *    examples of how to use AIF. These are given in Java in the unit tests under
      `src/text/java/edu/isi/gaia/ExamplesAndValidationTests`.  There is the beginning of a Python
-     translation of these examples in `tests/gaia_interchange/Examples.py`.  If you run either set of
+     translation of these examples in `tests/aida_interchange/Examples.py`.  If you run either set of
      examples, the corresponding Turtle output will be dumped.
 
 *    code to translate from the TAC KBP Coldstart++ KB format into this format.

@@ -17,7 +17,7 @@ NOSE_ALL_COVERAGE:=$(NOSE) $(NOSE_COVERAGE_ARGS) --cover-inclusive
 
 PYLINT:=pylint flexnlp_sandbox 
 
-MYPY:=mypy $(MYPY_ARGS) --ignore-missing-imports gaia_interchange
+MYPY:=mypy $(MYPY_ARGS) --ignore-missing-imports aida_interchange
 # Suppressed warnings:
 # Too many arguments, Unexpected keyword arguments: can't do static analysis on attrs __init__
 # Signature of "__getitem__": https://github.com/python/mypy/issues/4108
@@ -31,7 +31,7 @@ FILTERED_MYPY:=$(MYPY) | perl -ne 'print if !/(Too many arguments|Signature of "
 
 # this is the standard ignore list plus ignores for hanging indents, pending figuring out how to auto-format them
 FLAKE8:=flake8
-FLAKE8_CMD:=$(FLAKE8) gaia_interchange tests
+FLAKE8_CMD:=$(FLAKE8) aida_interchange tests
 
 test: #test-cmd
 	$(NOSE_CORE)
