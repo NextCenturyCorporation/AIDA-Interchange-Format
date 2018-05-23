@@ -40,7 +40,8 @@ class ColdStart2AidaInterchangeConverter(
         val stringIriGenerator: IriGenerator = UuidIriGenerator(),
         val clusterIriGenerator: IriGenerator = UuidIriGenerator(),
         val useClustersForCoref: Boolean = false,
-        val restrictConfidencesToJustifications: Boolean = false) {
+        val restrictConfidencesToJustifications: Boolean = false,
+        val defaultMentionConfidence: Double? = null) {
     companion object : KLogging()
 
     /**
@@ -207,9 +208,9 @@ class ColdStart2AidaInterchangeConverter(
         fun translateSentiment(csAssertion: SentimentAssertion, confidence: Double): Boolean {
 
 
-            fun toSentimentType(sentiment: String) = when (sentiment) {
-                "LIKES" -> ColdStartOntology.LIKES
-                "DISLIKES" -> ColdStartOntology.DISLIKES
+            fun toSentimentType(sentiment: String) = when (sentiment.toLowerCase()) {
+                "likes" -> ColdStartOntology.LIKES
+                "dislikes" -> ColdStartOntology.DISLIKES
                 else -> throw RuntimeException("Unknown sentiment $sentiment")
             }
 
@@ -251,7 +252,17 @@ class ColdStart2AidaInterchangeConverter(
 
             for ((assertionNum, assertion) in csKB.allAssertions.withIndex()) {
                 // note not all ColdStart assertions have confidences
-                val confidence = csKB.assertionsToConfidence[assertion]
+                val confidenceFromColdStart = csKB.assertionsToConfidence[assertion]
+                val confidence = if (confidenceFromColdStart != null) {
+                    confidenceFromColdStart
+                } else if (assertion is MentionAssertion && defaultMentionConfidence != null) {
+                    defaultMentionConfidence
+                } else if (assertion is TypeAssertion) {
+                    null // type assertions are permitted to lack confidence
+                } else {
+                    throw RuntimeException("Assertion $assertion lacks confdience")
+                }
+
                 val translated = when (assertion) {
                     is TypeAssertion -> translateTypeAssertion(assertion, confidence)
                     is MentionAssertion -> translateMention(assertion, confidence!!,
@@ -350,10 +361,19 @@ fun main(args: Array<String>) {
     // don't log too much Jena-internal stuff
     (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.INFO
 
+    // support TA1s which erroneously leave confidences off some of their mentions
+    val defaultMentionConfidence = params.getOptionalPositiveDouble(
+            "defaultMentionConfidence").orNull()
+    if (defaultMentionConfidence != null) {
+        logger.info("Using default mention confidence $defaultMentionConfidence")
+    }
+
+
     // we need to let the ColdStart KB loader itself know we are shattering by document so it
     // knows to eliminate the cross-document coreference links which have already been added by
     // the ColdStart system
     val coldstartKB = ColdStartKBLoader(breakCrossDocCoref = breakCrossDocCoref).load(inputKBFile)
+
     val converter = ColdStart2AidaInterchangeConverter(
             entityIriGenerator = UuidIriGenerator("$baseUri/entities"),
             eventIriGenerator = UuidIriGenerator("$baseUri/events"),
@@ -361,7 +381,8 @@ fun main(args: Array<String>) {
             stringIriGenerator = UuidIriGenerator("$baseUri/strings"),
             clusterIriGenerator = UuidIriGenerator("$baseUri/clusters"),
             useClustersForCoref = useClustersForCoref,
-            restrictConfidencesToJustifications = restrictConfidencesToJustifications)
+            restrictConfidencesToJustifications = restrictConfidencesToJustifications,
+            defaultMentionConfidence = defaultMentionConfidence)
 
     // this will track which assertions could not be converted. This is useful for debugging.
     // we pull this out into its own object instead of doing it inside the conversion method

@@ -72,7 +72,7 @@ object ColdStartOntology {
             "JUSTICE.APPEAL", "JUSTICE.CHARGEINDICT", "JUSTICE.CONVICT", "JUSTICE.EXECUTE",
             "JUSTICE.EXTRADITE", "JUSTICE.FINE", "JUSTICE.RELEASEPAROLE", "JUSTICE.SENTENCE",
             "JUSTICE.SUE", "JUSTICE.TRIALHEARING", "LIFE.BEBORN", "LIFE.MARRY", "LIFE.DIVORCE",
-            "PERSONNEL.NOMINATE")
+            "PERSONNEL.NOMINATE", "likes", "dislikes")
             .map { it to ResourceFactory.createResource(NAMESPACE + it) }
             .toMap()
 

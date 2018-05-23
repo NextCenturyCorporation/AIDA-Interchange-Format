@@ -1,0 +1,7 @@
+inputKBFile: /Users/gabbard/projects/gaia/final_kb_xling1.tac
+baseURI: http://www.isi.edu/gaia
+systemURI: http://www.rpi.edu
+mode: SHATTER
+outputAIFDirectory: /Users/gabbard/projects/gaia/coldstart-to-interchange/coldstart_shattered
+defaultMentionConfidence: 1.0
+
