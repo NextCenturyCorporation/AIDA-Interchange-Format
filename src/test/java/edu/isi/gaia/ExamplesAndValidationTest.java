@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import edu.isi.gaia.AIFUtils.BoundingBox;
 import edu.isi.gaia.AIFUtils.Point;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import kotlin.text.Charsets;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -483,6 +484,22 @@ public class ExamplesAndValidationTest {
       justification.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
       entity.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification);
 
+      assertFalse(validator.validateKB(model));
+    }
+
+    // this validation constraint is not working yet
+    @Ignore
+    @Test
+    void missingRdfTypeOnNamedNode() {
+      final Model model = createModel();
+
+      final Resource system = AIFUtils.makeSystemWithURI(model,
+          "http://www.test.edu/testSystem");
+
+      // below we copy the code from AIFUtils.makeEntity but forget to mark it as an entity
+      final Resource entity = model.createResource("http://www.test.edu/entity/1");
+      entity.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
+      RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
       assertFalse(validator.validateKB(model));
     }
   }

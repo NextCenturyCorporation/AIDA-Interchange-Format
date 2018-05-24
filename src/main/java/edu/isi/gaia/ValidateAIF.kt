@@ -127,9 +127,49 @@ class ValidateAIF(private val domainModel: Model) {
 
         // we short-circuit because earlier validation failures may make later
         // validation attempts misleading nonsense
-        return validateAgainstShacl(unionModel)
+        return /*ensureEveryNamedNodeHasARdfType(dataToBeValidated)
+                &&*/ validateAgainstShacl(unionModel)
                 && ensureConfidencesInZeroOne(unionModel)
                 && ensureEveryEntityAndEventHasAType(unionModel)
+    }
+
+    private val ENSURE_EVERY_NAMED_NODE_HAS_A_TYPE_SPARQL_QUERY = """
+        PREFIX rdf: <${RDF.uri}>
+        PREFIX aida: <${AidaAnnotationOntology.NAMESPACE}>
+
+
+        SELECT ?namedNode
+        WHERE {
+           ?namedNode ?foo ?bar ;
+           FILTER (isIRI(?namedNode)  ) .
+           MINUS { ?nameNode rdf:type ?anything }
+        }
+        """
+
+    /**
+     * Ensure that every named node has an RDF type specified.
+     *
+     * Note that "type" here is RDF type, not domain ontology type.
+     *
+     * The motivation here is to keep users from e.g. making an entity, forgetting to mark it
+     * as an entity, and being confused when it appears downstream that they aren't producing
+     * entities.
+     */
+    private fun ensureEveryNamedNodeHasARdfType(dataToBeValidated: Model): Boolean {
+        // TODO: this is not working yet - I need to fiddle with the SPARQL query
+        val query = QueryFactory.create(ENSURE_EVERY_NAMED_NODE_HAS_A_TYPE_SPARQL_QUERY)
+        val queryExecution = QueryExecutionFactory.create(query, dataToBeValidated)
+        val results = queryExecution.execSelect()
+
+        var valid = true
+        while (results.hasNext()) {
+            val match = results.nextSolution()
+            val typelessNamedNode = match.getResource("namedNode")
+
+            System.err.println("Node $typelessNamedNode lacks an rdf:type property")
+            valid = false
+        }
+        return valid
     }
 
     /**
