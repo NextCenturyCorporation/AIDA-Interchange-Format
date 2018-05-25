@@ -16,7 +16,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import edu.isi.gaia.AIFUtils.BoundingBox;
 import edu.isi.gaia.AIFUtils.Point;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import kotlin.text.Charsets;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -27,6 +26,7 @@ import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.SKOS;
 import org.apache.jena.vocabulary.XSD;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -488,7 +488,7 @@ public class ExamplesAndValidationTest {
     }
 
     // this validation constraint is not working yet
-    @Ignore
+    @Disabled
     @Test
     void missingRdfTypeOnNamedNode() {
       final Model model = createModel();

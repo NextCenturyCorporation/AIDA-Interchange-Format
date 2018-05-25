@@ -6,6 +6,7 @@ import com.google.common.base.Charsets
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableMultiset
 import com.google.common.io.Files
+import edu.isi.gaia.AIFUtils.markSystem
 import edu.isi.nlp.files.FileUtils
 import edu.isi.nlp.parameters.Parameters.loadSerifStyle
 import edu.isi.nlp.symbols.Symbol
@@ -157,6 +158,9 @@ class ColdStart2AidaInterchangeConverter(
                     == objectToCanonicalMentions.getValue(cs_assertion.subject)) {
                 // this mention assertion just duplicates a canonical mention assertion
                 // so we won't add a duplicate RDF structure for it
+                // TODO: this will block the justification type being marked for such
+                // justifications.  On the other hand, this is probably ok, because knowing it
+                // is the canonical mention is more informative. Issue #46
                 return false
             }
             AIFUtils.markSystem(entityResource, systemNode)
@@ -172,14 +176,15 @@ class ColdStart2AidaInterchangeConverter(
 //            }
 
             registerJustifications(entityResource, cs_assertion.justifications,
-                    cs_assertion.string, confidence)
+                    cs_assertion.string, confidence,
+                    justificationType = cs_assertion.mentionType.name)
 
             return true
         }
 
         fun registerJustifications(resource: Resource,
                                    provenance: Provenance, string: String? = null,
-                                   confidence: Double) {
+                                   confidence: Double, justificationType: String? = null) {
             for ((start, end_inclusive) in provenance.predicate_justifications) {
                 val justification = AIFUtils.markTextJustification(model, resource, provenance.docID,
                         start, end_inclusive, systemNode, confidence)
@@ -187,6 +192,18 @@ class ColdStart2AidaInterchangeConverter(
                 if (string != null) {
                     justification.addProperty(SKOS.prefLabel,
                             model.createTypedLiteral(string))
+                }
+
+                // we record whether a justification is nominal, pronominal, etc.
+                // as system-private data
+                if (justificationType != null) {
+                    val privateData = model.createResource()
+                    privateData.addProperty(RDF.type, AidaAnnotationOntology.PRIVATE_DATA_CLASS)
+                    justification.addProperty(AidaAnnotationOntology.PRIVATE_DATA_PROPERTY,
+                            privateData)
+                    markSystem(privateData, systemNode)
+                    privateData.addProperty(AidaAnnotationOntology.JSON_CONTENT_PROPERTY,
+                            "{ \"justificationType\" : \"$justificationType\"}")
                 }
             }
         }
