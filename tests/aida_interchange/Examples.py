@@ -3,7 +3,7 @@ from io import BytesIO
 
 from aida_interchange.aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY
 from aida_interchange.aifutils import make_system_with_uri, make_entity, \
-  make_graph, mark_type, mark_text_justification
+    make_graph, mark_type, mark_text_justification, get_type_assertions
 
 
 # Running these tests will output the examples to the console
@@ -19,6 +19,7 @@ class Examples(unittest.TestCase):
                             42, 143, system, 0.973)
 
     self.dump_graph(g, "Example of creating an entity")
+    self.assertEqual([type_assertion], get_type_assertions(g, entity))
 
   def dump_graph(self, g, description):
     print("\n\n======================================\n"
@@ -28,3 +29,4 @@ class Examples(unittest.TestCase):
     # need .buffer because serialize will write bytes, not str
     g.serialize(destination=serialization, format='turtle')
     print(serialization.getvalue().decode('utf-8'))
+
