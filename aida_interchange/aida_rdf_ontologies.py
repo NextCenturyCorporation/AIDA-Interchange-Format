@@ -137,6 +137,7 @@ AIDA_ANNOTATION = ClosedNamespace(
         'confidence',
         'confidenceValue',
         'endOffsetInclusive',
+        'jsonContent',
         'justifiedBy',
         'privateData',
         'source',
