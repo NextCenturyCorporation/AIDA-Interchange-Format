@@ -105,9 +105,15 @@ you should be ready to go.
 # Contact
 
 AIF was designed by Ryan Gabbard (gabbard@isi.edu) and Pedro Szekely (pszekeley@isi.edu) of USC ISI.
-Gabbard also wrote the initial implementations of the associated tools.  The tools are now
-maintained by Eddie Curley (eddie.curley@nextcentury.com)
+Gabbard also wrote the initial implementations of the associated tools.   However, the tools are now
+supported and extended by Eddie Curley (eddie.curley@nextcentury.com)
 and Clark Dorman (clark.dorman@nextcentury.com) of Next Century.
+
+This repository exists in two locations:
+* as a private repository owned by Next Century. This is the canonical repository where development will happen.
+* as a public repository at https://github.com/isi-vista/gaia-interchange/ . At appropriate times, Next Century will submit their private repository to DARPA for release review.  Following approval, Next Century will merge to this public repository.
+
+The open repository will support an open NIST evaluation. For questions related to this evaluation, please contact Hoa Dang (hoa.dang@nist.gov).
 
 # Legal Stuff
 
