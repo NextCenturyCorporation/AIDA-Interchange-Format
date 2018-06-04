@@ -27,6 +27,20 @@ def make_entity(graph, entity_uri, system):
     return entity
 
 
+def make_relation(g, relation_uri, first_arg, relation_type, second_arg, system, confidence):
+    relation = URIRef(relation_uri)
+    mark_system(g, relation, system)
+    if confidence is not None:
+        mark_confidence(g, relation, confidence)
+
+    g.add((relation, RDF.type, RDF.Statement))
+    g.add((relation, RDF.subject, first_arg))
+    g.add((relation, RDF.predicate, relation_type))
+    g.add((relation, RDF.object, second_arg))
+
+    return relation
+
+
 def mark_type(g, type_assertion_uri, entity_or_event,
               type, system, confidence):
     type_assertion = URIRef(type_assertion_uri)
