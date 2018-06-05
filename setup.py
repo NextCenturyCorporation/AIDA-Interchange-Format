@@ -15,7 +15,7 @@ setup(name='gaia-interchange',
       long_description=long_description,
       long_description_content_type='text/markdown',
       url='https://github.com/isi-vista/gaia-interchange',
-      packages=setuptools.find_packages(),
+      packages=setuptools.find_packages('./python'),
       python_requires='~=3.0',
       install_requires=[
         'rdflib',
