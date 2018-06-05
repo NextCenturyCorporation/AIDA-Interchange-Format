@@ -295,3 +295,30 @@ def link_to_external_kb(g, to_link, external_kb_id, system, confidence):
     mark_confidence(g, link_assertion, confidence, system)
     return link_assertion
 
+_TYPE_QUERY = prepareQuery("""SELECT ?typeAssertion WHERE {
+  ?typeAssertion a rdf:Statement .
+  ?typeAssertion rdf:predicate rdf:type .
+  ?typeAssertion rdf:subject ?typedObject .
+  }
+  """)
+
+
+def get_type_assertions(g, typed_object):
+    """
+    Get all types associated with an AIF object.
+
+    :return: A list of type assertions describing this object.
+    """
+    query_result = g.query(_TYPE_QUERY, initBindings={'typedObject': typed_object})
+    return [x for (x,) in query_result]
+
+
+def get_confidences(g, confidenced_object):
+    """
+    Get all confidence structures associated with an AIF object.
+
+    This does not get confidences attached to sub-graphs containing the object.
+
+    :return: A list of confidence assertions describing this object.
+  """
+    return list(g.objects(confidenced_object, AIDA_ANNOTATION.confidence))
