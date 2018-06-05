@@ -1,7 +1,36 @@
+import uuid
+from abc import ABCMeta, abstractmethod
+
 from rdflib import URIRef, RDF, Graph, BNode, Literal, XSD
 
 from aida_interchange.aida_rdf_ontologies import AIDA_ANNOTATION
 from rdflib.plugins.sparql import prepareQuery
+
+
+class IriGenerator(metaclass=ABCMeta):
+    """
+    A strategy for generating a sequence of IRIs.
+    """
+    @abstractmethod
+    def next_iri(self):
+        """
+        Get the next IRI in this sequence.
+        """
+
+
+class UuidIriGenerator(IriGenerator):
+    """
+    Creates a sequences of IRIs using UUIDs
+    """
+    def __init__(self, base_iri: str):
+        if not base_iri:
+            raise RuntimeError("Base IRI may not be empty")
+        if base_iri.endswith('/'):
+            raise RuntimeError(f"Base IRI may not end with / but got {base_iri}")
+        self.base_iri = base_iri
+
+    def next_iri(self):
+        return self.base_iri + '/' + str(uuid.uuid4())
 
 
 def make_graph():
