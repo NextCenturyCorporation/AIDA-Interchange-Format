@@ -3,6 +3,8 @@ from abc import abstractmethod, ABCMeta
 
 from rdflib import URIRef, RDF, Graph, BNode, Literal, XSD
 from aida_interchange.aida_rdf_ontologies import AIDA_ANNOTATION
+from rdflib.plugins.sparql import prepareQuery
+
 
 class IriGenerator(metaclass=ABCMeta):
     """
@@ -258,7 +260,7 @@ def mark_as_mutually_exclusive(g, alternatives, system, none_of_the_above_prob):
 
         alternative_graph = BNode()
         g.add((alternative_graph, RDF.type, AIDA_ANNOTATION.Subgraph))
-        print alts[0]
+        print(alts[0])
         for alt in alts[0]:
             g.add((alternative_graph, AIDA_ANNOTATION.graphContains, alt))
 
@@ -294,6 +296,7 @@ def link_to_external_kb(g, to_link, external_kb_id, system, confidence):
     mark_system(g, link_assertion, system)
     mark_confidence(g, link_assertion, confidence, system)
     return link_assertion
+
 
 _TYPE_QUERY = prepareQuery("""SELECT ?typeAssertion WHERE {
   ?typeAssertion a rdf:Statement .
