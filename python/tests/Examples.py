@@ -171,6 +171,71 @@ class Examples(unittest.TestCase):
         self.dump_graph(g, "Example of two hypotheses")
 
 
+    def test_use_subgraph_confidences_to_show_mutually_exclusive_linked_event_argument_options(self):
+        g = aifutils.make_graph()
+        g.bind('coldstart', AIDA_PROGRAM_ONTOLOGY.uri)
+
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
+
+        # we make a resource for the event itself
+        event = aifutils.make_event(g, "http://www.test.edu/events/1", system)
+
+        # mark the event as a Personnel.Elect event; type is encoded separately so we can express uncertainty about type
+        aifutils.mark_type(g, "http://www.test.edu/assertions/5", event, AIDA_PROGRAM_ONTOLOGY['conflict.attack'], system, 1.0)
+
+        # create the two entities involved in the event
+        bob = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/6", bob, AIDA_PROGRAM_ONTOLOGY.Person, system, 1.0)
+
+        fred = aifutils.make_entity(g, "http://www.test.edu/entities/2", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/7", fred, AIDA_PROGRAM_ONTOLOGY.Person, system, 1.0)
+
+        # we link all possible argument fillers to the event
+        bob_hit_fred_assertions = [aifutils.mark_as_event_argument(g, event, URIRef(AIDA_PROGRAM_ONTOLOGY['conflict.attack'] + "_Attacker"), bob, system, None),
+                                   aifutils.mark_as_event_argument(g, event, URIRef(AIDA_PROGRAM_ONTOLOGY['conflict.attack'] + "_Target"), fred, system, None)]
+
+        fred_hit_bob_assertions = [aifutils.mark_as_event_argument(g, event, URIRef(AIDA_PROGRAM_ONTOLOGY['conflict.attack'] + "_Attacker"), fred, system, None),
+                                   aifutils.mark_as_event_argument(g, event, URIRef(AIDA_PROGRAM_ONTOLOGY['conflict.attack'] + "_Target"), bob, system, None)]
+
+        # then we mark these as mutually exclusive
+        # we also mark confidence 0.2 that neither of these are true
+        aifutils.mark_as_mutually_exclusive(g, [(bob_hit_fred_assertions, 0.6), (fred_hit_bob_assertions, 0.2)], system, 0.2)
+
+        self.dump_graph(g, "Example of subgraph confidences to show mutually exclusive linked event argument options")
+
+
+    def test_create_seedling_event(self):
+        g = aifutils.make_graph()
+
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSytem")
+
+        # we make a resource for the event itself
+        event = aifutils.make_entity(g, "http://www.test.edu/events/1", system)
+
+        aifutils.mark_type(g, "http://www.test.edu/assertions/5", event,
+                           URIRef("http://darpa.mil/ontologies/SeedlingOntology/BUSINESS_DECLARE-BANKRUPTCY"), system, 1.0)
+
+        # create the two entities involved in the event
+        electee = aifutils.make_entity(g, "http://www.test.edu/entities/1", system,)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/6", electee,
+                           URIRef("http://darpa.mil/ontologies/SeedlingOntology, Organization"), system, 1.0)
+
+        election_country = aifutils.make_entity(g, "http://www.test.edu/entities/2", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/7", election_country,
+                           URIRef("http://darpa.mil/ontologies/SeedlingOntology/GeopoliticalEntity"), system, 1.0)
+
+        time = aifutils.make_entity(g, "http://test.edu/entities/3", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/8", time,
+                           URIRef("http://darpa.mil/ontologies/SeedlingOntology/Time"), system, 1.0)
+
+        # link those entities to the event
+        aifutils.mark_as_event_argument(g, event, URIRef("http://darpa.mil/ontologies/SeedlingOntology/BUSINESS_DECLARE-BANKRUPTCY_arg1"), electee, system, 0.785)
+        aifutils.mark_as_event_argument(g, event, URIRef("http://darpa.mil/ontologies/SeedlingOntology/BUSINESS_DECLARE-BANKRUPTCY_arg2"), election_country, system, 0.589)
+        aifutils.mark_as_event_argument(g, event, URIRef("http://darpa.mil/ontologies/SeedlingOntology/BUSINESS_DECLARE-BANKRUPTCY_arg3"), time, system, 0.589)
+
+
     def test_make_entity(self):
         g = aifutils.make_graph()
         system = aifutils.make_system_with_uri(g, "http://www.test.edu/system")

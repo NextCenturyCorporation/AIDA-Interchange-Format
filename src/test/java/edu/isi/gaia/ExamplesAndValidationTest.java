@@ -293,7 +293,7 @@ public class ExamplesAndValidationTest {
       final Resource event = AIFUtils.makeEvent(model,
           "http://www.test.edu/events/1", system);
 
-      // mark the event as a Personnel.Elect event; type is encoded separately so we can express
+      // mark the event as a Conflict.Attack event; type is encoded separately so we can express
       // uncertainty about type
       AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
           ColdStartOntology.eventType("CONFLICT.ATTACK"), system, 1.0);

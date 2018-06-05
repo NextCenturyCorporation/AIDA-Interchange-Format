@@ -270,7 +270,8 @@ def mark_as_mutually_exclusive(g, alternatives, system, none_of_the_above_prob):
         g.add((mutual_exclusion_assertion, AIDA_ANNOTATION.alternative, alternative))
 
     if none_of_the_above_prob is not None:
-        g.add((mutual_exclusion_assertion, AIDA_ANNOTATION.noneOfTheAbove))
+        g.add((mutual_exclusion_assertion, AIDA_ANNOTATION.noneOfTheAbove,
+               Literal(none_of_the_above_prob, datatype=XSD.integer)))
 
     return mutual_exclusion_assertion
 
