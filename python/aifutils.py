@@ -1,35 +1,7 @@
-import uuid
-from abc import abstractmethod, ABCMeta
-
 from rdflib import URIRef, RDF, Graph, BNode, Literal, XSD
 from aida_interchange.aida_rdf_ontologies import AIDA_ANNOTATION
 from rdflib.plugins.sparql import prepareQuery
 
-
-class IriGenerator(metaclass=ABCMeta):
-    """
-    A strategy for generating a sequence of IRIs.
-    """
-    @abstractmethod
-    def next_iri(self):
-        """
-        Get the next IRI in this sequence.
-        """
-
-
-class UuidIriGenerator(IriGenerator):
-    """
-    Creates a sequences of IRIs using UUIDs
-    """
-    def __init__(self, base_iri: str):
-        if not base_iri:
-            raise RuntimeError("Base IRI may not be empty")
-        if base_iri.endswith('/'):
-            raise RuntimeError(f"Base IRI may not end with / but got {base_iri}")
-        self.base_iri = base_iri
-
-    def next_iri(self):
-        return self.base_iri + '/' + str(uuid.uuid4())
 
 def make_graph():
     g = Graph()
@@ -38,16 +10,36 @@ def make_graph():
 
 
 def make_system_with_uri(graph, system_uri):
+    """
+    Create a resource representing the system which produced some data.
+
+    Such a resource should be attached to all entities, events, event arguments, relations,
+    sentiment assertions, confidences, justifications, etc. produced by a system. You should
+    only create the system resource once; reuse the returned objects for all calls
+    to [markSystem].
+
+    :return: The created system resource.
+    """
     system = URIRef(system_uri)
-    graph.add((system, RDF.type, AIDA_ANNOTATION.system))
+    graph.add((system, RDF.type, AIDA_ANNOTATION.System))
     return system
 
 
 def mark_system(g, to_mark_on, system):
+    """
+    Mark a resource as coming from the specified [system]
+    """
     g.add((to_mark_on, AIDA_ANNOTATION.system, system))
 
 
 def make_entity(graph, entity_uri, system):
+    """
+    Create an entity.
+
+    :param entity_uri: can be any unique string.
+    :param system: The system object for the system which created this entity.
+    :return: The created entity resource
+    """
     entity = URIRef(entity_uri)
     graph.add((entity, RDF.type, AIDA_ANNOTATION.Entity))
     mark_system(graph, entity, system)
@@ -56,6 +48,11 @@ def make_entity(graph, entity_uri, system):
 
 def mark_type(g, type_assertion_uri, entity_or_event,
               type, system, confidence):
+    """
+    Mark an entity or event as having a specified type.
+
+    :return: The assertion resource
+    """
     type_assertion = URIRef(type_assertion_uri)
     g.add((type_assertion, RDF.type, RDF.Statement))
     g.add((type_assertion, RDF.subject, entity_or_event))
@@ -68,14 +65,19 @@ def mark_type(g, type_assertion_uri, entity_or_event,
 
 def mark_text_justification(g, things_to_justify, doc_id, start_offset,
                             end_offset_inclusive, system, confidence):
+    """
+    Mark multiple things as being justified by a particular snippet of text.
+
+    :return: The text justification resource created.
+    """
     justification = BNode()
     g.add((justification, RDF.type, AIDA_ANNOTATION.TextJustification))
     g.add((justification, AIDA_ANNOTATION.source,
            Literal(doc_id, datatype=XSD.string)))
     g.add((justification, AIDA_ANNOTATION.startOffset,
-           Literal(start_offset, datatype=XSD.integer)))
+           Literal(start_offset, datatype=XSD.int)))
     g.add((justification, AIDA_ANNOTATION.endOffsetInclusive,
-           Literal(end_offset_inclusive, datatype=XSD.integer)))
+           Literal(end_offset_inclusive, datatype=XSD.int)))
     mark_system(g, justification, system)
     mark_confidence(g, justification, confidence, system)
 
@@ -85,6 +87,10 @@ def mark_text_justification(g, things_to_justify, doc_id, start_offset,
 
 
 def mark_confidence(g, to_mark_on, confidence, system):
+    """
+    Mark a confidence value on a resource.
+
+    """
     confidence_blank_node = BNode()
     g.add((confidence_blank_node, RDF.type, AIDA_ANNOTATION.Confidence))
     g.add((confidence_blank_node, AIDA_ANNOTATION.confidenceValue,
@@ -95,6 +101,13 @@ def mark_confidence(g, to_mark_on, confidence, system):
 
 def make_relation(g, relation_uri, first_arg, relation_type,
                   second_arg, system, confidence):
+    """
+    Makes a relation of type [relationType] between [firstArg] and [secondArg].
+
+    If [confidence] is non-null the relation is marked with the given [confidence]
+
+    :return: The relaton object
+    """
     relation = URIRef(relation_uri)
     g.add((relation, RDF.type, RDF.Statement))
     g.add((relation, RDF.subject, first_arg))
@@ -106,24 +119,43 @@ def make_relation(g, relation_uri, first_arg, relation_type,
 
 
 def mark_as_event_argument(g, event, argument_type, argument_filler, system, confidence):
+    """
+    Marks an entity as filling an argument role for an event.
+
+    :return: The created event argument assertion
+    """
     arg_assertion = BNode()
     g.add((arg_assertion, RDF.type, RDF.Statement))
     g.add((arg_assertion, RDF.subject, event))
     g.add((arg_assertion, RDF.predicate, argument_type))
     g.add((arg_assertion, RDF['object'], argument_filler))
     mark_system(g, arg_assertion, system)
-    mark_confidence(g, arg_assertion, confidence, system)
+    if confidence is not None:
+        mark_confidence(g, arg_assertion, confidence, system)
     return arg_assertion
 
 
 def make_event(g, event_uri, system):
+    """
+    Create an event\
+
+    :param event_uri: can be any unique string.
+    :param system: The system object for the system which created this event.
+
+    :return: The event resource
+    """
     event = URIRef(event_uri)
     g.add((event, RDF.type, AIDA_ANNOTATION.Event))
-    g.add((event, AIDA_ANNOTATION.System, system))
+    g.add((event, AIDA_ANNOTATION.system, system))
     return event
 
 
 def mark_image_justification(g, things_to_justify, doc_id, boundingbox, system, confidence):
+    """
+    Marks a justification for something appearing in an image
+
+    :return: The created image justification resource
+    """
     justification = BNode()
     g.add((justification, RDF.type, AIDA_ANNOTATION.ImageJustification))
     g.add((justification, AIDA_ANNOTATION.source,
@@ -132,13 +164,13 @@ def mark_image_justification(g, things_to_justify, doc_id, boundingbox, system, 
     bounding_box_resource = BNode()
     g.add((bounding_box_resource, RDF.type, AIDA_ANNOTATION.BoundingBox))
     g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxUpperLeftX,
-           Literal(boundingbox.upper_left[0], datatype=XSD.integer)))
+           Literal(boundingbox.upper_left[0], datatype=XSD.int)))
     g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxUpperLeftY,
-           Literal(boundingbox.upper_left[1], datatype=XSD.integer)))
+           Literal(boundingbox.upper_left[1], datatype=XSD.int)))
     g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxLowerRightX,
-           Literal(boundingbox.lower_right[0], datatype=XSD.integer)))
+           Literal(boundingbox.lower_right[0], datatype=XSD.int)))
     g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxLowerRightY,
-           Literal(boundingbox.lower_right[1], datatype=XSD.integer)))
+           Literal(boundingbox.lower_right[1], datatype=XSD.int)))
 
     g.add((justification, AIDA_ANNOTATION.boundingBox, bounding_box_resource))
     mark_system(g, justification, system)
@@ -151,15 +183,22 @@ def mark_image_justification(g, things_to_justify, doc_id, boundingbox, system, 
 
 
 def mark_audio_justification(g, things_to_justify, doc_id, start_timestamp, end_timestamp, system, confidence):
-    #TODO throw exception if start_timestamp > end_timestamp
+    """
+    Marks a justification for something referenced in audio
+
+    :return: The created audio justification resource
+    """
+    if start_timestamp > end_timestamp:
+        raise RuntimeError("start_timestamp cannot be larger than end_timestamp")
+
     justification = BNode()
     g.add((justification, RDF.type, AIDA_ANNOTATION.AudioJustification))
     g.add((justification, AIDA_ANNOTATION.source,
            Literal(doc_id, datatype=XSD.string)))
-    g.add((justification, AIDA_ANNOTATION.StartTimestamp,
-           Literal(start_timestamp, datatype=XSD.integer)))
-    g.add((justification, AIDA_ANNOTATION.EndTimestamp,
-           Literal(end_timestamp, datatype=XSD.integer)))
+    g.add((justification, AIDA_ANNOTATION.startTimestamp,
+           Literal(start_timestamp, datatype=XSD.double)))
+    g.add((justification, AIDA_ANNOTATION.endTimestamp,
+           Literal(end_timestamp, datatype=XSD.double)))
     mark_system(g, justification, system)
     mark_confidence(g, justification, confidence, system)
 
@@ -169,6 +208,11 @@ def mark_audio_justification(g, things_to_justify, doc_id, start_timestamp, end_
 
 
 def mark_keyframe_video_justification(g, things_to_justify, doc_id, key_frame, boundingbox, system, confidence):
+    """
+    Marks a justification for something appearing in a key frame of a video.
+
+    :return: The justification resource
+    """
     justification = BNode()
     g.add((justification, RDF.type, AIDA_ANNOTATION.KeyFrameVideoJustification))
     g.add((justification, AIDA_ANNOTATION.source,
@@ -179,13 +223,14 @@ def mark_keyframe_video_justification(g, things_to_justify, doc_id, key_frame, b
     bounding_box_resource = BNode()
     g.add((bounding_box_resource, RDF.type, AIDA_ANNOTATION.BoundingBox))
     g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxUpperLeftX,
-           Literal(boundingbox.upper_left[0], datatype=XSD.integer)))
+           Literal(boundingbox.upper_left[0], datatype=XSD.int)))
     g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxUpperLeftY,
-           Literal(boundingbox.upper_left[1], datatype=XSD.integer)))
+           Literal(boundingbox.upper_left[1], datatype=XSD.int)))
     g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxLowerRightX,
-           Literal(boundingbox.lower_right[0], datatype=XSD.integer)))
+           Literal(boundingbox.lower_right[0], datatype=XSD.int)))
     g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxLowerRightY,
-           Literal(boundingbox.lower_right[1], datatype=XSD.integer)))
+           Literal(boundingbox.lower_right[1], datatype=XSD.int)))
+    g.add((justification, AIDA_ANNOTATION.boundingBox, bounding_box_resource))
     mark_system(g, justification, system)
     mark_confidence(g, justification, confidence, system)
 
@@ -196,6 +241,11 @@ def mark_keyframe_video_justification(g, things_to_justify, doc_id, key_frame, b
 
 
 def mark_shot_video_justification(g, things_to_justify, doc_id, shot_id, system, confidence):
+    """
+    Marks a justification for something appearing in a video but not in a key frame.
+
+    :return: The justification resource
+    """
     justification = BNode()
     g.add((justification, RDF.type, AIDA_ANNOTATION.ShotVideoJustification))
     g.add((justification, AIDA_ANNOTATION.source,
@@ -211,6 +261,17 @@ def mark_shot_video_justification(g, things_to_justify, doc_id, shot_id, system,
 
 
 def make_cluster_with_prototype(g, cluster_uri, prototype, system):
+    """
+    Create a "same-as" cluster.
+
+    A same-as cluster is used to represent multiple entities which might be the same, but we
+    aren't sure. (If we were sure, they would just be a single node).
+
+    Every cluster requires a [prototype] - an entity or event that we are *certain* is in the
+    cluster.
+
+    :return: The cluster created
+    """
     cluster = URIRef(cluster_uri)
     g.add((cluster, RDF.type, AIDA_ANNOTATION.SameAsCluster))
     g.add((cluster, AIDA_ANNOTATION.prototype, prototype))
@@ -219,6 +280,11 @@ def make_cluster_with_prototype(g, cluster_uri, prototype, system):
 
 
 def mark_as_possible_cluster_member(g, possible_cluster_member, cluster, confidence, system):
+    """
+    Mark an entity or event as a possible member of a cluster.
+
+    :return: The cluster membership assertion
+    """
     cluster_member_assertion = BNode()
     g.add((cluster_member_assertion, RDF.type, AIDA_ANNOTATION.ClusterMembership))
     g.add((cluster_member_assertion, AIDA_ANNOTATION.cluster, cluster))
@@ -229,7 +295,16 @@ def mark_as_possible_cluster_member(g, possible_cluster_member, cluster, confide
 
 
 def make_hypothesis(g, hypothesis_uri, hypothesis_content, system):
-    #TODO throw exception if hypothesis_content is empty
+    """
+    Create a hypothesis
+
+    You can then indicate that some other object depends on this hypothesis using mark_depends_on_hypothesis
+
+    :return: The hypothesis resource.
+    """
+    if not hypothesis_content:
+        raise RuntimeError("hypothesis_content cannot be empty")
+
     hypothesis = URIRef(hypothesis_uri)
     g.add((hypothesis, RDF.type, AIDA_ANNOTATION.Hypothesis))
     mark_system(g, hypothesis, system)
@@ -238,7 +313,7 @@ def make_hypothesis(g, hypothesis_uri, hypothesis_content, system):
     g.add((subgraph, RDF.type, AIDA_ANNOTATION.Subgraph))
 
     for content in hypothesis_content:
-        g.add((subgraph, AIDA_ANNOTATION.graphContains, content))
+        g.add((subgraph, AIDA_ANNOTATION.subgraphContains, content))
 
     g.add((hypothesis, AIDA_ANNOTATION.hypothesisContent, subgraph))
     return hypothesis
@@ -249,7 +324,19 @@ def mark_depends_on_hypothesis(g, depender, hypothesis):
 
 
 def mark_as_mutually_exclusive(g, alternatives, system, none_of_the_above_prob):
-    #TODO throw exception when alternatives has less than 2 mutually exclusive things
+    """
+    Mark the given resources as mutually exclusive.
+
+    :param alternatives: a map from the collection of edges which form a sub-graph for
+    an alternative to the confidence associated with an alternative.
+    :param system: The system object for the system which contains the mutual exclusion
+    :param none_of_the_above_prob: if not None, the given confidence will be applied for
+    the "none of the above" option.
+    :return: The mutual exclusion assertion.
+    """
+    if len(alternatives) < 2:
+        raise RuntimeError("alternatives cannot have less than 2 mutually exclusive things")
+
     mutual_exclusion_assertion = BNode()
     g.add((mutual_exclusion_assertion, RDF.type, AIDA_ANNOTATION.MutualExclusion))
     mark_system(g, mutual_exclusion_assertion, system)
@@ -262,16 +349,16 @@ def mark_as_mutually_exclusive(g, alternatives, system, none_of_the_above_prob):
         g.add((alternative_graph, RDF.type, AIDA_ANNOTATION.Subgraph))
         print(alts[0])
         for alt in alts[0]:
-            g.add((alternative_graph, AIDA_ANNOTATION.graphContains, alt))
+            g.add((alternative_graph, AIDA_ANNOTATION.subgraphContains, alt))
 
-        g.add((alternative, AIDA_ANNOTATION.alternateGraph, alternative_graph))
+        g.add((alternative, AIDA_ANNOTATION.alternativeGraph, alternative_graph))
         mark_confidence(g, alternative, alts[1], system)
 
         g.add((mutual_exclusion_assertion, AIDA_ANNOTATION.alternative, alternative))
 
     if none_of_the_above_prob is not None:
         g.add((mutual_exclusion_assertion, AIDA_ANNOTATION.noneOfTheAbove,
-               Literal(none_of_the_above_prob, datatype=XSD.integer)))
+               Literal(none_of_the_above_prob, datatype=XSD.double)))
 
     return mutual_exclusion_assertion
 

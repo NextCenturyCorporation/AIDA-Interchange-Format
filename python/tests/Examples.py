@@ -18,26 +18,43 @@ class Examples(unittest.TestCase):
         # every AIF needs an object for the system responsible for creating it
         system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
 
+        # it doesn't matter what URI we give entities, events, etc. so long as they are
+        # unique
         entity = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
 
-        type_assertion = aifutils.mark_type(g, "http://www.test.org/assertions/1", entity, AIDA_PROGRAM_ONTOLOGY.Person, system, 1.0)
+        # in order to allow uncertainty about the type of an entity, we don't mark an
+        # entity's type directly on the entity, but rather make a separate assertion for it
+        # its URI doesn't matter either
+        type_assertion = aifutils.mark_type(g, "http://www.test.org/assertions/1", entity,
+                                            AIDA_PROGRAM_ONTOLOGY.Person, system, 1.0)
 
+        # the justification provides the evidence for our claim about the entity's type
+        # we attach this justification to both the type assertion and the entity object
+        # itself, since it provides evidence both for the entity's existence and its type.
+        # in TA1 -> TA2 communications, we attach confidences at the level of justifications
         aifutils.mark_text_justification(g, [entity, type_assertion], "NYT_ENG_20181231", 42, 143, system, 0.973)
 
+        # let's suppose we also have evidence from an image
         bb1 = Bounding_Box((123, 45), (167, 98))
         aifutils.mark_image_justification(g, [entity, type_assertion], "NYT_ENG_20181231_03",
                                           bb1, system, 0.123)
 
+        # and also a video where the entity appears in a keyframe
         bb2 = Bounding_Box((123, 45), (167, 98))
         aifutils.mark_keyframe_video_justification(g, [entity, type_assertion], "NYT_ENG_20181231_03", "keyframe ID",
                                                    bb2, system, 0.234)
 
+        # and also a video where the entity does not appear in a keyframe
         aifutils.mark_shot_video_justification(g, [entity, type_assertion], "SOME_VIDEO", "some shot ID", system, 0.487)
 
+        # and even audio!
         aifutils.mark_audio_justification(g, [entity, type_assertion], "NYT_ENG_201181231", 4.566, 9.876, system, 0.789)
 
+        # also we can link this entity to something in an external KB
         aifutils.link_to_external_kb(g, entity, "freebase.FOO", system, .398)
 
+        # let's mark our entity with some arbitrary system-private data. You can attach such data
+        # to nearly anything
         aifutils.mark_private_data(g, entity, "{ 'hello' : 'world' }", system)
 
         self.dump_graph(g, "Example of entity with all justifications")
@@ -50,16 +67,28 @@ class Examples(unittest.TestCase):
         # every AIF needs an object for the system responsible for creating it
         system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
 
+        # we make a resource for the event itself
         event = aifutils.make_event(g, "http://www.test.edu/events/1", system)
-        aifutils.mark_type(g, "http://www.test.edu/assertions/5", event, AIDA_PROGRAM_ONTOLOGY['personnel.elect'], system, 1.0)
+
+        # mark the event as a Personnel.Elect event; type is encoded separately so we can express
+        # uncertainty about type
+        aifutils.mark_type(g, "http://www.test.edu/assertions/5", event,
+                           AIDA_PROGRAM_ONTOLOGY['PERSONNEL.ELECT'], system, 1.0)
+
+        # create the two entities involved in the event
         electee = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
         aifutils.mark_type(g, "http://www.test.edu/assertions/6", electee, AIDA_PROGRAM_ONTOLOGY.Person, system, 1.0)
+
         election_country = aifutils.make_entity(g, "http://www.test.edu/entities/2", system)
-        aifutils.mark_type(g, "http://www.test.edu/assertions/7", election_country, AIDA_PROGRAM_ONTOLOGY.GeopoliticalEntity, system, 1.0)
-        arg = URIRef(AIDA_PROGRAM_ONTOLOGY['personnel.elect'] + "_person")
+        aifutils.mark_type(g, "http://www.test.edu/assertions/7", election_country,
+                           AIDA_PROGRAM_ONTOLOGY.GeopoliticalEntity, system, 1.0)
+
+        # link those entities to the event
+        arg = URIRef(AIDA_PROGRAM_ONTOLOGY.Person)
         aifutils.mark_as_event_argument(g, event, arg, electee, system, 0.785)
-        arg2 = URIRef(AIDA_PROGRAM_ONTOLOGY['personnel.elect'] + "_place")
+        arg2 = URIRef(AIDA_PROGRAM_ONTOLOGY.uri + "Place")
         aifutils.mark_as_event_argument(g, event, arg2, election_country, system, 0.589)
+
         self.dump_graph(g, "Example of creating an event")
 
 
@@ -71,21 +100,25 @@ class Examples(unittest.TestCase):
         system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
 
         entity = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
-        entity_is_a_person = aifutils.mark_type(g, "http://www.test.org/assertions/1", entity, AIDA_PROGRAM_ONTOLOGY.Person, system, 0.5)
-        entity_is_an_organization = aifutils.mark_type(g, "http://www.test.org/assertions/2", entity, AIDA_PROGRAM_ONTOLOGY.Organization, system, 0.2)
+        entity_is_a_person = aifutils.mark_type(g, "http://www.test.org/assertions/1", entity,
+                                                AIDA_PROGRAM_ONTOLOGY.Person, system, 0.5)
+        entity_is_an_organization = aifutils.mark_type(g, "http://www.test.org/assertions/2", entity,
+                                                       AIDA_PROGRAM_ONTOLOGY.Organization, system, 0.2)
 
         aifutils.mark_text_justification(g, [entity, entity_is_a_person], "NYT_ENG_201181231", 42, 143, system, 0.6)
 
-        aifutils.mark_text_justification(g, [entity, entity_is_an_organization], "NYT_ENG_201181231", 343, 367, system, 0.3)
+        aifutils.mark_text_justification(g, [entity, entity_is_an_organization],
+                                         "NYT_ENG_201181231", 343, 367, system, 0.3)
 
-        aifutils.mark_as_mutually_exclusive(g, [([entity_is_a_person], 0.5), ([entity_is_an_organization], 0.2)], system, None)
+        aifutils.mark_as_mutually_exclusive(g, [([entity_is_a_person], 0.5),
+                                                ([entity_is_an_organization], 0.2)], system, None)
 
         self.dump_graph(g, "Example of entity with uncertainty about type")
 
 
     def test_create_a_relation_between_two_entities_where_there_is_uncertainty_about_identity_of_one_argument(self):
         g = aifutils.make_graph()
-        g.bind('coldstart', AIDA_PROGRAM_ONTOLOGY.uri)
+        g.bind('coldstart', "http://nist.gov/ontologies/ColdstartOntology#")
 
         # every AIF needs an object for the system responsible for creating it
         system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
@@ -182,7 +215,7 @@ class Examples(unittest.TestCase):
         event = aifutils.make_event(g, "http://www.test.edu/events/1", system)
 
         # mark the event as a Personnel.Elect event; type is encoded separately so we can express uncertainty about type
-        aifutils.mark_type(g, "http://www.test.edu/assertions/5", event, AIDA_PROGRAM_ONTOLOGY['conflict.attack'], system, 1.0)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/5", event, AIDA_PROGRAM_ONTOLOGY['CONFLICT.ATTACK'], system, 1.0)
 
         # create the two entities involved in the event
         bob = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
@@ -192,11 +225,11 @@ class Examples(unittest.TestCase):
         aifutils.mark_type(g, "http://www.test.edu/assertions/7", fred, AIDA_PROGRAM_ONTOLOGY.Person, system, 1.0)
 
         # we link all possible argument fillers to the event
-        bob_hit_fred_assertions = [aifutils.mark_as_event_argument(g, event, URIRef(AIDA_PROGRAM_ONTOLOGY['conflict.attack'] + "_Attacker"), bob, system, None),
-                                   aifutils.mark_as_event_argument(g, event, URIRef(AIDA_PROGRAM_ONTOLOGY['conflict.attack'] + "_Target"), fred, system, None)]
+        bob_hit_fred_assertions = [aifutils.mark_as_event_argument(g, event, URIRef(AIDA_PROGRAM_ONTOLOGY['CONFLICT.ATTACK'] + "_Attacker"), bob, system, None),
+                                   aifutils.mark_as_event_argument(g, event, URIRef(AIDA_PROGRAM_ONTOLOGY['CONFLICT.ATTACK'] + "_Target"), fred, system, None)]
 
-        fred_hit_bob_assertions = [aifutils.mark_as_event_argument(g, event, URIRef(AIDA_PROGRAM_ONTOLOGY['conflict.attack'] + "_Attacker"), fred, system, None),
-                                   aifutils.mark_as_event_argument(g, event, URIRef(AIDA_PROGRAM_ONTOLOGY['conflict.attack'] + "_Target"), bob, system, None)]
+        fred_hit_bob_assertions = [aifutils.mark_as_event_argument(g, event, URIRef(AIDA_PROGRAM_ONTOLOGY['CONFLICT.ATTACK'] + "_Attacker"), fred, system, None),
+                                   aifutils.mark_as_event_argument(g, event, URIRef(AIDA_PROGRAM_ONTOLOGY['CONFLICT.ATTACK'] + "_Target"), bob, system, None)]
 
         # then we mark these as mutually exclusive
         # we also mark confidence 0.2 that neither of these are true
@@ -220,7 +253,7 @@ class Examples(unittest.TestCase):
         # create the two entities involved in the event
         electee = aifutils.make_entity(g, "http://www.test.edu/entities/1", system,)
         aifutils.mark_type(g, "http://www.test.edu/assertions/6", electee,
-                           URIRef("http://darpa.mil/ontologies/SeedlingOntology, Organization"), system, 1.0)
+                           URIRef("http://darpa.mil/ontologies/SeedlingOntology/Organization"), system, 1.0)
 
         election_country = aifutils.make_entity(g, "http://www.test.edu/entities/2", system)
         aifutils.mark_type(g, "http://www.test.edu/assertions/7", election_country,
@@ -248,6 +281,7 @@ class Examples(unittest.TestCase):
 
         self.dump_graph(g, "Example of creating an entity")
         self.assertEqual([type_assertion], aifutils.get_type_assertions(g, entity))
+
 
     def dump_graph(self, g, description):
         print("\n\n======================================\n"
