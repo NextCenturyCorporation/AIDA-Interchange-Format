@@ -9,6 +9,11 @@ from rdflib.plugins.sparql import prepareQuery
 
 
 def make_graph():
+    """
+    Creates an RDF triple store
+    
+    :return: The created graph
+    """
     g = Graph()
     g.bind('aida', AIDA_ANNOTATION.uri)
     return g
