@@ -4,13 +4,13 @@ import org.apache.jena.rdf.model.Resource
 import org.apache.jena.rdf.model.ResourceFactory
 
 /**
- * The domain ontology.
+ * The Seedling domain ontology.
  *
- * For the moment, this is hard-coded to match ColdStart.
+ * For the moment, this is hard-coded to match Seedling.
  */
-object ColdStartOntology {
+object SeedlingOntology : Ontology {
     @JvmField
-    val NAMESPACE: String = "http://nist.gov/ontologies/ColdstartOntology#"
+    val NAMESPACE: String = "http://darpa.mil/ontologies/SeedlingOntology/"
 
     @JvmField
     val PERSON = ResourceFactory.createResource(NAMESPACE + "Person")!!
@@ -28,14 +28,14 @@ object ColdStartOntology {
     @JvmField
     val ENTITY_TYPES = setOf(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY)
 
-    internal val EVENT_AND_RELATION_TYPES = listOf("CONFLICT.ATTACK", "CONFLICT.DEMONSTRATE",
-            "CONTACT.BROADCAST", "CONTACT.CONTACT", "CONTACT.CORRESPONDENCE", "CONTACT.MEET",
-            "JUSTICE.ARREST-JAIL",
-            "LIFE.DIE", "LIFE.INJURE", "MANUFACTURE.ARTIFACT",
-            "MOVEMENT.TRANSPORT-ARTIFACT",
-            "MOVEMENT.TRANSPORT-PERSON", "PERSONNEL.ELECT", "PERSONNEL.END-POSITION",
-            "PERSONNEL.START-POSITION", "TRANSACTION.TRANSACTION", "TRANSACTION.TRANSFER-MONEY",
-            "TRANSACTION.TRANSFER-OWNERSHIP", "children", "parents", "other_family", "other_family",
+    internal val EVENT_AND_RELATION_TYPES = listOf("CONFLICT_ATTACK", "CONFLICT_DEMONSTRATE",
+            "CONTACT_BROADCAST", "CONTACT_CONTACT", "CONTACT_CORRESPONDENCE", "CONTACT_MEET",
+            "JUSTICE_ARREST-JAIL",
+            "LIFE_DIE", "LIFE_INJURE", "MANUFACTURE_ARTIFACT",
+            "MOVEMENT_TRANSPORT-ARTIFACT",
+            "MOVEMENT_TRANSPORT-PERSON", "PERSONNEL_ELECT", "PERSONNEL_END-PERSONNEL",
+            "PERSONNEL_START-PERSONNEL", "TRANSACTION_TRANSACTION", "TRANSACTION_TRANSFER-MONEY",
+            "TRANSACTION_TRANSFER-OWNERSHIP", "children", "parents", "other_family", "other_family",
             "parents", "children", "siblings", "siblings", "spouse", "spouse",
             "employee_or_member_of", "employees_or_members", "schools_attended", "students",
             "city_of_birth", "births_in_city", "stateorprovince_of_birth",
@@ -61,19 +61,14 @@ object ColdStartOntology {
             "origin", "date_founded", "date_of_death", "date_dissolved",
             "cause_of_death", "website", "title", "religion", "charges",
             // needed to read RPI ColdStart output
-            "CONTACT.PHONEWRITE", "BUSINESS.DECLAREBANKRUPTCY", "BUSINESS.ENDORG",
-            "BUSINESS.MERGEORG", "BUSINESS.STARTORG", "MOVEMENT.TRANSPORT", "JUSTICE.ACQUIT",
-            "JUSTICE.APPEAL", "JUSTICE.CHARGEINDICT", "JUSTICE.CONVICT", "JUSTICE.EXECUTE",
-            "JUSTICE.EXTRADITE", "JUSTICE.FINE", "JUSTICE.RELEASEPAROLE", "JUSTICE.SENTENCE",
-            "JUSTICE.SUE", "JUSTICE.TRIALHEARING", "LIFE.BEBORN", "LIFE.MARRY", "LIFE.DIVORCE",
-            "PERSONNEL.NOMINATE", "likes", "dislikes")
+            "BUSINESS_DECLARE-BANKRUPTCY", "BUSINESS_END-BUSINESS",
+            "BUSINESS_MERGE", "BUSINESS_START-BUSINESS", "JUSTICE_ACQUIT",
+            "JUSTICE_APPEAL", "JUSTICE_CHARGE-INDICT", "JUSTICE_CONVICT", "JUSTICE_EXECUTE",
+            "JUSTICE_EXTRADITE", "JUSTICE_FINE", "JUSTICE_RELEASE-PAROLE", "JUSTICE_SENTENCE",
+            "JUSTICE_SUE", "JUSTICE_TRIAL-HEARING", "LIFE_BE-BORN", "LIFE_MARRY", "LIFE_DIVORCE",
+            "PERSONNEL_NOMINATE", "likes", "dislikes")
             .map { it to ResourceFactory.createResource(NAMESPACE + it) }
             .toMap()
-
-    // realis types
-    val ACTUAL = ResourceFactory.createResource(NAMESPACE + "Actual")!!
-    val GENERIC = ResourceFactory.createResource(NAMESPACE + "Generic")!!
-    val OTHER = ResourceFactory.createResource(NAMESPACE + "Other")!!
 
     // sentiment types
     @JvmField
@@ -83,26 +78,6 @@ object ColdStartOntology {
 
     private val ontologizeEventType: (String) -> Resource = OntoMemoize({ eventType: String ->
         ResourceFactory.createResource(NAMESPACE + eventType)
-    })
-
-    @JvmStatic
-    fun relationType(relationName: String): Resource = EVENT_AND_RELATION_TYPES[relationName]
-            ?: throw NoSuchElementException("Unknown relation type: $relationName. Known relation " +
-                    "and event types ${EVENT_AND_RELATION_TYPES.keys}")
-
-    @JvmStatic
-    fun eventType(eventName: String): Resource = EVENT_AND_RELATION_TYPES[eventName]
-            ?: throw NoSuchElementException("Unknown event type: $eventName. Known relation " +
-                    "and event types: ${EVENT_AND_RELATION_TYPES.keys}")
-
-    @JvmStatic
-    fun eventArgumentType(argName: String): Resource = ontologizeEventType(argName)
-
-}
-
-object ColdStartOntologyAdapter : Ontology {
-    private val ontologizeEventType: (String) -> Resource = OntoMemoize({ eventType: String ->
-        ResourceFactory.createResource(ColdStartOntology.NAMESPACE + eventType)
     })
 
     override fun shortNameToResource(ontology_type: String): Resource {
@@ -125,13 +100,14 @@ object ColdStartOntologyAdapter : Ontology {
         }
     }
 
-    override fun relationType(relationName: String): Resource = ColdStartOntology.EVENT_AND_RELATION_TYPES[relationName]
-        ?: throw NoSuchElementException("Unknown relation type: $relationName. Known relation " +
-                "and event types ${ColdStartOntology.EVENT_AND_RELATION_TYPES.keys}")
+    override fun relationType(relationName: String): Resource = EVENT_AND_RELATION_TYPES[relationName]
+            ?: throw NoSuchElementException("Unknown relation type: $relationName. Known relation " +
+                    "and event types ${EVENT_AND_RELATION_TYPES.keys}")
 
-    override fun eventType(eventName: String): Resource = ColdStartOntology.EVENT_AND_RELATION_TYPES[eventName]
-        ?: throw NoSuchElementException("Unknown event type: $eventName. Known relation " +
-                "and event types: ${ColdStartOntology.EVENT_AND_RELATION_TYPES.keys}")
+    override fun eventType(eventName: String): Resource = EVENT_AND_RELATION_TYPES[eventName]
+            ?: throw NoSuchElementException("Unknown event type: $eventName. Known relation " +
+                    "and event types: ${EVENT_AND_RELATION_TYPES.keys}")
 
     override fun eventArgumentType(argName: String): Resource = ontologizeEventType(argName)
+
 }
