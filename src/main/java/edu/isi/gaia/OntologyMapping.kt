@@ -13,7 +13,7 @@ class OntoMemoize<in Arg, out Result>(val f: (Arg) -> Result) : (Arg) -> Result 
 /**
  * A domain ontology.
  */
-interface Ontology {
+interface OntologyMapping {
     fun shortNameToResource(ontology_type: String): Resource
 
     fun relationType(relationName: String): Resource

@@ -8,7 +8,7 @@ import org.apache.jena.rdf.model.ResourceFactory
  *
  * For the moment, this is hard-coded to match ColdStart.
  */
-object ColdStartOntology : Ontology {
+object ColdStartOntology : OntologyMapping {
     @JvmField
     val NAMESPACE: String = "http://nist.gov/ontologies/ColdstartOntology#"
 

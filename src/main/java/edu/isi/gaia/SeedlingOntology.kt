@@ -8,7 +8,7 @@ import org.apache.jena.rdf.model.ResourceFactory
  *
  * For the moment, this is hard-coded to match Seedling.
  */
-object SeedlingOntology : Ontology {
+object SeedlingOntology : OntologyMapping {
     @JvmField
     val NAMESPACE: String = "http://darpa.mil/ontologies/SeedlingOntology/"
 
