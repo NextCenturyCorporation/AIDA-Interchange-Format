@@ -3,7 +3,7 @@ import sys
 sys.path.append('../')
 from rdflib import URIRef, Literal, XSD
 from aida_interchange.aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY, AIDA_ANNOTATION
-import aifutils
+from aida_interchange import aifutils
 
 class InvalidExamples(unittest.TestCase):
 
@@ -19,7 +19,7 @@ class InvalidExamples(unittest.TestCase):
 
 
     def test_entity_missing_type(self):
-        # having mulitple type assertions in case of uncertainty is ok, but there must alsways be at
+        # having mulitple type assertions in case of uncertainty is ok, but there must always be at
         # least one type assertion
         g = aifutils.make_graph()
         system = aifutils.make_system_with_URI(g, "http://www.test.edu/testSytem")
@@ -28,7 +28,7 @@ class InvalidExamples(unittest.TestCase):
 
 
     def test_event_missing_type(self):
-        # having mulitple type assertions in case of uncertainty is ok, but there must alsways be at
+        # having mulitple type assertions in case of uncertainty is ok, but there must always be at
         # least one type assertion
         g = aifutils.make_graph()
         system = aifutils.make_system_with_URI(g, "http://www.test.edu/testSytem")

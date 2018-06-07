@@ -3,9 +3,9 @@ import sys
 sys.path.append('../')
 from io import BytesIO
 from rdflib import URIRef
-from Bounding_Box import Bounding_Box
+from aida_interchange.Bounding_Box import Bounding_Box
 from aida_interchange.aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY
-import aifutils
+from aida_interchange import aifutils
 
 
 # Running these tests will output the examples to the console

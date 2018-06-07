@@ -1,6 +1,11 @@
+import uuid
+from abc import ABCMeta, abstractmethod
+
 from rdflib import URIRef, RDF, Graph, BNode, Literal, XSD
-from aida_interchange.aida_rdf_ontologies import AIDA_ANNOTATION
+
+from aida_rdf_ontologies import AIDA_ANNOTATION
 from rdflib.plugins.sparql import prepareQuery
+
 
 
 def make_graph():
@@ -47,7 +52,7 @@ def make_entity(graph, entity_uri, system):
 
 
 def mark_type(g, type_assertion_uri, entity_or_event,
-              type, system, confidence):
+              _type, system, confidence):
     """
     Mark an entity or event as having a specified type.
 
@@ -57,7 +62,7 @@ def mark_type(g, type_assertion_uri, entity_or_event,
     g.add((type_assertion, RDF.type, RDF.Statement))
     g.add((type_assertion, RDF.subject, entity_or_event))
     g.add((type_assertion, RDF.predicate, RDF.type))
-    g.add((type_assertion, RDF['object'], type))
+    g.add((type_assertion, RDF['object'], _type))
     mark_system(g, type_assertion, system)
     mark_confidence(g, type_assertion, confidence, system)
     return type_assertion
@@ -70,6 +75,9 @@ def mark_text_justification(g, things_to_justify, doc_id, start_offset,
 
     :return: The text justification resource created.
     """
+    if isinstance(things_to_justify, URIRef):
+        things_to_justify = [things_to_justify]
+
     justification = BNode()
     g.add((justification, RDF.type, AIDA_ANNOTATION.TextJustification))
     g.add((justification, AIDA_ANNOTATION.source,
@@ -156,6 +164,9 @@ def mark_image_justification(g, things_to_justify, doc_id, boundingbox, system, 
 
     :return: The created image justification resource
     """
+    if isinstance(things_to_justify, URIRef):
+        things_to_justify = [things_to_justify]
+
     justification = BNode()
     g.add((justification, RDF.type, AIDA_ANNOTATION.ImageJustification))
     g.add((justification, AIDA_ANNOTATION.source,
@@ -191,6 +202,9 @@ def mark_audio_justification(g, things_to_justify, doc_id, start_timestamp, end_
     if start_timestamp > end_timestamp:
         raise RuntimeError("start_timestamp cannot be larger than end_timestamp")
 
+    if isinstance(things_to_justify, URIRef):
+        things_to_justify = [things_to_justify]
+
     justification = BNode()
     g.add((justification, RDF.type, AIDA_ANNOTATION.AudioJustification))
     g.add((justification, AIDA_ANNOTATION.source,
@@ -213,6 +227,9 @@ def mark_keyframe_video_justification(g, things_to_justify, doc_id, key_frame, b
 
     :return: The justification resource
     """
+    if isinstance(things_to_justify, URIRef):
+        things_to_justify = [things_to_justify]
+
     justification = BNode()
     g.add((justification, RDF.type, AIDA_ANNOTATION.KeyFrameVideoJustification))
     g.add((justification, AIDA_ANNOTATION.source,
@@ -246,6 +263,9 @@ def mark_shot_video_justification(g, things_to_justify, doc_id, shot_id, system,
 
     :return: The justification resource
     """
+    if isinstance(things_to_justify, URIRef):
+        things_to_justify = [things_to_justify]
+
     justification = BNode()
     g.add((justification, RDF.type, AIDA_ANNOTATION.ShotVideoJustification))
     g.add((justification, AIDA_ANNOTATION.source,
@@ -347,7 +367,6 @@ def mark_as_mutually_exclusive(g, alternatives, system, none_of_the_above_prob):
 
         alternative_graph = BNode()
         g.add((alternative_graph, RDF.type, AIDA_ANNOTATION.Subgraph))
-        print(alts[0])
         for alt in alts[0]:
             g.add((alternative_graph, AIDA_ANNOTATION.subgraphContains, alt))
 
