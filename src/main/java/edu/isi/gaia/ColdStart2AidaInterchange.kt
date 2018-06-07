@@ -310,6 +310,7 @@ fun main(args: Array<String>) {
     val inputKBFile = params.getExistingFile("inputKBFile").toPath()
     val baseUri = params.getString("baseURI")
     val systemUri = params.getString("systemURI")
+    val ontologyName = params.getString("ontology")
 
     // we can run in two modes
     // in one mode, we output one big RDF file for the whole KB. If we do that, we need to
@@ -366,6 +367,13 @@ fun main(args: Array<String>) {
         logger.info("Using default mention confidence $defaultMentionConfidence")
     }
 
+    //
+    val ontologyMappings: Map<String, OntologyMapping> = listOf(
+            "coldstart" to ColdStartOntology,
+            "seedling" to SeedlingOntology
+    ).toMap()
+    val ontologyMapping = ontologyMappings[ontologyName] ?: ColdStartOntology
+
 
     // we need to let the ColdStart KB loader itself know we are shattering by document so it
     // knows to eliminate the cross-document coreference links which have already been added by
@@ -380,7 +388,8 @@ fun main(args: Array<String>) {
             clusterIriGenerator = UuidIriGenerator("$baseUri/clusters"),
             useClustersForCoref = useClustersForCoref,
             restrictConfidencesToJustifications = restrictConfidencesToJustifications,
-            defaultMentionConfidence = defaultMentionConfidence)
+            defaultMentionConfidence = defaultMentionConfidence,
+            ontologyMapping = ontologyMapping)
 
     // this will track which assertions could not be converted. This is useful for debugging.
     // we pull this out into its own object instead of doing it inside the conversion method
