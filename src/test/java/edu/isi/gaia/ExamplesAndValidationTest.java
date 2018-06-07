@@ -162,7 +162,7 @@ public class ExamplesAndValidationTest {
 
       // whatever this place turns out to refer to, we're sure it's where they live
       makeRelation(model, "http://www.test.edu/relations/1", personEntity,
-          ColdStartOntology.relationType("cities_of_residence"),
+          ColdStartOntology.relationTypeJava("cities_of_residence"),
           uncertainPlaceOfBirthEntity, system, 1.0);
 
       // we use clusters to represent uncertainty about identity
@@ -203,7 +203,7 @@ public class ExamplesAndValidationTest {
       // mark the event as a Personnel.Elect event; type is encoded separately so we can express
       // uncertainty about type
       AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
-          ColdStartOntology.eventType("PERSONNEL.ELECT"), system, 1.0);
+          ColdStartOntology.eventTypeJava("PERSONNEL.ELECT"), system, 1.0);
 
       // create the two entities involved in the event
       final Resource electee = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
@@ -217,9 +217,9 @@ public class ExamplesAndValidationTest {
           ColdStartOntology.GPE, system, 1.0);
 
       // link those entities to the event
-      AIFUtils.markAsEventArgument(model, event, ColdStartOntology.eventArgumentType("Person"),
+      AIFUtils.markAsEventArgument(model, event, ColdStartOntology.eventArgumentTypeJava("Person"),
           electee, system, 0.785);
-      AIFUtils.markAsEventArgument(model, event, ColdStartOntology.eventArgumentType("Place"),
+      AIFUtils.markAsEventArgument(model, event, ColdStartOntology.eventArgumentTypeJava("Place"),
           electionCountry, system, 0.589);
 
       dumpAndAssertValid(model, "create an event");
@@ -296,7 +296,7 @@ public class ExamplesAndValidationTest {
       // mark the event as a Personnel.Elect event; type is encoded separately so we can express
       // uncertainty about type
       AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
-          ColdStartOntology.eventType("CONFLICT.ATTACK"), system, 1.0);
+          ColdStartOntology.eventTypeJava("CONFLICT.ATTACK"), system, 1.0);
 
       // create the two entities involved in the event
       final Resource bob = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
@@ -312,15 +312,15 @@ public class ExamplesAndValidationTest {
       // we link all possible argument fillers to the event
       final ImmutableSet<Resource> bobHitFredAssertions = ImmutableSet.of(
           AIFUtils.markAsEventArgument(model, event,
-              ColdStartOntology.eventArgumentType("Attacker"), bob, system, null),
+              ColdStartOntology.eventArgumentTypeJava("Attacker"), bob, system, null),
           AIFUtils.markAsEventArgument(model, event,
-              ColdStartOntology.eventArgumentType("Target"), fred, system, null));
+              ColdStartOntology.eventArgumentTypeJava("Target"), fred, system, null));
 
       final ImmutableSet<Resource> fredHitBobAssertions = ImmutableSet.of(
           AIFUtils.markAsEventArgument(model, event,
-              ColdStartOntology.eventArgumentType("Attacker"), fred, system, null),
+              ColdStartOntology.eventArgumentTypeJava("Attacker"), fred, system, null),
           AIFUtils.markAsEventArgument(model, event,
-              ColdStartOntology.eventArgumentType("Target"), bob, system, null));
+              ColdStartOntology.eventArgumentTypeJava("Target"), bob, system, null));
 
       // then we mark these as mutually exclusive
       // we also mark confidence 0.2 that neither of these are true
@@ -364,25 +364,25 @@ public class ExamplesAndValidationTest {
 
       // under the background hypothesis that Bob lives in Seattle, we believe he works for Amazon
       final Resource bobLivesInSeattle = makeRelation(model, "http://www.test.edu/relations/1",
-          bob, ColdStartOntology.relationType("cities_of_residence"),
+          bob, ColdStartOntology.relationTypeJava("cities_of_residence"),
           seattle, system, 1.0);
       final Resource bobLivesInSeattleHypothesis = makeHypothesis(model,
           "http://www.test.edu/hypotheses/1", ImmutableSet.of(bobLivesInSeattle),
           system);
       final Resource bobWorksForAmazon = makeRelation(model, "http://www.test.edu/relations/2",
-          bob, ColdStartOntology.relationType("employee_or_member_of"),
+          bob, ColdStartOntology.relationTypeJava("employee_or_member_of"),
           amazon, system, 1.0);
       markDependsOnHypothesis(bobWorksForAmazon, bobLivesInSeattleHypothesis);
 
       // under the background hypothesis that Bob lives in California, we believe he works for Google
       final Resource bobLivesInCalifornia = makeRelation(model, "http://www.test.edu/relations/3",
-          bob, ColdStartOntology.relationType("cities_of_residence"),
+          bob, ColdStartOntology.relationTypeJava("cities_of_residence"),
           california, system, 1.0);
       final Resource bobLivesInCaliforniaHypothesis = makeHypothesis(model,
           "http://www.test.edu/hypotheses/2", ImmutableSet.of(bobLivesInCalifornia),
           system);
       final Resource bobWorksForGoogle = makeRelation(model, "http://www.test.edu/relations/4",
-          bob, ColdStartOntology.relationType("employee_or_member_of"),
+          bob, ColdStartOntology.relationTypeJava("employee_or_member_of"),
           google, system, 1.0);
       markDependsOnHypothesis(bobWorksForGoogle, bobLivesInCaliforniaHypothesis);
 

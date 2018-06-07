@@ -114,4 +114,13 @@ object ColdStartOntology : OntologyMapping {
                     "and event types: ${EVENT_AND_RELATION_TYPES.keys}")
 
     override fun eventArgumentType(argName: String): Resource = ontologizeEventType(argName)
+
+    @JvmStatic
+    fun relationTypeJava(relationName: String): Resource = relationType(relationName)
+
+    @JvmStatic
+    fun eventTypeJava(eventName: String): Resource = eventType(eventName)
+
+    @JvmStatic
+    fun eventArgumentTypeJava(argName: String): Resource = eventArgumentType(argName)
 }
