@@ -42,7 +42,8 @@ class ColdStart2AidaInterchangeConverter(
         val clusterIriGenerator: IriGenerator = UuidIriGenerator(),
         val useClustersForCoref: Boolean = false,
         val restrictConfidencesToJustifications: Boolean = false,
-        val defaultMentionConfidence: Double? = null) {
+        val defaultMentionConfidence: Double? = null,
+        val ontologyMapping: OntologyMapping = ColdStartOntology) {
     companion object : KLogging()
 
     /**
@@ -94,26 +95,6 @@ class ColdStart2AidaInterchangeConverter(
         }
 
         // converts a ColdStart ontology type to a corresponding RDF identifier
-        fun toOntologyType(ontology_type: String): Resource {
-            // can't go in the when statement because it has an arbitrary boolean condition
-            // this handles ColdStart event arguments
-            if (':' in ontology_type) {
-                return ColdStartOntology.eventType(ontology_type)
-            }
-
-            return when (ontology_type) {
-                "PER" -> ColdStartOntology.PERSON
-                "ORG" -> ColdStartOntology.ORGANIZATION
-                "LOC" -> ColdStartOntology.LOCATION
-                "FAC" -> ColdStartOntology.FACILITY
-                "GPE" -> ColdStartOntology.GPE
-                "STRING", "String" -> ColdStartOntology.STRING
-                in ColdStartOntology.EVENT_AND_RELATION_TYPES.keys ->
-                    ColdStartOntology.EVENT_AND_RELATION_TYPES.getValue(ontology_type)
-                else -> throw RuntimeException("Unknown ontology type $ontology_type")
-            }
-        }
-
         fun toRealisType(realis: Realis) = when (realis) {
             Realis.actual -> ColdStartOntology.ACTUAL
             Realis.generic -> ColdStartOntology.GENERIC
@@ -126,7 +107,7 @@ class ColdStart2AidaInterchangeConverter(
 
         fun translateTypeAssertion(cs_assertion: TypeAssertion, confidence: Double?): Boolean {
             val entityOrEvent = toResource(cs_assertion.subject)
-            val ontology_type = toOntologyType(cs_assertion.type)
+            val ontology_type = ontologyMapping.shortNameToResource(cs_assertion.type)
 
             AIFUtils.markType(model, assertionIriGenerator.nextIri(), entityOrEvent,
                     ontology_type, systemNode, confidence)
