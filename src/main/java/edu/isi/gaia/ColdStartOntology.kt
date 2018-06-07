@@ -8,7 +8,7 @@ import org.apache.jena.rdf.model.ResourceFactory
  *
  * For the moment, this is hard-coded to match ColdStart.
  */
-object ColdStartOntology {
+object ColdStartOntology : Ontology {
     @JvmField
     val NAMESPACE: String = "http://nist.gov/ontologies/ColdstartOntology#"
 
@@ -85,26 +85,6 @@ object ColdStartOntology {
         ResourceFactory.createResource(NAMESPACE + eventType)
     })
 
-    @JvmStatic
-    fun relationType(relationName: String): Resource = EVENT_AND_RELATION_TYPES[relationName]
-            ?: throw NoSuchElementException("Unknown relation type: $relationName. Known relation " +
-                    "and event types ${EVENT_AND_RELATION_TYPES.keys}")
-
-    @JvmStatic
-    fun eventType(eventName: String): Resource = EVENT_AND_RELATION_TYPES[eventName]
-            ?: throw NoSuchElementException("Unknown event type: $eventName. Known relation " +
-                    "and event types: ${EVENT_AND_RELATION_TYPES.keys}")
-
-    @JvmStatic
-    fun eventArgumentType(argName: String): Resource = ontologizeEventType(argName)
-
-}
-
-object ColdStartOntologyAdapter : Ontology {
-    private val ontologizeEventType: (String) -> Resource = OntoMemoize({ eventType: String ->
-        ResourceFactory.createResource(ColdStartOntology.NAMESPACE + eventType)
-    })
-
     override fun shortNameToResource(ontology_type: String): Resource {
         // can't go in the when statement because it has an arbitrary boolean condition
         // this handles ColdStart event arguments
@@ -125,13 +105,13 @@ object ColdStartOntologyAdapter : Ontology {
         }
     }
 
-    override fun relationType(relationName: String): Resource = ColdStartOntology.EVENT_AND_RELATION_TYPES[relationName]
-        ?: throw NoSuchElementException("Unknown relation type: $relationName. Known relation " +
-                "and event types ${ColdStartOntology.EVENT_AND_RELATION_TYPES.keys}")
+    override fun relationType(relationName: String): Resource = EVENT_AND_RELATION_TYPES[relationName]
+            ?: throw NoSuchElementException("Unknown relation type: $relationName. Known relation " +
+                    "and event types ${EVENT_AND_RELATION_TYPES.keys}")
 
-    override fun eventType(eventName: String): Resource = ColdStartOntology.EVENT_AND_RELATION_TYPES[eventName]
-        ?: throw NoSuchElementException("Unknown event type: $eventName. Known relation " +
-                "and event types: ${ColdStartOntology.EVENT_AND_RELATION_TYPES.keys}")
+    override fun eventType(eventName: String): Resource = EVENT_AND_RELATION_TYPES[eventName]
+            ?: throw NoSuchElementException("Unknown event type: $eventName. Known relation " +
+                    "and event types: ${EVENT_AND_RELATION_TYPES.keys}")
 
     override fun eventArgumentType(argName: String): Resource = ontologizeEventType(argName)
 }
