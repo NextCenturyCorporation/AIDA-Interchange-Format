@@ -167,7 +167,8 @@ data class ColdStartKB(val assertionsToConfidence: Map<Assertion, Double>,
 
 typealias MaybeScoredAssertion = Pair<Assertion, Double?>
 
-class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
+class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false,
+                        val ontologyMapping: OntologyMapping = ColdStartOntologyMapper) {
     /**
      * Loads a TAC KBP 2017 ColdStart++ knowledge-base into a [ColdStartKB]
      *
@@ -193,7 +194,10 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
 
         val _JUSTIFICATION_PAT = Regex("""^(.+):(\d+)-(\d+)$""")
         val _SPAN_PAT = Regex("""(\d+)-(\d+)""")
-        val _ASSERTION_PAT = Regex("""^(?:per|org|gpe|loc|fac|PER|ORG|GPE|LOC|FAC)?:?(.+?)\.?(other|generic|actual)?$""")
+        val _ENTITY_TYPES: String = (ontologyMapping.entityShortNames().map { it.toLowerCase() } +
+                ontologyMapping.entityShortNames().map { it.toUpperCase() })
+                .toList().joinToString(separator="|")
+        val _ASSERTION_PAT = Regex("""^(?:$_ENTITY_TYPES)?:?(.+?)\.?(other|generic|actual)?$""")
 
         val idToNode: MutableMap<String, Node> = HashMap()
         // if `breakCrossDocCoref` is false, this will match `idToNode` exactly

@@ -15,6 +15,7 @@ class OntoMemoize<in Arg, out Result>(val f: (Arg) -> Result) : (Arg) -> Result 
  */
 interface OntologyMapping {
     val NAMESPACE: String
+    fun entityShortNames(): Set<String>
     fun shortNameToResource(ontology_type: String): Resource
 
     fun relationType(relationName: String): Resource

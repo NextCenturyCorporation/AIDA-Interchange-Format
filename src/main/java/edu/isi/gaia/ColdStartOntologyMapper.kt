@@ -86,6 +86,16 @@ object ColdStartOntologyMapper : OntologyMapping {
         ResourceFactory.createResource(NAMESPACE + eventType)
     })
 
+    internal val shortNames: Map<String, Resource> = listOf(
+            "PER" to PERSON,
+            "ORG" to ORGANIZATION,
+            "LOC" to LOCATION,
+            "FAC" to FACILITY,
+            "GPE" to GPE
+    ).toMap()
+
+    override fun entityShortNames(): Set<String> = shortNames.keys
+
     override fun shortNameToResource(ontology_type: String): Resource {
         // can't go in the when statement because it has an arbitrary boolean condition
         // this handles ColdStart event arguments
@@ -94,14 +104,9 @@ object ColdStartOntologyMapper : OntologyMapping {
         }
 
         return when (ontology_type) {
-            "PER" -> PERSON
-            "ORG" -> ORGANIZATION
-            "LOC" -> LOCATION
-            "FAC" -> FACILITY
-            "GPE" -> GPE
             "STRING", "String" -> STRING
             in EVENT_AND_RELATION_TYPES.keys -> EVENT_AND_RELATION_TYPES.getValue(ontology_type)
-            else -> throw RuntimeException("Unknown ontology type $ontology_type")
+            else -> shortNames[ontology_type] ?: throw RuntimeException("Unknown ontology type $ontology_type")
         }
     }
 

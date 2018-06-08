@@ -379,7 +379,8 @@ fun main(args: Array<String>) {
     // we need to let the ColdStart KB loader itself know we are shattering by document so it
     // knows to eliminate the cross-document coreference links which have already been added by
     // the ColdStart system
-    val coldstartKB = ColdStartKBLoader(breakCrossDocCoref = breakCrossDocCoref).load(inputKBFile)
+    val coldstartKB = ColdStartKBLoader(breakCrossDocCoref = breakCrossDocCoref,
+            ontologyMapping = ontologyMapping).load(inputKBFile)
 
     val converter = ColdStart2AidaInterchangeConverter(
             entityIriGenerator = UuidIriGenerator("$baseUri/entities"),
