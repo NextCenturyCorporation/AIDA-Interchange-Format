@@ -198,7 +198,7 @@ class ColdStart2AidaInterchangeConverter(
         fun translateRelation(csAssertion: RelationAssertion, confidence: Double): Boolean {
             AIFUtils.makeRelation(model, assertionIriGenerator.nextIri(),
                     toResource(csAssertion.subject),
-                    ColdStartOntology.relationType(csAssertion.relationType),
+                    ontologyMapping.relationType(csAssertion.relationType),
                     toResource(csAssertion.obj), systemNode, confidence)
             return true
         }
@@ -229,7 +229,7 @@ class ColdStart2AidaInterchangeConverter(
             val filler = toResource(csAssertion.argument)
 
             val argAssertion = AIFUtils.markAsEventArgument(model, event,
-                    ColdStartOntology.eventArgumentType(csAssertion.argument_role),
+                    ontologyMapping.eventArgumentType(csAssertion.argument_role),
                     filler, systemNode, confidence)
 
             registerJustifications(argAssertion, csAssertion.justifications, null, confidence)
