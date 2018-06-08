@@ -300,7 +300,6 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false,
             val isFiller: Boolean = rawCSSubjectID.startsWith(":Filler")
             val trueType: String = if (isFiller) "STRING" else fields[_TYPE_STRING]
 
-            // val mention_string = if (!isFiller && fields[]) fields[_OBJ_STRING].trim('"') else "String"
             return subjectNodes.map { MaybeScoredAssertion(TypeAssertion(it, trueType), null) }
         }
 
