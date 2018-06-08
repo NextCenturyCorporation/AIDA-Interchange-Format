@@ -296,6 +296,7 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false,
             val subjectNodes = rawCSIdToNodes!!.get(rawCSSubjectID)
             check(subjectNodes.isNotEmpty())
 
+            // NOTE: This is a hack to support performers who can't yet type fillers.
             val isFiller: Boolean = rawCSSubjectID.startsWith(":Filler")
             val trueType: String = if (isFiller) "STRING" else fields[_TYPE_STRING]
 
