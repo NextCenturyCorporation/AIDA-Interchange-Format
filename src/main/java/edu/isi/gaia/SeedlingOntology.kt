@@ -23,6 +23,8 @@ object SeedlingOntology : OntologyMapping {
     @JvmField
     val FACILITY = ResourceFactory.createResource(NAMESPACE + "Facility")!!
     @JvmField
+    val FILLER = ResourceFactory.createResource(NAMESPACE + "Filler")!!
+    @JvmField
     val STRING = ResourceFactory.createResource(NAMESPACE + "String")!!
 
     @JvmField
@@ -60,7 +62,7 @@ object SeedlingOntology : OntologyMapping {
             "political_religious_affiliation", "age", "number_of_employees_members",
             "origin", "date_founded", "date_of_death", "date_dissolved",
             "cause_of_death", "website", "title", "religion", "charges",
-            // needed to read RPI ColdStart output
+            // needed to read RPI Seedling output
             "BUSINESS_DECLARE-BANKRUPTCY", "BUSINESS_END-BUSINESS",
             "BUSINESS_MERGE", "BUSINESS_START-BUSINESS", "JUSTICE_ACQUIT",
             "JUSTICE_APPEAL", "JUSTICE_CHARGE-INDICT", "JUSTICE_CONVICT", "JUSTICE_EXECUTE",
@@ -82,20 +84,21 @@ object SeedlingOntology : OntologyMapping {
 
     override fun shortNameToResource(ontology_type: String): Resource {
         // can't go in the when statement because it has an arbitrary boolean condition
-        // this handles ColdStart event arguments
+        // this handles Seedling event arguments
         if (':' in ontology_type) {
-            return ColdStartOntology.eventType(ontology_type)
+            return SeedlingOntology.eventType(ontology_type)
         }
 
         return when (ontology_type) {
-            "PER" -> ColdStartOntology.PERSON
-            "ORG" -> ColdStartOntology.ORGANIZATION
-            "LOC" -> ColdStartOntology.LOCATION
-            "FAC" -> ColdStartOntology.FACILITY
-            "GPE" -> ColdStartOntology.GPE
-            "STRING", "String" -> ColdStartOntology.STRING
-            in ColdStartOntology.EVENT_AND_RELATION_TYPES.keys ->
-                ColdStartOntology.EVENT_AND_RELATION_TYPES.getValue(ontology_type)
+            "PER" -> SeedlingOntology.PERSON
+            "ORG" -> SeedlingOntology.ORGANIZATION
+            "LOC" -> SeedlingOntology.LOCATION
+            "FAC" -> SeedlingOntology.FACILITY
+            "GPE" -> SeedlingOntology.GPE
+            "FILLER" -> SeedlingOntology.FILLER
+            "STRING", "String" -> SeedlingOntology.STRING
+            in SeedlingOntology.EVENT_AND_RELATION_TYPES.keys ->
+                SeedlingOntology.EVENT_AND_RELATION_TYPES.getValue(ontology_type)
             else -> throw RuntimeException("Unknown ontology type $ontology_type")
         }
     }
