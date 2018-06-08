@@ -9,8 +9,7 @@ import org.apache.jena.rdf.model.ResourceFactory
  * For the moment, this is hard-coded to match Seedling.
  */
 object SeedlingOntologyMapper : OntologyMapping {
-    @JvmField
-    val NAMESPACE: String = "http://darpa.mil/ontologies/SeedlingOntology/"
+    override val NAMESPACE: String = "http://darpa.mil/ontologies/SeedlingOntology/"
 
     @JvmField
     val PERSON = ResourceFactory.createResource(NAMESPACE + "Person")!!
@@ -126,7 +125,7 @@ object SeedlingOntologyMapper : OntologyMapping {
 }
 
 object RPISeedlingOntologyMapper : OntologyMapping {
-    val NAMESPACE: String = SeedlingOntologyMapper.NAMESPACE
+    override val NAMESPACE: String = SeedlingOntologyMapper.NAMESPACE
     val FILLER = ResourceFactory.createResource(NAMESPACE + "FillerType")!!
 
     override fun shortNameToResource(ontology_type: String): Resource = if (ontology_type == "FILLER") FILLER

@@ -284,8 +284,7 @@ class ColdStart2AidaInterchangeConverter(
             model.setNsPrefix("rdf", RDF.uri)
             model.setNsPrefix("xsd", XSD.getURI())
             model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE)
-            // NOTE: Do I need to change this when the ontology is seedling? I expect I do.
-            model.setNsPrefix("aidaProgramOntology", ColdStartOntologyMapper.NAMESPACE)
+            model.setNsPrefix("aidaProgramOntology", ontologyMapping.NAMESPACE)
             model.setNsPrefix("skos", SKOS.uri)
         }
     }

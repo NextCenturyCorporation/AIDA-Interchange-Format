@@ -9,8 +9,9 @@ import org.apache.jena.rdf.model.ResourceFactory
  * For the moment, this is hard-coded to match ColdStart.
  */
 object ColdStartOntologyMapper : OntologyMapping {
+    override val NAMESPACE: String = "http://nist.gov/ontologies/ColdstartOntology#"
     @JvmField
-    val NAMESPACE: String = "http://nist.gov/ontologies/ColdstartOntology#"
+    val NAMESPACE_JAVA: String = NAMESPACE
 
     @JvmField
     val PERSON = ResourceFactory.createResource(NAMESPACE + "Person")!!

@@ -518,7 +518,7 @@ public class ExamplesAndValidationTest {
     model.setNsPrefix("rdf", RDF.uri);
     model.setNsPrefix("xsd", XSD.getURI());
     model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
-    model.setNsPrefix("coldstart", ColdStartOntologyMapper.NAMESPACE);
+    model.setNsPrefix("coldstart", ColdStartOntologyMapper.NAMESPACE_JAVA);
     model.setNsPrefix("skos", SKOS.uri);
     return model;
   }
