@@ -310,7 +310,7 @@ fun main(args: Array<String>) {
     val inputKBFile = params.getExistingFile("inputKBFile").toPath()
     val baseUri = params.getString("baseURI")
     val systemUri = params.getString("systemURI")
-    val ontologyName = params.getString("ontology")
+    val ontologyName: String = params.getOptionalString("ontology").or("coldstart")
 
     // we can run in two modes
     // in one mode, we output one big RDF file for the whole KB. If we do that, we need to
