@@ -193,7 +193,7 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
 
         val _JUSTIFICATION_PAT = Regex("""^(.+):(\d+)-(\d+)$""")
         val _SPAN_PAT = Regex("""(\d+)-(\d+)""")
-        val _ASSERTION_PAT = Regex("""^(?:per|org|gpe|loc|fac)?:?(.+?)\.?(other|generic|actual)?$""")
+        val _ASSERTION_PAT = Regex("""^(?:per|org|gpe|loc|fac|PER|ORG|GPE|LOC|FAC)?:?(.+?)\.?(other|generic|actual)?$""")
 
         val idToNode: MutableMap<String, Node> = HashMap()
         // if `breakCrossDocCoref` is false, this will match `idToNode` exactly

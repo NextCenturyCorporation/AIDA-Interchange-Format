@@ -66,18 +66,13 @@ object SeedlingOntologyMapper : OntologyMapping {
             "JUSTICE.EXTRADITE", "JUSTICE.FINE", "JUSTICE.RELEASE-PAROLE", "JUSTICE.SENTENCE",
             "JUSTICE.SUE", "JUSTICE.TRIAL-HEARING", "LIFE.BE-BORN", "LIFE.MARRY", "LIFE.DIVORCE",
             "PERSONNEL.NOMINATE", "likes", "dislikes",
-            "GPE:PART-WHOLE.Geographical", "LOC:PHYS.Near", "GPE:ORG-AFF.Membership", "PER:PER-SOC.Business",
-            "PER:PHYS.Located", "GPE:ORG-AFF.Employment", "FAC:GEN-AFF.Org-Location", "GPE:PER-SOC.Business",
-            "PER:ORG-AFF.Employment", "LOC:GEN-AFF.Citizen-Resident-Religion-Ethnicity", "ORG:GEN-AFF.Org-Location",
-            "GPE:PART-WHOLE.Subsidiary", "FAC:PART-WHOLE.Geographical", "PER:ORG-AFF.Membership", "LOC:ORG-AFF.Employment",
-            "GPE:GEN-AFF.Citizen-Resident-Religion-Ethnicity", "LOC:PHYS.Located", "ORG:PART-WHOLE.Subsidiary",
-            "PER:GEN-AFF.Citizen-Resident-Religion-Ethnicity", "PER:ORG-AFF.Ownership", "GPE:PHYS.Located",
-            "LOC:ORG-AFF.Membership", "GPE:GEN-AFF.Org-Location", "ORG:ORG-AFF.Membership", "GPE:ORG-AFF.Founder",
-            "FAC:PHYS.Located", "FAC:ORG-AFF.Membership", "PER:PER-SOC.Lasting-Personal", "ORG:ORG-AFF.Employment",
-            "ORG:PER-SOC.Business", "PER:PER-SOC.Family", "GPE:ORG-AFF.Ownership", "ORG:PHYS.Located",
-            "LOC:PART-WHOLE.Geographical", "FAC:PER-SOC.Business", "GPE:PART-WHOLE.Artifact",
-            "PER:PART-WHOLE.Geographical", "ORG:PART-WHOLE.Geographical", "GPE:PHYS.Near",
-            "PER:ORG-AFF.Sports-Affiliation", "GPE:PER-SOC.Family", "ORG:ORG-AFF.Investor-Shareholder"
+            "PART-WHOLE.Geographical",
+            "PHYS.Located", "PHYS.Near",
+            "ORG-AFF.Employment", "ORG-AFF.Founder", "ORG-AFF.Sports-Affiliation", "ORG-AFF.Investor-Shareholder",
+            "ORG-AFF.Membership", "ORG-AFF.Ownership",
+            "GEN-AFF.Org-Location", "GEN-AFF.Citizen-Resident-Religion-Ethnicity",
+            "PART-WHOLE.Subsidiary", "PART-WHOLE.Artifact",
+            "PER-SOC.Lasting-Personal", "PER-SOC.Family", "PER-SOC.Business"
     )
             .map { it to ResourceFactory.createResource(NAMESPACE + it) }
             .toMap()
