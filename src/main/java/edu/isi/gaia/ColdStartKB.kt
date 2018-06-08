@@ -167,7 +167,8 @@ data class ColdStartKB(val assertionsToConfidence: Map<Assertion, Double>,
 
 typealias MaybeScoredAssertion = Pair<Assertion, Double?>
 
-class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
+class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false,
+                        val ontologyMapping: OntologyMapping = ColdStartOntologyMapper()) {
     /**
      * Loads a TAC KBP 2017 ColdStart++ knowledge-base into a [ColdStartKB]
      *
@@ -193,7 +194,10 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
 
         val _JUSTIFICATION_PAT = Regex("""^(.+):(\d+)-(\d+)$""")
         val _SPAN_PAT = Regex("""(\d+)-(\d+)""")
-        val _ASSERTION_PAT = Regex("""^(?:per|org|gpe|loc|fac)?:?(.+?)\.?(other|generic|actual)?$""")
+        val _ENTITY_TYPES: String = (ontologyMapping.entityShortNames().map { it.toLowerCase() } +
+                ontologyMapping.entityShortNames().map { it.toUpperCase() })
+                .toList().joinToString(separator="|")
+        val _ASSERTION_PAT = Regex("""^(?:$_ENTITY_TYPES)?:?(.+?)\.?(other|generic|actual)?$""")
 
         val idToNode: MutableMap<String, Node> = HashMap()
         // if `breakCrossDocCoref` is false, this will match `idToNode` exactly
@@ -291,7 +295,12 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
             checkNotNull(rawCSIdToNodes)
             val subjectNodes = rawCSIdToNodes!!.get(rawCSSubjectID)
             check(subjectNodes.isNotEmpty())
-            return subjectNodes.map { MaybeScoredAssertion(TypeAssertion(it, fields[_TYPE_STRING]), null) }
+
+            // NOTE: This is a hack to support performers who can't yet type fillers.
+            val isFiller: Boolean = rawCSSubjectID.startsWith(":Filler")
+            val trueType: String = if (isFiller) "STRING" else fields[_TYPE_STRING]
+
+            return subjectNodes.map { MaybeScoredAssertion(TypeAssertion(it, trueType), null) }
         }
 
         private fun parseLinkAssertion(fields: List<String>): Collection<MaybeScoredAssertion> {
@@ -501,6 +510,7 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
 
             val created = when {
                 trueNodeName.startsWith(":Entity") -> EntityNode()
+                trueNodeName.startsWith(":Filler") -> EntityNode()
                 trueNodeName.startsWith(":Event") -> EventNode()
                 trueNodeName.startsWith(":String") -> StringNode()
                 else -> throw IOException("Unknown node type for node name $nodeName")
