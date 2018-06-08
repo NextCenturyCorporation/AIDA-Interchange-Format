@@ -22,22 +22,21 @@ object SeedlingOntology : OntologyMapping {
     val GPE = ResourceFactory.createResource(NAMESPACE + "GeopoliticalEntity")!!
     @JvmField
     val FACILITY = ResourceFactory.createResource(NAMESPACE + "Facility")!!
-    @JvmField
-    val FILLER = ResourceFactory.createResource(NAMESPACE + "Filler")!!
+    val FILLER = ResourceFactory.createResource(NAMESPACE + "FillerType")!!
     @JvmField
     val STRING = ResourceFactory.createResource(NAMESPACE + "String")!!
 
     @JvmField
     val ENTITY_TYPES = setOf(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY)
 
-    internal val EVENT_AND_RELATION_TYPES = listOf("CONFLICT_ATTACK", "CONFLICT_DEMONSTRATE",
-            "CONTACT_BROADCAST", "CONTACT_CONTACT", "CONTACT_CORRESPONDENCE", "CONTACT_MEET",
-            "JUSTICE_ARREST-JAIL",
-            "LIFE_DIE", "LIFE_INJURE", "MANUFACTURE_ARTIFACT",
-            "MOVEMENT_TRANSPORT-ARTIFACT",
-            "MOVEMENT_TRANSPORT-PERSON", "PERSONNEL_ELECT", "PERSONNEL_END-PERSONNEL",
-            "PERSONNEL_START-PERSONNEL", "TRANSACTION_TRANSACTION", "TRANSACTION_TRANSFER-MONEY",
-            "TRANSACTION_TRANSFER-OWNERSHIP", "children", "parents", "other_family", "other_family",
+    internal val EVENT_AND_RELATION_TYPES = listOf("CONFLICT.ATTACK", "CONFLICT.DEMONSTRATE",
+            "CONTACT.BROADCAST", "CONTACT.CONTACT", "CONTACT.CORRESPONDENCE", "CONTACT.MEET",
+            "JUSTICE.ARREST-JAIL",
+            "LIFE.DIE", "LIFE.INJURE", "MANUFACTURE.ARTIFACT",
+            "MOVEMENT.TRANSPORT-ARTIFACT",
+            "MOVEMENT.TRANSPORT-PERSON", "PERSONNEL.ELECT", "PERSONNEL.END-POSITION",
+            "PERSONNEL.START-POSITION", "TRANSACTION.TRANSACTION", "TRANSACTION.TRANSFER-MONEY",
+            "TRANSACTION.TRANSFER-OWNERSHIP", "children", "parents", "other_family", "other_family",
             "parents", "children", "siblings", "siblings", "spouse", "spouse",
             "employee_or_member_of", "employees_or_members", "schools_attended", "students",
             "city_of_birth", "births_in_city", "stateorprovince_of_birth",
@@ -63,12 +62,25 @@ object SeedlingOntology : OntologyMapping {
             "origin", "date_founded", "date_of_death", "date_dissolved",
             "cause_of_death", "website", "title", "religion", "charges",
             // needed to read RPI Seedling output
-            "BUSINESS_DECLARE-BANKRUPTCY", "BUSINESS_END-BUSINESS",
-            "BUSINESS_MERGE", "BUSINESS_START-BUSINESS", "JUSTICE_ACQUIT",
-            "JUSTICE_APPEAL", "JUSTICE_CHARGE-INDICT", "JUSTICE_CONVICT", "JUSTICE_EXECUTE",
-            "JUSTICE_EXTRADITE", "JUSTICE_FINE", "JUSTICE_RELEASE-PAROLE", "JUSTICE_SENTENCE",
-            "JUSTICE_SUE", "JUSTICE_TRIAL-HEARING", "LIFE_BE-BORN", "LIFE_MARRY", "LIFE_DIVORCE",
-            "PERSONNEL_NOMINATE", "likes", "dislikes")
+            "CONTACT.PHONE-WRITE", "BUSINESS.DECLARE-BANKRUPTCY", "BUSINESS.END-ORG",
+            "BUSINESS.MERGE-ORG", "BUSINESS.START-ORG", "MOVEMENT.TRANSPORT", "JUSTICE.ACQUIT",
+            "JUSTICE.APPEAL", "JUSTICE.CHARGE-INDICT", "JUSTICE.CONVICT", "JUSTICE.EXECUTE",
+            "JUSTICE.EXTRADITE", "JUSTICE.FINE", "JUSTICE.RELEASE-PAROLE", "JUSTICE.SENTENCE",
+            "JUSTICE.SUE", "JUSTICE.TRIAL-HEARING", "LIFE.BE-BORN", "LIFE.MARRY", "LIFE.DIVORCE",
+            "PERSONNEL.NOMINATE", "likes", "dislikes",
+            "GPE:PART-WHOLE.Geographical", "LOC:PHYS.Near", "GPE:ORG-AFF.Membership", "PER:PER-SOC.Business",
+            "PER:PHYS.Located", "GPE:ORG-AFF.Employment", "FAC:GEN-AFF.Org-Location", "GPE:PER-SOC.Business",
+            "PER:ORG-AFF.Employment", "LOC:GEN-AFF.Citizen-Resident-Religion-Ethnicity", "ORG:GEN-AFF.Org-Location",
+            "GPE:PART-WHOLE.Subsidiary", "FAC:PART-WHOLE.Geographical", "PER:ORG-AFF.Membership", "LOC:ORG-AFF.Employment",
+            "GPE:GEN-AFF.Citizen-Resident-Religion-Ethnicity", "LOC:PHYS.Located", "ORG:PART-WHOLE.Subsidiary",
+            "PER:GEN-AFF.Citizen-Resident-Religion-Ethnicity", "PER:ORG-AFF.Ownership", "GPE:PHYS.Located",
+            "LOC:ORG-AFF.Membership", "GPE:GEN-AFF.Org-Location", "ORG:ORG-AFF.Membership", "GPE:ORG-AFF.Founder",
+            "FAC:PHYS.Located", "FAC:ORG-AFF.Membership", "PER:PER-SOC.Lasting-Personal", "ORG:ORG-AFF.Employment",
+            "ORG:PER-SOC.Business", "PER:PER-SOC.Family", "GPE:ORG-AFF.Ownership", "ORG:PHYS.Located",
+            "LOC:PART-WHOLE.Geographical", "FAC:PER-SOC.Business", "GPE:PART-WHOLE.Artifact",
+            "PER:PART-WHOLE.Geographical", "ORG:PART-WHOLE.Geographical", "GPE:PHYS.Near",
+            "PER:ORG-AFF.Sports-Affiliation", "GPE:PER-SOC.Family", "ORG:ORG-AFF.Investor-Shareholder"
+    )
             .map { it to ResourceFactory.createResource(NAMESPACE + it) }
             .toMap()
 
@@ -103,9 +115,10 @@ object SeedlingOntology : OntologyMapping {
         }
     }
 
-    override fun relationType(relationName: String): Resource = EVENT_AND_RELATION_TYPES[relationName]
+    override fun relationType(relationName: String): Resource = if ("FILLER" in relationName) FILLER
+    else (EVENT_AND_RELATION_TYPES[relationName]
             ?: throw NoSuchElementException("Unknown relation type: $relationName. Known relation " +
-                    "and event types ${EVENT_AND_RELATION_TYPES.keys}")
+                    "and event types ${EVENT_AND_RELATION_TYPES.keys}"))
 
     override fun eventType(eventName: String): Resource = EVENT_AND_RELATION_TYPES[eventName]
             ?: throw NoSuchElementException("Unknown event type: $eventName. Known relation " +
