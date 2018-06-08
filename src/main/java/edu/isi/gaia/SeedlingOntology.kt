@@ -22,7 +22,6 @@ object SeedlingOntology : OntologyMapping {
     val GPE = ResourceFactory.createResource(NAMESPACE + "GeopoliticalEntity")!!
     @JvmField
     val FACILITY = ResourceFactory.createResource(NAMESPACE + "Facility")!!
-    val FILLER = ResourceFactory.createResource(NAMESPACE + "FillerType")!!
     @JvmField
     val STRING = ResourceFactory.createResource(NAMESPACE + "String")!!
 
@@ -107,7 +106,6 @@ object SeedlingOntology : OntologyMapping {
             "LOC" -> SeedlingOntology.LOCATION
             "FAC" -> SeedlingOntology.FACILITY
             "GPE" -> SeedlingOntology.GPE
-            "FILLER" -> SeedlingOntology.FILLER
             "STRING", "String" -> SeedlingOntology.STRING
             in SeedlingOntology.EVENT_AND_RELATION_TYPES.keys ->
                 SeedlingOntology.EVENT_AND_RELATION_TYPES.getValue(ontology_type)
@@ -115,10 +113,9 @@ object SeedlingOntology : OntologyMapping {
         }
     }
 
-    override fun relationType(relationName: String): Resource = if ("FILLER" in relationName) FILLER
-    else (EVENT_AND_RELATION_TYPES[relationName]
+    override fun relationType(relationName: String): Resource = EVENT_AND_RELATION_TYPES[relationName]
             ?: throw NoSuchElementException("Unknown relation type: $relationName. Known relation " +
-                    "and event types ${EVENT_AND_RELATION_TYPES.keys}"))
+                    "and event types ${EVENT_AND_RELATION_TYPES.keys}")
 
     override fun eventType(eventName: String): Resource = EVENT_AND_RELATION_TYPES[eventName]
             ?: throw NoSuchElementException("Unknown event type: $eventName. Known relation " +
@@ -126,4 +123,19 @@ object SeedlingOntology : OntologyMapping {
 
     override fun eventArgumentType(argName: String): Resource = ontologizeEventType(argName)
 
+}
+
+object RPISeedlingOntologyMapper : OntologyMapping {
+    val NAMESPACE: String = SeedlingOntology.NAMESPACE
+    val FILLER = ResourceFactory.createResource(NAMESPACE + "FillerType")!!
+
+    override fun shortNameToResource(ontology_type: String): Resource = if (ontology_type == "FILLER") FILLER
+    else SeedlingOntology.shortNameToResource(ontology_type)
+
+    override fun relationType(relationName: String): Resource = if ("FILLER" in relationName) FILLER
+    else SeedlingOntology.relationType(relationName)
+
+    override fun eventType(eventName: String): Resource = SeedlingOntology.eventType(eventName)
+
+    override fun eventArgumentType(argName: String): Resource = SeedlingOntology.eventArgumentType(argName)
 }
