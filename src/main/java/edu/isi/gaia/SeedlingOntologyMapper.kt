@@ -96,18 +96,18 @@ object SeedlingOntologyMapper : OntologyMapping {
         // can't go in the when statement because it has an arbitrary boolean condition
         // this handles Seedling event arguments
         if (':' in ontology_type) {
-            return SeedlingOntologyMapper.eventType(ontology_type)
+            return eventType(ontology_type)
         }
 
         return when (ontology_type) {
-            "PER" -> SeedlingOntologyMapper.PERSON
-            "ORG" -> SeedlingOntologyMapper.ORGANIZATION
-            "LOC" -> SeedlingOntologyMapper.LOCATION
-            "FAC" -> SeedlingOntologyMapper.FACILITY
-            "GPE" -> SeedlingOntologyMapper.GPE
-            "STRING", "String" -> SeedlingOntologyMapper.STRING
-            in SeedlingOntologyMapper.EVENT_AND_RELATION_TYPES.keys ->
-                SeedlingOntologyMapper.EVENT_AND_RELATION_TYPES.getValue(ontology_type)
+            "PER" -> PERSON
+            "ORG" -> ORGANIZATION
+            "LOC" -> LOCATION
+            "FAC" -> FACILITY
+            "GPE" -> GPE
+            "STRING", "String" -> STRING
+            in EVENT_AND_RELATION_TYPES.keys ->
+                EVENT_AND_RELATION_TYPES.getValue(ontology_type)
             else -> throw RuntimeException("Unknown ontology type $ontology_type")
         }
     }

@@ -90,7 +90,7 @@ object ColdStartOntologyMapper : OntologyMapping {
         // can't go in the when statement because it has an arbitrary boolean condition
         // this handles ColdStart event arguments
         if (':' in ontology_type) {
-            return ColdStartOntologyMapper.eventType(ontology_type)
+            return eventType(ontology_type)
         }
 
         return when (ontology_type) {
