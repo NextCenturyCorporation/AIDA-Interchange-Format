@@ -43,7 +43,7 @@ class ColdStart2AidaInterchangeConverter(
         val useClustersForCoref: Boolean = false,
         val restrictConfidencesToJustifications: Boolean = false,
         val defaultMentionConfidence: Double? = null,
-        val ontologyMapping: OntologyMapping = ColdStartOntologyMapper) {
+        val ontologyMapping: OntologyMapping = ColdStartOntologyMapper()) {
     companion object : KLogging()
 
     /**
@@ -369,11 +369,11 @@ fun main(args: Array<String>) {
 
     //
     val ontologyMappings: Map<String, OntologyMapping> = listOf(
-            "coldstart" to ColdStartOntologyMapper,
-            "seedling" to SeedlingOntologyMapper,
-            "rpi_seedling" to RPISeedlingOntologyMapper
+            "coldstart" to ColdStartOntologyMapper(),
+            "seedling" to SeedlingOntologyMapper(),
+            "rpi_seedling" to RPISeedlingOntologyMapper()
     ).toMap()
-    val ontologyMapping = ontologyMappings[ontologyName] ?: ColdStartOntologyMapper
+    val ontologyMapping = ontologyMappings[ontologyName] ?: ColdStartOntologyMapper()
 
 
     // we need to let the ColdStart KB loader itself know we are shattering by document so it

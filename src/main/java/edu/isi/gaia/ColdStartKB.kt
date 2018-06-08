@@ -168,7 +168,7 @@ data class ColdStartKB(val assertionsToConfidence: Map<Assertion, Double>,
 typealias MaybeScoredAssertion = Pair<Assertion, Double?>
 
 class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false,
-                        val ontologyMapping: OntologyMapping = ColdStartOntologyMapper) {
+                        val ontologyMapping: OntologyMapping = ColdStartOntologyMapper()) {
     /**
      * Loads a TAC KBP 2017 ColdStart++ knowledge-base into a [ColdStartKB]
      *

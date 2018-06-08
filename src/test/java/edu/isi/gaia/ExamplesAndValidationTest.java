@@ -139,6 +139,8 @@ public class ExamplesAndValidationTest {
       // every AIF needs an object for the system responsible for creating it
       final Resource system = AIFUtils.makeSystemWithURI(model, "http://www.test.edu/testSystem");
 
+      final ColdStartOntologyMapper ontologyMapping = new ColdStartOntologyMapper();
+
       // we want to represent a "city_of_birth" relation for a person, but we aren't sure whether
       // they were born in Louisville or Cambridge
       final Resource personEntity = AIFUtils
@@ -162,7 +164,7 @@ public class ExamplesAndValidationTest {
 
       // whatever this place turns out to refer to, we're sure it's where they live
       makeRelation(model, "http://www.test.edu/relations/1", personEntity,
-          ColdStartOntologyMapper.relationTypeJava("cities_of_residence"),
+          ontologyMapping.relationType("cities_of_residence"),
           uncertainPlaceOfBirthEntity, system, 1.0);
 
       // we use clusters to represent uncertainty about identity
@@ -200,10 +202,12 @@ public class ExamplesAndValidationTest {
       final Resource event = AIFUtils.makeEvent(model,
           "http://www.test.edu/events/1", system);
 
+      final ColdStartOntologyMapper ontologyMapping = new ColdStartOntologyMapper();
+
       // mark the event as a Personnel.Elect event; type is encoded separately so we can express
       // uncertainty about type
       AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
-          ColdStartOntologyMapper.eventTypeJava("PERSONNEL.ELECT"), system, 1.0);
+          ontologyMapping.eventType("PERSONNEL.ELECT"), system, 1.0);
 
       // create the two entities involved in the event
       final Resource electee = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
@@ -217,9 +221,9 @@ public class ExamplesAndValidationTest {
           ColdStartOntologyMapper.GPE, system, 1.0);
 
       // link those entities to the event
-      AIFUtils.markAsEventArgument(model, event, ColdStartOntologyMapper.eventArgumentTypeJava("Person"),
+      AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("Person"),
           electee, system, 0.785);
-      AIFUtils.markAsEventArgument(model, event, ColdStartOntologyMapper.eventArgumentTypeJava("Place"),
+      AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("Place"),
           electionCountry, system, 0.589);
 
       dumpAndAssertValid(model, "create an event");
@@ -293,10 +297,12 @@ public class ExamplesAndValidationTest {
       final Resource event = AIFUtils.makeEvent(model,
           "http://www.test.edu/events/1", system);
 
+      final ColdStartOntologyMapper ontologyMapping = new ColdStartOntologyMapper();
+
       // mark the event as a Personnel.Elect event; type is encoded separately so we can express
       // uncertainty about type
       AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
-          ColdStartOntologyMapper.eventTypeJava("CONFLICT.ATTACK"), system, 1.0);
+          ontologyMapping.eventType("CONFLICT.ATTACK"), system, 1.0);
 
       // create the two entities involved in the event
       final Resource bob = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
@@ -312,15 +318,15 @@ public class ExamplesAndValidationTest {
       // we link all possible argument fillers to the event
       final ImmutableSet<Resource> bobHitFredAssertions = ImmutableSet.of(
           AIFUtils.markAsEventArgument(model, event,
-              ColdStartOntologyMapper.eventArgumentTypeJava("Attacker"), bob, system, null),
+              ontologyMapping.eventArgumentType("Attacker"), bob, system, null),
           AIFUtils.markAsEventArgument(model, event,
-              ColdStartOntologyMapper.eventArgumentTypeJava("Target"), fred, system, null));
+              ontologyMapping.eventArgumentType("Target"), fred, system, null));
 
       final ImmutableSet<Resource> fredHitBobAssertions = ImmutableSet.of(
           AIFUtils.markAsEventArgument(model, event,
-              ColdStartOntologyMapper.eventArgumentTypeJava("Attacker"), fred, system, null),
+              ontologyMapping.eventArgumentType("Attacker"), fred, system, null),
           AIFUtils.markAsEventArgument(model, event,
-              ColdStartOntologyMapper.eventArgumentTypeJava("Target"), bob, system, null));
+              ontologyMapping.eventArgumentType("Target"), bob, system, null));
 
       // then we mark these as mutually exclusive
       // we also mark confidence 0.2 that neither of these are true
@@ -337,6 +343,8 @@ public class ExamplesAndValidationTest {
       // every AIF needs an object for the system responsible for creating it
       final Resource system = AIFUtils.makeSystemWithURI(model,
           "http://www.test.edu/testSystem");
+
+      final ColdStartOntologyMapper ontologyMapping = new ColdStartOntologyMapper();
 
       // we want to represent that we know, regardless of hypothesis, that there is a person
       // named Bob, two companies (Google and Amazon), and two places (Seattle and California).
@@ -364,25 +372,25 @@ public class ExamplesAndValidationTest {
 
       // under the background hypothesis that Bob lives in Seattle, we believe he works for Amazon
       final Resource bobLivesInSeattle = makeRelation(model, "http://www.test.edu/relations/1",
-          bob, ColdStartOntologyMapper.relationTypeJava("cities_of_residence"),
+          bob, ontologyMapping.relationType("cities_of_residence"),
           seattle, system, 1.0);
       final Resource bobLivesInSeattleHypothesis = makeHypothesis(model,
           "http://www.test.edu/hypotheses/1", ImmutableSet.of(bobLivesInSeattle),
           system);
       final Resource bobWorksForAmazon = makeRelation(model, "http://www.test.edu/relations/2",
-          bob, ColdStartOntologyMapper.relationTypeJava("employee_or_member_of"),
+          bob, ontologyMapping.relationType("employee_or_member_of"),
           amazon, system, 1.0);
       markDependsOnHypothesis(bobWorksForAmazon, bobLivesInSeattleHypothesis);
 
       // under the background hypothesis that Bob lives in California, we believe he works for Google
       final Resource bobLivesInCalifornia = makeRelation(model, "http://www.test.edu/relations/3",
-          bob, ColdStartOntologyMapper.relationTypeJava("cities_of_residence"),
+          bob, ontologyMapping.relationType("cities_of_residence"),
           california, system, 1.0);
       final Resource bobLivesInCaliforniaHypothesis = makeHypothesis(model,
           "http://www.test.edu/hypotheses/2", ImmutableSet.of(bobLivesInCalifornia),
           system);
       final Resource bobWorksForGoogle = makeRelation(model, "http://www.test.edu/relations/4",
-          bob, ColdStartOntologyMapper.relationTypeJava("employee_or_member_of"),
+          bob, ontologyMapping.relationType("employee_or_member_of"),
           google, system, 1.0);
       markDependsOnHypothesis(bobWorksForGoogle, bobLivesInCaliforniaHypothesis);
 
@@ -518,7 +526,7 @@ public class ExamplesAndValidationTest {
     model.setNsPrefix("rdf", RDF.uri);
     model.setNsPrefix("xsd", XSD.getURI());
     model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
-    model.setNsPrefix("coldstart", ColdStartOntologyMapper.NAMESPACE_JAVA);
+    model.setNsPrefix("coldstart", ColdStartOntologyMapper.NAMESPACE_STATIC);
     model.setNsPrefix("skos", SKOS.uri);
     return model;
   }
