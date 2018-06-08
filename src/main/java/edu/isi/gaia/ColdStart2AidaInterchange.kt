@@ -43,7 +43,7 @@ class ColdStart2AidaInterchangeConverter(
         val useClustersForCoref: Boolean = false,
         val restrictConfidencesToJustifications: Boolean = false,
         val defaultMentionConfidence: Double? = null,
-        val ontologyMapping: OntologyMapping = ColdStartOntology) {
+        val ontologyMapping: OntologyMapping = ColdStartOntologyMapper) {
     companion object : KLogging()
 
     /**
@@ -96,9 +96,9 @@ class ColdStart2AidaInterchangeConverter(
 
         // converts a ColdStart ontology type to a corresponding RDF identifier
         fun toRealisType(realis: Realis) = when (realis) {
-            Realis.actual -> ColdStartOntology.ACTUAL
-            Realis.generic -> ColdStartOntology.GENERIC
-            Realis.other -> ColdStartOntology.OTHER
+            Realis.actual -> ColdStartOntologyMapper.ACTUAL
+            Realis.generic -> ColdStartOntologyMapper.GENERIC
+            Realis.other -> ColdStartOntologyMapper.OTHER
         }
 
         // below are the functions for translating each individual type of ColdStart assertion
@@ -207,8 +207,8 @@ class ColdStart2AidaInterchangeConverter(
 
 
             fun toSentimentType(sentiment: String) = when (sentiment.toLowerCase()) {
-                "likes" -> ColdStartOntology.LIKES
-                "dislikes" -> ColdStartOntology.DISLIKES
+                "likes" -> ColdStartOntologyMapper.LIKES
+                "dislikes" -> ColdStartOntologyMapper.DISLIKES
                 else -> throw RuntimeException("Unknown sentiment $sentiment")
             }
 
@@ -285,7 +285,7 @@ class ColdStart2AidaInterchangeConverter(
             model.setNsPrefix("xsd", XSD.getURI())
             model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE)
             // NOTE: Do I need to change this when the ontology is seedling? I expect I do.
-            model.setNsPrefix("aidaProgramOntology", ColdStartOntology.NAMESPACE)
+            model.setNsPrefix("aidaProgramOntology", ColdStartOntologyMapper.NAMESPACE)
             model.setNsPrefix("skos", SKOS.uri)
         }
     }
@@ -370,11 +370,11 @@ fun main(args: Array<String>) {
 
     //
     val ontologyMappings: Map<String, OntologyMapping> = listOf(
-            "coldstart" to ColdStartOntology,
-            "seedling" to SeedlingOntology,
+            "coldstart" to ColdStartOntologyMapper,
+            "seedling" to SeedlingOntologyMapper,
             "rpi_seedling" to RPISeedlingOntologyMapper
     ).toMap()
-    val ontologyMapping = ontologyMappings[ontologyName] ?: ColdStartOntology
+    val ontologyMapping = ontologyMappings[ontologyName] ?: ColdStartOntologyMapper
 
 
     // we need to let the ColdStart KB loader itself know we are shattering by document so it

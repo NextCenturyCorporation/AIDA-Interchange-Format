@@ -4,13 +4,13 @@ import org.apache.jena.rdf.model.Resource
 import org.apache.jena.rdf.model.ResourceFactory
 
 /**
- * The domain ontology.
+ * The Seedling domain ontology.
  *
- * For the moment, this is hard-coded to match ColdStart.
+ * For the moment, this is hard-coded to match Seedling.
  */
-object ColdStartOntology : OntologyMapping {
+object SeedlingOntologyMapper : OntologyMapping {
     @JvmField
-    val NAMESPACE: String = "http://nist.gov/ontologies/ColdstartOntology#"
+    val NAMESPACE: String = "http://darpa.mil/ontologies/SeedlingOntology/"
 
     @JvmField
     val PERSON = ResourceFactory.createResource(NAMESPACE + "Person")!!
@@ -60,20 +60,28 @@ object ColdStartOntology : OntologyMapping {
             "political_religious_affiliation", "age", "number_of_employees_members",
             "origin", "date_founded", "date_of_death", "date_dissolved",
             "cause_of_death", "website", "title", "religion", "charges",
-            // needed to read RPI ColdStart output
-            "CONTACT.PHONEWRITE", "BUSINESS.DECLAREBANKRUPTCY", "BUSINESS.ENDORG",
-            "BUSINESS.MERGEORG", "BUSINESS.STARTORG", "MOVEMENT.TRANSPORT", "JUSTICE.ACQUIT",
-            "JUSTICE.APPEAL", "JUSTICE.CHARGEINDICT", "JUSTICE.CONVICT", "JUSTICE.EXECUTE",
-            "JUSTICE.EXTRADITE", "JUSTICE.FINE", "JUSTICE.RELEASEPAROLE", "JUSTICE.SENTENCE",
-            "JUSTICE.SUE", "JUSTICE.TRIALHEARING", "LIFE.BEBORN", "LIFE.MARRY", "LIFE.DIVORCE",
-            "PERSONNEL.NOMINATE", "likes", "dislikes")
+            // needed to read RPI Seedling output
+            "CONTACT.PHONE-WRITE", "BUSINESS.DECLARE-BANKRUPTCY", "BUSINESS.END-ORG",
+            "BUSINESS.MERGE-ORG", "BUSINESS.START-ORG", "MOVEMENT.TRANSPORT", "JUSTICE.ACQUIT",
+            "JUSTICE.APPEAL", "JUSTICE.CHARGE-INDICT", "JUSTICE.CONVICT", "JUSTICE.EXECUTE",
+            "JUSTICE.EXTRADITE", "JUSTICE.FINE", "JUSTICE.RELEASE-PAROLE", "JUSTICE.SENTENCE",
+            "JUSTICE.SUE", "JUSTICE.TRIAL-HEARING", "LIFE.BE-BORN", "LIFE.MARRY", "LIFE.DIVORCE",
+            "PERSONNEL.NOMINATE", "likes", "dislikes",
+            "GPE:PART-WHOLE.Geographical", "LOC:PHYS.Near", "GPE:ORG-AFF.Membership", "PER:PER-SOC.Business",
+            "PER:PHYS.Located", "GPE:ORG-AFF.Employment", "FAC:GEN-AFF.Org-Location", "GPE:PER-SOC.Business",
+            "PER:ORG-AFF.Employment", "LOC:GEN-AFF.Citizen-Resident-Religion-Ethnicity", "ORG:GEN-AFF.Org-Location",
+            "GPE:PART-WHOLE.Subsidiary", "FAC:PART-WHOLE.Geographical", "PER:ORG-AFF.Membership", "LOC:ORG-AFF.Employment",
+            "GPE:GEN-AFF.Citizen-Resident-Religion-Ethnicity", "LOC:PHYS.Located", "ORG:PART-WHOLE.Subsidiary",
+            "PER:GEN-AFF.Citizen-Resident-Religion-Ethnicity", "PER:ORG-AFF.Ownership", "GPE:PHYS.Located",
+            "LOC:ORG-AFF.Membership", "GPE:GEN-AFF.Org-Location", "ORG:ORG-AFF.Membership", "GPE:ORG-AFF.Founder",
+            "FAC:PHYS.Located", "FAC:ORG-AFF.Membership", "PER:PER-SOC.Lasting-Personal", "ORG:ORG-AFF.Employment",
+            "ORG:PER-SOC.Business", "PER:PER-SOC.Family", "GPE:ORG-AFF.Ownership", "ORG:PHYS.Located",
+            "LOC:PART-WHOLE.Geographical", "FAC:PER-SOC.Business", "GPE:PART-WHOLE.Artifact",
+            "PER:PART-WHOLE.Geographical", "ORG:PART-WHOLE.Geographical", "GPE:PHYS.Near",
+            "PER:ORG-AFF.Sports-Affiliation", "GPE:PER-SOC.Family", "ORG:ORG-AFF.Investor-Shareholder"
+    )
             .map { it to ResourceFactory.createResource(NAMESPACE + it) }
             .toMap()
-
-    // realis types
-    val ACTUAL = ResourceFactory.createResource(NAMESPACE + "Actual")!!
-    val GENERIC = ResourceFactory.createResource(NAMESPACE + "Generic")!!
-    val OTHER = ResourceFactory.createResource(NAMESPACE + "Other")!!
 
     // sentiment types
     @JvmField
@@ -87,20 +95,20 @@ object ColdStartOntology : OntologyMapping {
 
     override fun shortNameToResource(ontology_type: String): Resource {
         // can't go in the when statement because it has an arbitrary boolean condition
-        // this handles ColdStart event arguments
+        // this handles Seedling event arguments
         if (':' in ontology_type) {
-            return ColdStartOntology.eventType(ontology_type)
+            return SeedlingOntologyMapper.eventType(ontology_type)
         }
 
         return when (ontology_type) {
-            "PER" -> ColdStartOntology.PERSON
-            "ORG" -> ColdStartOntology.ORGANIZATION
-            "LOC" -> ColdStartOntology.LOCATION
-            "FAC" -> ColdStartOntology.FACILITY
-            "GPE" -> ColdStartOntology.GPE
-            "STRING", "String" -> ColdStartOntology.STRING
-            in ColdStartOntology.EVENT_AND_RELATION_TYPES.keys ->
-                ColdStartOntology.EVENT_AND_RELATION_TYPES.getValue(ontology_type)
+            "PER" -> SeedlingOntologyMapper.PERSON
+            "ORG" -> SeedlingOntologyMapper.ORGANIZATION
+            "LOC" -> SeedlingOntologyMapper.LOCATION
+            "FAC" -> SeedlingOntologyMapper.FACILITY
+            "GPE" -> SeedlingOntologyMapper.GPE
+            "STRING", "String" -> SeedlingOntologyMapper.STRING
+            in SeedlingOntologyMapper.EVENT_AND_RELATION_TYPES.keys ->
+                SeedlingOntologyMapper.EVENT_AND_RELATION_TYPES.getValue(ontology_type)
             else -> throw RuntimeException("Unknown ontology type $ontology_type")
         }
     }
@@ -115,12 +123,19 @@ object ColdStartOntology : OntologyMapping {
 
     override fun eventArgumentType(argName: String): Resource = ontologizeEventType(argName)
 
-    @JvmStatic
-    fun relationTypeJava(relationName: String): Resource = relationType(relationName)
+}
 
-    @JvmStatic
-    fun eventTypeJava(eventName: String): Resource = eventType(eventName)
+object RPISeedlingOntologyMapper : OntologyMapping {
+    val NAMESPACE: String = SeedlingOntologyMapper.NAMESPACE
+    val FILLER = ResourceFactory.createResource(NAMESPACE + "FillerType")!!
 
-    @JvmStatic
-    fun eventArgumentTypeJava(argName: String): Resource = eventArgumentType(argName)
+    override fun shortNameToResource(ontology_type: String): Resource = if (ontology_type == "FILLER") FILLER
+    else SeedlingOntologyMapper.shortNameToResource(ontology_type)
+
+    override fun relationType(relationName: String): Resource = if ("FILLER" in relationName) FILLER
+    else SeedlingOntologyMapper.relationType(relationName)
+
+    override fun eventType(eventName: String): Resource = SeedlingOntologyMapper.eventType(eventName)
+
+    override fun eventArgumentType(argName: String): Resource = SeedlingOntologyMapper.eventArgumentType(argName)
 }
