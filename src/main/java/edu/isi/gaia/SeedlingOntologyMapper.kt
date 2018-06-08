@@ -94,7 +94,7 @@ object SeedlingOntologyMapper : OntologyMapping {
 
     override fun shortNameToResource(ontology_type: String): Resource {
         // can't go in the when statement because it has an arbitrary boolean condition
-        // this handles Seedling event arguments
+        // this handles ColdStart event arguments
         if (':' in ontology_type) {
             return eventType(ontology_type)
         }
