@@ -291,7 +291,12 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
             checkNotNull(rawCSIdToNodes)
             val subjectNodes = rawCSIdToNodes!!.get(rawCSSubjectID)
             check(subjectNodes.isNotEmpty())
-            return subjectNodes.map { MaybeScoredAssertion(TypeAssertion(it, fields[_TYPE_STRING]), null) }
+
+            val isFiller: Boolean = rawCSSubjectID.startsWith(":Filler")
+            val trueType: String = if (isFiller) "STRING" else fields[_TYPE_STRING]
+
+            // val mention_string = if (!isFiller && fields[]) fields[_OBJ_STRING].trim('"') else "String"
+            return subjectNodes.map { MaybeScoredAssertion(TypeAssertion(it, trueType), null) }
         }
 
         private fun parseLinkAssertion(fields: List<String>): Collection<MaybeScoredAssertion> {
@@ -501,6 +506,7 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
 
             val created = when {
                 trueNodeName.startsWith(":Entity") -> EntityNode()
+                trueNodeName.startsWith(":Filler") -> EntityNode()
                 trueNodeName.startsWith(":Event") -> EventNode()
                 trueNodeName.startsWith(":String") -> StringNode()
                 else -> throw IOException("Unknown node type for node name $nodeName")
