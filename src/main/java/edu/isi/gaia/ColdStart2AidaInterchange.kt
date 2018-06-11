@@ -319,36 +319,10 @@ fun main(args: Array<String>) {
     // and can afford to use pretty-printed Turtle on the output
     // the mode difference also affects whether we expect the output path to be a file or a
     // directory
-    val outputPath: Path
-    val outputFormat: RDFFormat
-
-    // the ColdStart format already includes cross-document coref information. If this is true,
-    // we throw this information away during conversion
-
-    val breakCrossDocCoref: Boolean
-    // should confidences be attach directly to the entity or assertion they pertain to or to
-    // the justifications thereof? When working at the single-document level (TA1 -> TA2), it should
-    // be the latter; in TA2 and TA3, the former.
-    val restrictConfidencesToJustifications: Boolean
-
     val mode = params.getEnum("mode", Mode::class.java)!!
-    when(mode) {
-        Mode.FULL -> {
-            outputPath = params.getCreatableFile("outputAIFFile").toPath()
-            outputFormat = RDFFormat.NTRIPLES
-            breakCrossDocCoref = params.getOptionalBoolean("breakCrossDocCoref").or(false)
-            restrictConfidencesToJustifications =
-                    params.getOptionalBoolean("restrictConfidencesToJustifications").or(false)
-        }
-        Mode.SHATTER -> {
-            outputPath = params.getCreatableDirectory("outputAIFDirectory").toPath()
-            outputFormat = RDFFormat.TURTLE_PRETTY
-            breakCrossDocCoref = true
-            restrictConfidencesToJustifications = true
-        }
-    }
 
-    val logger = LoggerFactory.getLogger("main") as Logger
+    val outputPath: Path
+
     // don't log too much Jena-internal stuff
     (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.INFO
 
@@ -361,10 +335,17 @@ fun main(args: Array<String>) {
     val ontologyName: String = params.getOptionalString("ontology").or("coldstart")
     val ontologyMapping = ontologyMappings[ontologyName] ?: ColdStartOntologyMapper()
 
-    val converter = configureConverterFromParams(params, restrictConfidencesToJustifications,
-            ontologyMapping)
-    if (converter.defaultMentionConfidence != null) {
-        logger.info("Using default mention confidence $converter.defaultMentionConfidence")
+    // this will track which assertions could not be converted. This is useful for debugging.
+    // we pull this out into its own object instead of doing it inside the conversion method
+    // so that it will aggregate results across doc-level KB conversions when running in shatter
+    // mode
+    val untranslatableAssertionListener = UntranslatableColdstartAssertionTypeLogger()
+
+    // the ColdStart format already includes cross-document coref information. If this is true,
+    // we throw this information away during conversion
+    val breakCrossDocCoref = when(mode) {
+        Mode.FULL -> params.getOptionalBoolean("breakCrossDocCoref").or(false)
+        Mode.SHATTER -> true
     }
 
     val coldstartKB = ColdStartKBLoader(
@@ -374,68 +355,94 @@ fun main(args: Array<String>) {
             breakCrossDocCoref = breakCrossDocCoref,
             ontologyMapping = ontologyMapping).load(inputKBFile)
 
-    // this will track which assertions could not be converted. This is useful for debugging.
-    // we pull this out into its own object instead of doing it inside the conversion method
-    // so that it will aggregate results across doc-level KB conversions when running in shatter
-    // mode
-    val untranslatableAssertionListener = UntranslatableColdstartAssertionTypeLogger()
-
-    // conversion logic shared between the two modes
-    fun convertKB(kb: ColdStartKB, model: Model, outPath: Path) {
-        converter.coldstartToAidaInterchange(systemUri, kb, model,
-                untranslatableAssertionListener = untranslatableAssertionListener::observe)
-        outPath.toFile().bufferedWriter(UTF_8).use {
-            // deprecation is OK because Guava guarantees the writer handles the charset properly
-            @Suppress("DEPRECATION")
-            RDFDataMgr.write(it, model, outputFormat)
-        }
-    }
-
-
-    when (mode) {
+    when(mode) {
         // converting entire ColdStart KB at once
-        Mode.FULL -> AIFUtils.workWithBigModel { convertKB(coldstartKB, it, outputPath) }
-
+        Mode.FULL -> {
+            val converter = configureConverterFromParams(params,
+                    // should confidences be attach directly to the entity or assertion they pertain
+                    // to or to the justifications thereof? When working at the single-document
+                    // level (TA1 -> TA2), it should be the latter; in TA2 and TA3, the former.
+                    restrictConfidencesToJustifications=params.getOptionalBoolean(
+                    "restrictConfidencesToJustifications").or(false),
+                    ontologyMapping = ontologyMapping)
+            outputPath = params.getCreatableFile("outputAIFFile").toPath()
+            convertColdStartAsSingleKB(converter, systemUri, coldstartKB, outputPath,
+                    untranslatableAssertionListener::observe)
+        }
         // converting document-by-document
         Mode.SHATTER -> {
-            outputPath.toFile().mkdirs()
-            // for the convenience of programs processing the output, we provide
-            // a list of all doc-level turtle files generated and a file mapping from doc IDs
-            // to these files
-            val outputFileList = mutableListOf<File>()
-            val outputFileMap = ImmutableMap.builder<Symbol, File>()
-
-            var docsProcessed = 0
-            val kbsByDocument = coldstartKB.shatterByDocument()
-            for ((docId, perDocKB) in kbsByDocument) {
-                docsProcessed += 1
-                val outputFile = outputPath.resolve("$docId.turtle")
-                convertKB(perDocKB, ModelFactory.createDefaultModel(),
-                        outputFile)
-
-                outputFileList.add(outputFile.toFile())
-                outputFileMap.put(Symbol.from(docId), outputFile.toFile())
-
-                if (docsProcessed % 1000 == 0) {
-                    logger.info("Translated $docsProcessed / ${kbsByDocument.size}")
-                }
-            }
-
-
-            val listFile = outputPath.resolve("translated_files.list").toFile()
-            FileUtils.writeFileList(outputFileList,
-                    Files.asCharSink(listFile, Charsets.UTF_8))
-            val mapFile = outputPath.resolve("translated_files.map").toFile()
-            FileUtils.writeSymbolToFileMap(outputFileMap.build(),
-                    Files.asCharSink(mapFile, Charsets.UTF_8))
-            ColdStart2AidaInterchangeConverter.logger.info(
-                    "Wrote list and map of translated files to $listFile and $mapFile " +
-                            "respectively")
+            val converter = configureConverterFromParams(params,
+                    restrictConfidencesToJustifications=true,
+                    ontologyMapping = ontologyMapping)
+            outputPath = params.getCreatableDirectory("outputAIFDirectory").toPath()
+            convertColdStartShatteringByDocument(converter, systemUri, coldstartKB, outputPath,
+                    untranslatableAssertionListener::observe)
         }
     }
 
     ColdStart2AidaInterchangeConverter.logger.info(
             untranslatableAssertionListener.logUntranslatableTypesMessage())
+}
+
+fun convertColdStartAsSingleKB(converter: ColdStart2AidaInterchangeConverter,
+                               systemUri: String,
+                               coldstartKB: ColdStartKB, outputPath: Path,
+                               untranslatableAssertionCallback: (Assertion) -> Unit = {}) {
+    AIFUtils.workWithBigModel {
+        val model = it
+        converter.coldstartToAidaInterchange(systemUri, coldstartKB, model,
+                untranslatableAssertionListener = untranslatableAssertionCallback)
+        outputPath.toFile().bufferedWriter(UTF_8).use {
+            // deprecation is OK because Guava guarantees the writer handles the charset properly
+            @Suppress("DEPRECATION")
+            RDFDataMgr.write(it, model, RDFFormat.NTRIPLES)
+        }
+    }
+}
+
+fun convertColdStartShatteringByDocument(
+        converter: ColdStart2AidaInterchangeConverter, systemUri: String, coldstartKB: ColdStartKB,
+        outputPath: Path, untranslatableAssertionCallback: (Assertion) -> Unit = {}) {
+    outputPath.toFile().mkdirs()
+    // for the convenience of programs processing the output, we provide
+    // a list of all doc-level turtle files generated and a file mapping from doc IDs
+    // to these files
+    val outputFileList = mutableListOf<File>()
+    val outputFileMap = ImmutableMap.builder<Symbol, File>()
+
+    var docsProcessed = 0
+    val kbsByDocument = coldstartKB.shatterByDocument()
+    for ((docId, perDocKB) in kbsByDocument) {
+        docsProcessed += 1
+        val outputFile = outputPath.resolve("$docId.turtle")
+        val model = ModelFactory.createDefaultModel()
+        converter.coldstartToAidaInterchange(systemUri, coldstartKB, model,
+                untranslatableAssertionListener = untranslatableAssertionCallback)
+        outputFile.toFile().bufferedWriter(UTF_8).use {
+            // deprecation is OK because Guava guarantees the writer handles the charset properly
+            @Suppress("DEPRECATION")
+            RDFDataMgr.write(it, model, RDFFormat.TURTLE_PRETTY)
+        }
+
+        outputFileList.add(outputFile.toFile())
+        outputFileMap.put(Symbol.from(docId), outputFile.toFile())
+
+        if (docsProcessed % 1000 == 0) {
+            LoggerFactory.getLogger("main").info(
+                    "Translated $docsProcessed / ${kbsByDocument.size}")
+        }
+    }
+
+
+    val listFile = outputPath.resolve("translated_files.list").toFile()
+    FileUtils.writeFileList(outputFileList,
+            Files.asCharSink(listFile, Charsets.UTF_8))
+    val mapFile = outputPath.resolve("translated_files.map").toFile()
+    FileUtils.writeSymbolToFileMap(outputFileMap.build(),
+            Files.asCharSink(mapFile, Charsets.UTF_8))
+    ColdStart2AidaInterchangeConverter.logger.info(
+            "Wrote list and map of translated files to $listFile and $mapFile " +
+                    "respectively")
 }
 
 
