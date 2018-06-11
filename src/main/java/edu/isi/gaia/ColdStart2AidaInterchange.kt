@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMultiset
 import com.google.common.io.Files
 import edu.isi.gaia.AIFUtils.markSystem
 import edu.isi.nlp.files.FileUtils
+import edu.isi.nlp.parameters.Parameters
 import edu.isi.nlp.parameters.Parameters.loadSerifStyle
 import edu.isi.nlp.symbols.Symbol
 import mu.KLogging
@@ -308,9 +309,7 @@ enum class Mode {
 fun main(args: Array<String>) {
     val params = loadSerifStyle(File(args[0]))
     val inputKBFile = params.getExistingFile("inputKBFile").toPath()
-    val baseUri = params.getString("baseURI")
     val systemUri = params.getString("systemURI")
-    val ontologyName: String = params.getOptionalString("ontology").or("coldstart")
 
     // we can run in two modes
     // in one mode, we output one big RDF file for the whole KB. If we do that, we need to
@@ -349,49 +348,31 @@ fun main(args: Array<String>) {
         }
     }
 
-    // In AIDA, there can be uncertainty about coreference, so the AIDA interchange format provides
-    // a means of representing coreference uncertainty.  In ColdStart, however, coref
-    // decisions were always "hard". We provide the user with the option of whether to encode these
-    // coref decisions in the way they would be encoded in AIDA if there were any uncertainty so
-    // that users can test these data structures
-    val useClustersForCoref = params.getOptionalBoolean("useClustersForCoref").or(false)
-
     val logger = LoggerFactory.getLogger("main") as Logger
     // don't log too much Jena-internal stuff
     (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.INFO
 
-    // support TA1s which erroneously leave confidences off some of their mentions
-    val defaultMentionConfidence = params.getOptionalPositiveDouble(
-            "defaultMentionConfidence").orNull()
-    if (defaultMentionConfidence != null) {
-        logger.info("Using default mention confidence $defaultMentionConfidence")
-    }
-
-    //
     val ontologyMappings: Map<String, OntologyMapping> = listOf(
             "coldstart" to ColdStartOntologyMapper(),
             "seedling" to SeedlingOntologyMapper(),
             "rpi_seedling" to RPISeedlingOntologyMapper()
     ).toMap()
+
+    val ontologyName: String = params.getOptionalString("ontology").or("coldstart")
     val ontologyMapping = ontologyMappings[ontologyName] ?: ColdStartOntologyMapper()
 
+    val converter = configureConverterFromParams(params, restrictConfidencesToJustifications,
+            ontologyMapping)
+    if (converter.defaultMentionConfidence != null) {
+        logger.info("Using default mention confidence $converter.defaultMentionConfidence")
+    }
 
-    // we need to let the ColdStart KB loader itself know we are shattering by document so it
-    // knows to eliminate the cross-document coreference links which have already been added by
-    // the ColdStart system
-    val coldstartKB = ColdStartKBLoader(breakCrossDocCoref = breakCrossDocCoref,
+    val coldstartKB = ColdStartKBLoader(
+            // we need to let the ColdStart KB loader itself know we are shattering by document so it
+            // knows to eliminate the cross-document coreference links which have already been added by
+            // the ColdStart system
+            breakCrossDocCoref = breakCrossDocCoref,
             ontologyMapping = ontologyMapping).load(inputKBFile)
-
-    val converter = ColdStart2AidaInterchangeConverter(
-            entityIriGenerator = UuidIriGenerator("$baseUri/entities"),
-            eventIriGenerator = UuidIriGenerator("$baseUri/events"),
-            assertionIriGenerator = UuidIriGenerator("$baseUri/assertions"),
-            stringIriGenerator = UuidIriGenerator("$baseUri/strings"),
-            clusterIriGenerator = UuidIriGenerator("$baseUri/clusters"),
-            useClustersForCoref = useClustersForCoref,
-            restrictConfidencesToJustifications = restrictConfidencesToJustifications,
-            defaultMentionConfidence = defaultMentionConfidence,
-            ontologyMapping = ontologyMapping)
 
     // this will track which assertions could not be converted. This is useful for debugging.
     // we pull this out into its own object instead of doing it inside the conversion method
@@ -455,6 +436,35 @@ fun main(args: Array<String>) {
 
     ColdStart2AidaInterchangeConverter.logger.info(
             untranslatableAssertionListener.logUntranslatableTypesMessage())
+}
+
+
+
+private fun configureConverterFromParams(
+        params: Parameters,
+        restrictConfidencesToJustifications: Boolean,
+        ontologyMapping: OntologyMapping): ColdStart2AidaInterchangeConverter {
+    val baseUri =  params.getString("baseURI")!!
+
+
+    return ColdStart2AidaInterchangeConverter(
+            entityIriGenerator = UuidIriGenerator("$baseUri/entities"),
+            eventIriGenerator = UuidIriGenerator("$baseUri/events"),
+            assertionIriGenerator = UuidIriGenerator("$baseUri/assertions"),
+            stringIriGenerator = UuidIriGenerator("$baseUri/strings"),
+            clusterIriGenerator = UuidIriGenerator("$baseUri/clusters"),
+            ontologyMapping = ontologyMapping,
+            // In AIDA, there can be uncertainty about coreference, so the AIDA interchange format
+            // provides a means of representing coreference uncertainty.  In ColdStart, however,
+            // coref decisions were always "hard". We provide the user with the option of whether
+            // to encode these coref decisions in the way they would be encoded in AIDA if there
+            // were any uncertainty so that users can test these data structures
+            useClustersForCoref = params.getOptionalBoolean("useClustersForCoref")
+                    .or(false),
+            restrictConfidencesToJustifications = restrictConfidencesToJustifications,
+            // support TA1s which erroneously leave confidences off some of their mentions
+            defaultMentionConfidence = params.getOptionalPositiveDouble(
+                    "defaultMentionConfidence").orNull())
 }
 
 /**
