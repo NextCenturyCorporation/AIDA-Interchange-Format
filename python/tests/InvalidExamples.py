@@ -1,7 +1,8 @@
 import unittest
 import sys
 sys.path.append('../')
-from rdflib import URIRef, Literal, XSD
+from io import BytesIO
+from rdflib import URIRef, Literal, XSD, BNode
 from aida_interchange.aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY, AIDA_ANNOTATION
 from aida_interchange import aifutils
 
