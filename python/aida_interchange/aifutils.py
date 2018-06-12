@@ -6,12 +6,16 @@ from rdflib import URIRef, RDF, Graph, BNode, Literal, XSD
 from aida_rdf_ontologies import AIDA_ANNOTATION
 from rdflib.plugins.sparql import prepareQuery
 
+"""
+A convenient interface for creating simple AIF graphs.
 
+More complicated graphs will require direct manipulation of the RDF
+"""
 
 def make_graph():
     """
     Creates an RDF triple store
-    
+
     :return: The created graph
     """
     g = Graph()

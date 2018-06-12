@@ -4,7 +4,11 @@ from rdflib.namespace import ClosedNamespace
 # these could be changed to darpa.mil if the interchange format is adopted program-wide
 # TODO: temporarily extend these to include all ColdStart entity types - #2
 # TODO: long-term, we need to make the program ontology configurable
+"""
+The domain ontology.
 
+For the moment, this is hard-coded to match ColdStart
+"""
 AIDA_PROGRAM_ONTOLOGY = ClosedNamespace(
     uri=URIRef("http://nist.gov/ontologies/ColdstartOntology#"),
     terms=["Person", "Organization", "Location", "Facility", "GeopoliticalEntity", "String",

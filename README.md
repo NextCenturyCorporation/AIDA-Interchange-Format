@@ -11,14 +11,14 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
 *    utilities to make it easier to work with this format.  JVM utilities are in
      `src/main/java/edu/isi/gaia/AIFUtils.kt`. Although written in Kotlin, these can be used from any
      JVM language by adding a Maven dependency on
-      `edu.isi:gaia-interchange-kotlin:1.0.0-SNAPSHOT`.  There is the beginning of a Python translation of
-      these utilities in `aida_interchange/aifutils.py`.  Next Century will complete the Python
-      translation of these utilities soon.
+     `edu.isi:gaia-interchange-kotlin:1.0.0-SNAPSHOT`.  A Python translation of
+     these utilities is in `python/aida_interchange/aifutils.py`.
 
 *    examples of how to use AIF. These are given in Java in the unit tests under
-     `src/text/java/edu/isi/gaia/ExamplesAndValidationTests`.  There is the beginning of a Python
-     translation of these examples in `tests/aida_interchange/Examples.py`.  If you run either set of
-     examples, the corresponding Turtle output will be dumped.
+     `src/text/java/edu/isi/gaia/ExamplesAndValidationTests`.  A Python
+     translation of these examples is in `python/tests/Examples.py`.  If you run either set of
+     examples, the corresponding Turtle output will be dumped.  Validation tools for the Python output
+     is currently in progress.
 
 *    code to translate from the TAC KBP Coldstart++ KB format into this format.
      `src/main/java/edu/isi/gaia/ColdStart2AidaInterchange.kt`.
@@ -106,7 +106,7 @@ you should be ready to go.
 
 AIF was designed by Ryan Gabbard (gabbard@isi.edu) and Pedro Szekely (pszekeley@isi.edu) of USC ISI.
 Gabbard also wrote the initial implementations of the associated tools.   However, the tools are now
-supported and extended by Eddie Curley (eddie.curley@nextcentury.com)
+supported and extended by Eddie Curley (eddie.curley@nextcentury.com), Bao Pham (bao.pham@nextcentury.com),
 and Clark Dorman (clark.dorman@nextcentury.com) of Next Century.
 
 This repository exists in two locations:
