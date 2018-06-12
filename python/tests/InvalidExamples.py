@@ -2,7 +2,7 @@ import unittest
 import sys
 sys.path.append('../')
 from io import BytesIO
-from rdflib import URIRef, Literal, XSD, BNode
+from rdflib import URIRef, Literal, XSD, BNode, RDF
 from aida_interchange.aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY, AIDA_ANNOTATION
 from aida_interchange import aifutils
 
@@ -68,7 +68,7 @@ class InvalidExamples(unittest.TestCase):
         g.add((justification, RDF.type, AIDA_ANNOTATION.TextJustification))
         g.add((justification, AIDA_ANNOTATION.source, Literal("FOO", datatype=XSD.string)))
         g.add((justification, AIDA_ANNOTATION.startOffset, Literal(14, datatype=XSD.integer)))
-        g.add((justification, AIDA_ANNOTATION.endOffset, Literal(56, datatype=XSD.integer)))
+        g.add((justification, AIDA_ANNOTATION.endOffsetInclusive, Literal(56, datatype=XSD.integer)))
         g.add((justification, AIDA_ANNOTATION.system, system))
         g.add((entity, AIDA_ANNOTATION.justifiedBy, justification))
 
