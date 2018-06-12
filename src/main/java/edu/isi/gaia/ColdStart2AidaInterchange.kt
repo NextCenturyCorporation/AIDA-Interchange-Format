@@ -42,7 +42,8 @@ class ColdStart2AidaInterchangeConverter(
         val clusterIriGenerator: IriGenerator = UuidIriGenerator(),
         val useClustersForCoref: Boolean = false,
         val restrictConfidencesToJustifications: Boolean = false,
-        val defaultMentionConfidence: Double? = null) {
+        val defaultMentionConfidence: Double? = null,
+        val ontologyMapping: OntologyMapping = ColdStartOntologyMapper()) {
     companion object : KLogging()
 
     /**
@@ -94,30 +95,10 @@ class ColdStart2AidaInterchangeConverter(
         }
 
         // converts a ColdStart ontology type to a corresponding RDF identifier
-        fun toOntologyType(ontology_type: String): Resource {
-            // can't go in the when statement because it has an arbitrary boolean condition
-            // this handles ColdStart event arguments
-            if (':' in ontology_type) {
-                return ColdStartOntology.eventType(ontology_type)
-            }
-
-            return when (ontology_type) {
-                "PER" -> ColdStartOntology.PERSON
-                "ORG" -> ColdStartOntology.ORGANIZATION
-                "LOC" -> ColdStartOntology.LOCATION
-                "FAC" -> ColdStartOntology.FACILITY
-                "GPE" -> ColdStartOntology.GPE
-                "STRING", "String" -> ColdStartOntology.STRING
-                in ColdStartOntology.EVENT_AND_RELATION_TYPES.keys ->
-                    ColdStartOntology.EVENT_AND_RELATION_TYPES.getValue(ontology_type)
-                else -> throw RuntimeException("Unknown ontology type $ontology_type")
-            }
-        }
-
         fun toRealisType(realis: Realis) = when (realis) {
-            Realis.actual -> ColdStartOntology.ACTUAL
-            Realis.generic -> ColdStartOntology.GENERIC
-            Realis.other -> ColdStartOntology.OTHER
+            Realis.actual -> ColdStartOntologyMapper.ACTUAL
+            Realis.generic -> ColdStartOntologyMapper.GENERIC
+            Realis.other -> ColdStartOntologyMapper.OTHER
         }
 
         // below are the functions for translating each individual type of ColdStart assertion
@@ -126,7 +107,7 @@ class ColdStart2AidaInterchangeConverter(
 
         fun translateTypeAssertion(cs_assertion: TypeAssertion, confidence: Double?): Boolean {
             val entityOrEvent = toResource(cs_assertion.subject)
-            val ontology_type = toOntologyType(cs_assertion.type)
+            val ontology_type = ontologyMapping.shortNameToResource(cs_assertion.type)
 
             AIFUtils.markType(model, assertionIriGenerator.nextIri(), entityOrEvent,
                     ontology_type, systemNode, confidence)
@@ -217,7 +198,7 @@ class ColdStart2AidaInterchangeConverter(
         fun translateRelation(csAssertion: RelationAssertion, confidence: Double): Boolean {
             AIFUtils.makeRelation(model, assertionIriGenerator.nextIri(),
                     toResource(csAssertion.subject),
-                    ColdStartOntology.relationType(csAssertion.relationType),
+                    ontologyMapping.relationType(csAssertion.relationType),
                     toResource(csAssertion.obj), systemNode, confidence)
             return true
         }
@@ -226,8 +207,8 @@ class ColdStart2AidaInterchangeConverter(
 
 
             fun toSentimentType(sentiment: String) = when (sentiment.toLowerCase()) {
-                "likes" -> ColdStartOntology.LIKES
-                "dislikes" -> ColdStartOntology.DISLIKES
+                "likes" -> ColdStartOntologyMapper.LIKES
+                "dislikes" -> ColdStartOntologyMapper.DISLIKES
                 else -> throw RuntimeException("Unknown sentiment $sentiment")
             }
 
@@ -248,7 +229,7 @@ class ColdStart2AidaInterchangeConverter(
             val filler = toResource(csAssertion.argument)
 
             val argAssertion = AIFUtils.markAsEventArgument(model, event,
-                    ColdStartOntology.eventArgumentType(csAssertion.argument_role),
+                    ontologyMapping.eventArgumentType(csAssertion.argument_role),
                     filler, systemNode, confidence)
 
             registerJustifications(argAssertion, csAssertion.justifications, null, confidence)
@@ -303,7 +284,7 @@ class ColdStart2AidaInterchangeConverter(
             model.setNsPrefix("rdf", RDF.uri)
             model.setNsPrefix("xsd", XSD.getURI())
             model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE)
-            model.setNsPrefix("aidaProgramOntology", ColdStartOntology.NAMESPACE)
+            model.setNsPrefix("domainOntology", ontologyMapping.NAMESPACE)
             model.setNsPrefix("skos", SKOS.uri)
         }
     }
@@ -329,6 +310,7 @@ fun main(args: Array<String>) {
     val inputKBFile = params.getExistingFile("inputKBFile").toPath()
     val baseUri = params.getString("baseURI")
     val systemUri = params.getString("systemURI")
+    val ontologyName: String = params.getOptionalString("ontology").or("coldstart")
 
     // we can run in two modes
     // in one mode, we output one big RDF file for the whole KB. If we do that, we need to
@@ -385,11 +367,20 @@ fun main(args: Array<String>) {
         logger.info("Using default mention confidence $defaultMentionConfidence")
     }
 
+    //
+    val ontologyMappings: Map<String, OntologyMapping> = listOf(
+            "coldstart" to ColdStartOntologyMapper(),
+            "seedling" to SeedlingOntologyMapper(),
+            "rpi_seedling" to RPISeedlingOntologyMapper()
+    ).toMap()
+    val ontologyMapping = ontologyMappings[ontologyName] ?: ColdStartOntologyMapper()
+
 
     // we need to let the ColdStart KB loader itself know we are shattering by document so it
     // knows to eliminate the cross-document coreference links which have already been added by
     // the ColdStart system
-    val coldstartKB = ColdStartKBLoader(breakCrossDocCoref = breakCrossDocCoref).load(inputKBFile)
+    val coldstartKB = ColdStartKBLoader(breakCrossDocCoref = breakCrossDocCoref,
+            ontologyMapping = ontologyMapping).load(inputKBFile)
 
     val converter = ColdStart2AidaInterchangeConverter(
             entityIriGenerator = UuidIriGenerator("$baseUri/entities"),
@@ -399,7 +390,8 @@ fun main(args: Array<String>) {
             clusterIriGenerator = UuidIriGenerator("$baseUri/clusters"),
             useClustersForCoref = useClustersForCoref,
             restrictConfidencesToJustifications = restrictConfidencesToJustifications,
-            defaultMentionConfidence = defaultMentionConfidence)
+            defaultMentionConfidence = defaultMentionConfidence,
+            ontologyMapping = ontologyMapping)
 
     // this will track which assertions could not be converted. This is useful for debugging.
     // we pull this out into its own object instead of doing it inside the conversion method

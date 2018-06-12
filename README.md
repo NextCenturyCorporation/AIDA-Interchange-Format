@@ -57,6 +57,8 @@ are four parameters which are always required:
 * `systemUri`: a URI path to identify the system which generated the ColdStart output. For
     example `http://www.rpi.edu/tinkerbell`
 * `mode`: must be `FULL` or `SHATTER`, as explained below.
+* `ontology`: must be `coldstart`, `seedling`, or `rpi_seedling`, depending on the input's
+  ontology. `rpi_seedling` makes extra allowances for filler types.
 
 If `mode` is `FULL`, then the entire ColdStartKB is converted into a single AIF RDF file in
 n-triples format (n-triples is used for greater I/O speed).  The following parameters then

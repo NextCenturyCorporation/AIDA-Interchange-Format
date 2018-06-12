@@ -65,7 +65,7 @@ public class ExamplesAndValidationTest {
       // entity's type directly on the entity, but rather make a separate assertion for it
       // its URI doesn't matter either
       final Resource typeAssertion = AIFUtils.markType(model, "http://www.test.org/assertions/1",
-          entity, ColdStartOntology.PERSON, system, 1.0);
+          entity, ColdStartOntologyMapper.PERSON, system, 1.0);
 
       // the justification provides the evidence for our claim about the entity's type
       // we attach this justification to both the type assertion and the entity object
@@ -114,10 +114,10 @@ public class ExamplesAndValidationTest {
 
       final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1", system);
       final Resource entityIsAPerson = AIFUtils.markType(model, "http://www.test.org/assertions/1",
-          entity, ColdStartOntology.PERSON, system, 0.5);
+          entity, ColdStartOntologyMapper.PERSON, system, 0.5);
       final Resource entityIsAnOrganization = AIFUtils
           .markType(model, "http://www.test.org/assertions/2",
-              entity, ColdStartOntology.ORGANIZATION, system, 0.2);
+              entity, ColdStartOntologyMapper.ORGANIZATION, system, 0.2);
 
       AIFUtils.markTextJustification(model, ImmutableSet.of(entity, entityIsAPerson),
           "NYT_ENG_201181231",
@@ -139,22 +139,24 @@ public class ExamplesAndValidationTest {
       // every AIF needs an object for the system responsible for creating it
       final Resource system = AIFUtils.makeSystemWithURI(model, "http://www.test.edu/testSystem");
 
+      final ColdStartOntologyMapper ontologyMapping = new ColdStartOntologyMapper();
+
       // we want to represent a "city_of_birth" relation for a person, but we aren't sure whether
       // they were born in Louisville or Cambridge
       final Resource personEntity = AIFUtils
           .makeEntity(model, "http://www.test.edu/entities/1", system);
       AIFUtils.markType(model, "http://www.test.org/assertions/1",
-          personEntity, ColdStartOntology.PERSON, system, 1.0);
+          personEntity, ColdStartOntologyMapper.PERSON, system, 1.0);
 
       // create entities for the two locations
       final Resource louisvilleEntity = AIFUtils
           .makeEntity(model, "http://www.test.edu/entities/2", system);
       AIFUtils.markType(model, "http://www.test.org/assertions/2",
-          louisvilleEntity, ColdStartOntology.GPE, system, 1.0);
+          louisvilleEntity, ColdStartOntologyMapper.GPE, system, 1.0);
       final Resource cambridgeEntity = AIFUtils
           .makeEntity(model, "http://www.test.edu/entities/3", system);
       AIFUtils.markType(model, "http://www.test.org/assertions/3",
-          cambridgeEntity, ColdStartOntology.GPE, system, 1.0);
+          cambridgeEntity, ColdStartOntologyMapper.GPE, system, 1.0);
 
       // create an entity for the uncertain place of birth
       final Resource uncertainPlaceOfBirthEntity = AIFUtils
@@ -162,7 +164,7 @@ public class ExamplesAndValidationTest {
 
       // whatever this place turns out to refer to, we're sure it's where they live
       makeRelation(model, "http://www.test.edu/relations/1", personEntity,
-          ColdStartOntology.relationType("cities_of_residence"),
+          ontologyMapping.relationType("cities_of_residence"),
           uncertainPlaceOfBirthEntity, system, 1.0);
 
       // we use clusters to represent uncertainty about identity
@@ -200,26 +202,28 @@ public class ExamplesAndValidationTest {
       final Resource event = AIFUtils.makeEvent(model,
           "http://www.test.edu/events/1", system);
 
+      final ColdStartOntologyMapper ontologyMapping = new ColdStartOntologyMapper();
+
       // mark the event as a Personnel.Elect event; type is encoded separately so we can express
       // uncertainty about type
       AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
-          ColdStartOntology.eventType("PERSONNEL.ELECT"), system, 1.0);
+          ontologyMapping.eventType("PERSONNEL.ELECT"), system, 1.0);
 
       // create the two entities involved in the event
       final Resource electee = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
           system);
       AIFUtils.markType(model, "http://www.test.edu/assertions/6", electee,
-          ColdStartOntology.PERSON, system, 1.0);
+          ColdStartOntologyMapper.PERSON, system, 1.0);
 
       final Resource electionCountry = AIFUtils.makeEntity(model,
           "http://www.test.edu/entities/2", system);
       AIFUtils.markType(model, "http://www.test.edu/assertions/7", electionCountry,
-          ColdStartOntology.GPE, system, 1.0);
+          ColdStartOntologyMapper.GPE, system, 1.0);
 
       // link those entities to the event
-      AIFUtils.markAsEventArgument(model, event, ColdStartOntology.eventArgumentType("Person"),
+      AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("Person"),
           electee, system, 0.785);
-      AIFUtils.markAsEventArgument(model, event, ColdStartOntology.eventArgumentType("Place"),
+      AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("Place"),
           electionCountry, system, 0.589);
 
       dumpAndAssertValid(model, "create an event");
@@ -293,34 +297,36 @@ public class ExamplesAndValidationTest {
       final Resource event = AIFUtils.makeEvent(model,
           "http://www.test.edu/events/1", system);
 
-      // mark the event as a Conflict.Attack event; type is encoded separately so we can express
+      final ColdStartOntologyMapper ontologyMapping = new ColdStartOntologyMapper();
+
+      // mark the event as a Personnel.Elect event; type is encoded separately so we can express
       // uncertainty about type
       AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
-          ColdStartOntology.eventType("CONFLICT.ATTACK"), system, 1.0);
+          ontologyMapping.eventType("CONFLICT.ATTACK"), system, 1.0);
 
       // create the two entities involved in the event
       final Resource bob = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
           system);
       AIFUtils.markType(model, "http://www.test.edu/assertions/6", bob,
-          ColdStartOntology.PERSON, system, 1.0);
+          ColdStartOntologyMapper.PERSON, system, 1.0);
 
       final Resource fred = AIFUtils.makeEntity(model,
           "http://www.test.edu/entities/2", system);
       AIFUtils.markType(model, "http://www.test.edu/assertions/7", fred,
-          ColdStartOntology.PERSON, system, 1.0);
+          ColdStartOntologyMapper.PERSON, system, 1.0);
 
       // we link all possible argument fillers to the event
       final ImmutableSet<Resource> bobHitFredAssertions = ImmutableSet.of(
           AIFUtils.markAsEventArgument(model, event,
-              ColdStartOntology.eventArgumentType("Attacker"), bob, system, null),
+              ontologyMapping.eventArgumentType("Attacker"), bob, system, null),
           AIFUtils.markAsEventArgument(model, event,
-              ColdStartOntology.eventArgumentType("Target"), fred, system, null));
+              ontologyMapping.eventArgumentType("Target"), fred, system, null));
 
       final ImmutableSet<Resource> fredHitBobAssertions = ImmutableSet.of(
           AIFUtils.markAsEventArgument(model, event,
-              ColdStartOntology.eventArgumentType("Attacker"), fred, system, null),
+              ontologyMapping.eventArgumentType("Attacker"), fred, system, null),
           AIFUtils.markAsEventArgument(model, event,
-              ColdStartOntology.eventArgumentType("Target"), bob, system, null));
+              ontologyMapping.eventArgumentType("Target"), bob, system, null));
 
       // then we mark these as mutually exclusive
       // we also mark confidence 0.2 that neither of these are true
@@ -338,51 +344,53 @@ public class ExamplesAndValidationTest {
       final Resource system = AIFUtils.makeSystemWithURI(model,
           "http://www.test.edu/testSystem");
 
+      final ColdStartOntologyMapper ontologyMapping = new ColdStartOntologyMapper();
+
       // we want to represent that we know, regardless of hypothesis, that there is a person
       // named Bob, two companies (Google and Amazon), and two places (Seattle and California).
       final Resource bob = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Bob",
           system);
       AIFUtils.markType(model, "http://www.test.org/assertions/1",
-          bob, ColdStartOntology.PERSON, system, 1.0);
+          bob, ColdStartOntologyMapper.PERSON, system, 1.0);
       final Resource google = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Google",
           system);
       AIFUtils.markType(model, "http://www.test.org/assertions/2",
-          google, ColdStartOntology.ORGANIZATION, system, 1.0);
+          google, ColdStartOntologyMapper.ORGANIZATION, system, 1.0);
       final Resource amazon = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Amazon",
           system);
       AIFUtils.markType(model, "http://www.test.org/assertions/3",
-          amazon, ColdStartOntology.ORGANIZATION, system, 1.0);
+          amazon, ColdStartOntologyMapper.ORGANIZATION, system, 1.0);
       final Resource seattle = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Seattle",
           system);
       AIFUtils.markType(model, "http://www.test.org/assertions/4",
-          seattle, ColdStartOntology.GPE, system, 1.0);
+          seattle, ColdStartOntologyMapper.GPE, system, 1.0);
       final Resource california = AIFUtils
           .makeEntity(model, "http://www.test.edu/entities/California",
               system);
       AIFUtils.markType(model, "http://www.test.org/assertions/5",
-          california, ColdStartOntology.GPE, system, 1.0);
+          california, ColdStartOntologyMapper.GPE, system, 1.0);
 
       // under the background hypothesis that Bob lives in Seattle, we believe he works for Amazon
       final Resource bobLivesInSeattle = makeRelation(model, "http://www.test.edu/relations/1",
-          bob, ColdStartOntology.relationType("cities_of_residence"),
+          bob, ontologyMapping.relationType("cities_of_residence"),
           seattle, system, 1.0);
       final Resource bobLivesInSeattleHypothesis = makeHypothesis(model,
           "http://www.test.edu/hypotheses/1", ImmutableSet.of(bobLivesInSeattle),
           system);
       final Resource bobWorksForAmazon = makeRelation(model, "http://www.test.edu/relations/2",
-          bob, ColdStartOntology.relationType("employee_or_member_of"),
+          bob, ontologyMapping.relationType("employee_or_member_of"),
           amazon, system, 1.0);
       markDependsOnHypothesis(bobWorksForAmazon, bobLivesInSeattleHypothesis);
 
       // under the background hypothesis that Bob lives in California, we believe he works for Google
       final Resource bobLivesInCalifornia = makeRelation(model, "http://www.test.edu/relations/3",
-          bob, ColdStartOntology.relationType("cities_of_residence"),
+          bob, ontologyMapping.relationType("cities_of_residence"),
           california, system, 1.0);
       final Resource bobLivesInCaliforniaHypothesis = makeHypothesis(model,
           "http://www.test.edu/hypotheses/2", ImmutableSet.of(bobLivesInCalifornia),
           system);
       final Resource bobWorksForGoogle = makeRelation(model, "http://www.test.edu/relations/4",
-          bob, ColdStartOntology.relationType("employee_or_member_of"),
+          bob, ontologyMapping.relationType("employee_or_member_of"),
           google, system, 1.0);
       markDependsOnHypothesis(bobWorksForGoogle, bobLivesInCaliforniaHypothesis);
 
@@ -410,7 +418,7 @@ public class ExamplesAndValidationTest {
 
       AIFUtils.markType(model, "http://www.test.org/assertions/1",
           // illegal confidence value - not in [0.0, 1.0]
-          entity, ColdStartOntology.PERSON, system, 100.0);
+          entity, ColdStartOntologyMapper.PERSON, system, 100.0);
 
       assertFalse(validator.validateKB(model));
     }
@@ -518,7 +526,7 @@ public class ExamplesAndValidationTest {
     model.setNsPrefix("rdf", RDF.uri);
     model.setNsPrefix("xsd", XSD.getURI());
     model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
-    model.setNsPrefix("coldstart", ColdStartOntology.NAMESPACE);
+    model.setNsPrefix("coldstart", ColdStartOntologyMapper.NAMESPACE_STATIC);
     model.setNsPrefix("skos", SKOS.uri);
     return model;
   }
