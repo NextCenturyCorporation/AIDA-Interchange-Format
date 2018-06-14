@@ -123,7 +123,7 @@ class SeedlingOntologyMapper : OntologyMapping {
     override fun eventArgumentType(argName: String): Resource = ontologizeEventType(argName)
 }
 
-class RPISeedlingOntologyMapper : OntologyMapping {
+open class RPISeedlingOntologyMapper : OntologyMapping {
     private val seedlingOM = SeedlingOntologyMapper()
     override val NAMESPACE: String = SeedlingOntologyMapper.NAMESPACE_STATIC
     val FILLER = ResourceFactory.createResource(NAMESPACE + "FillerType")!!
