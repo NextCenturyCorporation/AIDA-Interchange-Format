@@ -101,8 +101,12 @@ program by running `target/appassembler/bin/images2Aif`.
 
 # Developing
 
-If you need to edit the Kotlin code, just import the POM for this project using IntelliJ IDEA and
-you should be ready to go.
+If you need to edit the Kotlin or Java code:
+ 1. Install IntelliJ IDEA.
+ 2. "Import Project from Existing Sources"
+ 3. Choose the `pom.xml` for this repository and accept all defaults.
+
+You should now be ready to go.
 
 # Contact
 

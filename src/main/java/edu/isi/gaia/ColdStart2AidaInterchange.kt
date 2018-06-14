@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMultiset
 import com.google.common.io.Files
 import edu.isi.gaia.AIFUtils.markSystem
 import edu.isi.nlp.files.FileUtils
+import edu.isi.nlp.parameters.Parameters
 import edu.isi.nlp.parameters.Parameters.loadSerifStyle
 import edu.isi.nlp.symbols.Symbol
 import mu.KLogging
@@ -308,9 +309,7 @@ enum class Mode {
 fun main(args: Array<String>) {
     val params = loadSerifStyle(File(args[0]))
     val inputKBFile = params.getExistingFile("inputKBFile").toPath()
-    val baseUri = params.getString("baseURI")
     val systemUri = params.getString("systemURI")
-    val ontologyName: String = params.getOptionalString("ontology").or("coldstart")
 
     // we can run in two modes
     // in one mode, we output one big RDF file for the whole KB. If we do that, we need to
@@ -320,78 +319,21 @@ fun main(args: Array<String>) {
     // and can afford to use pretty-printed Turtle on the output
     // the mode difference also affects whether we expect the output path to be a file or a
     // directory
-    val outputPath: Path
-    val outputFormat: RDFFormat
-
-    // the ColdStart format already includes cross-document coref information. If this is true,
-    // we throw this information away during conversion
-
-    val breakCrossDocCoref: Boolean
-    // should confidences be attach directly to the entity or assertion they pertain to or to
-    // the justifications thereof? When working at the single-document level (TA1 -> TA2), it should
-    // be the latter; in TA2 and TA3, the former.
-    val restrictConfidencesToJustifications: Boolean
-
     val mode = params.getEnum("mode", Mode::class.java)!!
-    when(mode) {
-        Mode.FULL -> {
-            outputPath = params.getCreatableFile("outputAIFFile").toPath()
-            outputFormat = RDFFormat.NTRIPLES
-            breakCrossDocCoref = params.getOptionalBoolean("breakCrossDocCoref").or(false)
-            restrictConfidencesToJustifications =
-                    params.getOptionalBoolean("restrictConfidencesToJustifications").or(false)
-        }
-        Mode.SHATTER -> {
-            outputPath = params.getCreatableDirectory("outputAIFDirectory").toPath()
-            outputFormat = RDFFormat.TURTLE_PRETTY
-            breakCrossDocCoref = true
-            restrictConfidencesToJustifications = true
-        }
-    }
 
-    // In AIDA, there can be uncertainty about coreference, so the AIDA interchange format provides
-    // a means of representing coreference uncertainty.  In ColdStart, however, coref
-    // decisions were always "hard". We provide the user with the option of whether to encode these
-    // coref decisions in the way they would be encoded in AIDA if there were any uncertainty so
-    // that users can test these data structures
-    val useClustersForCoref = params.getOptionalBoolean("useClustersForCoref").or(false)
+    val outputPath: Path
 
-    val logger = LoggerFactory.getLogger("main") as Logger
     // don't log too much Jena-internal stuff
     (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.INFO
 
-    // support TA1s which erroneously leave confidences off some of their mentions
-    val defaultMentionConfidence = params.getOptionalPositiveDouble(
-            "defaultMentionConfidence").orNull()
-    if (defaultMentionConfidence != null) {
-        logger.info("Using default mention confidence $defaultMentionConfidence")
-    }
-
-    //
     val ontologyMappings: Map<String, OntologyMapping> = listOf(
             "coldstart" to ColdStartOntologyMapper(),
             "seedling" to SeedlingOntologyMapper(),
             "rpi_seedling" to RPISeedlingOntologyMapper()
     ).toMap()
+
+    val ontologyName: String = params.getOptionalString("ontology").or("coldstart")
     val ontologyMapping = ontologyMappings[ontologyName] ?: ColdStartOntologyMapper()
-
-
-    // we need to let the ColdStart KB loader itself know we are shattering by document so it
-    // knows to eliminate the cross-document coreference links which have already been added by
-    // the ColdStart system
-    val coldstartKB = ColdStartKBLoader(breakCrossDocCoref = breakCrossDocCoref,
-            ontologyMapping = ontologyMapping).load(inputKBFile)
-
-    val converter = ColdStart2AidaInterchangeConverter(
-            entityIriGenerator = UuidIriGenerator("$baseUri/entities"),
-            eventIriGenerator = UuidIriGenerator("$baseUri/events"),
-            assertionIriGenerator = UuidIriGenerator("$baseUri/assertions"),
-            stringIriGenerator = UuidIriGenerator("$baseUri/strings"),
-            clusterIriGenerator = UuidIriGenerator("$baseUri/clusters"),
-            useClustersForCoref = useClustersForCoref,
-            restrictConfidencesToJustifications = restrictConfidencesToJustifications,
-            defaultMentionConfidence = defaultMentionConfidence,
-            ontologyMapping = ontologyMapping)
 
     // this will track which assertions could not be converted. This is useful for debugging.
     // we pull this out into its own object instead of doing it inside the conversion method
@@ -399,62 +341,137 @@ fun main(args: Array<String>) {
     // mode
     val untranslatableAssertionListener = UntranslatableColdstartAssertionTypeLogger()
 
-    // conversion logic shared between the two modes
-    fun convertKB(kb: ColdStartKB, model: Model, outPath: Path) {
-        converter.coldstartToAidaInterchange(systemUri, kb, model,
-                untranslatableAssertionListener = untranslatableAssertionListener::observe)
-        outPath.toFile().bufferedWriter(UTF_8).use {
-            // deprecation is OK because Guava guarantees the writer handles the charset properly
-            @Suppress("DEPRECATION")
-            RDFDataMgr.write(it, model, outputFormat)
-        }
+    // the ColdStart format already includes cross-document coref information. If this is true,
+    // we throw this information away during conversion
+    val breakCrossDocCoref = when(mode) {
+        Mode.FULL -> params.getOptionalBoolean("breakCrossDocCoref").or(false)
+        Mode.SHATTER -> true
     }
 
+    val coldstartKB = ColdStartKBLoader(
+            // we need to let the ColdStart KB loader itself know we are shattering by document so it
+            // knows to eliminate the cross-document coreference links which have already been added by
+            // the ColdStart system
+            breakCrossDocCoref = breakCrossDocCoref,
+            ontologyMapping = ontologyMapping).load(inputKBFile)
 
-    when (mode) {
+    when(mode) {
         // converting entire ColdStart KB at once
-        Mode.FULL -> AIFUtils.workWithBigModel { convertKB(coldstartKB, it, outputPath) }
-
+        Mode.FULL -> {
+            val converter = configureConverterFromParams(params,
+                    // should confidences be attach directly to the entity or assertion they pertain
+                    // to or to the justifications thereof? When working at the single-document
+                    // level (TA1 -> TA2), it should be the latter; in TA2 and TA3, the former.
+                    restrictConfidencesToJustifications=params.getOptionalBoolean(
+                    "restrictConfidencesToJustifications").or(false),
+                    ontologyMapping = ontologyMapping)
+            outputPath = params.getCreatableFile("outputAIFFile").toPath()
+            convertColdStartAsSingleKB(converter, systemUri, coldstartKB, outputPath,
+                    untranslatableAssertionListener::observe)
+        }
         // converting document-by-document
         Mode.SHATTER -> {
-            outputPath.toFile().mkdirs()
-            // for the convenience of programs processing the output, we provide
-            // a list of all doc-level turtle files generated and a file mapping from doc IDs
-            // to these files
-            val outputFileList = mutableListOf<File>()
-            val outputFileMap = ImmutableMap.builder<Symbol, File>()
-
-            var docsProcessed = 0
-            val kbsByDocument = coldstartKB.shatterByDocument()
-            for ((docId, perDocKB) in kbsByDocument) {
-                docsProcessed += 1
-                val outputFile = outputPath.resolve("$docId.turtle")
-                convertKB(perDocKB, ModelFactory.createDefaultModel(),
-                        outputFile)
-
-                outputFileList.add(outputFile.toFile())
-                outputFileMap.put(Symbol.from(docId), outputFile.toFile())
-
-                if (docsProcessed % 1000 == 0) {
-                    logger.info("Translated $docsProcessed / ${kbsByDocument.size}")
-                }
-            }
-
-
-            val listFile = outputPath.resolve("translated_files.list").toFile()
-            FileUtils.writeFileList(outputFileList,
-                    Files.asCharSink(listFile, Charsets.UTF_8))
-            val mapFile = outputPath.resolve("translated_files.map").toFile()
-            FileUtils.writeSymbolToFileMap(outputFileMap.build(),
-                    Files.asCharSink(mapFile, Charsets.UTF_8))
-            ColdStart2AidaInterchangeConverter.logger.info(
-                    "Wrote list and map of translated files to $listFile and $mapFile " +
-                            "respectively")
+            val converter = configureConverterFromParams(params,
+                    restrictConfidencesToJustifications=true,
+                    ontologyMapping = ontologyMapping)
+            outputPath = params.getCreatableDirectory("outputAIFDirectory").toPath()
+            convertColdStartShatteringByDocument(converter, systemUri, coldstartKB, outputPath,
+                    untranslatableAssertionListener::observe)
         }
     }
 
     ColdStart2AidaInterchangeConverter.logger.info(
             untranslatableAssertionListener.logUntranslatableTypesMessage())
+}
+
+fun convertColdStartAsSingleKB(converter: ColdStart2AidaInterchangeConverter,
+                               systemUri: String,
+                               coldstartKB: ColdStartKB, outputPath: Path,
+                               untranslatableAssertionCallback: (Assertion) -> Unit = {}) {
+    AIFUtils.workWithBigModel {
+        val model = it
+        converter.coldstartToAidaInterchange(systemUri, coldstartKB, model,
+                untranslatableAssertionListener = untranslatableAssertionCallback)
+        outputPath.toFile().bufferedWriter(UTF_8).use {
+            // deprecation is OK because Guava guarantees the writer handles the charset properly
+            @Suppress("DEPRECATION")
+            RDFDataMgr.write(it, model, RDFFormat.NTRIPLES)
+        }
+    }
+}
+
+fun convertColdStartShatteringByDocument(
+        converter: ColdStart2AidaInterchangeConverter, systemUri: String, coldstartKB: ColdStartKB,
+        outputPath: Path, untranslatableAssertionCallback: (Assertion) -> Unit = {}) {
+    outputPath.toFile().mkdirs()
+    // for the convenience of programs processing the output, we provide
+    // a list of all doc-level turtle files generated and a file mapping from doc IDs
+    // to these files
+    val outputFileList = mutableListOf<File>()
+    val outputFileMap = ImmutableMap.builder<Symbol, File>()
+
+    var docsProcessed = 0
+    val kbsByDocument = coldstartKB.shatterByDocument()
+    for ((docId, perDocKB) in kbsByDocument) {
+        docsProcessed += 1
+        val outputFile = outputPath.resolve("$docId.turtle")
+        val model = ModelFactory.createDefaultModel()
+        converter.coldstartToAidaInterchange(systemUri, coldstartKB, model,
+                untranslatableAssertionListener = untranslatableAssertionCallback)
+        outputFile.toFile().bufferedWriter(UTF_8).use {
+            // deprecation is OK because Guava guarantees the writer handles the charset properly
+            @Suppress("DEPRECATION")
+            RDFDataMgr.write(it, model, RDFFormat.TURTLE_PRETTY)
+        }
+
+        outputFileList.add(outputFile.toFile())
+        outputFileMap.put(Symbol.from(docId), outputFile.toFile())
+
+        if (docsProcessed % 1000 == 0) {
+            LoggerFactory.getLogger("main").info(
+                    "Translated $docsProcessed / ${kbsByDocument.size}")
+        }
+    }
+
+
+    val listFile = outputPath.resolve("translated_files.list").toFile()
+    FileUtils.writeFileList(outputFileList,
+            Files.asCharSink(listFile, Charsets.UTF_8))
+    val mapFile = outputPath.resolve("translated_files.map").toFile()
+    FileUtils.writeSymbolToFileMap(outputFileMap.build(),
+            Files.asCharSink(mapFile, Charsets.UTF_8))
+    ColdStart2AidaInterchangeConverter.logger.info(
+            "Wrote list and map of translated files to $listFile and $mapFile " +
+                    "respectively")
+}
+
+
+
+private fun configureConverterFromParams(
+        params: Parameters,
+        restrictConfidencesToJustifications: Boolean,
+        ontologyMapping: OntologyMapping): ColdStart2AidaInterchangeConverter {
+    val baseUri =  params.getString("baseURI")!!
+
+
+    return ColdStart2AidaInterchangeConverter(
+            entityIriGenerator = UuidIriGenerator("$baseUri/entities"),
+            eventIriGenerator = UuidIriGenerator("$baseUri/events"),
+            assertionIriGenerator = UuidIriGenerator("$baseUri/assertions"),
+            stringIriGenerator = UuidIriGenerator("$baseUri/strings"),
+            clusterIriGenerator = UuidIriGenerator("$baseUri/clusters"),
+            ontologyMapping = ontologyMapping,
+            // In AIDA, there can be uncertainty about coreference, so the AIDA interchange format
+            // provides a means of representing coreference uncertainty.  In ColdStart, however,
+            // coref decisions were always "hard". We provide the user with the option of whether
+            // to encode these coref decisions in the way they would be encoded in AIDA if there
+            // were any uncertainty so that users can test these data structures
+            useClustersForCoref = params.getOptionalBoolean("useClustersForCoref")
+                    .or(false),
+            restrictConfidencesToJustifications = restrictConfidencesToJustifications,
+            // support TA1s which erroneously leave confidences off some of their mentions
+            defaultMentionConfidence = params.getOptionalPositiveDouble(
+                    "defaultMentionConfidence").orNull())
 }
 
 /**
