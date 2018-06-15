@@ -34,7 +34,7 @@ readability) but N-Triples for working with large KBs (for speed).
 * To install the JVM code, do `mvn install` from the root of this repository using Apache Maven.
         Repeat the `mvn install` if you pull an updated version of the code. You can run the tests,
         which should output the examples, by doing `mvn test`.
-* The Python code is not currently set up for installation; just add it to your `PYTHONPATH`.
+* The Python code is not currently set up for installation; just add AIDA-Interchange-Format/python to your `PYTHONPATH`.
 
 # Running the validator
 
