@@ -5,7 +5,6 @@ import org.apache.jena.query.QueryExecutionFactory
 import org.apache.jena.query.QueryFactory
 import org.apache.jena.query.QuerySolutionMap
 import org.apache.jena.rdf.model.Model
-import org.apache.jena.rdf.model.RDFNode
 import org.apache.jena.rdf.model.Resource
 import org.apache.jena.tdb.TDBFactory
 import org.apache.jena.vocabulary.RDF
@@ -555,7 +554,7 @@ object AIFUtils {
     }
 
     @JvmStatic
-    fun getConfidenceAssertions(model: Model, confidencedObject: Resource): Set<RDFNode> {
+    fun getConfidenceAssertions(model: Model, confidencedObject: Resource): Set<Resource> {
         return model.objectsWithProperty(confidencedObject, AidaAnnotationOntology.CONFIDENCE)
                 .map { it.asResource() }.toSet()
     }
