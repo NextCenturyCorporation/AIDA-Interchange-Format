@@ -1,6 +1,11 @@
 package edu.isi.gaia
 
+import edu.isi.gaia.AIFUtils.SparqlQueries.TYPE_QUERY
+import org.apache.jena.query.QueryExecutionFactory
+import org.apache.jena.query.QueryFactory
+import org.apache.jena.query.QuerySolutionMap
 import org.apache.jena.rdf.model.Model
+import org.apache.jena.rdf.model.RDFNode
 import org.apache.jena.rdf.model.Resource
 import org.apache.jena.tdb.TDBFactory
 import org.apache.jena.vocabulary.RDF
@@ -529,6 +534,30 @@ object AIFUtils {
         } finally {
             tempDir.deleteRecursively()
         }
+    }
+
+    private object SparqlQueries {
+        val TYPE_QUERY = QueryFactory.create("""SELECT ?typeAssertion WHERE {
+            ?typeAssertion a rdf:Statement .
+            ?typeAssertion rdf:predicate rdf:type .
+            ?typeAssertion rdf:subject ?typedObject .
+        }
+        """)
+    }
+
+    @JvmStatic
+    fun getTypeAssertions(model: Model, typedObject: Resource): Set<Resource> {
+        val boundVariables = QuerySolutionMap()
+        boundVariables.add("typedObject", typedObject)
+        val queryExecution = QueryExecutionFactory.create(TYPE_QUERY, model, boundVariables)
+        val results = queryExecution.execSelect()
+        return results.asSequence().map { it.get("typeAssertion").asResource() }.toSet()
+    }
+
+    @JvmStatic
+    fun getConfidenceAssertions(model: Model, confidencedObject: Resource): Set<RDFNode> {
+        return model.objectsWithProperty(confidencedObject, AidaAnnotationOntology.CONFIDENCE)
+                .map { it.asResource() }.toSet()
     }
 }
 
