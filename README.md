@@ -108,6 +108,10 @@ If you need to edit the Kotlin or Java code:
 
 You should now be ready to go.
 
+# FAQ
+
+Please see `FAQ.md` for frequently asked questions.
+
 # Contact
 
 AIF was designed by Ryan Gabbard (gabbard@isi.edu) and Pedro Szekely (pszekeley@isi.edu) of USC ISI.
