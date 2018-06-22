@@ -50,8 +50,10 @@ data class LinkAssertion(override val subject: Node, val global_id: String) : As
     override fun nodes() = setOf(subject)
 }
 
+// these are currently lowercased, but we enforce it in case someone changes it in the future
+// we always compare against lowercase in order to be case-insensitive
 val MENTION_TYPES = setOf("mention", "pronominal_mention", "nominal_mention",
-        "canonical_mention", "normalized_mention")
+        "canonical_mention", "normalized_mention").map { it.toLowerCase() }.toSet()
 
 
 data class MentionType(val name: String) {
@@ -250,9 +252,10 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false,
             // So on the first pass we determine our set of entity, event, etc. nodes...
             parseColdStartFile("mentions", {
                 val assertionType = extractAssertionType(it)
-                return@parseColdStartFile when {
-                    assertionType == "type" || assertionType=="link" -> listOf()
-                    MENTION_TYPES.contains(assertionType) -> parseMention(it)
+                return@parseColdStartFile when (assertionType.toLowerCase()) {
+                    "type" -> listOf()
+                    "link" -> listOf()
+                    in MENTION_TYPES -> parseMention(it)
                     else -> parsePredicate(it)
                 }
             })
@@ -265,7 +268,7 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false,
             // entity (etc.) we shattered it into.
             parseColdStartFile("types/links", {
                 val assertionType = extractAssertionType(it)
-                return@parseColdStartFile when (assertionType) {
+                return@parseColdStartFile when (assertionType.toLowerCase()) {
                     "type" -> parseTypeAssertion(it)
                     "link" -> parseLinkAssertion(it)
                     else -> listOf()
