@@ -128,7 +128,8 @@ open class RPISeedlingOntologyMapper : OntologyMapping {
     override val NAMESPACE: String = SeedlingOntologyMapper.NAMESPACE_STATIC
     val FILLER = ResourceFactory.createResource(NAMESPACE + "FillerType")!!
 
-    override fun entityShortNames(): Set<String> = seedlingOM.entityShortNames()
+    override fun entityShortNames(): Set<String> = seedlingOM.entityShortNames().
+            plus("FILLER").toSet()
 
     override fun shortNameToResource(ontology_type: String): Resource = if (ontology_type == "FILLER") FILLER
     else seedlingOM.shortNameToResource(ontology_type)
