@@ -42,8 +42,8 @@
 
 :Hypothesis a owl:Class ;
     rdfs:label "Hypothesis" ;
-    skos:definition "Represents a hypothesis, which consists of a collection of entities, events, relations, sentiment assertions, and RDF statements about these." .
-
+    skos:definition "Represents a hypothesis, which consists of a collection of entities, events, relations, sentiment assertions, and RDF statements about these." ;
+    skos:note "All elements linked to a hypothesis are assumed to be conjoined" .
 
 ########## Annotation Classes ##########
 

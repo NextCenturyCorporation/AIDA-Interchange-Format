@@ -880,6 +880,8 @@ aida:HypothesisShape
    a sh:NodeShape ;
    sh:targetClass aida:Hypothesis ;
 
+   # all elements in a hypothesis sub-graph are assumed to be asserted (that is, they are
+   # interpreted as a conjunction)
    sh:property [
     a sh:PropertyShape ;
     sh:path aida:hypothesisContent ;
