@@ -278,6 +278,10 @@ public class ExamplesAndValidationTest {
       assertTrue(ValidateAIF.createForDomainOntologySource(
               Resources.asCharSource(Resources.getResource("edu/isi/gaia/seedling-ontology.ttl"),
                       Charsets.UTF_8)).validateKB(model));
+
+      assertTrue(ValidateAIF.createForDomainOntologySource(
+              Resources.asCharSource(Resources.getResource("edu/isi/gaia/seedling-owl-ontology.ttl"),
+                      Charsets.UTF_8)).validateKB(model));
     }
     @Test
     void labelSentimentRegardingAnEntity() {
@@ -463,6 +467,7 @@ public class ExamplesAndValidationTest {
       markType(model, "http://www.test.edu/typeAssertion/1", entity,
           // use a blank node as the bogus entity type
           model.createResource(), system, 1.0);
+      RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
       assertFalse(validator.validateKB(model));
     }
 

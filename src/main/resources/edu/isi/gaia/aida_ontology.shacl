@@ -317,8 +317,7 @@ aida:TypeShape
    # and events are restricted to having event types?  Issue #29
    sh:property [
      sh:path rdf:object ;
-     sh:xone ( [sh:class aidaDomainCommon:EntityType ]
-               [sh:class aidaDomainCommon:EventType ] ) ;
+     sh:class aidaDomainCommon:Type ; 
      sh:message "Object of type assertion must be an entity or event type"];
     # TODO: handle temporal or string values
 
