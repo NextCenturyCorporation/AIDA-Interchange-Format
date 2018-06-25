@@ -13,6 +13,7 @@
     rdfs:comment "This ontology is designed to represent information exchanged between TA1, TA2 and TA3 in the AIDA program"^^xsd:string ;
     owl:versionInfo "Version 0.1"^^xsd:string .
 
+
 #################################################################
 #    Classes
 #################################################################
@@ -41,8 +42,8 @@
 
 :Hypothesis a owl:Class ;
     rdfs:label "Hypothesis" ;
-    skos:definition "Represents a hypothesis, which consists of a collection of entities, events, relations, sentiment assertions, and RDF statements about these." .
-
+    skos:definition "Represents a hypothesis, which consists of a collection of entities, events, relations, sentiment assertions, and RDF statements about these." ;
+    skos:note "All elements linked to a hypothesis are assumed to be conjoined" .
 
 ########## Annotation Classes ##########
 
