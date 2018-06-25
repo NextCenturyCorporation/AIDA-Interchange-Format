@@ -1,4 +1,4 @@
-@prefix : <http://www.isi.edu/aida/interchangeOntology#> .
+@prefix : <http://darpa.mil/aida/interchangeOntology#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -8,11 +8,10 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
-<http://www.isi.edu/aida/interchangeOntology> rdf:type owl:Ontology ;
+<http://darpa.mil/aida/interchangeOntology> rdf:type owl:Ontology ;
     rdfs:label "AIDA Interchange Format Ontology"^^xsd:string ;
     rdfs:comment "This ontology is designed to represent information exchanged between TA1, TA2 and TA3 in the AIDA program"^^xsd:string ;
     owl:versionInfo "Version 0.1"^^xsd:string .
-
 
 #################################################################
 #    Classes
@@ -42,8 +41,8 @@
 
 :Hypothesis a owl:Class ;
     rdfs:label "Hypothesis" ;
-    skos:definition "Represents a hypothesis, which consists of a collection of entities, events, relations, sentiment assertions, and RDF statements about these." ;
-    skos:note "All elements linked to a hypothesis are assumed to be conjoined" .
+    skos:definition "Represents a hypothesis, which consists of a collection of entities, events, relations, sentiment assertions, and RDF statements about these." .
+
 
 ########## Annotation Classes ##########
 
@@ -99,4 +98,66 @@
    rdfs:label "Link Assertion" ;
    rdfs:definition "Represents the claim that an entity or event is the same as the prototype of a cluster".
 
+#################################################################
+#        Properties
+#################################################################
 
+:about rdf:type owl:ObjectProperty ;
+  rdfs:label "about"^^xsd:string ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:alternateGraph rdf:type owl:ObjectProperty ;
+  rdfs:domain :MutualExclusionAlternative ;
+  rdfs:label "alternate graph"^^xsd:string ;
+  rdfs:range :Subgraph ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:alternative rdf:type owl:ObjectProperty ;
+  rdfs:domain [
+      rdf:type owl:Class ;
+      owl:unionOf (
+          :MutualExclusion
+          :Hypothesis
+        ) ;
+    ] ;
+  rdfs:label "alternative"^^xsd:string ;
+  rdfs:range :MutualExclusionAlternative ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:cluster rdf:type owl:ObjectProperty ;
+  rdfs:domain [
+      rdf:type owl:Class ;
+      owl:unionOf (
+          :ClusterMember
+          :LinkAssertion
+        ) ;
+    ] ;
+  rdfs:label "cluster"^^xsd:string ;
+  rdfs:range :SameAsCluster ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:confidence rdf:type owl:ObjectProperty ;
+  rdfs:label "confidence"^^xsd:string ;
+  rdfs:range :Confidence ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:containsAssertion rdf:type owl:ObjectProperty ;
+  rdfs:label "contains assertion"^^xsd:string ;
+  rdfs:range rdf:Statement ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:member rdf:type owl:ObjectProperty ;
+  rdfs:label "member"^^xsd:string ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:prototypicalMember rdf:type owl:ObjectProperty ;
+  rdfs:domain :SameAsCluster ;
+  rdfs:label "prototypical member"^^xsd:string ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:value rdf:type owl:DatatypeProperty ;
+  rdfs:comment "Confidence instances might have numerical values associated with them, such as probabilities or likliehoods."^^xsd:string ;
+  rdfs:domain :Confidence ;
+  rdfs:label "value"^^xsd:string ;
+  rdfs:range xsd:float ;
+  rdfs:subPropertyOf owl:topDataProperty ; .
