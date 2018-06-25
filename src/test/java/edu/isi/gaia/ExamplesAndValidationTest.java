@@ -278,6 +278,10 @@ public class ExamplesAndValidationTest {
       assertTrue(ValidateAIF.createForDomainOntologySource(
               Resources.asCharSource(Resources.getResource("edu/isi/gaia/seedling-ontology.ttl"),
                       Charsets.UTF_8)).validateKB(model));
+
+      assertTrue(ValidateAIF.createForDomainOntologySource(
+              Resources.asCharSource(Resources.getResource("edu/isi/gaia/seedling-owl-ontology.ttl"),
+                      Charsets.UTF_8)).validateKB(model));
     }
     @Test
     void labelSentimentRegardingAnEntity() {
@@ -452,7 +456,6 @@ public class ExamplesAndValidationTest {
     }
 
     @Test
-    @Disabled
     void nonTypeUsedAsType() {
       final Model model = createModel();
 

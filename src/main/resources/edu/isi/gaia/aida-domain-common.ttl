@@ -31,3 +31,5 @@
 :RelationType a owl:Class ;
    rdfs:label "AIDA relation type" .
 
+:Type a owl:Class;
+
