@@ -1,4 +1,5 @@
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
@@ -283,6 +284,28 @@ aida:SentimentShape
   sh:ignoredProperties (rdf:type rdf:predicate)
   .
 
+# Allow for subclasses as well as instances of EntityType
+aida:EntitySubclass
+  a sh:NodeShape ;
+  sh:xone (
+    [sh:class aidaDomainCommon:EntityType ]
+    [sh:property [
+        sh:path rdfs:subClassOf ;
+        sh:hasValue aidaDomainCommon:EntityType ;
+        sh:minCount 1 ] ] )
+  .
+
+# Allow for subclasses as well as instances of EventType
+aida:EventSubclass
+  a sh:NodeShape ;
+  sh:xone (
+    [sh:class aidaDomainCommon:EventType ]
+    [sh:property [
+        sh:path rdfs:subClassOf ;
+        sh:hasValue aidaDomainCommon:EventType ;
+        sh:minCount 1 ] ] )
+  .
+
 # we also use RDF statements to assign types to entities and events
 aida:TypeShape
    a sh:NodeShape ;
@@ -317,8 +340,8 @@ aida:TypeShape
    # and events are restricted to having event types?  Issue #29
    sh:property [
      sh:path rdf:object ;
-     sh:xone ( [sh:class aidaDomainCommon:EntityType ]
-               [sh:class aidaDomainCommon:EventType ] ) ;
+     sh:xone ( [sh:node aida:EntitySubclass ]
+               [sh:node aida:EventSubclass ] ) ;
      sh:message "Object of type assertion must be an entity or event type"];
     # TODO: handle temporal or string values
 
