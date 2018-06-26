@@ -7,7 +7,7 @@
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix owl:   <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix aidaCommon: <http://darpa.mil/ontologies/AidaDomainOntologiesCommon#> .
+@prefix aidaDomainCommon: <http://darpa.mil/ontologies/AidaDomainOntologiesCommon#> .
 
 ldcOnt:  a               owl:Ontology ;
         rdfs:comment     "An ontology for creating messages from LDC data to use in AIDA interchange language development" ;
@@ -23,21 +23,21 @@ ldcOnt:ArgumentRestriction
 ######################################################
 # Entity classes
 ######################################################
-ldcOnt:Facility  rdfs:subClassOf  aidaCommon:EntityType .
+ldcOnt:Facility  rdfs:subClassOf  aidaDomainCommon:EntityType .
 
 ldcOnt:FillerType  rdfs:label  "Seedling filler type" ;
-        rdfs:subClassOf  aidaCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:EntityType .
 
 ldcOnt:GeopoliticalEntity
-        rdfs:subClassOf  aidaCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:EntityType .
 
-ldcOnt:Location  rdfs:subClassOf  aidaCommon:EntityType .
+ldcOnt:Location  rdfs:subClassOf  aidaDomainCommon:EntityType .
 
-ldcOnt:Organization  rdfs:subClassOf  aidaCommon:EntityType .
+ldcOnt:Organization  rdfs:subClassOf  aidaDomainCommon:EntityType .
 
-ldcOnt:Person  rdfs:subClassOf  aidaCommon:EntityType .
+ldcOnt:Person  rdfs:subClassOf  aidaDomainCommon:EntityType .
 
-ldcOnt:String  rdfs:subClassOf  aidaCommon:EntityType .
+ldcOnt:String  rdfs:subClassOf  aidaDomainCommon:EntityType .
 
 ######################################################
 # Filler types
@@ -70,80 +70,80 @@ ldcOnt:Weapon  rdfs:subClassOf  ldcOnt:FillerType .
 # Relation types
 ######################################################
 ldcOnt:genafl_apora  rdfs:label  "general-affiliation_artifact-political-organization-religious-affiliation" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:genafl_more  rdfs:label  "general-affiliation_person-member-origin-religion-ethnicity" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:genafl_opra  rdfs:label  "general-affiliation_organization-political-religious-affiliation" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:genafl_orgweb  rdfs:label  "general-affiliation_organization-website" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:genafl_perage  rdfs:label  "general-affiliation_person-age" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:genafl_spon  rdfs:label  "general-affiliation_sponsorship" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:orgafl_empmem  rdfs:label  "organization-affiliation_employment-membership" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:orgafl_found  rdfs:label  "organization-affiliation_founder" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:orgafl_invshar
         rdfs:label       "organization-affiliation_investor-shareholder" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:orgafl_lead  rdfs:label  "organization-affiliation_leadership" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:orgafl_own  rdfs:label  "organization-affiliation_ownership" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:orgafl_stualm  rdfs:label  "organization-affiliation_student-alum" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:partwhole_membership
         rdfs:label       "part-whole_membership" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:partwhole_subsid
         rdfs:label       "part-whole_subsidiary" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:persoc_bus  rdfs:label  "personal-social_business" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:persoc_fam  rdfs:label  "personal-social_family" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:persoc_role  rdfs:label  "personal-social_role-title" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:persoc_unspc  rdfs:label  "personal-social_unspecified" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:phys_locnear  rdfs:label  "physical_located-near" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:phys_orghq  rdfs:label  "physical_organization-headquarter" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:phys_orglocorig
         rdfs:label       "physical_organization-location-origin" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:phys_resident  rdfs:label  "physical_resident" ;
-        rdfs:subClassOf  aidaCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ######################################################
 # Event types
 ######################################################
 ldcOnt:BUSINESS_DECLARE-BANKRUPTCY
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Business_declare-bankruptcy_time ;
                            owl:onProperty     ldcOnt:business_declare-bankruptcy_time
@@ -158,7 +158,7 @@ ldcOnt:BUSINESS_DECLARE-BANKRUPTCY
                          ] .
 
 ldcOnt:BUSINESS_END-BUSINESS
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Business_end-business_time ;
                            owl:onProperty     ldcOnt:business_end-business_time
@@ -173,7 +173,7 @@ ldcOnt:BUSINESS_END-BUSINESS
                          ] .
 
 ldcOnt:BUSINESS_MERGE
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Business_merge_time ;
                            owl:onProperty     ldcOnt:business_merge_time
@@ -192,7 +192,7 @@ ldcOnt:BUSINESS_MERGE
                          ] .
 
 ldcOnt:BUSINESS_START-BUSINESS
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Business_start-business_agent ;
                            owl:onProperty     ldcOnt:business_start-business_agent
@@ -211,7 +211,7 @@ ldcOnt:BUSINESS_START-BUSINESS
                          ] .
 
 ldcOnt:CONFLICT_ATTACK
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Conflict_attack_time ;
                            owl:onProperty     ldcOnt:conflict_attack_time
@@ -234,7 +234,7 @@ ldcOnt:CONFLICT_ATTACK
                          ] .
 
 ldcOnt:CONFLICT_DEMONSTRATE
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Conflict_demonstrate_time ;
                            owl:onProperty     ldcOnt:conflict_demonstrate_time
@@ -249,7 +249,7 @@ ldcOnt:CONFLICT_DEMONSTRATE
                          ] .
 
 ldcOnt:CONTACT_BROADCAST
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Contact_broadcast_time ;
                            owl:onProperty     ldcOnt:contact_broadcast_time
@@ -268,7 +268,7 @@ ldcOnt:CONTACT_BROADCAST
                          ] .
 
 ldcOnt:CONTACT_CONTACT
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Contact_contact_time ;
                            owl:onProperty     ldcOnt:contact_contact_time
@@ -287,7 +287,7 @@ ldcOnt:CONTACT_CONTACT
                          ] .
 
 ldcOnt:CONTACT_CORRESPONDENCE
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Contact_correspondence_time ;
                            owl:onProperty     ldcOnt:contact_correspondence_time
@@ -305,7 +305,7 @@ ldcOnt:CONTACT_CORRESPONDENCE
                            owl:onProperty     ldcOnt:contact_correspondence_entity
                          ] .
 
-ldcOnt:CONTACT_MEET  rdfs:subClassOf  aidaCommon:EventType ;
+ldcOnt:CONTACT_MEET  rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Contact_meet_time ;
                            owl:onProperty     ldcOnt:contact_meet_time
@@ -324,7 +324,7 @@ ldcOnt:CONTACT_MEET  rdfs:subClassOf  aidaCommon:EventType ;
                          ] .
 
 ldcOnt:JUSTICE_ACQUIT
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Justice_acquit_time ;
                            owl:onProperty     ldcOnt:justice_acquit_time
@@ -347,7 +347,7 @@ ldcOnt:JUSTICE_ACQUIT
                          ] .
 
 ldcOnt:JUSTICE_APPEAL
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Justice_appeal_time ;
                            owl:onProperty     ldcOnt:justice_appeal_time
@@ -374,7 +374,7 @@ ldcOnt:JUSTICE_APPEAL
                          ] .
 
 ldcOnt:JUSTICE_ARREST-JAIL
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Justice_arrest-jail_time ;
                            owl:onProperty     ldcOnt:justice_arrest-jail_time
@@ -397,7 +397,7 @@ ldcOnt:JUSTICE_ARREST-JAIL
                          ] .
 
 ldcOnt:JUSTICE_CHARGE-INDICT
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Justice_charge-indict_time ;
                            owl:onProperty     ldcOnt:justice_charge-indict_time
@@ -424,7 +424,7 @@ ldcOnt:JUSTICE_CHARGE-INDICT
                          ] .
 
 ldcOnt:JUSTICE_CONVICT
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Justice_convict_time ;
                            owl:onProperty     ldcOnt:justice_convict_time
@@ -447,7 +447,7 @@ ldcOnt:JUSTICE_CONVICT
                          ] .
 
 ldcOnt:JUSTICE_EXECUTE
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Justice_execute_time ;
                            owl:onProperty     ldcOnt:justice_execute_time
@@ -470,7 +470,7 @@ ldcOnt:JUSTICE_EXECUTE
                          ] .
 
 ldcOnt:JUSTICE_EXTRADITE
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Justice_extradite_time ;
                            owl:onProperty     ldcOnt:justice_extradite_time
@@ -496,7 +496,7 @@ ldcOnt:JUSTICE_EXTRADITE
                            owl:onProperty     ldcOnt:justice_extradite_agent
                          ] .
 
-ldcOnt:JUSTICE_FINE  rdfs:subClassOf  aidaCommon:EventType ;
+ldcOnt:JUSTICE_FINE  rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Justice_fine_time ;
                            owl:onProperty     ldcOnt:justice_fine_time
@@ -523,7 +523,7 @@ ldcOnt:JUSTICE_FINE  rdfs:subClassOf  aidaCommon:EventType ;
                          ] .
 
 ldcOnt:JUSTICE_PARDON
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Justice_pardon_time ;
                            owl:onProperty     ldcOnt:justice_pardon_time
@@ -546,7 +546,7 @@ ldcOnt:JUSTICE_PARDON
                          ] .
 
 ldcOnt:JUSTICE_RELEASE-PAROLE
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Justice_release-parole_time ;
                            owl:onProperty     ldcOnt:justice_release-parole_time
@@ -569,7 +569,7 @@ ldcOnt:JUSTICE_RELEASE-PAROLE
                          ] .
 
 ldcOnt:JUSTICE_SENTENCE
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Justice_sentence_time ;
                            owl:onProperty     ldcOnt:justice_sentence_time
@@ -595,7 +595,7 @@ ldcOnt:JUSTICE_SENTENCE
                            owl:onProperty     ldcOnt:justice_sentence_adjudicator
                          ] .
 
-ldcOnt:JUSTICE_SUE  rdfs:subClassOf  aidaCommon:EventType ;
+ldcOnt:JUSTICE_SUE  rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Justice_sue_time ;
                            owl:onProperty     ldcOnt:justice_sue_time
@@ -622,7 +622,7 @@ ldcOnt:JUSTICE_SUE  rdfs:subClassOf  aidaCommon:EventType ;
                          ] .
 
 ldcOnt:JUSTICE_TRIAL-HEARING
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Justice_trial-hearing_time ;
                            owl:onProperty     ldcOnt:justice_trial-hearing_time
@@ -648,7 +648,7 @@ ldcOnt:JUSTICE_TRIAL-HEARING
                            owl:onProperty     ldcOnt:justice_trial-hearing_prosecutor
                          ] .
 
-ldcOnt:LIFE_BE-BORN  rdfs:subClassOf  aidaCommon:EventType ;
+ldcOnt:LIFE_BE-BORN  rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Life_be-born_time ;
                            owl:onProperty     ldcOnt:life_be-born_time
@@ -662,7 +662,7 @@ ldcOnt:LIFE_BE-BORN  rdfs:subClassOf  aidaCommon:EventType ;
                            owl:onProperty     ldcOnt:life_be-born_person
                          ] .
 
-ldcOnt:LIFE_DIE  rdfs:subClassOf  aidaCommon:EventType ;
+ldcOnt:LIFE_DIE  rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Life_die_time ;
                            owl:onProperty     ldcOnt:life_die_time
@@ -684,7 +684,7 @@ ldcOnt:LIFE_DIE  rdfs:subClassOf  aidaCommon:EventType ;
                            owl:onProperty     ldcOnt:life_die_agent
                          ] .
 
-ldcOnt:LIFE_DIVORCE  rdfs:subClassOf  aidaCommon:EventType ;
+ldcOnt:LIFE_DIVORCE  rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Life_divorce_time ;
                            owl:onProperty     ldcOnt:life_divorce_time
@@ -702,7 +702,7 @@ ldcOnt:LIFE_DIVORCE  rdfs:subClassOf  aidaCommon:EventType ;
                            owl:onProperty     ldcOnt:life_divorce_person
                          ] .
 
-ldcOnt:LIFE_INJURE  rdfs:subClassOf  aidaCommon:EventType ;
+ldcOnt:LIFE_INJURE  rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Life_injure_time ;
                            owl:onProperty     ldcOnt:life_injure_time
@@ -724,7 +724,7 @@ ldcOnt:LIFE_INJURE  rdfs:subClassOf  aidaCommon:EventType ;
                            owl:onProperty     ldcOnt:life_injure_agent
                          ] .
 
-ldcOnt:LIFE_MARRY  rdfs:subClassOf  aidaCommon:EventType ;
+ldcOnt:LIFE_MARRY  rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Life_marry_time ;
                            owl:onProperty     ldcOnt:life_marry_time
@@ -743,7 +743,7 @@ ldcOnt:LIFE_MARRY  rdfs:subClassOf  aidaCommon:EventType ;
                          ] .
 
 ldcOnt:MANUFACTURE_ARTIFACT
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Manufacture_artifact_time ;
                            owl:onProperty     ldcOnt:manufacture_artifact_time
@@ -766,7 +766,7 @@ ldcOnt:MANUFACTURE_ARTIFACT
                          ] .
 
 ldcOnt:MOVEMENT_TRANSPORT-ARTIFACT
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Movement_transport-artifact_time ;
                            owl:onProperty     ldcOnt:movement_transport-artifact_time
@@ -793,7 +793,7 @@ ldcOnt:MOVEMENT_TRANSPORT-ARTIFACT
                          ] .
 
 ldcOnt:MOVEMENT_TRANSPORT-PERSON
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Movement_transport-person_time ;
                            owl:onProperty     ldcOnt:movement_transport-person_time
@@ -820,7 +820,7 @@ ldcOnt:MOVEMENT_TRANSPORT-PERSON
                          ] .
 
 ldcOnt:PERSONNEL_ELECT
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Personnel_elect_time ;
                            owl:onProperty     ldcOnt:personnel_elect_time
@@ -839,7 +839,7 @@ ldcOnt:PERSONNEL_ELECT
                          ] .
 
 ldcOnt:PERSONNEL_END-PERSONNEL
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Personnel_end-personnel_time ;
                            owl:onProperty     ldcOnt:personnel_end-personnel_time
@@ -858,7 +858,7 @@ ldcOnt:PERSONNEL_END-PERSONNEL
                          ] .
 
 ldcOnt:PERSONNEL_NOMINATE
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Personnel_nominate_time ;
                            owl:onProperty     ldcOnt:personnel_nominate_time
@@ -877,7 +877,7 @@ ldcOnt:PERSONNEL_NOMINATE
                          ] .
 
 ldcOnt:PERSONNEL_START-PERSONNEL
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Personnel_start-personnel_time ;
                            owl:onProperty     ldcOnt:personnel_start-personnel_time
@@ -896,7 +896,7 @@ ldcOnt:PERSONNEL_START-PERSONNEL
                          ] .
 
 ldcOnt:TRANSACTION_TRANSACTION
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Transaction_transaction_time ;
                            owl:onProperty     ldcOnt:transaction_transaction_time
@@ -919,7 +919,7 @@ ldcOnt:TRANSACTION_TRANSACTION
                          ] .
 
 ldcOnt:TRANSACTION_TRANSFER-MONEY
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Transaction_transfer-money_time ;
                            owl:onProperty     ldcOnt:transaction_transfer-money_time
@@ -946,7 +946,7 @@ ldcOnt:TRANSACTION_TRANSFER-MONEY
                          ] .
 
 ldcOnt:TRANSACTION_TRANSFER-OWNERSHIP
-        rdfs:subClassOf  aidaCommon:EventType ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  ldcOnt:Transaction_transfer-ownership_time ;
                            owl:onProperty     ldcOnt:transaction_transfer-ownership_time
