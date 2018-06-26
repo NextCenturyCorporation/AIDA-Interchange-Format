@@ -141,7 +141,7 @@
                             <programs>
                                 <program>
                                     <mainClass>edu.isi.gaia.ColdStart2AidaInterchangeKt</mainClass>
-                                    <name>coldstart2Gaia</name>
+                                    <name>coldstart2AidaInterchange</name>
                                 </program>
 
                                 <program>
