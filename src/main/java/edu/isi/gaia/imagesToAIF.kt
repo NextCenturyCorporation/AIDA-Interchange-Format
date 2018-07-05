@@ -105,6 +105,7 @@ class ImagesToAIF(private val entityUriGenerator: IriGenerator,
                 outputFileMap.put(Symbol.from(docId), outputFile)
 
                 val docModel = ModelFactory.createDefaultModel()
+                AIFUtils.addStandardNamespaces(docModel)
                 val system = AIFUtils.makeSystemWithURI(docModel, systemIri)
                 converter.convertImageMentionToRdf(docModel, imageMentionsForDoc, system)
                 Files.asCharSink(outputFile, Charsets.UTF_8)
