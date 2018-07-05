@@ -105,7 +105,7 @@ class ValidateAIF(private val domainModel: Model) {
                 log.logger.info { "Validating $fileToValidate" }
                 val dataToBeValidated = Files.asCharSource(fileToValidate, Charsets.UTF_8)
                         .openBufferedStream().use { loadModel(it) }
-                allValid = validator.validateKB(dataToBeValidated) || allValid
+                allValid = validator.validateKB(dataToBeValidated) && allValid
             }
 
             if (!allValid) {
