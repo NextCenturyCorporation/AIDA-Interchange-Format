@@ -4,6 +4,8 @@ import org.apache.jena.rdf.model.Model
 import org.apache.jena.rdf.model.Resource
 import org.apache.jena.tdb.TDBFactory
 import org.apache.jena.vocabulary.RDF
+import org.apache.jena.vocabulary.SKOS
+import org.apache.jena.vocabulary.XSD
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -15,6 +17,17 @@ import java.util.*
  * @author Ryan Gabbard (USC ISI)
  */
 object AIFUtils {
+    /**
+     * Adds common non-ontology-specific namespaces to make AIF files more readable
+     */
+    @JvmStatic
+    fun addStandardNamespaces(model: Model) {
+        model.setNsPrefix("rdf", RDF.uri)
+        model.setNsPrefix("xsd", XSD.getURI())
+        model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE)
+        model.setNsPrefix("skos", SKOS.uri)
+    }
+
     /**
      * Create a resource representing the system which produced some data.
      *

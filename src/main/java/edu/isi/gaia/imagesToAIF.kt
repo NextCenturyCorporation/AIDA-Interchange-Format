@@ -63,16 +63,16 @@ class ImagesToAIF(private val entityUriGenerator: IriGenerator,
         fun main(args: Array<String>) {
             if (args.size != 1) {
                 print("""usage: imageToAIF param_file\n
-                    |\tinput_tabular_file: tab-separated file of image entity and event mentions
-                    |\toutput_directory: directory to output AIF, one file per input doc ID
-                    |\tSee class comment on edu.isi.gaia.ImagesToAIF for details.
+                    |    input_tabular_file: tab-separated file of image entity and event mentions
+                    |    output_directory: directory to output AIF, one file per input doc ID
+                    |    See class comment on edu.isi.gaia.ImagesToAIF for details.
                 """.trimMargin())
             }
 
             // prevent too much logging from confusing people
             (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.INFO
 
-            val params = Parameters.loadSerifStyle(File(args[0]))
+            run(Parameters.loadSerifStyle(File(args[0])))
         }
 
         @JvmStatic
@@ -86,6 +86,8 @@ class ImagesToAIF(private val entityUriGenerator: IriGenerator,
             if (systemIri.endsWith('/')) {
                 throw RuntimeException("System IRI may not end with / but got $systemIri")
             }
+
+            log.logger.info { "Read header line as system URI $systemIri" }
 
             val converter = createForSystemIri(systemIri)
 
@@ -103,6 +105,7 @@ class ImagesToAIF(private val entityUriGenerator: IriGenerator,
                 outputFileMap.put(Symbol.from(docId), outputFile)
 
                 val docModel = ModelFactory.createDefaultModel()
+                AIFUtils.addStandardNamespaces(docModel)
                 val system = AIFUtils.makeSystemWithURI(docModel, systemIri)
                 converter.convertImageMentionToRdf(docModel, imageMentionsForDoc, system)
                 Files.asCharSink(outputFile, Charsets.UTF_8)

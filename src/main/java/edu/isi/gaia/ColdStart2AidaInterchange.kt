@@ -19,7 +19,6 @@ import org.apache.jena.riot.RDFDataMgr
 import org.apache.jena.riot.RDFFormat
 import org.apache.jena.vocabulary.RDF
 import org.apache.jena.vocabulary.SKOS
-import org.apache.jena.vocabulary.XSD
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.charset.StandardCharsets.UTF_8
@@ -282,11 +281,8 @@ class ColdStart2AidaInterchangeConverter(
                 }
             }
 
-            model.setNsPrefix("rdf", RDF.uri)
-            model.setNsPrefix("xsd", XSD.getURI())
-            model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE)
+            AIFUtils.addStandardNamespaces(model)
             model.setNsPrefix("domainOntology", ontologyMapping.NAMESPACE)
-            model.setNsPrefix("skos", SKOS.uri)
         }
     }
 }
