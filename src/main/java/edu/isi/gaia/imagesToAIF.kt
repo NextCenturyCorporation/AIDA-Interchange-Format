@@ -53,7 +53,8 @@ import kotlin.coroutines.experimental.buildSequence
  * VECTOR www.usc.edu/vectors/personVectors 0.754 0.3984 1.344
  *
  * You may follow an entity or event line with multiple vectors lines to attach multiple vectors to the object.
- * Vector support is provisional pending finalization of how vectors will be stored in AIF ( issue #21 )
+ * Vector support is provisional pending finalization of how vectors will be stored in AIF ( issue #21 ).
+ * All lines related to the same document must be contiguous.
  *
  *   This script will cannot encode any information about coreference relations between mentions
  *   or other more complex forms of uncertainty.
@@ -178,6 +179,19 @@ class ImagesToAIF(private val entityUriGenerator: IriGenerator,
                 fun splitOnTabs(line: String) = line.split("\t")
                 fun isEntityOrEventLine(lineParts: List<String>) = lineParts[OBJECT_TYPE] in OBJECT_TYPE_NAMES
 
+                class EnsureAllMentionsForSameDocAreContiguous : (List<ImageMention>) -> List<ImageMention> {
+                    val docIdsSeen = mutableSetOf<String>()
+                    override fun invoke(x: List<ImageMention>): List<ImageMention> {
+                        require(x.isNotEmpty())
+                        val docId = x[0].docId
+                        if (docId in docIdsSeen) {
+                            throw RuntimeException("Lines for document $docId are discontinuous")
+                        }
+                        docIdsSeen.add(docId)
+                        return x
+                    }
+                }
+
                 fun parseToDocumentMentions(lines: Sequence<String>): Sequence<List<ImageMention>> = lines.asSequence()
                         // drop(1) to skip system IRI header
                         .drop(1)
@@ -188,6 +202,8 @@ class ImagesToAIF(private val entityUriGenerator: IriGenerator,
                         .map(::parseLinesToMention)
                         // group all mentions from each document together for output
                         .chunkedBy(ImageMention::docId)
+                        // this last step enforces the named constraint but doesn't change the stream elements
+                        .map(EnsureAllMentionsForSameDocAreContiguous())
 
 
                 /**
