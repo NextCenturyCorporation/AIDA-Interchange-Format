@@ -59,9 +59,6 @@ import kotlin.coroutines.experimental.buildSequence
  *   This script will cannot encode any information about coreference relations between mentions
  *   or other more complex forms of uncertainty.
  *
- * Note that this loads the entire input into memory. This wasn't much of an issue before we added attached vectors,
- * but it might be now.
- *
  *  The input to the script is a single parameter file with keys and values separated by `:`. The
  *  required parameters are:
  *
