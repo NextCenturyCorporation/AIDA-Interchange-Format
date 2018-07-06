@@ -161,6 +161,7 @@ class ImagesToAIF(private val entityUriGenerator: IriGenerator,
                                         val ontologyType: String, val boundingBox: AIFUtils.BoundingBox,
                                         val confidence: Double, val vectors: List<ImageVector>) {
             companion object {
+                // indices of tab-separated fields in the input file
                 private const val DOC_ID = 0
                 private const val OBJECT_TYPE = 1
                 private const val ONTOLOGY_TYPE = 2
@@ -204,8 +205,9 @@ class ImagesToAIF(private val entityUriGenerator: IriGenerator,
 
 
                 /**
-                 * Parse a group of lines to an image mention, where the first line describes the image mention itself
-                 * (in the format given in the main class header) and the following lines describe attacked vectors.
+                 * Parse a group of line (represented as a list of their fields) to an image mention, where the first
+                 * line describes the image mention itself (in the format given in the main class header) and the
+                 * following lines describe attacked vectors.
                  */
                 fun parseLinesToMention(linePartses: List<List<String>>): ImageMention {
                     require(linePartses.isNotEmpty()) { "Cannot parse empty set of lines to an image mention!" }
