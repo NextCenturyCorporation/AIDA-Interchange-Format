@@ -416,7 +416,7 @@ fun convertColdStartShatteringByDocument(
         docsProcessed += 1
         val outputFile = outputPath.resolve("$docId.turtle")
         val model = ModelFactory.createDefaultModel()
-        converter.coldstartToAidaInterchange(systemUri, coldstartKB, model,
+        converter.coldstartToAidaInterchange(systemUri, perDocKB, model,
                 untranslatableAssertionListener = untranslatableAssertionCallback)
         outputFile.toFile().bufferedWriter(UTF_8).use {
             // deprecation is OK because Guava guarantees the writer handles the charset properly
