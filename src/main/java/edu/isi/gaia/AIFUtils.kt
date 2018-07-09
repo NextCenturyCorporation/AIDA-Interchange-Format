@@ -536,12 +536,15 @@ object AIFUtils {
     }
 
     private object SparqlQueries {
-        val TYPE_QUERY = QueryFactory.create("""SELECT ?typeAssertion WHERE {
+        val TYPE_QUERY = QueryFactory.create("""
+            PREFIX rdf: <${RDF.uri}>
+
+            SELECT ?typeAssertion WHERE {
             ?typeAssertion a rdf:Statement .
             ?typeAssertion rdf:predicate rdf:type .
             ?typeAssertion rdf:subject ?typedObject .
         }
-        """)
+        """)!!
     }
 
     @JvmStatic
