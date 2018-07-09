@@ -26,17 +26,36 @@ class SeedlingOntologyMapper : OntologyMapping {
         @JvmField
         val STRING = ResourceFactory.createResource(NAMESPACE_STATIC + "String")!!
 
-        @JvmField
-        val ENTITY_TYPES = setOf(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY)
-
-        internal val EVENT_AND_RELATION_TYPES = listOf("CONFLICT.ATTACK", "CONFLICT.DEMONSTRATE",
+        internal val EVENT_TYPES = listOf(
+                // those in the first block match the seedling ontology except...
+                "CONFLICT.ATTACK", "CONFLICT.DEMONSTRATE",
                 "CONTACT.BROADCAST", "CONTACT.CONTACT", "CONTACT.CORRESPONDENCE", "CONTACT.MEET",
                 "JUSTICE.ARREST-JAIL",
                 "LIFE.DIE", "LIFE.INJURE", "MANUFACTURE.ARTIFACT",
                 "MOVEMENT.TRANSPORT-ARTIFACT",
-                "MOVEMENT.TRANSPORT-PERSON", "PERSONNEL.ELECT", "PERSONNEL.END-POSITION",
+                "MOVEMENT.TRANSPORT-PERSON", "PERSONNEL.ELECT",
                 "PERSONNEL.START-POSITION", "TRANSACTION.TRANSACTION", "TRANSACTION.TRANSFER-MONEY",
-                "TRANSACTION.TRANSFER-OWNERSHIP", "children", "parents", "other_family", "other_family",
+                "TRANSACTION.TRANSFER-OWNERSHIP",
+                "BUSINESS.DECLARE-BANKRUPTCY",
+                "JUSTICE.ACQUIT",
+                "JUSTICE.APPEAL", "JUSTICE.CHARGE-INDICT", "JUSTICE.CONVICT", "JUSTICE.EXECUTE",
+                "JUSTICE.EXTRADITE", "JUSTICE.FINE", "JUSTICE.RELEASE-PAROLE", "JUSTICE.SENTENCE",
+                "JUSTICE.SUE", "JUSTICE.TRIAL-HEARING", "LIFE.BE-BORN", "LIFE.MARRY", "LIFE.DIVORCE",
+                "PERSONNEL.NOMINATE")
+                // ... for having .s where seedling has a _
+                .map { it to it.replace('.', '_') }
+                // the remaining ones have other differences and are special-cased
+                .plus(listOf("BUSINESS.END-ORG" to "BUSINESS_END-BUSINESS",
+                        "BUSINESS.START-ORG" to "BUSINESS_START-BUSINESS",
+                        "BUSINESS.MERGE-ORG" to "BUSINESS_MERGE",
+                        // needed to read RPI Seedling output
+                        "CONTACT.PHONE-WRITE" to "CONTACT_CORRESPONDENCE",
+                        "PERSONNEL.END-POSITION" to "PERSONNEL_END-PERSONNEL"))
+                .map { it.first to ResourceFactory.createResource(NAMESPACE_STATIC + it.second) }
+                .toMap()
+
+        internal val RELATION_TYPES: Map<String, Resource> = listOf(
+                "children", "parents", "other_family", "other_family",
                 "parents", "children", "siblings", "siblings", "spouse", "spouse",
                 "employee_or_member_of", "employees_or_members", "schools_attended", "students",
                 "city_of_birth", "births_in_city", "stateorprovince_of_birth",
@@ -61,13 +80,7 @@ class SeedlingOntologyMapper : OntologyMapping {
                 "political_religious_affiliation", "age", "number_of_employees_members",
                 "origin", "date_founded", "date_of_death", "date_dissolved",
                 "cause_of_death", "website", "title", "religion", "charges",
-                // needed to read RPI Seedling output
-                "CONTACT.PHONE-WRITE", "BUSINESS.DECLARE-BANKRUPTCY", "BUSINESS.END-ORG",
-                "BUSINESS.MERGE-ORG", "BUSINESS.START-ORG", "MOVEMENT.TRANSPORT", "JUSTICE.ACQUIT",
-                "JUSTICE.APPEAL", "JUSTICE.CHARGE-INDICT", "JUSTICE.CONVICT", "JUSTICE.EXECUTE",
-                "JUSTICE.EXTRADITE", "JUSTICE.FINE", "JUSTICE.RELEASE-PAROLE", "JUSTICE.SENTENCE",
-                "JUSTICE.SUE", "JUSTICE.TRIAL-HEARING", "LIFE.BE-BORN", "LIFE.MARRY", "LIFE.DIVORCE",
-                "PERSONNEL.NOMINATE", "likes", "dislikes",
+                "likes", "dislikes",
                 "PART-WHOLE.Geographical",
                 "PHYS.Located", "PHYS.Near",
                 "ORG-AFF.Employment", "ORG-AFF.Founder", "ORG-AFF.Sports-Affiliation", "ORG-AFF.Investor-Shareholder",
@@ -82,10 +95,6 @@ class SeedlingOntologyMapper : OntologyMapping {
 
     override val NAMESPACE: String = NAMESPACE_STATIC
 
-
-    private val ontologizeEventType: (String) -> Resource = OntoMemoize({ eventType: String ->
-        ResourceFactory.createResource(NAMESPACE_STATIC + eventType)
-    })
 
     internal val shortNames: Map<String, Resource> = listOf(
             "PER" to PERSON,
@@ -106,21 +115,22 @@ class SeedlingOntologyMapper : OntologyMapping {
 
         return when (ontology_type) {
             "STRING", "String" -> STRING
-            in EVENT_AND_RELATION_TYPES.keys ->
-                EVENT_AND_RELATION_TYPES.getValue(ontology_type)
+            in RELATION_TYPES.keys ->
+                RELATION_TYPES.getValue(ontology_type)
             else -> shortNames[ontology_type] ?: throw RuntimeException("Unknown ontology type $ontology_type")
         }
     }
 
-    override fun relationType(relationName: String): Resource = EVENT_AND_RELATION_TYPES[relationName]
+    override fun relationType(relationName: String): Resource = RELATION_TYPES[relationName]
             ?: throw NoSuchElementException("Unknown relation type: $relationName. Known relation " +
-                    "and event types ${EVENT_AND_RELATION_TYPES.keys}")
+                    "and event types ${RELATION_TYPES.keys}")
 
-    override fun eventType(eventName: String): Resource = EVENT_AND_RELATION_TYPES[eventName]
+    override fun eventType(eventName: String): Resource = EVENT_TYPES[eventName]
             ?: throw NoSuchElementException("Unknown event type: $eventName. Known relation " +
-                    "and event types: ${EVENT_AND_RELATION_TYPES.keys}")
+                    "and event types: ${EVENT_TYPES.keys}")
 
-    override fun eventArgumentType(argName: String): Resource = ontologizeEventType(argName)
+    override fun eventArgumentType(argName: String): Resource =
+            ResourceFactory.createResource(NAMESPACE_STATIC + argName)
 }
 
 open class RPISeedlingOntologyMapper : OntologyMapping {
