@@ -100,16 +100,9 @@ class ColdStartOntologyMapper : OntologyMapping {
 
     override fun entityShortNames(): Set<String> = shortNames.keys
 
-    override fun shortNameToResource(ontology_type: String): Resource {
-        // can't go in the when statement because it has an arbitrary boolean condition
-        // this handles ColdStart event arguments
-        if (':' in ontology_type) {
-            return eventType(ontology_type)
-        }
-
+    override fun entityType(ontology_type: String): Resource {
         return when (ontology_type) {
             "STRING", "String" -> STRING
-            in EVENT_AND_RELATION_TYPES.keys -> EVENT_AND_RELATION_TYPES.getValue(ontology_type)
             else -> shortNames[ontology_type] ?: throw RuntimeException("Unknown ontology type $ontology_type")
         }
     }
@@ -123,4 +116,14 @@ class ColdStartOntologyMapper : OntologyMapping {
                     "and event types: ${EVENT_AND_RELATION_TYPES.keys}")
 
     override fun eventArgumentType(argName: String): Resource = ontologizeEventType(argName)
+
+    override fun knownRelationTypes(): Set<String> {
+        throw RuntimeException("Implement me if you need to use me")
+    }
+
+    override fun knownEventTypes(): Set<String> {
+        throw RuntimeException("Implement me if you need to use me")
+    }
+
+
 }

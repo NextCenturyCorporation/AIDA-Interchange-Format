@@ -8,13 +8,13 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 
-interface Node
+sealed class Node
 
-class EventNode : Node
+class EventNode : Node()
 
-class EntityNode : Node
+class EntityNode : Node()
 
-class StringNode : Node
+class StringNode : Node()
 
 data class Span (val start: Int, val end_inclusive: Int) {
     init {
