@@ -587,11 +587,6 @@ class ValidSeedlingExamples {
     }
 
     @Test
-    void labelSentimentRegardingAnEntity() {
-        // TODO
-    }
-
-    @Test
     void useSubgraphConfidencesToShowMutuallyExclusiveLinkedSeedlingEventArgumentOptions() {
         // we want to say that either Fred hit Bob or Bob hit Fred, but we aren't sure which
         final Model model = createModel(true);
