@@ -45,12 +45,16 @@ public class ExamplesAndValidationTest {
       Resources.asCharSource(Resources.getResource("edu/isi/gaia/coldstart-ontology.ttl"),
           Charsets.UTF_8));
 
+  private final ValidateAIF seedlingValidator = ValidateAIF.createForDomainOntologySource(
+      Resources.asCharSource(Resources.getResource("edu/isi/gaia/seedling-ontology.ttl"),
+          Charsets.UTF_8));
+
   @Nested
   class ValidExamples {
 
     @Test
     void createAnEntityOfTypePersonWithAllJustificationTypesAndConfidence() {
-      final Model model = createModel();
+      final Model model = createModel(false);
 
       // every AIF needs an object for the system responsible for creating it
       final Resource system = AIFUtils.makeSystemWithURI(model,
@@ -102,12 +106,12 @@ public class ExamplesAndValidationTest {
       AIFUtils.markPrivateData(model, entity, "{ 'hello' : 'world' }", system);
 
       dumpAndAssertValid(model, "create an entity of type person with textual " +
-          "justification and confidence");
+          "justification and confidence", false);
     }
 
     @Test
     void createAnEntityWithUncertaintyAboutItsType() {
-      final Model model = createModel();
+      final Model model = createModel(false);
 
       // every AIF needs an object for the system responsible for creating it
       final Resource system = AIFUtils.makeSystemWithURI(model, "http://www.test.edu/testSystem");
@@ -129,12 +133,12 @@ public class ExamplesAndValidationTest {
       AIFUtils.markAsMutuallyExclusive(model, ImmutableMap.of(ImmutableSet.of(entityIsAPerson), 0.5,
           ImmutableSet.of(entityIsAnOrganization), 0.2), system, null);
 
-      dumpAndAssertValid(model, "create an entity with uncertainty about its type");
+      dumpAndAssertValid(model, "create an entity with uncertainty about its type", false);
     }
 
     @Test
     void createARelationBetweenTwoEntitiesWhereThereIsUncertaintyAboutIdentityOfOneArgument() {
-      final Model model = createModel();
+      final Model model = createModel(false);
 
       // every AIF needs an object for the system responsible for creating it
       final Resource system = AIFUtils.makeSystemWithURI(model, "http://www.test.edu/testSystem");
@@ -186,13 +190,13 @@ public class ExamplesAndValidationTest {
           system, null);
 
       dumpAndAssertValid(model, "create a relation between two entities where there"
-          + "is uncertainty about identity of one argument");
+          + "is uncertainty about identity of one argument", false);
 
     }
 
     @Test
     void createAnEvent() {
-      final Model model = createModel();
+      final Model model = createModel(false);
 
       // every AIF needs an object for the system responsible for creating it
       final Resource system = AIFUtils.makeSystemWithURI(model,
@@ -226,12 +230,12 @@ public class ExamplesAndValidationTest {
       AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("Place"),
           electionCountry, system, 0.589);
 
-      dumpAndAssertValid(model, "create an event");
+      dumpAndAssertValid(model, "create an event", false);
     }
 
     @Test
     void createSeedlingEvent() {
-      final Model model = createModel();
+      final Model model = createModel(false);
 
       // every AIF needs an object for the system responsible for creating it
       final Resource system = AIFUtils.makeSystemWithURI(model,
@@ -287,7 +291,7 @@ public class ExamplesAndValidationTest {
     @Test
     void useSubgraphConfidencesToShowMutuallyExclusiveLinkedEventArgumentOptions() {
       // we want to say that either Fred hit Bob or Bob hit Fred, but we aren't sure which
-      final Model model = createModel();
+      final Model model = createModel(false);
 
       // every AIF needs an object for the system responsible for creating it
       final Resource system = AIFUtils.makeSystemWithURI(model,
@@ -333,12 +337,12 @@ public class ExamplesAndValidationTest {
       markAsMutuallyExclusive(model, ImmutableMap.of(bobHitFredAssertions, 0.6,
           fredHitBobAssertions, 0.2), system, 0.2);
 
-      dumpAndAssertValid(model, "sub-graph confidences");
+      dumpAndAssertValid(model, "sub-graph confidences", false);
     }
 
     @Test
     void twoHypotheses() {
-      final Model model = createModel();
+      final Model model = createModel(false);
 
       // every AIF needs an object for the system responsible for creating it
       final Resource system = AIFUtils.makeSystemWithURI(model,
@@ -394,9 +398,307 @@ public class ExamplesAndValidationTest {
           google, system, 1.0);
       markDependsOnHypothesis(bobWorksForGoogle, bobLivesInCaliforniaHypothesis);
 
-      dumpAndAssertValid(model, "two hypotheses");
+      dumpAndAssertValid(model, "two hypotheses", false);
     }
   }
+
+@Nested
+class ValidSeedlingExamples {
+
+    @Test
+    void createSeedlingEntityOfTypePersonWithAllJustificationTypesAndConfidence() {
+        final Model model = createModel(true);
+
+        // every AIF needs an object for the system responsible for creating it
+        final Resource system = AIFUtils.makeSystemWithURI(model,
+                "http://www.test.edu/testSystem");
+
+        // it doesn't matter what URI we give entities, events, etc. so long as they are
+        // unique
+        final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
+                system);
+
+        // in order to allow uncertainty about the type of an entity, we don't mark an
+        // entity's type directly on the entity, but rather make a separate assertion for it
+        // its URI doesn't matter either
+        final Resource typeAssertion = AIFUtils.markType(model, "http://www.test.org/assertions/1",
+                entity, SeedlingOntologyMapper.PERSON, system, 1.0);
+
+        // the justification provides the evidence for our claim about the entity's type
+        // we attach this justification to both the type assertion and the entity object
+        // itself, since it provides evidence both for the entity's existence and its type.
+        // in TA1 -> TA2 communications, we attach confidences at the level of justifications
+        AIFUtils.markTextJustification(model, ImmutableSet.of(entity, typeAssertion),
+                "NYT_ENG_20181231", 42, 143, system, 0.973);
+
+        // let's suppose we also have evidence from an image
+        AIFUtils.markImageJustification(model, ImmutableSet.of(entity, typeAssertion),
+                "NYT_ENG_20181231_03",
+                new BoundingBox(new Point(123, 45), new Point(167, 98)),
+                system, 0.123);
+
+        // and also a video where the entity appears in a keyframe
+        AIFUtils.markKeyFrameVideoJustification(model, ImmutableSet.of(entity, typeAssertion),
+                "NYT_ENG_20181231_03", "keyframe ID",
+                new BoundingBox(new Point(234, 56), new Point(345, 101)),
+                system, 0.234);
+
+        // and also a video where the entity does not appear in a keyframe
+        AIFUtils.markShotVideoJustification(model, ImmutableSet.of(entity, typeAssertion),
+                "SOME_VIDEO", "some shot ID", system, 0.487);
+
+        // and even audio!
+        AIFUtils.markAudioJustification(model, ImmutableSet.of(entity, typeAssertion),
+                "NYT_ENG_201181231", 4.566, 9.876, system, 0.789);
+
+        // also we can link this entity to something in an external KB
+        AIFUtils.linkToExternalKB(model, entity, "freebase:FOO", system, .398);
+
+        // let's mark our entity with some arbitrary system-private data. You can attach such data
+        // to nearly anything
+        AIFUtils.markPrivateData(model, entity, "{ 'hello' : 'world' }", system);
+
+        dumpAndAssertValid(model, "create a seedling entity of type person with textual " +
+                "justification and confidence", true);
+    }
+
+    @Test
+    void createSeedlingEntityWithUncertaintyAboutItsType() {
+        final Model model = createModel(true);
+
+        // every AIF needs an object for the system responsible for creating it
+        final Resource system = AIFUtils.makeSystemWithURI(model, "http://www.test.edu/testSystem");
+
+        final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1", system);
+        final Resource entityIsAPerson = AIFUtils.markType(model, "http://www.test.org/assertions/1",
+                entity, SeedlingOntologyMapper.PERSON, system, 0.5);
+        final Resource entityIsAnOrganization = AIFUtils
+                .markType(model, "http://www.test.org/assertions/2",
+                        entity, SeedlingOntologyMapper.ORGANIZATION, system, 0.2);
+
+        AIFUtils.markTextJustification(model, ImmutableSet.of(entity, entityIsAPerson),
+                "NYT_ENG_201181231",
+                42, 143, system, 0.6);
+
+        AIFUtils.markTextJustification(model, ImmutableSet.of(entity, entityIsAnOrganization),
+                "NYT_ENG_201181231", 343, 367, system, 0.3);
+
+        AIFUtils.markAsMutuallyExclusive(model, ImmutableMap.of(ImmutableSet.of(entityIsAPerson), 0.5,
+                ImmutableSet.of(entityIsAnOrganization), 0.2), system, null);
+
+        dumpAndAssertValid(model, "create a seedling entity with uncertainty about its type", true);
+    }
+
+    @Test
+    void createARelationBetweenTwoSeedlingEntitiesWhereThereIsUncertaintyAboutIdentityOfOneArgument() {
+        final Model model = createModel(true);
+
+        // every AIF needs an object for the system responsible for creating it
+        final Resource system = AIFUtils.makeSystemWithURI(model, "http://www.test.edu/testSystem");
+
+        final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
+
+        // we want to represent a "city_of_birth" relation for a person, but we aren't sure whether
+        // they were born in Louisville or Cambridge
+        final Resource personEntity = AIFUtils
+                .makeEntity(model, "http://www.test.edu/entities/1", system);
+        AIFUtils.markType(model, "http://www.test.org/assertions/1",
+                personEntity, SeedlingOntologyMapper.PERSON, system, 1.0);
+
+        // create entities for the two locations
+        final Resource louisvilleEntity = AIFUtils
+                .makeEntity(model, "http://www.test.edu/entities/2", system);
+        AIFUtils.markType(model, "http://www.test.org/assertions/2",
+                louisvilleEntity, SeedlingOntologyMapper.GPE, system, 1.0);
+        final Resource cambridgeEntity = AIFUtils
+                .makeEntity(model, "http://www.test.edu/entities/3", system);
+        AIFUtils.markType(model, "http://www.test.org/assertions/3",
+                cambridgeEntity, SeedlingOntologyMapper.GPE, system, 1.0);
+
+        // create an entity for the uncertain place of birth
+        final Resource uncertainPlaceOfBirthEntity = AIFUtils
+                .makeEntity(model, "http://www.test.edu/entities/4", system);
+
+        // whatever this place turns out to refer to, we're sure it's where they live
+        makeRelation(model, "http://www.test.edu/relations/1", personEntity,
+                ontologyMapping.relationType("cities_of_residence"),
+                uncertainPlaceOfBirthEntity, system, 1.0);
+
+        // we use clusters to represent uncertainty about identity
+        // we make two clusters, one for Louisville and one for Cambridge
+        final Resource louisvilleCluster = AIFUtils.makeClusterWithPrototype(model,
+                "http://www.test.edu/clusters/1", louisvilleEntity, system);
+        final Resource cambridgeCluster = AIFUtils.makeClusterWithPrototype(model,
+                "http://www.test.edu/clusters/2", cambridgeEntity, system);
+
+        // the uncertain place of birth is either Louisville or Cambridge
+        final Resource placeOfBirthInLouisvilleCluster = markAsPossibleClusterMember(model,
+                uncertainPlaceOfBirthEntity, louisvilleCluster, 0.4, system);
+        final Resource placeOfBirthInCambridgeCluster = markAsPossibleClusterMember(model,
+                uncertainPlaceOfBirthEntity, cambridgeCluster, 0.6, system);
+        // but not both
+        AIFUtils.markAsMutuallyExclusive(model,
+                ImmutableMap.of(ImmutableSet.of(placeOfBirthInCambridgeCluster), 0.4,
+                        ImmutableSet.of(placeOfBirthInLouisvilleCluster), 0.6),
+                system, null);
+
+        dumpAndAssertValid(model, "create a relation between two seedling entities where there"
+                + "is uncertainty about identity of one argument", true);
+
+    }
+
+    @Test
+    void createSeedlingEvent() {
+        final Model model = createModel(true);
+
+        // every AIF needs an object for the system responsible for creating it
+        final Resource system = AIFUtils.makeSystemWithURI(model,
+                "http://www.test.edu/testSystem");
+
+        // we make a resource for the event itself
+        final Resource event = AIFUtils.makeEvent(model,
+                "http://www.test.edu/events/1", system);
+
+        final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
+
+        // mark the event as a Personnel.Elect event; type is encoded separately so we can express
+        // uncertainty about type
+        AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
+                ontologyMapping.eventType("PERSONNEL_ELECT"), system, 1.0);
+
+        // create the two entities involved in the event
+        final Resource electee = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
+                system);
+        AIFUtils.markType(model, "http://www.test.edu/assertions/6", electee,
+                SeedlingOntologyMapper.PERSON, system, 1.0);
+
+        final Resource electionCountry = AIFUtils.makeEntity(model,
+                "http://www.test.edu/entities/2", system);
+        AIFUtils.markType(model, "http://www.test.edu/assertions/7", electionCountry,
+                SeedlingOntologyMapper.GPE, system, 1.0);
+
+        // link those entities to the event
+        AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("Person"),
+                electee, system, 0.785);
+        AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("Place"),
+                electionCountry, system, 0.589);
+
+        dumpAndAssertValid(model, "create a seedling event", true);
+    }
+
+    @Test
+    void useSubgraphConfidencesToShowMutuallyExclusiveLinkedSeedlingEventArgumentOptions() {
+        // we want to say that either Fred hit Bob or Bob hit Fred, but we aren't sure which
+        final Model model = createModel(true);
+
+        // every AIF needs an object for the system responsible for creating it
+        final Resource system = AIFUtils.makeSystemWithURI(model,
+                "http://www.test.edu/testSystem");
+
+        // we make a resource for the event itself
+        final Resource event = AIFUtils.makeEvent(model,
+                "http://www.test.edu/events/1", system);
+
+        final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
+
+        // mark the event as a Personnel.Elect event; type is encoded separately so we can express
+        // uncertainty about type
+        AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
+                ontologyMapping.eventType("CONFLICT_ATTACK"), system, 1.0);
+
+        // create the two entities involved in the event
+        final Resource bob = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
+                system);
+        AIFUtils.markType(model, "http://www.test.edu/assertions/6", bob,
+                SeedlingOntologyMapper.PERSON, system, 1.0);
+
+        final Resource fred = AIFUtils.makeEntity(model,
+                "http://www.test.edu/entities/2", system);
+        AIFUtils.markType(model, "http://www.test.edu/assertions/7", fred,
+                SeedlingOntologyMapper.PERSON, system, 1.0);
+
+        // we link all possible argument fillers to the event
+        final ImmutableSet<Resource> bobHitFredAssertions = ImmutableSet.of(
+                AIFUtils.markAsEventArgument(model, event,
+                        ontologyMapping.eventArgumentType("Attacker"), bob, system, null),
+                AIFUtils.markAsEventArgument(model, event,
+                        ontologyMapping.eventArgumentType("Target"), fred, system, null));
+
+        final ImmutableSet<Resource> fredHitBobAssertions = ImmutableSet.of(
+                AIFUtils.markAsEventArgument(model, event,
+                        ontologyMapping.eventArgumentType("Attacker"), fred, system, null),
+                AIFUtils.markAsEventArgument(model, event,
+                        ontologyMapping.eventArgumentType("Target"), bob, system, null));
+
+        // then we mark these as mutually exclusive
+        // we also mark confidence 0.2 that neither of these are true
+        markAsMutuallyExclusive(model, ImmutableMap.of(bobHitFredAssertions, 0.6,
+                fredHitBobAssertions, 0.2), system, 0.2);
+
+        dumpAndAssertValid(model, "seedling sub-graph confidences", true);
+    }
+
+    @Test
+    void twoSeedlingHypotheses() {
+        final Model model = createModel(true);
+
+        // every AIF needs an object for the system responsible for creating it
+        final Resource system = AIFUtils.makeSystemWithURI(model,
+                "http://www.test.edu/testSystem");
+
+        final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
+
+        // we want to represent that we know, regardless of hypothesis, that there is a person
+        // named Bob, two companies (Google and Amazon), and two places (Seattle and California).
+        final Resource bob = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Bob",
+                system);
+        AIFUtils.markType(model, "http://www.test.org/assertions/1",
+                bob, SeedlingOntologyMapper.PERSON, system, 1.0);
+        final Resource google = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Google",
+                system);
+        AIFUtils.markType(model, "http://www.test.org/assertions/2",
+                google, SeedlingOntologyMapper.ORGANIZATION, system, 1.0);
+        final Resource amazon = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Amazon",
+                system);
+        AIFUtils.markType(model, "http://www.test.org/assertions/3",
+                amazon, SeedlingOntologyMapper.ORGANIZATION, system, 1.0);
+        final Resource seattle = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Seattle",
+                system);
+        AIFUtils.markType(model, "http://www.test.org/assertions/4",
+                seattle, SeedlingOntologyMapper.GPE, system, 1.0);
+        final Resource california = AIFUtils
+                .makeEntity(model, "http://www.test.edu/entities/California",
+                        system);
+        AIFUtils.markType(model, "http://www.test.org/assertions/5",
+                california, SeedlingOntologyMapper.GPE, system, 1.0);
+
+        // under the background hypothesis that Bob lives in Seattle, we believe he works for Amazon
+        final Resource bobLivesInSeattle = makeRelation(model, "http://www.test.edu/relations/1",
+                bob, ontologyMapping.relationType("cities_of_residence"),
+                seattle, system, 1.0);
+        final Resource bobLivesInSeattleHypothesis = makeHypothesis(model,
+                "http://www.test.edu/hypotheses/1", ImmutableSet.of(bobLivesInSeattle),
+                system);
+        final Resource bobWorksForAmazon = makeRelation(model, "http://www.test.edu/relations/2",
+                bob, ontologyMapping.relationType("employee_or_member_of"),
+                amazon, system, 1.0);
+        markDependsOnHypothesis(bobWorksForAmazon, bobLivesInSeattleHypothesis);
+
+        // under the background hypothesis that Bob lives in California, we believe he works for Google
+        final Resource bobLivesInCalifornia = makeRelation(model, "http://www.test.edu/relations/3",
+                bob, ontologyMapping.relationType("cities_of_residence"),
+                california, system, 1.0);
+        final Resource bobLivesInCaliforniaHypothesis = makeHypothesis(model,
+                "http://www.test.edu/hypotheses/2", ImmutableSet.of(bobLivesInCalifornia),
+                system);
+        final Resource bobWorksForGoogle = makeRelation(model, "http://www.test.edu/relations/4",
+                bob, ontologyMapping.relationType("employee_or_member_of"),
+                google, system, 1.0);
+        markDependsOnHypothesis(bobWorksForGoogle, bobLivesInCaliforniaHypothesis);
+
+        dumpAndAssertValid(model, "two seedling hypotheses", true);
+    }
+}
 
   /**
    * Don't do what these do!
@@ -408,7 +710,7 @@ public class ExamplesAndValidationTest {
 
     @Test
     void confidenceOutsideOfZeroOne() {
-      final Model model = createModel();
+      final Model model = createModel(false);
 
       final Resource system = AIFUtils.makeSystemWithURI(model,
           "http://www.test.edu/testSystem");
@@ -427,7 +729,7 @@ public class ExamplesAndValidationTest {
     void entityMissingType() {
       // having multiple type assertions in case of uncertainty is ok, but there must always
       // be at least one type assertion
-      final Model model = createModel();
+      final Model model = createModel(false);
 
       final Resource system = AIFUtils.makeSystemWithURI(model,
           "http://www.test.edu/testSystem");
@@ -441,7 +743,7 @@ public class ExamplesAndValidationTest {
     void eventMissingType() {
       // having multiple type assertions in case of uncertainty is ok, but there must always
       // be at least one type assertion
-      final Model model = createModel();
+      final Model model = createModel(false);
 
       final Resource system = AIFUtils.makeSystemWithURI(model,
           "http://www.test.edu/testSystem");
@@ -453,7 +755,7 @@ public class ExamplesAndValidationTest {
 
     @Test
     void nonTypeUsedAsType() {
-      final Model model = createModel();
+      final Model model = createModel(false);
 
       final Resource system = AIFUtils.makeSystemWithURI(model,
           "http://www.test.edu/testSystem");
@@ -470,7 +772,7 @@ public class ExamplesAndValidationTest {
     void justificationMissingConfidence() {
       // having multiple type assertions in case of uncertainty is ok, but there must always
       // be at least one type assertion
-      final Model model = createModel();
+      final Model model = createModel(false);
 
       final Resource system = AIFUtils.makeSystemWithURI(model,
           "http://www.test.edu/testSystem");
@@ -499,7 +801,7 @@ public class ExamplesAndValidationTest {
     @Disabled
     @Test
     void missingRdfTypeOnNamedNode() {
-      final Model model = createModel();
+      final Model model = createModel(false);
 
       final Resource system = AIFUtils.makeSystemWithURI(model,
           "http://www.test.edu/testSystem");
@@ -512,21 +814,30 @@ public class ExamplesAndValidationTest {
     }
   }
 
+
   // we dump the test name and the model in Turtle format so that whenever the user
   // runs the tests, they will also get the examples
-  private void dumpAndAssertValid(Model model, String testName) {
+  private void dumpAndAssertValid(Model model, String testName, boolean seedling) {
     System.out.println("\n\n" + testName + "\n\n");
     RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
-    assertTrue(validator.validateKB(model));
+    if (seedling) {
+        assertTrue(seedlingValidator.validateKB(model));
+    } else {
+        assertTrue(validator.validateKB(model));
+    }
   }
 
-  private Model createModel() {
+  private Model createModel(boolean seedling) {
     final Model model = ModelFactory.createDefaultModel();
     // adding namespace prefixes makes the Turtle output more readable
     model.setNsPrefix("rdf", RDF.uri);
     model.setNsPrefix("xsd", XSD.getURI());
     model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
-    model.setNsPrefix("coldstart", ColdStartOntologyMapper.NAMESPACE_STATIC);
+    if (seedling) {
+        model.setNsPrefix("ldcOnt", SeedlingOntologyMapper.NAMESPACE_STATIC);
+    } else {
+        model.setNsPrefix("coldstart", ColdStartOntologyMapper.NAMESPACE_STATIC);
+    }
     model.setNsPrefix("skos", SKOS.uri);
     return model;
   }

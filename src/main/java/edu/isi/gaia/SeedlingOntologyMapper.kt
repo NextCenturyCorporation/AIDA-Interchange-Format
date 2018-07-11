@@ -29,14 +29,14 @@ class SeedlingOntologyMapper : OntologyMapping {
         @JvmField
         val ENTITY_TYPES = setOf(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY)
 
-        internal val EVENT_AND_RELATION_TYPES = listOf("CONFLICT.ATTACK", "CONFLICT.DEMONSTRATE",
-                "CONTACT.BROADCAST", "CONTACT.CONTACT", "CONTACT.CORRESPONDENCE", "CONTACT.MEET",
-                "JUSTICE.ARREST-JAIL",
-                "LIFE.DIE", "LIFE.INJURE", "MANUFACTURE.ARTIFACT",
-                "MOVEMENT.TRANSPORT-ARTIFACT",
-                "MOVEMENT.TRANSPORT-PERSON", "PERSONNEL.ELECT", "PERSONNEL.END-POSITION",
-                "PERSONNEL.START-POSITION", "TRANSACTION.TRANSACTION", "TRANSACTION.TRANSFER-MONEY",
-                "TRANSACTION.TRANSFER-OWNERSHIP", "children", "parents", "other_family", "other_family",
+        internal val EVENT_AND_RELATION_TYPES = listOf("CONFLICT_ATTACK", "CONFLICT_DEMONSTRATE",
+                "CONTACT_BROADCAST", "CONTACT_CONTACT", "CONTACT_CORRESPONDENCE", "CONTACT_MEET",
+                "JUSTICE_ARREST-JAIL",
+                "LIFE_DIE", "LIFE_INJURE", "MANUFACTURE_ARTIFACT",
+                "MOVEMENT_TRANSPORT-ARTIFACT",
+                "MOVEMENT_TRANSPORT-PERSON", "PERSONNEL_ELECT", "PERSONNEL_END-POSITION",
+                "PERSONNEL_START-POSITION", "TRANSACTION_TRANSACTION", "TRANSACTION_TRANSFER-MONEY",
+                "TRANSACTION_TRANSFER-OWNERSHIP", "children", "parents", "other_family", "other_family",
                 "parents", "children", "siblings", "siblings", "spouse", "spouse",
                 "employee_or_member_of", "employees_or_members", "schools_attended", "students",
                 "city_of_birth", "births_in_city", "stateorprovince_of_birth",
