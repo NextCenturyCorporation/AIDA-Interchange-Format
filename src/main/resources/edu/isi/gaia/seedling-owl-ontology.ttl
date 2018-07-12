@@ -1,2219 +1,1948 @@
 ######################################################
-# Created by LDCOntology.java on 2018-06-13T01:22:50.307Z
+# Created by LDCOntology.java on 2018-07-12T13:03:40.226Z
 ######################################################
 @prefix schema: <http://schema.org/> .
-@prefix ldcOnt: <http://darpa.mil/ontologies/SeedlingOntology/> .
+@prefix ldcOnt: <http://darpa.mil/ontologies/SeedlingOntology#> .
 @prefix olia:  <http://purl.org/olia/system.owl#> .
+@prefix aidaDomainCommon: <http://darpa.mil/ontologies/AidaDomainOntologiesCommon#> .
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix aida:  <http://darpa.mil/aida/interchangeOntology#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix aidaDomainCommon: <http://darpa.mil/ontologies/AidaDomainOntologiesCommon#> .
+@prefix ldc:   <http://darpa.mil/annotations/ldc#> .
 
-<http://darpa.mil/ontologies/SeedlingOntology/> a owl:Ontology ;
+<http://darpa.mil/ontologies/SeedlingOntology#>
+        a                owl:Ontology ;
         rdfs:comment     "An ontology for creating messages from LDC data to use in AIDA interchange language development" ;
         rdfs:label       "AIDA Domain Ontology for LDC Seedling Corpus" ;
         owl:versionInfo  "Version 0.1" .
 
 ######################################################
-# Top-level classes
-######################################################
-ldcOnt:ArgumentRestriction
-        rdfs:subClassOf  owl:Class .
-
-######################################################
 # Entity classes
 ######################################################
-ldcOnt:Facility  rdfs:subClassOf  aidaDomainCommon:EntityType .
+ldcOnt:Facility  a       owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EntityType .
 
-ldcOnt:FillerType  rdfs:label  "Seedling filler type" ;
+ldcOnt:FillerType  a     owl:Class ;
+        rdfs:label       "Seedling filler type" ;
         rdfs:subClassOf  aidaDomainCommon:EntityType .
 
 ldcOnt:GeopoliticalEntity
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EntityType .
 
-ldcOnt:Location  rdfs:subClassOf  aidaDomainCommon:EntityType .
+ldcOnt:Location  a       owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EntityType .
 
-ldcOnt:Organization  rdfs:subClassOf  aidaDomainCommon:EntityType .
+ldcOnt:Organization  a   owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EntityType .
 
-ldcOnt:Person  rdfs:subClassOf  aidaDomainCommon:EntityType .
-
-ldcOnt:String  rdfs:subClassOf  aidaDomainCommon:EntityType .
+ldcOnt:Person  a         owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EntityType .
 
 ######################################################
 # Filler types
 ######################################################
-ldcOnt:Age  rdfs:subClassOf  ldcOnt:FillerType .
+ldcOnt:Age  a            owl:Class ;
+        rdfs:subClassOf  ldcOnt:FillerType .
 
-ldcOnt:Commodity  rdfs:subClassOf  ldcOnt:FillerType .
+ldcOnt:Ballot  a         owl:Class ;
+        rdfs:subClassOf  ldcOnt:FillerType .
 
-ldcOnt:Crime  rdfs:subClassOf  ldcOnt:FillerType .
+ldcOnt:Commodity  a      owl:Class ;
+        rdfs:subClassOf  ldcOnt:FillerType .
 
-ldcOnt:Money  rdfs:subClassOf  ldcOnt:FillerType .
+ldcOnt:Crime  a          owl:Class ;
+        rdfs:subClassOf  ldcOnt:FillerType .
 
-ldcOnt:Numerical  rdfs:subClassOf  ldcOnt:FillerType .
+ldcOnt:Law  a            owl:Class ;
+        rdfs:subClassOf  ldcOnt:FillerType .
 
-ldcOnt:Sentence  rdfs:subClassOf  ldcOnt:FillerType .
+ldcOnt:Money  a          owl:Class ;
+        rdfs:subClassOf  ldcOnt:FillerType .
 
-ldcOnt:Side  rdfs:subClassOf  ldcOnt:FillerType .
+ldcOnt:NumericalValue
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:FillerType .
 
-ldcOnt:Time  rdfs:subClassOf  ldcOnt:FillerType .
+ldcOnt:Results  a        owl:Class ;
+        rdfs:subClassOf  ldcOnt:FillerType .
 
-ldcOnt:Title  rdfs:subClassOf  ldcOnt:FillerType .
+ldcOnt:Sentence  a       owl:Class ;
+        rdfs:subClassOf  ldcOnt:FillerType .
 
-ldcOnt:URL  rdfs:subClassOf  ldcOnt:FillerType .
+ldcOnt:Sides  a          owl:Class ;
+        rdfs:subClassOf  ldcOnt:FillerType .
 
-ldcOnt:Vehicle  rdfs:subClassOf  ldcOnt:FillerType .
+ldcOnt:Time  a           owl:Class ;
+        rdfs:subClassOf  ldcOnt:FillerType .
 
-ldcOnt:Weapon  rdfs:subClassOf  ldcOnt:FillerType .
+ldcOnt:Title  a          owl:Class ;
+        rdfs:subClassOf  ldcOnt:FillerType .
+
+ldcOnt:URL  a            owl:Class ;
+        rdfs:subClassOf  ldcOnt:FillerType .
+
+ldcOnt:Vehicle  a        owl:Class ;
+        rdfs:subClassOf  ldcOnt:FillerType .
+
+ldcOnt:Weapon  a         owl:Class ;
+        rdfs:subClassOf  ldcOnt:FillerType .
 
 ######################################################
 # Relation types
 ######################################################
-ldcOnt:genafl_apora  rdfs:label  "general-affiliation_artifact-political-organization-religious-affiliation" ;
+ldcOnt:genafl_apora  a   owl:Class ;
+        rdfs:label       "General-Affiliation_Artifact-Political-Organization-Religious-Affiliation (APORA)" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:genafl_more  rdfs:label  "general-affiliation_person-member-origin-religion-ethnicity" ;
+ldcOnt:genafl_more  a    owl:Class ;
+        rdfs:label       "General-Affiliation_Person-Member-Origin-Religion-Ethnicity (MORE)" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:genafl_opra  rdfs:label  "general-affiliation_organization-political-religious-affiliation" ;
+ldcOnt:genafl_opra  a    owl:Class ;
+        rdfs:label       "General-Affiliation_Organization-Political-Religious-Affiliation (OPRA)" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:genafl_orgweb  rdfs:label  "general-affiliation_organization-website" ;
+ldcOnt:genafl_orgweb  a  owl:Class ;
+        rdfs:label       "General-Affiliation_Organization-Website" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:genafl_perage  rdfs:label  "general-affiliation_person-age" ;
+ldcOnt:genafl_perage  a  owl:Class ;
+        rdfs:label       "General-Affiliation_Person-Age" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:genafl_spon  rdfs:label  "general-affiliation_sponsorship" ;
+ldcOnt:genafl_spon  a    owl:Class ;
+        rdfs:label       "General-Affiliation_Sponsorship" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:orgafl_empmem  rdfs:label  "organization-affiliation_employment-membership" ;
+ldcOnt:measurement_count
+        a                owl:Class ;
+        rdfs:label       "Measurement_Count" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:orgafl_found  rdfs:label  "organization-affiliation_founder" ;
+ldcOnt:orgafl_empmem  a  owl:Class ;
+        rdfs:label       "Organization-Affiliation_Employment-Membership" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+ldcOnt:orgafl_found  a   owl:Class ;
+        rdfs:label       "Organization-Affiliation_Founder" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:orgafl_invshar
-        rdfs:label       "organization-affiliation_investor-shareholder" ;
+        a                owl:Class ;
+        rdfs:label       "Organization-Affiliation_Investor-Shareholder" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:orgafl_lead  rdfs:label  "organization-affiliation_leadership" ;
+ldcOnt:orgafl_lead  a    owl:Class ;
+        rdfs:label       "Organization-Affiliation_Leadership" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:orgafl_own  rdfs:label  "organization-affiliation_ownership" ;
+ldcOnt:orgafl_own  a     owl:Class ;
+        rdfs:label       "Organization-Affiliation_Ownership" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:orgafl_stualm  rdfs:label  "organization-affiliation_student-alum" ;
+ldcOnt:orgafl_stualm  a  owl:Class ;
+        rdfs:label       "Organization-Affiliation_Student-Alum" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:partwhole_membership
-        rdfs:label       "part-whole_membership" ;
+        a                owl:Class ;
+        rdfs:label       "Part-Whole_Membership" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:partwhole_subsid
-        rdfs:label       "part-whole_subsidiary" ;
+        a                owl:Class ;
+        rdfs:label       "Part-Whole_Subsidiary" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:persoc_bus  rdfs:label  "personal-social_business" ;
+ldcOnt:persoc_bus  a     owl:Class ;
+        rdfs:label       "Personal-Social_Business" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:persoc_fam  rdfs:label  "personal-social_family" ;
+ldcOnt:persoc_fam  a     owl:Class ;
+        rdfs:label       "Personal-Social_Family" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:persoc_role  rdfs:label  "personal-social_role-title" ;
+ldcOnt:persoc_role  a    owl:Class ;
+        rdfs:label       "Personal-Social_Role-Title" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:persoc_unspc  rdfs:label  "personal-social_unspecified" ;
+ldcOnt:persoc_unspc  a   owl:Class ;
+        rdfs:label       "Personal-Social_Unspecified" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:phys_locnear  rdfs:label  "physical_located-near" ;
+ldcOnt:phys_locnear  a   owl:Class ;
+        rdfs:label       "Physical_Located-Near" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:phys_orghq  rdfs:label  "physical_organization-headquarter" ;
+ldcOnt:phys_orghq  a     owl:Class ;
+        rdfs:label       "Physical_Organization-Headquarter" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:phys_orglocorig
-        rdfs:label       "physical_organization-location-origin" ;
+        a                owl:Class ;
+        rdfs:label       "Physical_Organization-Location-Origin" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:phys_resident  rdfs:label  "physical_resident" ;
+ldcOnt:phys_resident  a  owl:Class ;
+        rdfs:label       "Physical_Resident" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ######################################################
 # Event types
 ######################################################
 ldcOnt:BUSINESS_DECLARE-BANKRUPTCY
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Business_declare-bankruptcy_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:business_declare-bankruptcy_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Business_declare-bankruptcy_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:business_declare-bankruptcy_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Business_declare-bankruptcy_org ;
-                           owl:onProperty     ldcOnt:business_declare-bankruptcy_org
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Organization" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:business_declare-bankruptcy_organization
                          ] .
 
-ldcOnt:BUSINESS_END-BUSINESS
+ldcOnt:BUSINESS_END  a   owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Business_end-business_time ;
-                           owl:onProperty     ldcOnt:business_end-business_time
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
+                           owl:onProperty     ldcOnt:business_end_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Business_end-business_place ;
-                           owl:onProperty     ldcOnt:business_end-business_place
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
+                           owl:onProperty     ldcOnt:business_end_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Business_end-business_org ;
-                           owl:onProperty     ldcOnt:business_end-business_org
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Organization" ;
+                                                owl:unionOf  ( ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:business_end_organization
                          ] .
 
 ldcOnt:BUSINESS_MERGE
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Business_merge_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:business_merge_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Business_merge_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:business_merge_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Business_merge_org ;
-                           owl:onProperty     ldcOnt:business_merge_org
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Organization" ;
+                                                owl:unionOf  ( ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:business_merge_organization
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Business_merge_org ;
-                           owl:onProperty     ldcOnt:business_merge_org
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Organization" ;
+                                                owl:unionOf  ( ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:business_merge_organization
                          ] .
 
-ldcOnt:BUSINESS_START-BUSINESS
+ldcOnt:BUSINESS_START
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Business_start-business_agent ;
-                           owl:onProperty     ldcOnt:business_start-business_agent
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Agent" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:business_start_agent
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Business_start-business_time ;
-                           owl:onProperty     ldcOnt:business_start-business_time
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
+                           owl:onProperty     ldcOnt:business_start_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Business_start-business_place ;
-                           owl:onProperty     ldcOnt:business_start-business_place
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
+                           owl:onProperty     ldcOnt:business_start_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Business_start-business_org ;
-                           owl:onProperty     ldcOnt:business_start-business_org
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Organization" ;
+                                                owl:unionOf  ( ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:business_start_organization
                          ] .
 
 ldcOnt:CONFLICT_ATTACK
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Conflict_attack_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:conflict_attack_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Conflict_attack_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:conflict_attack_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Conflict_attack_instrument ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Instrument" ;
+                                                owl:unionOf  ( ldcOnt:Commodity ldcOnt:Vehicle ldcOnt:Weapon )
+                                              ] ;
                            owl:onProperty     ldcOnt:conflict_attack_instrument
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Conflict_attack_target ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Target" ;
+                                                owl:unionOf  ( ldcOnt:Commodity ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Person ldcOnt:Vehicle ldcOnt:Weapon )
+                                              ] ;
                            owl:onProperty     ldcOnt:conflict_attack_target
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Conflict_attack_attacker ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Attacker" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:conflict_attack_attacker
                          ] .
 
 ldcOnt:CONFLICT_DEMONSTRATE
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Conflict_demonstrate_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:conflict_demonstrate_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Conflict_demonstrate_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:conflict_demonstrate_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Conflict_demonstrate_entity ;
-                           owl:onProperty     ldcOnt:conflict_demonstrate_entity
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Demonstrator" ;
+                                                owl:unionOf  ( ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:conflict_demonstrate_demonstrator
                          ] .
 
 ldcOnt:CONTACT_BROADCAST
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Contact_broadcast_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:contact_broadcast_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Contact_broadcast_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:contact_broadcast_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Contact_broadcast_audience ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Audience" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:contact_broadcast_audience
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Contact_broadcast_entity ;
-                           owl:onProperty     ldcOnt:contact_broadcast_entity
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Broadcaster" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:contact_broadcast_broadcaster
                          ] .
 
 ldcOnt:CONTACT_CONTACT
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Contact_contact_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:contact_contact_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Contact_contact_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:contact_contact_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Contact_contact_entity ;
-                           owl:onProperty     ldcOnt:contact_contact_entity
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Participant" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:contact_contact_participant
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Contact_contact_entity ;
-                           owl:onProperty     ldcOnt:contact_contact_entity
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Participant" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:contact_contact_participant
                          ] .
 
 ldcOnt:CONTACT_CORRESPONDENCE
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Contact_correspondence_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:contact_correspondence_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Contact_correspondence_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:contact_correspondence_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Contact_correspondence_entity ;
-                           owl:onProperty     ldcOnt:contact_correspondence_entity
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Participant" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:contact_correspondence_participant
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Contact_correspondence_entity ;
-                           owl:onProperty     ldcOnt:contact_correspondence_entity
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Participant" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:contact_correspondence_participant
                          ] .
 
-ldcOnt:CONTACT_MEET  rdfs:subClassOf  aidaDomainCommon:EventType ;
+ldcOnt:CONTACT_MEET  a   owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Contact_meet_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:contact_meet_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Contact_meet_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:contact_meet_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Contact_meet_entity ;
-                           owl:onProperty     ldcOnt:contact_meet_entity
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Participant" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:contact_meet_participant
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Contact_meet_entity ;
-                           owl:onProperty     ldcOnt:contact_meet_entity
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Participant" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:contact_meet_participant
+                         ] .
+
+ldcOnt:EXISTENCE_DAMAGE-DESTROY
+        a                owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD1" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
+                           owl:onProperty     ldcOnt:existence_damage-destroy_tbd1
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD5" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
+                           owl:onProperty     ldcOnt:existence_damage-destroy_tbd5
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD4" ;
+                                                owl:unionOf  ( ldcOnt:Commodity ldcOnt:Vehicle ldcOnt:Weapon )
+                                              ] ;
+                           owl:onProperty     ldcOnt:existence_damage-destroy_tbd4
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD3" ;
+                                                owl:unionOf  ( ldcOnt:Ballot ldcOnt:Commodity ldcOnt:Facility ldcOnt:Vehicle ldcOnt:Weapon )
+                                              ] ;
+                           owl:onProperty     ldcOnt:existence_damage-destroy_tbd3
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD2" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
+                                              ] ;
+                           owl:onProperty     ldcOnt:existence_damage-destroy_tbd2
+                         ] .
+
+ldcOnt:GOVERNMENT_AGREEMENTS
+        a                owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD3" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
+                           owl:onProperty     ldcOnt:government_agreements_tbd3
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD2" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
+                           owl:onProperty     ldcOnt:government_agreements_tbd2
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD1" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Sides )
+                                              ] ;
+                           owl:onProperty     ldcOnt:government_agreements_tbd1
+                         ] .
+
+ldcOnt:GOVERNMENT_LEGISLATE
+        a                owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD4" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
+                           owl:onProperty     ldcOnt:government_legislate_tbd4
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD3" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
+                           owl:onProperty     ldcOnt:government_legislate_tbd3
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD2" ;
+                                                owl:unionOf  ( ldcOnt:Law )
+                                              ] ;
+                           owl:onProperty     ldcOnt:government_legislate_tbd2
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD1" ;
+                                                owl:unionOf  ( ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:government_legislate_tbd1
+                         ] .
+
+ldcOnt:GOVERNMENT_SPY
+        a                owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD5" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
+                           owl:onProperty     ldcOnt:government_spy_tbd5
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD4" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
+                           owl:onProperty     ldcOnt:government_spy_tbd4
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD3" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Sides )
+                                              ] ;
+                           owl:onProperty     ldcOnt:government_spy_tbd3
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD2" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
+                                              ] ;
+                           owl:onProperty     ldcOnt:government_spy_tbd2
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD1" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:government_spy_tbd1
+                         ] .
+
+ldcOnt:GOVERNMENT_VOTE
+        a                owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD6" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
+                           owl:onProperty     ldcOnt:government_vote_tbd6
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD5" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
+                           owl:onProperty     ldcOnt:government_vote_tbd5
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD4" ;
+                                                owl:unionOf  ( ldcOnt:Results )
+                                              ] ;
+                           owl:onProperty     ldcOnt:government_vote_tbd4
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD3" ;
+                                                owl:unionOf  ( ldcOnt:Ballot )
+                                              ] ;
+                           owl:onProperty     ldcOnt:government_vote_tbd3
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD2" ;
+                                                owl:unionOf  ( ldcOnt:Law ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
+                                              ] ;
+                           owl:onProperty     ldcOnt:government_vote_tbd2
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD1" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:government_vote_tbd1
+                         ] .
+
+ldcOnt:INSPECTION_ARTIFACT
+        a                owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD1" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
+                           owl:onProperty     ldcOnt:inspection_artifact_tbd1
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD3" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
+                           owl:onProperty     ldcOnt:inspection_artifact_tbd3
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD2" ;
+                                                owl:unionOf  ( ldcOnt:Ballot ldcOnt:Commodity ldcOnt:Facility ldcOnt:Vehicle ldcOnt:Weapon )
+                                              ] ;
+                           owl:onProperty     ldcOnt:inspection_artifact_tbd2
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD1" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
+                                              ] ;
+                           owl:onProperty     ldcOnt:inspection_artifact_tbd1
+                         ] .
+
+ldcOnt:INSPECTION_PEOPLE
+        a                owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD4" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
+                           owl:onProperty     ldcOnt:inspection_people_tbd4
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD3" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
+                           owl:onProperty     ldcOnt:inspection_people_tbd3
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD2" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:inspection_people_tbd2
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD1" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
+                                              ] ;
+                           owl:onProperty     ldcOnt:inspection_people_tbd1
                          ] .
 
 ldcOnt:JUSTICE_ACQUIT
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_acquit_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_acquit_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_acquit_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_acquit_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_acquit_crime ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Crime" ;
+                                                owl:unionOf  ( ldcOnt:Crime )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_acquit_crime
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_acquit_defendant ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Defendant" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_acquit_defendant
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_acquit_adjudicator ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Adjudicator" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_acquit_adjudicator
                          ] .
 
 ldcOnt:JUSTICE_APPEAL
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_appeal_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_appeal_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_appeal_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_appeal_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_appeal_crime ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Crime" ;
+                                                owl:unionOf  ( ldcOnt:Crime )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_appeal_crime
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_appeal_defendant ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Defendant" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_appeal_defendant
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_appeal_adjudicator ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Adjudicator" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_appeal_adjudicator
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_appeal_prosecutor ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Prosecutor" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_appeal_prosecutor
                          ] .
 
 ldcOnt:JUSTICE_ARREST-JAIL
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_arrest-jail_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_arrest-jail_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_arrest-jail_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_arrest-jail_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_arrest-jail_crime ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Crime" ;
+                                                owl:unionOf  ( ldcOnt:Crime )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_arrest-jail_crime
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_arrest-jail_person ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_arrest-jail_person
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_arrest-jail_agent ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Agent" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_arrest-jail_agent
                          ] .
 
 ldcOnt:JUSTICE_CHARGE-INDICT
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_charge-indict_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_charge-indict_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_charge-indict_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_charge-indict_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_charge-indict_crime ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Crime" ;
+                                                owl:unionOf  ( ldcOnt:Crime )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_charge-indict_crime
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_charge-indict_defendant ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Defendant" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_charge-indict_defendant
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_charge-indict_adjudicator ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Adjudicator" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_charge-indict_adjudicator
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_charge-indict_prosecutor ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Prosecutor" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_charge-indict_prosecutor
                          ] .
 
 ldcOnt:JUSTICE_CONVICT
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_convict_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_convict_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_convict_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_convict_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_convict_crime ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Crime" ;
+                                                owl:unionOf  ( ldcOnt:Crime )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_convict_crime
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_convict_defendant ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Defendant" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_convict_defendant
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_convict_adjudicator ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Adjudicator" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_convict_adjudicator
                          ] .
 
 ldcOnt:JUSTICE_EXECUTE
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_execute_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_execute_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_execute_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_execute_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_execute_crime ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Crime" ;
+                                                owl:unionOf  ( ldcOnt:Crime )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_execute_crime
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_execute_person ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_execute_person
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_execute_agent ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Agent" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_execute_agent
                          ] .
 
 ldcOnt:JUSTICE_EXTRADITE
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_extradite_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_extradite_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_extradite_destination ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Destination" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_extradite_destination
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_extradite_origin ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Origin" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_extradite_origin
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_extradite_crime ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Crime" ;
+                                                owl:unionOf  ( ldcOnt:Crime )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_extradite_crime
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_extradite_person ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_extradite_person
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_extradite_agent ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Agent" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_extradite_agent
                          ] .
 
-ldcOnt:JUSTICE_FINE  rdfs:subClassOf  aidaDomainCommon:EventType ;
+ldcOnt:JUSTICE_FINE  a   owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_fine_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_fine_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_fine_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_fine_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_fine_crime ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Crime" ;
+                                                owl:unionOf  ( ldcOnt:Crime )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_fine_crime
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_fine_money ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Money" ;
+                                                owl:unionOf  ( ldcOnt:Money )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_fine_money
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_fine_entity ;
-                           owl:onProperty     ldcOnt:justice_fine_entity
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Defendant" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:justice_fine_defendant
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_fine_adjudicator ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Adjudicator" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_fine_adjudicator
                          ] .
 
-ldcOnt:JUSTICE_PARDON
+ldcOnt:JUSTICE_INVESTIGATE
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_pardon_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD5" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
+                           owl:onProperty     ldcOnt:justice_investigate_tbd5
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD4" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
+                           owl:onProperty     ldcOnt:justice_investigate_tbd4
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD3" ;
+                                                owl:unionOf  ( ldcOnt:Crime )
+                                              ] ;
+                           owl:onProperty     ldcOnt:justice_investigate_tbd3
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD2" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
+                                              ] ;
+                           owl:onProperty     ldcOnt:justice_investigate_tbd2
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD1" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
+                                              ] ;
+                           owl:onProperty     ldcOnt:justice_investigate_tbd1
+                         ] .
+
+ldcOnt:JUSTICE_PARDON
+        a                owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_pardon_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_pardon_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_pardon_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_pardon_crime ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Crime" ;
+                                                owl:unionOf  ( ldcOnt:Crime )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_pardon_crime
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_pardon_defendant ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Defendant" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_pardon_defendant
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_pardon_adjudicator ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Adjudicator" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_pardon_adjudicator
                          ] .
 
 ldcOnt:JUSTICE_RELEASE-PAROLE
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_release-parole_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_release-parole_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_release-parole_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_release-parole_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_release-parole_crime ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Crime" ;
+                                                owl:unionOf  ( ldcOnt:Crime )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_release-parole_crime
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_release-parole_person ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_release-parole_person
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_release-parole_agent ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Agent" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_release-parole_agent
                          ] .
 
 ldcOnt:JUSTICE_SENTENCE
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_sentence_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_sentence_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_sentence_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_sentence_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_sentence_sentence ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Sentence" ;
+                                                owl:unionOf  ( ldcOnt:Sentence )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_sentence_sentence
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_sentence_crime ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Crime" ;
+                                                owl:unionOf  ( ldcOnt:Crime )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_sentence_crime
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_sentence_defendant ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Defendant" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_sentence_defendant
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_sentence_adjudicator ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Adjudicator" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_sentence_adjudicator
                          ] .
 
-ldcOnt:JUSTICE_SUE  rdfs:subClassOf  aidaDomainCommon:EventType ;
+ldcOnt:JUSTICE_SUE  a    owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_sue_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_sue_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_sue_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_sue_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_sue_crime ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Crime" ;
+                                                owl:unionOf  ( ldcOnt:Crime )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_sue_crime
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_sue_defendant ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Defendant" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_sue_defendant
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_sue_adjudicator ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Adjudicator" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_sue_adjudicator
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_sue_plaintiff ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Plaintiff" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_sue_plaintiff
                          ] .
 
 ldcOnt:JUSTICE_TRIAL-HEARING
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_trial-hearing_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_trial-hearing_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_trial-hearing_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_trial-hearing_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_trial-hearing_crime ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Crime" ;
+                                                owl:unionOf  ( ldcOnt:Crime )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_trial-hearing_crime
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_trial-hearing_defendant ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Defendant" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_trial-hearing_defendant
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_trial-hearing_adjudicator ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Adjudicator" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_trial-hearing_adjudicator
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Justice_trial-hearing_prosecutor ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Prosecutor" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:justice_trial-hearing_prosecutor
                          ] .
 
-ldcOnt:LIFE_BE-BORN  rdfs:subClassOf  aidaDomainCommon:EventType ;
+ldcOnt:LIFE_BE-BORN  a   owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_be-born_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_be-born_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_be-born_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_be-born_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_be-born_person ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_be-born_person
                          ] .
 
-ldcOnt:LIFE_DIE  rdfs:subClassOf  aidaDomainCommon:EventType ;
+ldcOnt:LIFE_DIE  a       owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_die_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_die_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_die_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_die_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_die_instrument ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Instrument" ;
+                                                owl:unionOf  ( ldcOnt:Commodity ldcOnt:Vehicle ldcOnt:Weapon )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_die_instrument
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_die_victim ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Victim" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_die_victim
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_die_agent ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Agent" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_die_agent
                          ] .
 
-ldcOnt:LIFE_DIVORCE  rdfs:subClassOf  aidaDomainCommon:EventType ;
+ldcOnt:LIFE_DIVORCE  a   owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_divorce_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_divorce_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_divorce_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_divorce_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_divorce_person ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_divorce_person
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_divorce_person ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_divorce_person
                          ] .
 
-ldcOnt:LIFE_INJURE  rdfs:subClassOf  aidaDomainCommon:EventType ;
+ldcOnt:LIFE_INJURE  a    owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_injure_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_injure_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_injure_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_injure_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_injure_instrument ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Instrument" ;
+                                                owl:unionOf  ( ldcOnt:Commodity ldcOnt:Vehicle ldcOnt:Weapon )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_injure_instrument
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_injure_victim ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Victim" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_injure_victim
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_injure_agent ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Agent" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_injure_agent
                          ] .
 
-ldcOnt:LIFE_MARRY  rdfs:subClassOf  aidaDomainCommon:EventType ;
+ldcOnt:LIFE_MARRY  a     owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_marry_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_marry_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_marry_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_marry_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_marry_person ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_marry_person
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Life_marry_person ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:life_marry_person
                          ] .
 
 ldcOnt:MANUFACTURE_ARTIFACT
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Manufacture_artifact_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:manufacture_artifact_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Manufacture_artifact_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:manufacture_artifact_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Manufacture_artifact_instrument ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Instrument" ;
+                                                owl:unionOf  ( ldcOnt:Commodity ldcOnt:Facility ldcOnt:Vehicle ldcOnt:Weapon )
+                                              ] ;
                            owl:onProperty     ldcOnt:manufacture_artifact_instrument
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Manufacture_artifact_artifact ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Artifact" ;
+                                                owl:unionOf  ( ldcOnt:Commodity ldcOnt:Facility ldcOnt:Vehicle ldcOnt:Weapon )
+                                              ] ;
                            owl:onProperty     ldcOnt:manufacture_artifact_artifact
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Manufacture_artifact_agent ;
-                           owl:onProperty     ldcOnt:manufacture_artifact_agent
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Manufacturer" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:manufacture_artifact_manufacturer
                          ] .
 
 ldcOnt:MOVEMENT_TRANSPORT-ARTIFACT
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Movement_transport-artifact_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:movement_transport-artifact_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Movement_transport-artifact_destination ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Destination" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:movement_transport-artifact_destination
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Movement_transport-artifact_origin ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Origin" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:movement_transport-artifact_origin
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Movement_transport-artifact_instrument ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Instrument" ;
+                                                owl:unionOf  ( ldcOnt:Vehicle ldcOnt:Weapon )
+                                              ] ;
                            owl:onProperty     ldcOnt:movement_transport-artifact_instrument
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Movement_transport-artifact_artifact ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Artifact" ;
+                                                owl:unionOf  ( ldcOnt:Commodity ldcOnt:Facility ldcOnt:Vehicle ldcOnt:Weapon )
+                                              ] ;
                            owl:onProperty     ldcOnt:movement_transport-artifact_artifact
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Movement_transport-artifact_agent ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Agent" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:movement_transport-artifact_agent
                          ] .
 
 ldcOnt:MOVEMENT_TRANSPORT-PERSON
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Movement_transport-person_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:movement_transport-person_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Movement_transport-person_destination ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Destination" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:movement_transport-person_destination
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Movement_transport-person_origin ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Origin" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:movement_transport-person_origin
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Movement_transport-person_instrument ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Instrument" ;
+                                                owl:unionOf  ( ldcOnt:Vehicle ldcOnt:Weapon )
+                                              ] ;
                            owl:onProperty     ldcOnt:movement_transport-person_instrument
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Movement_transport-person_person ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:movement_transport-person_person
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Movement_transport-person_agent ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Agent" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:movement_transport-person_agent
                          ] .
 
 ldcOnt:PERSONNEL_ELECT
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Personnel_elect_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:personnel_elect_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Personnel_elect_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:personnel_elect_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Personnel_elect_person ;
-                           owl:onProperty     ldcOnt:personnel_elect_person
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Elect" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personnel_elect_elect
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Personnel_elect_agent ;
-                           owl:onProperty     ldcOnt:personnel_elect_agent
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Elector" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personnel_elect_elector
                          ] .
 
-ldcOnt:PERSONNEL_END-PERSONNEL
+ldcOnt:PERSONNEL_END-POSITION
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Personnel_end-personnel_time ;
-                           owl:onProperty     ldcOnt:personnel_end-personnel_time
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personnel_end-position_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Personnel_end-personnel_place ;
-                           owl:onProperty     ldcOnt:personnel_end-personnel_place
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personnel_end-position_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Personnel_end-personnel_entity ;
-                           owl:onProperty     ldcOnt:personnel_end-personnel_entity
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Position" ;
+                                                owl:unionOf  ( ldcOnt:Title )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personnel_end-position_position
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Personnel_end-personnel_person ;
-                           owl:onProperty     ldcOnt:personnel_end-personnel_person
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Organization" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personnel_end-position_organization
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personnel_end-position_person
                          ] .
 
 ldcOnt:PERSONNEL_NOMINATE
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Personnel_nominate_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:personnel_nominate_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Personnel_nominate_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:personnel_nominate_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Personnel_nominate_person ;
-                           owl:onProperty     ldcOnt:personnel_nominate_person
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Nominee" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personnel_nominate_nominee
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Personnel_nominate_agent ;
-                           owl:onProperty     ldcOnt:personnel_nominate_agent
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Nominator" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personnel_nominate_nominator
                          ] .
 
-ldcOnt:PERSONNEL_START-PERSONNEL
+ldcOnt:PERSONNEL_START-POSITION
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Personnel_start-personnel_time ;
-                           owl:onProperty     ldcOnt:personnel_start-personnel_time
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personnel_start-position_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Personnel_start-personnel_place ;
-                           owl:onProperty     ldcOnt:personnel_start-personnel_place
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personnel_start-position_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Personnel_start-personnel_entity ;
-                           owl:onProperty     ldcOnt:personnel_start-personnel_entity
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Position" ;
+                                                owl:unionOf  ( ldcOnt:Title )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personnel_start-position_position
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Personnel_start-personnel_person ;
-                           owl:onProperty     ldcOnt:personnel_start-personnel_person
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Organization" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personnel_start-position_organization
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personnel_start-position_person
                          ] .
 
 ldcOnt:TRANSACTION_TRANSACTION
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Transaction_transaction_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:transaction_transaction_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Transaction_transaction_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:transaction_transaction_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Transaction_transaction_beneficiary ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Beneficiary" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:transaction_transaction_beneficiary
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Transaction_transaction_recipient ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Recipient" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:transaction_transaction_recipient
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Transaction_transaction_giver ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Giver" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:transaction_transaction_giver
                          ] .
 
-ldcOnt:TRANSACTION_TRANSFER-MONEY
+ldcOnt:TRANSACTION_TRANSFER-CONTROL
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Transaction_transfer-money_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD6" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
+                           owl:onProperty     ldcOnt:transaction_transfer-control_tbd6
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD5" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
+                           owl:onProperty     ldcOnt:transaction_transfer-control_tbd5
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD4" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
+                           owl:onProperty     ldcOnt:transaction_transfer-control_tbd4
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD3" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
+                                              ] ;
+                           owl:onProperty     ldcOnt:transaction_transfer-control_tbd3
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD2" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
+                                              ] ;
+                           owl:onProperty     ldcOnt:transaction_transfer-control_tbd2
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD1" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
+                                              ] ;
+                           owl:onProperty     ldcOnt:transaction_transfer-control_tbd1
+                         ] .
+
+ldcOnt:TRANSACTION_TRANSFER-MONEY
+        a                owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:transaction_transfer-money_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Transaction_transfer-money_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:transaction_transfer-money_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Transaction_transfer-money_money ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Money" ;
+                                                owl:unionOf  ( ldcOnt:Money )
+                                              ] ;
                            owl:onProperty     ldcOnt:transaction_transfer-money_money
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Transaction_transfer-money_beneficiary ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Beneficiary" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:transaction_transfer-money_beneficiary
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Transaction_transfer-money_recipient ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Recipient" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:transaction_transfer-money_recipient
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Transaction_transfer-money_giver ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Giver" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:transaction_transfer-money_giver
                          ] .
 
 ldcOnt:TRANSACTION_TRANSFER-OWNERSHIP
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Transaction_transfer-ownership_time ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Time" ;
+                                                owl:unionOf  ( ldcOnt:Time )
+                                              ] ;
                            owl:onProperty     ldcOnt:transaction_transfer-ownership_time
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Transaction_transfer-ownership_place ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
                            owl:onProperty     ldcOnt:transaction_transfer-ownership_place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Transaction_transfer-ownership_thing ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Thing" ;
+                                                owl:unionOf  ( ldcOnt:Commodity ldcOnt:Facility ldcOnt:Organization ldcOnt:Vehicle ldcOnt:Weapon )
+                                              ] ;
                            owl:onProperty     ldcOnt:transaction_transfer-ownership_thing
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Transaction_transfer-ownership_beneficiary ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Beneficiary" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:transaction_transfer-ownership_beneficiary
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Transaction_transfer-ownership_recipient ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Recipient" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:transaction_transfer-ownership_recipient
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  ldcOnt:Transaction_transfer-ownership_giver ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Giver" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
                            owl:onProperty     ldcOnt:transaction_transfer-ownership_giver
-                         ] .
-
-######################################################
-# Event argument restrictions
-######################################################
-ldcOnt:Business_declare-bankruptcy_org
-        rdfs:label       "org" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Business_declare-bankruptcy_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Business_declare-bankruptcy_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Business_end-business_org
-        rdfs:label       "org" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Organization )
-                         ] .
-
-ldcOnt:Business_end-business_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Business_end-business_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Business_merge_org
-        rdfs:label       "org" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Organization )
-                         ] ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Organization )
-                         ] .
-
-ldcOnt:Business_merge_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Business_merge_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Business_start-business_agent
-        rdfs:label       "agent" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Business_start-business_org
-        rdfs:label       "org" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Organization )
-                         ] .
-
-ldcOnt:Business_start-business_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Business_start-business_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Conflict_attack_attacker
-        rdfs:label       "attacker" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Conflict_attack_instrument
-        rdfs:label       "instrument" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Commodity ldcOnt:Facility ldcOnt:Vehicle ldcOnt:Weapon )
-                         ] .
-
-ldcOnt:Conflict_attack_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Conflict_attack_target
-        rdfs:label       "target" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Commodity ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Person ldcOnt:Vehicle ldcOnt:Weapon )
-                         ] .
-
-ldcOnt:Conflict_attack_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Conflict_demonstrate_entity
-        rdfs:label       "entity" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Conflict_demonstrate_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Conflict_demonstrate_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Contact_broadcast_audience
-        rdfs:label       "audience" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Contact_broadcast_entity
-        rdfs:label       "entity" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Contact_broadcast_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Contact_broadcast_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Contact_contact_entity
-        rdfs:label       "entity" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Contact_contact_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Contact_contact_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Contact_correspondence_entity
-        rdfs:label       "entity" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Contact_correspondence_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Contact_correspondence_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Contact_meet_entity
-        rdfs:label       "entity" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Contact_meet_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Contact_meet_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Justice_acquit_adjudicator
-        rdfs:label       "adjudicator" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_acquit_crime
-        rdfs:label       "crime" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Crime )
-                         ] .
-
-ldcOnt:Justice_acquit_defendant
-        rdfs:label       "defendant" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_acquit_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Justice_acquit_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Justice_appeal_adjudicator
-        rdfs:label       "adjudicator" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_appeal_crime
-        rdfs:label       "crime" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Crime )
-                         ] .
-
-ldcOnt:Justice_appeal_defendant
-        rdfs:label       "defendant" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_appeal_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Justice_appeal_prosecutor
-        rdfs:label       "prosecutor" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_appeal_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Justice_arrest-jail_agent
-        rdfs:label       "agent" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_arrest-jail_crime
-        rdfs:label       "crime" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Crime )
-                         ] .
-
-ldcOnt:Justice_arrest-jail_person
-        rdfs:label       "person" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_arrest-jail_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Justice_arrest-jail_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Justice_charge-indict_adjudicator
-        rdfs:label       "adjudicator" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_charge-indict_crime
-        rdfs:label       "crime" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Crime )
-                         ] .
-
-ldcOnt:Justice_charge-indict_defendant
-        rdfs:label       "defendant" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_charge-indict_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Justice_charge-indict_prosecutor
-        rdfs:label       "prosecutor" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_charge-indict_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Justice_convict_adjudicator
-        rdfs:label       "adjudicator" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_convict_crime
-        rdfs:label       "crime" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Crime )
-                         ] .
-
-ldcOnt:Justice_convict_defendant
-        rdfs:label       "defendant" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_convict_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Justice_convict_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Justice_execute_agent
-        rdfs:label       "agent" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_execute_crime
-        rdfs:label       "crime" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Crime )
-                         ] .
-
-ldcOnt:Justice_execute_person
-        rdfs:label       "person" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_execute_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Justice_execute_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Justice_extradite_agent
-        rdfs:label       "agent" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_extradite_crime
-        rdfs:label       "crime" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Crime )
-                         ] .
-
-ldcOnt:Justice_extradite_destination
-        rdfs:label       "destination" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Justice_extradite_origin
-        rdfs:label       "origin" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Justice_extradite_person
-        rdfs:label       "person" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_extradite_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Justice_fine_adjudicator
-        rdfs:label       "adjudicator" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_fine_crime
-        rdfs:label       "crime" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Crime )
-                         ] .
-
-ldcOnt:Justice_fine_entity
-        rdfs:label       "entity" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_fine_money
-        rdfs:label       "money" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Money )
-                         ] .
-
-ldcOnt:Justice_fine_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Justice_fine_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Justice_pardon_adjudicator
-        rdfs:label       "adjudicator" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_pardon_crime
-        rdfs:label       "crime" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Crime )
-                         ] .
-
-ldcOnt:Justice_pardon_defendant
-        rdfs:label       "defendant" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_pardon_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Justice_pardon_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Justice_release-parole_agent
-        rdfs:label       "agent" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_release-parole_crime
-        rdfs:label       "crime" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Crime )
-                         ] .
-
-ldcOnt:Justice_release-parole_person
-        rdfs:label       "person" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_release-parole_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Justice_release-parole_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Justice_sentence_adjudicator
-        rdfs:label       "adjudicator" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_sentence_crime
-        rdfs:label       "crime" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Crime )
-                         ] .
-
-ldcOnt:Justice_sentence_defendant
-        rdfs:label       "defendant" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_sentence_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Justice_sentence_sentence
-        rdfs:label       "sentence" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Sentence )
-                         ] .
-
-ldcOnt:Justice_sentence_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Justice_sue_adjudicator
-        rdfs:label       "adjudicator" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_sue_crime
-        rdfs:label       "crime" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Crime )
-                         ] .
-
-ldcOnt:Justice_sue_defendant
-        rdfs:label       "defendant" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_sue_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Justice_sue_plaintiff
-        rdfs:label       "plaintiff" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_sue_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Justice_trial-hearing_adjudicator
-        rdfs:label       "adjudicator" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_trial-hearing_crime
-        rdfs:label       "crime" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Crime )
-                         ] .
-
-ldcOnt:Justice_trial-hearing_defendant
-        rdfs:label       "defendant" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_trial-hearing_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Justice_trial-hearing_prosecutor
-        rdfs:label       "prosecutor" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Justice_trial-hearing_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Life_be-born_person
-        rdfs:label       "person" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Person )
-                         ] .
-
-ldcOnt:Life_be-born_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Life_be-born_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Life_die_agent
-        rdfs:label       "agent" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Life_die_instrument
-        rdfs:label       "instrument" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Commodity ldcOnt:Facility ldcOnt:Vehicle ldcOnt:Weapon )
-                         ] .
-
-ldcOnt:Life_die_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Life_die_time  rdfs:label  "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Life_die_victim
-        rdfs:label       "victim" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Person )
-                         ] .
-
-ldcOnt:Life_divorce_person
-        rdfs:label       "person" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Person )
-                         ] ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Person )
-                         ] .
-
-ldcOnt:Life_divorce_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Life_divorce_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Life_injure_agent
-        rdfs:label       "agent" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Life_injure_instrument
-        rdfs:label       "instrument" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Commodity ldcOnt:Facility ldcOnt:Vehicle ldcOnt:Weapon )
-                         ] .
-
-ldcOnt:Life_injure_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Life_injure_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Life_injure_victim
-        rdfs:label       "victim" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Person )
-                         ] .
-
-ldcOnt:Life_marry_person
-        rdfs:label       "person" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Person )
-                         ] ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Person )
-                         ] .
-
-ldcOnt:Life_marry_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Life_marry_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Manufacture_artifact_agent
-        rdfs:label       "agent" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Manufacture_artifact_artifact
-        rdfs:label       "artifact" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Commodity ldcOnt:Facility ldcOnt:Vehicle ldcOnt:Weapon )
-                         ] .
-
-ldcOnt:Manufacture_artifact_instrument
-        rdfs:label       "instrument" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Commodity ldcOnt:Facility ldcOnt:Vehicle ldcOnt:Weapon )
-                         ] .
-
-ldcOnt:Manufacture_artifact_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Manufacture_artifact_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Movement_transport-artifact_agent
-        rdfs:label       "agent" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Movement_transport-artifact_artifact
-        rdfs:label       "artifact" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Commodity ldcOnt:Facility ldcOnt:Vehicle ldcOnt:Weapon )
-                         ] .
-
-ldcOnt:Movement_transport-artifact_destination
-        rdfs:label       "destination" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Movement_transport-artifact_instrument
-        rdfs:label       "instrument" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Vehicle ldcOnt:Weapon )
-                         ] .
-
-ldcOnt:Movement_transport-artifact_origin
-        rdfs:label       "origin" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Movement_transport-artifact_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Movement_transport-person_agent
-        rdfs:label       "agent" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Movement_transport-person_destination
-        rdfs:label       "destination" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Movement_transport-person_instrument
-        rdfs:label       "instrument" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Vehicle ldcOnt:Weapon )
-                         ] .
-
-ldcOnt:Movement_transport-person_origin
-        rdfs:label       "origin" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Movement_transport-person_person
-        rdfs:label       "person" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Person )
-                         ] .
-
-ldcOnt:Movement_transport-person_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Personnel_elect_agent
-        rdfs:label       "agent" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Personnel_elect_person
-        rdfs:label       "person" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Person )
-                         ] .
-
-ldcOnt:Personnel_elect_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Personnel_elect_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Personnel_end-personnel_entity
-        rdfs:label       "entity" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization )
-                         ] .
-
-ldcOnt:Personnel_end-personnel_person
-        rdfs:label       "person" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Person )
-                         ] .
-
-ldcOnt:Personnel_end-personnel_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Personnel_end-personnel_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Personnel_nominate_agent
-        rdfs:label       "agent" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Personnel_nominate_person
-        rdfs:label       "person" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Person )
-                         ] .
-
-ldcOnt:Personnel_nominate_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Personnel_nominate_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Personnel_start-personnel_entity
-        rdfs:label       "entity" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization )
-                         ] .
-
-ldcOnt:Personnel_start-personnel_person
-        rdfs:label       "person" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Person )
-                         ] .
-
-ldcOnt:Personnel_start-personnel_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Personnel_start-personnel_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Transaction_transaction_beneficiary
-        rdfs:label       "beneficiary" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Transaction_transaction_giver
-        rdfs:label       "giver" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Transaction_transaction_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Transaction_transaction_recipient
-        rdfs:label       "recipient" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Transaction_transaction_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Transaction_transfer-money_beneficiary
-        rdfs:label       "beneficiary" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Transaction_transfer-money_giver
-        rdfs:label       "giver" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Transaction_transfer-money_money
-        rdfs:label       "money" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Money )
-                         ] .
-
-ldcOnt:Transaction_transfer-money_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Transaction_transfer-money_recipient
-        rdfs:label       "recipient" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Transaction_transfer-money_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
-                         ] .
-
-ldcOnt:Transaction_transfer-ownership_beneficiary
-        rdfs:label       "beneficiary" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Transaction_transfer-ownership_giver
-        rdfs:label       "giver" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Transaction_transfer-ownership_place
-        rdfs:label       "place" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                         ] .
-
-ldcOnt:Transaction_transfer-ownership_recipient
-        rdfs:label       "recipient" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
-                         ] .
-
-ldcOnt:Transaction_transfer-ownership_thing
-        rdfs:label       "thing" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Commodity ldcOnt:Facility ldcOnt:Organization ldcOnt:Vehicle ldcOnt:Weapon )
-                         ] .
-
-ldcOnt:Transaction_transfer-ownership_time
-        rdfs:label       "time" ;
-        rdfs:subClassOf  ldcOnt:ArgumentRestriction ;
-        rdfs:subClassOf  [ a            owl:Class ;
-                           owl:unionOf  ( ldcOnt:Time )
                          ] .
 
