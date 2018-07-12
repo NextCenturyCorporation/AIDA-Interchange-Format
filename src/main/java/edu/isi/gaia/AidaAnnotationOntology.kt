@@ -8,7 +8,7 @@ import org.apache.jena.rdf.model.ResourceFactory
 object AidaAnnotationOntology {
     // URI would change from isi.edu to something else if adopted program-wide
     @JvmField
-    val NAMESPACE: String = "http://www.isi.edu/aida/interchangeOntology#"
+    val NAMESPACE: String = "http://darpa.mil/aida/interchangeOntology#";
 
     // properties
     @JvmField

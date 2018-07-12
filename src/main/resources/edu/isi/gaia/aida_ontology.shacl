@@ -4,7 +4,7 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
 @prefix aidaDomainCommon: <http://darpa.mil/ontologies/AidaDomainOntologiesCommon#> .
-@prefix aida: <http://www.isi.edu/aida/interchangeOntology#> .
+@prefix aida: <http://darpa.mil/aida/interchangeOntology#> .
 
 # This document is a specification for validating knowledge graphs for the interchange
 # format for the DARPA AIDA program. This format is called AIF (AIDA Interchange Format)

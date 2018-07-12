@@ -248,34 +248,34 @@ public class ExamplesAndValidationTest {
       // mark the event as a Personnel.Elect event; type is encoded separately so we can express
       // uncertainty about type
       AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
-              model.createResource("http://darpa.mil/ontologies/SeedlingOntology/BUSINESS_DECLARE-BANKRUPTCY"),
+              model.createResource("http://darpa.mil/ontologies/SeedlingOntology#BUSINESS_DECLARE-BANKRUPTCY"),
               system, 1.0);
 
       // create the two entities involved in the event
       final Resource electee = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
               system);
       AIFUtils.markType(model, "http://www.test.edu/assertions/6", electee,
-              model.createResource("http://darpa.mil/ontologies/SeedlingOntology/Organization"),
+              model.createResource("http://darpa.mil/ontologies/SeedlingOntology#Organization"),
               system, 1.0);
 
       final Resource electionCountry = AIFUtils.makeEntity(model,
               "http://www.test.edu/entities/2", system);
       AIFUtils.markType(model, "http://www.test.edu/assertions/7", electionCountry,
-              model.createResource("http://darpa.mil/ontologies/SeedlingOntology/GeopoliticalEntity"),
+              model.createResource("http://darpa.mil/ontologies/SeedlingOntology#GeopoliticalEntity"),
               system, 1.0);
 
       final Resource time = AIFUtils.makeEntity(model,
               "http://www.test.edu/entities/3", system);
       AIFUtils.markType(model, "http://www.test.edu/assertions/8", time,
-              model.createResource("http://darpa.mil/ontologies/SeedlingOntology/Time"),
+              model.createResource("http://darpa.mil/ontologies/SeedlingOntology#Time"),
               system, 1.0);
 
       // link those entities to the event
-      AIFUtils.markAsEventArgument(model, event, model.createResource("http://darpa.mil/ontologies/SeedlingOntology/BUSINESS_DECLARE-BANKRUPTCY_arg1"),
+      AIFUtils.markAsEventArgument(model, event, model.createResource("http://darpa.mil/ontologies/SeedlingOntology#BUSINESS_DECLARE-BANKRUPTCY_arg1"),
               electee, system, 0.785);
-      AIFUtils.markAsEventArgument(model, event, model.createResource("http://darpa.mil/ontologies/SeedlingOntology/BUSINESS_DECLARE-BANKRUPTCY_arg2"),
+      AIFUtils.markAsEventArgument(model, event, model.createResource("http://darpa.mil/ontologies/SeedlingOntology#BUSINESS_DECLARE-BANKRUPTCY_arg2"),
               electionCountry, system, 0.589);
-      AIFUtils.markAsEventArgument(model, event, model.createResource("http://darpa.mil/ontologies/SeedlingOntology/BUSINESS_DECLARE-BANKRUPTCY_arg3"),
+      AIFUtils.markAsEventArgument(model, event, model.createResource("http://darpa.mil/ontologies/SeedlingOntology#BUSINESS_DECLARE-BANKRUPTCY_arg3"),
               time, system, 0.589);
 
       RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
