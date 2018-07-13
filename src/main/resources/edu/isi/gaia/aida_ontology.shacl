@@ -737,7 +737,7 @@ aida:RdfStatementShape
          [ sh:class aidaDomainCommon:EventArgumentType ]
          [ sh:class aidaDomainCommon:RelationType ]
          [ sh:class aidaDomainCommon:Sentiment ] ) ;
-      sh:message "All rdf:statements must be type declarations or have predicates on domain relation, argument, or sentiment types"
+      sh:message "All rdf:statements must be type declarations or have predicates on domain relation, argument, or sentiment types. This error is often caused by using a value outside the domain ontology"
      ]
   .
 
