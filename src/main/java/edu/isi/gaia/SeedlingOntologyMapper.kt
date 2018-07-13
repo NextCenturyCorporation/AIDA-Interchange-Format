@@ -11,7 +11,7 @@ import org.apache.jena.rdf.model.ResourceFactory
 class SeedlingOntologyMapper : OntologyMapping {
     companion object {
         @JvmField
-        val NAMESPACE_STATIC: String = "http://darpa.mil/ontologies/SeedlingOntology/"
+        val NAMESPACE_STATIC: String = "http://darpa.mil/ontologies/SeedlingOntology#"
 
         @JvmField
         val PERSON = ResourceFactory.createResource(NAMESPACE_STATIC + "Person")!!
