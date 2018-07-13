@@ -694,8 +694,8 @@ aida:LinkAssertionShape
      a sh:PropertyShape ;
      sh:path aida:linkTarget ;
      sh:value xsd:string ;
-     sh:minValue 1 ;
-     sh:maxValue 1] ;
+     sh:minCount 1 ;
+     sh:maxCount 1] ;
 
    # may provide a confidence
    sh:property aida:ConfidencePropertyShape ;
@@ -732,21 +732,13 @@ aida:RdfStatementShape
 
   sh:property [
      sh:path rdf:predicate ;
-     sh:exone (
+     sh:xone (
          [ sh:class rdf:type ]
          [ sh:class aidaDomainCommon:EventArgumentType ]
          [ sh:class aidaDomainCommon:RelationType ]
          [ sh:class aidaDomainCommon:Sentiment ] ) ;
-      sh:minCount 1
+      sh:message "All rdf:statements must be type declarations or have predicates on domain relation, argument, or sentiment types"
      ]
-
-
-  ; sh:property [
-     a sh:PropertyShape ;
-     sh:path aida:linkTarget ;
-     sh:value xsd:string ;
-     sh:minValue 1 ;
-     sh:maxValue 1]
   .
 
 # Sometimes there is uncertainty about whether or not two entities or events are the same.

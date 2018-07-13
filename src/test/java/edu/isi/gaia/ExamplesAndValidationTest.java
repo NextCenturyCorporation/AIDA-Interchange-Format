@@ -1,21 +1,11 @@
 package edu.isi.gaia;
 
-import static edu.isi.gaia.AIFUtils.makeHypothesis;
-import static edu.isi.gaia.AIFUtils.makeRelation;
-import static edu.isi.gaia.AIFUtils.markAsMutuallyExclusive;
-import static edu.isi.gaia.AIFUtils.markAsPossibleClusterMember;
-import static edu.isi.gaia.AIFUtils.markDependsOnHypothesis;
-import static edu.isi.gaia.AIFUtils.markType;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
-import edu.isi.gaia.AIFUtils.BoundingBox;
-import edu.isi.gaia.AIFUtils.Point;
+import edu.isi.gaia.AIFUtils.*;
 import kotlin.text.Charsets;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -25,12 +15,12 @@ import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.SKOS;
 import org.apache.jena.vocabulary.XSD;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+
+import static edu.isi.gaia.AIFUtils.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class ExamplesAndValidationTest {
@@ -41,7 +31,7 @@ public class ExamplesAndValidationTest {
     ((Logger)org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
   }
 
-  private final ValidateAIF validator = ValidateAIF.createForDomainOntologySource(
+  private final ValidateAIF validatorForColdStart = ValidateAIF.createForDomainOntologySource(
       Resources.asCharSource(Resources.getResource("edu/isi/gaia/coldstart-ontology.ttl"),
           Charsets.UTF_8));
 
@@ -722,7 +712,7 @@ class ValidSeedlingExamples {
           // illegal confidence value - not in [0.0, 1.0]
           entity, ColdStartOntologyMapper.PERSON, system, 100.0);
 
-      assertFalse(validator.validateKB(model));
+      assertFalse(validatorForColdStart.validateKB(model));
     }
 
     @Test
@@ -736,7 +726,7 @@ class ValidSeedlingExamples {
 
       AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
           system);
-      assertFalse(validator.validateKB(model));
+      assertFalse(validatorForColdStart.validateKB(model));
     }
 
     @Test
@@ -750,7 +740,7 @@ class ValidSeedlingExamples {
 
       AIFUtils.makeEvent(model, "http://www.test.edu/events/1",
           system);
-      assertFalse(validator.validateKB(model));
+      assertFalse(validatorForColdStart.validateKB(model));
     }
 
     @Test
@@ -765,7 +755,29 @@ class ValidSeedlingExamples {
       markType(model, "http://www.test.edu/typeAssertion/1", entity,
           // use a blank node as the bogus entity type
           model.createResource(), system, 1.0);
-      assertFalse(validator.validateKB(model));
+      assertFalse(validatorForColdStart.validateKB(model));
+    }
+
+    @Test
+    void relationOfUnknownType() {
+      final Model model = createModel(true);
+
+      final Resource system = AIFUtils.makeSystemWithURI(model, "http://www.test.edu/testSystem");
+      final ColdStartOntologyMapper ontologyMapping = new ColdStartOntologyMapper();
+
+      final Resource personEntity = AIFUtils
+              .makeEntity(model, "http://www.test.edu/entities/1", system);
+      AIFUtils.markType(model, "http://www.test.org/assertions/1",
+              personEntity, SeedlingOntologyMapper.PERSON, system, 1.0);
+      final Resource louisvilleEntity = AIFUtils
+              .makeEntity(model, "http://www.test.edu/entities/2", system);
+      AIFUtils.markType(model, "http://www.test.org/assertions/1",
+              louisvilleEntity, SeedlingOntologyMapper.GPE, system, 1.0);
+      makeRelation(model, "http://www.test.edu/relations/1", personEntity,
+              model.createResource(SeedlingOntologyMapper.NAMESPACE_STATIC + "unknown_type"),
+              louisvilleEntity, system, 1.0);
+
+      assertFalse(seedlingValidator.validateKB(model));
     }
 
     @Test
@@ -794,7 +806,7 @@ class ValidSeedlingExamples {
       justification.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
       entity.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification);
 
-      assertFalse(validator.validateKB(model));
+      assertFalse(validatorForColdStart.validateKB(model));
     }
 
     // this validation constraint is not working yet
@@ -810,7 +822,7 @@ class ValidSeedlingExamples {
       final Resource entity = model.createResource("http://www.test.edu/entity/1");
       entity.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
       RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
-      assertFalse(validator.validateKB(model));
+      assertFalse(validatorForColdStart.validateKB(model));
     }
   }
 
@@ -820,11 +832,15 @@ class ValidSeedlingExamples {
   private void dumpAndAssertValid(Model model, String testName, boolean seedling) {
     System.out.println("\n\n" + testName + "\n\n");
     RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
+<<<<<<< HEAD
     if (seedling) {
         assertTrue(seedlingValidator.validateKB(model));
     } else {
         assertTrue(validator.validateKB(model));
     }
+=======
+    assertTrue(validatorForColdStart.validateKB(model));
+>>>>>>> Enforce that relation types must come from the ontology
   }
 
   private Model createModel(boolean seedling) {
