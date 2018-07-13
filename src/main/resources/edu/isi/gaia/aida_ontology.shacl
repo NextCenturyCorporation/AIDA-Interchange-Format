@@ -733,7 +733,7 @@ aida:RdfStatementShape
   sh:property [
      sh:path rdf:predicate ;
      sh:xone (
-         [ sh:class rdf:type ]
+         [ sh:hasValue rdf:type ]
          [ sh:class aidaDomainCommon:EventArgumentType ]
          [ sh:class aidaDomainCommon:RelationType ]
          [ sh:class aidaDomainCommon:Sentiment ] ) ;
