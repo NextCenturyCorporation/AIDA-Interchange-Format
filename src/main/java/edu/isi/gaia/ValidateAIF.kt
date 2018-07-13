@@ -96,8 +96,10 @@ class ValidateAIF(private val domainModel: Model) {
             val fileList = params.getOptionalExistingFile("kbsToValidate")
             val filesToValidate = if (fileList.isPresent) {
                 edu.isi.nlp.files.FileUtils.loadFileList(fileList.get())
-            } else {
+            } else if (params.isPresent("kbToValidate")) {
                 ImmutableList.of(params.getExistingFile("kbToValidate"))
+            } else {
+                throw RuntimeException("Either kbToValidate or kbsToValidate must be specified")
             }
 
             var allValid = true
