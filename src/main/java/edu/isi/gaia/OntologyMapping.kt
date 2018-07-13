@@ -7,7 +7,7 @@ import org.apache.jena.rdf.model.Resource
  */
 class OntoMemoize<in Arg, out Result>(val f: (Arg) -> Result) : (Arg) -> Result {
     private val cache = mutableMapOf<Arg, Result>()
-    override fun invoke(arg: Arg) = cache.getOrPut(arg, { f(arg) })
+    override fun invoke(arg: Arg) = cache.getOrPut(arg) { f(arg) }
 }
 
 /**
@@ -16,9 +16,11 @@ class OntoMemoize<in Arg, out Result>(val f: (Arg) -> Result) : (Arg) -> Result 
 interface OntologyMapping {
     val NAMESPACE: String
     fun entityShortNames(): Set<String>
-    fun shortNameToResource(ontology_type: String): Resource
+    fun entityType(ontology_type: String): Resource?
 
-    fun relationType(relationName: String): Resource
-    fun eventType(eventName: String): Resource
-    fun eventArgumentType(argName: String): Resource
+    fun relationType(relationName: String): Resource?
+    fun knownRelationTypes(): Set<String>
+    fun eventType(eventName: String): Resource?
+    fun knownEventTypes(): Set<String>
+    fun eventArgumentType(argName: String): Resource?
 }
