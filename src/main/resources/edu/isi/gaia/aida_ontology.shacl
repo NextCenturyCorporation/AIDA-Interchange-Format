@@ -306,6 +306,17 @@ aida:EventSubclass
         sh:minCount 1 ] ] )
   .
 
+# Allow for subclasses as well as instances of EventArgumentType
+aida:EventArgumentSubclass
+  a sh:NodeShape ;
+    sh:xone (
+      [sh:class aidaDomainCommon:EventArgumentType ]
+      [sh:property [
+          sh:path rdfs:subClassOf ;
+          sh:hasValue aidaDomainCommon:EventArgumentType ;
+          sh:minCount 1 ] ] )
+    .
+
 # we also use RDF statements to assign types to entities and events
 aida:TypeShape
    a sh:NodeShape ;
@@ -641,7 +652,7 @@ aida:ShotVideoJustificationShape
    sh:property [
        sh:path aida:shot ;
        sh:datatype xsd:string ;
-       sh:mintCount 1;
+       sh:minCount 1;
        sh:maxCount 1 ] ;
 
    # justifications must provide confidences
@@ -725,7 +736,17 @@ aida:RdfStatementShape
          [ sh:class rdf:type ]
          [ sh:class aidaDomainCommon:EventArgumentType ]
          [ sh:class aidaDomainCommon:RelationType ]
-         [ sh:class aidaDomainCommon:Sentiment ] ) ]
+         [ sh:class aidaDomainCommon:Sentiment ] ) ;
+      sh:minCount 1
+     ]
+
+
+  ; sh:property [
+     a sh:PropertyShape ;
+     sh:path aida:linkTarget ;
+     sh:value xsd:string ;
+     sh:minValue 1 ;
+     sh:maxValue 1]
   .
 
 # Sometimes there is uncertainty about whether or not two entities or events are the same.
