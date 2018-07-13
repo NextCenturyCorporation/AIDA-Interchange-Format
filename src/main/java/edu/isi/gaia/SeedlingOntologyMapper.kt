@@ -26,6 +26,9 @@ class SeedlingOntologyMapper : OntologyMapping {
         @JvmField
         val STRING = ResourceFactory.createResource(NAMESPACE_STATIC + "String")!!
 
+       @JvmField
+        val ENTITY_TYPES = setOf(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY)
+      
         internal val EVENT_TYPES = listOf(
                 // those in the first block match the seedling ontology except...
                 "CONFLICT.ATTACK", "CONFLICT.DEMONSTRATE",
