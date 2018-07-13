@@ -832,15 +832,11 @@ class ValidSeedlingExamples {
   private void dumpAndAssertValid(Model model, String testName, boolean seedling) {
     System.out.println("\n\n" + testName + "\n\n");
     RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
-<<<<<<< HEAD
     if (seedling) {
         assertTrue(seedlingValidator.validateKB(model));
     } else {
-        assertTrue(validator.validateKB(model));
+        assertTrue(validatorForColdStart.validateKB(model));
     }
-=======
-    assertTrue(validatorForColdStart.validateKB(model));
->>>>>>> Enforce that relation types must come from the ontology
   }
 
   private Model createModel(boolean seedling) {
