@@ -1,5 +1,5 @@
 ######################################################
-# Created by LDCOntology.java on 2018-07-12T13:03:40.226Z
+# Created by LDCOntology.java on 2018-07-16T13:26:56.449Z
 ######################################################
 @prefix schema: <http://schema.org/> .
 @prefix ldcOnt: <http://darpa.mil/ontologies/SeedlingOntology#> .
@@ -11,8 +11,8 @@
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix ldc:   <http://darpa.mil/annotations/ldc#> .
 
-<http://darpa.mil/ontologies/SeedlingOntology#>
-        a                owl:Ontology ;
+<http://darpa.mil/ontologies/SeedlingOntology/>
+        a               owl:Ontology ;
         rdfs:comment     "An ontology for creating messages from LDC data to use in AIDA interchange language development" ;
         rdfs:label       "AIDA Domain Ontology for LDC Seedling Corpus" ;
         owl:versionInfo  "Version 0.1" .
@@ -501,38 +501,38 @@ ldcOnt:EXISTENCE_DAMAGE-DESTROY
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "TBD1" ;
-                                                owl:unionOf  ( ldcOnt:Time )
-                                              ] ;
-                           owl:onProperty     ldcOnt:existence_damage-destroy_tbd1
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "TBD5" ;
-                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                                owl:unionOf  ( ldcOnt:Time )
                                               ] ;
                            owl:onProperty     ldcOnt:existence_damage-destroy_tbd5
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "TBD4" ;
-                                                owl:unionOf  ( ldcOnt:Commodity ldcOnt:Vehicle ldcOnt:Weapon )
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
                                               ] ;
                            owl:onProperty     ldcOnt:existence_damage-destroy_tbd4
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "TBD3" ;
-                                                owl:unionOf  ( ldcOnt:Ballot ldcOnt:Commodity ldcOnt:Facility ldcOnt:Vehicle ldcOnt:Weapon )
+                                                owl:unionOf  ( ldcOnt:Commodity ldcOnt:Vehicle ldcOnt:Weapon )
                                               ] ;
                            owl:onProperty     ldcOnt:existence_damage-destroy_tbd3
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "TBD2" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
+                                                owl:unionOf  ( ldcOnt:Ballot ldcOnt:Commodity ldcOnt:Facility ldcOnt:Vehicle ldcOnt:Weapon )
                                               ] ;
                            owl:onProperty     ldcOnt:existence_damage-destroy_tbd2
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD1" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
+                                              ] ;
+                           owl:onProperty     ldcOnt:existence_damage-destroy_tbd1
                          ] .
 
 ldcOnt:GOVERNMENT_AGREEMENTS
@@ -682,10 +682,10 @@ ldcOnt:INSPECTION_ARTIFACT
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "TBD1" ;
+                                                rdfs:label   "TBD4" ;
                                                 owl:unionOf  ( ldcOnt:Time )
                                               ] ;
-                           owl:onProperty     ldcOnt:inspection_artifact_tbd1
+                           owl:onProperty     ldcOnt:inspection_artifact_tbd4
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -1664,13 +1664,6 @@ ldcOnt:PERSONNEL_END-POSITION
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Time" ;
-                                                owl:unionOf  ( ldcOnt:Time )
-                                              ] ;
-                           owl:onProperty     ldcOnt:personnel_end-position_time
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
                                                 owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
                                               ] ;
@@ -1733,13 +1726,6 @@ ldcOnt:PERSONNEL_NOMINATE
 ldcOnt:PERSONNEL_START-POSITION
         a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:EventType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Time" ;
-                                                owl:unionOf  ( ldcOnt:Time )
-                                              ] ;
-                           owl:onProperty     ldcOnt:personnel_start-position_time
-                         ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
