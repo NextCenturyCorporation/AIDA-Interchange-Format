@@ -1,5 +1,5 @@
 ######################################################
-# Created by LDCOntology.java on 2018-07-12T13:03:40.335Z
+# Created by LDCOntology.java on 2018-07-16T13:26:56.470Z
 ######################################################
 @prefix schema: <http://schema.org/> .
 @prefix ldcOnt: <http://darpa.mil/ontologies/SeedlingOntology#> .
@@ -11,8 +11,8 @@
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix ldc:   <http://darpa.mil/annotations/ldc#> .
 
-<http://darpa.mil/ontologies/SeedlingOntology#>
-        a                owl:Ontology ;
+<http://darpa.mil/ontologies/SeedlingOntology>
+        a               owl:Ontology ;
         rdfs:comment     "An ontology for creating messages from LDC data to use in AIDA interchange language development" ;
         rdfs:label       "AIDA Domain Ontology for LDC Seedling Corpus" ;
         owl:versionInfo  "Version 0.1" .
@@ -617,35 +617,35 @@ ldcOnt:existence_damage-destroy_tbd1
         rdfs:domain           ldcOnt:EXISTENCE_DAMAGE-DESTROY ;
         rdfs:label            "TBD1" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  ldcOnt:Time .
+        schema:rangeIncludes  ldcOnt:Sides , ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
 ldcOnt:existence_damage-destroy_tbd2
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:EXISTENCE_DAMAGE-DESTROY ;
         rdfs:label            "TBD2" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  ldcOnt:Sides , ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
+        schema:rangeIncludes  ldcOnt:Vehicle , ldcOnt:Commodity , ldcOnt:Facility , ldcOnt:Ballot , ldcOnt:Weapon .
 
 ldcOnt:existence_damage-destroy_tbd3
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:EXISTENCE_DAMAGE-DESTROY ;
         rdfs:label            "TBD3" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  ldcOnt:Commodity , ldcOnt:Ballot , ldcOnt:Weapon , ldcOnt:Vehicle , ldcOnt:Facility .
+        schema:rangeIncludes  ldcOnt:Weapon , ldcOnt:Vehicle , ldcOnt:Commodity .
 
 ldcOnt:existence_damage-destroy_tbd4
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:EXISTENCE_DAMAGE-DESTROY ;
         rdfs:label            "TBD4" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  ldcOnt:Weapon , ldcOnt:Vehicle , ldcOnt:Commodity .
+        schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
 ldcOnt:existence_damage-destroy_tbd5
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:EXISTENCE_DAMAGE-DESTROY ;
         rdfs:label            "TBD5" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
+        schema:rangeIncludes  ldcOnt:Time .
 
 ldcOnt:government_agreements_tbd1
         a                     owl:Class , owl:ObjectProperty ;
@@ -774,11 +774,11 @@ ldcOnt:government_vote_tbd6
         schema:rangeIncludes  ldcOnt:Time .
 
 ldcOnt:inspection_artifact_tbd1
-        a                     owl:ObjectProperty , owl:Class ;
+        a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:INSPECTION_ARTIFACT ;
         rdfs:label            "TBD1" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:Time , ldcOnt:GeopoliticalEntity , ldcOnt:Sides .
+        schema:rangeIncludes  ldcOnt:Sides , ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
 ldcOnt:inspection_artifact_tbd2
         a                     owl:Class , owl:ObjectProperty ;
@@ -793,6 +793,13 @@ ldcOnt:inspection_artifact_tbd3
         rdfs:label            "TBD3" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
+
+ldcOnt:inspection_artifact_tbd4
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:INSPECTION_ARTIFACT ;
+        rdfs:label            "TBD4" ;
+        rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
+        schema:rangeIncludes  ldcOnt:Time .
 
 ldcOnt:inspection_people_tbd1
         a                     owl:Class , owl:ObjectProperty ;
@@ -1668,13 +1675,6 @@ ldcOnt:personnel_end-position_position
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Title .
 
-ldcOnt:personnel_end-position_time
-        a                     owl:Class , owl:ObjectProperty ;
-        rdfs:domain           ldcOnt:PERSONNEL_END-POSITION ;
-        rdfs:label            "Time" ;
-        rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  ldcOnt:Time .
-
 ldcOnt:personnel_nominate_nominator
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:PERSONNEL_NOMINATE ;
@@ -1730,13 +1730,6 @@ ldcOnt:personnel_start-position_position
         rdfs:label            "Position" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Title .
-
-ldcOnt:personnel_start-position_time
-        a                     owl:Class , owl:ObjectProperty ;
-        rdfs:domain           ldcOnt:PERSONNEL_START-POSITION ;
-        rdfs:label            "Time" ;
-        rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  ldcOnt:Time .
 
 ldcOnt:transaction_transaction_beneficiary
         a                     owl:Class , owl:ObjectProperty ;
