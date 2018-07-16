@@ -56,8 +56,8 @@ class SeedlingOntologyMapper : OntologyMapping {
                         // or seedling types with .s instead of underscores (more ACE-like)
                         .plus(SEEDLING_EVENT_TYPES.map { it.replace('_', '.') to it })
                         // or these remaining special cases
-                .plus(listOf("BUSINESS.END-ORG" to "BUSINESS_END-BUSINESS",
-                        "BUSINESS.START-ORG" to "BUSINESS_START-BUSINESS",
+                        .plus(listOf("BUSINESS.END-ORG" to "BUSINESS_END",
+                                "BUSINESS.START-ORG" to "BUSINESS_START",
                         "BUSINESS.MERGE-ORG" to "BUSINESS_MERGE",
                         // needed to read RPI Seedling output
                         "CONTACT.PHONE-WRITE" to "CONTACT_CORRESPONDENCE",
@@ -184,12 +184,16 @@ class SeedlingOntologyMapper : OntologyMapping {
             "and event types: ${EVENT_TYPES.keys}")*/
 
     internal val eventArgumentSpecialCases = mapOf(
+            "conflict_demonstrate_entity" to "conflict_demonstrate_demonstrator",
             "contact_meet_entity" to "contact_meet_participant",
             "contact_phone-write_entity" to "contact_correspondence_participant",
             "contact_phone-write_place" to "contact_correspondence_place",
             "contact_phone-write_time" to "contact_correspondence_time",
+            "justice_appeal_plaintiff" to "justice_appeal_prosecutor",
             "personnel_end-position_entity" to "personnel_end-position_organization",
-            "personnel_elect_person" to "personnel_elect_elect"
+            "personnel_elect_person" to "personnel_elect_elect",
+            "transaction_transfer-ownership_artifact" to "transaction_transfer-ownership_thing",
+            "transaction_transfer-ownership_buyer" to "transaction_transfer-ownership_recipient"
     )
 
     override fun eventArgumentType(argName: String): Resource {
