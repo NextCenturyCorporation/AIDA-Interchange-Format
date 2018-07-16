@@ -2,6 +2,7 @@ package edu.isi.gaia
 
 import org.apache.jena.rdf.model.Resource
 import org.apache.jena.rdf.model.ResourceFactory
+import java.util.*
 
 /**
  * The Seedling domain ontology.
@@ -24,7 +25,8 @@ class SeedlingOntologyMapper : OntologyMapping {
         @JvmField
         val FACILITY = ResourceFactory.createResource(NAMESPACE_STATIC + "Facility")!!
         @JvmField
-        val STRING = ResourceFactory.createResource(NAMESPACE_STATIC + "String")!!
+        val FILLER = ResourceFactory.createResource(NAMESPACE_STATIC + "FillerType")!!
+
 
         @JvmField
         val ENTITY_TYPES = setOf(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY)
@@ -46,7 +48,7 @@ class SeedlingOntologyMapper : OntologyMapping {
                 "JUSTICE_SUE", "JUSTICE_TRIAL-HEARING", "LIFE_BE-BORN", "LIFE_MARRY", "LIFE_DIVORCE",
                 "PERSONNEL_NOMINATE", "PERSONNEL_ELECT", "BUSINESS_END-BUSINESS",
                 "BUSINESS_START-BUSINESS", "BUSINESS_MERGE", "CONTACT_CORRESPONDENCE",
-                "PERSONNEL_END-PERSONNEL")
+                "PERSONNEL_END-POSITION")
 
         internal val EVENT_TYPES =
         // valid event types are seedling types directly
@@ -59,7 +61,7 @@ class SeedlingOntologyMapper : OntologyMapping {
                         "BUSINESS.MERGE-ORG" to "BUSINESS_MERGE",
                         // needed to read RPI Seedling output
                         "CONTACT.PHONE-WRITE" to "CONTACT_CORRESPONDENCE",
-                        "PERSONNEL.END-POSITION" to "PERSONNEL_END-PERSONNEL"))
+                        "PERSONNEL.END-POSITION" to "PERSONNEL_END-POSITION"))
                 .map { it.first to ResourceFactory.createResource(NAMESPACE_STATIC + it.second) }
                 .toMap()
 
@@ -160,14 +162,15 @@ class SeedlingOntologyMapper : OntologyMapping {
             "ORG" to ORGANIZATION,
             "LOC" to LOCATION,
             "FAC" to FACILITY,
-            "GPE" to GPE
+            "GPE" to GPE,
+            "FILLER" to FILLER
     ).toMap()
 
     override fun entityShortNames(): Set<String> = shortNames.keys
 
     override fun entityType(ontology_type: String): Resource? {
         return when (ontology_type) {
-            "STRING", "String" -> STRING
+            "STRING", "String" -> FILLER
             else -> shortNames[ontology_type] ?: throw RuntimeException("Unknown ontology type $ontology_type")
         }
     }
@@ -180,10 +183,25 @@ class SeedlingOntologyMapper : OntologyMapping {
     /*?: throw NoSuchElementException("Unknown event type: $eventName. Known relation " +
             "and event types: ${EVENT_TYPES.keys}")*/
 
-    // TOOD: event argument types are not mapped. Issue #26
-    override fun eventArgumentType(argName: String): Resource =
-            ResourceFactory.createResource(NAMESPACE_STATIC
-                    + argName.replace('.', '_').replace(':', '_'))
+    internal val eventArgumentSpecialCases = mapOf(
+            "contact_meet_entity" to "contact_meet_participant",
+            "contact_phone-write_entity" to "contact_correspondence_participant",
+            "contact_phone-write_place" to "contact_correspondence_place",
+            "contact_phone-write_time" to "contact_correspondence_time",
+            "personnel_end-position_entity" to "personnel_end-position_organization",
+            "personnel_elect_person" to "personnel_elect_elect"
+    )
+
+    override fun eventArgumentType(argName: String): Resource {
+        val initialResult = argName.replace('.', '_').replace(':', '_').toLowerCase(Locale.ENGLISH)
+
+        return ResourceFactory.createResource(NAMESPACE_STATIC +
+                if (initialResult in eventArgumentSpecialCases) {
+                    eventArgumentSpecialCases[initialResult]
+                } else {
+                    initialResult
+                })
+    }
 
     override fun knownRelationTypes(): Set<String> {
         return RELATION_TYPES.keys
@@ -210,7 +228,7 @@ open class RPISeedlingOntologyMapper : OntologyMapping {
     override fun entityShortNames(): Set<String> = seedlingOM.entityShortNames().
             plus("FILLER").toSet()
 
-    override fun entityType(ontology_type: String): Resource? = if (ontology_type == "FILLER") FILLER
+    override fun entityType(ontology_type: String): Resource? = if (ontology_type == "FILLER" || ontology_type == "String") FILLER
     else seedlingOM.entityType(ontology_type)
 
     override fun relationType(relationName: String): Resource? = if ("FILLER" in relationName) FILLER
