@@ -192,6 +192,7 @@ class SeedlingOntologyMapper : OntologyMapping {
             "justice_appeal_plaintiff" to "justice_appeal_prosecutor",
             "personnel_end-position_entity" to "personnel_end-position_organization",
             "personnel_elect_person" to "personnel_elect_elect",
+            "personnel_elect_entity" to "personnel_elect_elector",
             "transaction_transfer-ownership_artifact" to "transaction_transfer-ownership_thing",
             "transaction_transfer-ownership_buyer" to "transaction_transfer-ownership_recipient"
     )
