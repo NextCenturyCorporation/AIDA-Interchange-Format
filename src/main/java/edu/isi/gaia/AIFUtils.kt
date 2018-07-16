@@ -119,16 +119,8 @@ object AIFUtils {
     fun markAsEventArgument(model: Model, event: Resource, argumentType: Resource,
                             argumentFiller: Resource, system: Resource,
                             confidence: Double?): Resource {
-        val argAssertion = model.createResource()!!
-        argAssertion.addProperty(RDF.type, RDF.Statement)
-        argAssertion.addProperty(RDF.subject, event)
-        argAssertion.addProperty(RDF.predicate, argumentType)
-        argAssertion.addProperty(RDF.`object`, argumentFiller)
-        markSystem(argAssertion, system)
-        if (confidence != null) {
-            markConfidence(model, argAssertion, confidence = confidence, system = system)
-        }
-        return argAssertion
+        
+        return markAsEventArgument(model, event, argumentType, argumentFiller, system, confidence, null);
     }
 
     /**
