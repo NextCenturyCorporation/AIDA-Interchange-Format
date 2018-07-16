@@ -215,9 +215,9 @@ public class ExamplesAndValidationTest {
           ColdStartOntologyMapper.GPE, system, 1.0);
 
       // link those entities to the event
-      AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("Person"),
+        AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_elect"),
           electee, system, 0.785);
-      AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("Place"),
+        AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_place"),
           electionCountry, system, 0.589);
 
       dumpAndAssertValid(model, "create an event", false);
@@ -238,7 +238,7 @@ public class ExamplesAndValidationTest {
       // mark the event as a Personnel.Elect event; type is encoded separately so we can express
       // uncertainty about type
       AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
-              model.createResource("http://darpa.mil/ontologies/SeedlingOntology#BUSINESS_DECLARE-BANKRUPTCY"),
+              model.createResource("http://darpa.mil/ontologies/SeedlingOntology#PERSONNEL_ELECT"),
               system, 1.0);
 
       // create the two entities involved in the event
@@ -261,11 +261,11 @@ public class ExamplesAndValidationTest {
               system, 1.0);
 
       // link those entities to the event
-      AIFUtils.markAsEventArgument(model, event, model.createResource("http://darpa.mil/ontologies/SeedlingOntology#BUSINESS_DECLARE-BANKRUPTCY_arg1"),
+        AIFUtils.markAsEventArgument(model, event, model.createResource("http://darpa.mil/ontologies/SeedlingOntology#personnel_elect_elect"),
               electee, system, 0.785);
-      AIFUtils.markAsEventArgument(model, event, model.createResource("http://darpa.mil/ontologies/SeedlingOntology#BUSINESS_DECLARE-BANKRUPTCY_arg2"),
+        AIFUtils.markAsEventArgument(model, event, model.createResource("http://darpa.mil/ontologies/SeedlingOntology#personnel_elect_place"),
               electionCountry, system, 0.589);
-      AIFUtils.markAsEventArgument(model, event, model.createResource("http://darpa.mil/ontologies/SeedlingOntology#BUSINESS_DECLARE-BANKRUPTCY_arg3"),
+        AIFUtils.markAsEventArgument(model, event, model.createResource("http://darpa.mil/ontologies/SeedlingOntology#personnel_elect_time"),
               time, system, 0.589);
 
       RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
@@ -312,15 +312,15 @@ public class ExamplesAndValidationTest {
       // we link all possible argument fillers to the event
       final ImmutableSet<Resource> bobHitFredAssertions = ImmutableSet.of(
           AIFUtils.markAsEventArgument(model, event,
-              ontologyMapping.eventArgumentType("Attacker"), bob, system, null),
+                  ontologyMapping.eventArgumentType("conflict_attack_attacker"), bob, system, null),
           AIFUtils.markAsEventArgument(model, event,
-              ontologyMapping.eventArgumentType("Target"), fred, system, null));
+                  ontologyMapping.eventArgumentType("conflict_attack_target"), fred, system, null));
 
       final ImmutableSet<Resource> fredHitBobAssertions = ImmutableSet.of(
           AIFUtils.markAsEventArgument(model, event,
-              ontologyMapping.eventArgumentType("Attacker"), fred, system, null),
+                  ontologyMapping.eventArgumentType("conflict_attack_attacker"), fred, system, null),
           AIFUtils.markAsEventArgument(model, event,
-              ontologyMapping.eventArgumentType("Target"), bob, system, null));
+                  ontologyMapping.eventArgumentType("conflict_attack_target"), bob, system, null));
 
       // then we mark these as mutually exclusive
       // we also mark confidence 0.2 that neither of these are true
@@ -568,9 +568,9 @@ class ValidSeedlingExamples {
                 SeedlingOntologyMapper.GPE, system, 1.0);
 
         // link those entities to the event
-        AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("Person"),
+        AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_elect"),
                 electee, system, 0.785);
-        AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("Place"),
+        AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_place"),
                 electionCountry, system, 0.589);
 
         dumpAndAssertValid(model, "create a seedling event", true);
@@ -610,15 +610,15 @@ class ValidSeedlingExamples {
         // we link all possible argument fillers to the event
         final ImmutableSet<Resource> bobHitFredAssertions = ImmutableSet.of(
                 AIFUtils.markAsEventArgument(model, event,
-                        ontologyMapping.eventArgumentType("Attacker"), bob, system, null),
+                        ontologyMapping.eventArgumentType("conflict_attack_attacker"), bob, system, null),
                 AIFUtils.markAsEventArgument(model, event,
-                        ontologyMapping.eventArgumentType("Target"), fred, system, null));
+                        ontologyMapping.eventArgumentType("conflict_attack_target"), fred, system, null));
 
         final ImmutableSet<Resource> fredHitBobAssertions = ImmutableSet.of(
                 AIFUtils.markAsEventArgument(model, event,
-                        ontologyMapping.eventArgumentType("Attacker"), fred, system, null),
+                        ontologyMapping.eventArgumentType("conflict_attack_attacker"), fred, system, null),
                 AIFUtils.markAsEventArgument(model, event,
-                        ontologyMapping.eventArgumentType("Target"), bob, system, null));
+                        ontologyMapping.eventArgumentType("conflict_attack_target"), bob, system, null));
 
         // then we mark these as mutually exclusive
         // we also mark confidence 0.2 that neither of these are true
