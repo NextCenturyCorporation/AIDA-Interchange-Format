@@ -88,6 +88,7 @@ class ValidateAIF(private val domainModel: Model) {
 
             val params = Parameters.loadSerifStyle(File(args[0]))
             val domainOntologyFile = params.getExistingFile("domainOntology")
+            log.logger.info { "Using domain ontology file $domainOntologyFile" }
 
             // this is an RDF model which uses SHACL to encode constraints on the AIF
             val validator = ValidateAIF.createForDomainOntologySource(
