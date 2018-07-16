@@ -132,6 +132,30 @@ object AIFUtils {
     }
 
     /**
+     * Marks an entity as filling an argument role for an event.
+     *
+     * @return The created event argument assertion with uri
+     */
+    @JvmStatic
+    fun markAsEventArgument(model: Model, event: Resource, argumentType: Resource,
+                            argumentFiller: Resource, system: Resource,
+                            confidence: Double?, uri: String?): Resource {
+        val argAssertion = when {
+            (uri == null) -> model.createResource()!!
+            else -> model.createResource(uri)!!
+        }
+        argAssertion.addProperty(RDF.type, RDF.Statement)
+        argAssertion.addProperty(RDF.subject, event)
+        argAssertion.addProperty(RDF.predicate, argumentType)
+        argAssertion.addProperty(RDF.`object`, argumentFiller)
+        markSystem(argAssertion, system)
+        if (confidence != null) {
+            markConfidence(model, argAssertion, confidence = confidence, system = system)
+        }
+        return argAssertion
+    }
+
+    /**
      * Mark an entity or event as having a specified type.
      *
      * This is marked with a separate assertion so that uncertainty about type can be expressed.
