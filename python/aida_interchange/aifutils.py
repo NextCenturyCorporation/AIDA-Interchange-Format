@@ -135,13 +135,16 @@ def make_relation(g, relation_uri, first_arg, relation_type,
     return relation
 
 
-def mark_as_event_argument(g, event, argument_type, argument_filler, system, confidence):
+def mark_as_event_argument(g, event, argument_type, argument_filler, system, confidence, uri=None):
     """
     Marks an entity as filling an argument role for an event.
 
     :return: The created event argument assertion
     """
-    arg_assertion = BNode()
+    if uri is None:
+        arg_assertion = BNode()
+    else:
+        arg_assertion = URIRef(uri)
     g.add((arg_assertion, RDF.type, RDF.Statement))
     g.add((arg_assertion, RDF.subject, event))
     g.add((arg_assertion, RDF.predicate, argument_type))

@@ -224,6 +224,49 @@ class ValidExamples {
         dumpAndAssertValid(model, "create a seedling event", true);
     }
 
+    /**
+     * Same as createSeedlingEvent above, except with event argument URI's
+     */
+    @Test
+    void createSeedlingEventWithEventArgumentURI() {
+        final Model model = createModel(true);
+
+        // every AIF needs an object for the system responsible for creating it
+        final Resource system = AIFUtils.makeSystemWithURI(model,
+                "http://www.test.edu/testSystem");
+
+        // we make a resource for the event itself
+        final Resource event = AIFUtils.makeEvent(model,
+                "http://www.test.edu/events/1", system);
+
+        final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
+
+        // mark the event as a Personnel.Elect event; type is encoded separately so we can express
+        // uncertainty about type
+        // NOTE: mapper keys use '.' separator but produce correct seedling output
+        AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
+                ontologyMapping.eventType("PERSONNEL.ELECT"), system, 1.0);
+
+        // create the two entities involved in the event
+        final Resource electee = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
+                system);
+        AIFUtils.markType(model, "http://www.test.edu/assertions/6", electee,
+                SeedlingOntologyMapper.PERSON, system, 1.0);
+
+        final Resource electionCountry = AIFUtils.makeEntity(model,
+                "http://www.test.edu/entities/2", system);
+        AIFUtils.markType(model, "http://www.test.edu/assertions/7", electionCountry,
+                SeedlingOntologyMapper.GPE, system, 1.0);
+
+        // link those entities to the event
+        AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_elect"),
+                electee, system, 0.785, "http://www.test.edu/eventArgument/1");
+        AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_place"),
+                electionCountry, system, 0.589, "http://www.test.edu/eventArgument/2");
+
+        dumpAndAssertValid(model, "create a seedling event", true);
+    }
+
     @Test
     void useSubgraphConfidencesToShowMutuallyExclusiveLinkedSeedlingEventArgumentOptions() {
         // we want to say that either Fred hit Bob or Bob hit Fred, but we aren't sure which
