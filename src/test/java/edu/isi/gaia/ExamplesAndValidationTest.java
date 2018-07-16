@@ -1,21 +1,11 @@
 package edu.isi.gaia;
 
-import static edu.isi.gaia.AIFUtils.makeHypothesis;
-import static edu.isi.gaia.AIFUtils.makeRelation;
-import static edu.isi.gaia.AIFUtils.markAsMutuallyExclusive;
-import static edu.isi.gaia.AIFUtils.markAsPossibleClusterMember;
-import static edu.isi.gaia.AIFUtils.markDependsOnHypothesis;
-import static edu.isi.gaia.AIFUtils.markType;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
-import edu.isi.gaia.AIFUtils.BoundingBox;
-import edu.isi.gaia.AIFUtils.Point;
+import edu.isi.gaia.AIFUtils.*;
 import kotlin.text.Charsets;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -25,12 +15,12 @@ import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.SKOS;
 import org.apache.jena.vocabulary.XSD;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+
+import static edu.isi.gaia.AIFUtils.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class ExamplesAndValidationTest {
@@ -563,8 +553,9 @@ class ValidSeedlingExamples {
 
         // mark the event as a Personnel.Elect event; type is encoded separately so we can express
         // uncertainty about type
+        // NOTE: mapper keys use '.' separator but produce correct seedling output
         AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
-                ontologyMapping.eventType("PERSONNEL_ELECT"), system, 1.0);
+                ontologyMapping.eventType("PERSONNEL.ELECT"), system, 1.0);
 
         // create the two entities involved in the event
         final Resource electee = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
@@ -603,8 +594,9 @@ class ValidSeedlingExamples {
 
         // mark the event as a Personnel.Elect event; type is encoded separately so we can express
         // uncertainty about type
+        // NOTE: mapper keys use '.' separator but produce correct seedling output
         AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
-                ontologyMapping.eventType("CONFLICT_ATTACK"), system, 1.0);
+                ontologyMapping.eventType("CONFLICT.ATTACK"), system, 1.0);
 
         // create the two entities involved in the event
         final Resource bob = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
