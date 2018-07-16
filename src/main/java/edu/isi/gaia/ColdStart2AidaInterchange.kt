@@ -105,8 +105,6 @@ class ColdStart2AidaInterchangeConverter(
         // each will return a boolean specifying whether or not the conversion was successful
 
         fun translateTypeAssertion(cs_assertion: TypeAssertion, confidence: Double?): Boolean {
-            val entityOrEvent = toResource(cs_assertion.subject)
-
             val ontologyType = when (cs_assertion.subject) {
                 is EntityNode -> ontologyMapping.entityType(cs_assertion.type)
                 is EventNode -> ontologyMapping.eventType(cs_assertion.type)
@@ -114,6 +112,8 @@ class ColdStart2AidaInterchangeConverter(
             }
 
             if (ontologyType != null) {
+                val entityOrEvent = toResource(cs_assertion.subject)
+
                 AIFUtils.markType(model, assertionIriGenerator.nextIri(), entityOrEvent,
                         ontologyType, systemNode, confidence)
 

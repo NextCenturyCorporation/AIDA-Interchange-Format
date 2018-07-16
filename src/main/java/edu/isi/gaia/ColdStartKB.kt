@@ -199,7 +199,7 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false,
         val _ENTITY_TYPES: String = (ontologyMapping.entityShortNames().map { it.toLowerCase() } +
                 ontologyMapping.entityShortNames().map { it.toUpperCase() })
                 .toList().joinToString(separator="|")
-        val _ASSERTION_PAT = Regex("""^(?:$_ENTITY_TYPES)?:?(.+?)\.?(other|generic|actual)?$""")
+        val _ASSERTION_PAT = Regex("""^(?:(?:$_ENTITY_TYPES):)?(.+?)\.?(other|generic|actual)?$""")
 
         val idToNode: MutableMap<String, Node> = HashMap()
         // if `breakCrossDocCoref` is false, this will match `idToNode` exactly
