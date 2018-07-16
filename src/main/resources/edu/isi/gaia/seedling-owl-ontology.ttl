@@ -11,7 +11,7 @@
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix ldc:   <http://darpa.mil/annotations/ldc#> .
 
-<http://darpa.mil/ontologies/SeedlingOntology/>
+<http://darpa.mil/ontologies/SeedlingOntology>
         a               owl:Ontology ;
         rdfs:comment     "An ontology for creating messages from LDC data to use in AIDA interchange language development" ;
         rdfs:label       "AIDA Domain Ontology for LDC Seedling Corpus" ;
