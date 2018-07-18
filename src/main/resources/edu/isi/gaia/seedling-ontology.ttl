@@ -1,5 +1,5 @@
 ######################################################
-# Created by LDCOntology.java on 2018-07-16T13:26:56.470Z
+# Created by LDCOntology.java on 2018-07-18T16:59:11.513Z
 ######################################################
 @prefix schema: <http://schema.org/> .
 @prefix ldcOnt: <http://darpa.mil/ontologies/SeedlingOntology#> .
@@ -12,7 +12,7 @@
 @prefix ldc:   <http://darpa.mil/annotations/ldc#> .
 
 <http://darpa.mil/ontologies/SeedlingOntology>
-        a               owl:Ontology ;
+        a                owl:Ontology ;
         rdfs:comment     "An ontology for creating messages from LDC data to use in AIDA interchange language development" ;
         rdfs:label       "AIDA Domain Ontology for LDC Seedling Corpus" ;
         owl:versionInfo  "Version 0.1" .
@@ -188,6 +188,310 @@ ldcOnt:phys_orglocorig
 ldcOnt:phys_resident  a  owl:Class ;
         rdfs:label       "Physical_Resident" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+######################################################
+# Relation argument types
+######################################################
+ldcOnt:general-affiliation_artifact-political-organization-religious-affiliation_apora_affiliate
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:genafl_apora ;
+        rdfs:label            "Affiliate" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Weapon , ldcOnt:Vehicle , ldcOnt:Facility , ldcOnt:Commodity .
+
+ldcOnt:general-affiliation_artifact-political-organization-religious-affiliation_apora_affiliation
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:genafl_apora ;
+        rdfs:label            "Affiliation" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GeopoliticalEntity , ldcOnt:Organization , ldcOnt:Sides , ldcOnt:Location , ldcOnt:Person .
+
+ldcOnt:general-affiliation_organization-political-religious-affiliation_opra_affiliation
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:genafl_opra ;
+        rdfs:label            "Affiliation" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Sides , ldcOnt:Person , ldcOnt:Organization .
+
+ldcOnt:general-affiliation_organization-political-religious-affiliation_opra_organization
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:genafl_opra ;
+        rdfs:label            "Organization" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Organization .
+
+ldcOnt:general-affiliation_organization-website_organization
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:genafl_orgweb ;
+        rdfs:label            "Organization" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Organization .
+
+ldcOnt:general-affiliation_organization-website_website
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:genafl_orgweb ;
+        rdfs:label            "Website" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:URL .
+
+ldcOnt:general-affiliation_person-age_age
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:genafl_perage ;
+        rdfs:label            "Age" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Age .
+
+ldcOnt:general-affiliation_person-age_person
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:genafl_perage ;
+        rdfs:label            "Person" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Person .
+
+ldcOnt:general-affiliation_person-member-origin-religion-ethnicity_more_affiliation
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:genafl_more ;
+        rdfs:label            "Affiliation" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Sides , ldcOnt:Person , ldcOnt:Location , ldcOnt:GeopoliticalEntity .
+
+ldcOnt:general-affiliation_person-member-origin-religion-ethnicity_more_person
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:genafl_more ;
+        rdfs:label            "Person" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Person .
+
+ldcOnt:general-affiliation_sponsorship_entity
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:genafl_spon ;
+        rdfs:label            "Entity" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Organization , ldcOnt:Location , ldcOnt:GeopoliticalEntity .
+
+ldcOnt:general-affiliation_sponsorship_sponsor
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:genafl_spon ;
+        rdfs:label            "Sponsor" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Sides , ldcOnt:Organization , ldcOnt:Location , ldcOnt:GeopoliticalEntity .
+
+ldcOnt:measurement_count_tbd1
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:measurement_count ;
+        rdfs:label            "TBD1" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:NumericalValue .
+
+ldcOnt:measurement_count_tbd2
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:measurement_count ;
+        rdfs:label            "TBD2" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Vehicle , ldcOnt:Location , ldcOnt:Facility , ldcOnt:Organization , ldcOnt:Commodity , ldcOnt:Weapon , ldcOnt:Ballot , ldcOnt:Person , ldcOnt:GeopoliticalEntity .
+
+ldcOnt:organization-affiliation_employment-membership_employee
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:orgafl_empmem ;
+        rdfs:label            "Employee" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Person .
+
+ldcOnt:organization-affiliation_employment-membership_organization
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:orgafl_empmem ;
+        rdfs:label            "Organization" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
+
+ldcOnt:organization-affiliation_founder_founder
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:orgafl_found ;
+        rdfs:label            "Founder" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
+
+ldcOnt:organization-affiliation_founder_organization
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:orgafl_found ;
+        rdfs:label            "Organization" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Organization .
+
+ldcOnt:organization-affiliation_investor-shareholder_investorshareholder
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:orgafl_invshar ;
+        rdfs:label            "InvestorShareholder" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
+
+ldcOnt:organization-affiliation_investor-shareholder_organization
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:orgafl_invshar ;
+        rdfs:label            "Organization" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Organization .
+
+ldcOnt:organization-affiliation_leadership_leader
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:orgafl_lead ;
+        rdfs:label            "Leader" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Person .
+
+ldcOnt:organization-affiliation_leadership_organization
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:orgafl_lead ;
+        rdfs:label            "Organization" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
+
+ldcOnt:organization-affiliation_ownership_organization
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:orgafl_own ;
+        rdfs:label            "Organization" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Organization .
+
+ldcOnt:organization-affiliation_ownership_owner
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:orgafl_own ;
+        rdfs:label            "Owner" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Person .
+
+ldcOnt:organization-affiliation_student-alum_organization
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:orgafl_stualm ;
+        rdfs:label            "Organization" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Organization .
+
+ldcOnt:organization-affiliation_student-alum_studentalum
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:orgafl_stualm ;
+        rdfs:label            "StudentAlum" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Person .
+
+ldcOnt:part-whole_membership_member
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:partwhole_membership ;
+        rdfs:label            "Member" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
+
+ldcOnt:part-whole_membership_organization
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:partwhole_membership ;
+        rdfs:label            "Organization" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Organization .
+
+ldcOnt:part-whole_subsidiary_parent
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:partwhole_subsid ;
+        rdfs:label            "Parent" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
+
+ldcOnt:part-whole_subsidiary_subsidiary
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:partwhole_subsid ;
+        rdfs:label            "Subsidiary" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Organization .
+
+ldcOnt:personal-social_business_person
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:persoc_bus ;
+        rdfs:label            "Person" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Person .
+
+ldcOnt:personal-social_family_person
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:persoc_fam ;
+        rdfs:label            "Person" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Person .
+
+ldcOnt:personal-social_role-title_person
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:persoc_role ;
+        rdfs:label            "Person" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Person .
+
+ldcOnt:personal-social_role-title_title
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:persoc_role ;
+        rdfs:label            "Title" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Title .
+
+ldcOnt:personal-social_unspecified_person
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:persoc_unspc ;
+        rdfs:label            "Person" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Person .
+
+ldcOnt:physical_located-near_entity
+        a                     owl:ObjectProperty , owl:Class ;
+        rdfs:domain           ldcOnt:phys_locnear ;
+        rdfs:label            "Entity" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Person , ldcOnt:Vehicle , ldcOnt:Weapon , ldcOnt:Commodity , ldcOnt:Facility .
+
+ldcOnt:physical_located-near_place
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:phys_locnear ;
+        rdfs:label            "Place" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
+
+ldcOnt:physical_organization-headquarter_organization
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:phys_orghq ;
+        rdfs:label            "Organization" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Organization .
+
+ldcOnt:physical_organization-headquarter_place
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:phys_orghq ;
+        rdfs:label            "Place" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
+
+ldcOnt:physical_organization-location-origin_organization
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:phys_orglocorig ;
+        rdfs:label            "Organization" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Organization .
+
+ldcOnt:physical_organization-location-origin_place
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:phys_orglocorig ;
+        rdfs:label            "Place" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
+
+ldcOnt:physical_resident_place
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:phys_resident ;
+        rdfs:label            "Place" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
+
+ldcOnt:physical_resident_resident
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:phys_resident ;
+        rdfs:label            "Resident" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Person .
 
 ######################################################
 # Event types

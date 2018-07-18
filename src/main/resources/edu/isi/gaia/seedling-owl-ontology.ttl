@@ -1,5 +1,5 @@
 ######################################################
-# Created by LDCOntology.java on 2018-07-16T13:26:56.449Z
+# Created by LDCOntology.java on 2018-07-18T16:59:11.446Z
 ######################################################
 @prefix schema: <http://schema.org/> .
 @prefix ldcOnt: <http://darpa.mil/ontologies/SeedlingOntology#> .
@@ -12,7 +12,7 @@
 @prefix ldc:   <http://darpa.mil/annotations/ldc#> .
 
 <http://darpa.mil/ontologies/SeedlingOntology>
-        a               owl:Ontology ;
+        a                owl:Ontology ;
         rdfs:comment     "An ontology for creating messages from LDC data to use in AIDA interchange language development" ;
         rdfs:label       "AIDA Domain Ontology for LDC Seedling Corpus" ;
         owl:versionInfo  "Version 0.1" .
@@ -94,100 +94,422 @@ ldcOnt:Weapon  a         owl:Class ;
 ######################################################
 ldcOnt:genafl_apora  a   owl:Class ;
         rdfs:label       "General-Affiliation_Artifact-Political-Organization-Religious-Affiliation (APORA)" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Affiliation" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
+                                              ] ;
+                           owl:onProperty     ldcOnt:general-affiliation_artifact-political-organization-religious-affiliation_apora_affiliation
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Affiliate" ;
+                                                owl:unionOf  ( ldcOnt:Commodity ldcOnt:Facility ldcOnt:Vehicle ldcOnt:Weapon )
+                                              ] ;
+                           owl:onProperty     ldcOnt:general-affiliation_artifact-political-organization-religious-affiliation_apora_affiliate
+                         ] .
 
 ldcOnt:genafl_more  a    owl:Class ;
         rdfs:label       "General-Affiliation_Person-Member-Origin-Religion-Ethnicity (MORE)" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Affiliation" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Person ldcOnt:Sides )
+                                              ] ;
+                           owl:onProperty     ldcOnt:general-affiliation_person-member-origin-religion-ethnicity_more_affiliation
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:general-affiliation_person-member-origin-religion-ethnicity_more_person
+                         ] .
 
 ldcOnt:genafl_opra  a    owl:Class ;
         rdfs:label       "General-Affiliation_Organization-Political-Religious-Affiliation (OPRA)" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Affiliation" ;
+                                                owl:unionOf  ( ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
+                                              ] ;
+                           owl:onProperty     ldcOnt:general-affiliation_organization-political-religious-affiliation_opra_affiliation
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Organization" ;
+                                                owl:unionOf  ( ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:general-affiliation_organization-political-religious-affiliation_opra_organization
+                         ] .
 
 ldcOnt:genafl_orgweb  a  owl:Class ;
         rdfs:label       "General-Affiliation_Organization-Website" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Website" ;
+                                                owl:unionOf  ( ldcOnt:URL )
+                                              ] ;
+                           owl:onProperty     ldcOnt:general-affiliation_organization-website_website
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Organization" ;
+                                                owl:unionOf  ( ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:general-affiliation_organization-website_organization
+                         ] .
 
 ldcOnt:genafl_perage  a  owl:Class ;
         rdfs:label       "General-Affiliation_Person-Age" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Age" ;
+                                                owl:unionOf  ( ldcOnt:Age )
+                                              ] ;
+                           owl:onProperty     ldcOnt:general-affiliation_person-age_age
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:general-affiliation_person-age_person
+                         ] .
 
 ldcOnt:genafl_spon  a    owl:Class ;
         rdfs:label       "General-Affiliation_Sponsorship" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Sponsor" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Organization ldcOnt:Sides )
+                                              ] ;
+                           owl:onProperty     ldcOnt:general-affiliation_sponsorship_sponsor
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Entity" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:general-affiliation_sponsorship_entity
+                         ] .
 
 ldcOnt:measurement_count
         a                owl:Class ;
         rdfs:label       "Measurement_Count" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD2" ;
+                                                owl:unionOf  ( ldcOnt:Ballot ldcOnt:Commodity ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Organization ldcOnt:Person ldcOnt:Vehicle ldcOnt:Weapon )
+                                              ] ;
+                           owl:onProperty     ldcOnt:measurement_count_tbd2
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "TBD1" ;
+                                                owl:unionOf  ( ldcOnt:NumericalValue )
+                                              ] ;
+                           owl:onProperty     ldcOnt:measurement_count_tbd1
+                         ] .
 
 ldcOnt:orgafl_empmem  a  owl:Class ;
         rdfs:label       "Organization-Affiliation_Employment-Membership" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Organization" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:organization-affiliation_employment-membership_organization
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Employee" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:organization-affiliation_employment-membership_employee
+                         ] .
 
 ldcOnt:orgafl_found  a   owl:Class ;
         rdfs:label       "Organization-Affiliation_Founder" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Organization" ;
+                                                owl:unionOf  ( ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:organization-affiliation_founder_organization
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Founder" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:organization-affiliation_founder_founder
+                         ] .
 
 ldcOnt:orgafl_invshar
         a                owl:Class ;
         rdfs:label       "Organization-Affiliation_Investor-Shareholder" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Organization" ;
+                                                owl:unionOf  ( ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:organization-affiliation_investor-shareholder_organization
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "InvestorShareholder" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:organization-affiliation_investor-shareholder_investorshareholder
+                         ] .
 
 ldcOnt:orgafl_lead  a    owl:Class ;
         rdfs:label       "Organization-Affiliation_Leadership" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Organization" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:organization-affiliation_leadership_organization
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Leader" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:organization-affiliation_leadership_leader
+                         ] .
 
 ldcOnt:orgafl_own  a     owl:Class ;
         rdfs:label       "Organization-Affiliation_Ownership" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Organization" ;
+                                                owl:unionOf  ( ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:organization-affiliation_ownership_organization
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Owner" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:organization-affiliation_ownership_owner
+                         ] .
 
 ldcOnt:orgafl_stualm  a  owl:Class ;
         rdfs:label       "Organization-Affiliation_Student-Alum" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Organization" ;
+                                                owl:unionOf  ( ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:organization-affiliation_student-alum_organization
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "StudentAlum" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:organization-affiliation_student-alum_studentalum
+                         ] .
 
 ldcOnt:partwhole_membership
         a                owl:Class ;
         rdfs:label       "Part-Whole_Membership" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Organization" ;
+                                                owl:unionOf  ( ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:part-whole_membership_organization
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Member" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:part-whole_membership_member
+                         ] .
 
 ldcOnt:partwhole_subsid
         a                owl:Class ;
         rdfs:label       "Part-Whole_Subsidiary" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Parent" ;
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:part-whole_subsidiary_parent
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Subsidiary" ;
+                                                owl:unionOf  ( ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:part-whole_subsidiary_subsidiary
+                         ] .
 
 ldcOnt:persoc_bus  a     owl:Class ;
         rdfs:label       "Personal-Social_Business" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personal-social_business_person
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personal-social_business_person
+                         ] .
 
 ldcOnt:persoc_fam  a     owl:Class ;
         rdfs:label       "Personal-Social_Family" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personal-social_family_person
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personal-social_family_person
+                         ] .
 
 ldcOnt:persoc_role  a    owl:Class ;
         rdfs:label       "Personal-Social_Role-Title" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Title" ;
+                                                owl:unionOf  ( ldcOnt:Title )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personal-social_role-title_title
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personal-social_role-title_person
+                         ] .
 
 ldcOnt:persoc_unspc  a   owl:Class ;
         rdfs:label       "Personal-Social_Unspecified" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personal-social_unspecified_person
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Person" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:personal-social_unspecified_person
+                         ] .
 
 ldcOnt:phys_locnear  a   owl:Class ;
         rdfs:label       "Physical_Located-Near" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
+                           owl:onProperty     ldcOnt:physical_located-near_place
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Entity" ;
+                                                owl:unionOf  ( ldcOnt:Commodity ldcOnt:Facility ldcOnt:Person ldcOnt:Vehicle ldcOnt:Weapon )
+                                              ] ;
+                           owl:onProperty     ldcOnt:physical_located-near_entity
+                         ] .
 
 ldcOnt:phys_orghq  a     owl:Class ;
         rdfs:label       "Physical_Organization-Headquarter" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
+                           owl:onProperty     ldcOnt:physical_organization-headquarter_place
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Organization" ;
+                                                owl:unionOf  ( ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:physical_organization-headquarter_organization
+                         ] .
 
 ldcOnt:phys_orglocorig
         a                owl:Class ;
         rdfs:label       "Physical_Organization-Location-Origin" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
+                           owl:onProperty     ldcOnt:physical_organization-location-origin_place
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Organization" ;
+                                                owl:unionOf  ( ldcOnt:Organization )
+                                              ] ;
+                           owl:onProperty     ldcOnt:physical_organization-location-origin_organization
+                         ] .
 
 ldcOnt:phys_resident  a  owl:Class ;
         rdfs:label       "Physical_Resident" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
+                                              ] ;
+                           owl:onProperty     ldcOnt:physical_resident_place
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Resident" ;
+                                                owl:unionOf  ( ldcOnt:Person )
+                                              ] ;
+                           owl:onProperty     ldcOnt:physical_resident_resident
+                         ] .
 
 ######################################################
 # Event types

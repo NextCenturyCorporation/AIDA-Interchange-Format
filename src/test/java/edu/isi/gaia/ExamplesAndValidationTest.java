@@ -164,9 +164,9 @@ class ValidExamples {
 
         // whatever this place turns out to refer to, we're sure it's where they live
         makeRelationInEventForm(model, "http://www.test.edu/relations/1",
-                ontologyMapping.relationType("cities_of_residence"),
-                ontologyMapping.eventArgumentType("cities_of_residence" + "_person"), personEntity,
-                ontologyMapping.eventArgumentType("cities_of_residence" + "_city"), uncertainPlaceOfBirthEntity,
+                ontologyMapping.relationType("phys_resident"),
+                ontologyMapping.eventArgumentType("physical_resident" + "_resident"), personEntity,
+                ontologyMapping.eventArgumentType("physical_resident" + "_place"), uncertainPlaceOfBirthEntity,
                 getAssertionUri(), system, 1.0);
 
         // we use clusters to represent uncertainty about identity
@@ -363,9 +363,9 @@ class ValidExamples {
                 california, SeedlingOntologyMapper.GPE, system, 1.0);
 
         // under the background hypothesis that Bob lives in Seattle, we believe he works for Amazon
-        String cityRelation = "cities_of_residence";
-        String cityRelationSubject = cityRelation + "_person";
-        String cityRelationObject = cityRelation + "_city";
+        String cityRelation = "phys_resident";
+        String cityRelationSubject = "physical_resident" + "_resident";
+        String cityRelationObject = "physical_resident" + "_place";
         final Resource bobLivesInSeattle = makeRelationInEventForm(model, "http://www.test.edu/relations/1",
                 ontologyMapping.relationType(cityRelation),
                 ontologyMapping.eventArgumentType(cityRelationSubject), bob,
@@ -375,9 +375,10 @@ class ValidExamples {
                 "http://www.test.edu/hypotheses/1", ImmutableSet.of(bobLivesInSeattle),
                 system);
 
-        String employeeRelation = "employee_or_member_of";
-        String employeeRelationSubject = employeeRelation + "_employee";
-        String employeeRelationOjbect = employeeRelation + "_employer";
+        String employeeRelation = "orgafl_empmem";
+        String argPrefix = "organization-affiliation_employment-membership";
+        String employeeRelationSubject = argPrefix + "_employee";
+        String employeeRelationOjbect = argPrefix + "_organization";
         final Resource bobWorksForAmazon = makeRelationInEventForm(model, "http://www.test.edu/relations/2",
                 ontologyMapping.relationType(employeeRelation),
                 ontologyMapping.eventArgumentType(employeeRelationSubject), bob,

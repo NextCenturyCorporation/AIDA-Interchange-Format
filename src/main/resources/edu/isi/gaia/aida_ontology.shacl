@@ -295,17 +295,6 @@ aida:EntitySubclass
         sh:minCount 1 ] ] )
   .
 
-# Allow for subclasses as well as instances of RelationType
-aida:RelationSubclass
-  a sh:NodeShape ;
-  sh:xone (
-    [sh:class aidaDomainCommon:RelationType ]
-    [sh:property [
-        sh:path rdfs:subClassOf ;
-        sh:hasValue aidaDomainCommon:RelationType ;
-        sh:minCount 1 ] ] )
-  .
-
 # Allow for subclasses as well as instances of EventType
 aida:EventSubclass
   a sh:NodeShape ;
@@ -317,7 +306,7 @@ aida:EventSubclass
         sh:minCount 1 ] ] )
   .
 
-# Allow for subclasses as well as instances of EventType
+# Allow for subclasses as well as instances of RelationType
 aida:RelationSubclass
   a sh:NodeShape ;
   sh:xone (
@@ -336,6 +325,17 @@ aida:EventArgumentSubclass
       [sh:property [
           sh:path rdfs:subClassOf ;
           sh:hasValue aidaDomainCommon:EventArgumentType ;
+          sh:minCount 1 ] ] )
+    .
+
+# Allow for subclasses as well as instances of RelationArgumentType
+aida:RelationArgumentSubclass
+  a sh:NodeShape ;
+    sh:xone (
+      [sh:class aidaDomainCommon:RelationArgumentType ]
+      [sh:property [
+          sh:path rdfs:subClassOf ;
+          sh:hasValue aidaDomainCommon:RelationArgumentType ;
           sh:minCount 1 ] ] )
     .
 
@@ -750,19 +750,19 @@ aida:LinkPropertyShape
 # we use RDF statements for four things: relations, type assertions, event argument, and
 # sentiment assertions. Each of these has already been described above. We want to forbid any other
 # use of RDF statement.
-#aida:RdfStatementShape
-#  a sh:NodeShape ;
-#  sh:targetClass rdf:Statement ;
-#
-#  sh:property [
-#     sh:path rdf:predicate ;
-#     sh:xone (
-#         [ sh:hasValue rdf:type ]
-#         [ sh:node aida:EventArgumentSubclass ]
-#         [ sh:node aida:RelationSubclass ]) ;
-#      sh:message "All rdf:statements must be type declarations or have predicates from the domain relation or event argument types. This error is often caused by using a value outside the domain ontology"
-#     ]
-#  .
+aida:RdfStatementShape
+  a sh:NodeShape ;
+  sh:targetClass rdf:Statement ;
+
+  sh:property [
+     sh:path rdf:predicate ;
+     sh:xone (
+         [ sh:hasValue rdf:type ]
+         [ sh:node aida:EventArgumentSubclass ]
+         [ sh:node aida:RelationArgumentSubclass ]) ;
+      sh:message "All rdf:statements must be type declarations or have predicates from the domain relation or event argument types. This error is often caused by using a value outside the domain ontology"
+     ]
+  .
 
 # Sometimes there is uncertainty about whether or not two entities or events are the same.
 # In such cases, we make "cluster" objects which can link together the possibly identical
