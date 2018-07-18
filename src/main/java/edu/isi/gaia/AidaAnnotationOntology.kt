@@ -95,6 +95,8 @@ object AidaAnnotationOntology {
     @JvmField
     val EVENT_CLASS = ResourceFactory.createResource(NAMESPACE + "Event")!!
     @JvmField
+    val RELATION_CLASS = ResourceFactory.createResource(NAMESPACE + "Relation")!!
+    @JvmField
     val CONFIDENCE_CLASS = ResourceFactory.createResource(NAMESPACE + "Confidence")!!
     @JvmField
     val TEXT_JUSTIFICATION_CLASS =

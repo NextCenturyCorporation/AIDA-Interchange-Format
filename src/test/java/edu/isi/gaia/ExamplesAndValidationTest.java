@@ -39,6 +39,12 @@ public class ExamplesAndValidationTest {
       Resources.asCharSource(Resources.getResource("edu/isi/gaia/seedling-ontology.ttl"),
           Charsets.UTF_8));
 
+    private int assertionCount = 1;
+
+    private String getAssertionUri() {
+        return "http://www.test.org/assertions/" + assertionCount++;
+    }
+
 @Nested
 class ValidExamples {
 
@@ -139,17 +145,17 @@ class ValidExamples {
         // they were born in Louisville or Cambridge
         final Resource personEntity = AIFUtils
                 .makeEntity(model, "http://www.test.edu/entities/1", system);
-        AIFUtils.markType(model, "http://www.test.org/assertions/1",
+        AIFUtils.markType(model, getAssertionUri(),
                 personEntity, SeedlingOntologyMapper.PERSON, system, 1.0);
 
         // create entities for the two locations
         final Resource louisvilleEntity = AIFUtils
                 .makeEntity(model, "http://www.test.edu/entities/2", system);
-        AIFUtils.markType(model, "http://www.test.org/assertions/2",
+        AIFUtils.markType(model, getAssertionUri(),
                 louisvilleEntity, SeedlingOntologyMapper.GPE, system, 1.0);
         final Resource cambridgeEntity = AIFUtils
                 .makeEntity(model, "http://www.test.edu/entities/3", system);
-        AIFUtils.markType(model, "http://www.test.org/assertions/3",
+        AIFUtils.markType(model, getAssertionUri(),
                 cambridgeEntity, SeedlingOntologyMapper.GPE, system, 1.0);
 
         // create an entity for the uncertain place of birth
@@ -157,9 +163,11 @@ class ValidExamples {
                 .makeEntity(model, "http://www.test.edu/entities/4", system);
 
         // whatever this place turns out to refer to, we're sure it's where they live
-        makeRelation(model, "http://www.test.edu/relations/1", personEntity,
+        makeRelationInEventForm(model, "http://www.test.edu/relations/1",
                 ontologyMapping.relationType("cities_of_residence"),
-                uncertainPlaceOfBirthEntity, system, 1.0);
+                ontologyMapping.eventArgumentType("cities_of_residence" + "_person"), personEntity,
+                ontologyMapping.eventArgumentType("cities_of_residence" + "_city"), uncertainPlaceOfBirthEntity,
+                getAssertionUri(), system, 1.0);
 
         // we use clusters to represent uncertainty about identity
         // we make two clusters, one for Louisville and one for Cambridge
@@ -216,9 +224,9 @@ class ValidExamples {
                 SeedlingOntologyMapper.GPE, system, 1.0);
 
         // link those entities to the event
-        AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_elect"),
+        AIFUtils.markAsArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_elect"),
                 electee, system, 0.785);
-        AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_place"),
+        AIFUtils.markAsArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_place"),
                 electionCountry, system, 0.589);
 
         dumpAndAssertValid(model, "create a seedling event", true);
@@ -259,9 +267,9 @@ class ValidExamples {
                 SeedlingOntologyMapper.GPE, system, 1.0);
 
         // link those entities to the event
-        AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_elect"),
+        AIFUtils.markAsArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_elect"),
                 electee, system, 0.785, "http://www.test.edu/eventArgument/1");
-        AIFUtils.markAsEventArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_place"),
+        AIFUtils.markAsArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_place"),
                 electionCountry, system, 0.589, "http://www.test.edu/eventArgument/2");
 
         dumpAndAssertValid(model, "create a seedling event", true);
@@ -301,15 +309,15 @@ class ValidExamples {
 
         // we link all possible argument fillers to the event
         final ImmutableSet<Resource> bobHitFredAssertions = ImmutableSet.of(
-                AIFUtils.markAsEventArgument(model, event,
+                AIFUtils.markAsArgument(model, event,
                         ontologyMapping.eventArgumentType("conflict_attack_attacker"), bob, system, null),
-                AIFUtils.markAsEventArgument(model, event,
+                AIFUtils.markAsArgument(model, event,
                         ontologyMapping.eventArgumentType("conflict_attack_target"), fred, system, null));
 
         final ImmutableSet<Resource> fredHitBobAssertions = ImmutableSet.of(
-                AIFUtils.markAsEventArgument(model, event,
+                AIFUtils.markAsArgument(model, event,
                         ontologyMapping.eventArgumentType("conflict_attack_attacker"), fred, system, null),
-                AIFUtils.markAsEventArgument(model, event,
+                AIFUtils.markAsArgument(model, event,
                         ontologyMapping.eventArgumentType("conflict_attack_target"), bob, system, null));
 
         // then we mark these as mutually exclusive
@@ -334,48 +342,63 @@ class ValidExamples {
         // named Bob, two companies (Google and Amazon), and two places (Seattle and California).
         final Resource bob = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Bob",
                 system);
-        AIFUtils.markType(model, "http://www.test.org/assertions/1",
+        AIFUtils.markType(model, getAssertionUri(),
                 bob, SeedlingOntologyMapper.PERSON, system, 1.0);
         final Resource google = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Google",
                 system);
-        AIFUtils.markType(model, "http://www.test.org/assertions/2",
+        AIFUtils.markType(model, getAssertionUri(),
                 google, SeedlingOntologyMapper.ORGANIZATION, system, 1.0);
         final Resource amazon = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Amazon",
                 system);
-        AIFUtils.markType(model, "http://www.test.org/assertions/3",
+        AIFUtils.markType(model, getAssertionUri(),
                 amazon, SeedlingOntologyMapper.ORGANIZATION, system, 1.0);
         final Resource seattle = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Seattle",
                 system);
-        AIFUtils.markType(model, "http://www.test.org/assertions/4",
+        AIFUtils.markType(model, getAssertionUri(),
                 seattle, SeedlingOntologyMapper.GPE, system, 1.0);
         final Resource california = AIFUtils
                 .makeEntity(model, "http://www.test.edu/entities/California",
                         system);
-        AIFUtils.markType(model, "http://www.test.org/assertions/5",
+        AIFUtils.markType(model, getAssertionUri(),
                 california, SeedlingOntologyMapper.GPE, system, 1.0);
 
         // under the background hypothesis that Bob lives in Seattle, we believe he works for Amazon
-        final Resource bobLivesInSeattle = makeRelation(model, "http://www.test.edu/relations/1",
-                bob, ontologyMapping.relationType("cities_of_residence"),
-                seattle, system, 1.0);
+        String cityRelation = "cities_of_residence";
+        String cityRelationSubject = cityRelation + "_person";
+        String cityRelationObject = cityRelation + "_city";
+        final Resource bobLivesInSeattle = makeRelationInEventForm(model, "http://www.test.edu/relations/1",
+                ontologyMapping.relationType(cityRelation),
+                ontologyMapping.eventArgumentType(cityRelationSubject), bob,
+                ontologyMapping.eventArgumentType(cityRelationObject), seattle,
+                getAssertionUri(), system, 1.0);
         final Resource bobLivesInSeattleHypothesis = makeHypothesis(model,
                 "http://www.test.edu/hypotheses/1", ImmutableSet.of(bobLivesInSeattle),
                 system);
-        final Resource bobWorksForAmazon = makeRelation(model, "http://www.test.edu/relations/2",
-                bob, ontologyMapping.relationType("employee_or_member_of"),
-                amazon, system, 1.0);
+
+        String employeeRelation = "employee_or_member_of";
+        String employeeRelationSubject = employeeRelation + "_employee";
+        String employeeRelationOjbect = employeeRelation + "_employer";
+        final Resource bobWorksForAmazon = makeRelationInEventForm(model, "http://www.test.edu/relations/2",
+                ontologyMapping.relationType(employeeRelation),
+                ontologyMapping.eventArgumentType(employeeRelationSubject), bob,
+                ontologyMapping.eventArgumentType(employeeRelationOjbect), amazon,
+                getAssertionUri(), system, 1.0);
         markDependsOnHypothesis(bobWorksForAmazon, bobLivesInSeattleHypothesis);
 
         // under the background hypothesis that Bob lives in California, we believe he works for Google
-        final Resource bobLivesInCalifornia = makeRelation(model, "http://www.test.edu/relations/3",
-                bob, ontologyMapping.relationType("cities_of_residence"),
-                california, system, 1.0);
+        final Resource bobLivesInCalifornia = makeRelationInEventForm(model, "http://www.test.edu/relations/3",
+                ontologyMapping.relationType(cityRelation),
+                ontologyMapping.eventArgumentType(cityRelationSubject), bob,
+                ontologyMapping.eventArgumentType(cityRelationObject), california,
+                getAssertionUri(), system, 1.0);
         final Resource bobLivesInCaliforniaHypothesis = makeHypothesis(model,
                 "http://www.test.edu/hypotheses/2", ImmutableSet.of(bobLivesInCalifornia),
                 system);
-        final Resource bobWorksForGoogle = makeRelation(model, "http://www.test.edu/relations/4",
-                bob, ontologyMapping.relationType("employee_or_member_of"),
-                google, system, 1.0);
+        final Resource bobWorksForGoogle = makeRelationInEventForm(model, "http://www.test.edu/relations/4",
+                ontologyMapping.relationType(employeeRelation),
+                ontologyMapping.eventArgumentType(employeeRelationSubject), bob,
+                ontologyMapping.eventArgumentType(employeeRelationOjbect), google,
+                getAssertionUri(), system, 1.0);
         markDependsOnHypothesis(bobWorksForGoogle, bobLivesInCaliforniaHypothesis);
 
         dumpAndAssertValid(model, "two seedling hypotheses", true);
@@ -465,9 +488,12 @@ class ValidExamples {
               .makeEntity(model, "http://www.test.edu/entities/2", system);
       AIFUtils.markType(model, "http://www.test.org/assertions/1",
               louisvilleEntity, SeedlingOntologyMapper.GPE, system, 1.0);
-      makeRelation(model, "http://www.test.edu/relations/1", personEntity,
-              model.createResource(SeedlingOntologyMapper.NAMESPACE_STATIC + "unknown_type"),
-              louisvilleEntity, system, 1.0);
+
+        String relation = SeedlingOntologyMapper.NAMESPACE_STATIC + "unknown_type";
+        makeRelationInEventForm(model, "http://www.test.edu/relations/1", model.createResource(relation),
+                ontologyMapping.eventArgumentType(relation + "_person"), personEntity,
+                ontologyMapping.eventArgumentType(relation + "_person"), louisvilleEntity,
+                getAssertionUri(), system, 1.0);
 
       assertFalse(seedlingValidator.validateKB(model));
     }
