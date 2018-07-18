@@ -1,5 +1,5 @@
 ######################################################
-# Created by LDCOntology.java on 2018-07-18T16:59:11.513Z
+# Created by LDCOntology.java on 2018-07-18T20:00:50.725Z
 ######################################################
 @prefix schema: <http://schema.org/> .
 @prefix ldcOnt: <http://darpa.mil/ontologies/SeedlingOntology#> .
@@ -192,84 +192,84 @@ ldcOnt:phys_resident  a  owl:Class ;
 ######################################################
 # Relation argument types
 ######################################################
-ldcOnt:general-affiliation_artifact-political-organization-religious-affiliation_apora_affiliate
+ldcOnt:genafl_apora_affiliate
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:genafl_apora ;
         rdfs:label            "Affiliate" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Weapon , ldcOnt:Vehicle , ldcOnt:Facility , ldcOnt:Commodity .
 
-ldcOnt:general-affiliation_artifact-political-organization-religious-affiliation_apora_affiliation
-        a                     owl:Class , owl:ObjectProperty ;
+ldcOnt:genafl_apora_affiliation
+        a                     owl:ObjectProperty , owl:Class ;
         rdfs:domain           ldcOnt:genafl_apora ;
         rdfs:label            "Affiliation" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
-        schema:rangeIncludes  ldcOnt:GeopoliticalEntity , ldcOnt:Organization , ldcOnt:Sides , ldcOnt:Location , ldcOnt:Person .
+        schema:rangeIncludes  ldcOnt:Organization , ldcOnt:Location , ldcOnt:Person , ldcOnt:GeopoliticalEntity , ldcOnt:Sides .
 
-ldcOnt:general-affiliation_organization-political-religious-affiliation_opra_affiliation
-        a                     owl:Class , owl:ObjectProperty ;
-        rdfs:domain           ldcOnt:genafl_opra ;
-        rdfs:label            "Affiliation" ;
-        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
-        schema:rangeIncludes  ldcOnt:Sides , ldcOnt:Person , ldcOnt:Organization .
-
-ldcOnt:general-affiliation_organization-political-religious-affiliation_opra_organization
-        a                     owl:Class , owl:ObjectProperty ;
-        rdfs:domain           ldcOnt:genafl_opra ;
-        rdfs:label            "Organization" ;
-        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
-        schema:rangeIncludes  ldcOnt:Organization .
-
-ldcOnt:general-affiliation_organization-website_organization
-        a                     owl:Class , owl:ObjectProperty ;
-        rdfs:domain           ldcOnt:genafl_orgweb ;
-        rdfs:label            "Organization" ;
-        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
-        schema:rangeIncludes  ldcOnt:Organization .
-
-ldcOnt:general-affiliation_organization-website_website
-        a                     owl:Class , owl:ObjectProperty ;
-        rdfs:domain           ldcOnt:genafl_orgweb ;
-        rdfs:label            "Website" ;
-        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
-        schema:rangeIncludes  ldcOnt:URL .
-
-ldcOnt:general-affiliation_person-age_age
-        a                     owl:Class , owl:ObjectProperty ;
-        rdfs:domain           ldcOnt:genafl_perage ;
-        rdfs:label            "Age" ;
-        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
-        schema:rangeIncludes  ldcOnt:Age .
-
-ldcOnt:general-affiliation_person-age_person
-        a                     owl:Class , owl:ObjectProperty ;
-        rdfs:domain           ldcOnt:genafl_perage ;
-        rdfs:label            "Person" ;
-        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
-        schema:rangeIncludes  ldcOnt:Person .
-
-ldcOnt:general-affiliation_person-member-origin-religion-ethnicity_more_affiliation
+ldcOnt:genafl_more_affiliation
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:genafl_more ;
         rdfs:label            "Affiliation" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Sides , ldcOnt:Person , ldcOnt:Location , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:general-affiliation_person-member-origin-religion-ethnicity_more_person
+ldcOnt:genafl_more_person
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:genafl_more ;
         rdfs:label            "Person" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Person .
 
-ldcOnt:general-affiliation_sponsorship_entity
+ldcOnt:genafl_opra_affiliation
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:genafl_opra ;
+        rdfs:label            "Affiliation" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Sides , ldcOnt:Person , ldcOnt:Organization .
+
+ldcOnt:genafl_opra_organization
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:genafl_opra ;
+        rdfs:label            "Organization" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Organization .
+
+ldcOnt:genafl_orgweb_organization
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:genafl_orgweb ;
+        rdfs:label            "Organization" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Organization .
+
+ldcOnt:genafl_orgweb_website
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:genafl_orgweb ;
+        rdfs:label            "Website" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:URL .
+
+ldcOnt:genafl_perage_age
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:genafl_perage ;
+        rdfs:label            "Age" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Age .
+
+ldcOnt:genafl_perage_person
+        a                     owl:Class , owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:genafl_perage ;
+        rdfs:label            "Person" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:Person .
+
+ldcOnt:genafl_spon_entity
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:genafl_spon ;
         rdfs:label            "Entity" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Organization , ldcOnt:Location , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:general-affiliation_sponsorship_sponsor
+ldcOnt:genafl_spon_sponsor
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:genafl_spon ;
         rdfs:label            "Sponsor" ;
@@ -290,203 +290,203 @@ ldcOnt:measurement_count_tbd2
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Vehicle , ldcOnt:Location , ldcOnt:Facility , ldcOnt:Organization , ldcOnt:Commodity , ldcOnt:Weapon , ldcOnt:Ballot , ldcOnt:Person , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:organization-affiliation_employment-membership_employee
+ldcOnt:orgafl_empmem_employee
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:orgafl_empmem ;
         rdfs:label            "Employee" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Person .
 
-ldcOnt:organization-affiliation_employment-membership_organization
+ldcOnt:orgafl_empmem_organization
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:orgafl_empmem ;
         rdfs:label            "Organization" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:organization-affiliation_founder_founder
+ldcOnt:orgafl_found_founder
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:orgafl_found ;
         rdfs:label            "Founder" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:organization-affiliation_founder_organization
+ldcOnt:orgafl_found_organization
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:orgafl_found ;
         rdfs:label            "Organization" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Organization .
 
-ldcOnt:organization-affiliation_investor-shareholder_investorshareholder
+ldcOnt:orgafl_invshar_investorshareholder
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:orgafl_invshar ;
         rdfs:label            "InvestorShareholder" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:organization-affiliation_investor-shareholder_organization
+ldcOnt:orgafl_invshar_organization
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:orgafl_invshar ;
         rdfs:label            "Organization" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Organization .
 
-ldcOnt:organization-affiliation_leadership_leader
+ldcOnt:orgafl_lead_leader
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:orgafl_lead ;
         rdfs:label            "Leader" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Person .
 
-ldcOnt:organization-affiliation_leadership_organization
+ldcOnt:orgafl_lead_organization
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:orgafl_lead ;
         rdfs:label            "Organization" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:organization-affiliation_ownership_organization
+ldcOnt:orgafl_own_organization
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:orgafl_own ;
         rdfs:label            "Organization" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Organization .
 
-ldcOnt:organization-affiliation_ownership_owner
+ldcOnt:orgafl_own_owner
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:orgafl_own ;
         rdfs:label            "Owner" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Person .
 
-ldcOnt:organization-affiliation_student-alum_organization
+ldcOnt:orgafl_stualm_organization
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:orgafl_stualm ;
         rdfs:label            "Organization" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Organization .
 
-ldcOnt:organization-affiliation_student-alum_studentalum
+ldcOnt:orgafl_stualm_studentalum
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:orgafl_stualm ;
         rdfs:label            "StudentAlum" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Person .
 
-ldcOnt:part-whole_membership_member
+ldcOnt:partwhole_membership_member
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:partwhole_membership ;
         rdfs:label            "Member" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:part-whole_membership_organization
+ldcOnt:partwhole_membership_organization
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:partwhole_membership ;
         rdfs:label            "Organization" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Organization .
 
-ldcOnt:part-whole_subsidiary_parent
+ldcOnt:partwhole_subsid_parent
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:partwhole_subsid ;
         rdfs:label            "Parent" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:part-whole_subsidiary_subsidiary
+ldcOnt:partwhole_subsid_subsidiary
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:partwhole_subsid ;
         rdfs:label            "Subsidiary" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Organization .
 
-ldcOnt:personal-social_business_person
+ldcOnt:persoc_bus_person
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:persoc_bus ;
         rdfs:label            "Person" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Person .
 
-ldcOnt:personal-social_family_person
+ldcOnt:persoc_fam_person
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:persoc_fam ;
         rdfs:label            "Person" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Person .
 
-ldcOnt:personal-social_role-title_person
+ldcOnt:persoc_role_person
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:persoc_role ;
         rdfs:label            "Person" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Person .
 
-ldcOnt:personal-social_role-title_title
+ldcOnt:persoc_role_title
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:persoc_role ;
         rdfs:label            "Title" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Title .
 
-ldcOnt:personal-social_unspecified_person
+ldcOnt:persoc_unspc_person
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:persoc_unspc ;
         rdfs:label            "Person" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Person .
 
-ldcOnt:physical_located-near_entity
-        a                     owl:ObjectProperty , owl:Class ;
+ldcOnt:phys_locnear_entity
+        a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:phys_locnear ;
         rdfs:label            "Entity" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
-        schema:rangeIncludes  ldcOnt:Person , ldcOnt:Vehicle , ldcOnt:Weapon , ldcOnt:Commodity , ldcOnt:Facility .
+        schema:rangeIncludes  ldcOnt:Commodity , ldcOnt:Vehicle , ldcOnt:Person , ldcOnt:Weapon , ldcOnt:Facility .
 
-ldcOnt:physical_located-near_place
+ldcOnt:phys_locnear_place
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:phys_locnear ;
         rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:physical_organization-headquarter_organization
+ldcOnt:phys_orghq_organization
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:phys_orghq ;
         rdfs:label            "Organization" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Organization .
 
-ldcOnt:physical_organization-headquarter_place
+ldcOnt:phys_orghq_place
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:phys_orghq ;
         rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:physical_organization-location-origin_organization
+ldcOnt:phys_orglocorig_organization
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:phys_orglocorig ;
         rdfs:label            "Organization" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Organization .
 
-ldcOnt:physical_organization-location-origin_place
+ldcOnt:phys_orglocorig_place
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:phys_orglocorig ;
         rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:physical_resident_place
+ldcOnt:phys_resident_place
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:phys_resident ;
         rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:physical_resident_resident
+ldcOnt:phys_resident_resident
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:phys_resident ;
         rdfs:label            "Resident" ;
@@ -678,42 +678,42 @@ ldcOnt:TRANSACTION_TRANSFER-OWNERSHIP
 ######################################################
 # Event argument types
 ######################################################
-ldcOnt:business_declare-bankruptcy_organization
+ldcOnt:business_decbank_organization
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:BUSINESS_DECLARE-BANKRUPTCY ;
         rdfs:label            "Organization" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:business_declare-bankruptcy_place
+ldcOnt:business_decbank_place
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:BUSINESS_DECLARE-BANKRUPTCY ;
         rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:business_declare-bankruptcy_time
+ldcOnt:business_decbank_time
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:BUSINESS_DECLARE-BANKRUPTCY ;
         rdfs:label            "Time" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Time .
 
-ldcOnt:business_end_organization
+ldcOnt:business_endbus_organization
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:BUSINESS_END ;
         rdfs:label            "Organization" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Organization .
 
-ldcOnt:business_end_place
+ldcOnt:business_endbus_place
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:BUSINESS_END ;
         rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:business_end_time
+ldcOnt:business_endbus_time
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:BUSINESS_END ;
         rdfs:label            "Time" ;
@@ -741,28 +741,28 @@ ldcOnt:business_merge_time
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Time .
 
-ldcOnt:business_start_agent
+ldcOnt:business_startbus_agent
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:BUSINESS_START ;
         rdfs:label            "Agent" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:business_start_organization
+ldcOnt:business_startbus_organization
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:BUSINESS_START ;
         rdfs:label            "Organization" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Organization .
 
-ldcOnt:business_start_place
+ldcOnt:business_startbus_place
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:BUSINESS_START ;
         rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:business_start_time
+ldcOnt:business_startbus_time
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:BUSINESS_START ;
         rdfs:label            "Time" ;
@@ -874,21 +874,21 @@ ldcOnt:contact_contact_time
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Time .
 
-ldcOnt:contact_correspondence_participant
+ldcOnt:contact_corresp_participant
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:CONTACT_CORRESPONDENCE ;
         rdfs:label            "Participant" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:contact_correspondence_place
+ldcOnt:contact_corresp_place
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:CONTACT_CORRESPONDENCE ;
         rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:contact_correspondence_time
+ldcOnt:contact_corresp_time
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:CONTACT_CORRESPONDENCE ;
         rdfs:label            "Time" ;
@@ -916,35 +916,35 @@ ldcOnt:contact_meet_time
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Time .
 
-ldcOnt:existence_damage-destroy_tbd1
+ldcOnt:existence_damagedestroy_tbd1
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:EXISTENCE_DAMAGE-DESTROY ;
         rdfs:label            "TBD1" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Sides , ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:existence_damage-destroy_tbd2
+ldcOnt:existence_damagedestroy_tbd2
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:EXISTENCE_DAMAGE-DESTROY ;
         rdfs:label            "TBD2" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  ldcOnt:Vehicle , ldcOnt:Commodity , ldcOnt:Facility , ldcOnt:Ballot , ldcOnt:Weapon .
+        schema:rangeIncludes  ldcOnt:Commodity , ldcOnt:Ballot , ldcOnt:Weapon , ldcOnt:Facility , ldcOnt:Vehicle .
 
-ldcOnt:existence_damage-destroy_tbd3
+ldcOnt:existence_damagedestroy_tbd3
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:EXISTENCE_DAMAGE-DESTROY ;
         rdfs:label            "TBD3" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Weapon , ldcOnt:Vehicle , ldcOnt:Commodity .
 
-ldcOnt:existence_damage-destroy_tbd4
+ldcOnt:existence_damagedestroy_tbd4
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:EXISTENCE_DAMAGE-DESTROY ;
         rdfs:label            "TBD4" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:existence_damage-destroy_tbd5
+ldcOnt:existence_damagedestroy_tbd5
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:EXISTENCE_DAMAGE-DESTROY ;
         rdfs:label            "TBD5" ;
@@ -1077,28 +1077,28 @@ ldcOnt:government_vote_tbd6
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Time .
 
-ldcOnt:inspection_artifact_tbd1
+ldcOnt:inspection_artifactinspection_tbd1
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:INSPECTION_ARTIFACT ;
         rdfs:label            "TBD1" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Sides , ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:inspection_artifact_tbd2
+ldcOnt:inspection_artifactinspection_tbd2
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:INSPECTION_ARTIFACT ;
         rdfs:label            "TBD2" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  ldcOnt:Commodity , ldcOnt:Ballot , ldcOnt:Vehicle , ldcOnt:Facility , ldcOnt:Weapon .
+        schema:rangeIncludes  ldcOnt:Commodity , ldcOnt:Ballot , ldcOnt:Weapon , ldcOnt:Facility , ldcOnt:Vehicle .
 
-ldcOnt:inspection_artifact_tbd3
+ldcOnt:inspection_artifactinspection_tbd3
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:INSPECTION_ARTIFACT ;
         rdfs:label            "TBD3" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:inspection_artifact_tbd4
+ldcOnt:inspection_artifactinspection_tbd4
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:INSPECTION_ARTIFACT ;
         rdfs:label            "TBD4" ;
@@ -1210,77 +1210,77 @@ ldcOnt:justice_appeal_time
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Time .
 
-ldcOnt:justice_arrest-jail_agent
+ldcOnt:justice_arrestjail_agent
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_ARREST-JAIL ;
         rdfs:label            "Agent" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:justice_arrest-jail_crime
+ldcOnt:justice_arrestjail_crime
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_ARREST-JAIL ;
         rdfs:label            "Crime" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Crime .
 
-ldcOnt:justice_arrest-jail_person
+ldcOnt:justice_arrestjail_person
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_ARREST-JAIL ;
         rdfs:label            "Person" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person .
 
-ldcOnt:justice_arrest-jail_place
+ldcOnt:justice_arrestjail_place
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_ARREST-JAIL ;
         rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:justice_arrest-jail_time
+ldcOnt:justice_arrestjail_time
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_ARREST-JAIL ;
         rdfs:label            "Time" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Time .
 
-ldcOnt:justice_charge-indict_adjudicator
+ldcOnt:justice_chargeindict_adjudicator
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_CHARGE-INDICT ;
         rdfs:label            "Adjudicator" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:justice_charge-indict_crime
+ldcOnt:justice_chargeindict_crime
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_CHARGE-INDICT ;
         rdfs:label            "Crime" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Crime .
 
-ldcOnt:justice_charge-indict_defendant
+ldcOnt:justice_chargeindict_defendant
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_CHARGE-INDICT ;
         rdfs:label            "Defendant" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:justice_charge-indict_place
+ldcOnt:justice_chargeindict_place
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_CHARGE-INDICT ;
         rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:justice_charge-indict_prosecutor
+ldcOnt:justice_chargeindict_prosecutor
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_CHARGE-INDICT ;
         rdfs:label            "Prosecutor" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:justice_charge-indict_time
+ldcOnt:justice_chargeindict_time
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_CHARGE-INDICT ;
         rdfs:label            "Time" ;
@@ -1511,35 +1511,35 @@ ldcOnt:justice_pardon_time
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Time .
 
-ldcOnt:justice_release-parole_agent
+ldcOnt:justice_releaseparole_agent
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_RELEASE-PAROLE ;
         rdfs:label            "Agent" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:justice_release-parole_crime
+ldcOnt:justice_releaseparole_crime
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_RELEASE-PAROLE ;
         rdfs:label            "Crime" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Crime .
 
-ldcOnt:justice_release-parole_person
+ldcOnt:justice_releaseparole_person
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_RELEASE-PAROLE ;
         rdfs:label            "Person" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person .
 
-ldcOnt:justice_release-parole_place
+ldcOnt:justice_releaseparole_place
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_RELEASE-PAROLE ;
         rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:justice_release-parole_time
+ldcOnt:justice_releaseparole_time
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_RELEASE-PAROLE ;
         rdfs:label            "Time" ;
@@ -1630,63 +1630,63 @@ ldcOnt:justice_sue_time
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Time .
 
-ldcOnt:justice_trial-hearing_adjudicator
+ldcOnt:justice_trialhearing_adjudicator
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_TRIAL-HEARING ;
         rdfs:label            "Adjudicator" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:justice_trial-hearing_crime
+ldcOnt:justice_trialhearing_crime
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_TRIAL-HEARING ;
         rdfs:label            "Crime" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Crime .
 
-ldcOnt:justice_trial-hearing_defendant
+ldcOnt:justice_trialhearing_defendant
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_TRIAL-HEARING ;
         rdfs:label            "Defendant" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:justice_trial-hearing_place
+ldcOnt:justice_trialhearing_place
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_TRIAL-HEARING ;
         rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:justice_trial-hearing_prosecutor
+ldcOnt:justice_trialhearing_prosecutor
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_TRIAL-HEARING ;
         rdfs:label            "Prosecutor" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:justice_trial-hearing_time
+ldcOnt:justice_trialhearing_time
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:JUSTICE_TRIAL-HEARING ;
         rdfs:label            "Time" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Time .
 
-ldcOnt:life_be-born_person
+ldcOnt:life_beborn_person
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:LIFE_BE-BORN ;
         rdfs:label            "Person" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person .
 
-ldcOnt:life_be-born_place
+ldcOnt:life_beborn_place
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:LIFE_BE-BORN ;
         rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:life_be-born_time
+ldcOnt:life_beborn_time
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:LIFE_BE-BORN ;
         rdfs:label            "Time" ;
@@ -1839,84 +1839,84 @@ ldcOnt:manufacture_artifact_time
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Time .
 
-ldcOnt:movement_transport-artifact_agent
+ldcOnt:movement_transart_agent
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:MOVEMENT_TRANSPORT-ARTIFACT ;
         rdfs:label            "Agent" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:movement_transport-artifact_artifact
+ldcOnt:movement_transart_artifact
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:MOVEMENT_TRANSPORT-ARTIFACT ;
         rdfs:label            "Artifact" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Weapon , ldcOnt:Vehicle , ldcOnt:Facility , ldcOnt:Commodity .
 
-ldcOnt:movement_transport-artifact_destination
+ldcOnt:movement_transart_destination
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:MOVEMENT_TRANSPORT-ARTIFACT ;
         rdfs:label            "Destination" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:movement_transport-artifact_instrument
+ldcOnt:movement_transart_instrument
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:MOVEMENT_TRANSPORT-ARTIFACT ;
         rdfs:label            "Instrument" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Weapon , ldcOnt:Vehicle .
 
-ldcOnt:movement_transport-artifact_origin
+ldcOnt:movement_transart_origin
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:MOVEMENT_TRANSPORT-ARTIFACT ;
         rdfs:label            "Origin" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:movement_transport-artifact_time
+ldcOnt:movement_transart_time
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:MOVEMENT_TRANSPORT-ARTIFACT ;
         rdfs:label            "Time" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Time .
 
-ldcOnt:movement_transport-person_agent
+ldcOnt:movement_transper_agent
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:MOVEMENT_TRANSPORT-PERSON ;
         rdfs:label            "Agent" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:movement_transport-person_destination
+ldcOnt:movement_transper_destination
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:MOVEMENT_TRANSPORT-PERSON ;
         rdfs:label            "Destination" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:movement_transport-person_instrument
+ldcOnt:movement_transper_instrument
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:MOVEMENT_TRANSPORT-PERSON ;
         rdfs:label            "Instrument" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Weapon , ldcOnt:Vehicle .
 
-ldcOnt:movement_transport-person_origin
+ldcOnt:movement_transper_origin
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:MOVEMENT_TRANSPORT-PERSON ;
         rdfs:label            "Origin" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:movement_transport-person_person
+ldcOnt:movement_transper_person
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:MOVEMENT_TRANSPORT-PERSON ;
         rdfs:label            "Person" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person .
 
-ldcOnt:movement_transport-person_time
+ldcOnt:movement_transper_time
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:MOVEMENT_TRANSPORT-PERSON ;
         rdfs:label            "Time" ;
@@ -1951,28 +1951,28 @@ ldcOnt:personnel_elect_time
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Time .
 
-ldcOnt:personnel_end-position_organization
+ldcOnt:personnel_endpos_organization
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:PERSONNEL_END-POSITION ;
         rdfs:label            "Organization" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:personnel_end-position_person
+ldcOnt:personnel_endpos_person
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:PERSONNEL_END-POSITION ;
         rdfs:label            "Person" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person .
 
-ldcOnt:personnel_end-position_place
+ldcOnt:personnel_endpos_place
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:PERSONNEL_END-POSITION ;
         rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:personnel_end-position_position
+ldcOnt:personnel_endpos_position
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:PERSONNEL_END-POSITION ;
         rdfs:label            "Position" ;
@@ -2007,28 +2007,28 @@ ldcOnt:personnel_nominate_time
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Time .
 
-ldcOnt:personnel_start-position_organization
+ldcOnt:personnel_startpos_organization
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:PERSONNEL_START-POSITION ;
         rdfs:label            "Organization" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:personnel_start-position_person
+ldcOnt:personnel_startpos_person
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:PERSONNEL_START-POSITION ;
         rdfs:label            "Person" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person .
 
-ldcOnt:personnel_start-position_place
+ldcOnt:personnel_startpos_place
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:PERSONNEL_START-POSITION ;
         rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:personnel_start-position_position
+ldcOnt:personnel_startpos_position
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:PERSONNEL_START-POSITION ;
         rdfs:label            "Position" ;
@@ -2070,126 +2070,126 @@ ldcOnt:transaction_transaction_time
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Time .
 
-ldcOnt:transaction_transfer-control_tbd1
+ldcOnt:transaction_transfercontrol_tbd1
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:TRANSACTION_TRANSFER-CONTROL ;
         rdfs:label            "TBD1" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Sides , ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:transaction_transfer-control_tbd2
+ldcOnt:transaction_transfercontrol_tbd2
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:TRANSACTION_TRANSFER-CONTROL ;
         rdfs:label            "TBD2" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Sides , ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:transaction_transfer-control_tbd3
+ldcOnt:transaction_transfercontrol_tbd3
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:TRANSACTION_TRANSFER-CONTROL ;
         rdfs:label            "TBD3" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Sides , ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:transaction_transfer-control_tbd4
+ldcOnt:transaction_transfercontrol_tbd4
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:TRANSACTION_TRANSFER-CONTROL ;
         rdfs:label            "TBD4" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:transaction_transfer-control_tbd5
+ldcOnt:transaction_transfercontrol_tbd5
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:TRANSACTION_TRANSFER-CONTROL ;
         rdfs:label            "TBD5" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:transaction_transfer-control_tbd6
+ldcOnt:transaction_transfercontrol_tbd6
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:TRANSACTION_TRANSFER-CONTROL ;
         rdfs:label            "TBD6" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Time .
 
-ldcOnt:transaction_transfer-money_beneficiary
+ldcOnt:transaction_transmon_beneficiary
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:TRANSACTION_TRANSFER-MONEY ;
         rdfs:label            "Beneficiary" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:transaction_transfer-money_giver
+ldcOnt:transaction_transmon_giver
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:TRANSACTION_TRANSFER-MONEY ;
         rdfs:label            "Giver" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:transaction_transfer-money_money
+ldcOnt:transaction_transmon_money
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:TRANSACTION_TRANSFER-MONEY ;
         rdfs:label            "Money" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Money .
 
-ldcOnt:transaction_transfer-money_place
+ldcOnt:transaction_transmon_place
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:TRANSACTION_TRANSFER-MONEY ;
         rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:transaction_transfer-money_recipient
+ldcOnt:transaction_transmon_recipient
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:TRANSACTION_TRANSFER-MONEY ;
         rdfs:label            "Recipient" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:transaction_transfer-money_time
+ldcOnt:transaction_transmon_time
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:TRANSACTION_TRANSFER-MONEY ;
         rdfs:label            "Time" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Time .
 
-ldcOnt:transaction_transfer-ownership_beneficiary
+ldcOnt:transaction_transown_beneficiary
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:TRANSACTION_TRANSFER-OWNERSHIP ;
         rdfs:label            "Beneficiary" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:transaction_transfer-ownership_giver
+ldcOnt:transaction_transown_giver
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:TRANSACTION_TRANSFER-OWNERSHIP ;
         rdfs:label            "Giver" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:transaction_transfer-ownership_place
+ldcOnt:transaction_transown_place
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:TRANSACTION_TRANSFER-OWNERSHIP ;
         rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Location , ldcOnt:GeopoliticalEntity , ldcOnt:Facility .
 
-ldcOnt:transaction_transfer-ownership_recipient
+ldcOnt:transaction_transown_recipient
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:TRANSACTION_TRANSFER-OWNERSHIP ;
         rdfs:label            "Recipient" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:Person , ldcOnt:Organization , ldcOnt:GeopoliticalEntity .
 
-ldcOnt:transaction_transfer-ownership_thing
-        a                     owl:Class , owl:ObjectProperty ;
+ldcOnt:transaction_transown_thing
+        a                     owl:ObjectProperty , owl:Class ;
         rdfs:domain           ldcOnt:TRANSACTION_TRANSFER-OWNERSHIP ;
         rdfs:label            "Thing" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  ldcOnt:Facility , ldcOnt:Commodity , ldcOnt:Weapon , ldcOnt:Vehicle , ldcOnt:Organization .
+        schema:rangeIncludes  ldcOnt:Vehicle , ldcOnt:Commodity , ldcOnt:Facility , ldcOnt:Organization , ldcOnt:Weapon .
 
-ldcOnt:transaction_transfer-ownership_time
+ldcOnt:transaction_transown_time
         a                     owl:Class , owl:ObjectProperty ;
         rdfs:domain           ldcOnt:TRANSACTION_TRANSFER-OWNERSHIP ;
         rdfs:label            "Time" ;
