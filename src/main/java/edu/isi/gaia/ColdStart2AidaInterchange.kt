@@ -206,10 +206,12 @@ class ColdStart2AidaInterchangeConverter(
         fun translateRelation(csAssertion: RelationAssertion, confidence: Double): Boolean {
             val relationTypeIri = ontologyMapping.relationType(csAssertion.relationType)
             if (relationTypeIri != null) {
-                AIFUtils.makeRelation(model, assertionIriGenerator.nextIri(),
-                        toResource(csAssertion.subject),
-                        relationTypeIri,
-                        toResource(csAssertion.obj), systemNode, confidence)
+                val subjectRole = ontologyMapping.eventArgumentType(csAssertion.relationType + "_subject")
+                        ?: RDF.subject
+                val objectRole = ontologyMapping.eventArgumentType(csAssertion.relationType + "_object") ?: RDF.subject
+                AIFUtils.makeRelationInEventForm(model, assertionIriGenerator.nextIri(), relationTypeIri,
+                        subjectRole, toResource(csAssertion.subject), objectRole, toResource(csAssertion.obj),
+                        assertionIriGenerator.nextIri(), systemNode, confidence)
                 return true
             } else {
                 return false
@@ -227,11 +229,19 @@ class ColdStart2AidaInterchangeConverter(
 
             val sentimentHolder = toResource(csAssertion.subject)
             val thingSentimentIsAbout = toResource(csAssertion.obj)
-            val sentimentAssertion = AIFUtils.makeRelation(model,
-                    assertionIriGenerator.nextIri(),
-                    sentimentHolder, toSentimentType(csAssertion.sentiment),
-                    thingSentimentIsAbout, systemNode, confidence)
-            registerJustifications(sentimentAssertion, csAssertion.justifications, null,
+
+            val relation = AIFUtils.makeRelation(model, assertionIriGenerator.nextIri(), systemNode)
+            AIFUtils.markType(model, assertionIriGenerator.nextIri(), relation, toSentimentType(csAssertion.sentiment),
+                    systemNode, confidence)
+
+            val subjectRole = ontologyMapping.eventArgumentType(csAssertion.sentiment + "_holder") ?: RDF.subject
+            val subjectArg = AIFUtils.markAsArgument(model, relation, subjectRole, sentimentHolder, systemNode, confidence)
+            registerJustifications(subjectArg, csAssertion.justifications, null,
+                    confidence)
+
+            val objectRole = ontologyMapping.eventArgumentType(csAssertion.sentiment + "_isAbout") ?: RDF.subject
+            val objectArg = AIFUtils.markAsArgument(model, relation, objectRole, thingSentimentIsAbout, systemNode, confidence)
+            registerJustifications(objectArg, csAssertion.justifications, null,
                     confidence)
             return true
         }
@@ -243,7 +253,7 @@ class ColdStart2AidaInterchangeConverter(
 
             val argTypeIri = ontologyMapping.eventArgumentType(csAssertion.argument_role)
             if (argTypeIri != null) {
-                val argAssertion = AIFUtils.markAsEventArgument(model, event,
+                val argAssertion = AIFUtils.markAsArgument(model, event,
                         argTypeIri, filler, systemNode, confidence)
 
                 registerJustifications(argAssertion, csAssertion.justifications, null, confidence)

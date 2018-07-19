@@ -28,6 +28,10 @@
    rdfs:label "Event" ;
    rdfs:definition "An event in an AIDA KB" .
 
+:Relation a owl:Class ;
+   rdfs:label "Relation" ;
+   rdfs:definition "An relation in an AIDA KB" .
+
 :SameAsCluster a owl:Class ;
    rdfs:label "Same-As Cluster";
    rdfs:definition "Represents a collection of events or entities which may in fact be the same".
