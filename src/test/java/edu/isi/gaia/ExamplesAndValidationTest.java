@@ -53,6 +53,44 @@ public class ExamplesAndValidationTest {
 class ValidExamples {
 
     @Test
+    void createSeedlingEntityOfTypePersonWithImageJustificationAndVector() {
+        final Model model = createModel(true);
+
+        // every AIF needs an object for the system responsible for creating it
+        final Resource system = AIFUtils.makeSystemWithURI(model,
+                "http://www.test.edu/testSystem");
+
+        // it doesn't matter what URI we give entities, events, etc. so long as they are
+        // unique
+        final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
+                system);
+
+        // in order to allow uncertainty about the type of an entity, we don't mark an
+        // entity's type directly on the entity, but rather make a separate assertion for it
+        // its URI doesn't matter either
+        final Resource typeAssertion = AIFUtils.markType(model, "http://www.test.org/assertions/1",
+                entity, SeedlingOntologyMapper.PERSON, system, 1.0);
+
+        // the justification provides the evidence for our claim about the entity's type
+        // we attach this justification to both the type assertion and the entity object
+        // itself, since it provides evidence both for the entity's existence and its type.
+        // in TA1 -> TA2 communications, we attach confidences at the level of justifications
+
+        // let's suppose we have evidence from an image
+        AIFUtils.markImageJustification(model, ImmutableSet.of(entity, typeAssertion),
+                "NYT_ENG_20181231_03",
+                new BoundingBox(new Point(123, 45), new Point(167, 98)),
+                system, 0.123);
+
+        // let's mark our entity with some arbitrary system-private data. You can attach such data
+        // to nearly anything
+        AIFUtils.markPrivateData(model, entity, "Person Vector", Arrays.asList(2.0, 7.5, 0.2, 8.1), system);
+
+        dumpAndAssertValid(model, "create a seedling entity of type person with image " +
+                "justification and vector", true);
+    }
+
+    @Test
     void createSeedlingEntityOfTypePersonWithAllJustificationTypesAndConfidence() {
         final Model model = createModel(true);
 
