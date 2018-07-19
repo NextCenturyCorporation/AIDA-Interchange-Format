@@ -1,5 +1,6 @@
 package edu.isi.gaia
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import edu.isi.gaia.AIFUtils.SparqlQueries.TYPE_QUERY
 import org.apache.jena.query.QueryExecutionFactory
 import org.apache.jena.query.QueryFactory
@@ -512,6 +513,14 @@ object AIFUtils {
         resource.addProperty(AidaAnnotationOntology.PRIVATE_DATA_PROPERTY, privateData)
 
         return privateData
+    }
+
+    @JvmStatic
+    fun markPrivateData(model: Model, resource: Resource, vectorType: String, vectorData: List<Double>, system: Resource):
+            Resource {
+        val mapper = ObjectMapper()
+        val jsonMap = mapOf<Any, Any>("vector_type" to vectorType, "vector_data" to vectorData)
+        return AIFUtils.markPrivateData(model, resource, mapper.writeValueAsString(jsonMap), system)
     }
 
     @JvmStatic
