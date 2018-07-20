@@ -78,7 +78,7 @@ object AIFUtils {
      * Mark [entity] as having the specified [numericValue]
      */
     @JvmStatic
-    fun markNumericValue(entity: Resource, numericValue: Number) {
+    fun markNumericValue(entity: Resource, numericValue: String) {
         entity.addLiteral(AidaAnnotationOntology.NUMERIC_VALUE_PROPERTY, numericValue)
     }
 
