@@ -284,42 +284,57 @@ aida:SentimentShape
   sh:ignoredProperties (rdf:type rdf:predicate)
   .
 
-# Allow for subclasses as well as instances of EntityType
+# Allow for EntityType instances, subclasses, and instances of subclasses
 aida:EntitySubclass
   a sh:PropertyShape ;
-  sh:path [ sh:alternativePath ( rdf:type [ sh:oneOrMorePath rdfs:subClassOf ] ) ];
+  sh:path [ sh:alternativePath (
+    rdf:type
+    [ sh:oneOrMorePath rdfs:subClassOf ]
+    (rdf:Type [ sh:oneOrMorePath rdfs:subClassOf ] ) ) ];
   sh:hasValue aidaDomainCommon:EntityType ;
   sh:minCount 1
   .
 
-# Allow for subclasses as well as instances of EventType
+# Allow for EventType instances, subclasses, and instances of subclasses
 aida:EventSubclass
   a sh:PropertyShape ;
-  sh:path [ sh:alternativePath ( rdf:type [ sh:oneOrMorePath rdfs:subClassOf ] ) ];
+  sh:path [ sh:alternativePath (
+    rdf:type
+    [ sh:oneOrMorePath rdfs:subClassOf ]
+    (rdf:Type [ sh:oneOrMorePath rdfs:subClassOf ] ) ) ];
   sh:hasValue aidaDomainCommon:EventType ;
   sh:minCount 1
   .
 
-# Allow for subclasses as well as instances of RelationType
+# Allow for RelationType instances, subclasses, and instances of subclasses
 aida:RelationSubclass
   a sh:PropertyShape ;
-  sh:path [ sh:alternativePath ( rdf:type [ sh:oneOrMorePath rdfs:subClassOf ] ) ];
+  sh:path [ sh:alternativePath (
+    rdf:type
+    [ sh:oneOrMorePath rdfs:subClassOf ]
+    (rdf:Type [ sh:oneOrMorePath rdfs:subClassOf ] ) ) ];
   sh:hasValue aidaDomainCommon:RelationType ;
   sh:minCount 1
   .
 
-# Allow for subclasses as well as instances of EventArgumentType
+# Allow for EventArgumentType instances, subclasses, and instances of subclasses
 aida:EventArgumentSubclass
   a sh:PropertyShape ;
-  sh:path [ sh:alternativePath ( rdf:type [ sh:oneOrMorePath rdfs:subClassOf ] ) ];
+  sh:path [ sh:alternativePath (
+    rdf:type
+    [ sh:oneOrMorePath rdfs:subClassOf ]
+    (rdf:Type [ sh:oneOrMorePath rdfs:subClassOf ] ) ) ];
   sh:hasValue aidaDomainCommon:EventArgumentType ;
   sh:minCount 1
   .
 
-# Allow for subclasses as well as instances of RelationArgumentType
+# Allow for RelationArgumentType instances, subclasses, and instances of subclasses
 aida:RelationArgumentSubclass
   a sh:PropertyShape ;
-  sh:path [ sh:alternativePath ( rdf:type [ sh:oneOrMorePath rdfs:subClassOf ] ) ];
+  sh:path [ sh:alternativePath (
+    rdf:type
+    [ sh:oneOrMorePath rdfs:subClassOf ]
+    (rdf:Type ) [ sh:oneOrMorePath rdfs:subClassOf ] ) ];
   sh:hasValue aidaDomainCommon:RelationArgumentType ;
   sh:minCount 1
   .
@@ -745,7 +760,7 @@ aida:TextPropertyShape
 aida:NumericPropertyShape
   a sh:PropertyShape ;
   sh:path aida:numericValue ;
-  sh:datatype xsd:integer .
+  sh:datatype xsd:string .
 
 # we use RDF statements for four things: relations, type assertions, event argument, and
 # sentiment assertions. Each of these has already been described above. We want to forbid any other
