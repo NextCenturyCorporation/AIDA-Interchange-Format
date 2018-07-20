@@ -18,9 +18,7 @@ import org.apache.jena.vocabulary.XSD;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import static edu.isi.gaia.AIFUtils.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -448,6 +446,32 @@ class ValidExamples {
                 "justification and vector", true);
     }
 
+
+    @Test
+    void createSeedlingEntityWithAlternateNames() {
+        final Model model = createModel(true);
+
+        // every AIF needs an object for the system responsible for creating it
+        final Resource system = AIFUtils.makeSystemWithURI(model,
+                "http://www.test.edu/testSystem");
+
+        // it doesn't matter what URI we give entities, events, etc. so long as they are
+        // unique
+        final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
+                system);
+
+        // in order to allow uncertainty about the type of an entity, we don't mark an
+        // entity's type directly on the entity, but rather make a separate assertion for it
+        // its URI doesn't matter either
+        final Resource typeAssertion = AIFUtils.markType(model, "http://www.test.org/assertions/1",
+                entity, SeedlingOntologyMapper.PERSON, system, 1.0);
+
+        AIFUtils.markName(entity, "Name One");
+        AIFUtils.markName(entity, "N. One");
+        AIFUtils.markName(entity, "N-Money");
+
+        dumpAndAssertValid(model, "create a seedling entity of type person with names", true);
+    }
 }
 
   /**

@@ -14,6 +14,12 @@ object AidaAnnotationOntology {
     @JvmField
     val SYSTEM_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "system")!!
     @JvmField
+    val NAME_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "hasName")!!
+    @JvmField
+    val TEXT_VALUE_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "textValue")!!
+    @JvmField
+    val NUMERIC_VALUE_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "numericValue")!!
+    @JvmField
     val CONFIDENCE = ResourceFactory.createProperty(NAMESPACE + "confidence")!!
     @JvmField
     val CONFIDENCE_VALUE = ResourceFactory.createProperty(NAMESPACE + "confidenceValue")!!

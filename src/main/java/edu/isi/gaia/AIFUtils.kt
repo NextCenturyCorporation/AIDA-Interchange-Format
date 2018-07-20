@@ -58,6 +58,29 @@ object AIFUtils {
         toMarkOn.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system)
     }
 
+    /**
+     * Mark [entity] as having the specified [name]
+     */
+    @JvmStatic
+    fun markName(entity: Resource, name: String) {
+        entity.addLiteral(AidaAnnotationOntology.NAME_PROPERTY, name)
+    }
+
+    /**
+     * Mark [entity] as having the specified [textValue]
+     */
+    @JvmStatic
+    fun markTextValue(entity: Resource, textValue: String) {
+        entity.addLiteral(AidaAnnotationOntology.TEXT_VALUE_PROPERTY, textValue)
+    }
+
+    /**
+     * Mark [entity] as having the specified [numericValue]
+     */
+    @JvmStatic
+    fun markNumericValue(entity: Resource, numericValue: Number) {
+        entity.addLiteral(AidaAnnotationOntology.NUMERIC_VALUE_PROPERTY, numericValue)
+    }
 
     /**
      * Create an entity.
