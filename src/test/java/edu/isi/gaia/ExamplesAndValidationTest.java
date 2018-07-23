@@ -18,9 +18,7 @@ import org.apache.jena.vocabulary.XSD;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import static edu.isi.gaia.AIFUtils.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -230,9 +228,9 @@ class ValidExamples {
 
         // link those entities to the event
         AIFUtils.markAsArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_elect"),
-                electee, system, 0.785);
+                electee, system, 0.785, "http://www.test.edu/assertions/8");
         AIFUtils.markAsArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_place"),
-                electionCountry, system, 0.589);
+                electionCountry, system, 0.589, "http://www.test.edu/assertions/9");
 
         dumpAndAssertValid(model, "create a seedling event", true);
     }
@@ -596,7 +594,7 @@ class ValidExamples {
     System.out.println("\n\n" + testName + "\n\n");
     RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
     if (seedling) {
-        assertTrue(seedlingValidator.validateKB(model));
+        assertTrue(seedlingValidator.validateTA3(model));
     } else {
         assertTrue(validatorForColdStart.validateKB(model));
     }
