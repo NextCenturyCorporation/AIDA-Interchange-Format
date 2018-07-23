@@ -107,11 +107,7 @@
 #        Properties
 #################################################################
 
-:about rdf:type owl:ObjectProperty ;
-  rdfs:label "about"^^xsd:string ;
-  rdfs:subPropertyOf owl:topObjectProperty ; .
-
-:alternateGraph rdf:type owl:ObjectProperty ;
+:alternativeGraph rdf:type owl:ObjectProperty ;
   rdfs:domain :MutualExclusionAlternative ;
   rdfs:label "alternate graph"^^xsd:string ;
   rdfs:range :Subgraph ;
@@ -130,13 +126,7 @@
   rdfs:subPropertyOf owl:topObjectProperty ; .
 
 :cluster rdf:type owl:ObjectProperty ;
-  rdfs:domain [
-      rdf:type owl:Class ;
-      owl:unionOf (
-          :ClusterMember
-          :LinkAssertion
-        ) ;
-    ] ;
+  rdfs:domain :ClusterMember ;
   rdfs:label "cluster"^^xsd:string ;
   rdfs:range :SameAsCluster ;
   rdfs:subPropertyOf owl:topObjectProperty ; .
@@ -146,23 +136,23 @@
   rdfs:range :Confidence ;
   rdfs:subPropertyOf owl:topObjectProperty ; .
 
-:containsAssertion rdf:type owl:ObjectProperty ;
-  rdfs:label "contains assertion"^^xsd:string ;
-  rdfs:range rdf:Statement ;
-  rdfs:subPropertyOf owl:topObjectProperty ; .
-
-:member rdf:type owl:ObjectProperty ;
-  rdfs:label "member"^^xsd:string ;
-  rdfs:subPropertyOf owl:topObjectProperty ; .
-
-:prototypicalMember rdf:type owl:ObjectProperty ;
-  rdfs:domain :SameAsCluster ;
-  rdfs:label "prototypical member"^^xsd:string ;
-  rdfs:subPropertyOf owl:topObjectProperty ; .
-
-:value rdf:type owl:DatatypeProperty ;
+:confidenceValue rdf:type owl:DatatypeProperty ;
   rdfs:comment "Confidence instances might have numerical values associated with them, such as probabilities or likliehoods."^^xsd:string ;
   rdfs:domain :Confidence ;
   rdfs:label "value"^^xsd:string ;
   rdfs:range xsd:float ;
   rdfs:subPropertyOf owl:topDataProperty ; .
+
+:member rdf:type owl:ObjectProperty ;
+  rdfs:label "member"^^xsd:string ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:prototype rdf:type owl:ObjectProperty ;
+  rdfs:domain :SameAsCluster ;
+  rdfs:label "prototypical member"^^xsd:string ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:subgraphContains rdf:type owl:ObjectProperty ;
+  rdfs:label "contains assertion"^^xsd:string ;
+  rdfs:range rdf:Statement ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
