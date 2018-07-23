@@ -88,6 +88,7 @@ class ValidateAIF(private val domainModel: Model) {
 
             val params = Parameters.loadSerifStyle(File(args[0]))
             val domainOntologyFile = params.getExistingFile("domainOntology")
+            log.logger.info { "Using domain ontology file $domainOntologyFile" }
 
             // this is an RDF model which uses SHACL to encode constraints on the AIF
             val validator = ValidateAIF.createForDomainOntologySource(
@@ -96,8 +97,10 @@ class ValidateAIF(private val domainModel: Model) {
             val fileList = params.getOptionalExistingFile("kbsToValidate")
             val filesToValidate = if (fileList.isPresent) {
                 edu.isi.nlp.files.FileUtils.loadFileList(fileList.get())
-            } else {
+            } else if (params.isPresent("kbToValidate")) {
                 ImmutableList.of(params.getExistingFile("kbToValidate"))
+            } else {
+                throw RuntimeException("Either kbToValidate or kbsToValidate must be specified")
             }
 
             var allValid = true
@@ -105,7 +108,7 @@ class ValidateAIF(private val domainModel: Model) {
                 log.logger.info { "Validating $fileToValidate" }
                 val dataToBeValidated = Files.asCharSource(fileToValidate, Charsets.UTF_8)
                         .openBufferedStream().use { loadModel(it) }
-                allValid = validator.validateKB(dataToBeValidated) || allValid
+                allValid = validator.validateKB(dataToBeValidated) && allValid
             }
 
             if (!allValid) {

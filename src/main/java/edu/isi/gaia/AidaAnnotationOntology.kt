@@ -8,7 +8,7 @@ import org.apache.jena.rdf.model.ResourceFactory
 object AidaAnnotationOntology {
     // URI would change from isi.edu to something else if adopted program-wide
     @JvmField
-    val NAMESPACE: String = "http://www.isi.edu/aida/interchangeOntology#"
+    val NAMESPACE: String = "http://darpa.mil/aida/interchangeOntology#";
 
     // properties
     @JvmField
@@ -94,6 +94,8 @@ object AidaAnnotationOntology {
     val ENTITY_CLASS = ResourceFactory.createResource(NAMESPACE + "Entity")!!
     @JvmField
     val EVENT_CLASS = ResourceFactory.createResource(NAMESPACE + "Event")!!
+    @JvmField
+    val RELATION_CLASS = ResourceFactory.createResource(NAMESPACE + "Relation")!!
     @JvmField
     val CONFIDENCE_CLASS = ResourceFactory.createResource(NAMESPACE + "Confidence")!!
     @JvmField

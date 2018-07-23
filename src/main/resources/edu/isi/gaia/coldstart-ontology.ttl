@@ -1,5 +1,5 @@
 @prefix : <http://nist.gov/ontologies/ColdstartOntology#> .
-@prefix aidaCommon:  <http://darpa.mil/ontologies/AidaDomainOntologiesCommon#> .
+@prefix aidaDomainCommon:  <http://darpa.mil/ontologies/AidaDomainOntologiesCommon#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -39,94 +39,94 @@
 ######################################################
 # Entity types
 ######################################################
-:Person a aidaCommon:EntityType .
-:Organization a aidaCommon:EntityType .
-:Location a aidaCommon:EntityType .
-:GeopoliticalEntity a aidaCommon:EntityType .
-:Facility a aidaCommon:EntityType .
+:Person rdfs:subClassOf aidaDomainCommon:EntityType .
+:Organization rdfs:subClassOf aidaDomainCommon:EntityType .
+:Location rdfs:subClassOf aidaDomainCommon:EntityType .
+:GeopoliticalEntity rdfs:subClassOf aidaDomainCommon:EntityType .
+:Facility rdfs:subClassOf aidaDomainCommon:EntityType .
 # TODO: figure out how to handle strings in the KB properly
-:String a aidaCommon:EntityType .
+:String rdfs:subClassOf aidaDomainCommon:EntityType .
 
 ######################################################
 # Event types
 ######################################################
-:CONFLICT.ATTACK a aidaCommon:EventType.
-:CONFLICT.DEMONSTRATE a aidaCommon:EventType.
-:CONTACT.BROADCAST a aidaCommon:EventType.
-:CONTACT.CONTACT a aidaCommon:EventType.
-:CONTACT.CORRESPONDENCE a aidaCommon:EventType.
-:CONTACT.MEET a aidaCommon:EventType.
-:JUSTICE.ARREST-JAIL a aidaCommon:EventType.
-:LIFE.DIE a aidaCommon:EventType.
-:LIFE.INJURE a aidaCommon:EventType.
-:MANUFACTURE.ARTIFACT a aidaCommon:EventType.
-:MOVEMENT.TRANSPORT-ARTIFACT a aidaCommon:EventType.
-:MOVEMENT.TRANSPORT-PERSON a aidaCommon:EventType.
-:PERSONNEL.ELECT a aidaCommon:EventType.
-:PERSONNEL.END-POSITION a aidaCommon:EventType.
-:PERSONNEL.START-POSITION a aidaCommon:EventType.
-:TRANSACTION.TRANSACTION a aidaCommon:EventType.
-:TRANSACTION.TRANSFER-MONEY a aidaCommon:EventType.
-:TRANSACTION.TRANSFER-OWNERSHIP a aidaCommon:EventType.
+:CONFLICT.ATTACK rdfs:subClassOf aidaDomainCommon:EventType.
+:CONFLICT.DEMONSTRATE rdfs:subClassOf aidaDomainCommon:EventType.
+:CONTACT.BROADCAST rdfs:subClassOf aidaDomainCommon:EventType.
+:CONTACT.CONTACT rdfs:subClassOf aidaDomainCommon:EventType.
+:CONTACT.CORRESPONDENCE rdfs:subClassOf aidaDomainCommon:EventType.
+:CONTACT.MEET rdfs:subClassOf aidaDomainCommon:EventType.
+:JUSTICE.ARREST-JAIL rdfs:subClassOf aidaDomainCommon:EventType.
+:LIFE.DIE rdfs:subClassOf aidaDomainCommon:EventType.
+:LIFE.INJURE rdfs:subClassOf aidaDomainCommon:EventType.
+:MANUFACTURE.ARTIFACT rdfs:subClassOf aidaDomainCommon:EventType.
+:MOVEMENT.TRANSPORT-ARTIFACT rdfs:subClassOf aidaDomainCommon:EventType.
+:MOVEMENT.TRANSPORT-PERSON rdfs:subClassOf aidaDomainCommon:EventType.
+:PERSONNEL.ELECT rdfs:subClassOf aidaDomainCommon:EventType.
+:PERSONNEL.END-POSITION rdfs:subClassOf aidaDomainCommon:EventType.
+:PERSONNEL.START-POSITION rdfs:subClassOf aidaDomainCommon:EventType.
+:TRANSACTION.TRANSACTION rdfs:subClassOf aidaDomainCommon:EventType.
+:TRANSACTION.TRANSFER-MONEY rdfs:subClassOf aidaDomainCommon:EventType.
+:TRANSACTION.TRANSFER-OWNERSHIP rdfs:subClassOf aidaDomainCommon:EventType.
 
 #########################################################
 # Relation types
 #########################################################
-:children a aidaCommon:RelationType.
-:parents a aidaCommon:RelationType.
-:other_family a aidaCommon:RelationType.
-:siblings a aidaCommon:RelationType.
-:spouse a aidaCommon:RelationType.
-:employee_or_member_of a aidaCommon:RelationType.
-:employees_or_members a aidaCommon:RelationType.
-:schools_attended a aidaCommon:RelationType.
-:students a aidaCommon:RelationType.
-:city_of_birth a aidaCommon:RelationType.
-:births_in_city a aidaCommon:RelationType.
-:stateorprovince_of_birth a aidaCommon:RelationType.
-:births_in_stateorprovince a aidaCommon:RelationType.
-:country_of_birth a aidaCommon:RelationType.
-:births_in_country a aidaCommon:RelationType.
-:cities_of_residence a aidaCommon:RelationType.
-:residents_of_city a aidaCommon:RelationType.
-:statesorprovinces_of_residence a aidaCommon:RelationType.
-:residents_of_stateorprovince a aidaCommon:RelationType.
-:countries_of_residence a aidaCommon:RelationType.
-:residents_of_country a aidaCommon:RelationType.
-:city_of_death a aidaCommon:RelationType.
-:deaths_in_city a aidaCommon:RelationType.
-:stateorprovince_of_death a aidaCommon:RelationType.
-:deaths_in_stateorprovince a aidaCommon:RelationType.
-:country_of_death a aidaCommon:RelationType.
-:deaths_in_country a aidaCommon:RelationType.
-:shareholders a aidaCommon:RelationType.
-:holds_shares_in a aidaCommon:RelationType.
-:founded_by a aidaCommon:RelationType.
-:organizations_founded a aidaCommon:RelationType.
-:top_members_employees a aidaCommon:RelationType.
-:top_member_employee_of a aidaCommon:RelationType.
-:member_of a aidaCommon:RelationType.
-:members a aidaCommon:RelationType.
-:subsidiaries a aidaCommon:RelationType.
-:city_of_headquarters a aidaCommon:RelationType.
-:headquarters_in_city a aidaCommon:RelationType.
-:stateorprovince_of_headquarters a aidaCommon:RelationType.
-:headquarters_in_stateorprovince a aidaCommon:RelationType.
-:country_of_headquarters a aidaCommon:RelationType.
-:headquarters_in_country a aidaCommon:RelationType.
-:alternate_names a aidaCommon:RelationType.
-:date_of_birth a aidaCommon:RelationType.
-:political_religious_affiliation a aidaCommon:RelationType.
-:age a aidaCommon:RelationType.
-:number_of_employees_members a aidaCommon:RelationType.
-:origin a aidaCommon:RelationType.
-:date_founded a aidaCommon:RelationType.
-:date_of_death a aidaCommon:RelationType.
-:date_dissolved a aidaCommon:RelationType.
-:cause_of_death a aidaCommon:RelationType.
-:website a aidaCommon:RelationType.
-:title a aidaCommon:RelationType.
-:religion a aidaCommon:RelationType.
-:charges a aidaCommon:RelationType.
+:children rdfs:subClassOf aidaDomainCommon:RelationType.
+:parents rdfs:subClassOf aidaDomainCommon:RelationType.
+:other_family rdfs:subClassOf aidaDomainCommon:RelationType.
+:siblings rdfs:subClassOf aidaDomainCommon:RelationType.
+:spouse rdfs:subClassOf aidaDomainCommon:RelationType.
+:employee_or_member_of rdfs:subClassOf aidaDomainCommon:RelationType.
+:employees_or_members rdfs:subClassOf aidaDomainCommon:RelationType.
+:schools_attended rdfs:subClassOf aidaDomainCommon:RelationType.
+:students rdfs:subClassOf aidaDomainCommon:RelationType.
+:city_of_birth rdfs:subClassOf aidaDomainCommon:RelationType.
+:births_in_city rdfs:subClassOf aidaDomainCommon:RelationType.
+:stateorprovince_of_birth rdfs:subClassOf aidaDomainCommon:RelationType.
+:births_in_stateorprovince rdfs:subClassOf aidaDomainCommon:RelationType.
+:country_of_birth rdfs:subClassOf aidaDomainCommon:RelationType.
+:births_in_country rdfs:subClassOf aidaDomainCommon:RelationType.
+:cities_of_residence rdfs:subClassOf aidaDomainCommon:RelationType.
+:residents_of_city rdfs:subClassOf aidaDomainCommon:RelationType.
+:statesorprovinces_of_residence rdfs:subClassOf aidaDomainCommon:RelationType.
+:residents_of_stateorprovince rdfs:subClassOf aidaDomainCommon:RelationType.
+:countries_of_residence rdfs:subClassOf aidaDomainCommon:RelationType.
+:residents_of_country rdfs:subClassOf aidaDomainCommon:RelationType.
+:city_of_death rdfs:subClassOf aidaDomainCommon:RelationType.
+:deaths_in_city rdfs:subClassOf aidaDomainCommon:RelationType.
+:stateorprovince_of_death rdfs:subClassOf aidaDomainCommon:RelationType.
+:deaths_in_stateorprovince rdfs:subClassOf aidaDomainCommon:RelationType.
+:country_of_death rdfs:subClassOf aidaDomainCommon:RelationType.
+:deaths_in_country rdfs:subClassOf aidaDomainCommon:RelationType.
+:shareholders rdfs:subClassOf aidaDomainCommon:RelationType.
+:holds_shares_in rdfs:subClassOf aidaDomainCommon:RelationType.
+:founded_by rdfs:subClassOf aidaDomainCommon:RelationType.
+:organizations_founded rdfs:subClassOf aidaDomainCommon:RelationType.
+:top_members_employees rdfs:subClassOf aidaDomainCommon:RelationType.
+:top_member_employee_of rdfs:subClassOf aidaDomainCommon:RelationType.
+:member_of rdfs:subClassOf aidaDomainCommon:RelationType.
+:members rdfs:subClassOf aidaDomainCommon:RelationType.
+:subsidiaries rdfs:subClassOf aidaDomainCommon:RelationType.
+:city_of_headquarters rdfs:subClassOf aidaDomainCommon:RelationType.
+:headquarters_in_city rdfs:subClassOf aidaDomainCommon:RelationType.
+:stateorprovince_of_headquarters rdfs:subClassOf aidaDomainCommon:RelationType.
+:headquarters_in_stateorprovince rdfs:subClassOf aidaDomainCommon:RelationType.
+:country_of_headquarters rdfs:subClassOf aidaDomainCommon:RelationType.
+:headquarters_in_country rdfs:subClassOf aidaDomainCommon:RelationType.
+:alternate_names rdfs:subClassOf aidaDomainCommon:RelationType.
+:date_of_birth rdfs:subClassOf aidaDomainCommon:RelationType.
+:political_religious_affiliation rdfs:subClassOf aidaDomainCommon:RelationType.
+:age rdfs:subClassOf aidaDomainCommon:RelationType.
+:number_of_employees_members rdfs:subClassOf aidaDomainCommon:RelationType.
+:origin rdfs:subClassOf aidaDomainCommon:RelationType.
+:date_founded rdfs:subClassOf aidaDomainCommon:RelationType.
+:date_of_death rdfs:subClassOf aidaDomainCommon:RelationType.
+:date_dissolved rdfs:subClassOf aidaDomainCommon:RelationType.
+:cause_of_death rdfs:subClassOf aidaDomainCommon:RelationType.
+:website rdfs:subClassOf aidaDomainCommon:RelationType.
+:title rdfs:subClassOf aidaDomainCommon:RelationType.
+:religion rdfs:subClassOf aidaDomainCommon:RelationType.
+:charges rdfs:subClassOf aidaDomainCommon:RelationType.
 
 # TODO: event argument types

@@ -1,9 +1,16 @@
 package edu.isi.gaia
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import edu.isi.gaia.AIFUtils.SparqlQueries.TYPE_QUERY
+import org.apache.jena.query.QueryExecutionFactory
+import org.apache.jena.query.QueryFactory
+import org.apache.jena.query.QuerySolutionMap
 import org.apache.jena.rdf.model.Model
 import org.apache.jena.rdf.model.Resource
 import org.apache.jena.tdb.TDBFactory
 import org.apache.jena.vocabulary.RDF
+import org.apache.jena.vocabulary.SKOS
+import org.apache.jena.vocabulary.XSD
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -15,6 +22,17 @@ import java.util.*
  * @author Ryan Gabbard (USC ISI)
  */
 object AIFUtils {
+    /**
+     * Adds common non-ontology-specific namespaces to make AIF files more readable
+     */
+    @JvmStatic
+    fun addStandardNamespaces(model: Model) {
+        model.setNsPrefix("rdf", RDF.uri)
+        model.setNsPrefix("xsd", XSD.getURI())
+        model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE)
+        model.setNsPrefix("skos", SKOS.uri)
+    }
+
     /**
      * Create a resource representing the system which produced some data.
      *
@@ -49,33 +67,37 @@ object AIFUtils {
      */
     @JvmStatic
     fun makeEntity(model: Model, entityUri: String, system: Resource): Resource {
-        val entity = model.createResource(entityUri)!!
-        entity.addProperty(RDF.type, AidaAnnotationOntology.ENTITY_CLASS)
-        entity.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system)
-        return entity
+        return makeAIFResource(model, entityUri, AidaAnnotationOntology.ENTITY_CLASS, system)
     }
 
     /**
-     * Makes a relation of type [relationType] between [firstArg] and [secondArg].
+     * Create a relation
+     *
+     * @param [relationUri] can be any unique string.
+     * @param [system] The system object for the system which created this event.
+     */
+    @JvmStatic
+    fun makeRelation(model: Model, relationUri: String, system: Resource): Resource {
+        return makeAIFResource(model, relationUri, AidaAnnotationOntology.RELATION_CLASS, system)
+    }
+
+    /**
+     * Makes a relation of type [relationType] between [subjectResource] and [objectResource] in a form
+     * similar to that of an event: subjects and objects are explicitly linked to relation via [subjectRole]
+     * and [objectRole], respectively.
      *
      * If [confidence] is non-null the relation is marked with the given [confidence]
      *
      * @return The relaton object
      */
     @JvmStatic
-    fun makeRelation(model: Model, relationUri: String, firstArg: Resource, relationType: Resource,
-                     secondArg: Resource, system: Resource, confidence: Double?): Resource {
-        val relation = model.createResource(relationUri)
-        markSystem(relation, system)
-        relation.addProperty(RDF.type, RDF.Statement)
-        relation.addProperty(RDF.subject, firstArg)
-        relation.addProperty(RDF.predicate, relationType)
-        relation.addProperty(RDF.`object`, secondArg)
-
-        if (confidence != null) {
-            markConfidence(model, relation, confidence, system)
-        }
-
+    fun makeRelationInEventForm(model: Model, relationUri: String, relationType: Resource, subjectRole: Resource,
+                                subjectResource: Resource, objectRole: Resource, objectResource: Resource,
+                                typeAssertionUri: String, system: Resource, confidence: Double?): Resource {
+        val relation = AIFUtils.makeRelation(model, relationUri, system)
+        AIFUtils.markType(model, typeAssertionUri, relation, relationType, system, confidence)
+        AIFUtils.markAsArgument(model, relation, subjectRole, subjectResource, system, confidence)
+        AIFUtils.markAsArgument(model, relation, objectRole, objectResource, system, confidence)
         return relation
     }
 
@@ -87,27 +109,37 @@ object AIFUtils {
      */
     @JvmStatic
     fun makeEvent(model: Model, eventUri: String, system: Resource): Resource {
-        val event = model.createResource(eventUri)!!
-        event.addProperty(RDF.type, AidaAnnotationOntology.EVENT_CLASS)
-        event.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system)
-        return event
+        return makeAIFResource(model, eventUri, AidaAnnotationOntology.EVENT_CLASS, system)
     }
 
     /**
-     * Marks an entity as filling an argument role for an event.
+     * Marks an entity as filling an argument role for an event or relation.
      *
-     * @return The created event argument assertion
+     * @return The created event or relation argument assertion
      */
     @JvmStatic
-    fun markAsEventArgument(model: Model, event: Resource, argumentType: Resource,
-                            argumentFiller: Resource, system: Resource,
-                            confidence: Double?): Resource {
-        val argAssertion = model.createResource()!!
-        argAssertion.addProperty(RDF.type, RDF.Statement)
-        argAssertion.addProperty(RDF.subject, event)
+    fun markAsArgument(model: Model, eventOrRelation: Resource, argumentType: Resource,
+                       argumentFiller: Resource, system: Resource,
+                       confidence: Double?): Resource {
+
+        return markAsArgument(model, eventOrRelation, argumentType, argumentFiller, system, confidence, null);
+    }
+
+    /**
+     * Marks an entity as filling an argument role for an event or relation.
+     *
+     * @return The created event or relation argument assertion with uri
+     */
+    @JvmStatic
+    fun markAsArgument(model: Model, eventOrRelation: Resource, argumentType: Resource,
+                       argumentFiller: Resource, system: Resource,
+                       confidence: Double?, uri: String?): Resource {
+
+        val argAssertion = makeAIFResource(model, uri, RDF.Statement, system)
+
+        argAssertion.addProperty(RDF.subject, eventOrRelation)
         argAssertion.addProperty(RDF.predicate, argumentType)
         argAssertion.addProperty(RDF.`object`, argumentFiller)
-        markSystem(argAssertion, system)
         if (confidence != null) {
             markConfidence(model, argAssertion, confidence = confidence, system = system)
         }
@@ -121,15 +153,15 @@ object AIFUtils {
      * In such a case, bundle together the type assertion resources returned by this method with
      * [markAsMutuallyExclusive].
      *
-     * @param [type] The type of the entity or event being asserted
+     * @param [type] The type of the entity, event, or relation being asserted
      * @param [system] The system object for the system which created this entity.
      */
     @JvmStatic
-    fun markType(model: Model, typeAssertionUri: String, entityOrEvent: Resource,
+    fun markType(model: Model, typeAssertionUri: String, entityOrEventOrRelation: Resource,
                  type: Resource, system: Resource, confidence: Double?): Resource {
         val typeAssertion = model.createResource(typeAssertionUri)!!
         typeAssertion.addProperty(RDF.type, RDF.Statement)
-        typeAssertion.addProperty(RDF.subject, entityOrEvent)
+        typeAssertion.addProperty(RDF.subject, entityOrEventOrRelation)
         typeAssertion.addProperty(RDF.predicate, RDF.type)
         typeAssertion.addProperty(RDF.`object`, type)
         typeAssertion.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system)
@@ -216,8 +248,8 @@ object AIFUtils {
     fun markImageJustification(model: Model, toMarkOn: Collection<Resource>, docId: String,
                                boundingBox: BoundingBox, system: Resource, confidence: Double)
             : Resource {
-        val justification = model.createResource()
-        justification.addProperty(RDF.type, AidaAnnotationOntology.IMAGE_JUSTIFICATION_CLASS)
+        val justification = makeAIFResource(model, null, AidaAnnotationOntology.IMAGE_JUSTIFICATION_CLASS, system)
+
         // the document ID for the justifying source document
         justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral(docId))
 
@@ -233,7 +265,6 @@ object AIFUtils {
                 model.createTypedLiteral(boundingBox.lowerRight.y))
 
         justification.addProperty(AidaAnnotationOntology.BOUNDING_BOX_PROPERTY, boundingBoxResource)
-        markSystem(justification, system)
         markConfidence(model, justification, confidence, system)
 
         toMarkOn.forEach({ it.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification) })
@@ -260,8 +291,8 @@ object AIFUtils {
                                        keyFrame: String,
                                        boundingBox: BoundingBox, system: Resource, confidence: Double)
             : Resource {
-        val justification = model.createResource()
-        justification.addProperty(RDF.type, AidaAnnotationOntology.KEYFRAME_VIDEO_JUSTIFICATION_CLASS)
+        val justification = makeAIFResource(model, null, AidaAnnotationOntology.KEYFRAME_VIDEO_JUSTIFICATION_CLASS, system)
+
         // the document ID for the justifying source document
         justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral(docId))
         justification.addProperty(AidaAnnotationOntology.KEY_FRAME,
@@ -279,7 +310,6 @@ object AIFUtils {
                 model.createTypedLiteral(boundingBox.lowerRight.y))
 
         justification.addProperty(AidaAnnotationOntology.BOUNDING_BOX_PROPERTY, boundingBoxResource)
-        markSystem(justification, system)
         markConfidence(model, justification, confidence, system)
 
         toMarkOn.forEach({ it.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification) })
@@ -304,14 +334,13 @@ object AIFUtils {
     fun markShotVideoJustification(model: Model, toMarkOn: Collection<Resource>, docId: String,
                                    shotId: String, system: Resource, confidence: Double)
             : Resource {
-        val justification = model.createResource()
-        justification.addProperty(RDF.type, AidaAnnotationOntology.SHOT_VIDEO_JUSTIFICATION_CLASS)
+        val justification = makeAIFResource(model, null, AidaAnnotationOntology.SHOT_VIDEO_JUSTIFICATION_CLASS, system)
+
         // the document ID for the justifying source document
         justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral(docId))
         justification.addProperty(AidaAnnotationOntology.SHOT,
                 model.createTypedLiteral(shotId))
 
-        markSystem(justification, system)
         markConfidence(model, justification, confidence, system)
 
         toMarkOn.forEach({ it.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification) })
@@ -381,9 +410,7 @@ object AIFUtils {
                     "making a mutual exclusion constraint, but got $alternatives"
         }
 
-        val mutualExclusionAssertion = model.createResource()!!
-        mutualExclusionAssertion.addProperty(RDF.type, AidaAnnotationOntology.MUTUAL_EXCLUSION_CLASS)
-        markSystem(mutualExclusionAssertion, system)
+        val mutualExclusionAssertion = makeAIFResource(model, null, AidaAnnotationOntology.MUTUAL_EXCLUSION_CLASS, system)
 
         alternatives.forEach {
             val alternative = model.createResource()
@@ -428,10 +455,9 @@ object AIFUtils {
     @JvmStatic
     fun makeClusterWithPrototype(model: Model, clusterUri: String, prototype: Resource,
                                  system: Resource): Resource {
-        val cluster = model.createResource(clusterUri)!!
-        cluster.addProperty(RDF.type, AidaAnnotationOntology.SAME_AS_CLUSTER_CLASS)
+        val cluster = makeAIFResource(model, clusterUri, AidaAnnotationOntology.SAME_AS_CLUSTER_CLASS,
+                system)
         cluster.addProperty(AidaAnnotationOntology.PROTOTYPE, prototype)
-        markSystem(cluster, system)
         return cluster
     }
 
@@ -444,12 +470,11 @@ object AIFUtils {
     fun markAsPossibleClusterMember(model: Model, possibleClusterMember: Resource,
                                     cluster: Resource, confidence: Double,
                                     system: Resource): Resource {
-        val clusterMemberAssertion = model.createResource()
-        clusterMemberAssertion.addProperty(RDF.type, AidaAnnotationOntology.CLUSTER_MEMBERSHIP_CLASS)
+        val clusterMemberAssertion = makeAIFResource(model, null,
+                AidaAnnotationOntology.CLUSTER_MEMBERSHIP_CLASS, system);
         clusterMemberAssertion.addProperty(AidaAnnotationOntology.CLUSTER_PROPERTY, cluster)
         clusterMemberAssertion.addProperty(AidaAnnotationOntology.CLUSTER_MEMBER, possibleClusterMember)
         markConfidence(model, clusterMemberAssertion, confidence = confidence, system = system)
-        markSystem(clusterMemberAssertion, system)
         return clusterMemberAssertion
     }
 
@@ -465,10 +490,7 @@ object AIFUtils {
     fun makeHypothesis(model: Model, hypothesisURI: String, hypothesisContent: Set<Resource>,
                        system: Resource): Resource {
         require(!hypothesisContent.isEmpty()) { "A hypothesis must have content" }
-        val hypothesis = model.createResource(hypothesisURI)!!
-        hypothesis.addProperty(RDF.type, AidaAnnotationOntology.HYPOTHESIS_CLASS)
-        markSystem(hypothesis, system)
-
+        val hypothesis = makeAIFResource(model, hypothesisURI, AidaAnnotationOntology.HYPOTHESIS_CLASS, system)
         val subgraph = model.createResource()
         subgraph.addProperty(RDF.type, AidaAnnotationOntology.SUBGRAPH_CLASS)
         hypothesisContent.forEach { subgraph.addProperty(AidaAnnotationOntology.GRAPH_CONTAINS, it) }
@@ -485,11 +507,8 @@ object AIFUtils {
     @JvmStatic
     fun markPrivateData(model: Model, resource: Resource, jsonContent: String, system: Resource):
             Resource {
-        val privateData = model.createResource()
-        privateData.addProperty(RDF.type, AidaAnnotationOntology.PRIVATE_DATA_CLASS)
-        privateData.addProperty(AidaAnnotationOntology.JSON_CONTENT_PROPERTY,
-                model.createTypedLiteral(jsonContent))
-        markSystem(privateData, system)
+        val privateData = makeAIFResource(model, null, AidaAnnotationOntology.PRIVATE_DATA_CLASS, system)
+        privateData.addProperty(AidaAnnotationOntology.JSON_CONTENT_PROPERTY, model.createTypedLiteral(jsonContent))
 
         resource.addProperty(AidaAnnotationOntology.PRIVATE_DATA_PROPERTY, privateData)
 
@@ -497,14 +516,19 @@ object AIFUtils {
     }
 
     @JvmStatic
+    fun markPrivateData(model: Model, resource: Resource, vectorType: String, vectorData: List<Double>, system: Resource):
+            Resource {
+        val mapper = ObjectMapper()
+        val jsonMap = mapOf<Any, Any>("vector_type" to vectorType, "vector_data" to vectorData)
+        return AIFUtils.markPrivateData(model, resource, mapper.writeValueAsString(jsonMap), system)
+    }
+
+    @JvmStatic
     fun linkToExternalKB(model: Model, toLink: Resource, externalKbId: String, system: Resource,
                          confidence: Double?): Resource {
-        val linkAssertion = model.createResource()!!
+        val linkAssertion = makeAIFResource(model, null, AidaAnnotationOntology.LINK_ASSERTION_CLASS, system)
         toLink.addProperty(AidaAnnotationOntology.LINK, linkAssertion)
-        linkAssertion.addProperty(RDF.type, AidaAnnotationOntology.LINK_ASSERTION_CLASS)
-        linkAssertion.addProperty(AidaAnnotationOntology.LINK_TARGET,
-                model.createTypedLiteral(externalKbId))
-        markSystem(linkAssertion, system)
+        linkAssertion.addProperty(AidaAnnotationOntology.LINK_TARGET, model.createTypedLiteral(externalKbId))
         if (confidence != null) {
             markConfidence(model, linkAssertion, confidence, system)
         }
@@ -529,6 +553,40 @@ object AIFUtils {
         } finally {
             tempDir.deleteRecursively()
         }
+    }
+
+    private object SparqlQueries {
+        val TYPE_QUERY = QueryFactory.create("""
+            PREFIX rdf: <${RDF.uri}>
+
+            SELECT ?typeAssertion WHERE {
+            ?typeAssertion a rdf:Statement .
+            ?typeAssertion rdf:predicate rdf:type .
+            ?typeAssertion rdf:subject ?typedObject .
+        }
+        """)!!
+    }
+
+    @JvmStatic
+    fun getTypeAssertions(model: Model, typedObject: Resource): Set<Resource> {
+        val boundVariables = QuerySolutionMap()
+        boundVariables.add("typedObject", typedObject)
+        val queryExecution = QueryExecutionFactory.create(TYPE_QUERY, model, boundVariables)
+        val results = queryExecution.execSelect()
+        return results.asSequence().map { it.get("typeAssertion").asResource() }.toSet()
+    }
+
+    @JvmStatic
+    fun getConfidenceAssertions(model: Model, confidencedObject: Resource): Set<Resource> {
+        return model.objectsWithProperty(confidencedObject, AidaAnnotationOntology.CONFIDENCE)
+                .map { it.asResource() }.toSet()
+    }
+
+    private fun makeAIFResource(model: Model, uri: String?, classType: Resource, system: Resource): Resource {
+        val resource = if (uri == null) model.createResource()!! else model.createResource(uri)!!
+        resource.addProperty(RDF.type, classType)
+        markSystem(resource, system)
+        return resource
     }
 }
 

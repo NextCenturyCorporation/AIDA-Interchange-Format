@@ -8,13 +8,13 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 
-interface Node
+sealed class Node
 
-class EventNode : Node
+class EventNode : Node()
 
-class EntityNode : Node
+class EntityNode : Node()
 
-class StringNode : Node
+class StringNode : Node()
 
 data class Span (val start: Int, val end_inclusive: Int) {
     init {
@@ -199,7 +199,7 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false,
         val _ENTITY_TYPES: String = (ontologyMapping.entityShortNames().map { it.toLowerCase() } +
                 ontologyMapping.entityShortNames().map { it.toUpperCase() })
                 .toList().joinToString(separator="|")
-        val _ASSERTION_PAT = Regex("""^(?:$_ENTITY_TYPES)?:?(.+?)\.?(other|generic|actual)?$""")
+        val _ASSERTION_PAT = Regex("""^(?:(?:$_ENTITY_TYPES):)?(.+?)\.?(other|generic|actual)?$""")
 
         val idToNode: MutableMap<String, Node> = HashMap()
         // if `breakCrossDocCoref` is false, this will match `idToNode` exactly

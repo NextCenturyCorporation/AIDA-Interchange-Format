@@ -1,9 +1,10 @@
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
 @prefix aidaDomainCommon: <http://darpa.mil/ontologies/AidaDomainOntologiesCommon#> .
-@prefix aida: <http://www.isi.edu/aida/interchangeOntology#> .
+@prefix aida: <http://darpa.mil/aida/interchangeOntology#> .
 
 # This document is a specification for validating knowledge graphs for the interchange
 # format for the DARPA AIDA program. This format is called AIF (AIDA Interchange Format)
@@ -283,6 +284,61 @@ aida:SentimentShape
   sh:ignoredProperties (rdf:type rdf:predicate)
   .
 
+# Allow for subclasses as well as instances of EntityType
+aida:EntitySubclass
+  a sh:NodeShape ;
+  sh:xone (
+    [sh:class aidaDomainCommon:EntityType ]
+    [sh:property [
+        sh:path rdfs:subClassOf ;
+        sh:hasValue aidaDomainCommon:EntityType ;
+        sh:minCount 1 ] ] )
+  .
+
+# Allow for subclasses as well as instances of EventType
+aida:EventSubclass
+  a sh:NodeShape ;
+  sh:xone (
+    [sh:class aidaDomainCommon:EventType ]
+    [sh:property [
+        sh:path rdfs:subClassOf ;
+        sh:hasValue aidaDomainCommon:EventType ;
+        sh:minCount 1 ] ] )
+  .
+
+# Allow for subclasses as well as instances of RelationType
+aida:RelationSubclass
+  a sh:NodeShape ;
+  sh:xone (
+    [sh:class aidaDomainCommon:RelationType ]
+    [sh:property [
+        sh:path rdfs:subClassOf ;
+        sh:hasValue aidaDomainCommon:RelationType ;
+        sh:minCount 1 ] ] )
+  .
+
+# Allow for subclasses as well as instances of EventArgumentType
+aida:EventArgumentSubclass
+  a sh:NodeShape ;
+    sh:xone (
+      [sh:class aidaDomainCommon:EventArgumentType ]
+      [sh:property [
+          sh:path rdfs:subClassOf ;
+          sh:hasValue aidaDomainCommon:EventArgumentType ;
+          sh:minCount 1 ] ] )
+    .
+
+# Allow for subclasses as well as instances of RelationArgumentType
+aida:RelationArgumentSubclass
+  a sh:NodeShape ;
+    sh:xone (
+      [sh:class aidaDomainCommon:RelationArgumentType ]
+      [sh:property [
+          sh:path rdfs:subClassOf ;
+          sh:hasValue aidaDomainCommon:RelationArgumentType ;
+          sh:minCount 1 ] ] )
+    .
+
 # we also use RDF statements to assign types to entities and events
 aida:TypeShape
    a sh:NodeShape ;
@@ -310,6 +366,7 @@ aida:TypeShape
    sh:property [
      sh:path rdf:subject ;
      sh:xone ( [sh:class aida:Entity ]
+               [sh:class aida:Relation ]
                [sh:class aida:Event ] ) ;
      sh:message "Subject of type assertion must be entity or event"];
 
@@ -317,8 +374,9 @@ aida:TypeShape
    # and events are restricted to having event types?  Issue #29
    sh:property [
      sh:path rdf:object ;
-     sh:xone ( [sh:class aidaDomainCommon:EntityType ]
-               [sh:class aidaDomainCommon:EventType ] ) ;
+     sh:xone ( [sh:node aida:EntitySubclass ]
+               [sh:node aida:RelationSubclass ]
+               [sh:node aida:EventSubclass ] ) ;
      sh:message "Object of type assertion must be an entity or event type"];
     # TODO: handle temporal or string values
 
@@ -618,7 +676,7 @@ aida:ShotVideoJustificationShape
    sh:property [
        sh:path aida:shot ;
        sh:datatype xsd:string ;
-       sh:mintCount 1;
+       sh:minCount 1;
        sh:maxCount 1 ] ;
 
    # justifications must provide confidences
@@ -660,8 +718,8 @@ aida:LinkAssertionShape
      a sh:PropertyShape ;
      sh:path aida:linkTarget ;
      sh:value xsd:string ;
-     sh:minValue 1 ;
-     sh:maxValue 1] ;
+     sh:minCount 1 ;
+     sh:maxCount 1] ;
 
    # may provide a confidence
    sh:property aida:ConfidencePropertyShape ;
@@ -698,11 +756,12 @@ aida:RdfStatementShape
 
   sh:property [
      sh:path rdf:predicate ;
-     sh:exone (
-         [ sh:class rdf:type ]
-         [ sh:class aidaDomainCommon:EventArgumentType ]
-         [ sh:class aidaDomainCommon:RelationType ]
-         [ sh:class aidaDomainCommon:Sentiment ] ) ]
+     sh:xone (
+         [ sh:hasValue rdf:type ]
+         [ sh:node aida:EventArgumentSubclass ]
+         [ sh:node aida:RelationArgumentSubclass ]) ;
+      sh:message "All rdf:statements must be type declarations or have predicates from the domain relation or event argument types. This error is often caused by using a value outside the domain ontology"
+     ]
   .
 
 # Sometimes there is uncertainty about whether or not two entities or events are the same.
