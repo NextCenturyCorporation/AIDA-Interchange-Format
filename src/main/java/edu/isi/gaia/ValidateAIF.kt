@@ -44,6 +44,12 @@ class ValidateAIF(private val domainModel: Model) {
                 loadModel(it)
             }
 
+    private val ta3ShaclModel = Resources.asCharSource(
+            Resources.getResource("edu/isi/gaia/aida_hypothesis.shacl"), Charsets.UTF_8)
+            .openBufferedStream().use {
+                loadModel(it)
+            }
+
     companion object {
         private val log = KLogging()
 
@@ -120,18 +126,39 @@ class ValidateAIF(private val domainModel: Model) {
     }
 
     /**
+     * Returns whether or not the KB and hypotheses are valid
+     */
+    fun validateTA3(dataToBeValidated: Model): Boolean {
+        val unionModel = ModelFactory.createUnion(domainModel, dataToBeValidated)
+        return validateKB(dataToBeValidated, unionModel)
+               && validateAgainstShacl(unionModel, ta3ShaclModel)
+    }
+
+    /**
      * Returns whether or not the KB is valid
      */
     fun validateKB(dataToBeValidated: Model): Boolean {
+        return validateKB(dataToBeValidated, null)
+    }
+
+    /**
+     * Returns whether or not the KB is valid
+     * @param dataToBeValidated KB to be validated
+     * @param union unified KB if not null
+     */
+    fun validateKB(dataToBeValidated: Model, union: Model?): Boolean {
         // we unify the given KB with the background and domain KBs before validation
         // this is required so that constraints like "the object of a type must be an
         // entity type" will know what types are in fact entity types
-        val unionModel = ModelFactory.createUnion(domainModel, dataToBeValidated)
+        val unionModel = when {
+            (union == null) -> ModelFactory.createUnion(domainModel, dataToBeValidated)
+            else -> union
+        }
 
         // we short-circuit because earlier validation failures may make later
         // validation attempts misleading nonsense
         return /*ensureEveryNamedNodeHasARdfType(dataToBeValidated)
-                &&*/ validateAgainstShacl(unionModel)
+                &&*/ validateAgainstShacl(unionModel, shaclModel)
                 && ensureConfidencesInZeroOne(unionModel)
                 && ensureEveryEntityAndEventHasAType(unionModel)
     }
@@ -180,11 +207,11 @@ class ValidateAIF(private val domainModel: Model) {
      * (and in some cases, only the required properties) of the proper types.  Returns true if
      * validation passes.
      */
-    private fun validateAgainstShacl(dataToBeValidated: Model): Boolean {
+    private fun validateAgainstShacl(dataToBeValidated: Model, shacl: Model): Boolean {
         // do SHACL validation
-        val report = ValidationUtil.validateModel(dataToBeValidated, shaclModel, true)
+        val report = ValidationUtil.validateModel(dataToBeValidated, shacl, true)
         val valid = report.getRequiredProperty(
-                shaclModel.createProperty("http://www.w3.org/ns/shacl#conforms")).boolean
+                shacl.createProperty("http://www.w3.org/ns/shacl#conforms")).boolean
         if (!valid) {
             report.model.write(System.err, FileUtils.langTurtle)
         }

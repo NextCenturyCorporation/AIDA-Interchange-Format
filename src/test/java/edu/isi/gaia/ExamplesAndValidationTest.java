@@ -18,9 +18,7 @@ import org.apache.jena.vocabulary.XSD;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import static edu.isi.gaia.AIFUtils.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
