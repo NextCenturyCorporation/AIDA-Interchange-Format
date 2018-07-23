@@ -130,7 +130,7 @@ class ValidateAIF(private val domainModel: Model) {
      */
     fun validateTA3(dataToBeValidated: Model): Boolean {
         val unionModel = ModelFactory.createUnion(domainModel, dataToBeValidated)
-        return validateKB(dataToBeValidated)
+        return validateKB(dataToBeValidated, unionModel)
                && validateAgainstShacl(unionModel, ta3ShaclModel)
     }
 
@@ -138,10 +138,22 @@ class ValidateAIF(private val domainModel: Model) {
      * Returns whether or not the KB is valid
      */
     fun validateKB(dataToBeValidated: Model): Boolean {
+        return validateKB(dataToBeValidated, null)
+    }
+
+    /**
+     * Returns whether or not the KB is valid
+     * @param dataToBeValidated KB to be validated
+     * @param union unified KB if not null
+     */
+    fun validateKB(dataToBeValidated: Model, union: Model?): Boolean {
         // we unify the given KB with the background and domain KBs before validation
         // this is required so that constraints like "the object of a type must be an
         // entity type" will know what types are in fact entity types
-        val unionModel = ModelFactory.createUnion(domainModel, dataToBeValidated)
+        val unionModel = when {
+            (union == null) -> ModelFactory.createUnion(domainModel, dataToBeValidated)
+            else -> union
+        }
 
         // we short-circuit because earlier validation failures may make later
         // validation attempts misleading nonsense
@@ -149,6 +161,7 @@ class ValidateAIF(private val domainModel: Model) {
                 &&*/ validateAgainstShacl(unionModel, shaclModel)
                 && ensureConfidencesInZeroOne(unionModel)
                 && ensureEveryEntityAndEventHasAType(unionModel)
+        }
     }
 
     private val ENSURE_EVERY_NAMED_NODE_HAS_A_TYPE_SPARQL_QUERY = """
