@@ -228,9 +228,9 @@ class ValidExamples {
 
         // link those entities to the event
         AIFUtils.markAsArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_elect"),
-                electee, system, 0.785, "http://www.test.edu/assertions/8");
+                electee, system, 0.785);
         AIFUtils.markAsArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_place"),
-                electionCountry, system, 0.589, "http://www.test.edu/assertions/9");
+                electionCountry, system, 0.589);
 
         dumpAndAssertValid(model, "create a seedling event", true);
     }
@@ -594,7 +594,7 @@ class ValidExamples {
     System.out.println("\n\n" + testName + "\n\n");
     RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
     if (seedling) {
-        assertTrue(seedlingValidator.validateTA3(model));
+        assertTrue(seedlingValidator.validateKB(model));
     } else {
         assertTrue(validatorForColdStart.validateKB(model));
     }
