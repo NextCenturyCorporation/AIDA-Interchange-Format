@@ -14,5 +14,4 @@ aida:RdfStatementShape
   sh:targetClass rdf:Statement ;
   sh:nodeKind sh:IRI ;
   sh:message "All rdf:Statement nodes must not be blank" ;
-
   .
