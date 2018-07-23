@@ -8,7 +8,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
-<http://darpa.mil/ontologies/AidaDomainOntologiesCommon#> rdf:type owl:Ontology ;
+<http://darpa.mil/ontologies/AidaDomainOntologiesCommon> rdf:type owl:Ontology ;
     rdfs:label "Common classes across AIDA domain-specific ontologies"^^xsd:string ;
     owl:versionInfo "Version 0.1"^^xsd:string .
 
