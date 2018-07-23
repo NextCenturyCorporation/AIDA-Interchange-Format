@@ -470,6 +470,10 @@ class ValidExamples {
         AIFUtils.markName(entity, "N. One");
         AIFUtils.markName(entity, "N-Money");
 
+        AIFUtils.markNumericValueAsDouble(entity, 100);
+        AIFUtils.markNumericValueAsLong(entity, 100);
+        AIFUtils.markNumericValueAsString(entity, "100");
+
         dumpAndAssertValid(model, "create a seedling entity of type person with names", true);
     }
 }

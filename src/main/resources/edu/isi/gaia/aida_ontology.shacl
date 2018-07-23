@@ -760,7 +760,10 @@ aida:TextPropertyShape
 aida:NumericPropertyShape
   a sh:PropertyShape ;
   sh:path aida:numericValue ;
-  sh:datatype xsd:string .
+  sh:xone (
+    [ sh:datatype xsd:string ]
+    [ sh:datatype xsd:double ]
+    [ sh:datatype xsd:long ] ) .
 
 # we use RDF statements for four things: relations, type assertions, event argument, and
 # sentiment assertions. Each of these has already been described above. We want to forbid any other

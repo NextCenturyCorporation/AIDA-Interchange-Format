@@ -75,11 +75,27 @@ object AIFUtils {
     }
 
     /**
-     * Mark [entity] as having the specified [numericValue]
+     * Mark [entity] as having the specified [numericValue] as string
      */
     @JvmStatic
-    fun markNumericValue(entity: Resource, numericValue: String) {
+    fun markNumericValueAsString(entity: Resource, numericValue: String) {
         entity.addLiteral(AidaAnnotationOntology.NUMERIC_VALUE_PROPERTY, numericValue)
+    }
+
+    /**
+     * Mark [entity] as having the specified [numericValue] as double floating point
+     */
+    @JvmStatic
+    fun markNumericValueAsDouble(entity: Resource, numericValue: Number) {
+        entity.addLiteral(AidaAnnotationOntology.NUMERIC_VALUE_PROPERTY, numericValue.toDouble())
+    }
+
+    /**
+     * Mark [entity] as having the specified [numericValue] as long integer
+     */
+    @JvmStatic
+    fun markNumericValueAsLong(entity: Resource, numericValue: Number) {
+        entity.addLiteral(AidaAnnotationOntology.NUMERIC_VALUE_PROPERTY, numericValue.toLong())
     }
 
     /**
