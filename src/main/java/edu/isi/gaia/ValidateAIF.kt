@@ -161,7 +161,6 @@ class ValidateAIF(private val domainModel: Model) {
                 &&*/ validateAgainstShacl(unionModel, shaclModel)
                 && ensureConfidencesInZeroOne(unionModel)
                 && ensureEveryEntityAndEventHasAType(unionModel)
-        }
     }
 
     private val ENSURE_EVERY_NAMED_NODE_HAS_A_TYPE_SPARQL_QUERY = """
