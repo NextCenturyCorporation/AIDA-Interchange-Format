@@ -466,10 +466,14 @@ class ValidExamples {
         final Resource typeAssertion = AIFUtils.markType(model, "http://www.test.org/assertions/1",
                 entity, SeedlingOntologyMapper.PERSON, system, 1.0);
 
+        // This is just a test to make sure that validation works for the different
+        // mark types.  Rare that you would have all three with a single entity.
         AIFUtils.markName(entity, "Name One");
         AIFUtils.markName(entity, "N. One");
         AIFUtils.markName(entity, "N-Money");
 
+        AIFUtils.markTextValue(entity, "TextValue");
+        
         AIFUtils.markNumericValueAsDouble(entity, 100);
         AIFUtils.markNumericValueAsLong(entity, 100);
         AIFUtils.markNumericValueAsString(entity, "100");
