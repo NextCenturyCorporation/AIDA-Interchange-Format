@@ -446,6 +446,40 @@ class ValidExamples {
                 "justification and vector", true);
     }
 
+
+    @Test
+    void createSeedlingEntityWithAlternateNames() {
+        final Model model = createModel(true);
+
+        // every AIF needs an object for the system responsible for creating it
+        final Resource system = AIFUtils.makeSystemWithURI(model,
+                "http://www.test.edu/testSystem");
+
+        // it doesn't matter what URI we give entities, events, etc. so long as they are
+        // unique
+        final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
+                system);
+
+        // in order to allow uncertainty about the type of an entity, we don't mark an
+        // entity's type directly on the entity, but rather make a separate assertion for it
+        // its URI doesn't matter either
+        final Resource typeAssertion = AIFUtils.markType(model, "http://www.test.org/assertions/1",
+                entity, SeedlingOntologyMapper.PERSON, system, 1.0);
+
+        // This is just a test to make sure that validation works for the different
+        // mark types.  Rare that you would have all three with a single entity.
+        AIFUtils.markName(entity, "Name One");
+        AIFUtils.markName(entity, "N. One");
+        AIFUtils.markName(entity, "N-Money");
+
+        AIFUtils.markTextValue(entity, "TextValue");
+        
+        AIFUtils.markNumericValueAsDouble(entity, 100);
+        AIFUtils.markNumericValueAsLong(entity, 100);
+        AIFUtils.markNumericValueAsString(entity, "100");
+
+        dumpAndAssertValid(model, "create a seedling entity of type person with names", true);
+    }
 }
 
   /**

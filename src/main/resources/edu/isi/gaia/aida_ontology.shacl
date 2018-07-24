@@ -58,10 +58,10 @@ aida:EntityShape
   # may be linked to one or more things in an external KB
   sh:property aida:LinkPropertyShape ;
 
-  # may have zero or more string labels for user consumption
-  sh:property [
-     sh:path skos:prefLabel ;
-     sh:datatype xsd:string ];
+  # allow name, text, and numeric
+  sh:property aida:NamePropertyShape ;
+  sh:property aida:TextPropertyShape ;
+  sh:property aida:NumericPropertyShape ;
 
   # may provide a confidence
   sh:property aida:ConfidencePropertyShape ;
@@ -284,60 +284,60 @@ aida:SentimentShape
   sh:ignoredProperties (rdf:type rdf:predicate)
   .
 
-# Allow for subclasses as well as instances of EntityType
+# Allow for EntityType instances, subclasses, and instances of subclasses
 aida:EntitySubclass
-  a sh:NodeShape ;
-  sh:xone (
-    [sh:class aidaDomainCommon:EntityType ]
-    [sh:property [
-        sh:path rdfs:subClassOf ;
-        sh:hasValue aidaDomainCommon:EntityType ;
-        sh:minCount 1 ] ] )
+  a sh:PropertyShape ;
+  sh:path [ sh:alternativePath (
+    rdf:type
+    [ sh:oneOrMorePath rdfs:subClassOf ]
+    (rdf:Type [ sh:oneOrMorePath rdfs:subClassOf ] ) ) ];
+  sh:hasValue aidaDomainCommon:EntityType ;
+  sh:minCount 1
   .
 
-# Allow for subclasses as well as instances of EventType
+# Allow for EventType instances, subclasses, and instances of subclasses
 aida:EventSubclass
-  a sh:NodeShape ;
-  sh:xone (
-    [sh:class aidaDomainCommon:EventType ]
-    [sh:property [
-        sh:path rdfs:subClassOf ;
-        sh:hasValue aidaDomainCommon:EventType ;
-        sh:minCount 1 ] ] )
+  a sh:PropertyShape ;
+  sh:path [ sh:alternativePath (
+    rdf:type
+    [ sh:oneOrMorePath rdfs:subClassOf ]
+    (rdf:Type [ sh:oneOrMorePath rdfs:subClassOf ] ) ) ];
+  sh:hasValue aidaDomainCommon:EventType ;
+  sh:minCount 1
   .
 
-# Allow for subclasses as well as instances of RelationType
+# Allow for RelationType instances, subclasses, and instances of subclasses
 aida:RelationSubclass
-  a sh:NodeShape ;
-  sh:xone (
-    [sh:class aidaDomainCommon:RelationType ]
-    [sh:property [
-        sh:path rdfs:subClassOf ;
-        sh:hasValue aidaDomainCommon:RelationType ;
-        sh:minCount 1 ] ] )
+  a sh:PropertyShape ;
+  sh:path [ sh:alternativePath (
+    rdf:type
+    [ sh:oneOrMorePath rdfs:subClassOf ]
+    (rdf:Type [ sh:oneOrMorePath rdfs:subClassOf ] ) ) ];
+  sh:hasValue aidaDomainCommon:RelationType ;
+  sh:minCount 1
   .
 
-# Allow for subclasses as well as instances of EventArgumentType
+# Allow for EventArgumentType instances, subclasses, and instances of subclasses
 aida:EventArgumentSubclass
-  a sh:NodeShape ;
-    sh:xone (
-      [sh:class aidaDomainCommon:EventArgumentType ]
-      [sh:property [
-          sh:path rdfs:subClassOf ;
-          sh:hasValue aidaDomainCommon:EventArgumentType ;
-          sh:minCount 1 ] ] )
-    .
+  a sh:PropertyShape ;
+  sh:path [ sh:alternativePath (
+    rdf:type
+    [ sh:oneOrMorePath rdfs:subClassOf ]
+    (rdf:Type [ sh:oneOrMorePath rdfs:subClassOf ] ) ) ];
+  sh:hasValue aidaDomainCommon:EventArgumentType ;
+  sh:minCount 1
+  .
 
-# Allow for subclasses as well as instances of RelationArgumentType
+# Allow for RelationArgumentType instances, subclasses, and instances of subclasses
 aida:RelationArgumentSubclass
-  a sh:NodeShape ;
-    sh:xone (
-      [sh:class aidaDomainCommon:RelationArgumentType ]
-      [sh:property [
-          sh:path rdfs:subClassOf ;
-          sh:hasValue aidaDomainCommon:RelationArgumentType ;
-          sh:minCount 1 ] ] )
-    .
+  a sh:PropertyShape ;
+  sh:path [ sh:alternativePath (
+    rdf:type
+    [ sh:oneOrMorePath rdfs:subClassOf ]
+    (rdf:Type ) [ sh:oneOrMorePath rdfs:subClassOf ] ) ];
+  sh:hasValue aidaDomainCommon:RelationArgumentType ;
+  sh:minCount 1
+  .
 
 # we also use RDF statements to assign types to entities and events
 aida:TypeShape
@@ -374,9 +374,9 @@ aida:TypeShape
    # and events are restricted to having event types?  Issue #29
    sh:property [
      sh:path rdf:object ;
-     sh:xone ( [sh:node aida:EntitySubclass ]
-               [sh:node aida:RelationSubclass ]
-               [sh:node aida:EventSubclass ] ) ;
+     sh:xone ( aida:EntitySubclass
+               aida:RelationSubclass
+               aida:EventSubclass ) ;
      sh:message "Object of type assertion must be an entity or event type"];
     # TODO: handle temporal or string values
 
@@ -747,6 +747,24 @@ aida:LinkPropertyShape
   sh:path aida:link ;
   sh:class aida:LinkAssertion .
 
+aida:NamePropertyShape
+  a sh:PropertyShape ;
+  sh:path aida:hasName ;
+  sh:datatype xsd:string .
+
+aida:TextPropertyShape
+  a sh:PropertyShape ;
+  sh:path aida:textValue ;
+  sh:datatype xsd:string  .
+
+aida:NumericPropertyShape
+  a sh:PropertyShape ;
+  sh:path aida:numericValue ;
+  sh:xone (
+    [ sh:datatype xsd:string ]
+    [ sh:datatype xsd:double ]
+    [ sh:datatype xsd:long ] ) .
+
 # we use RDF statements for four things: relations, type assertions, event argument, and
 # sentiment assertions. Each of these has already been described above. We want to forbid any other
 # use of RDF statement.
@@ -757,9 +775,9 @@ aida:RdfStatementShape
   sh:property [
      sh:path rdf:predicate ;
      sh:xone (
-         [ sh:hasValue rdf:type ]
-         [ sh:node aida:EventArgumentSubclass ]
-         [ sh:node aida:RelationArgumentSubclass ]) ;
+        [ sh:hasValue rdf:type ]
+          aida:EventArgumentSubclass
+          aida:RelationArgumentSubclass ) ;
       sh:message "All rdf:statements must be type declarations or have predicates from the domain relation or event argument types. This error is often caused by using a value outside the domain ontology"
      ]
   .

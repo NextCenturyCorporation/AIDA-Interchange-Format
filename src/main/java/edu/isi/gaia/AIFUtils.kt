@@ -58,6 +58,45 @@ object AIFUtils {
         toMarkOn.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system)
     }
 
+    /**
+     * Mark [entity] as having the specified [name]
+     */
+    @JvmStatic
+    fun markName(entity: Resource, name: String) {
+        entity.addLiteral(AidaAnnotationOntology.NAME_PROPERTY, name)
+    }
+
+    /**
+     * Mark [entity] as having the specified [textValue]
+     */
+    @JvmStatic
+    fun markTextValue(entity: Resource, textValue: String) {
+        entity.addLiteral(AidaAnnotationOntology.TEXT_VALUE_PROPERTY, textValue)
+    }
+
+    /**
+     * Mark [entity] as having the specified [numericValue] as string
+     */
+    @JvmStatic
+    fun markNumericValueAsString(entity: Resource, numericValue: String) {
+        entity.addLiteral(AidaAnnotationOntology.NUMERIC_VALUE_PROPERTY, numericValue)
+    }
+
+    /**
+     * Mark [entity] as having the specified [numericValue] as double floating point
+     */
+    @JvmStatic
+    fun markNumericValueAsDouble(entity: Resource, numericValue: Number) {
+        entity.addLiteral(AidaAnnotationOntology.NUMERIC_VALUE_PROPERTY, numericValue.toDouble())
+    }
+
+    /**
+     * Mark [entity] as having the specified [numericValue] as long integer
+     */
+    @JvmStatic
+    fun markNumericValueAsLong(entity: Resource, numericValue: Number) {
+        entity.addLiteral(AidaAnnotationOntology.NUMERIC_VALUE_PROPERTY, numericValue.toLong())
+    }
 
     /**
      * Create an entity.
