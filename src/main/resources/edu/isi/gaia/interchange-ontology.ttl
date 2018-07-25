@@ -102,3 +102,57 @@
 :LinkAssertion a owl:Class ;
    rdfs:label "Link Assertion" ;
    rdfs:definition "Represents the claim that an entity or event is the same as the prototype of a cluster".
+
+#################################################################
+#        Properties
+#################################################################
+
+:alternativeGraph rdf:type owl:ObjectProperty ;
+  rdfs:domain :MutualExclusionAlternative ;
+  rdfs:label "alternate graph"^^xsd:string ;
+  rdfs:range :Subgraph ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:alternative rdf:type owl:ObjectProperty ;
+  rdfs:domain [
+      rdf:type owl:Class ;
+      owl:unionOf (
+          :MutualExclusion
+          :Hypothesis
+        ) ;
+    ] ;
+  rdfs:label "alternative"^^xsd:string ;
+  rdfs:range :MutualExclusionAlternative ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:cluster rdf:type owl:ObjectProperty ;
+  rdfs:domain :ClusterMember ;
+  rdfs:label "cluster"^^xsd:string ;
+  rdfs:range :SameAsCluster ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:confidence rdf:type owl:ObjectProperty ;
+  rdfs:label "confidence"^^xsd:string ;
+  rdfs:range :Confidence ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:confidenceValue rdf:type owl:DatatypeProperty ;
+  rdfs:comment "Confidence instances might have numerical values associated with them, such as probabilities or likliehoods."^^xsd:string ;
+  rdfs:domain :Confidence ;
+  rdfs:label "value"^^xsd:string ;
+  rdfs:range xsd:float ;
+  rdfs:subPropertyOf owl:topDataProperty ; .
+
+:member rdf:type owl:ObjectProperty ;
+  rdfs:label "member"^^xsd:string ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:prototype rdf:type owl:ObjectProperty ;
+  rdfs:domain :SameAsCluster ;
+  rdfs:label "prototypical member"^^xsd:string ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:subgraphContains rdf:type owl:ObjectProperty ;
+  rdfs:label "contains assertion"^^xsd:string ;
+  rdfs:range rdf:Statement ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
