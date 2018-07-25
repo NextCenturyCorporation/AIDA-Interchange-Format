@@ -268,6 +268,41 @@ class Examples(unittest.TestCase):
         aifutils.mark_as_event_argument(g, event, URIRef("http://darpa.mil/ontologies/SeedlingOntology/BUSINESS_DECLARE-BANKRUPTCY_arg2"), election_country, system, 0.589)
         aifutils.mark_as_event_argument(g, event, URIRef("http://darpa.mil/ontologies/SeedlingOntology/BUSINESS_DECLARE-BANKRUPTCY_arg3"), time, system, 0.589)
 
+    def test_create_an_entity_with_image_justification_and_vector(self):
+        g = aifutils.make_graph()
+        g.bind('coldstart', AIDA_PROGRAM_ONTOLOGY.uri)
+
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
+
+        # it doesn't matter what URI we give entities, events, etc. so long as they are
+        # unique
+        entity = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
+
+        # in order to allow uncertainty about the type of an entity, we don't mark an
+        # entity's type directly on the entity, but rather make a separate assertion for it
+        # its URI doesn't matter either
+        type_assertion = aifutils.mark_type(g, "http://www.test.org/assertions/1", entity,
+                                            AIDA_PROGRAM_ONTOLOGY.Person, system, 1.0)
+
+        # the justification provides the evidence for our claim about the entity's type
+        # we attach this justification to both the type assertion and the entity object
+        # itself, since it provides evidence both for the entity's existence and its type.
+        # in TA1 -> TA2 communications, we attach confidences at the level of justifications
+        # let's suppose we also have evidence from an image
+        bb1 = Bounding_Box((123, 45), (167, 98))
+        aifutils.mark_image_justification(g, [entity, type_assertion], "NYT_ENG_20181231_03",
+                                          bb1, system, 0.123)
+
+        # also we can link this entity to something in an external KB
+        aifutils.link_to_external_kb(g, entity, "freebase.FOO", system, .398)
+
+        vec = {"vector_type": "http://www.test.edu/systemX/personVector", "vector_data": [2.0, 7.5, 0.2, 8.1]}
+        # let's mark our entity with some arbitrary system-private data. You can attach such data
+        # to nearly anything
+        aifutils.mark_private_data_with_vector(g, entity, system, vec)
+
+        self.dump_graph(g, "Example of entity with image justification and vector")
 
     def test_make_entity(self):
         g = aifutils.make_graph()
