@@ -26,6 +26,9 @@ object AidaAnnotationOntology {
     @JvmField
     val JUSTIFIED_BY = ResourceFactory.createProperty(NAMESPACE + "justifiedBy")!!
     @JvmField
+    val CONTAINED_JUSTIFICATION =
+            ResourceFactory.createProperty(NAMESPACE + "containedJustification")!!
+    @JvmField
     val SOURCE = ResourceFactory.createProperty(NAMESPACE + "source")!!
     @JvmField
     val START_OFFSET = ResourceFactory.createProperty(NAMESPACE + "startOffset")!!
@@ -122,6 +125,9 @@ object AidaAnnotationOntology {
     @JvmField
     val SHOT_VIDEO_JUSTIFICATION_CLASS =
             ResourceFactory.createResource(NAMESPACE + "ShotVideoJustification")!!
+    @JvmField
+    val COMPOUND_JUSTIFICATION_CLASS =
+            ResourceFactory.createResource(NAMESPACE + "CompoundJustification")!!
     @JvmField
     val LINK_ASSERTION_CLASS = ResourceFactory.createResource(NAMESPACE + "LinkAssertion")!!
     @JvmField

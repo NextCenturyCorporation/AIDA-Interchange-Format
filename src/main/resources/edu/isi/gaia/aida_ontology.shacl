@@ -696,15 +696,37 @@ aida:ShotVideoJustificationShape
    # except rdf:type
    sh:ignoredProperties (rdf:type) .
 
+aida:CompoundJustificationShape
+   a sh:NodeShape ;
+   sh:targetClass aida:CompoundJustification ;
+
+   # must have at least two contained justifications
+   sh:property [
+     sh:path aida:containedJustification ;
+     sh:xone (
+       [sh:class aida:TextJustification]
+       [sh:class aida:ImageJustification]
+       [sh:class aida:AudioJustification]
+       [sh:class aida:KeyFrameVideoJustification]
+       [sh:class aida:ShotVideoJustification] ) ;
+     sh:minCount 2 ] ;
+
+   # justification must provide confidence
+   sh:property aida:RequiredConfidencePropertyShape ;
+
+   # may provide an optional source system
+   sh:property aida:SystemPropertyShape .
+
 aida:JustificationPropertyShape
    a sh:PropertyShape ;
    sh:path aida:justifiedBy ;
-   sh:exone (
+   sh:xone (
      [sh:class aida:TextJustification]
      [sh:class aida:ImageJustification]
      [sh:class aida:AudioJustification]
      [sh:class aida:KeyFrameVideoJustification]
-     [sh:class aida:ShotVideoJustification] ).
+     [sh:class aida:ShotVideoJustification]
+     [sh:class aida:CompoundJustification] ).
 
 # use to express that an AIDA Entity is the same thing as something in an external knowledge base
 aida:LinkAssertionShape
