@@ -161,7 +161,7 @@ object AIFUtils {
                        argumentFiller: Resource, system: Resource,
                        confidence: Double?): Resource {
 
-        return markAsArgument(model, eventOrRelation, argumentType, argumentFiller, system, confidence, null);
+        return markAsArgument(model, eventOrRelation, argumentType, argumentFiller, system, confidence, null)
     }
 
     /**
@@ -180,7 +180,7 @@ object AIFUtils {
         argAssertion.addProperty(RDF.predicate, argumentType)
         argAssertion.addProperty(RDF.`object`, argumentFiller)
         if (confidence != null) {
-            markConfidence(model, argAssertion, confidence = confidence, system = system)
+            markConfidence(model, argAssertion, confidence, system)
         }
         return argAssertion
     }
@@ -210,6 +210,45 @@ object AIFUtils {
         return typeAssertion
     }
 
+    private fun makeAIFJustification(model: Model, docId: String, classType: Resource,
+                                     system: Resource, confidence: Double): Resource {
+        val justification = makeAIFResource(model, null, classType, system)
+        justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral(docId))
+        markConfidence(model, justification, confidence, system)
+        return justification
+    }
+
+    /**
+     * Mark multiple things as being justified by a particular justification
+     */
+    @JvmStatic
+    fun markJustification(toMarkOn: Collection<Resource>, justification: Resource) {
+        toMarkOn.forEach { it.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification) }
+    }
+
+    /**
+     * Create justification from a particular snippet of text.
+     *
+     * @return The text justification resource created.
+     */
+    @JvmStatic
+    fun makeTextJustification(model: Model, docId: String, startOffset: Int, endOffsetInclusive: Int,
+                              system: Resource, confidence: Double): Resource {
+        require(endOffsetInclusive >= startOffset) {
+            "End offset $endOffsetInclusive precedes start offset $startOffset"
+        }
+        require(startOffset >= 0) { "Start offset must be non-negative but got $startOffset" }
+        val justification = makeAIFJustification(model, docId, AidaAnnotationOntology.TEXT_JUSTIFICATION_CLASS,
+                system, confidence)
+        // the document ID for the justifying source document
+        justification.addProperty(AidaAnnotationOntology.START_OFFSET,
+                model.createTypedLiteral(startOffset))
+        justification.addProperty(AidaAnnotationOntology.END_OFFSET_INCLUSIVE,
+                model.createTypedLiteral(endOffsetInclusive))
+
+        return justification
+    }
+
     /**
      * Mark something as being justified by a particular snippet of text.
      *
@@ -219,8 +258,7 @@ object AIFUtils {
     fun markTextJustification(model: Model, toMarkOn: Resource, docId: String,
                               startOffset: Int, endOffsetInclusive: Int,
                               system: Resource, confidence: Double): Resource {
-        return markTextJustification(model, setOf(toMarkOn), docId, startOffset,
-                endOffsetInclusive, system, confidence)
+        return markTextJustification(model, setOf(toMarkOn), docId, startOffset, endOffsetInclusive, system, confidence)
     }
 
     /**
@@ -229,84 +267,81 @@ object AIFUtils {
      * @return The text justification resource created.
      */
     @JvmStatic
-    fun markTextJustification(model: Model, toMarkOn: Set<Resource>, docId: String,
+    fun markTextJustification(model: Model, toMarkOn: Collection<Resource>, docId: String,
                               startOffset: Int, endOffsetInclusive: Int,
                               system: Resource, confidence: Double): Resource {
-        require(endOffsetInclusive >= startOffset, {
-            "End offset $endOffsetInclusive " +
-                    "precedes start offset $startOffset"
-        })
-        require(startOffset >= 0, { "Start offset must be non-negative but got $startOffset" })
-        val justification = model.createResource()
-        justification.addProperty(RDF.type, AidaAnnotationOntology.TEXT_JUSTIFICATION_CLASS)
-        // the document ID for the justifying source document
-        justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral(docId))
-        justification.addProperty(AidaAnnotationOntology.START_OFFSET,
-                model.createTypedLiteral(startOffset))
-        justification.addProperty(AidaAnnotationOntology.END_OFFSET_INCLUSIVE,
-                model.createTypedLiteral(endOffsetInclusive))
-        justification.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system)
-        markConfidence(model, justification, confidence, system)
-
-        toMarkOn.forEach({ it.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification) })
+        val justification = makeTextJustification(model, docId, startOffset, endOffsetInclusive, system, confidence)
+        markJustification(toMarkOn, justification)
         return justification
     }
 
     data class Point(val x: Int, val y: Int) {
         init {
-            require(x >= 0, {
-                "Aida image/video coordinates must be non-negative " +
-                        "but got $x"
-            })
-            require(y >= 0, {
-                "Aida image/video coordinates must be non-negative " +
-                        "but got $y"
-            })
+            require(x >= 0) { "Aida image/video coordinates must be non-negative but got $x" }
+            require(y >= 0) { "Aida image/video coordinates must be non-negative but got $y" }
         }
     }
 
     data class BoundingBox(val upperLeft: Point, val lowerRight: Point) {
         init {
-            require(upperLeft.x <= lowerRight.x && upperLeft.y <= lowerRight.y,
-                    {
-                        "Upper left of bounding box $upperLeft not above " +
-                                "and to the left of lower right $lowerRight"
-                    })
+            require(upperLeft.x <= lowerRight.x && upperLeft.y <= lowerRight.y) {
+                "Upper left of bounding box $upperLeft not above and to the left of lower right $lowerRight"
+            }
         }
+    }
+
+    private fun markBoundingBox(model: Model, toMarkOn: Resource, boundingBox: BoundingBox): Resource {
+
+        val boundingBoxResource = model.createResource()
+        boundingBoxResource.addProperty(RDF.type, AidaAnnotationOntology.BOUNDING_BOX_CLASS)
+        boundingBoxResource.addProperty(AidaAnnotationOntology.BOUNDING_BOX_UPPER_LEFT_X,
+                model.createTypedLiteral(boundingBox.upperLeft.x))
+        boundingBoxResource.addProperty(AidaAnnotationOntology.BOUNDING_BOX_UPPER_LEFT_Y,
+                model.createTypedLiteral(boundingBox.upperLeft.y))
+        boundingBoxResource.addProperty(AidaAnnotationOntology.BOUNDING_BOX_LOWER_RIGHT_X,
+                model.createTypedLiteral(boundingBox.lowerRight.x))
+        boundingBoxResource.addProperty(AidaAnnotationOntology.BOUNDING_BOX_LOWER_RIGHT_Y,
+                model.createTypedLiteral(boundingBox.lowerRight.y))
+
+        toMarkOn.addProperty(AidaAnnotationOntology.BOUNDING_BOX_PROPERTY, boundingBoxResource)
+
+        return boundingBoxResource
+    }
+
+    @JvmStatic
+    fun makeImageJustification(model: Model, docId: String, boundingBox: BoundingBox, system: Resource,
+                               confidence: Double): Resource {
+        val justification = makeAIFJustification(model, docId, AidaAnnotationOntology.IMAGE_JUSTIFICATION_CLASS,
+                system, confidence)
+        markBoundingBox(model, justification, boundingBox)
+        return justification
     }
 
     @JvmStatic
     fun markImageJustification(model: Model, toMarkOn: Resource, docId: String,
-                               boundingBox: BoundingBox, system: Resource, confidence: Double)
-            : Resource {
-        return markImageJustification(model, setOf(toMarkOn), docId, boundingBox,
-                system, confidence)
+                               boundingBox: BoundingBox, system: Resource, confidence: Double): Resource {
+        return markImageJustification(model, setOf(toMarkOn), docId, boundingBox, system, confidence)
     }
 
     @JvmStatic
     fun markImageJustification(model: Model, toMarkOn: Collection<Resource>, docId: String,
                                boundingBox: BoundingBox, system: Resource, confidence: Double)
             : Resource {
-        val justification = makeAIFResource(model, null, AidaAnnotationOntology.IMAGE_JUSTIFICATION_CLASS, system)
+        val justification = makeImageJustification(model, docId, boundingBox, system, confidence)
+        markJustification(toMarkOn, justification)
+        return justification
+    }
 
-        // the document ID for the justifying source document
-        justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral(docId))
-
-        val boundingBoxResource = model.createResource()
-        boundingBoxResource.addProperty(RDF.type, AidaAnnotationOntology.BOUNDING_BOX_CLASS)
-        boundingBoxResource.addProperty(AidaAnnotationOntology.BOUNDING_BOX_UPPER_LEFT_X,
-                model.createTypedLiteral(boundingBox.upperLeft.x))
-        boundingBoxResource.addProperty(AidaAnnotationOntology.BOUNDING_BOX_UPPER_LEFT_Y,
-                model.createTypedLiteral(boundingBox.upperLeft.y))
-        boundingBoxResource.addProperty(AidaAnnotationOntology.BOUNDING_BOX_LOWER_RIGHT_X,
-                model.createTypedLiteral(boundingBox.lowerRight.x))
-        boundingBoxResource.addProperty(AidaAnnotationOntology.BOUNDING_BOX_LOWER_RIGHT_Y,
-                model.createTypedLiteral(boundingBox.lowerRight.y))
-
-        justification.addProperty(AidaAnnotationOntology.BOUNDING_BOX_PROPERTY, boundingBoxResource)
-        markConfidence(model, justification, confidence, system)
-
-        toMarkOn.forEach({ it.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification) })
+    /**
+     * Create a justification from something appearing in a key frame of a video.
+     */
+    @JvmStatic
+    fun makeKeyFrameVideoJustification(model: Model, docId: String, keyFrame: String, boundingBox: BoundingBox,
+                                       system: Resource, confidence: Double): Resource {
+        val justification = makeAIFJustification(model, docId, AidaAnnotationOntology.KEYFRAME_VIDEO_JUSTIFICATION_CLASS,
+                system, confidence)
+        justification.addProperty(AidaAnnotationOntology.KEY_FRAME, model.createTypedLiteral(keyFrame))
+        markBoundingBox(model, justification, boundingBox)
         return justification
     }
 
@@ -314,44 +349,31 @@ object AIFUtils {
      * Marks a justification for something appearing in a key frame of a video.
      */
     @JvmStatic
-    fun markKeyFrameVideoJustification(model: Model, toMarkOn: Resource, docId: String,
-                                       keyFrame: String,
-                                       boundingBox: BoundingBox, system: Resource, confidence: Double)
-            : Resource {
-        return markKeyFrameVideoJustification(model, setOf(toMarkOn), docId, keyFrame, boundingBox,
-                system, confidence)
+    fun markKeyFrameVideoJustification(model: Model, toMarkOn: Resource, docId: String, keyFrame: String,
+                                       boundingBox: BoundingBox, system: Resource, confidence: Double): Resource {
+        return markKeyFrameVideoJustification(model, setOf(toMarkOn), docId, keyFrame, boundingBox, system, confidence)
     }
 
     /**
      * Marks a justification for something appearing in a key frame of a video.
      */
     @JvmStatic
-    fun markKeyFrameVideoJustification(model: Model, toMarkOn: Collection<Resource>, docId: String,
-                                       keyFrame: String,
-                                       boundingBox: BoundingBox, system: Resource, confidence: Double)
-            : Resource {
-        val justification = makeAIFResource(model, null, AidaAnnotationOntology.KEYFRAME_VIDEO_JUSTIFICATION_CLASS, system)
+    fun markKeyFrameVideoJustification(model: Model, toMarkOn: Collection<Resource>, docId: String, keyFrame: String,
+                                       boundingBox: BoundingBox, system: Resource, confidence: Double): Resource {
+        val justification = makeKeyFrameVideoJustification(model, docId, keyFrame, boundingBox, system, confidence)
+        markJustification(toMarkOn, justification)
+        return justification
+    }
 
-        // the document ID for the justifying source document
-        justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral(docId))
-        justification.addProperty(AidaAnnotationOntology.KEY_FRAME,
-                model.createTypedLiteral(keyFrame))
-
-        val boundingBoxResource = model.createResource()
-        boundingBoxResource.addProperty(RDF.type, AidaAnnotationOntology.BOUNDING_BOX_CLASS)
-        boundingBoxResource.addProperty(AidaAnnotationOntology.BOUNDING_BOX_UPPER_LEFT_X,
-                model.createTypedLiteral(boundingBox.upperLeft.x))
-        boundingBoxResource.addProperty(AidaAnnotationOntology.BOUNDING_BOX_UPPER_LEFT_Y,
-                model.createTypedLiteral(boundingBox.upperLeft.y))
-        boundingBoxResource.addProperty(AidaAnnotationOntology.BOUNDING_BOX_LOWER_RIGHT_X,
-                model.createTypedLiteral(boundingBox.lowerRight.x))
-        boundingBoxResource.addProperty(AidaAnnotationOntology.BOUNDING_BOX_LOWER_RIGHT_Y,
-                model.createTypedLiteral(boundingBox.lowerRight.y))
-
-        justification.addProperty(AidaAnnotationOntology.BOUNDING_BOX_PROPERTY, boundingBoxResource)
-        markConfidence(model, justification, confidence, system)
-
-        toMarkOn.forEach({ it.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification) })
+    /**
+     * Create a justification from something appearing in a video but not in a key frame.
+     */
+    @JvmStatic
+    fun makeShotVideoJustification(model: Model, docId: String, shotId: String, system: Resource,
+                                   confidence: Double): Resource {
+        val justification = makeAIFJustification(model, docId, AidaAnnotationOntology.SHOT_VIDEO_JUSTIFICATION_CLASS,
+                system, confidence)
+        justification.addProperty(AidaAnnotationOntology.SHOT, model.createTypedLiteral(shotId))
         return justification
     }
 
@@ -359,30 +381,36 @@ object AIFUtils {
      * Marks a justification for something appearing in a video but not in a key frame.
      */
     @JvmStatic
-    fun markShotVideoJustification(model: Model, toMarkOn: Resource, docId: String,
-                                   shotId: String, system: Resource, confidence: Double)
-            : Resource {
-        return markShotVideoJustification(model, setOf(toMarkOn), docId, shotId,
-                system, confidence)
+    fun markShotVideoJustification(model: Model, toMarkOn: Resource, docId: String, shotId: String,
+                                   system: Resource, confidence: Double): Resource {
+        return markShotVideoJustification(model, setOf(toMarkOn), docId, shotId, system, confidence)
     }
 
     /**
      * Marks a justification for something appearing in a video but not in a key frame.
      */
     @JvmStatic
-    fun markShotVideoJustification(model: Model, toMarkOn: Collection<Resource>, docId: String,
-                                   shotId: String, system: Resource, confidence: Double)
-            : Resource {
-        val justification = makeAIFResource(model, null, AidaAnnotationOntology.SHOT_VIDEO_JUSTIFICATION_CLASS, system)
+    fun markShotVideoJustification(model: Model, toMarkOn: Collection<Resource>, docId: String, shotId: String,
+                                   system: Resource, confidence: Double): Resource {
+        val justification = makeShotVideoJustification(model, docId, shotId, system, confidence)
+        markJustification(toMarkOn, justification)
+        return justification
+    }
 
-        // the document ID for the justifying source document
-        justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral(docId))
-        justification.addProperty(AidaAnnotationOntology.SHOT,
-                model.createTypedLiteral(shotId))
+    @JvmStatic
+    fun makeAudioJustification(model: Model, docId: String, startTimestamp: Double, endTimestamp: Double,
+                               system: Resource, confidence: Double): Resource {
+        require(endTimestamp > startTimestamp) {
+            "End timestamp $endTimestamp does not follow start timestamp $startTimestamp"
+        }
+        val justification = makeAIFJustification(model, docId, AidaAnnotationOntology.AUDIO_JUSTIFICATION_CLASS,
+                system, confidence)
 
-        markConfidence(model, justification, confidence, system)
+        justification.addProperty(AidaAnnotationOntology.START_TIMESTAMP,
+                model.createTypedLiteral(startTimestamp))
+        justification.addProperty(AidaAnnotationOntology.END_TIMESTAMP,
+                model.createTypedLiteral(endTimestamp))
 
-        toMarkOn.forEach({ it.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification) })
         return justification
     }
 
@@ -390,31 +418,27 @@ object AIFUtils {
     fun markAudioJustification(model: Model, toMarkOn: Resource, docId: String,
                                startTimestamp: Double, endTimestamp: Double,
                                system: Resource, confidence: Double): Resource {
-        return markAudioJustification(model, setOf(toMarkOn), docId, startTimestamp,
-                endTimestamp, system, confidence)
+        return markAudioJustification(model, setOf(toMarkOn), docId, startTimestamp, endTimestamp, system, confidence)
     }
 
     @JvmStatic
-    fun markAudioJustification(model: Model, toMarkOn: Set<Resource>, docId: String,
+    fun markAudioJustification(model: Model, toMarkOn: Collection<Resource>, docId: String,
                                startTimestamp: Double, endTimestamp: Double,
                                system: Resource, confidence: Double): Resource {
-        require(endTimestamp > startTimestamp, {
-            "End timestamp $endTimestamp does not " +
-                    "follow start timestamp $startTimestamp"
-        })
-        val justification = model.createResource()
-        justification.addProperty(RDF.type, AidaAnnotationOntology.AUDIO_JUSTIFICATION_CLASS)
-        // the document ID for the justifying source document
-        justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral(docId))
-        justification.addProperty(AidaAnnotationOntology.START_TIMESTAMP,
-                model.createTypedLiteral(startTimestamp))
-        justification.addProperty(AidaAnnotationOntology.END_TIMESTAMP,
-                model.createTypedLiteral(endTimestamp))
-        justification.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system)
-        markConfidence(model, justification, confidence, system)
-
-        toMarkOn.forEach({ it.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification) })
+        val justification = makeAudioJustification(model, docId, startTimestamp, endTimestamp, system, confidence)
+        markJustification(toMarkOn, justification)
         return justification
+    }
+
+    @JvmStatic
+    fun markCompoundJustification(model: Model, toMarkOn: Collection<Resource>, justifications: Collection<Resource>,
+                                  system: Resource, confidence: Double): Resource {
+        val compoundJustification = makeAIFResource(model, null,
+                AidaAnnotationOntology.COMPOUND_JUSTIFICATION_CLASS, system)
+        markConfidence(model, compoundJustification, confidence, system)
+        justifications.forEach { compoundJustification.addProperty(AidaAnnotationOntology.CONTAINED_JUSTIFICATION, it) }
+        markJustification(toMarkOn, compoundJustification)
+        return compoundJustification
     }
 
     /**
@@ -424,9 +448,8 @@ object AIFUtils {
     fun markConfidence(model: Model, toMarkOn: Resource, confidence: Double, system: Resource) {
         val confidenceBlankNode = model.createResource()
         confidenceBlankNode.addProperty(RDF.type, AidaAnnotationOntology.CONFIDENCE_CLASS)
-        confidenceBlankNode.addProperty(AidaAnnotationOntology.CONFIDENCE_VALUE,
-                model.createTypedLiteral(confidence))
-        confidenceBlankNode.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system)
+        confidenceBlankNode.addProperty(AidaAnnotationOntology.CONFIDENCE_VALUE, model.createTypedLiteral(confidence))
+        markSystem(confidenceBlankNode, system)
         toMarkOn.addProperty(AidaAnnotationOntology.CONFIDENCE, confidenceBlankNode)
     }
 
