@@ -14,11 +14,20 @@ object AidaAnnotationOntology {
     @JvmField
     val SYSTEM_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "system")!!
     @JvmField
+    val NAME_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "hasName")!!
+    @JvmField
+    val TEXT_VALUE_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "textValue")!!
+    @JvmField
+    val NUMERIC_VALUE_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "numericValue")!!
+    @JvmField
     val CONFIDENCE = ResourceFactory.createProperty(NAMESPACE + "confidence")!!
     @JvmField
     val CONFIDENCE_VALUE = ResourceFactory.createProperty(NAMESPACE + "confidenceValue")!!
     @JvmField
     val JUSTIFIED_BY = ResourceFactory.createProperty(NAMESPACE + "justifiedBy")!!
+    @JvmField
+    val CONTAINED_JUSTIFICATION =
+            ResourceFactory.createProperty(NAMESPACE + "containedJustification")!!
     @JvmField
     val SOURCE = ResourceFactory.createProperty(NAMESPACE + "source")!!
     @JvmField
@@ -116,6 +125,9 @@ object AidaAnnotationOntology {
     @JvmField
     val SHOT_VIDEO_JUSTIFICATION_CLASS =
             ResourceFactory.createResource(NAMESPACE + "ShotVideoJustification")!!
+    @JvmField
+    val COMPOUND_JUSTIFICATION_CLASS =
+            ResourceFactory.createResource(NAMESPACE + "CompoundJustification")!!
     @JvmField
     val LINK_ASSERTION_CLASS = ResourceFactory.createResource(NAMESPACE + "LinkAssertion")!!
     @JvmField

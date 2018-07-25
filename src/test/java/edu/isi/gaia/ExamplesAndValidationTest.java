@@ -446,6 +446,89 @@ class ValidExamples {
                 "justification and vector", true);
     }
 
+
+    @Test
+    void createSeedlingEntityWithAlternateNames() {
+        final Model model = createModel(true);
+
+        // every AIF needs an object for the system responsible for creating it
+        final Resource system = AIFUtils.makeSystemWithURI(model,
+                "http://www.test.edu/testSystem");
+
+        // it doesn't matter what URI we give entities, events, etc. so long as they are
+        // unique
+        final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
+                system);
+
+        // in order to allow uncertainty about the type of an entity, we don't mark an
+        // entity's type directly on the entity, but rather make a separate assertion for it
+        // its URI doesn't matter either
+        final Resource typeAssertion = AIFUtils.markType(model, "http://www.test.org/assertions/1",
+                entity, SeedlingOntologyMapper.PERSON, system, 1.0);
+
+        // This is just a test to make sure that validation works for the different
+        // mark types.  Rare that you would have all three with a single entity.
+        AIFUtils.markName(entity, "Name One");
+        AIFUtils.markName(entity, "N. One");
+        AIFUtils.markName(entity, "N-Money");
+
+        AIFUtils.markTextValue(entity, "TextValue");
+
+        AIFUtils.markNumericValueAsDouble(entity, 100);
+        AIFUtils.markNumericValueAsLong(entity, 100);
+        AIFUtils.markNumericValueAsString(entity, "100");
+
+        dumpAndAssertValid(model, "create a seedling entity of type person with names", true);
+    }
+
+    @Test
+    void createCompoundJustification() {
+        final Model model = createModel(true);
+
+        // every AIF needs an object for the system responsible for creating it
+        final Resource system = AIFUtils.makeSystemWithURI(model, "http://www.test.edu/testSystem");
+
+        // it doesn't matter what URI we give entities, events, etc. so long as they are
+        // unique
+        final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1", system);
+
+        // in order to allow uncertainty about the type of an entity, we don't mark an
+        // entity's type directly on the entity, but rather make a separate assertion for it
+        // its URI doesn't matter either
+        final Resource typeAssertion = AIFUtils.markType(model, "http://www.test.org/assertions/1",
+                entity, SeedlingOntologyMapper.PERSON, system, 1.0);
+
+        // the justification provides the evidence for our claim about the entity's type
+        // we attach this justification to both the type assertion and the entity object
+        // itself, since it provides evidence both for the entity's existence and its type.
+        // in TA1 -> TA2 communications, we attach confidences at the level of justifications
+        final Resource textJustification = AIFUtils.makeTextJustification(model, "NYT_ENG_20181231",
+                42, 143, system, 0.973);
+
+        // let's suppose we also have evidence from an image
+        final Resource imageJustification = AIFUtils.makeImageJustification(model, "NYT_ENG_20181231_03",
+                new BoundingBox(new Point(123, 45), new Point(167, 98)), system, 0.123);
+
+        // and also a video where the entity appears in a keyframe
+        final Resource keyFrameVideoJustification = AIFUtils.makeKeyFrameVideoJustification(model,
+                "NYT_ENG_20181231_03", "keyframe ID",
+                new BoundingBox(new Point(234, 56), new Point(345, 101)), system, 0.234);
+
+        // and also a video where the entity does not appear in a keyframe
+        final Resource shotVideoJustification = AIFUtils.makeShotVideoJustification(model, "SOME_VIDEO",
+                "some shot ID", system, 0.487);
+
+        // and even audio!
+        final Resource audioJustification = AIFUtils.makeAudioJustification(model, "NYT_ENG_201181231",
+                4.566, 9.876, system, 0.789);
+
+        // combine all jutifications into single justifiedBy triple with new confidence
+        AIFUtils.markCompoundJustification(model, ImmutableSet.of(entity),
+                ImmutableSet.of(textJustification, imageJustification, keyFrameVideoJustification,
+                        shotVideoJustification, audioJustification), system, 0.321);
+
+        dumpAndAssertValid(model, "create a compound justification", true);
+    }
 }
 
   /**
