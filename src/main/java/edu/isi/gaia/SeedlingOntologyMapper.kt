@@ -31,6 +31,24 @@ class SeedlingOntologyMapper : OntologyMapping {
         @JvmField
         val ENTITY_TYPES = setOf(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY)
 
+        internal val SEEDLING_EVENT_TYPES_NIST = listOf(
+                "Business.DeclareBankruptcy", "Business.End", "Business.Merge", "Business.Start",
+                "Conflict.Attack", "Conflict.Demonstrate",
+                "Contact.Broadcast", "Contact.Contact", "Contact.Correspondence", "Contact.Meet",
+                "Existence.DamageDestroy",
+                "Government.Agreements", "Government.Legislate", "Government.Spy", "Government.Vote",
+                "Inspection.Artifact", "Inspection.People",
+                "Justice.Acquit", "Justice.Appeal", "Justice.ArrestJail", "Justice.ChargeIndict", "Justice.Convict",
+                "Justice.Execute", "Justice.Extradite", "Justice.Fine", "Justice.Investigate", "Justice.Pardon",
+                "Justice.ReleaseParole", "Justice.Sentence", "Justice.Sue", "Justice.TrialHearing",
+                "Life.BeBorn", "Life.Die", "Life.Divorce", "Life.Injure", "Life.Marry",
+                "Manufacture.Artifact",
+                "Movement.TransportArtifact", "Movement.TransportPerson",
+                "Personnel.Elect", "Personnel.EndPosition", "Personnel.Nominate", "Personnel.StartPosition",
+                "Transaction.Transaction", "Transaction.TransferControl", "Transaction.TransferMoney",
+                "Transaction.TransferOwnership")
+                .map { it to it }
+
         internal val SEEDLING_EVENT_TYPES = listOf(
                 // those in the first block match the seedling ontology except...
                 "CONFLICT_ATTACK", "CONFLICT_DEMONSTRATE",
@@ -55,6 +73,7 @@ class SeedlingOntologyMapper : OntologyMapping {
                 SEEDLING_EVENT_TYPES.map { it to it }
                         // or seedling types with .s instead of underscores (more ACE-like)
                         .plus(SEEDLING_EVENT_TYPES.map { it.replace('_', '.') to it })
+                        .plus(SEEDLING_EVENT_TYPES_NIST)
                         // or these remaining special cases
                         .plus(listOf("BUSINESS.END-ORG" to "BUSINESS_END",
                                 "BUSINESS.START-ORG" to "BUSINESS_START",
@@ -139,6 +158,21 @@ class SeedlingOntologyMapper : OntologyMapping {
                 "PHYS.Located" to LOCATED_NEAR,
                 "GEN-AFF.Org-Location" to LOCATED_NEAR)
 
+        private val RELATION_TYPES_NIST = listOf(
+                "GeneralAffiliation.APORA", "GeneralAffiliation.MORE", "GeneralAffiliation.OPRA",
+                "GeneralAffiliation.OrganizationWebsite", "GeneralAffiliation.PersonAge", "GeneralAffiliation.Sponsorship",
+                "Measurement.Count",
+                "OrganizationAffiliation.EmploymentMembership", "OrganizationAffiliation.Founder",
+                "OrganizationAffiliation.InvestorShareholder", "OrganizationAffiliation.Leadership",
+                "OrganizationAffiliation.Ownership", "OrganizationAffiliation.StudentAlum",
+                "PartWhole.Membership", "PartWhole.Subsidiary",
+                "PersonalSocial.Business", "PersonalSocial.Family", "PersonalSocial.RoleTitle",
+                "PersonalSocial.Unspecified",
+                "Physical.LocatedNear", "Physical.OrganizationHeadquarter", "Physical.OrganizationLocationOrigin",
+                "Physical.Resident")
+                .map { it to it }
+
+
         private val RELATION_TYPES = listOf(
                 // these are the seedling ontology types themselves, in case systems provide them directly
                 "genafl_apora", MEMBER_RELIGIOUS_ETHNIC_GROUP, "genafl_opra", WEBSITE,
@@ -150,12 +184,12 @@ class SeedlingOntologyMapper : OntologyMapping {
                 LOCATED_NEAR, HEADQUARTERS, "phys_orglocorig",
                 RESIDENT).map { it to it } // the types in the list don't need special treatment
                 .plus(RELATION_SPECIAL_CASES)
+                .plus(RELATION_TYPES_NIST)
                 .toMap()
                 .mapValues { ResourceFactory.createResource(NAMESPACE_STATIC + it.value) }
     }
 
     override val NAMESPACE: String = NAMESPACE_STATIC
-
 
     internal val shortNames: Map<String, Resource> = listOf(
             "PER" to PERSON,
@@ -206,6 +240,10 @@ class SeedlingOntologyMapper : OntologyMapping {
                 } else {
                     initialResult
                 })
+    }
+
+    fun eventArgumentTypeNotLowercase(argName: String): Resource {
+        return ResourceFactory.createResource(NAMESPACE_STATIC + argName)
     }
 
     override fun knownRelationTypes(): Set<String> {

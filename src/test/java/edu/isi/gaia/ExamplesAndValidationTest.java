@@ -165,11 +165,11 @@ class ValidExamples {
                 .makeEntity(model, "http://www.test.edu/entities/4", system);
 
         // whatever this place turns out to refer to, we're sure it's where they live
-        String relation = "phys_resident";
+        String relation = "Physical.Resident";
         makeRelationInEventForm(model, "http://www.test.edu/relations/1",
                 ontologyMapping.relationType(relation),
-                ontologyMapping.eventArgumentType(relation + "_resident"), personEntity,
-                ontologyMapping.eventArgumentType(relation + "_place"), uncertainPlaceOfBirthEntity,
+                ontologyMapping.eventArgumentTypeNotLowercase(relation + "_Resident"), personEntity,
+                ontologyMapping.eventArgumentTypeNotLowercase(relation + "_Place"), uncertainPlaceOfBirthEntity,
                 getAssertionUri(), system, 1.0);
 
         // we use clusters to represent uncertainty about identity
@@ -209,11 +209,13 @@ class ValidExamples {
 
         final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
 
+        String eventTypeString = "Personnel.Elect";
+
         // mark the event as a Personnel.Elect event; type is encoded separately so we can express
         // uncertainty about type
         // NOTE: mapper keys use '.' separator but produce correct seedling output
         AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
-                ontologyMapping.eventType("PERSONNEL.ELECT"), system, 1.0);
+                ontologyMapping.eventType(eventTypeString), system, 1.0);
 
         // create the two entities involved in the event
         final Resource electee = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
@@ -227,9 +229,11 @@ class ValidExamples {
                 SeedlingOntologyMapper.GPE, system, 1.0);
 
         // link those entities to the event
-        AIFUtils.markAsArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_elect"),
+        AIFUtils.markAsArgument(model, event,
+                ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + "_Elect"),
                 electee, system, 0.785);
-        AIFUtils.markAsArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_place"),
+        AIFUtils.markAsArgument(model, event,
+                ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + "_Place"),
                 electionCountry, system, 0.589);
 
         dumpAndAssertValid(model, "create a seedling event", true);
@@ -252,11 +256,13 @@ class ValidExamples {
 
         final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
 
+        String eventTypeString = "Personnel.Elect";
+
         // mark the event as a Personnel.Elect event; type is encoded separately so we can express
         // uncertainty about type
         // NOTE: mapper keys use '.' separator but produce correct seedling output
         AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
-                ontologyMapping.eventType("PERSONNEL.ELECT"), system, 1.0);
+                ontologyMapping.eventType(eventTypeString), system, 1.0);
 
         // create the two entities involved in the event
         final Resource electee = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
@@ -270,9 +276,11 @@ class ValidExamples {
                 SeedlingOntologyMapper.GPE, system, 1.0);
 
         // link those entities to the event
-        AIFUtils.markAsArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_elect"),
+        AIFUtils.markAsArgument(model, event,
+                ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + "_Elect"),
                 electee, system, 0.785, "http://www.test.edu/eventArgument/1");
-        AIFUtils.markAsArgument(model, event, ontologyMapping.eventArgumentType("personnel_elect_place"),
+        AIFUtils.markAsArgument(model, event,
+                ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + "_Place"),
                 electionCountry, system, 0.589, "http://www.test.edu/eventArgument/2");
 
         dumpAndAssertValid(model, "create a seedling event with event assertion URI", true);
@@ -293,11 +301,13 @@ class ValidExamples {
 
         final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
 
+        String eventTypeString = "Conflict.Attack";
+
         // mark the event as a Personnel.Elect event; type is encoded separately so we can express
         // uncertainty about type
         // NOTE: mapper keys use '.' separator but produce correct seedling output
         AIFUtils.markType(model, "http://www.test.edu/assertions/5", event,
-                ontologyMapping.eventType("CONFLICT.ATTACK"), system, 1.0);
+                ontologyMapping.eventType(eventTypeString), system, 1.0);
 
         // create the two entities involved in the event
         final Resource bob = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
@@ -310,18 +320,21 @@ class ValidExamples {
         AIFUtils.markType(model, "http://www.test.edu/assertions/7", fred,
                 SeedlingOntologyMapper.PERSON, system, 1.0);
 
+        String attackerString = eventTypeString + "_Attacker";
+        String targetString = eventTypeString + "_Target";
+
         // we link all possible argument fillers to the event
         final ImmutableSet<Resource> bobHitFredAssertions = ImmutableSet.of(
                 AIFUtils.markAsArgument(model, event,
-                        ontologyMapping.eventArgumentType("conflict_attack_attacker"), bob, system, null),
+                        ontologyMapping.eventArgumentTypeNotLowercase(attackerString), bob, system, null),
                 AIFUtils.markAsArgument(model, event,
-                        ontologyMapping.eventArgumentType("conflict_attack_target"), fred, system, null));
+                        ontologyMapping.eventArgumentTypeNotLowercase(targetString), fred, system, null));
 
         final ImmutableSet<Resource> fredHitBobAssertions = ImmutableSet.of(
                 AIFUtils.markAsArgument(model, event,
-                        ontologyMapping.eventArgumentType("conflict_attack_attacker"), fred, system, null),
+                        ontologyMapping.eventArgumentTypeNotLowercase(attackerString), fred, system, null),
                 AIFUtils.markAsArgument(model, event,
-                        ontologyMapping.eventArgumentType("conflict_attack_target"), bob, system, null));
+                        ontologyMapping.eventArgumentTypeNotLowercase(targetString), bob, system, null));
 
         // then we mark these as mutually exclusive
         // we also mark confidence 0.2 that neither of these are true
@@ -366,41 +379,41 @@ class ValidExamples {
                 california, SeedlingOntologyMapper.GPE, system, 1.0);
 
         // under the background hypothesis that Bob lives in Seattle, we believe he works for Amazon
-        String cityRelation = "phys_resident";
-        String cityRelationSubject = cityRelation + "_resident";
-        String cityRelationObject = cityRelation + "_place";
+        String cityRelation = "Physical.Resident";
+        String cityRelationSubject = cityRelation + "_Resident";
+        String cityRelationObject = cityRelation + "_Place";
         final Resource bobLivesInSeattle = makeRelationInEventForm(model, "http://www.test.edu/relations/1",
                 ontologyMapping.relationType(cityRelation),
-                ontologyMapping.eventArgumentType(cityRelationSubject), bob,
-                ontologyMapping.eventArgumentType(cityRelationObject), seattle,
+                ontologyMapping.eventArgumentTypeNotLowercase(cityRelationSubject), bob,
+                ontologyMapping.eventArgumentTypeNotLowercase(cityRelationObject), seattle,
                 getAssertionUri(), system, 1.0);
         final Resource bobLivesInSeattleHypothesis = makeHypothesis(model,
                 "http://www.test.edu/hypotheses/1", ImmutableSet.of(bobLivesInSeattle),
                 system);
 
-        String employeeRelation = "orgafl_empmem";
-        String employeeRelationSubject = employeeRelation + "_employee";
-        String employeeRelationOjbect = employeeRelation + "_organization";
+        String employeeRelation = "OrganizationAffiliation.EmploymentMembership";
+        String employeeRelationSubject = employeeRelation + "_Employee";
+        String employeeRelationOjbect = employeeRelation + "_Organization";
         final Resource bobWorksForAmazon = makeRelationInEventForm(model, "http://www.test.edu/relations/2",
                 ontologyMapping.relationType(employeeRelation),
-                ontologyMapping.eventArgumentType(employeeRelationSubject), bob,
-                ontologyMapping.eventArgumentType(employeeRelationOjbect), amazon,
+                ontologyMapping.eventArgumentTypeNotLowercase(employeeRelationSubject), bob,
+                ontologyMapping.eventArgumentTypeNotLowercase(employeeRelationOjbect), amazon,
                 getAssertionUri(), system, 1.0);
         markDependsOnHypothesis(bobWorksForAmazon, bobLivesInSeattleHypothesis);
 
         // under the background hypothesis that Bob lives in California, we believe he works for Google
         final Resource bobLivesInCalifornia = makeRelationInEventForm(model, "http://www.test.edu/relations/3",
                 ontologyMapping.relationType(cityRelation),
-                ontologyMapping.eventArgumentType(cityRelationSubject), bob,
-                ontologyMapping.eventArgumentType(cityRelationObject), california,
+                ontologyMapping.eventArgumentTypeNotLowercase(cityRelationSubject), bob,
+                ontologyMapping.eventArgumentTypeNotLowercase(cityRelationObject), california,
                 getAssertionUri(), system, 1.0);
         final Resource bobLivesInCaliforniaHypothesis = makeHypothesis(model,
                 "http://www.test.edu/hypotheses/2", ImmutableSet.of(bobLivesInCalifornia),
                 system);
         final Resource bobWorksForGoogle = makeRelationInEventForm(model, "http://www.test.edu/relations/4",
                 ontologyMapping.relationType(employeeRelation),
-                ontologyMapping.eventArgumentType(employeeRelationSubject), bob,
-                ontologyMapping.eventArgumentType(employeeRelationOjbect), google,
+                ontologyMapping.eventArgumentTypeNotLowercase(employeeRelationSubject), bob,
+                ontologyMapping.eventArgumentTypeNotLowercase(employeeRelationOjbect), google,
                 getAssertionUri(), system, 1.0);
         markDependsOnHypothesis(bobWorksForGoogle, bobLivesInCaliforniaHypothesis);
 
