@@ -13,7 +13,7 @@
 <http://nist.gov/ontologies/ColdStartOntology> rdf:type owl:Ontology ;
     rdfs:label "Coldstart Ontology"^^xsd:string ;
     rdfs:comment "Enough of the NIST TAC KBP ColdStart ontology to convert ColdStart output to AIF"^^xsd:string ;
-    owl:versionInfo "Version 1.0"^^xsd:string .
+    owl:versionInfo "Version 0.1"^^xsd:string .
 
 ######################################################
 # Top-level classes
