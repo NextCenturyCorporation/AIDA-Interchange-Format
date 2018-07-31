@@ -10,7 +10,7 @@
 
 <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon> rdf:type owl:Ontology ;
     rdfs:label "Common classes across AIDA domain-specific ontologies"^^xsd:string ;
-    owl:versionInfo "Version 0.1"^^xsd:string .
+    owl:versionInfo "Version 1.0"^^xsd:string .
 
 # This file doesn't define any leaf types, but it defines common types to allow the validator
 # to work across multiple domain ontologies
