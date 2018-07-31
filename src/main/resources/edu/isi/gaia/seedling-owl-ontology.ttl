@@ -1,21 +1,21 @@
 ######################################################
-# Created by LDCOntology.java on 2018-07-30T20:34:45.081Z
+# Created by LDCOntology.java on 2018-07-31T19:15:05.760Z
 ######################################################
 @prefix schema: <http://schema.org/> .
-@prefix ldcOnt: <http://darpa.mil/ontologies/SeedlingOntology#> .
+@prefix ldcOnt: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#> .
 @prefix olia:  <http://purl.org/olia/system.owl#> .
-@prefix aidaDomainCommon: <http://darpa.mil/ontologies/AidaDomainOntologiesCommon#> .
+@prefix aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#> .
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix owl:   <http://www.w3.org/2002/07/owl#> .
-@prefix aida:  <http://darpa.mil/aida/interchangeOntology#> .
+@prefix aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix ldc:   <http://darpa.mil/annotations/ldc#> .
+@prefix ldc:   <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/LdcAnnotations#> .
 
-<http://darpa.mil/ontologies/SeedlingOntology>
+<https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology>
         a                owl:Ontology ;
         rdfs:comment     "An ontology for creating messages from LDC data to use in AIDA interchange language development" ;
         rdfs:label       "AIDA Domain Ontology for LDC Seedling Corpus" ;
-        owl:imports      <http://darpa.mil/ontologies/AidaDomainOntologiesCommon> ;
+        owl:imports      <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon> ;
         owl:versionInfo  "Version 0.1" .
 
 ######################################################
@@ -62,7 +62,8 @@ ldcOnt:Law  a            owl:Class ;
 ldcOnt:Money  a          owl:Class ;
         rdfs:subClassOf  ldcOnt:FillerType .
 
-ldcOnt:Numerical  a      owl:Class ;
+ldcOnt:NumericalValue
+        a                owl:Class ;
         rdfs:subClassOf  ldcOnt:FillerType .
 
 ldcOnt:Results  a        owl:Class ;
@@ -71,7 +72,7 @@ ldcOnt:Results  a        owl:Class ;
 ldcOnt:Sentence  a       owl:Class ;
         rdfs:subClassOf  ldcOnt:FillerType .
 
-ldcOnt:Side  a           owl:Class ;
+ldcOnt:Sides  a          owl:Class ;
         rdfs:subClassOf  ldcOnt:FillerType .
 
 ldcOnt:Time  a           owl:Class ;
@@ -99,7 +100,7 @@ ldcOnt:GeneralAffiliation.APORA
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Affiliation" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Organization ldcOnt:Person ldcOnt:Side )
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
                                               ] ;
                            owl:onProperty     ldcOnt:GeneralAffiliation.APORA_Affiliation
                          ] ;
@@ -118,7 +119,7 @@ ldcOnt:GeneralAffiliation.MORE
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Affiliation" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Person ldcOnt:Side )
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Person ldcOnt:Sides )
                                               ] ;
                            owl:onProperty     ldcOnt:GeneralAffiliation.MORE_Affiliation
                          ] ;
@@ -137,7 +138,7 @@ ldcOnt:GeneralAffiliation.OPRA
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Affiliation" ;
-                                                owl:unionOf  ( ldcOnt:Organization ldcOnt:Person ldcOnt:Side )
+                                                owl:unionOf  ( ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
                                               ] ;
                            owl:onProperty     ldcOnt:GeneralAffiliation.OPRA_Affiliation
                          ] ;
@@ -194,7 +195,7 @@ ldcOnt:GeneralAffiliation.Sponsorship
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Sponsor" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Organization ldcOnt:Side )
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Organization ldcOnt:Sides )
                                               ] ;
                            owl:onProperty     ldcOnt:GeneralAffiliation.Sponsorship_Sponsor
                          ] ;
@@ -220,7 +221,7 @@ ldcOnt:Measurement.Count
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Count" ;
-                                                owl:unionOf  ( ldcOnt:Numerical )
+                                                owl:unionOf  ( ldcOnt:NumericalValue )
                                               ] ;
                            owl:onProperty     ldcOnt:Measurement.Count_Count
                          ] .
@@ -870,7 +871,7 @@ ldcOnt:Existence.DamageDestroy
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Agent" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Side )
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
                                               ] ;
                            owl:onProperty     ldcOnt:Existence.DamageDestroy_Agent
                          ] .
@@ -895,7 +896,7 @@ ldcOnt:Government.Agreements
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Signer" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Side )
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Sides )
                                               ] ;
                            owl:onProperty     ldcOnt:Government.Agreements_Signer
                          ] .
@@ -952,14 +953,14 @@ ldcOnt:Government.Spy
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Beneficiary" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Side )
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Sides )
                                               ] ;
                            owl:onProperty     ldcOnt:Government.Spy_Beneficiary
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Target" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Side )
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
                                               ] ;
                            owl:onProperty     ldcOnt:Government.Spy_Target
                          ] ;
@@ -1005,7 +1006,7 @@ ldcOnt:Government.Vote
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Candidate" ;
-                                                owl:unionOf  ( ldcOnt:Law ldcOnt:Organization ldcOnt:Person ldcOnt:Side )
+                                                owl:unionOf  ( ldcOnt:Law ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
                                               ] ;
                            owl:onProperty     ldcOnt:Government.Vote_Candidate
                          ] ;
@@ -1044,7 +1045,7 @@ ldcOnt:Inspection.Artifact
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Inspector" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Side )
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
                                               ] ;
                            owl:onProperty     ldcOnt:Inspection.Artifact_Inspector
                          ] .
@@ -1076,7 +1077,7 @@ ldcOnt:Inspection.People
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Inspector" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Side )
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
                                               ] ;
                            owl:onProperty     ldcOnt:Inspection.People_Inspector
                          ] .
@@ -1447,14 +1448,14 @@ ldcOnt:Justice.Investigate
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Investigatee" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Side )
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
                                               ] ;
                            owl:onProperty     ldcOnt:Justice.Investigate_Investigatee
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Investigator" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Side )
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
                                               ] ;
                            owl:onProperty     ldcOnt:Justice.Investigate_Investigator
                          ] .
@@ -2175,21 +2176,21 @@ ldcOnt:Transaction.TransferControl
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Beneficiary" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Side )
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
                                               ] ;
                            owl:onProperty     ldcOnt:Transaction.TransferControl_Beneficiary
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Recipient" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Side )
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
                                               ] ;
                            owl:onProperty     ldcOnt:Transaction.TransferControl_Recipient
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Giver" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Side )
+                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
                                               ] ;
                            owl:onProperty     ldcOnt:Transaction.TransferControl_Giver
                          ] .
