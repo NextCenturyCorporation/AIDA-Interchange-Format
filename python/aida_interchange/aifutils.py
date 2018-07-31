@@ -1,3 +1,4 @@
+import json
 import uuid
 from abc import ABCMeta, abstractmethod
 
@@ -405,6 +406,28 @@ def mark_private_data(g, resource, json_content, system):
 
     return private_data
 
+def mark_private_data_with_vector(g, resource, system, vector):
+    """
+
+    :param g:
+    :param resource:
+    :param system: The system object
+    :param vector: vector data and vector type in dictionary
+    :return:
+    """
+    if vector is None:
+        raise RuntimeError("vector cannot be null")
+
+    vector = json.dumps(vector)
+    private_data = BNode()
+    g.add((private_data, RDF.type, AIDA_ANNOTATION.PrivateData))
+    g.add((private_data, AIDA_ANNOTATION.jsonContent,
+           Literal(str(vector), datatype=XSD.string)))
+    mark_system(g, private_data, system)
+
+    g.add((resource, AIDA_ANNOTATION.privateData, private_data))
+
+    return private_data
 
 def link_to_external_kb(g, to_link, external_kb_id, system, confidence):
     link_assertion = BNode()
