@@ -38,7 +38,7 @@ public class ExamplesAndValidationTest {
           Charsets.UTF_8));
 
   private final ValidateAIF seedlingValidator = ValidateAIF.createForDomainOntologySource(
-      Resources.asCharSource(Resources.getResource("edu/isi/gaia/seedling-ontology.ttl"),
+      Resources.asCharSource(Resources.getResource("edu/isi/gaia/SeedlingOntology"),
           Charsets.UTF_8));
 
     private int assertionCount = 1;
