@@ -1,7 +1,7 @@
 from rdflib import URIRef
 from rdflib.namespace import ClosedNamespace
 
-# TODO: change the ontology namespace to match the nist.gov ones in seedling-ontology.ttl
+# TODO: change the ontology namespace to match the nist.gov ones in SeedlingOntology
 # TODO: temporarily extend these to include all ColdStart entity types - #2
 # TODO: long-term, we need to make the program ontology configurable
 """
