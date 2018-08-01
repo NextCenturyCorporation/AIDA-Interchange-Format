@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class ExamplesAndValidationTest {
+    private static final String NS = "http://www.test.org/";
 
   @BeforeAll
   static void declutterLogging() {
@@ -42,9 +43,24 @@ public class ExamplesAndValidationTest {
           Charsets.UTF_8));
 
     private int assertionCount = 1;
+    private int entityCount = 1;
+
+    private String getUri(String localName) {
+        return NS + localName;
+    }
 
     private String getAssertionUri() {
-        return "http://www.test.org/assertions/" + assertionCount++;
+        return getUri("assertions/" + assertionCount++);
+    }
+
+    private String getEntityUri() {
+        return getUri("entities/" + entityCount++);
+    }
+
+    @BeforeEach
+    void setUp() {
+        assertionCount = 1;
+        entityCount = 1;
     }
 
 @Nested
@@ -541,6 +557,57 @@ class ValidExamples {
                         shotVideoJustification, audioJustification), system, 0.321);
 
         dumpAndAssertValid(model, "create a compound justification", true);
+    }
+
+    @Test
+    void createHierarchicalCluster() {
+        // we want to say that the cluster of Trump entities might be the same as the cluster of the president entities
+        final Model model = createModel(true);
+
+        // every AIF needs an object for the system responsible for creating it
+        final Resource system = AIFUtils.makeSystemWithURI(model, "http://www.test.edu/testSystem");
+
+        // create president entities
+        final Resource presidentUSA = AIFUtils.makeEntity(model, getEntityUri(), system);
+        AIFUtils.markType(model, getAssertionUri(), presidentUSA, SeedlingOntologyMapper.GPE, system, 1.0);
+        AIFUtils.markName(presidentUSA, "the president");
+
+        final Resource newPresident = AIFUtils.makeEntity(model, getEntityUri(), system);
+        AIFUtils.markType(model, getAssertionUri(), presidentUSA, SeedlingOntologyMapper.GPE, system, 1.0);
+        AIFUtils.markName(presidentUSA, "the newly-inaugurated president");
+
+        final Resource president45 = AIFUtils.makeEntity(model, getEntityUri(), system);
+        AIFUtils.markType(model, getAssertionUri(), presidentUSA, SeedlingOntologyMapper.GPE, system, 1.0);
+        AIFUtils.markName(presidentUSA, "the 45th president");
+
+        // cluster president entities
+        final Resource presidentCluster = AIFUtils.makeClusterWithPrototype(model,
+                "http://www.test.edu/clusters/president", presidentUSA, system);
+        // TODO: verify. Seems redundant
+        AIFUtils.markAsPossibleClusterMember(model, presidentUSA, presidentCluster, 1, system);
+        AIFUtils.markAsPossibleClusterMember(model, newPresident, presidentCluster, .9, system);
+        AIFUtils.markAsPossibleClusterMember(model, president45, presidentCluster, .9, system);
+
+        // create Trump entities
+        final Resource donaldTrump = AIFUtils.makeEntity(model, getEntityUri(), system);
+        AIFUtils.markType(model, getAssertionUri(), presidentUSA, SeedlingOntologyMapper.PERSON, system, 1.0);
+        AIFUtils.markName(presidentUSA, "Donald Trump");
+
+        final Resource trump = AIFUtils.makeEntity(model, getEntityUri(), system);
+        AIFUtils.markType(model, getAssertionUri(), presidentUSA, SeedlingOntologyMapper.PERSON, system, 1.0);
+        AIFUtils.markName(presidentUSA, "Trump");
+
+        // cluster trump entities
+        final Resource trumpCluster = AIFUtils.makeClusterWithPrototype(model,
+                "http://www.test.edu/clusters/trump", donaldTrump, system);
+        // TODO: verify. Seems redundant
+        AIFUtils.markAsPossibleClusterMember(model, donaldTrump, trumpCluster, 1, system);
+        AIFUtils.markAsPossibleClusterMember(model, trump, trumpCluster, .9, system);
+
+        // mark president cluster as being part of trump cluster
+        AIFUtils.markAsPossibleClusterMember(model, presidentCluster, trumpCluster, .6, system);
+
+        dumpAndAssertValid(model, "seedling hierarchical cluster", true);
     }
 }
 
