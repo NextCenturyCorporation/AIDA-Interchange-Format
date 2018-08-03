@@ -517,8 +517,7 @@ object AIFUtils {
     @JvmStatic
     fun makeClusterWithPrototype(model: Model, clusterUri: String, prototype: Resource,
                                  system: Resource): Resource {
-        val cluster = makeAIFResource(model, clusterUri, AidaAnnotationOntology.SAME_AS_CLUSTER_CLASS,
-                system)
+        val cluster = makeAIFResource(model, clusterUri, AidaAnnotationOntology.SAME_AS_CLUSTER_CLASS, system)
         cluster.addProperty(AidaAnnotationOntology.PROTOTYPE, prototype)
         return cluster
     }
@@ -536,7 +535,7 @@ object AIFUtils {
                 AidaAnnotationOntology.CLUSTER_MEMBERSHIP_CLASS, system);
         clusterMemberAssertion.addProperty(AidaAnnotationOntology.CLUSTER_PROPERTY, cluster)
         clusterMemberAssertion.addProperty(AidaAnnotationOntology.CLUSTER_MEMBER, possibleClusterMember)
-        markConfidence(model, clusterMemberAssertion, confidence = confidence, system = system)
+        markConfidence(model, clusterMemberAssertion, confidence, system)
         return clusterMemberAssertion
     }
 

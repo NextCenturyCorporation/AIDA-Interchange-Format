@@ -54,8 +54,8 @@ class ValidateAIF(private val domainModel: Model) {
         private val log = KLogging()
 
         // data will always be interpreted in the context of these two ontology files
-        private val PRELOAD_ONTOLOGIES = listOf("edu/isi/gaia/interchange-ontology.ttl",
-                "edu/isi/gaia/aida-domain-common.ttl")
+        private val PRELOAD_ONTOLOGIES = listOf("edu/isi/gaia/InterchangeOntology",
+                "edu/isi/gaia/AidaDomainOntologiesCommon")
                 .map { Resources.getResource(it) }
                 .map { Resources.asCharSource(it, Charsets.UTF_8) }
 

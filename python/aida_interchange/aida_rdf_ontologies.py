@@ -1,7 +1,7 @@
 from rdflib import URIRef
 from rdflib.namespace import ClosedNamespace
 
-# these could be changed to darpa.mil if the interchange format is adopted program-wide
+# TODO: change the ontology namespace to match the nist.gov ones in SeedlingOntology
 # TODO: temporarily extend these to include all ColdStart entity types - #2
 # TODO: long-term, we need to make the program ontology configurable
 

@@ -12,7 +12,7 @@ import java.util.*
 class SeedlingOntologyMapper : OntologyMapping {
     companion object {
         @JvmField
-        val NAMESPACE_STATIC: String = "http://darpa.mil/ontologies/SeedlingOntology#"
+        val NAMESPACE_STATIC: String = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#"
 
         @JvmField
         val PERSON = ResourceFactory.createResource(NAMESPACE_STATIC + "Person")!!
