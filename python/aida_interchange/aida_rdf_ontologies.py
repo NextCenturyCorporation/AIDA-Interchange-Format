@@ -8,7 +8,7 @@ from rdflib.namespace import ClosedNamespace
 """
 Seedling Ontology. Currently Hardcoded
 """
-SEEDLING_EVENT_TYPES_NIST = ClosedNamespace(
+SEEDLING_TYPES_NIST = ClosedNamespace(
     uri=URIRef("https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#"),
     terms=["Person", "Organization", "Location", "Facility", "GeopoliticalEntity", "FillerType",
            "Business.DeclareBankruptcy", "Business.End", "Business.Merge", "Business.Start",
@@ -25,11 +25,8 @@ SEEDLING_EVENT_TYPES_NIST = ClosedNamespace(
            "Movement.TransportArtifact", "Movement.TransportPerson",
            "Personnel.Elect", "Personnel.EndPosition", "Personnel.Nominate", "Personnel.StartPosition",
            "Transaction.Transaction", "Transaction.TransferControl", "Transaction.TransferMoney",
-           "Transaction.TransferOwnership"])
-
-RELATION_TYPES_NIST = ClosedNamespace(
-    uri=URIRef("https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#"),
-    terms=["GeneralAffiliation.APORA", "GeneralAffiliation.MORE", "GeneralAffiliation.OPRA",
+           "Transaction.TransferOwnership",
+           "GeneralAffiliation.APORA", "GeneralAffiliation.MORE", "GeneralAffiliation.OPRA",
            "GeneralAffiliation.OrganizationWebsite", "GeneralAffiliation.PersonAge", "GeneralAffiliation.Sponsorship",
            "Measurement.Count",
            "OrganizationAffiliation.EmploymentMembership", "OrganizationAffiliation.Founder",

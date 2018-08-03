@@ -139,26 +139,6 @@ def mark_as_argument(g, event_or_relation, argument_type, argument_filler, syste
     return arg_assertion
 
 
-def mark_as_event_argument(g, event, argument_type, argument_filler, system, confidence, uri=None):
-    """
-    Marks an entity as filling an argument role for an event.
-
-    :return: The created event argument assertion
-    """
-    if uri is None:
-        arg_assertion = BNode()
-    else:
-        arg_assertion = URIRef(uri)
-    g.add((arg_assertion, RDF.type, RDF.Statement))
-    g.add((arg_assertion, RDF.subject, event))
-    g.add((arg_assertion, RDF.predicate, argument_type))
-    g.add((arg_assertion, RDF['object'], argument_filler))
-    mark_system(g, arg_assertion, system)
-    if confidence is not None:
-        mark_confidence(g, arg_assertion, confidence, system)
-    return arg_assertion
-
-
 def make_event(g, event_uri, system):
     """
     Create an event\
@@ -382,7 +362,6 @@ def mark_as_mutually_exclusive(g, alternatives, system, none_of_the_above_prob):
 
 def mark_private_data(g, resource, json_content, system):
     private_data = _make_aif_resource(g, None, AIDA_ANNOTATION.PrivateData, system)
-    g.add((private_data, RDF.type, AIDA_ANNOTATION.PrivateData))
     g.add((private_data, AIDA_ANNOTATION.jsonContent,
            Literal(json_content, datatype=XSD.string)))
 
@@ -403,11 +382,7 @@ def mark_private_data_with_vector(g, resource, system, vector):
         raise RuntimeError("vector cannot be null")
 
     vector = json.dumps(vector)
-    private_data = _make_aif_resource(g, None, AIDA_ANNOTATION.PrivateData, system)
-    g.add((private_data, AIDA_ANNOTATION.jsonContent,
-           Literal(str(vector), datatype=XSD.string)))
-
-    g.add((resource, AIDA_ANNOTATION.privateData, private_data))
+    private_data = mark_private_data(g, resource, str(vector), system)
 
     return private_data
 
