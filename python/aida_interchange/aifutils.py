@@ -47,7 +47,7 @@ def mark_system(g, to_mark_on, system):
     g.add((to_mark_on, AIDA_ANNOTATION.system, system))
 
 
-def make_entity(graph, entity_uri, system):
+def make_entity(g, entity_uri, system):
     """
     Create an entity.
 
@@ -55,10 +55,7 @@ def make_entity(graph, entity_uri, system):
     :param system: The system object for the system which created this entity.
     :return: The created entity resource
     """
-    entity = URIRef(entity_uri)
-    graph.add((entity, RDF.type, AIDA_ANNOTATION.Entity))
-    mark_system(graph, entity, system)
-    return entity
+    return _make_aif_resource(g, entity_uri, AIDA_ANNOTATION.Entity, system)
 
 
 def mark_type(g, type_assertion_uri, entity_or_event,
@@ -68,12 +65,10 @@ def mark_type(g, type_assertion_uri, entity_or_event,
 
     :return: The assertion resource
     """
-    type_assertion = URIRef(type_assertion_uri)
-    g.add((type_assertion, RDF.type, RDF.Statement))
+    type_assertion = _make_aif_resource(g, type_assertion_uri, RDF.Statement, system)
     g.add((type_assertion, RDF.subject, entity_or_event))
     g.add((type_assertion, RDF.predicate, RDF.type))
     g.add((type_assertion, RDF['object'], _type))
-    mark_system(g, type_assertion, system)
     mark_confidence(g, type_assertion, confidence, system)
     return type_assertion
 
@@ -88,15 +83,13 @@ def mark_text_justification(g, things_to_justify, doc_id, start_offset,
     if isinstance(things_to_justify, URIRef):
         things_to_justify = [things_to_justify]
 
-    justification = BNode()
-    g.add((justification, RDF.type, AIDA_ANNOTATION.TextJustification))
+    justification = _make_aif_resource(g, None, AIDA_ANNOTATION.TextJustification, system)
     g.add((justification, AIDA_ANNOTATION.source,
            Literal(doc_id, datatype=XSD.string)))
     g.add((justification, AIDA_ANNOTATION.startOffset,
            Literal(start_offset, datatype=XSD.int)))
     g.add((justification, AIDA_ANNOTATION.endOffsetInclusive,
            Literal(end_offset_inclusive, datatype=XSD.int)))
-    mark_system(g, justification, system)
     mark_confidence(g, justification, confidence, system)
 
     for things_to_justify in things_to_justify:
@@ -109,16 +102,13 @@ def mark_confidence(g, to_mark_on, confidence, system):
     Mark a confidence value on a resource.
 
     """
-    confidence_blank_node = BNode()
-    g.add((confidence_blank_node, RDF.type, AIDA_ANNOTATION.Confidence))
+    confidence_blank_node = _make_aif_resource(g, None, AIDA_ANNOTATION.Confidence, system)
     g.add((confidence_blank_node, AIDA_ANNOTATION.confidenceValue,
            Literal(confidence, datatype=XSD.double)))
-    mark_system(g, confidence_blank_node, system)
     g.add((to_mark_on, AIDA_ANNOTATION.confidence, confidence_blank_node))
 
 
-def make_relation(g, relation_uri, first_arg, relation_type,
-                  second_arg, system, confidence):
+def make_relation(g, relation_uri, system):
     """
     Makes a relation of type [relationType] between [firstArg] and [secondArg].
 
@@ -126,14 +116,27 @@ def make_relation(g, relation_uri, first_arg, relation_type,
 
     :return: The relaton object
     """
-    relation = URIRef(relation_uri)
-    g.add((relation, RDF.type, RDF.Statement))
-    g.add((relation, RDF.subject, first_arg))
-    g.add((relation, RDF.predicate, relation_type))
-    g.add((relation, RDF['object'], second_arg))
-    mark_system(g, relation, system)
-    mark_confidence(g, relation, confidence, system)
+    return _make_aif_resource(g, relation_uri, AIDA_ANNOTATION.RelationClass, system)
+
+
+def make_relation_in_event_form(g, relation_uri, relation_type, subject_role, subject_resource, object_role,
+                                object_resource, type_assertion_uir, system, confidence):
+    relation = make_relation(g, relation_uri, system)
+    mark_type(g, type_assertion_uir, relation, relation_type, system, confidence)
+    mark_as_argument(g, relation, subject_role, subject_resource, system, confidence)
+    mark_as_argument(g, relation, object_role, object_resource, system, confidence)
     return relation
+
+
+def mark_as_argument(g, event_or_relation, argument_type, argument_filler, system, confidence, uri=None):
+    arg_assertion = _make_aif_resource(g, uri, RDF.Statement, system)
+    g.add((arg_assertion, RDF.subject, event_or_relation))
+    g.add((arg_assertion, RDF.predicate, argument_type))
+    g.add((arg_assertion, RDF['object'], argument_filler))
+    if confidence is not None:
+        mark_confidence(g, arg_assertion, confidence, system)
+
+    return arg_assertion
 
 
 def mark_as_event_argument(g, event, argument_type, argument_filler, system, confidence, uri=None):
@@ -165,10 +168,7 @@ def make_event(g, event_uri, system):
 
     :return: The event resource
     """
-    event = URIRef(event_uri)
-    g.add((event, RDF.type, AIDA_ANNOTATION.Event))
-    g.add((event, AIDA_ANNOTATION.system, system))
-    return event
+    return _make_aif_resource(g, event_uri, AIDA_ANNOTATION.Event, system)
 
 
 def mark_image_justification(g, things_to_justify, doc_id, boundingbox, system, confidence):
@@ -180,8 +180,7 @@ def mark_image_justification(g, things_to_justify, doc_id, boundingbox, system, 
     if isinstance(things_to_justify, URIRef):
         things_to_justify = [things_to_justify]
 
-    justification = BNode()
-    g.add((justification, RDF.type, AIDA_ANNOTATION.ImageJustification))
+    justification = _make_aif_resource(g, None, AIDA_ANNOTATION.ImageJustification, system)
     g.add((justification, AIDA_ANNOTATION.source,
            Literal(doc_id, datatype=XSD.string)))
 
@@ -197,7 +196,6 @@ def mark_image_justification(g, things_to_justify, doc_id, boundingbox, system, 
            Literal(boundingbox.lower_right[1], datatype=XSD.int)))
 
     g.add((justification, AIDA_ANNOTATION.boundingBox, bounding_box_resource))
-    mark_system(g, justification, system)
     mark_confidence(g, justification, confidence, system)
 
     for things in things_to_justify:
@@ -218,8 +216,7 @@ def mark_audio_justification(g, things_to_justify, doc_id, start_timestamp, end_
     if isinstance(things_to_justify, URIRef):
         things_to_justify = [things_to_justify]
 
-    justification = BNode()
-    g.add((justification, RDF.type, AIDA_ANNOTATION.AudioJustification))
+    justification = _make_aif_resource(g, None, AIDA_ANNOTATION.AudioJustification, system)
     g.add((justification, AIDA_ANNOTATION.source,
            Literal(doc_id, datatype=XSD.string)))
     g.add((justification, AIDA_ANNOTATION.startTimestamp,
@@ -243,8 +240,7 @@ def mark_keyframe_video_justification(g, things_to_justify, doc_id, key_frame, b
     if isinstance(things_to_justify, URIRef):
         things_to_justify = [things_to_justify]
 
-    justification = BNode()
-    g.add((justification, RDF.type, AIDA_ANNOTATION.KeyFrameVideoJustification))
+    justification = _make_aif_resource(g, None, AIDA_ANNOTATION.KeyFrameVideoJustification, system)
     g.add((justification, AIDA_ANNOTATION.source,
            Literal(doc_id, datatype=XSD.string)))
     g.add((justification, AIDA_ANNOTATION.keyFrame,
@@ -261,7 +257,6 @@ def mark_keyframe_video_justification(g, things_to_justify, doc_id, key_frame, b
     g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxLowerRightY,
            Literal(boundingbox.lower_right[1], datatype=XSD.int)))
     g.add((justification, AIDA_ANNOTATION.boundingBox, bounding_box_resource))
-    mark_system(g, justification, system)
     mark_confidence(g, justification, confidence, system)
 
     for things in things_to_justify:
@@ -279,13 +274,11 @@ def mark_shot_video_justification(g, things_to_justify, doc_id, shot_id, system,
     if isinstance(things_to_justify, URIRef):
         things_to_justify = [things_to_justify]
 
-    justification = BNode()
-    g.add((justification, RDF.type, AIDA_ANNOTATION.ShotVideoJustification))
+    justification = _make_aif_resource(g, None, AIDA_ANNOTATION.ShotVideoJustification, system)
     g.add((justification, AIDA_ANNOTATION.source,
            Literal(doc_id, datatype=XSD.string)))
     g.add((justification, AIDA_ANNOTATION.shot,
            Literal(shot_id, datatype=XSD.string)))
-    mark_system(g, justification, system)
     mark_confidence(g, justification, confidence, system)
 
     for things_to_justify in things_to_justify:
@@ -305,10 +298,8 @@ def make_cluster_with_prototype(g, cluster_uri, prototype, system):
 
     :return: The cluster created
     """
-    cluster = URIRef(cluster_uri)
-    g.add((cluster, RDF.type, AIDA_ANNOTATION.SameAsCluster))
+    cluster = _make_aif_resource(g, cluster_uri, AIDA_ANNOTATION.SameAsCluster, system)
     g.add((cluster, AIDA_ANNOTATION.prototype, prototype))
-    mark_system(g, cluster, system)
     return cluster
 
 
@@ -318,12 +309,10 @@ def mark_as_possible_cluster_member(g, possible_cluster_member, cluster, confide
 
     :return: The cluster membership assertion
     """
-    cluster_member_assertion = BNode()
-    g.add((cluster_member_assertion, RDF.type, AIDA_ANNOTATION.ClusterMembership))
+    cluster_member_assertion = _make_aif_resource(g, None, AIDA_ANNOTATION.ClusterMembership, system)
     g.add((cluster_member_assertion, AIDA_ANNOTATION.cluster, cluster))
     g.add((cluster_member_assertion, AIDA_ANNOTATION.clusterMember, possible_cluster_member))
     mark_confidence(g, cluster_member_assertion, confidence, system)
-    mark_system(g, cluster_member_assertion, system)
     return cluster_member_assertion
 
 
@@ -338,9 +327,7 @@ def make_hypothesis(g, hypothesis_uri, hypothesis_content, system):
     if not hypothesis_content:
         raise RuntimeError("hypothesis_content cannot be empty")
 
-    hypothesis = URIRef(hypothesis_uri)
-    g.add((hypothesis, RDF.type, AIDA_ANNOTATION.Hypothesis))
-    mark_system(g, hypothesis, system)
+    hypothesis = _make_aif_resource(g, hypothesis_uri, AIDA_ANNOTATION.Hypothesis, system)
 
     subgraph = BNode()
     g.add((subgraph, RDF.type, AIDA_ANNOTATION.Subgraph))
@@ -370,9 +357,7 @@ def mark_as_mutually_exclusive(g, alternatives, system, none_of_the_above_prob):
     if len(alternatives) < 2:
         raise RuntimeError("alternatives cannot have less than 2 mutually exclusive things")
 
-    mutual_exclusion_assertion = BNode()
-    g.add((mutual_exclusion_assertion, RDF.type, AIDA_ANNOTATION.MutualExclusion))
-    mark_system(g, mutual_exclusion_assertion, system)
+    mutual_exclusion_assertion = _make_aif_resource(g, None, AIDA_ANNOTATION.MutualExclusion, system)
 
     for alts in alternatives:
         alternative = BNode()
@@ -396,11 +381,10 @@ def mark_as_mutually_exclusive(g, alternatives, system, none_of_the_above_prob):
 
 
 def mark_private_data(g, resource, json_content, system):
-    private_data = BNode()
+    private_data = _make_aif_resource(g, None, AIDA_ANNOTATION.PrivateData, system)
     g.add((private_data, RDF.type, AIDA_ANNOTATION.PrivateData))
     g.add((private_data, AIDA_ANNOTATION.jsonContent,
            Literal(json_content, datatype=XSD.string)))
-    mark_system(g, private_data, system)
 
     g.add((resource, AIDA_ANNOTATION.privateData, private_data))
 
@@ -419,11 +403,9 @@ def mark_private_data_with_vector(g, resource, system, vector):
         raise RuntimeError("vector cannot be null")
 
     vector = json.dumps(vector)
-    private_data = BNode()
-    g.add((private_data, RDF.type, AIDA_ANNOTATION.PrivateData))
+    private_data = _make_aif_resource(g, None, AIDA_ANNOTATION.PrivateData, system)
     g.add((private_data, AIDA_ANNOTATION.jsonContent,
            Literal(str(vector), datatype=XSD.string)))
-    mark_system(g, private_data, system)
 
     g.add((resource, AIDA_ANNOTATION.privateData, private_data))
 
@@ -438,6 +420,16 @@ def link_to_external_kb(g, to_link, external_kb_id, system, confidence):
     mark_system(g, link_assertion, system)
     mark_confidence(g, link_assertion, confidence, system)
     return link_assertion
+
+
+def _make_aif_resource(g, uri, class_type, system):
+    if uri is None:
+        resource = BNode()
+    else:
+        resource = URIRef(uri)
+    g.add((resource, RDF.type, class_type))
+    mark_system(g, resource, system)
+    return resource
 
 
 _TYPE_QUERY = prepareQuery("""SELECT ?typeAssertion WHERE {

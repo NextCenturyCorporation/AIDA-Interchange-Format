@@ -4,6 +4,43 @@ from rdflib.namespace import ClosedNamespace
 # these could be changed to darpa.mil if the interchange format is adopted program-wide
 # TODO: temporarily extend these to include all ColdStart entity types - #2
 # TODO: long-term, we need to make the program ontology configurable
+
+"""
+Seedling Ontology. Currently Hardcoded
+"""
+SEEDLING_EVENT_TYPES_NIST = ClosedNamespace(
+    uri=URIRef("http://darpa.mil/ontologies/SeedlingOntology#"),
+    terms=["Person", "Organization", "Location", "Facility", "GeopoliticalEntity", "FillerType",
+           "Business.DeclareBankruptcy", "Business.End", "Business.Merge", "Business.Start",
+           "Conflict.Attack", "Conflict.Demonstrate",
+           "Contact.Broadcast", "Contact.Contact", "Contact.Correspondence", "Contact.Meet",
+           "Existence.DamageDestroy",
+           "Government.Agreements", "Government.Legislate", "Government.Spy", "Government.Vote",
+           "Inspection.Artifact", "Inspection.People",
+           "Justice.Acquit", "Justice.Appeal", "Justice.ArrestJail", "Justice.ChargeIndict", "Justice.Convict",
+           "Justice.Execute", "Justice.Extradite", "Justice.Fine", "Justice.Investigate", "Justice.Pardon",
+           "Justice.ReleaseParole", "Justice.Sentence", "Justice.Sue", "Justice.TrialHearing",
+           "Life.BeBorn", "Life.Die", "Life.Divorce", "Life.Injure", "Life.Marry",
+           "Manufacture.Artifact",
+           "Movement.TransportArtifact", "Movement.TransportPerson",
+           "Personnel.Elect", "Personnel.EndPosition", "Personnel.Nominate", "Personnel.StartPosition",
+           "Transaction.Transaction", "Transaction.TransferControl", "Transaction.TransferMoney",
+           "Transaction.TransferOwnership"])
+
+RELATION_TYPES_NIST = ClosedNamespace(
+    uri=URIRef("http://darpa.mil/ontologies/SeedlingOntology#"),
+    terms=["GeneralAffiliation.APORA", "GeneralAffiliation.MORE", "GeneralAffiliation.OPRA",
+           "GeneralAffiliation.OrganizationWebsite", "GeneralAffiliation.PersonAge", "GeneralAffiliation.Sponsorship",
+           "Measurement.Count",
+           "OrganizationAffiliation.EmploymentMembership", "OrganizationAffiliation.Founder",
+           "OrganizationAffiliation.InvestorShareholder", "OrganizationAffiliation.Leadership",
+           "OrganizationAffiliation.Ownership", "OrganizationAffiliation.StudentAlum",
+           "PartWhole.Membership", "PartWhole.Subsidiary",
+           "PersonalSocial.Business", "PersonalSocial.Family", "PersonalSocial.RoleTitle",
+           "PersonalSocial.Unspecified",
+           "Physical.LocatedNear", "Physical.OrganizationHeadquarter", "Physical.OrganizationLocationOrigin",
+           "Physical.Resident"])
+
 """
 The domain ontology.
 
@@ -141,6 +178,7 @@ AIDA_ANNOTATION = ClosedNamespace(
       'MutualExclusion',
       'MutualExclusionAlternative',
       'PrivateData',
+      'RelationClass',
       'SameAsCluster',
       'ShotVideoJustification',
       'Subgraph',
