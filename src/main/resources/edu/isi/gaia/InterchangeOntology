@@ -172,20 +172,38 @@
   rdfs:range :System ;
   rdfs:subPropertyOf owl:topObjectProperty; .                                ## Not sure about this
 
-:hasName rdf:type owl:ObjectProperty ;
+:hasName rdf:type owl:DataTypeProperty ;
   rdfs:label "Proper name for entity/filler of PER,ORG,GPE,FAC,LOC,WEA,VEH,LAW" ;
-  rdfs:range xsd:string ; .
+  rdfs:range xsd:string ;
+  rdfs:subPropertyOf owl:topDataProperty .
 
-:textValue rdf:type owl:ObjectProperty ;
+:textValue rdf:type owl:DataTypeProperty ;
   rdfs:label "value for certain filler of RES,URL,TME,MON" ;
-  rdfs:range xsd:string ; .
+  rdfs:range xsd:string ;
+  rdfs:subPropertyOf owl:topDataProperty .
 
-:numericValue rdf:type owl:ObjectProperty ;
+:numericValue rdf:type owl:DataTypeProperty ;
   rdfs:label "value for filler VAL,AGE" ;
-  rdfs:range xsd:string ; .                               ##  How can we make this string, double, or float?
+  rdfs:range [                         ##  Should consider adding range as aidaCommon:Entity
+        rdf:type owl:Class ;
+        owl:unionOf (
+            xsd:string
+            xsd:float
+            xsd:double ) ] ;           ##  How can we make this string, double, or float?
+  rdfs:subPropertyOf owl:topDataProperty .
 
 :justifiedBy rdf:type owl:ObjectProperty ;
-  rdfs:label "Pointer to source that justifies the assertion" ; .
+  rdfs:label "Pointer to source that justifies the assertion" ;
+  rdfs:range [
+          rdf:type owl:Class ;
+          owl:unionOf (
+              :TextJustification
+              :ImageJustification
+              :AudioJustification
+              :KeyFrameVideoJustification
+              :ShotVideoJustification
+              :CompoundJustification ) ] ;
+  rdfs:subPropertyOf owl:topObjectProperty .
 
 
 
