@@ -1,5 +1,4 @@
 @prefix : <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#> .
-@prefix aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -113,7 +112,7 @@
     rdfs:comment "Specifies that a cluster member is part of a cluster" .
 
 :JustificationTypes a owl:Class ;
-    rdfs:label "Jutification Types" ;
+    rdfs:label "Justification Types" ;
     rdfs:comment "Convenience class to represent all justification types" ;
     owl:unionOf (
         :TextJustification
@@ -183,7 +182,8 @@
   rdfs:subPropertyOf owl:topObjectProperty ; .
 
 :system rdf:type owl:ObjectProperty ;
-  rdfs:label "Performer system id" ;
+  rdfs:label "system" ;
+  rdfs:comment "Performer system id" ;
   rdfs:range :System ;
   rdfs:subPropertyOf owl:topObjectProperty; .
 
@@ -200,8 +200,9 @@
   rdfs:subPropertyOf owl:topDataProperty .
 
 :numericValue rdf:type owl:DataTypeProperty ;
-  rdfs:label "value for filler VAL,AGE" ;
-  rdfs:domain aidaDomainCommon:Entity ;
+  rdfs:label "numeric value" ;
+  rdfs:comment "value for filler VAL,AGE" ;
+  rdfs:domain :Entity ;
   rdfs:range [
         rdf:type owl:Class ;
         owl:unionOf (
@@ -211,7 +212,8 @@
   rdfs:subPropertyOf owl:topDataProperty .
 
 :justifiedBy rdf:type owl:ObjectProperty ;
-  rdfs:label "Pointer to source that justifies the assertion" ;
+  rdfs:label "justified by" ;
+  rdfs:comment "Pointer to source that justifies the assertion" ;
   rdfs:range [
     rdf:type owl:Class ;
     owl:unionOf (
@@ -231,7 +233,7 @@
   rdfs:comment "Specify xsd:string identifier for source of justification" ;
   rdfs:domain :JustificationTypes ;
   rdfs:range xsd:string ;
-  rdfssubPropertyOf owl:topDataProperty .
+  rdfs:subPropertyOf owl:topDataProperty .
 
 :startOffset rdf:type owl:DataTypeProperty ;
   rdfs:label "start offset" ;
@@ -267,8 +269,8 @@
   rdfs:domain [
       rdf:type owl:Class ;
       owl:unionOf (
-        :ImageJustificationShape
-        :KeyFrameVideoJustificationShape ) ] ;
+        :ImageJustification
+        :KeyFrameVideoJustification ) ] ;
   rdfs:range :BoundingBox ;
   rdfs:subPropertyOf owl:topObjectProperty .
 
@@ -317,7 +319,7 @@
 :link rdf:type owl:ObjectProperty ;
   rdfs:label "link" ;
   rdfs:comment "Link and entity to an external knowledge base" ;
-  rdfs:domain aidaDomainCommon:Entity ;
+  rdfs:domain :Entity ;
   rdfs:range :LinkAssertion ;
   rdfs:subPropertyOf owl:topObjectProperty .
 
