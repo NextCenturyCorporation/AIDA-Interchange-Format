@@ -302,6 +302,27 @@
   rdfs:range xsd:string;
   rdfs:subPropertyOf owl:topDataProperty .
 
+:shot rdf:type owl:DataTypeProperty ;
+  rdfs:label "shot"^^xsd:string ;
+  rdfs:comment "Indicate the shot for a ShotVideoJustification"^^xsd:string ;
+  rdfs:domain :ShotVideoJustification ;
+  rdfs:range xsd:string ;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:link rdf:type owl:ObjectProperty ;
+  rdfs:label "link"^^xsd:string ;
+  rdfs:comment "Link and entity to an external knowledge base"^^xsd:string ;
+  rdfs:domain aidaDomainCommon:Entity ;
+  rdfs:range :LinkAssertion ;
+  rdfs:subPropertyOf owl:topObjectProperty .
+
+:linkTarget rdf:type owl:DataTypeProperty;
+  rdfs:label "link target"^^xsd:string ;
+  rdfs:comment "Indicate the location of the external object that the internal entity is linked to"^^xsd:string ;
+  rdfs:domain :LinkAssertion ;
+  rdfs:range xsd:string ;
+  rdfs:subPropertyOf owl:topDataProperty .
+
 :noneOfTheAbove rdf:type owl:ObjectProperty ;
   rdfs:label "In a mutual exclusion, this indicates probability that none explicitly listed is correct" ;
   rdfs:domain :MutualExclusion ;
