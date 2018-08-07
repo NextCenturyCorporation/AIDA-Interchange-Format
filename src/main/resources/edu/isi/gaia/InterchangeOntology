@@ -75,7 +75,7 @@
    rdfs:label "Image Justification" ;
    rdfs:definition "The evidence in an image for some KB assertion" .
 
-:KeyFrameJustification a owl:Class ;
+:KeyFrameVideoJustification a owl:Class ;
    rdfs:label "Video Key Frame Justification" ;
    rdfs:definition "The evidence from a key frame of a video for some KB assertion" .
 
@@ -102,6 +102,14 @@
 :LinkAssertion a owl:Class ;
    rdfs:label "Link Assertion" ;
    rdfs:definition "Represents the claim that an entity or event is the same as the prototype of a cluster".
+
+:CompoundJustification a owl:Class ;
+    rdfs:label "Compound Justification" ;
+    rdfs:definition "Represents justification consisting of several other justifications" .
+
+:ClusterMembership a owl:Class ;
+    rdfs:label "Cluster membership" ;
+    rdfs:definition "Specifies that a cluster member is part of a cluster" .
 
 #################################################################
 #        Properties
@@ -156,3 +164,28 @@
   rdfs:label "contains assertion"^^xsd:string ;
   rdfs:range rdf:Statement ;
   rdfs:subPropertyOf owl:topObjectProperty ; .
+
+
+
+:system rdf:type owl:ObjectProperty ;
+  rdfs:label "Performer system id"^^xsd:string ;
+  rdfs:range :System ;
+  rdfs:subPropertyOf owl:topObjectProperty; .                                ## Not sure about this
+
+:hasName rdf:type owl:ObjectProperty ;
+  rdfs:label "Proper name for entity/filler of PER,ORG,GPE,FAC,LOC,WEA,VEH,LAW" ;
+  rdfs:range xsd:string ; .
+
+:textValue rdf:type owl:ObjectProperty ;
+  rdfs:label "value for certain filler of RES,URL,TME,MON" ;
+  rdfs:range xsd:string ; .
+
+:numericValue rdf:type owl:ObjectProperty ;
+  rdfs:label "value for filler VAL,AGE" ;
+  rdfs:range xsd:string ; .                               ##  How can we make this string, double, or float?
+
+:justifiedBy rdf:type owl:ObjectProperty ;
+  rdfs:label "Pointer to source that justifies the assertion" ; .
+
+
+
