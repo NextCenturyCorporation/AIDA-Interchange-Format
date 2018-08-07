@@ -160,8 +160,15 @@
   rdfs:range xsd:float ;
   rdfs:subPropertyOf owl:topDataProperty ; .
 
-:member rdf:type owl:ObjectProperty ;
-  rdfs:label "member" ;
+:clusterMember rdf:type owl:ObjectProperty ;
+  rdfs:label "cluster member" ;
+  rdfs:domain :ClusterMembership ;
+  rdfs:range [
+      rdf:type owl:Class ;
+      owl:unionOf (
+             :Entity
+             :Event
+             :SameAsCluster ) ] ;
   rdfs:subPropertyOf owl:topObjectProperty ; .
 
 :prototype rdf:type owl:ObjectProperty ;
