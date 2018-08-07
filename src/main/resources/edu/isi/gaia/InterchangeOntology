@@ -189,7 +189,7 @@
         owl:unionOf (
             xsd:string
             xsd:float
-            xsd:double ) ] ;           ##  How can we make this string, double, or float?
+            xsd:double ) ] ;
   rdfs:subPropertyOf owl:topDataProperty .
 
 :justifiedBy rdf:type owl:ObjectProperty ;
@@ -206,4 +206,25 @@
   rdfs:subPropertyOf owl:topObjectProperty .
 
 
+:noneOfTheAbove rdf:type owl:ObjectProperty ;
+  rdfs:label "In a mutual exclusion, this indicates probability that none explicitly listed is correct" ;
+  rdfs:domain :MutualExclusion ;
+  rdfs:range xsd:double .
 
+:dependsOnHypothesis rdf:type owl:ObjectProperty ;
+  rdfs:label "Indicates an assertion depends on an hypothesis" ;
+  rdfs:range :Hypothesis .
+
+:hypothesisContent rdf:type owl:ObjectProperty ;
+  rdfs:label "Adds a subgraph to a hypothesis" ;
+  rdfs:domain :Hypothesis ;
+  rdfs:range :Subgraph .
+
+:privateData rdf:type owl:ObjectProperty ;
+  rdfs:label "Extra data for performers, not really restricted" ;
+  rdfs:range :PrivateData .
+
+:jsonContent rdf:type owl:ObjectProperty ;
+  rdfs:label "Json formatted string within private data" ;
+  rdfs:domain :PrivateData ;
+  rdfs:range xsd:string .

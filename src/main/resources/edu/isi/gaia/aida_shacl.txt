@@ -55,11 +55,11 @@ linkTarget
     subgraphContains
     alternative
     alternativeGraph   <-- Missing from InterchangeOntology
-noneOfTheAbove
-dependsOnHypothesis
-hypothesisContent
-privateData
-jsonContent
+-- noneOfTheAbove
+-- dependsOnHypothesis
+-- hypothesisContent
+-- privateData
+-- jsonContent
 
 ----------------------------------------------------------------------
 
