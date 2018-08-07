@@ -1,4 +1,5 @@
 @prefix : <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#> .
+@prefix aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -108,8 +109,18 @@
     rdfs:definition "Represents justification consisting of several other justifications" .
 
 :ClusterMembership a owl:Class ;
-    rdfs:label "Cluster membership" ;
+    rdfs:label "Cluster Membership" ;
     rdfs:definition "Specifies that a cluster member is part of a cluster" .
+
+:JustificationTypes a owl:Class ;
+    rdfs:label "Jutification Types"^^xsd:string ;
+    rdfs:comment "Convenience class to represent all justification types"^^xsd:string ;
+    owl:unionOf (
+        :TextJustification
+        :ImageJustification
+        :AudioJustification
+        :KeyFrameVideoJustification
+        :ShotVideoJustification ) .
 
 #################################################################
 #        Properties
@@ -162,6 +173,7 @@
 
 :subgraphContains rdf:type owl:ObjectProperty ;
   rdfs:label "contains assertion"^^xsd:string ;
+  rdfs:domain :Subgraph ;
   rdfs:range rdf:Statement ;
   rdfs:subPropertyOf owl:topObjectProperty ; .
 
@@ -173,37 +185,119 @@
   rdfs:subPropertyOf owl:topObjectProperty; .                                ## Not sure about this
 
 :hasName rdf:type owl:DataTypeProperty ;
-  rdfs:label "Proper name for entity/filler of PER,ORG,GPE,FAC,LOC,WEA,VEH,LAW" ;
+  rdfs:comment "Proper name for entity/filler of PER,ORG,GPE,FAC,LOC,WEA,VEH,LAW"^^xsd:string ;
   rdfs:range xsd:string ;
   rdfs:subPropertyOf owl:topDataProperty .
 
 :textValue rdf:type owl:DataTypeProperty ;
-  rdfs:label "value for certain filler of RES,URL,TME,MON" ;
+  rdfs:comment "value for certain filler of RES,URL,TME,MON"^^xsd:string ;
   rdfs:range xsd:string ;
   rdfs:subPropertyOf owl:topDataProperty .
 
 :numericValue rdf:type owl:DataTypeProperty ;
   rdfs:label "value for filler VAL,AGE" ;
-  rdfs:range [                         ##  Should consider adding range as aidaCommon:Entity
+  rdfs:domain aidaDomainCommon:Entity ;
+  rdfs:range [
         rdf:type owl:Class ;
         owl:unionOf (
             xsd:string
             xsd:float
-            xsd:double ) ] ;           ##  How can we make this string, double, or float?
+            xsd:double ) ] ;
   rdfs:subPropertyOf owl:topDataProperty .
 
 :justifiedBy rdf:type owl:ObjectProperty ;
   rdfs:label "Pointer to source that justifies the assertion" ;
   rdfs:range [
-          rdf:type owl:Class ;
-          owl:unionOf (
-              :TextJustification
-              :ImageJustification
-              :AudioJustification
-              :KeyFrameVideoJustification
-              :ShotVideoJustification
-              :CompoundJustification ) ] ;
+    rdf:type owl:Class ;
+    owl:unionOf (
+      :JustificationTypes
+      :CompoundJustification ) ] ;
   rdfs:subPropertyOf owl:topObjectProperty .
 
+:containedJustification rdf:type owl:ObjectProperty ;
+  rdfs:label "contained justification"^^xsd:string ;
+  rdfs:comment "Specify which justifications are contained in a Compound Justification"^^xsd:string ;
+  rdfs:domain :CompoundJustification ;
+  rdfs:range :JustificationTypes ;
+  rdfs:subPropertyOf owl:topObjectProperty .
 
+:source rdf:type owl:DataTypeProperty ;
+  rdfs:label "source"^^xsd:string ;
+  rdfs:comment "Specify xsd:string identifier for source of justification"^^xsd:string ;
+  rdfs:domain :JustificationTypes ;
+  rdfs:range xsd:string ;
+  rdfssubPropertyOf owl:topDataProperty .
 
+:startOffset rdf:type owl:DataTypeProperty ;
+  rdfs:label "start offset"^^xsd:string ;
+  rdfs:comment "Indicate the beginning of a text span"^^xsd:string ;
+  rdfs:domain :TextJustification ;
+  rdfs:range xsd:int;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:endOffsetInclusive rdf:type owl:DataTypeProperty ;
+  rdfs:label "end offset inclusive"^^xsd:string ;
+  rdfs:comment "Indicate the end of a text span. The offset is included in the span"^^xsd:string ;
+  rdfs:domain :TextJustification ;
+  rdfs:range xsd:int;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:startTimestamp rdf:type owl:DataTypeProperty ;
+  rdfs:label "start timestamp"^^xsd:string ;
+  rdfs:comment "Indicate the beginning of an audio span"^^xsd:string ;
+  rdfs:domain :AudioJustification ;
+  rdfs:range xsd:double ;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:endTimestamp rdf:type owl:DataTypeProperty ;
+  rdfs:label "end timestamp"^^xsd:string ;
+  rdfs:comment "Indicate the end of an audio span"^^xsd:string ;
+  rdfs:domain :AudioJustification ;
+  rdfs:range xsd:double ;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:boundingBox rdf:type owl:ObjectProperty ;
+  rdfs:label "bounding box"^^xsd:string ;
+  rdfs:comment "Indicate that subject of this property uses the object of this property as a bounding box"^^xsd:string ;
+  rdfs:domain [
+      rdf:type owl:Class ;
+      owl:unionOf (
+        :ImageJustificationShape
+        :KeyFrameVideoJustificationShape ) ] ;
+  rdfs:range :BoundingBox ;
+  rdfs:subPropertyOf owl:topObjectProperty .
+
+:boundingBoxUpperLeftX rdf:type owl:DataTypeProperty ;
+  rdfs:label "bounding box upper left x"^^xsd:string ;
+  rdfs:comment "Indicate the x value of the upper left-hand point of the bounding box"^^xsd:string ;
+  rdfs:domain :BoundingBox;
+  rdfs:range xsd:int;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:boundingBoxUpperLeftY rdf:type owl:DataTypeProperty ;
+  rdfs:label "bounding box upper left y"^^xsd:string ;
+  rdfs:comment "Indicate the y value of the upper left-hand point of the bounding box"^^xsd:string ;
+  rdfs:domain :BoundingBox;
+  rdfs:range xsd:int;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:boundingBoxLowerRightX rdf:type owl:DataTypeProperty ;
+  rdfs:label "bounding box lower right x"^^xsd:string ;
+  rdfs:comment "Indicate the x value of the lower right-hand point of the bounding box"^^xsd:string ;
+  rdfs:domain :BoundingBox;
+  rdfs:range xsd:int;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:boundingBoxLowerRightY rdf:type owl:DataTypeProperty ;
+  rdfs:label "bounding box lower right y"^^xsd:string ;
+  rdfs:comment "Indicate the y value of the lower right-hand point of the bounding box"^^xsd:string ;
+  rdfs:domain :BoundingBox;
+  rdfs:range xsd:int;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:keyFrame rdf:type owl:DataTypeProperty ;
+  rdfs:label "key frame"^^xsd:string ;
+  rdfs:comment "Indicate the key frame of for a video justification"^^xsd:string ;
+  rdfs:domain :KeyFrameVideoJustification ;
+  rdfs:range xsd:string;
+  rdfs:subPropertyOf owl:topDataProperty .
