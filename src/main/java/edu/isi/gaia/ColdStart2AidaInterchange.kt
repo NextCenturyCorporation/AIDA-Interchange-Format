@@ -103,8 +103,9 @@ class ColdStart2AidaInterchangeConverter(
         // below are the functions for translating each individual type of ColdStart assertion
         // into the appropriate RDF structures
         // each will return a boolean specifying whether or not the conversion was successful
+        // except translateTypeAssertion, which returns the type asserted
 
-        fun translateTypeAssertion(cs_assertion: TypeAssertion, confidence: Double?): Boolean {
+        fun translateTypeAssertion(cs_assertion: TypeAssertion, confidence: Double?): Resource? {
             val ontologyType = when (cs_assertion.subject) {
                 is EntityNode -> ontologyMapping.entityType(cs_assertion.type)
                 is EventNode -> ontologyMapping.eventType(cs_assertion.type)
@@ -128,9 +129,9 @@ class ColdStart2AidaInterchangeConverter(
                             entityOrEvent, systemNode)
                 }
 
-                return true
+                return ontologyType
             } else {
-                return false
+                return null
             }
         }
 
@@ -141,7 +142,7 @@ class ColdStart2AidaInterchangeConverter(
             if (cs_assertion.mentionType == CANONICAL_MENTION) {
                 // TODO: because skos:preferredLabel isn't reified we can't attach info
                 // on the generating system
-                entityResource.addProperty(SKOS.prefLabel,
+                entityResource.addProperty(AidaAnnotationOntology.NAME_PROPERTY,
                         model.createTypedLiteral(cs_assertion.string))
             } else if (cs_assertion.justifications
                     == objectToCanonicalMentions.getValue(cs_assertion.subject)) {
@@ -308,14 +309,15 @@ class ColdStart2AidaInterchangeConverter(
             // we process type assertions first because we want to omit all other things which reference
             // objects with types outside the target domain ontology
             val (typeAssertions, otherAssertions) = csKB.allAssertions.partition { it is TypeAssertion }
-            val typedObjects = mutableSetOf<Node>()
+            val typedObjects = mutableMapOf<Node, Resource>()
 
             translateAssertions(typeAssertions, "type",
                     untranslatedFunction = { errorLogger.observeOutOfDomainType((it as TypeAssertion).type) })
             { assertion: Assertion, confidence: Double? ->
                 if (assertion is TypeAssertion) {
-                    if (translateTypeAssertion(assertion, confidence)) {
-                        typedObjects.add(assertion.subject)
+                    val type = translateTypeAssertion(assertion, confidence)
+                    if (type != null) {
+                        typedObjects[assertion.subject] = type
                         true
                     } else {
                         false
