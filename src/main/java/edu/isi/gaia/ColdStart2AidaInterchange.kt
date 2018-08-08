@@ -143,17 +143,12 @@ class ColdStart2AidaInterchangeConverter(
             if (cs_assertion.mentionType == CANONICAL_MENTION) {
                 val entityType = (objectToType[cs_assertion.subject]
                         ?: throw RuntimeException("Entity $entityResource lacks a type"))
-                val property = when {
+                when {
                     ontologyMapping.typeAllowedToHaveAName(entityType) -> AidaAnnotationOntology.NAME_PROPERTY
                     ontologyMapping.typeAllowedToHaveTextValue(entityType) -> AidaAnnotationOntology.TEXT_VALUE_PROPERTY
                     ontologyMapping.typeAllowedToHaveNumericValue(entityType) -> AidaAnnotationOntology.NUMERIC_VALUE_PROPERTY
                     else -> null
-                }
-
-                if (property != null) {
-                    // TODO: we could use numeric literals for numeric values when the string values parse
-                    entityResource.addProperty(property, model.createTypedLiteral(cs_assertion.string))
-                }
+                }?.let { property -> entityResource.addProperty(property, model.createTypedLiteral(cs_assertion.string)) }
             } else if (cs_assertion.justifications
                     == objectToCanonicalMentions.getValue(cs_assertion.subject)) {
                 // this mention assertion just duplicates a canonical mention assertion
