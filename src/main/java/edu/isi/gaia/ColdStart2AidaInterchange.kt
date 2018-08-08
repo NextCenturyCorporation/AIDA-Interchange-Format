@@ -136,14 +136,24 @@ class ColdStart2AidaInterchangeConverter(
         }
 
         fun translateMention(cs_assertion: MentionAssertion, confidence: Double,
-                             objectToCanonicalMentions: Map<Node, Provenance>): Boolean {
+                             objectToCanonicalMentions: Map<Node, Provenance>,
+                             objectToType: Map<Node, Resource>): Boolean {
             val entityResource = toResource(cs_assertion.subject)
             // if this is a canonical mention, then we need to make a skos:preferredLabel triple
             if (cs_assertion.mentionType == CANONICAL_MENTION) {
-                // TODO: because skos:preferredLabel isn't reified we can't attach info
-                // on the generating system
-                entityResource.addProperty(AidaAnnotationOntology.NAME_PROPERTY,
-                        model.createTypedLiteral(cs_assertion.string))
+                val entityType = (objectToType[cs_assertion.subject]
+                        ?: throw RuntimeException("Entity $entityResource lacks a type"))
+                val property = when {
+                    ontologyMapping.typeAllowedToHaveAName(entityType) -> AidaAnnotationOntology.NAME_PROPERTY
+                    ontologyMapping.typeAllowedToHaveTextValue(entityType) -> AidaAnnotationOntology.TEXT_VALUE_PROPERTY
+                    ontologyMapping.typeAllowedToHaveNumericValue(entityType) -> AidaAnnotationOntology.NUMERIC_VALUE_PROPERTY
+                    else -> null
+                }
+
+                if (property != null) {
+                    // TODO: we could use numeric literals for numeric values when the string values parse
+                    entityResource.addProperty(property, model.createTypedLiteral(cs_assertion.string))
+                }
             } else if (cs_assertion.justifications
                     == objectToCanonicalMentions.getValue(cs_assertion.subject)) {
                 // this mention assertion just duplicates a canonical mention assertion
@@ -272,7 +282,7 @@ class ColdStart2AidaInterchangeConverter(
             // RDF structures of these in our output, though, so we track what the canonical
             // mention is for each object so we can block translation of the duplicate mention
             // assertion in `translateMention`
-            val objectToCanonicalMentons = csKB.allAssertions.filterIsInstance<MentionAssertion>()
+            val objectToCanonicalMentions = csKB.allAssertions.filterIsInstance<MentionAssertion>()
                     .filter { it.mentionType == CANONICAL_MENTION }
                     .map { it.subject to it.justifications }.toMap()
 
@@ -309,7 +319,7 @@ class ColdStart2AidaInterchangeConverter(
             // we process type assertions first because we want to omit all other things which reference
             // objects with types outside the target domain ontology
             val (typeAssertions, otherAssertions) = csKB.allAssertions.partition { it is TypeAssertion }
-            val typedObjects = mutableMapOf<Node, Resource>()
+            val objectToType = mutableMapOf<Node, Resource>()
 
             translateAssertions(typeAssertions, "type",
                     untranslatedFunction = { errorLogger.observeOutOfDomainType((it as TypeAssertion).type) })
@@ -317,7 +327,7 @@ class ColdStart2AidaInterchangeConverter(
                 if (assertion is TypeAssertion) {
                     val type = translateTypeAssertion(assertion, confidence)
                     if (type != null) {
-                        typedObjects[assertion.subject] = type
+                        objectToType[assertion.subject] = type
                         true
                     } else {
                         false
@@ -328,7 +338,7 @@ class ColdStart2AidaInterchangeConverter(
             }
 
             val (assertionsInvolvingTypedObjects, assertionsInvolvingUntypedObjects) =
-                    otherAssertions.partition { it.nodes().all { it in typedObjects } }
+                    otherAssertions.partition { it.nodes().all { it in objectToType } }
 
             assertionsInvolvingUntypedObjects.forEach { errorLogger.observeUntranslatableBecauseNodeOutsideOntology(it) }
 
@@ -337,7 +347,7 @@ class ColdStart2AidaInterchangeConverter(
                 when (assertion) {
                     is TypeAssertion -> throw RuntimeException("Can't happen")
                     is MentionAssertion -> translateMention(assertion, confidence!!,
-                            objectToCanonicalMentons)
+                            objectToCanonicalMentions, objectToType)
                     is LinkAssertion -> translateLink(assertion, confidence!!)
                     is SentimentAssertion -> translateSentiment(assertion, confidence!!)
                     is RelationAssertion -> translateRelation(assertion, confidence!!)
