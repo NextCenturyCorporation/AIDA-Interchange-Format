@@ -97,7 +97,7 @@
 
 :PrivateData a owl:Class ;
    rdfs:label "Private Data" ;
-   rdfs:comment "System-specific private data for debugging, etc." .
+   rdfs:comment "System-specific private data" .
 
 :LinkAssertion a owl:Class ;
    rdfs:label "Link Assertion" ;
@@ -171,8 +171,14 @@
   rdfs:subPropertyOf owl:topObjectProperty ; .
 
 :prototype rdf:type owl:ObjectProperty ;
-  rdfs:domain :SameAsCluster ;
   rdfs:label "prototypical member" ;
+  rdfs:domain :SameAsCluster ;
+  rdfs:range [
+        rdf:type owl:Class ;
+        owl:unionOf (
+               :Entity
+               :Event
+               :Relation ) ] ;
   rdfs:subPropertyOf owl:topObjectProperty ; .
 
 :subgraphContains rdf:type owl:ObjectProperty ;
@@ -352,7 +358,7 @@
 
 :privateData rdf:type owl:ObjectProperty ;
   rdfs:label "private data" ;
-  rdfs:comment "Extra data for performers, not really restricted" ;
+  rdfs:comment "Extra data for performers. Private data should not contain document-level content features. Allowable private data include:\n\nfringe type(s) for the KE\na vectorized representation of the KE, which cannot grow as the number of mentions/justifications for the KE increases, and from which a raw document (or significant portions thereof) cannot be recoverable.\nthe number of documents that justify the KE\ntime stamps of justification documents\nfringe type(s) for each image or shot, to describe features that are not represented explicitly in the seedling ontology. For example: Physical.LocatedNear.Inside(Arg1_Type=Person.Soldier, Arg2_Type=Facility.Hospital)\n\nThe KE is not allowed to contain any strings from document text except for the strings in the HasName, NumericValue, and TextValue properties" ;
   rdfs:range :PrivateData ;
   rdfs:subPropertyOf owl:topObjectProperty .
 
