@@ -159,12 +159,13 @@ AIDA_PROGRAM_ONTOLOGY_LUT = {
     "website": AIDA_PROGRAM_ONTOLOGY.website}
 
 AIDA_ANNOTATION = ClosedNamespace(
-    uri=URIRef("http://www.isi.edu/aida/interchangeOntology#"),
+    uri=URIRef("https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#"),
     terms=[
       # Classes
       'AudioJustification',
       'BoundingBox',
       'ClusterMembership',
+      'CompoundJustification',
       'Confidence',
       'Entity',
       'Event',
@@ -175,7 +176,7 @@ AIDA_ANNOTATION = ClosedNamespace(
       'MutualExclusion',
       'MutualExclusionAlternative',
       'PrivateData',
-      'RelationClass',
+      'Relation',
       'SameAsCluster',
       'ShotVideoJustification',
       'Subgraph',
@@ -193,10 +194,11 @@ AIDA_ANNOTATION = ClosedNamespace(
       'clusterMember',
       'confidence',
       'confidenceValue',
+      'containedJustification',
       'dependsOnHypothesis',
       'endOffsetInclusive',
       'endTimestamp',
-      'subgraphContains',
+      'hasName',
       'hypothesisContent',
       'jsonContent',
       'justifiedBy',
@@ -204,6 +206,7 @@ AIDA_ANNOTATION = ClosedNamespace(
       'link',
       'linkTarget',
       'noneOfTheAbove',
+      'numericValue',
       'privateData',
       'prototype',
       'shot',
@@ -211,4 +214,5 @@ AIDA_ANNOTATION = ClosedNamespace(
       'startOffset',
       'startTimestamp',
       'subgraphContains',
-      'system'])
+      'system',
+      'textValue'])

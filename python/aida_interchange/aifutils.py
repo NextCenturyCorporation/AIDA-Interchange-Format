@@ -47,6 +47,31 @@ def mark_system(g, to_mark_on, system):
     g.add((to_mark_on, AIDA_ANNOTATION.system, system))
 
 
+def mark_name(g, entity, name):
+    g.add((entity, AIDA_ANNOTATION.hasName,
+           Literal(name, datatype=XSD.string)))
+
+
+def mark_text_value(g, entity, text_value):
+    g.add((entity, AIDA_ANNOTATION.textValue,
+           Literal(text_value, datatype=XSD.string)))
+
+
+def mark_numeric_value_as_string(g, entity, numeric_value):
+    g.add((entity, AIDA_ANNOTATION.numericValue,
+           Literal(numeric_value, datatype=XSD.string)))
+
+
+def mark_numeric_value_as_double(g, entity, numeric_value):
+    g.add((entity, AIDA_ANNOTATION.numericValue,
+           Literal(numeric_value, datatype=XSD.double)))
+
+
+def mark_numeric_value_as_long(g, entity, numeric_value):
+    g.add((entity, AIDA_ANNOTATION.numericValue,
+           Literal(numeric_value, datatype=XSD.long)))
+
+
 def make_entity(g, entity_uri, system):
     """
     Create an entity.
@@ -73,6 +98,29 @@ def mark_type(g, type_assertion_uri, entity_or_event,
     return type_assertion
 
 
+def mark_justification(g, things_to_justify, justification):
+    if isinstance(things_to_justify, URIRef):
+        things_to_justify = [things_to_justify]
+
+    for thing in things_to_justify:
+        g.add((thing, AIDA_ANNOTATION.justifiedBy, justification))
+
+
+def make_text_justification(g, doc_id, start_offset, end_offset_inclusive, system, confidence):
+    if start_offset > end_offset_inclusive:
+        raise RuntimeError('start_offset cannot be larger than end_offset_inclusive')
+    if start_offset < 0:
+        raise RuntimeError('start_offset must be a non-negative number')
+
+    justification = _make_aif_justification(g, doc_id, AIDA_ANNOTATION.TextJustification, system, confidence)
+    g.add((justification, AIDA_ANNOTATION.startOffset,
+           Literal(start_offset, datatype=XSD.int)))
+    g.add((justification, AIDA_ANNOTATION.endOffsetInclusive,
+           Literal(end_offset_inclusive, datatype=XSD.int)))
+
+    return justification
+
+
 def mark_text_justification(g, things_to_justify, doc_id, start_offset,
                             end_offset_inclusive, system, confidence):
     """
@@ -80,20 +128,9 @@ def mark_text_justification(g, things_to_justify, doc_id, start_offset,
 
     :return: The text justification resource created.
     """
-    if isinstance(things_to_justify, URIRef):
-        things_to_justify = [things_to_justify]
+    justification = make_text_justification(g, doc_id, start_offset, end_offset_inclusive, system, confidence)
+    mark_justification(g, things_to_justify, justification)
 
-    justification = _make_aif_resource(g, None, AIDA_ANNOTATION.TextJustification, system)
-    g.add((justification, AIDA_ANNOTATION.source,
-           Literal(doc_id, datatype=XSD.string)))
-    g.add((justification, AIDA_ANNOTATION.startOffset,
-           Literal(start_offset, datatype=XSD.int)))
-    g.add((justification, AIDA_ANNOTATION.endOffsetInclusive,
-           Literal(end_offset_inclusive, datatype=XSD.int)))
-    mark_confidence(g, justification, confidence, system)
-
-    for things_to_justify in things_to_justify:
-        g.add((things_to_justify, AIDA_ANNOTATION.justifiedBy, justification))
     return justification
 
 
@@ -116,7 +153,7 @@ def make_relation(g, relation_uri, system):
 
     :return: The relaton object
     """
-    return _make_aif_resource(g, relation_uri, AIDA_ANNOTATION.RelationClass, system)
+    return _make_aif_resource(g, relation_uri, AIDA_ANNOTATION.Relation, system)
 
 
 def make_relation_in_event_form(g, relation_uri, relation_type, subject_role, subject_resource, object_role,
@@ -151,19 +188,7 @@ def make_event(g, event_uri, system):
     return _make_aif_resource(g, event_uri, AIDA_ANNOTATION.Event, system)
 
 
-def mark_image_justification(g, things_to_justify, doc_id, boundingbox, system, confidence):
-    """
-    Marks a justification for something appearing in an image
-
-    :return: The created image justification resource
-    """
-    if isinstance(things_to_justify, URIRef):
-        things_to_justify = [things_to_justify]
-
-    justification = _make_aif_resource(g, None, AIDA_ANNOTATION.ImageJustification, system)
-    g.add((justification, AIDA_ANNOTATION.source,
-           Literal(doc_id, datatype=XSD.string)))
-
+def mark_boundingbox(g, to_mark_on, boundingbox):
     bounding_box_resource = BNode()
     g.add((bounding_box_resource, RDF.type, AIDA_ANNOTATION.BoundingBox))
     g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxUpperLeftX,
@@ -175,14 +200,39 @@ def mark_image_justification(g, things_to_justify, doc_id, boundingbox, system, 
     g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxLowerRightY,
            Literal(boundingbox.lower_right[1], datatype=XSD.int)))
 
-    g.add((justification, AIDA_ANNOTATION.boundingBox, bounding_box_resource))
-    mark_confidence(g, justification, confidence, system)
+    g.add((to_mark_on, AIDA_ANNOTATION.boundingBox, bounding_box_resource))
 
-    for things in things_to_justify:
-        g.add((things, AIDA_ANNOTATION.justifiedBy, justification))
+    return bounding_box_resource
+
+
+def make_image_justification(g, doc_id, boundingbox, system, confidence):
+    justification = _make_aif_justification(g, doc_id, AIDA_ANNOTATION.ImageJustification, system, confidence)
+    mark_boundingbox(g, justification, boundingbox)
+    return justification
+
+
+def mark_image_justification(g, things_to_justify, doc_id, boundingbox, system, confidence):
+    """
+    Marks a justification for something appearing in an image
+
+    :return: The created image justification resource
+    """
+    justification = make_image_justification(g, doc_id, boundingbox, system, confidence)
+    mark_justification(g, things_to_justify, justification)
 
     return justification
 
+
+def make_audio_justification(g, doc_id, start_timestamp, end_timestamp, system, confidence):
+    if start_timestamp > end_timestamp:
+        raise RuntimeError("start_timestamp cannot be larger than end_timestamp")
+    justification = _make_aif_justification(g, doc_id, AIDA_ANNOTATION.AudioJustification, system, confidence)
+    g.add((justification, AIDA_ANNOTATION.startTimestamp,
+           Literal(start_timestamp, datatype=XSD.double)))
+    g.add((justification, AIDA_ANNOTATION.endTimestamp,
+           Literal(end_timestamp, datatype=XSD.double)))
+
+    return justification
 
 def mark_audio_justification(g, things_to_justify, doc_id, start_timestamp, end_timestamp, system, confidence):
     """
@@ -190,24 +240,18 @@ def mark_audio_justification(g, things_to_justify, doc_id, start_timestamp, end_
 
     :return: The created audio justification resource
     """
-    if start_timestamp > end_timestamp:
-        raise RuntimeError("start_timestamp cannot be larger than end_timestamp")
+    justification = make_audio_justification(g, doc_id, start_timestamp, end_timestamp, system, confidence)
+    mark_justification(g, things_to_justify, justification)
 
-    if isinstance(things_to_justify, URIRef):
-        things_to_justify = [things_to_justify]
+    return justification
 
-    justification = _make_aif_resource(g, None, AIDA_ANNOTATION.AudioJustification, system)
-    g.add((justification, AIDA_ANNOTATION.source,
-           Literal(doc_id, datatype=XSD.string)))
-    g.add((justification, AIDA_ANNOTATION.startTimestamp,
-           Literal(start_timestamp, datatype=XSD.double)))
-    g.add((justification, AIDA_ANNOTATION.endTimestamp,
-           Literal(end_timestamp, datatype=XSD.double)))
-    mark_system(g, justification, system)
-    mark_confidence(g, justification, confidence, system)
 
-    for things_to_justify in things_to_justify:
-        g.add((things_to_justify, AIDA_ANNOTATION.justifiedBy, justification))
+def make_keyframe_video_justification(g, doc_id, key_frame, boundingbox, system, confidence):
+    justification = _make_aif_justification(g, doc_id, AIDA_ANNOTATION.KeyFrameVideoJustification, system, confidence)
+    g.add((justification, AIDA_ANNOTATION.keyFrame,
+           Literal(key_frame, datatype=XSD.string)))
+    mark_boundingbox(g, justification, boundingbox)
+
     return justification
 
 
@@ -217,30 +261,16 @@ def mark_keyframe_video_justification(g, things_to_justify, doc_id, key_frame, b
 
     :return: The justification resource
     """
-    if isinstance(things_to_justify, URIRef):
-        things_to_justify = [things_to_justify]
+    justification = make_keyframe_video_justification(g, doc_id, key_frame, boundingbox, system, confidence)
+    mark_justification(g, things_to_justify, justification)
 
-    justification = _make_aif_resource(g, None, AIDA_ANNOTATION.KeyFrameVideoJustification, system)
-    g.add((justification, AIDA_ANNOTATION.source,
-           Literal(doc_id, datatype=XSD.string)))
-    g.add((justification, AIDA_ANNOTATION.keyFrame,
-           Literal(key_frame, datatype=XSD.string)))
+    return justification
 
-    bounding_box_resource = BNode()
-    g.add((bounding_box_resource, RDF.type, AIDA_ANNOTATION.BoundingBox))
-    g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxUpperLeftX,
-           Literal(boundingbox.upper_left[0], datatype=XSD.int)))
-    g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxUpperLeftY,
-           Literal(boundingbox.upper_left[1], datatype=XSD.int)))
-    g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxLowerRightX,
-           Literal(boundingbox.lower_right[0], datatype=XSD.int)))
-    g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxLowerRightY,
-           Literal(boundingbox.lower_right[1], datatype=XSD.int)))
-    g.add((justification, AIDA_ANNOTATION.boundingBox, bounding_box_resource))
-    mark_confidence(g, justification, confidence, system)
 
-    for things in things_to_justify:
-        g.add((things, AIDA_ANNOTATION.justifiedBy, justification))
+def make_shot_video_justification(g, doc_id, shot_id, system, confidence):
+    justification = _make_aif_justification(g, doc_id, AIDA_ANNOTATION.ShotVideoJustification, system, confidence)
+    g.add((justification, AIDA_ANNOTATION.shot,
+           Literal(shot_id, datatype=XSD.string)))
 
     return justification
 
@@ -251,19 +281,19 @@ def mark_shot_video_justification(g, things_to_justify, doc_id, shot_id, system,
 
     :return: The justification resource
     """
-    if isinstance(things_to_justify, URIRef):
-        things_to_justify = [things_to_justify]
+    justification = make_shot_video_justification(g, doc_id, shot_id, system, confidence)
+    mark_justification(g, things_to_justify, justification)
 
-    justification = _make_aif_resource(g, None, AIDA_ANNOTATION.ShotVideoJustification, system)
-    g.add((justification, AIDA_ANNOTATION.source,
-           Literal(doc_id, datatype=XSD.string)))
-    g.add((justification, AIDA_ANNOTATION.shot,
-           Literal(shot_id, datatype=XSD.string)))
-    mark_confidence(g, justification, confidence, system)
-
-    for things_to_justify in things_to_justify:
-        g.add((things_to_justify, AIDA_ANNOTATION.justifiedBy, justification))
     return justification
+
+
+def mark_compound_justification(g, things_to_justify, justifications, system, confidence):
+    compound_justification = _make_aif_resource(g, None, AIDA_ANNOTATION.CompoundJustification, system)
+    mark_confidence(g, compound_justification, confidence, system)
+    for justification in justifications:
+        g.add((compound_justification, AIDA_ANNOTATION.containedJustification, justification))
+    mark_justification(g, things_to_justify, compound_justification)
+    return compound_justification
 
 
 def make_cluster_with_prototype(g, cluster_uri, prototype, system):
@@ -406,6 +436,13 @@ def _make_aif_resource(g, uri, class_type, system):
     mark_system(g, resource, system)
     return resource
 
+
+def _make_aif_justification(g, doc_id, class_type, system, confidence):
+    justification = _make_aif_resource(g, None, class_type, system)
+    g.add((justification, AIDA_ANNOTATION.source,
+           Literal(doc_id, datatype=XSD.string)))
+    mark_confidence(g, justification,confidence, system)
+    return justification
 
 _TYPE_QUERY = prepareQuery("""SELECT ?typeAssertion WHERE {
   ?typeAssertion a rdf:Statement .
