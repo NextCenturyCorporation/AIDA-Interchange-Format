@@ -576,6 +576,17 @@ object AIFUtils {
         return privateData
     }
 
+    /**
+     * Private data should not contain document-level content features. Allowable private data include:
+     *
+     * fringe type(s) for the KE
+     * a vectorized representation of the KE, which cannot grow as the number of mentions/justifications for the KE increases, and from which a raw document (or significant portions thereof) cannot be recoverable.
+     * the number of documents that justify the KE
+     * time stamps of justification documents
+     * fringe type(s) for each image or shot, to describe features that are not represented explicitly in the seedling ontology. For example: Physical.LocatedNear.Inside(Arg1_Type=Person.Soldier, Arg2_Type=Facility.Hospital)
+     *
+     * The KE is not allowed to contain any strings from document text except for the strings in the HasName, NumericValue, and TextValue properties
+     */
     @JvmStatic
     fun markPrivateData(model: Model, resource: Resource, vectorType: String, vectorData: List<Double>, system: Resource):
             Resource {
