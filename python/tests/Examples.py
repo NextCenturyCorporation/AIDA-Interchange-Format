@@ -84,9 +84,9 @@ class Examples(unittest.TestCase):
                            SEEDLING_TYPES_NIST.GeopoliticalEntity, system, 1.0)
 
         # link those entities to the event
-        arg = URIRef(SEEDLING_TYPES_NIST.Person)
+        arg = URIRef(SEEDLING_TYPES_NIST['Personnel.Elect'] + "_Elect")
         aifutils.mark_as_argument(g, event, arg, electee, system, 0.785)
-        arg2 = URIRef(SEEDLING_TYPES_NIST.uri + "Place")
+        arg2 = URIRef(SEEDLING_TYPES_NIST['Personnel.Elect'] + "_Place")
         aifutils.mark_as_argument(g, event, arg2, election_country, system, 0.589)
 
         self.dump_graph(g, "Example of creating an event")
@@ -270,33 +270,65 @@ class Examples(unittest.TestCase):
 
     def test_create_seedling_event(self):
         g = aifutils.make_graph()
-
         # every AIF needs an object for the system responsible for creating it
-        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSytem")
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
 
         # we make a resource for the event itself
-        event = aifutils.make_entity(g, "http://www.test.edu/events/1", system)
+        event = aifutils.make_event(g, "http://www.test.edu/events/1", system)
 
-        aifutils.mark_type(g, "http://www.test.edu/assertions/5", event,
-                           URIRef("http://darpa.mil/ontologies/SeedlingOntology/BUSINESS_DECLARE-BANKRUPTCY"), system, 1.0)
+        # mark the event as a Personnel.Elect event; type is encoded separately so we can express
+        # uncertainty about type
+        event_type_string = "Personnel.Elect"
+        aifutils.mark_type(g, "http://www.test.edu/assertions/5", event, SEEDLING_TYPES_NIST[event_type_string],
+                           system, 1.0)
 
         # create the two entities involved in the event
-        electee = aifutils.make_entity(g, "http://www.test.edu/entities/1", system,)
-        aifutils.mark_type(g, "http://www.test.edu/assertions/6", electee,
-                           URIRef("http://darpa.mil/ontologies/SeedlingOntology/Organization"), system, 1.0)
+        electee = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/7", electee, SEEDLING_TYPES_NIST.Person, system, 1.0)
 
         election_country = aifutils.make_entity(g, "http://www.test.edu/entities/2", system)
         aifutils.mark_type(g, "http://www.test.edu/assertions/7", election_country,
-                           URIRef("http://darpa.mil/ontologies/SeedlingOntology/GeopoliticalEntity"), system, 1.0)
-
-        time = aifutils.make_entity(g, "http://test.edu/entities/3", system)
-        aifutils.mark_type(g, "http://www.test.edu/assertions/8", time,
-                           URIRef("http://darpa.mil/ontologies/SeedlingOntology/Time"), system, 1.0)
+                           SEEDLING_TYPES_NIST.GeopoliticalEntity, system, 1.0)
 
         # link those entities to the event
-        aifutils.mark_as_argument(g, event, URIRef("http://darpa.mil/ontologies/SeedlingOntology/BUSINESS_DECLARE-BANKRUPTCY_arg1"), electee, system, 0.785)
-        aifutils.mark_as_argument(g, event, URIRef("http://darpa.mil/ontologies/SeedlingOntology/BUSINESS_DECLARE-BANKRUPTCY_arg2"), election_country, system, 0.589)
-        aifutils.mark_as_argument(g, event, URIRef("http://darpa.mil/ontologies/SeedlingOntology/BUSINESS_DECLARE-BANKRUPTCY_arg3"), time, system, 0.589)
+        aifutils.mark_as_argument(g, event, SEEDLING_TYPES_NIST[event_type_string] + "_Elect", electee, system,
+                                  .785)
+        aifutils.mark_as_argument(g, event, SEEDLING_TYPES_NIST[event_type_string] + "_Place", election_country, system,
+                                  .589)
+
+        self.dump_graph(g, "Example of seedling event")
+
+
+    def test_create_seedling_event_with_event_argument_uri(self):
+        g = aifutils.make_graph()
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
+
+        # we make a resource for the event itself
+        event = aifutils.make_event(g, "http://www.test.edu/events/1", system)
+
+        # mark the event as a Personnel.Elect event; type is encoded separately so we can express
+        # uncertainty about type
+        event_type_string = "Personnel.Elect"
+        aifutils.mark_type(g, "http://www.test.edu/assertions/5", event, SEEDLING_TYPES_NIST[event_type_string],
+                           system, 1.0)
+
+        # create the two entities involved in the event
+        electee = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/7", electee, SEEDLING_TYPES_NIST.Person, system, 1.0)
+
+        election_country = aifutils.make_entity(g, "http://www.test.edu/entities/2", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/7", election_country,
+                           SEEDLING_TYPES_NIST.GeopoliticalEntity, system, 1.0)
+
+        # link those entities to the event
+        aifutils.mark_as_argument(g, event, SEEDLING_TYPES_NIST[event_type_string] + "_Elect", electee, system,
+                                  .785, "http://www.test.edu/eventArgument/1")
+        aifutils.mark_as_argument(g, event, SEEDLING_TYPES_NIST[event_type_string] + "_Place", election_country, system,
+                                  .589, "http://www.test.edu/eventArgument/2")
+
+        self.dump_graph(g, "Example of seedling event with event assertion URI")
+
 
     def test_create_an_entity_with_image_justification_and_vector(self):
         g = aifutils.make_graph()
@@ -346,6 +378,121 @@ class Examples(unittest.TestCase):
 
         self.dump_graph(g, "Example of creating an entity")
         self.assertEqual([type_assertion], aifutils.get_type_assertions(g, entity))
+
+
+    def test_create_seedling_entity_with_alternate_names(self):
+        g = aifutils.make_graph()
+
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
+
+        entity = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
+
+        # in order to allow uncertainty about the type of an entity, we don't mark an entity's type directly on the
+        # entity, but rather make a separate assertion for it.
+        type_assertion = aifutils.mark_type(g, "http://www.test.org/assertions/1", entity, SEEDLING_TYPES_NIST.Person,
+                                            system, 1.0)
+
+        # This is just a test to make sure that validation works for the different
+        # mark types.  Rare that you would have all three with a single entity.
+        aifutils.mark_name(g, entity, "Name One")
+        aifutils.mark_name(g, entity, "N. One")
+        aifutils.mark_name(g, entity, "N-Money")
+
+        aifutils.mark_text_value(g, entity, "TextValue")
+
+        aifutils.mark_numeric_value_as_double(g, entity, 100)
+        aifutils.mark_numeric_value_as_long(g, entity, 100)
+        aifutils.mark_numeric_value_as_string(g, entity, "100")
+
+        self.dump_graph(g, "Example of seedling entity with alternate names")
+
+
+    def test_create_compound_justification(self):
+        g = aifutils.make_graph()
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/system")
+        entity = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
+        type_assertion = aifutils.mark_type(g, "http://www.test.org/assertions/1", entity, SEEDLING_TYPES_NIST.Person,
+                                            system, 1.0)
+
+
+        # the justification provides the evidence for our claim about the entity's type
+        # we attach this justification to both the type assertion and the entity object itself, since it provides
+        # evidence both for the entity's existence and its type.
+        # in TA1 -> TA2 communications, we attach confidences at the level of justifications
+        text_justification = aifutils.make_text_justification(g, "NYT_ENG_20181231",
+                                                              42, 143, system, 0.973)
+        bb1 = Bounding_Box((123, 45), (167, 98))
+        # let's suppose we also have evidence from an image
+        image_justification = aifutils.make_image_justification(g, "NYT_ENG_20181231_03",
+                                                                bb1, system, 0.123)
+        bb2 = Bounding_Box((234, 56), (345, 101))
+        # and also a video where the entity appears in a keyframe
+        keyframe_video_justification = aifutils.make_keyframe_video_justification(g, "NYT_ENG_20181231_03", "keyframe ID",
+                                                                                  bb2, system, .0234)
+        #and also a video where the entity does not appear in a keyframe
+        shot_video_justification = aifutils.make_shot_video_justification(g, "SOME_VIDEO", "some shot ID", system, 0.487)
+        # and even audio!
+        audio_justification = aifutils.make_audio_justification(g, "NYT_ENG_201181231", 4.566, 9.876, system, 0.789)
+
+        # combine all justifications into single justifiedBy triple with new confidence
+        entity_set = [entity]
+        justification_set = [text_justification, image_justification, keyframe_video_justification,
+                             shot_video_justification, audio_justification]
+        aifutils.mark_compound_justification(g, entity_set, justification_set, system, .321)
+
+        self.dump_graph(g, "Example of compound justification")
+
+
+    def test_create_hierarchical_cluster(self):
+        # we want to say that the cluster of Trump entities might be the same as the cluster of the president entities
+        g = aifutils.make_graph()
+        g.bind('ldcOnt', SEEDLING_TYPES_NIST.uri)
+
+        #every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, 'http://www.test.edu/testSystem')
+
+        # create president entities
+        president_usa = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/1", president_usa, SEEDLING_TYPES_NIST.GeopoliticalEntity,
+                           system, 1.0)
+        aifutils.mark_name(g, president_usa, "the president")
+
+        new_president = aifutils.make_entity(g, "http://www.test.edu/entities/2", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/2", president_usa, SEEDLING_TYPES_NIST.GeopoliticalEntity,
+                           system, 1.0)
+        aifutils.mark_name(g, president_usa, "the newly-inaugurated president")
+
+        president_45 = aifutils.make_entity(g, "http://www.test.edu/entities/3", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/3", president_usa, SEEDLING_TYPES_NIST.GeopoliticalEntity,
+                           system, 1.0)
+        aifutils.mark_name(g, president_usa, "the 45th president")
+
+        # cluster president entities
+        president_cluster = aifutils.make_cluster_with_prototype(g, "http://www.test.edu/clusters/president",
+                                                                 president_usa, system)
+
+        aifutils.mark_as_possible_cluster_member(g, president_usa, president_cluster, 1, system)
+        aifutils.mark_as_possible_cluster_member(g, new_president, president_cluster, .9, system)
+        aifutils.mark_as_possible_cluster_member(g, president_45, president_cluster, .9, system)
+
+        # create Trump entities
+        donald_trump = aifutils.make_entity(g, "http://www.test.edu/entities/4", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/4", president_usa, SEEDLING_TYPES_NIST.Person, system, 1.0)
+        aifutils.mark_name(g, president_usa, "Donald Trump")
+
+        trump = aifutils.make_entity(g, "http://www.test.edu/entities/5", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/5", president_usa, SEEDLING_TYPES_NIST.Person, system, 1.0)
+        aifutils.mark_name(g, president_usa, "Trump")
+
+        # cluster trump entities
+        trump_cluster = aifutils.make_cluster_with_prototype(g, "http://www.test.edu/clusters/trump", donald_trump, system)
+        aifutils.mark_as_possible_cluster_member(g, donald_trump, trump_cluster, 1, system)
+        aifutils.mark_as_possible_cluster_member(g, trump, trump_cluster, .9, system)
+
+        aifutils.mark_as_possible_cluster_member(g, president_cluster, trump_cluster, .6, system)
+
+        self.dump_graph(g, "Seedling hierarchical cluster")
 
 
     def dump_graph(self, g, description):
