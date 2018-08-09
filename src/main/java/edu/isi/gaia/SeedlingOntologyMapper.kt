@@ -24,12 +24,51 @@ class SeedlingOntologyMapper : OntologyMapping {
         val GPE = ResourceFactory.createResource(NAMESPACE_STATIC + "GeopoliticalEntity")!!
         @JvmField
         val FACILITY = ResourceFactory.createResource(NAMESPACE_STATIC + "Facility")!!
+
+        @JvmField
+        val WEAPON = ResourceFactory.createResource(NAMESPACE_STATIC + "Weapon")!!
+
+        @JvmField
+        val VEHICLE = ResourceFactory.createResource(NAMESPACE_STATIC + "Vehicle")!!
+
+        @JvmField
+        val LAW = ResourceFactory.createResource(NAMESPACE_STATIC + "Law")!!
+
         @JvmField
         val FILLER = ResourceFactory.createResource(NAMESPACE_STATIC + "FillerType")!!
 
+        @JvmField
+        val RESULTS = ResourceFactory.createResource(NAMESPACE_STATIC + "Results")!!
+
+        @JvmField
+        val TIME = ResourceFactory.createResource(NAMESPACE_STATIC + "Time")!!
+
+        @JvmField
+        val MONEY = ResourceFactory.createResource(NAMESPACE_STATIC + "Money")!!
+
+        @JvmField
+        val URL = ResourceFactory.createResource(NAMESPACE_STATIC + "URL")!!
+
+        @JvmField
+        val AGE = ResourceFactory.createResource(NAMESPACE_STATIC + "Age")!!
+
+        @JvmField
+        val NUMERICAL_VALUE = ResourceFactory.createResource(NAMESPACE_STATIC + "NumericalValue")!!
 
         @JvmField
         val ENTITY_TYPES = setOf(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY)
+
+        @JvmField
+        val FILLER_TYPES_WHICH_CAN_HAVE_NAMES = setOf(WEAPON, VEHICLE, LAW)
+
+        @JvmField
+        val TYPES_WHICH_CAN_HAVE_NAMES = ENTITY_TYPES.union(FILLER_TYPES_WHICH_CAN_HAVE_NAMES).toSet()
+
+        @JvmField
+        val TYPES_WHICH_CAN_HAVE_TEXT_VALUES = setOf(RESULTS, TIME, MONEY, URL)
+
+        @JvmField
+        val TYPES_WHICH_CAN_HAVE_NUMERIC_VALUES = setOf(AGE, NUMERICAL_VALUE)
 
         internal val SEEDLING_EVENT_TYPES_NIST = listOf(
                 "Business.DeclareBankruptcy", "Business.End", "Business.Merge", "Business.Start",
@@ -253,6 +292,10 @@ class SeedlingOntologyMapper : OntologyMapping {
     override fun knownEventTypes(): Set<String> {
         return EVENT_TYPES.keys
     }
+
+    override fun typeAllowedToHaveAName(type: Resource) = type in TYPES_WHICH_CAN_HAVE_NAMES
+    override fun typeAllowedToHaveTextValue(type: Resource) = type in TYPES_WHICH_CAN_HAVE_TEXT_VALUES
+    override fun typeAllowedToHaveNumericValue(type: Resource) = type in TYPES_WHICH_CAN_HAVE_NUMERIC_VALUES
 }
 
 open class RPISeedlingOntologyMapper : OntologyMapping {
@@ -280,4 +323,8 @@ open class RPISeedlingOntologyMapper : OntologyMapping {
     override fun eventType(eventName: String): Resource? = seedlingOM.eventType(eventName)
 
     override fun eventArgumentType(argName: String): Resource = seedlingOM.eventArgumentType(argName)
+
+    override fun typeAllowedToHaveAName(type: Resource) = seedlingOM.typeAllowedToHaveAName(type)
+    override fun typeAllowedToHaveTextValue(type: Resource) = seedlingOM.typeAllowedToHaveTextValue(type)
+    override fun typeAllowedToHaveNumericValue(type: Resource) = seedlingOM.typeAllowedToHaveNumericValue(type)
 }

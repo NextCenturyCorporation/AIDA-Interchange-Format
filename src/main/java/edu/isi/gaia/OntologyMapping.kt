@@ -23,4 +23,12 @@ interface OntologyMapping {
     fun eventType(eventName: String): Resource?
     fun knownEventTypes(): Set<String>
     fun eventArgumentType(argName: String): Resource?
+
+    /**
+     * Is an object of this type allowed to have a name property?
+     */
+    fun typeAllowedToHaveAName(type: Resource): Boolean
+
+    fun typeAllowedToHaveTextValue(type: Resource): Boolean
+    fun typeAllowedToHaveNumericValue(type: Resource): Boolean
 }

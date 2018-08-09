@@ -125,5 +125,7 @@ class ColdStartOntologyMapper : OntologyMapping {
         throw RuntimeException("Implement me if you need to use me")
     }
 
-
+    override fun typeAllowedToHaveAName(type: Resource) = true
+    override fun typeAllowedToHaveTextValue(type: Resource) = true
+    override fun typeAllowedToHaveNumericValue(type: Resource) = true
 }
