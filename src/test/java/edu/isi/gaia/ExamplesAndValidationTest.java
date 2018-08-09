@@ -609,6 +609,40 @@ class ValidExamples {
 
         dumpAndAssertValid(model, "seedling hierarchical cluster", true);
     }
+
+    /**
+     * Simplest possible cluster example.  Two entities might be the same thing.
+     */
+    @Test
+    void createASimpleCluster() {
+        final Model model = createModel(true);
+
+        // every AIF needs an object for the system responsible for creating it
+        final Resource system = AIFUtils.makeSystemWithURI(model, "http://www.test.edu/testSystem");
+
+        final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
+
+        // Two people, probably the same person
+        final Resource personEntity1 = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1", system);
+        AIFUtils.markType(model, getAssertionUri(), personEntity1, SeedlingOntologyMapper.PERSON, system, 1.0);
+        AIFUtils.markName(personEntity1, "Robert");
+
+        final Resource personEntity2 = AIFUtils.makeEntity(model, "http://www.test.edu/entities/2", system);
+        AIFUtils.markType(model, getAssertionUri(), personEntity2, SeedlingOntologyMapper.PERSON, system, 1.0);
+        AIFUtils.markName(personEntity2, "Bobby");
+
+        // create a cluster with prototype
+        final Resource bobCluster = AIFUtils.makeClusterWithPrototype(model, "http://www.test.edu/clusters/bob", personEntity1, system);
+
+        // person 1 is definitely in the cluster, person 2 is probably in the cluster
+        AIFUtils.markAsPossibleClusterMember(model, personEntity1, bobCluster, 1, system);
+        AIFUtils.markAsPossibleClusterMember(model, personEntity2, bobCluster, 0.71, system);
+
+        dumpAndAssertValid(model, "create a simple cluster", true);
+    }
+
+
+
 }
 
   /**
