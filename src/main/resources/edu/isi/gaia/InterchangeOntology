@@ -36,10 +36,6 @@
    rdfs:label "Same-As Cluster";
    rdfs:comment "Represents a collection of events or entities which may in fact be the same".
 
-:ClusterMember a owl:Class ;
-   rdfs:label "Cluster Member" ;
-   rdfs:comment "Represents the claim that an entity or event is the same as the prototype of a cluster".
-
 :Subgraph a owl:Class ;
    rdfs:label "Sub-graph" ;
    rdfs:comment "A collection of entities, events, relations, sentiment assertions, and RDF statements about these".
@@ -142,7 +138,7 @@
   rdfs:subPropertyOf owl:topObjectProperty ; .
 
 :cluster rdf:type owl:ObjectProperty ;
-  rdfs:domain :ClusterMember ;
+  rdfs:domain :ClusterMemberShip ;
   rdfs:label "cluster" ;
   rdfs:range :SameAsCluster ;
   rdfs:subPropertyOf owl:topObjectProperty ; .
@@ -163,11 +159,11 @@
   rdfs:label "cluster member" ;
   rdfs:domain :ClusterMembership ;
   rdfs:range [
-      rdf:type owl:Class ;
-      owl:unionOf (
-             :Entity
-             :Event
-             :SameAsCluster ) ] ;
+        rdf:type owl:Class ;
+        owl:unionOf (
+            :Entity
+            :Event
+            :SameAsCluster ) ] ;
   rdfs:subPropertyOf owl:topObjectProperty ; .
 
 :prototype rdf:type owl:ObjectProperty ;
@@ -176,15 +172,23 @@
   rdfs:range [
         rdf:type owl:Class ;
         owl:unionOf (
-               :Entity
-               :Event
-               :Relation ) ] ;
+            :Entity
+            :Event
+            :Relation ) ] ;
   rdfs:subPropertyOf owl:topObjectProperty ; .
 
 :subgraphContains rdf:type owl:ObjectProperty ;
   rdfs:label "contains assertion" ;
   rdfs:domain :Subgraph ;
-  rdfs:range rdf:Statement ;
+  rdfs:range [
+        rdf:type owl:Class ;
+        owl:unionOf (
+            :Entity
+            :Event
+            :Relation
+            :SentimentAssertion
+            :ClusterMembership
+            rdf:Statement ) ] ;
   rdfs:subPropertyOf owl:topObjectProperty ; .
 
 :system rdf:type owl:ObjectProperty ;
