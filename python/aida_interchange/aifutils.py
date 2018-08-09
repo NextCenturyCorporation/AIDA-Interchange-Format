@@ -99,6 +99,9 @@ def mark_type(g, type_assertion_uri, entity_or_event,
 
 
 def mark_justification(g, things_to_justify, justification):
+    if isinstance(things_to_justify, URIRef):
+        things_to_justify = [things_to_justify]
+
     for thing in things_to_justify:
         g.add((thing, AIDA_ANNOTATION.justifiedBy, justification))
 
@@ -125,9 +128,6 @@ def mark_text_justification(g, things_to_justify, doc_id, start_offset,
 
     :return: The text justification resource created.
     """
-    if isinstance(things_to_justify, URIRef):
-        things_to_justify = [things_to_justify]
-
     justification = make_text_justification(g, doc_id, start_offset, end_offset_inclusive, system, confidence)
     mark_justification(g, things_to_justify, justification)
 
@@ -217,13 +217,7 @@ def mark_image_justification(g, things_to_justify, doc_id, boundingbox, system, 
 
     :return: The created image justification resource
     """
-    if isinstance(things_to_justify, URIRef):
-        things_to_justify = [things_to_justify]
-
     justification = make_image_justification(g, doc_id, boundingbox, system, confidence)
-    g.add((justification, AIDA_ANNOTATION.source,
-           Literal(doc_id, datatype=XSD.string)))
-
     mark_justification(g, things_to_justify, justification)
 
     return justification
@@ -246,9 +240,6 @@ def mark_audio_justification(g, things_to_justify, doc_id, start_timestamp, end_
 
     :return: The created audio justification resource
     """
-    if isinstance(things_to_justify, URIRef):
-        things_to_justify = [things_to_justify]
-
     justification = make_audio_justification(g, doc_id, start_timestamp, end_timestamp, system, confidence)
     mark_justification(g, things_to_justify, justification)
 
@@ -270,9 +261,6 @@ def mark_keyframe_video_justification(g, things_to_justify, doc_id, key_frame, b
 
     :return: The justification resource
     """
-    if isinstance(things_to_justify, URIRef):
-        things_to_justify = [things_to_justify]
-
     justification = make_keyframe_video_justification(g, doc_id, key_frame, boundingbox, system, confidence)
     mark_justification(g, things_to_justify, justification)
 
@@ -293,9 +281,6 @@ def mark_shot_video_justification(g, things_to_justify, doc_id, shot_id, system,
 
     :return: The justification resource
     """
-    if isinstance(things_to_justify, URIRef):
-        things_to_justify = [things_to_justify]
-
     justification = make_shot_video_justification(g, doc_id, shot_id, system, confidence)
     mark_justification(g, things_to_justify, justification)
 
