@@ -556,6 +556,10 @@ class DefaultErrorLogger : ErrorLogger {
 
     override fun observeUntranslatableForOtherReason(assertion: Assertion) {
         untranslatableAssertionTypesB.add(assertion.javaClass)
+        when (assertion) {
+            is TypeAssertion -> untranslatableObjectTypesB.add(assertion.type)
+            is RelationAssertion -> outOfDomainTypes.add(assertion.relationType)
+        }
         if (assertion is TypeAssertion) {
             untranslatableObjectTypesB.add(assertion.type)
         }
