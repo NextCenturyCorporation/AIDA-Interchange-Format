@@ -9,7 +9,7 @@ import java.util.*
  *
  * For the moment, this is hard-coded to match Seedling.
  */
-class SeedlingOntologyMapper : OntologyMapping {
+class SeedlingOntology : OntologyMapping {
     companion object {
         @JvmField
         val NAMESPACE_STATIC: String = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#"
@@ -299,8 +299,8 @@ class SeedlingOntologyMapper : OntologyMapping {
 }
 
 open class RPISeedlingOntologyMapper : OntologyMapping {
-    private val seedlingOM = SeedlingOntologyMapper()
-    override val NAMESPACE: String = SeedlingOntologyMapper.NAMESPACE_STATIC
+    private val seedlingOM = SeedlingOntology()
+    override val NAMESPACE: String = SeedlingOntology.NAMESPACE_STATIC
     val FILLER = ResourceFactory.createResource(NAMESPACE + "FillerType")!!
 
     override fun knownRelationTypes(): Set<String> {

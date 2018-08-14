@@ -394,7 +394,7 @@ fun main(args: Array<String>) {
 
     val ontologyMappings: Map<String, OntologyMapping> = listOf(
             "coldstart" to ColdStartOntologyMapper(),
-            "seedling" to SeedlingOntologyMapper(),
+            "seedling" to SeedlingOntology(),
             "rpi_seedling" to RPISeedlingOntologyMapper()
     ).toMap()
 

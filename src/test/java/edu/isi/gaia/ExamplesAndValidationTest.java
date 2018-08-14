@@ -83,7 +83,7 @@ class ValidExamples {
         // entity's type directly on the entity, but rather make a separate assertion for it
         // its URI doesn't matter either
         final Resource typeAssertion = AIFUtils.markType(model, "http://www.test.org/assertions/1",
-                entity, SeedlingOntologyMapper.PERSON, system, 1.0);
+                entity, SeedlingOntology.PERSON, system, 1.0);
 
         // the justification provides the evidence for our claim about the entity's type
         // we attach this justification to both the type assertion and the entity object
@@ -132,10 +132,10 @@ class ValidExamples {
 
         final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1", system);
         final Resource entityIsAPerson = AIFUtils.markType(model, "http://www.test.org/assertions/1",
-                entity, SeedlingOntologyMapper.PERSON, system, 0.5);
+                entity, SeedlingOntology.PERSON, system, 0.5);
         final Resource entityIsAnOrganization = AIFUtils
                 .markType(model, "http://www.test.org/assertions/2",
-                        entity, SeedlingOntologyMapper.ORGANIZATION, system, 0.2);
+                        entity, SeedlingOntology.ORGANIZATION, system, 0.2);
 
         AIFUtils.markTextJustification(model, ImmutableSet.of(entity, entityIsAPerson),
                 "NYT_ENG_201181231",
@@ -157,24 +157,24 @@ class ValidExamples {
         // every AIF needs an object for the system responsible for creating it
         final Resource system = AIFUtils.makeSystemWithURI(model, "http://www.test.edu/testSystem");
 
-        final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
+        final SeedlingOntology ontologyMapping = new SeedlingOntology();
 
         // we want to represent a "city_of_birth" relation for a person, but we aren't sure whether
         // they were born in Louisville or Cambridge
         final Resource personEntity = AIFUtils
                 .makeEntity(model, "http://www.test.edu/entities/1", system);
         AIFUtils.markType(model, getAssertionUri(),
-                personEntity, SeedlingOntologyMapper.PERSON, system, 1.0);
+                personEntity, SeedlingOntology.PERSON, system, 1.0);
 
         // create entities for the two locations
         final Resource louisvilleEntity = AIFUtils
                 .makeEntity(model, "http://www.test.edu/entities/2", system);
         AIFUtils.markType(model, getAssertionUri(),
-                louisvilleEntity, SeedlingOntologyMapper.GPE, system, 1.0);
+                louisvilleEntity, SeedlingOntology.GPE, system, 1.0);
         final Resource cambridgeEntity = AIFUtils
                 .makeEntity(model, "http://www.test.edu/entities/3", system);
         AIFUtils.markType(model, getAssertionUri(),
-                cambridgeEntity, SeedlingOntologyMapper.GPE, system, 1.0);
+                cambridgeEntity, SeedlingOntology.GPE, system, 1.0);
 
         // create an entity for the uncertain place of birth
         final Resource uncertainPlaceOfBirthEntity = AIFUtils
@@ -223,7 +223,7 @@ class ValidExamples {
         final Resource event = AIFUtils.makeEvent(model,
                 "http://www.test.edu/events/1", system);
 
-        final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
+        final SeedlingOntology ontologyMapping = new SeedlingOntology();
 
         String eventTypeString = "Personnel.Elect";
 
@@ -237,12 +237,12 @@ class ValidExamples {
         final Resource electee = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
                 system);
         AIFUtils.markType(model, "http://www.test.edu/assertions/6", electee,
-                SeedlingOntologyMapper.PERSON, system, 1.0);
+                SeedlingOntology.PERSON, system, 1.0);
 
         final Resource electionCountry = AIFUtils.makeEntity(model,
                 "http://www.test.edu/entities/2", system);
         AIFUtils.markType(model, "http://www.test.edu/assertions/7", electionCountry,
-                SeedlingOntologyMapper.GPE, system, 1.0);
+                SeedlingOntology.GPE, system, 1.0);
 
         // link those entities to the event
         AIFUtils.markAsArgument(model, event,
@@ -270,7 +270,7 @@ class ValidExamples {
         final Resource event = AIFUtils.makeEvent(model,
                 "http://www.test.edu/events/1", system);
 
-        final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
+        final SeedlingOntology ontologyMapping = new SeedlingOntology();
 
         String eventTypeString = "Personnel.Elect";
 
@@ -284,12 +284,12 @@ class ValidExamples {
         final Resource electee = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
                 system);
         AIFUtils.markType(model, "http://www.test.edu/assertions/6", electee,
-                SeedlingOntologyMapper.PERSON, system, 1.0);
+                SeedlingOntology.PERSON, system, 1.0);
 
         final Resource electionCountry = AIFUtils.makeEntity(model,
                 "http://www.test.edu/entities/2", system);
         AIFUtils.markType(model, "http://www.test.edu/assertions/7", electionCountry,
-                SeedlingOntologyMapper.GPE, system, 1.0);
+                SeedlingOntology.GPE, system, 1.0);
 
         // link those entities to the event
         AIFUtils.markAsArgument(model, event,
@@ -315,7 +315,7 @@ class ValidExamples {
         final Resource event = AIFUtils.makeEvent(model,
                 "http://www.test.edu/events/1", system);
 
-        final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
+        final SeedlingOntology ontologyMapping = new SeedlingOntology();
 
         String eventTypeString = "Conflict.Attack";
 
@@ -329,12 +329,12 @@ class ValidExamples {
         final Resource bob = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
                 system);
         AIFUtils.markType(model, "http://www.test.edu/assertions/6", bob,
-                SeedlingOntologyMapper.PERSON, system, 1.0);
+                SeedlingOntology.PERSON, system, 1.0);
 
         final Resource fred = AIFUtils.makeEntity(model,
                 "http://www.test.edu/entities/2", system);
         AIFUtils.markType(model, "http://www.test.edu/assertions/7", fred,
-                SeedlingOntologyMapper.PERSON, system, 1.0);
+                SeedlingOntology.PERSON, system, 1.0);
 
         String attackerString = eventTypeString + "_Attacker";
         String targetString = eventTypeString + "_Target";
@@ -368,31 +368,31 @@ class ValidExamples {
         final Resource system = AIFUtils.makeSystemWithURI(model,
                 "http://www.test.edu/testSystem");
 
-        final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
+        final SeedlingOntology ontologyMapping = new SeedlingOntology();
 
         // we want to represent that we know, regardless of hypothesis, that there is a person
         // named Bob, two companies (Google and Amazon), and two places (Seattle and California).
         final Resource bob = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Bob",
                 system);
         AIFUtils.markType(model, getAssertionUri(),
-                bob, SeedlingOntologyMapper.PERSON, system, 1.0);
+                bob, SeedlingOntology.PERSON, system, 1.0);
         final Resource google = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Google",
                 system);
         AIFUtils.markType(model, getAssertionUri(),
-                google, SeedlingOntologyMapper.ORGANIZATION, system, 1.0);
+                google, SeedlingOntology.ORGANIZATION, system, 1.0);
         final Resource amazon = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Amazon",
                 system);
         AIFUtils.markType(model, getAssertionUri(),
-                amazon, SeedlingOntologyMapper.ORGANIZATION, system, 1.0);
+                amazon, SeedlingOntology.ORGANIZATION, system, 1.0);
         final Resource seattle = AIFUtils.makeEntity(model, "http://www.test.edu/entities/Seattle",
                 system);
         AIFUtils.markType(model, getAssertionUri(),
-                seattle, SeedlingOntologyMapper.GPE, system, 1.0);
+                seattle, SeedlingOntology.GPE, system, 1.0);
         final Resource california = AIFUtils
                 .makeEntity(model, "http://www.test.edu/entities/California",
                         system);
         AIFUtils.markType(model, getAssertionUri(),
-                california, SeedlingOntologyMapper.GPE, system, 1.0);
+                california, SeedlingOntology.GPE, system, 1.0);
 
         // under the background hypothesis that Bob lives in Seattle, we believe he works for Amazon
         String cityRelation = "Physical.Resident";
@@ -454,7 +454,7 @@ class ValidExamples {
         // entity's type directly on the entity, but rather make a separate assertion for it
         // its URI doesn't matter either
         final Resource typeAssertion = AIFUtils.markType(model, "http://www.test.org/assertions/1",
-                entity, SeedlingOntologyMapper.PERSON, system, 1.0);
+                entity, SeedlingOntology.PERSON, system, 1.0);
 
         // the justification provides the evidence for our claim about the entity's type
         // we attach this justification to both the type assertion and the entity object
@@ -493,7 +493,7 @@ class ValidExamples {
         // entity's type directly on the entity, but rather make a separate assertion for it
         // its URI doesn't matter either
         final Resource typeAssertion = AIFUtils.markType(model, "http://www.test.org/assertions/1",
-                entity, SeedlingOntologyMapper.PERSON, system, 1.0);
+                entity, SeedlingOntology.PERSON, system, 1.0);
 
         // This is just a test to make sure that validation works for the different
         // mark types.  Rare that you would have all three with a single entity.
@@ -525,7 +525,7 @@ class ValidExamples {
         // entity's type directly on the entity, but rather make a separate assertion for it
         // its URI doesn't matter either
         final Resource typeAssertion = AIFUtils.markType(model, "http://www.test.org/assertions/1",
-                entity, SeedlingOntologyMapper.PERSON, system, 1.0);
+                entity, SeedlingOntology.PERSON, system, 1.0);
 
         // the justification provides the evidence for our claim about the entity's type
         // we attach this justification to both the type assertion and the entity object
@@ -569,15 +569,15 @@ class ValidExamples {
 
         // create president entities
         final Resource presidentUSA = AIFUtils.makeEntity(model, getEntityUri(), system);
-        AIFUtils.markType(model, getAssertionUri(), presidentUSA, SeedlingOntologyMapper.GPE, system, 1.0);
+        AIFUtils.markType(model, getAssertionUri(), presidentUSA, SeedlingOntology.GPE, system, 1.0);
         AIFUtils.markName(presidentUSA, "the president");
 
         final Resource newPresident = AIFUtils.makeEntity(model, getEntityUri(), system);
-        AIFUtils.markType(model, getAssertionUri(), presidentUSA, SeedlingOntologyMapper.GPE, system, 1.0);
+        AIFUtils.markType(model, getAssertionUri(), presidentUSA, SeedlingOntology.GPE, system, 1.0);
         AIFUtils.markName(presidentUSA, "the newly-inaugurated president");
 
         final Resource president45 = AIFUtils.makeEntity(model, getEntityUri(), system);
-        AIFUtils.markType(model, getAssertionUri(), presidentUSA, SeedlingOntologyMapper.GPE, system, 1.0);
+        AIFUtils.markType(model, getAssertionUri(), presidentUSA, SeedlingOntology.GPE, system, 1.0);
         AIFUtils.markName(presidentUSA, "the 45th president");
 
         // cluster president entities
@@ -590,11 +590,11 @@ class ValidExamples {
 
         // create Trump entities
         final Resource donaldTrump = AIFUtils.makeEntity(model, getEntityUri(), system);
-        AIFUtils.markType(model, getAssertionUri(), presidentUSA, SeedlingOntologyMapper.PERSON, system, 1.0);
+        AIFUtils.markType(model, getAssertionUri(), presidentUSA, SeedlingOntology.PERSON, system, 1.0);
         AIFUtils.markName(presidentUSA, "Donald Trump");
 
         final Resource trump = AIFUtils.makeEntity(model, getEntityUri(), system);
-        AIFUtils.markType(model, getAssertionUri(), presidentUSA, SeedlingOntologyMapper.PERSON, system, 1.0);
+        AIFUtils.markType(model, getAssertionUri(), presidentUSA, SeedlingOntology.PERSON, system, 1.0);
         AIFUtils.markName(presidentUSA, "Trump");
 
         // cluster trump entities
@@ -689,13 +689,13 @@ class ValidExamples {
       final Resource personEntity = AIFUtils
               .makeEntity(model, "http://www.test.edu/entities/1", system);
       AIFUtils.markType(model, "http://www.test.org/assertions/1",
-              personEntity, SeedlingOntologyMapper.PERSON, system, 1.0);
+              personEntity, SeedlingOntology.PERSON, system, 1.0);
       final Resource louisvilleEntity = AIFUtils
               .makeEntity(model, "http://www.test.edu/entities/2", system);
       AIFUtils.markType(model, "http://www.test.org/assertions/1",
-              louisvilleEntity, SeedlingOntologyMapper.GPE, system, 1.0);
+              louisvilleEntity, SeedlingOntology.GPE, system, 1.0);
 
-        String relation = SeedlingOntologyMapper.NAMESPACE_STATIC + "unknown_type";
+        String relation = SeedlingOntology.NAMESPACE_STATIC + "unknown_type";
         makeRelationInEventForm(model, "http://www.test.edu/relations/1", model.createResource(relation),
                 ontologyMapping.eventArgumentType(relation + "_person"), personEntity,
                 ontologyMapping.eventArgumentType(relation + "_person"), louisvilleEntity,
@@ -770,7 +770,7 @@ class ValidExamples {
     model.setNsPrefix("xsd", XSD.getURI());
     model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
     if (seedling) {
-        model.setNsPrefix("ldcOnt", SeedlingOntologyMapper.NAMESPACE_STATIC);
+        model.setNsPrefix("ldcOnt", SeedlingOntology.NAMESPACE_STATIC);
     } else {
         model.setNsPrefix("coldstart", ColdStartOntologyMapper.NAMESPACE_STATIC);
     }
