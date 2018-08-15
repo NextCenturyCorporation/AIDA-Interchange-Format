@@ -11,7 +11,7 @@
 <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology> rdf:type owl:Ontology ;
     rdfs:label "AIDA Interchange Format Ontology" ;
     rdfs:comment "This ontology is designed to represent information exchanged between TA1, TA2 and TA3 in the AIDA program" ;
-    owl:versionInfo "Version 1.0" .
+    owl:versionInfo "Version 1.0.1" .
 
 
 #################################################################
@@ -138,7 +138,7 @@
   rdfs:subPropertyOf owl:topObjectProperty ; .
 
 :cluster rdf:type owl:ObjectProperty ;
-  rdfs:domain :ClusterMemberShip ;
+  rdfs:domain :ClusterMembership ;
   rdfs:label "cluster" ;
   rdfs:range :SameAsCluster ;
   rdfs:subPropertyOf owl:topObjectProperty ; .
