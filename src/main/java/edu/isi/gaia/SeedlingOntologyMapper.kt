@@ -43,17 +43,15 @@ class PassThroughOntologyMapper(private val model: Model,
 
     override fun eventArgumentType(argName: String) = resourceInOntology(argName)
 
-    override fun typeAllowedToHaveAName(type: Resource): Boolean {
-        return true
-    }
+    override fun typeAllowedToHaveAName(type: Resource) =
+            model.contains(type, RDF.type, AidaDomainOntologiesCommon.CanHaveName)
 
-    override fun typeAllowedToHaveTextValue(type: Resource): Boolean {
-        return true
-    }
 
-    override fun typeAllowedToHaveNumericValue(type: Resource): Boolean {
-        return true
-    }
+    override fun typeAllowedToHaveTextValue(type: Resource) =
+            model.contains(type, RDF.type, AidaDomainOntologiesCommon.CanHaveTextValue)
+
+    override fun typeAllowedToHaveNumericValue(type: Resource) =
+            model.contains(type, RDF.type, AidaDomainOntologiesCommon.CanHaveNumericValue)
 
     private fun resourceInOntology(uri: String): Resource? {
         val ret = ResourceFactory.createResource(uri)!!
