@@ -156,7 +156,9 @@ class ColdStart2AidaInterchangeConverter(
                 // TODO: this will block the justification type being marked for such
                 // justifications.  On the other hand, this is probably ok, because knowing it
                 // is the canonical mention is more informative. Issue #46
-                return false
+                // we return true here even though the statement wasn't translated because it is just a duplicate
+                // of an already translated assertion, so we don't need to warn about it
+                return true
             }
             AIFUtils.markSystem(entityResource, systemNode)
 
@@ -211,16 +213,14 @@ class ColdStart2AidaInterchangeConverter(
 
         fun translateRelation(csAssertion: RelationAssertion, confidence: Double): Boolean {
             val relationTypeIri = ontologyMapping.relationType(csAssertion.relationType)
-            if (relationTypeIri != null) {
-                val subjectRole = ontologyMapping.eventArgumentType(csAssertion.relationType + "_subject")
-                        ?: RDF.subject
-                val objectRole = ontologyMapping.eventArgumentType(csAssertion.relationType + "_object") ?: RDF.subject
+            return if (relationTypeIri != null) {
+                val (subjectRole, objectRole) = ontologyMapping.relationArgumentTypes(relationTypeIri)
                 AIFUtils.makeRelationInEventForm(model, assertionIriGenerator.nextIri(), relationTypeIri,
                         subjectRole, toResource(csAssertion.subject), objectRole, toResource(csAssertion.obj),
                         assertionIriGenerator.nextIri(), systemNode, confidence)
-                return true
+                true
             } else {
-                return false
+                false
             }
         }
 
@@ -392,14 +392,10 @@ fun main(args: Array<String>) {
     // don't log too much Jena-internal stuff
     (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.INFO
 
-    val ontologyMappings: Map<String, OntologyMapping> = listOf(
-            "coldstart" to ColdStartOntologyMapper(),
-            "seedling" to SeedlingOntologyMapper(),
-            "rpi_seedling" to RPISeedlingOntologyMapper()
-    ).toMap()
-
-    val ontologyName: String = params.getOptionalString("ontology").or("coldstart")
-    val ontologyMapping = ontologyMappings[ontologyName] ?: ColdStartOntologyMapper()
+    val ontologyFile = params.getExistingFile("ontology")
+    val relationArgsFile = params.getExistingFile("relationArgsFile")
+    val ontologyMapping = PassThroughOntologyMapper.fromFile(ontologyFile,
+            relationArgsFile)
 
     // this will track which assertions could not be converted. This is useful for debugging.
     // we pull this out into its own object instead of doing it inside the conversion method
@@ -446,6 +442,7 @@ fun main(args: Array<String>) {
         }
     }
 
+    ColdStart2AidaInterchangeConverter.logger.info { "Writing output to $outputPath" }
     ColdStart2AidaInterchangeConverter.logger.info(errorLogger.errorsMessage())
 }
 
@@ -558,10 +555,8 @@ class DefaultErrorLogger : ErrorLogger {
         untranslatableAssertionTypesB.add(assertion.javaClass)
         when (assertion) {
             is TypeAssertion -> untranslatableObjectTypesB.add(assertion.type)
+            is EventArgumentAssertion -> outOfDomainTypes.add(assertion.argument_role)
             is RelationAssertion -> outOfDomainTypes.add(assertion.relationType)
-        }
-        if (assertion is TypeAssertion) {
-            untranslatableObjectTypesB.add(assertion.type)
         }
     }
 

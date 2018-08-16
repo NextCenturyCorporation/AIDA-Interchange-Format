@@ -1,8 +1,74 @@
 package edu.isi.gaia
 
+import org.apache.commons.csv.CSVFormat
+import org.apache.jena.rdf.model.Model
+import org.apache.jena.rdf.model.ModelFactory
 import org.apache.jena.rdf.model.Resource
 import org.apache.jena.rdf.model.ResourceFactory
+import org.apache.jena.vocabulary.OWL
+import org.apache.jena.vocabulary.RDF
+import java.io.File
 import java.util.*
+
+class PassThroughOntologyMapper(private val model: Model,
+                                override val NAMESPACE: String,
+                                private val relationsToArguments: Map<Resource, Pair<Resource, Resource>>) : OntologyMapping {
+    companion object {
+        fun fromFile(ontologyFile: File, relationArgFile: File): PassThroughOntologyMapper {
+            val model = ModelFactory.createDefaultModel()
+            model.read(ontologyFile.absolutePath, "TURTLE")
+            val ontologyObject = model.subjectsWithProperty(RDF.type, OWL.Ontology).first()
+
+            val relationsToArgumentAssertion = relationArgFile.bufferedReader().use {
+                val records = CSVFormat.EXCEL.withHeader("Relation Name", "Arg1", "Arg2")
+                        .parse(it)
+                records.asSequence().map {
+                    ResourceFactory.createResource(it.get("Relation Name")!!) to
+                            Pair(ResourceFactory.createResource(it.get("Arg1")!!),
+                                    ResourceFactory.createResource(it.get("Arg2")!!))
+                }.toMap()
+            }
+
+            return PassThroughOntologyMapper(model, ontologyObject.uri, relationsToArgumentAssertion)
+        }
+    }
+
+    override fun entityShortNames() = setOf<String>()
+
+    override fun entityType(ontology_type: String) = resourceInOntology(ontology_type)
+
+    override fun relationType(relationName: String) = resourceInOntology(relationName)
+
+    override fun eventType(eventName: String) = resourceInOntology(eventName)
+
+    override fun eventArgumentType(argName: String) = resourceInOntology(argName)
+
+    override fun typeAllowedToHaveAName(type: Resource): Boolean {
+        return true
+    }
+
+    override fun typeAllowedToHaveTextValue(type: Resource): Boolean {
+        return true
+    }
+
+    override fun typeAllowedToHaveNumericValue(type: Resource): Boolean {
+        return true
+    }
+
+    private fun resourceInOntology(uri: String): Resource? {
+        val ret = ResourceFactory.createResource(uri)!!
+        return if (model.containsResource(ret)) {
+            ret
+        } else {
+            null
+        }
+    }
+
+    override fun relationArgumentTypes(relation: Resource): Pair<Resource, Resource> {
+        return relationsToArguments[relation]
+                ?: throw RuntimeException("Arguments not known for relation ${relation.uri}")
+    }
+}
 
 /**
  * The Seedling domain ontology.
@@ -155,6 +221,7 @@ class SeedlingOntologyMapper : OntologyMapping {
         private val LOCATED_NEAR = "phys_locnear"
 
         private val PART_WHOLE_MEMBER = "partwhole_membership"
+        private val PART_WHOLE_SUBSIDIARY = ""
 
 
         private val RELATION_SPECIAL_CASES = listOf(
@@ -195,7 +262,8 @@ class SeedlingOntologyMapper : OntologyMapping {
                 "religion" to MEMBER_RELIGIOUS_ETHNIC_GROUP,
                 "PHYS.Near" to LOCATED_NEAR,
                 "PHYS.Located" to LOCATED_NEAR,
-                "GEN-AFF.Org-Location" to LOCATED_NEAR)
+                "GEN-AFF.Org-Location" to LOCATED_NEAR,
+                "Part-Whole.Subsidiary" to PART_WHOLE_SUBSIDIARY)
 
         private val RELATION_TYPES_NIST = listOf(
                 "GeneralAffiliation.APORA", "GeneralAffiliation.MORE", "GeneralAffiliation.OPRA",
@@ -285,31 +353,20 @@ class SeedlingOntologyMapper : OntologyMapping {
         return ResourceFactory.createResource(NAMESPACE_STATIC + argName)
     }
 
-    override fun knownRelationTypes(): Set<String> {
-        return RELATION_TYPES.keys
-    }
-
-    override fun knownEventTypes(): Set<String> {
-        return EVENT_TYPES.keys
-    }
-
     override fun typeAllowedToHaveAName(type: Resource) = type in TYPES_WHICH_CAN_HAVE_NAMES
     override fun typeAllowedToHaveTextValue(type: Resource) = type in TYPES_WHICH_CAN_HAVE_TEXT_VALUES
     override fun typeAllowedToHaveNumericValue(type: Resource) = type in TYPES_WHICH_CAN_HAVE_NUMERIC_VALUES
+
+    override fun relationArgumentTypes(relation: Resource): Pair<Resource, Resource> {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
 }
 
 open class RPISeedlingOntologyMapper : OntologyMapping {
     private val seedlingOM = SeedlingOntologyMapper()
     override val NAMESPACE: String = SeedlingOntologyMapper.NAMESPACE_STATIC
     val FILLER = ResourceFactory.createResource(NAMESPACE + "FillerType")!!
-
-    override fun knownRelationTypes(): Set<String> {
-        return seedlingOM.knownRelationTypes().plus("FILLER")
-    }
-
-    override fun knownEventTypes(): Set<String> {
-        return seedlingOM.knownEventTypes()
-    }
 
     override fun entityShortNames(): Set<String> = seedlingOM.entityShortNames().
             plus("FILLER").toSet()
@@ -327,4 +384,9 @@ open class RPISeedlingOntologyMapper : OntologyMapping {
     override fun typeAllowedToHaveAName(type: Resource) = seedlingOM.typeAllowedToHaveAName(type)
     override fun typeAllowedToHaveTextValue(type: Resource) = seedlingOM.typeAllowedToHaveTextValue(type)
     override fun typeAllowedToHaveNumericValue(type: Resource) = seedlingOM.typeAllowedToHaveNumericValue(type)
+
+    override fun relationArgumentTypes(relation: Resource): Pair<Resource, Resource> {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
 }

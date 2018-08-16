@@ -112,8 +112,8 @@ data class SentimentAssertion(override val subject: Node, val sentiment: String,
 }
 
 data class EventArgumentAssertion(override val subject: Node, val argument_role: String,
-                             val realis: Realis, val argument: Node,
-                             val justifications: Provenance) : Assertion {
+                                  val realis: Realis?, val argument: Node,
+                                  val justifications: Provenance) : Assertion {
     init {
         require(argument_role.isNotEmpty()) { "Empty argument role not allowed" }
     }
@@ -398,11 +398,10 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false,
                         fields[_CONF_FLOAT].toDouble())
 
                 subjectNode is EventNode -> {
-                    if (realis.isEmpty()) throw IOException("Invalid empty realis on event argument")
                     MaybeScoredAssertion(EventArgumentAssertion(
                             subjectNode,
                             relation_type,
-                            Realis.valueOf(realis),
+                            if (realis.isEmpty()) null else Realis.valueOf(realis),
                             objectNode,
                             provenance),
                             fields[_CONF_FLOAT].toDouble())
