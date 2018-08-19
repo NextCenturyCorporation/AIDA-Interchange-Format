@@ -1,5 +1,6 @@
 package edu.isi.gaia
 
+import com.google.common.collect.ImmutableSet
 import org.apache.jena.rdf.model.ResourceFactory
 
 /**
@@ -9,6 +10,15 @@ object AidaAnnotationOntology {
     // URI would change from isi.edu to something else if adopted program-wide
     @JvmField
     val NAMESPACE: String = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#";
+
+    @JvmField
+    val NAME = ResourceFactory.createProperty(NAMESPACE + "Name")!!
+    @JvmField
+    val NOMINAL = ResourceFactory.createProperty(NAMESPACE + "Nominal")!!
+    @JvmField
+    val PRONOUN = ResourceFactory.createProperty(NAMESPACE + "Pronoun")!!
+    @JvmField
+    val MENTION_TYPES = ImmutableSet.of(NAME, NOMINAL, PRONOUN)!!
 
     // properties
     @JvmField
@@ -35,6 +45,8 @@ object AidaAnnotationOntology {
     @JvmField
     val END_OFFSET_INCLUSIVE = ResourceFactory.createProperty(NAMESPACE
             + "endOffsetInclusive")!!
+    @JvmField
+    val MENTION_TYPE = ResourceFactory.createProperty(NAMESPACE + "mentionType")!!
     @JvmField
     val START_TIMESTAMP = ResourceFactory.createProperty(NAMESPACE + "startTimestamp")!!
     @JvmField

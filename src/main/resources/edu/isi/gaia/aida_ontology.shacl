@@ -497,6 +497,12 @@ aida:TextJustificationShape
       sh:path skos:prefLabel ;
       sh:datatype xsd:string ];
 
+   # an optional mention type
+   sh:property [
+      sh:path aida:mentionType ;
+      sh:class aida:TextMentionType ;
+   ];
+
    # justifications must provide confidences
    sh:property aida:RequiredConfidencePropertyShape ;
 

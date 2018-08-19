@@ -233,7 +233,7 @@ object AIFUtils {
      */
     @JvmStatic
     fun makeTextJustification(model: Model, docId: String, startOffset: Int, endOffsetInclusive: Int,
-                              system: Resource, confidence: Double): Resource {
+                              mentionType: Resource?, system: Resource, confidence: Double): Resource {
         require(endOffsetInclusive >= startOffset) {
             "End offset $endOffsetInclusive precedes start offset $startOffset"
         }
@@ -245,8 +245,26 @@ object AIFUtils {
                 model.createTypedLiteral(startOffset))
         justification.addProperty(AidaAnnotationOntology.END_OFFSET_INCLUSIVE,
                 model.createTypedLiteral(endOffsetInclusive))
+        if (mentionType != null) {
+            require(mentionType in AidaAnnotationOntology.MENTION_TYPES) {
+                "Mention type must be in ${AidaAnnotationOntology.MENTION_TYPES} but got $mentionType"
+            }
+            justification.addProperty(AidaAnnotationOntology.MENTION_TYPE, mentionType)
+        }
 
         return justification
+    }
+
+    /**
+     * Create justification from a particular snippet of text.
+     *
+     * This is a backwards-compatible version for when the mention type is not provided.
+     */
+    @JvmStatic
+    fun makeTextJustification(model: Model, docId: String, startOffset: Int, endOffsetInclusive: Int,
+                              system: Resource, confidence: Double): Resource {
+        return makeTextJustification(model, docId, startOffset, endOffsetInclusive, null,
+                system, confidence)
     }
 
     /**

@@ -532,7 +532,8 @@ class ValidExamples {
         // itself, since it provides evidence both for the entity's existence and its type.
         // in TA1 -> TA2 communications, we attach confidences at the level of justifications
         final Resource textJustification = AIFUtils.makeTextJustification(model, "NYT_ENG_20181231",
-                42, 143, system, 0.973);
+                42, 143, AidaAnnotationOntology.NOMINAL,
+                system, 0.973);
 
         // let's suppose we also have evidence from an image
         final Resource imageJustification = AIFUtils.makeImageJustification(model, "NYT_ENG_20181231_03",

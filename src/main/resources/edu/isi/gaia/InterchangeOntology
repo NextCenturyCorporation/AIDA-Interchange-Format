@@ -117,6 +117,22 @@
         :KeyFrameVideoJustification
         :ShotVideoJustification ) .
 
+:TextMentionType a owl:Class ;
+    rdfs:label "Text mention type" ;
+    rdfs:comment "Store whether text justifications come from names, nominals, or pronouns" .
+
+:Name a :TextMentionType ;
+    rdfs:label "Name mention type" ;
+    rdfs:comment "Indicates a textual mention which is a name" .
+
+:Nominal a :TextMentionType ;
+    rdfs:label "Nominal mention type" ;
+    rdfs:comment "Indicates a textual mention which is neither a name nor a pronoun" .
+
+:Pronoun a :TextMentionType ;
+    rdfs:label "Pronoun mention type" ;
+    rdfs:comment "Indicates a textual mention which is a pronoun" .
+
 #################################################################
 #        Properties
 #################################################################
@@ -196,6 +212,13 @@
   rdfs:comment "Performer system id" ;
   rdfs:range :System ;
   rdfs:subPropertyOf owl:topObjectProperty; .
+
+:mentionType rdf:type owl:DataTypeProperty ;
+  rdfs:label "mention type" ;
+  rdfs:comment "Indicates the mention type of a text justification" ;
+  rdfs:range :TextMentionType ;
+  rdfs:domain :TextJustification ;
+  rdfs:subPropertyOf owl:topObjectProperty .
 
 :hasName rdf:type owl:DataTypeProperty ;
   rdfs:label "has name" ;
