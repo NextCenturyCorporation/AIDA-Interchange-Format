@@ -1,6 +1,7 @@
 package edu.isi.gaia
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.common.collect.ImmutableList
 import edu.isi.gaia.AIFUtils.SparqlQueries.TYPE_QUERY
 import org.apache.jena.query.QueryExecutionFactory
 import org.apache.jena.query.QueryFactory
@@ -219,11 +220,19 @@ object AIFUtils {
     }
 
     /**
+     * Mark something as being justified by a particular justification
+     */
+    @JvmStatic
+    fun markJustification(toMarkOn: Resource, justification: Resource) {
+        toMarkOn.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification)
+    }
+
+    /**
      * Mark multiple things as being justified by a particular justification
      */
     @JvmStatic
     fun markJustification(toMarkOn: Collection<Resource>, justification: Resource) {
-        toMarkOn.forEach { it.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification) }
+        toMarkOn.forEach { markJustification(it, justification) }
     }
 
     /**
@@ -456,6 +465,26 @@ object AIFUtils {
     /**
      * Mark the given resources as mutually exclusive.
      *
+     * This is a special case of [markAsMutuallyExclusive] where the alternatives are each single edges.
+     *
+     * @param [alternatives] is a map from alternate edges to the confidence associated with each alternative.
+     *
+     * @param [noneOfTheAboveProb] - if non-null, the given confidence will be applied to the
+     * "none of the above" option.
+     *
+     * @return The mutual exclusion assertion.
+     */
+    @JvmStatic
+    fun markEdgesAsMutuallyExclusive(model: Model, alternatives: Map<Resource, Double>,
+                                     system: Resource, noneOfTheAboveProb: Double? = null): Resource {
+        return markAsMutuallyExclusive(model,
+                alternatives.entries.asSequence().map { ImmutableList.of(it.key) to it.value }.toMap(),
+                system, noneOfTheAboveProb);
+    }
+
+    /**
+     * Mark the given resources as mutually exclusive.
+     *
      * @param [alternatives] is a map from the collection of edges which form a sub-graph for
      * an alternative to the confidence associated with an alternative.
      *
@@ -510,7 +539,7 @@ object AIFUtils {
      * aren't sure. (If we were sure, they would just be a single node).
      *
      * Every cluster requires a [prototype] - an entity or event that we are *certain* is in the
-     * cluster.
+     * cluster. This also automatically adds a membership relation with the prototype with confidence 1.0.
      *
      * @return The cluster created
      */
@@ -519,6 +548,7 @@ object AIFUtils {
                                  system: Resource): Resource {
         val cluster = makeAIFResource(model, clusterUri, AidaAnnotationOntology.SAME_AS_CLUSTER_CLASS, system)
         cluster.addProperty(AidaAnnotationOntology.PROTOTYPE, prototype)
+        markAsPossibleClusterMember(model, prototype, cluster, 1.0, system);
         return cluster
     }
 

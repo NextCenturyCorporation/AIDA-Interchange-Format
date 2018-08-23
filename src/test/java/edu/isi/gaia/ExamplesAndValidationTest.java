@@ -10,6 +10,7 @@ import kotlin.text.Charsets;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.vocabulary.RDF;
@@ -673,6 +674,287 @@ class ValidExamples {
                 143, system, 0.973);
 
         dumpAndAssertValid(model, "create a simple cluster", true);
+    }
+
+    /**
+     * Shows how to create a relation with uncertain endpoints using the version of coreference expected for
+     * output NIST will execute SPARQL queries on.
+     * <p>
+     * In NIST-AIF (NAIF), all entities are restricted to justifications from a single document. All cross-document
+     * coreference is indicated via cluster membership. Also, each entity is required to be part of at least
+     * one cluster.
+     */
+    @Test
+    void relationWhereBothEndpointsAreAmbiguousNISTRestrictedVersion() {
+        final Model model = createModel(true);
+
+        // every AIF needs an object for the system responsible for creating it
+        final Resource system = AIFUtils.makeSystemWithURI(model, "http://www.test.edu/testSystem");
+
+        // let's imagine we have three documents.  We will make TextJustification objects for some entity mentions in
+        // them which we will use later (with bogus offsets, because I don't want to bother to count them out).
+        // Since NAIF requires entities to be restricted to justifications from a single document, we go ahead and
+        // create our entities now, too.
+
+        // In all the below, we are going to imagine the system is unsure whether "President Obama" is "Barack
+        // Obama" or "Michelle Obama" and whether "Secretary Clinton" is "Hillary Clinton" or "Bill Clinton"
+
+        // document 1: [Michelle Obama] was first Lady (married to [Barack Obama]).  [President Obama] was
+        // a senator from Chicago.
+        final Resource michelleObamaMention = AIFUtils.makeTextJustification(model, "doc1", 0,
+                1, system, 1.0);
+        final Resource firstLadyMention = AIFUtils.makeTextJustification(model, "doc1", 0,
+                1, system, 1.0);
+        final Resource barackObamaDoc1Mention = AIFUtils.makeTextJustification(model, "doc1", 0,
+                1, system, 1.0);
+        final Resource presidentObamaDoc1Mention = AIFUtils.makeTextJustification(model, "doc1", 0,
+                1, system, 1.0);
+
+        final Resource michelleObamaDoc1 = AIFUtils.makeEntity(model,
+                "http://www.test.edu/entities/michelleObamaDoc1", system);
+        markJustification(michelleObamaDoc1, michelleObamaMention);
+        markJustification(michelleObamaDoc1, firstLadyMention);
+
+        final Resource barackObamaDoc1 = AIFUtils.makeEntity(model,
+                "http://www.test.edu/entities/barackObamaDoc1", system);
+        markJustification(barackObamaDoc1, barackObamaDoc1Mention);
+
+        // the uncertain "President Obama" gets its own entity, since we aren't sure which of the other two it
+        // is identical to
+        final Resource uncertainPresidentObamaDoc1 = AIFUtils.makeEntity(model,
+                "http://www.test.edu/entities/uncertainPresidentObamaDoc1", system);
+        markJustification(uncertainPresidentObamaDoc1, presidentObamaDoc1Mention);
+
+        // document 2 text: "[Barack Obama] was the 44th president of the United States. [President Obama] was elected
+        // in 2008.  [President Obama] worked with [Secretary Clinton].
+        final Resource barackObamaDoc2Mention = AIFUtils.makeTextJustification(model, "doc2", 0,
+                1, system, 1.0);
+        final Resource presidentObamaDoc2Mention1 = AIFUtils.makeTextJustification(model, "doc2", 0,
+                1, system, 1.0);
+        final Resource presidentObamaDoc2Mention2 = AIFUtils.makeTextJustification(model, "doc2", 0,
+                1, system, 1.0);
+        final Resource secretaryClintonDoc2Mention = AIFUtils.makeTextJustification(model, "doc2", 0,
+                1, system, 1.0);
+
+
+        final Resource barackObamaDoc2 = AIFUtils.makeEntity(model,
+                "http://www.test.edu/entities/barackObamaDoc2", system);
+        markJustification(barackObamaDoc2, barackObamaDoc2Mention);
+
+        final Resource uncertainPresidentObamaDoc2 = AIFUtils.makeEntity(model,
+                "http://www.test.edu/entities/uncertainPresidentObamaDoc2", system);
+        markJustification(uncertainPresidentObamaDoc2, presidentObamaDoc2Mention1);
+        markJustification(uncertainPresidentObamaDoc2, presidentObamaDoc2Mention2);
+
+        final Resource uncertainSecretaryClintonDoc2 = AIFUtils.makeEntity(model,
+                "http://www.test.edu/entities/uncertainSecretaryClintonDoc2", system);
+        markJustification(uncertainSecretaryClintonDoc2, secretaryClintonDoc2Mention);
+
+
+        // document 3 text:  [Bill Clinton] is married to Hilary Clinton.  [Secretary Clinton] doesn't like hamburgers.
+        final Resource billClintonMention = AIFUtils.makeTextJustification(model, "doc3", 0,
+                1, system, 1.0);
+        final Resource hillaryClintonMention = AIFUtils.makeTextJustification(model, "doc3", 0,
+                1, system, 1.0);
+        final Resource uncertainSecretaryClintonDoc3Mention = AIFUtils.makeTextJustification(model, "doc3", 0,
+                1, system, 1.0);
+
+        final Resource billClintonDoc3 = AIFUtils.makeEntity(model,
+                "http://www.test.edu/entities/billClintonDoc3", system);
+        markJustification(billClintonDoc3, billClintonMention);
+
+        final Resource hillaryClintonDoc3 = AIFUtils.makeEntity(model,
+                "http://www.test.edu/entities/hillaryClintonDoc3", system);
+        markJustification(hillaryClintonDoc3, hillaryClintonMention);
+
+        final Resource uncertainSecretaryClintonDoc3 = AIFUtils.makeEntity(model,
+                "http://www.test.edu/entities/uncertainSecretaryClintonDoc3", system);
+        markJustification(uncertainSecretaryClintonDoc3, uncertainSecretaryClintonDoc3Mention);
+
+        // in NAIF, all cross-document linking is done via clusters and every entity must belong to some cluster
+        final Resource michelleObamaCluster = AIFUtils.makeClusterWithPrototype(model,
+                "http://www.test.edu/cluster/1", michelleObamaDoc1, system);
+        final Resource barackObamaCluster = AIFUtils.makeClusterWithPrototype(model,
+                "http://www.test.edu/cluster/2", barackObamaDoc1, system);
+        final Resource billClintonCluster = AIFUtils.makeClusterWithPrototype(model,
+                "http://www.test.edu/cluster/3", billClintonDoc3, system);
+        final Resource hillaryClintonCluster = AIFUtils.makeClusterWithPrototype(model,
+                "http://www.test.edu/cluster/4", hillaryClintonDoc3, system);
+
+        // There are also some entities whose reference to is ambiguous. They belong to multiple clusters.
+        final Resource presidentObamaDoc1IsMichelle = AIFUtils.markAsPossibleClusterMember(model,
+                uncertainPresidentObamaDoc1, michelleObamaCluster, 0.5, system);
+        final Resource presidentObamaDoc1IsBarack = AIFUtils.markAsPossibleClusterMember(model,
+                uncertainPresidentObamaDoc1, barackObamaCluster, 0.5, system);
+        AIFUtils.markEdgesAsMutuallyExclusive(model, ImmutableMap.of(presidentObamaDoc1IsMichelle, 0.5,
+                presidentObamaDoc1IsBarack, 0.5), system, null);
+
+        final Resource presidentObamaDoc2IsMichelle = AIFUtils.markAsPossibleClusterMember(model,
+                uncertainPresidentObamaDoc2, michelleObamaCluster, 0.5, system);
+        final Resource presidentObamaDoc2IsBarack = AIFUtils.markAsPossibleClusterMember(model,
+                uncertainPresidentObamaDoc2, barackObamaCluster, 0.5, system);
+        AIFUtils.markEdgesAsMutuallyExclusive(model, ImmutableMap.of(presidentObamaDoc2IsMichelle, 0.5,
+                presidentObamaDoc2IsBarack, 0.5), system, null);
+
+        final Resource secretaryClintonDoc2IsBill = AIFUtils.markAsPossibleClusterMember(model,
+                uncertainSecretaryClintonDoc2, billClintonCluster, 0.5, system);
+        final Resource secretaryClintonDoc2IsHillary = AIFUtils.markAsPossibleClusterMember(model,
+                uncertainSecretaryClintonDoc2, hillaryClintonCluster, 0.5, system);
+        AIFUtils.markEdgesAsMutuallyExclusive(model, ImmutableMap.of(secretaryClintonDoc2IsBill, 0.5,
+                secretaryClintonDoc2IsHillary, 0.5), system, null);
+
+        final Resource secretaryClintonDoc3IsBill = AIFUtils.markAsPossibleClusterMember(model,
+                uncertainSecretaryClintonDoc3, billClintonCluster, 0.5, system);
+        final Resource secretaryClintonDoc3IsHillary = AIFUtils.markAsPossibleClusterMember(model,
+                uncertainSecretaryClintonDoc3, hillaryClintonCluster, 0.5, system);
+        AIFUtils.markEdgesAsMutuallyExclusive(model, ImmutableMap.of(secretaryClintonDoc3IsBill, 0.5,
+                secretaryClintonDoc3IsHillary, 0.5), system, null);
+
+        // relation that President Obama (of uncertain reference) worked with Secretary Clinton (of uncertain reference)
+        // is asserted in document 2
+        final Resource relation = AIFUtils.makeRelationInEventForm(model, "http://www.test.edu/relation/1",
+                ResourceFactory.createResource(SeedlingOntologyMapper.NAMESPACE_STATIC + "PersonalSocial.Business"),
+                ResourceFactory.createResource(SeedlingOntologyMapper.NAMESPACE_STATIC + "PersonalSocial.Business_Person"),
+                uncertainPresidentObamaDoc2,
+                ResourceFactory.createResource(SeedlingOntologyMapper.NAMESPACE_STATIC + "PersonalSocial.Business_Person"),
+                uncertainSecretaryClintonDoc2,
+                "http://www.test.edu/relationType/1",
+                system,
+                0.75);
+        // mark justification "President Obama worked with Secretary Clinton"
+        AIFUtils.markTextJustification(model, relation, "doc2", 0, 10, system,
+                0.75);
+    }
+
+    /**
+     * Another way to represent cross-document coref + relations. This way allows entities to have justifications from
+     * multiple documents and only uses clusters when needed to represent coreference uncertainty. This way is not
+     * allowable in output intended for NIST to run SPARQL queries over.
+     * <p>
+     * For reference, search for "DIFFERENCE" to find places where this diverges from the NAIF version.
+     */
+    @Test
+    void relationWhereBothEndpointsAreAmbiguousCrossDocEntitiesVersion() {
+        final Model model = createModel(true);
+
+        // every AIF needs an object for the system responsible for creating it
+        final Resource system = AIFUtils.makeSystemWithURI(model, "http://www.test.edu/testSystem");
+
+        // let's imagine we have three documents.  We will make TextJustification objects for some entity mentions in
+        // them which we will use later (with bogus offsets, because I don't want to bother to count them out).
+
+        // In all the below, we are going to imagine the system is unsure whether "President Obama" is "Barack
+        // Obama" or "Michelle Obama" and whether "Secretary Clinton" is "Hillary Clinton" or "Bill Clinton"
+
+        // document 1: [Michelle Obama] was first Lady (married to [Barack Obama]).  [President Obama] was
+        // a senator from Chicago.
+        final Resource michelleObamaMention = AIFUtils.makeTextJustification(model, "doc1", 0,
+                1, system, 1.0);
+        final Resource firstLadyMention = AIFUtils.makeTextJustification(model, "doc1", 0,
+                1, system, 1.0);
+        final Resource barackObamaDoc1Mention = AIFUtils.makeTextJustification(model, "doc1", 0,
+                1, system, 1.0);
+        final Resource presidentObamaDoc1Mention = AIFUtils.makeTextJustification(model, "doc1", 0,
+                1, system, 1.0);
+
+        // DIFFERENCE: notice we don't create a separate set of entities for each document. Instead we will create them
+        // below at the corpus level
+
+        // document 2 text: "[Barack Obama] was the 44th president of the United States. [President Obama] was elected
+        // in 2008.  [President Obama] worked with [Secretary Clinton].
+        final Resource barackObamaDoc2Mention = AIFUtils.makeTextJustification(model, "doc2", 0,
+                1, system, 1.0);
+        final Resource presidentObamaDoc2Mention1 = AIFUtils.makeTextJustification(model, "doc2", 0,
+                1, system, 1.0);
+        final Resource presidentObamaDoc2Mention2 = AIFUtils.makeTextJustification(model, "doc2", 0,
+                1, system, 1.0);
+        final Resource secretaryClintonDoc2Mention = AIFUtils.makeTextJustification(model, "doc2", 0,
+                1, system, 1.0);
+
+        // document 3 text:  [Bill Clinton] is married to Hilary Clinton.  [Secretary Clinton] doesn't like hamburgers.
+        final Resource billClintonMention = AIFUtils.makeTextJustification(model, "doc3", 0,
+                1, system, 1.0);
+        final Resource hillaryClintonMention = AIFUtils.makeTextJustification(model, "doc3", 0,
+                1, system, 1.0);
+        final Resource uncertainSecretaryClintonDoc3Mention = AIFUtils.makeTextJustification(model, "doc3", 0,
+                1, system, 1.0);
+
+        // DIFFERENCE: here we make our corpus-level entities
+
+        final Resource michelleObama = AIFUtils.makeEntity(model,
+                "http://www.test.edu/entities/michelleObama", system);
+        markJustification(michelleObama, michelleObamaMention);
+        markJustification(michelleObama, firstLadyMention);
+
+        final Resource barackObama = AIFUtils.makeEntity(model,
+                "http://www.test.edu/entities/barackObama", system);
+        markJustification(barackObama, barackObamaDoc1Mention);
+        markJustification(barackObama, barackObamaDoc2Mention);
+
+        final Resource billClinton = AIFUtils.makeEntity(model,
+                "http://www.test.edu/entities/billClinton", system);
+        markJustification(billClinton, billClintonMention);
+
+        final Resource hillaryClinton = AIFUtils.makeEntity(model,
+                "http://www.test.edu/entities/hillaryClinton", system);
+        markJustification(hillaryClinton, hillaryClintonMention);
+
+        // the uncertain "President Obama" gets its own entity, since we aren't sure which other entity it is
+        // identical to. Here we are assuming all the "President Obamas" in our little mini-corpus are the same person.
+        final Resource presidentObama = AIFUtils.makeEntity(model,
+                "http://www.test.edu/entities/presidentObama", system);
+        markJustification(presidentObama, presidentObamaDoc1Mention);
+        markJustification(presidentObama, presidentObamaDoc2Mention2);
+        markJustification(presidentObama, presidentObamaDoc2Mention1);
+
+        // same for "Secretary Clinton"
+        final Resource secretaryClinton = AIFUtils.makeEntity(model,
+                "http://www.test.edu/entities/secretaryClinton", system);
+        markJustification(secretaryClinton, secretaryClintonDoc2Mention);
+        markJustification(secretaryClinton, uncertainSecretaryClintonDoc3Mention);
+
+
+        // in general AIF you only need to use clusters if you need to show coreference uncertainty (which in this
+        // case we do for all entities)
+        final Resource michelleObamaCluster = AIFUtils.makeClusterWithPrototype(model,
+                "http://www.test.edu/cluster/1", michelleObama, system);
+        final Resource barackObamaCluster = AIFUtils.makeClusterWithPrototype(model,
+                "http://www.test.edu/cluster/2", barackObama, system);
+        final Resource billClintonCluster = AIFUtils.makeClusterWithPrototype(model,
+                "http://www.test.edu/cluster/3", billClinton, system);
+        final Resource hillaryClintonCluster = AIFUtils.makeClusterWithPrototype(model,
+                "http://www.test.edu/cluster/4", hillaryClinton, system);
+
+        // mark coref uncertainty for "President Obama" and "Secretary Clinon"
+        final Resource presidentObamaIsMichelle = AIFUtils.markAsPossibleClusterMember(model,
+                presidentObama, michelleObamaCluster, 0.5, system);
+        final Resource presidentObamaIsBarack = AIFUtils.markAsPossibleClusterMember(model,
+                presidentObama, barackObamaCluster, 0.5, system);
+        AIFUtils.markEdgesAsMutuallyExclusive(model, ImmutableMap.of(presidentObamaIsMichelle, 0.5,
+                presidentObamaIsBarack, 0.5), system, null);
+
+        final Resource secretaryClintonIsBill = AIFUtils.markAsPossibleClusterMember(model,
+                secretaryClinton, billClintonCluster, 0.5, system);
+        final Resource secretaryClintoIsHillary = AIFUtils.markAsPossibleClusterMember(model,
+                secretaryClinton, hillaryClintonCluster, 0.5, system);
+        AIFUtils.markEdgesAsMutuallyExclusive(model, ImmutableMap.of(secretaryClintonIsBill, 0.5,
+                secretaryClintoIsHillary, 0.5), system, null);
+
+        // relation that President Obama (of uncertain reference) worked with Secretary Clinton (of uncertain reference)
+        // is asserted in document 2
+        final Resource relation = AIFUtils.makeRelationInEventForm(model, "http://www.test.edu/relation/1",
+                ResourceFactory.createResource(SeedlingOntologyMapper.NAMESPACE_STATIC + "PersonalSocial.Business"),
+                ResourceFactory.createResource(SeedlingOntologyMapper.NAMESPACE_STATIC + "PersonalSocial.Business_Person"),
+                presidentObama,
+                ResourceFactory.createResource(SeedlingOntologyMapper.NAMESPACE_STATIC + "PersonalSocial.Business_Person"),
+                secretaryClinton,
+                "http://www.test.edu/relationType/1",
+                system,
+                0.75);
+        // mark justification "President Obama worked with Secretary Clinton"
+        AIFUtils.markTextJustification(model, relation, "doc2", 0, 10, system,
+                0.75);
+
     }
 }
 
