@@ -2,6 +2,7 @@ package edu.isi.gaia;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
@@ -771,6 +772,15 @@ class ValidExamples {
                 "http://www.test.edu/entities/uncertainSecretaryClintonDoc3", system);
         markJustification(uncertainSecretaryClintonDoc3, uncertainSecretaryClintonDoc3Mention);
 
+        // mark that all these entities are people
+        int typeAssertionIndex = 0;
+        for (Resource person : ImmutableList.of(michelleObamaDoc1, barackObamaDoc1, uncertainPresidentObamaDoc1,
+                barackObamaDoc2, uncertainPresidentObamaDoc2, uncertainSecretaryClintonDoc2,
+                billClintonDoc3, hillaryClintonDoc3, uncertainSecretaryClintonDoc3)) {
+            markType(model, "http://www.test.edu/type_assertions/" + typeAssertionIndex,
+                    person, SeedlingOntologyMapper.PERSON, system, 1.0);
+        }
+
         // in NAIF, all cross-document linking is done via clusters and every entity must belong to some cluster
         final Resource michelleObamaCluster = AIFUtils.makeClusterWithPrototype(model,
                 "http://www.test.edu/cluster/1", michelleObamaDoc1, system);
@@ -824,6 +834,10 @@ class ValidExamples {
         // mark justification "President Obama worked with Secretary Clinton"
         AIFUtils.markTextJustification(model, relation, "doc2", 0, 10, system,
                 0.75);
+
+        dumpAndAssertValid(model, "create a relation where both endpoints are ambiguous (NIST way)",
+                true);
+
     }
 
     /**
@@ -913,6 +927,13 @@ class ValidExamples {
         markJustification(secretaryClinton, secretaryClintonDoc2Mention);
         markJustification(secretaryClinton, uncertainSecretaryClintonDoc3Mention);
 
+        // mark that all these entities are people
+        int typeAssertionIndex = 0;
+        for (Resource person : ImmutableList.of(michelleObama, barackObama, presidentObama,
+                secretaryClinton, billClinton, hillaryClinton)) {
+            markType(model, "http://www.test.edu/type_assertions/" + typeAssertionIndex,
+                    person, SeedlingOntologyMapper.PERSON, system, 1.0);
+        }
 
         // in general AIF you only need to use clusters if you need to show coreference uncertainty (which in this
         // case we do for all entities)
@@ -955,6 +976,8 @@ class ValidExamples {
         AIFUtils.markTextJustification(model, relation, "doc2", 0, 10, system,
                 0.75);
 
+        dumpAndAssertValid(model, "create a relation where both endpoints are ambiguous (unrestricted way)",
+                true);
     }
 }
 
