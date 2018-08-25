@@ -35,10 +35,10 @@
    rdfs:label "AIDA relation argument type" .
 
 :CanHaveName a owl:Class ;
-    rdfs:label "Something allowed to have a name"
+    rdfs:label "Something allowed to have a name" .
 
 :CanHaveTextValue a owl:Class ;
-    rdfs:label "Something allowed to have a text value"
+    rdfs:label "Something allowed to have a text value" .
 
 :CanHaveNumericValue a owl:Class ;
-    rdfs:label "Something allowed to have a numeric value"
+    rdfs:label "Something allowed to have a numeric value" .
