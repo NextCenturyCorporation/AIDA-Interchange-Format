@@ -19,10 +19,12 @@ interface OntologyMapping {
     fun entityType(ontology_type: String): Resource?
 
     fun relationType(relationName: String): Resource?
-    fun knownRelationTypes(): Set<String>
     fun eventType(eventName: String): Resource?
-    fun knownEventTypes(): Set<String>
     fun eventArgumentType(argName: String): Resource?
+    /**
+     * Given a relation, get its two argument types in the same order as in LDC annotation.
+     */
+    fun relationArgumentTypes(relation: Resource): Pair<Resource, Resource>
 
     /**
      * Is an object of this type allowed to have a name property?

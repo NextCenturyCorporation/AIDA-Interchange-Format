@@ -85,10 +85,9 @@ class ColdStartOntologyMapper : OntologyMapping {
     override val NAMESPACE: String = NAMESPACE_STATIC
 
 
-
-    private val ontologizeEventType: (String) -> Resource = OntoMemoize({ eventType: String ->
+    private val ontologizeEventType: (String) -> Resource = OntoMemoize { eventType: String ->
         ResourceFactory.createResource(NAMESPACE_STATIC + eventType)
-    })
+    }
 
     internal val shortNames: Map<String, Resource> = listOf(
             "PER" to PERSON,
@@ -117,15 +116,13 @@ class ColdStartOntologyMapper : OntologyMapping {
 
     override fun eventArgumentType(argName: String): Resource = ontologizeEventType(argName)
 
-    override fun knownRelationTypes(): Set<String> {
-        throw RuntimeException("Implement me if you need to use me")
-    }
-
-    override fun knownEventTypes(): Set<String> {
-        throw RuntimeException("Implement me if you need to use me")
-    }
-
     override fun typeAllowedToHaveAName(type: Resource) = true
     override fun typeAllowedToHaveTextValue(type: Resource) = true
     override fun typeAllowedToHaveNumericValue(type: Resource) = true
+
+    override fun relationArgumentTypes(relation: Resource): Pair<Resource, Resource> {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+
 }
