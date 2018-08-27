@@ -377,7 +377,7 @@ aida:TypeShape
      sh:xone ( aida:EntitySubclass
                aida:RelationSubclass
                aida:EventSubclass ) ;
-     sh:message "Object of type assertion must be an entity or event type"];
+     sh:message "Object of type assertion must be an entity, relation, or event type"];
     # TODO: handle temporal or string values
 
     # may have zero or more string labels for user consumption
