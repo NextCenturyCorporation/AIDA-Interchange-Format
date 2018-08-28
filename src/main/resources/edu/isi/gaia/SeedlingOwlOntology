@@ -1,8 +1,8 @@
 ######################################################
-# Created by LDCOntology.java on 2018-07-31T20:59:30.469Z
+# Created by LDCOntology.java on 2018-08-28T14:24:19.784Z
 ######################################################
 @prefix schema: <http://schema.org/> .
-@prefix ldcOnt: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOwlOntology#> .
+@prefix ldcOnt: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#> .
 @prefix olia:  <http://purl.org/olia/system.owl#> .
 @prefix aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#> .
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -22,7 +22,7 @@
 # Entity classes
 ######################################################
 ldcOnt:Facility  a       owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
 
 ldcOnt:FillerType  a     owl:Class ;
         rdfs:label       "Seedling filler type" ;
@@ -30,22 +30,22 @@ ldcOnt:FillerType  a     owl:Class ;
 
 ldcOnt:GeopoliticalEntity
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
 
 ldcOnt:Location  a       owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
 
 ldcOnt:Organization  a   owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
 
 ldcOnt:Person  a         owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
 
 ######################################################
 # Filler types
 ######################################################
 ldcOnt:Age  a            owl:Class ;
-        rdfs:subClassOf  ldcOnt:FillerType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveNumericValue , ldcOnt:FillerType .
 
 ldcOnt:Ballot  a         owl:Class ;
         rdfs:subClassOf  ldcOnt:FillerType .
@@ -57,17 +57,17 @@ ldcOnt:Crime  a          owl:Class ;
         rdfs:subClassOf  ldcOnt:FillerType .
 
 ldcOnt:Law  a            owl:Class ;
-        rdfs:subClassOf  ldcOnt:FillerType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FillerType .
 
 ldcOnt:Money  a          owl:Class ;
-        rdfs:subClassOf  ldcOnt:FillerType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , ldcOnt:FillerType .
 
 ldcOnt:NumericalValue
         a                owl:Class ;
         rdfs:subClassOf  ldcOnt:FillerType .
 
 ldcOnt:Results  a        owl:Class ;
-        rdfs:subClassOf  ldcOnt:FillerType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , ldcOnt:FillerType .
 
 ldcOnt:Sentence  a       owl:Class ;
         rdfs:subClassOf  ldcOnt:FillerType .
@@ -76,19 +76,19 @@ ldcOnt:Sides  a          owl:Class ;
         rdfs:subClassOf  ldcOnt:FillerType .
 
 ldcOnt:Time  a           owl:Class ;
-        rdfs:subClassOf  ldcOnt:FillerType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , ldcOnt:FillerType .
 
 ldcOnt:Title  a          owl:Class ;
         rdfs:subClassOf  ldcOnt:FillerType .
 
 ldcOnt:URL  a            owl:Class ;
-        rdfs:subClassOf  ldcOnt:FillerType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , ldcOnt:FillerType .
 
 ldcOnt:Vehicle  a        owl:Class ;
-        rdfs:subClassOf  ldcOnt:FillerType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FillerType .
 
 ldcOnt:Weapon  a         owl:Class ;
-        rdfs:subClassOf  ldcOnt:FillerType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FillerType .
 
 ######################################################
 # Relation types
