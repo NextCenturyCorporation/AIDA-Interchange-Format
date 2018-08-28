@@ -1,5 +1,5 @@
 ######################################################
-# Created by LDCOntology.java on 2018-08-28T14:24:19.858Z
+# Created by LDCOntology.java on 2018-08-28T19:58:32.518Z
 ######################################################
 @prefix schema: <http://schema.org/> .
 @prefix ldcOnt: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#> .

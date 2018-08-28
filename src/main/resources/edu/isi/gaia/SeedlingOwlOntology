@@ -1,5 +1,5 @@
 ######################################################
-# Created by LDCOntology.java on 2018-08-28T14:24:19.784Z
+# Created by LDCOntology.java on 2018-08-28T19:58:32.438Z
 ######################################################
 @prefix schema: <http://schema.org/> .
 @prefix ldcOnt: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#> .
@@ -2286,4 +2286,1316 @@ ldcOnt:Transaction.TransferOwnership
                                               ] ;
                            owl:onProperty     ldcOnt:Transaction.TransferOwnership_Giver
                          ] .
+
+######################################################
+# Relation/Event arguments
+######################################################
+ldcOnt:Business.DeclareBankruptcy_Organization
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Organization" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Business.DeclareBankruptcy_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Business.DeclareBankruptcy_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Business.End_Organization
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Organization" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Business.End_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Business.End_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Business.Merge_Organization
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Organization" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Business.Merge_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Business.Merge_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Business.Start_Agent
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Agent" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Business.Start_Organization
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Organization" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Business.Start_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Business.Start_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Conflict.Attack_Attacker
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Attacker" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Conflict.Attack_Instrument
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Instrument" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Conflict.Attack_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Conflict.Attack_Target
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Target" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Conflict.Attack_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Conflict.Demonstrate_Demonstrator
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Demonstrator" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Conflict.Demonstrate_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Conflict.Demonstrate_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Contact.Broadcast_Audience
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Audience" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Contact.Broadcast_Broadcaster
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Broadcaster" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Contact.Broadcast_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Contact.Broadcast_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Contact.Contact_Participant
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Participant" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Contact.Contact_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Contact.Contact_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Contact.Correspondence_Participant
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Participant" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Contact.Correspondence_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Contact.Correspondence_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Contact.Meet_Participant
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Participant" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Contact.Meet_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Contact.Meet_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Existence.DamageDestroy_Agent
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Agent" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Existence.DamageDestroy_Instrument
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Instrument" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Existence.DamageDestroy_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Existence.DamageDestroy_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Existence.DamageDestroy_Victim
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Victim" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:GeneralAffiliation.APORA_Affiliate
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Affiliate" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:GeneralAffiliation.APORA_Affiliation
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Affiliation" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:GeneralAffiliation.MORE_Affiliation
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Affiliation" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:GeneralAffiliation.MORE_Person
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Person" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:GeneralAffiliation.OPRA_Affiliation
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Affiliation" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:GeneralAffiliation.OPRA_Organization
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Organization" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:GeneralAffiliation.OrganizationWebsite_Organization
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Organization" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:GeneralAffiliation.OrganizationWebsite_Website
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Website" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:GeneralAffiliation.PersonAge_Age
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Age" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:GeneralAffiliation.PersonAge_Person
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Person" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:GeneralAffiliation.Sponsorship_Entity
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Entity" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:GeneralAffiliation.Sponsorship_Sponsor
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Sponsor" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Government.Agreements_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Government.Agreements_Signer
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Signer" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Government.Agreements_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Government.Legislate_Law
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Law" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Government.Legislate_Legislature
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Legislature" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Government.Legislate_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Government.Legislate_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Government.Spy_Agent
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Agent" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Government.Spy_Beneficiary
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Beneficiary" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Government.Spy_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Government.Spy_Target
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Target" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Government.Spy_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Government.Vote_Ballot
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Ballot" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Government.Vote_Candidate
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Candidate" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Government.Vote_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Government.Vote_Results
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Results" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Government.Vote_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Government.Vote_Voter
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Voter" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Inspection.Artifact_Inspector
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Inspector" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Inspection.Artifact_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Inspection.Artifact_Thing
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Thing" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Inspection.Artifact_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Inspection.People_Inspector
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Inspector" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Inspection.People_Person
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Person" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Inspection.People_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Inspection.People_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Acquit_Adjudicator
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Adjudicator" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Acquit_Crime
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Crime" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Acquit_Defendant
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Defendant" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Acquit_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Acquit_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Appeal_Adjudicator
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Adjudicator" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Appeal_Crime
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Crime" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Appeal_Defendant
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Defendant" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Appeal_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Appeal_Prosecutor
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Prosecutor" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Appeal_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.ArrestJail_Agent
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Agent" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.ArrestJail_Crime
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Crime" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.ArrestJail_Person
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Person" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.ArrestJail_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.ArrestJail_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.ChargeIndict_Adjudicator
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Adjudicator" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.ChargeIndict_Crime
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Crime" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.ChargeIndict_Defendant
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Defendant" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.ChargeIndict_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.ChargeIndict_Prosecutor
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Prosecutor" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.ChargeIndict_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Convict_Adjudicator
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Adjudicator" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Convict_Crime
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Crime" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Convict_Defendant
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Defendant" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Convict_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Convict_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Execute_Agent
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Agent" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Execute_Crime
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Crime" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Execute_Person
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Person" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Execute_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Execute_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Extradite_Agent
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Agent" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Extradite_Crime
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Crime" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Extradite_Destination
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Destination" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Extradite_Origin
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Origin" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Extradite_Person
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Person" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Extradite_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Fine_Adjudicator
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Adjudicator" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Fine_Crime
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Crime" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Fine_Defendant
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Defendant" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Fine_Money
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Money" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Fine_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Fine_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Investigate_Crime
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Crime" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Investigate_Investigatee
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Investigatee" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Investigate_Investigator
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Investigator" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Investigate_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Investigate_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Pardon_Adjudicator
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Adjudicator" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Pardon_Crime
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Crime" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Pardon_Defendant
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Defendant" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Pardon_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Pardon_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.ReleaseParole_Agent
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Agent" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.ReleaseParole_Crime
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Crime" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.ReleaseParole_Person
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Person" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.ReleaseParole_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.ReleaseParole_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Sentence_Adjudicator
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Adjudicator" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Sentence_Crime
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Crime" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Sentence_Defendant
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Defendant" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Sentence_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Sentence_Sentence
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Sentence" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Sentence_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Sue_Adjudicator
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Adjudicator" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Sue_Crime
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Crime" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Sue_Defendant
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Defendant" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Sue_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Sue_Plaintiff
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Plaintiff" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.Sue_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.TrialHearing_Adjudicator
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Adjudicator" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.TrialHearing_Crime
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Crime" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.TrialHearing_Defendant
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Defendant" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.TrialHearing_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.TrialHearing_Prosecutor
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Prosecutor" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Justice.TrialHearing_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.BeBorn_Person
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Person" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.BeBorn_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.BeBorn_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.Die_Agent
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Agent" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.Die_Instrument
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Instrument" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.Die_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.Die_Time  a     owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.Die_Victim
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Victim" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.Divorce_Person
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Person" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.Divorce_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.Divorce_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.Injure_Agent
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Agent" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.Injure_Instrument
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Instrument" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.Injure_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.Injure_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.Injure_Victim
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Victim" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.Marry_Person
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Person" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.Marry_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Life.Marry_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Manufacture.Artifact_Artifact
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Artifact" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Manufacture.Artifact_Instrument
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Instrument" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Manufacture.Artifact_Manufacturer
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Manufacturer" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Manufacture.Artifact_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Manufacture.Artifact_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Measurement.Count_Count
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Count" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Measurement.Count_Item
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Item" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Movement.TransportArtifact_Agent
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Agent" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Movement.TransportArtifact_Artifact
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Artifact" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Movement.TransportArtifact_Destination
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Destination" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Movement.TransportArtifact_Instrument
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Instrument" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Movement.TransportArtifact_Origin
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Origin" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Movement.TransportArtifact_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Movement.TransportPerson_Agent
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Agent" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Movement.TransportPerson_Destination
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Destination" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Movement.TransportPerson_Instrument
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Instrument" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Movement.TransportPerson_Origin
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Origin" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Movement.TransportPerson_Person
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Person" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Movement.TransportPerson_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:OrganizationAffiliation.EmploymentMembership_Employee
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Employee" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:OrganizationAffiliation.EmploymentMembership_Organization
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Organization" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:OrganizationAffiliation.Founder_Founder
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Founder" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:OrganizationAffiliation.Founder_Organization
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Organization" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:OrganizationAffiliation.InvestorShareholder_InvestorShareholder
+        a                   owl:ObjectProperty ;
+        rdfs:label          "InvestorShareholder" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:OrganizationAffiliation.InvestorShareholder_Organization
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Organization" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:OrganizationAffiliation.Leadership_Leader
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Leader" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:OrganizationAffiliation.Leadership_Organization
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Organization" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:OrganizationAffiliation.Ownership_Organization
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Organization" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:OrganizationAffiliation.Ownership_Owner
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Owner" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:OrganizationAffiliation.StudentAlum_Organization
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Organization" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:OrganizationAffiliation.StudentAlum_StudentAlum
+        a                   owl:ObjectProperty ;
+        rdfs:label          "StudentAlum" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:PartWhole.Membership_Member
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Member" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:PartWhole.Membership_Organization
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Organization" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:PartWhole.Subsidiary_Parent
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Parent" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:PartWhole.Subsidiary_Subsidiary
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Subsidiary" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:PersonalSocial.Business_Person
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Person" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:PersonalSocial.Family_Person
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Person" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:PersonalSocial.RoleTitle_Person
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Person" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:PersonalSocial.RoleTitle_Title
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Title" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:PersonalSocial.Unspecified_Person
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Person" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Personnel.Elect_Elect
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Elect" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Personnel.Elect_Elector
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Elector" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Personnel.Elect_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Personnel.Elect_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Personnel.EndPosition_Organization
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Organization" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Personnel.EndPosition_Person
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Person" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Personnel.EndPosition_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Personnel.EndPosition_Position
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Position" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Personnel.EndPosition_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Personnel.Nominate_Nominator
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Nominator" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Personnel.Nominate_Nominee
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Nominee" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Personnel.Nominate_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Personnel.Nominate_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Personnel.StartPosition_Organization
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Organization" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Personnel.StartPosition_Person
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Person" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Personnel.StartPosition_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Personnel.StartPosition_Position
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Position" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Personnel.StartPosition_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Physical.LocatedNear_Entity
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Entity" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Physical.LocatedNear_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Physical.OrganizationHeadquarter_Organization
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Organization" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Physical.OrganizationHeadquarter_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Physical.OrganizationLocationOrigin_Organization
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Organization" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Physical.OrganizationLocationOrigin_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Physical.Resident_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Physical.Resident_Resident
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Resident" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.Transaction_Beneficiary
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Beneficiary" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.Transaction_Giver
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Giver" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.Transaction_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.Transaction_Recipient
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Recipient" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.Transaction_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.TransferControl_Beneficiary
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Beneficiary" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.TransferControl_Giver
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Giver" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.TransferControl_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.TransferControl_Recipient
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Recipient" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.TransferControl_Territory
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Territory" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.TransferControl_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.TransferMoney_Beneficiary
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Beneficiary" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.TransferMoney_Giver
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Giver" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.TransferMoney_Money
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Money" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.TransferMoney_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.TransferMoney_Recipient
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Recipient" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.TransferMoney_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.TransferOwnership_Beneficiary
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Beneficiary" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.TransferOwnership_Giver
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Giver" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.TransferOwnership_Place
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Place" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.TransferOwnership_Recipient
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Recipient" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.TransferOwnership_Thing
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Thing" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
+
+ldcOnt:Transaction.TransferOwnership_Time
+        a                   owl:ObjectProperty ;
+        rdfs:label          "Time" ;
+        rdfs:subPropertyOf  owl:topObjectProperty .
 
