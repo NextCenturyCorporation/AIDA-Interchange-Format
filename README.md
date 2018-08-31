@@ -114,10 +114,12 @@ Please see `FAQ.md` for frequently asked questions.
 
 # Contact
 
-AIF was designed by Ryan Gabbard (gabbard@isi.edu) and Pedro Szekely (pszekeley@isi.edu) of USC ISI.
-Gabbard also wrote the initial implementations of the associated tools.   However, the tools are now
-supported and extended by Eddie Curley (eddie.curley@nextcentury.com), Bao Pham (bao.pham@nextcentury.com),
-and Clark Dorman (clark.dorman@nextcentury.com) of Next Century.
+AIF was designed by Ryan Gabbard (gabbard@isi.edu) and Pedro Szekely
+(pszekeley@isi.edu) of USC ISI.  Gabbard also wrote the initial
+implementations of the associated tools.  The tools are now supported
+and extended by Eddie Curley (eddie.curley@nextcentury.com), Bao Pham
+(bao.pham@nextcentury.com), and Clark Dorman
+(clark.dorman@nextcentury.com) of Next Century.
 
 This repository exists in two locations:
 * as a private repository owned by Next Century. This is the canonical repository where development will happen.
@@ -127,9 +129,10 @@ The open repository will support an open NIST evaluation. For questions related 
 
 # Legal Stuff
 
-This material is based on research sponsored by DARPA under agreement number FA8750-18- 2-0014.
-The U.S. Government is authorized to reproduce and distribute reprints for Governmental purposes
-notwithstanding any copyright notation thereon.
+This material is based on research sponsored by DARPA under agreement
+number FA8750-18- 2-0014 and FA875018C0010-HR0011730814.  The
+U.S. Government is authorized to reproduce and distribute reprints for
+Governmental purposes notwithstanding any copyright notation thereon.
 
 The views and conclusions contained herein are those of the authors and should not be interpreted
 as necessarily representing the official policies or endorsements, either expressed or implied, of
