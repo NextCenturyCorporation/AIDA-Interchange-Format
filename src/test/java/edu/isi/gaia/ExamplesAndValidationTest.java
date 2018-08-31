@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class ExamplesAndValidationTest {
-    private static final String LDC_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/LdcAnnotations#";
+    private static final String LDC_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#";
 
   @BeforeAll
   static void declutterLogging() {
@@ -359,7 +359,7 @@ class ValidExamples {
         markType(model, getAssertionUri(), buk, SeedlingOntologyMapper.WEAPON, system, 1.0);
 
         final Resource mh17 = makeEntity(model, mh17DocumentEntityUri, system);
-        markType(model, getAssertionUri(), buk, SeedlingOntologyMapper.VEHICLE, system, 1.0);
+        markType(model, getAssertionUri(), mh17, SeedlingOntologyMapper.VEHICLE, system, 1.0);
 
         final Resource russia = makeEntity(model, russiaDocumentEntityUri, system);
         markType(model, getAssertionUri(), russia, SeedlingOntologyMapper.GPE, system, 1.0);
@@ -378,7 +378,7 @@ class ValidExamples {
         markAsArgument(model, attackOnMH17, ontologyMapping.eventArgumentTypeNotLowercase(instrumentString),
                 buk, system, null);
 
-        final Resource isAttacker = ontologyMapping.eventArgumentType(eventTypeString + "_Attacker");
+        final Resource isAttacker = ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + "_Attacker");
         String affiliationRelationString = "GeneralAffiliation.APORA";
         String affiliationRelationSubject = affiliationRelationString + "_Affiliate";
         String affiliationRelationObject = affiliationRelationString + "_Affiliation";
@@ -1070,6 +1070,7 @@ class ValidExamples {
     model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
     if (seedling) {
         model.setNsPrefix("ldcOnt", SeedlingOntologyMapper.NAMESPACE_STATIC);
+        model.setNsPrefix("ldc", LDC_NS);
     } else {
         model.setNsPrefix("coldstart", ColdStartOntologyMapper.NAMESPACE_STATIC);
     }
