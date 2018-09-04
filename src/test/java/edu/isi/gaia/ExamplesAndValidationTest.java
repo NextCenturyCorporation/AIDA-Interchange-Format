@@ -460,7 +460,7 @@ class ValidExamples {
 
 
         final Resource results = makeEntity(model, getUri("E966733.00068"), system);
-        markType(model, getAssertionUri(), results, SeedlingOntologyMapper.PERSON, system, 1.0);
+        markType(model, getAssertionUri(), results, SeedlingOntologyMapper.RESULTS, system, 1.0);
         markTextValue(results, "проти 10,19%");
 
         final Resource value = makeEntity(model, getUri("E831667.00871"), system);
