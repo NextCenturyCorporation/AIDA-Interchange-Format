@@ -3,7 +3,6 @@ package edu.isi.gaia;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.collect.ImmutableSet;
-import edu.isi.gaia.AIFUtils.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
@@ -12,12 +11,10 @@ import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.SKOS;
 import org.apache.jena.vocabulary.XSD;
-import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -120,23 +117,12 @@ public class ScalingTest {
         addJustificationAndPrivateData(typeAssertion);
 
         // Make two arguments
-        Resource argument1 = markAsArgument(model, eventResource,
-                ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + getRandomSuffix()),
-                getRandomEntity(), system, 0.785, getAssertionUri());
-        addJustificationAndPrivateData(argument1);
-
-        Resource argument2 = markAsArgument(model, eventResource,
-                ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + getRandomSuffix()),
-                getRandomEntity(), system, 0.5832, getAssertionUri());
-        addJustificationAndPrivateData(argument2);
-
-    }
-
-    /**
-     * Return a string representing an argument
-     */
-    private String getRandomSuffix() {
-
+        for (int ii = 0; ii < 2; ii++) {
+            Resource argument = markAsArgument(model, eventResource,
+                    ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + getRandomSuffix()),
+                    getRandomEntity(), system, 0.785, getAssertionUri());
+            addJustificationAndPrivateData(argument);
+        }
     }
 
     private void addJustificationAndPrivateData(Resource resource) {
@@ -147,128 +133,6 @@ public class ScalingTest {
 
         // Add some private data
         markPrivateData(model, resource, "{ 'provenance' : '" + docId + "' }", system);
-    }
-
-    /**
-     * Same as createSeedlingEvent above, except with event argument URI's
-     */
-    @Test
-    void createSeedlingEventWithEventArgumentURI() {
-
-
-        // we make a resource for the event itself
-        // mark the event as a Personnel.Elect event; type is encoded separately so we can express
-        // uncertainty about type
-        String eventTypeString = "Personnel.Elect";
-        final Resource event = makeEvent(model, putinElectedDocumentEventUri, system);
-        markType(model, getAssertionUri(), event, ontologyMapping.eventType(eventTypeString),
-                system, 1.0);
-
-        // create the two entities involved in the event
-        final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
-        markType(model, getAssertionUri(), putin, SeedlingOntologyMapper.PERSON, system, 1.0);
-
-        final Resource russia = makeEntity(model, russiaDocumentEntityUri, system);
-        markType(model, getAssertionUri(), russia, SeedlingOntologyMapper.GPE, system, 1.0);
-
-        // link those entities to the event
-        markAsArgument(model, event,
-                ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + "_Elect"),
-                putin, system, 0.785, getUri("eventArgument-1"));
-        markAsArgument(model, event,
-                ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + "_Place"),
-                russia, system, 0.589, getUri("eventArgument-2"));
-    }
-
-    @Test
-    void createSeedlingEntityOfTypePersonWithImageJustificationAndVector() {
-
-        // it doesn't matter what URI we give entities, events, etc. so long as they are unique
-        final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
-
-        // in order to allow uncertainty about the type of an entity, we don't mark an
-        // entity's type directly on the entity, but rather make a separate assertion for it
-        // its URI doesn't matter either
-        final Resource typeAssertion = markType(model, getAssertionUri(), putin, SeedlingOntologyMapper.PERSON,
-                system, 1.0);
-
-        // the justification provides the evidence for our claim about the entity's type
-        // we attach this justification to both the type assertion and the entity object
-        // itself, since it provides evidence both for the entity's existence and its type.
-        // in TA1 -> TA2 communications, we attach confidences at the level of justifications
-
-        // let's suppose we have evidence from an image
-        AIFUtils.markImageJustification(model, ImmutableSet.of(putin, typeAssertion),
-                "NYT_ENG_20181231_03",
-                new BoundingBox(new Point(123, 45), new Point(167, 98)),
-                system, 0.123);
-
-        // let's mark our entity with some arbitrary system-private data. You can attach such data
-        // to nearly anything
-        markPrivateData(model, putin, getUri("testSystem-personVector"),
-                Arrays.asList(2.0, 7.5, 0.2, 8.1), system);
-    }
-
-    @Test
-    void createSeedlingEntityWithAlternateNames() {
-
-        // assign alternate names to the putin entity
-        final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
-        markType(model, getAssertionUri(), putin, SeedlingOntologyMapper.PERSON, system, 1.0);
-        markName(putin, "Путина");
-        markName(putin, "Владимира Путина");
-
-
-        final Resource results = makeEntity(model, getUri("E966733.00068"), system);
-        markType(model, getAssertionUri(), results, SeedlingOntologyMapper.RESULTS, system, 1.0);
-        markTextValue(results, "проти 10,19%");
-
-        final Resource value = makeEntity(model, getUri("E831667.00871"), system);
-        markType(model, getAssertionUri(), value, SeedlingOntologyMapper.NUMERICAL_VALUE, system, 1.0);
-        markNumericValueAsDouble(value, 16.0);
-        markNumericValueAsLong(value, 16);
-        markNumericValueAsString(value, "на висоті менше 16 кілометрів");
-        markNumericValueAsString(value, "at a height less than 16 kilometers");
-    }
-
-    @Test
-    void createCompoundJustification() {
-        final Resource entity = makeEntity(model, putinDocumentEntityUri, system);
-
-        // in order to allow uncertainty about the type of an entity, we don't mark an
-        // entity's type directly on the entity, but rather make a separate assertion for it
-        // its URI doesn't matter either
-        final Resource typeAssertion = markType(model, getAssertionUri(),
-                entity, SeedlingOntologyMapper.PERSON, system, 1.0);
-
-        // the justification provides the evidence for our claim about the entity's type
-        // we attach this justification to both the type assertion and the entity object
-        // itself, since it provides evidence both for the entity's existence and its type.
-        // in TA1 -> TA2 communications, we attach confidences at the level of justifications
-        final Resource textJustification = makeTextJustification(model, "NYT_ENG_20181231",
-                42, 143, system, 0.973);
-
-        // let's suppose we also have evidence from an image
-        final Resource imageJustification = makeImageJustification(model, "NYT_ENG_20181231_03",
-                new BoundingBox(new Point(123, 45), new Point(167, 98)), system, 0.123);
-
-        // and also a video where the entity appears in a keyframe
-        final Resource keyFrameVideoJustification = makeKeyFrameVideoJustification(model,
-                "NYT_ENG_20181231_03", "keyframe ID",
-                new BoundingBox(new Point(234, 56), new Point(345, 101)), system, 0.234);
-
-        // and also a video where the entity does not appear in a keyframe
-        final Resource shotVideoJustification = makeShotVideoJustification(model, "SOME_VIDEO",
-                "some shot ID", system, 0.487);
-
-        // and even audio!
-        final Resource audioJustification = makeAudioJustification(model, "NYT_ENG_201181231",
-                4.566, 9.876, system, 0.789);
-
-        // combine all jutifications into single justifiedBy triple with new confidence
-        markCompoundJustification(model, ImmutableSet.of(entity),
-                ImmutableSet.of(textJustification, imageJustification, keyFrameVideoJustification,
-                        shotVideoJustification, audioJustification), system, 0.321);
     }
 
     // we dump the test name and the model in Turtle format so that whenever the user
@@ -347,6 +211,16 @@ public class ScalingTest {
         return entityResourceList.get(r.nextInt(entityResourceList.size()));
     }
 
+
+    /**
+     * Return a string representing an argument
+     */
+    private String getRandomSuffix() {
+        String s = "_" + ROLES[r.nextInt(ROLES.length)];
+        return s;
+    }
+
+
     private final String[] EVENT_TYPES = {
             "Business.DeclareBankruptcy", "Business.End", "Business.Merge", "Business.Start",
             "Conflict.Attack", "Conflict.Demonstrate",
@@ -364,5 +238,14 @@ public class ScalingTest {
             "Transaction.Transaction", "Transaction.TransferControl", "Transaction.TransferMoney",
             "Transaction.TransferOwnership"};
 
-    String [] ROLES
+    private final String[] ROLES = {"Attacker", "Instrument", "Place", "Target", "Time", "Broadcaster",
+            "Place", "Time", "Participant", "Place", "Participant", "Time",
+            "Participant", "Affiliate", "Affiliation", "Affiliation", "Person",
+            "Entity", "Sponsor", "Defendant", "Prosecutor", "Adjudicator",
+            "Defendant", "Agent", "Instrument", "Victim", "Artifact",
+            "Manufacturer", "Agent", "Artifact", "Destination", "Instrument",
+            "Origin", "Time", "Agent", "Destination", "Instrument", "Origin",
+            "Person", "Employee", "Organization", "Person", "Entity", "Place",
+            "Beneficiary", "Giver", "Recipient", "Thing", "Time"};
+
 }
