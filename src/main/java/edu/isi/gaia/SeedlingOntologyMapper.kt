@@ -7,6 +7,7 @@ import org.apache.jena.rdf.model.Resource
 import org.apache.jena.rdf.model.ResourceFactory
 import org.apache.jena.vocabulary.OWL
 import org.apache.jena.vocabulary.RDF
+import org.apache.jena.vocabulary.RDFS
 import java.io.File
 import java.util.*
 
@@ -44,14 +45,14 @@ class PassThroughOntologyMapper(private val model: Model,
     override fun eventArgumentType(argName: String) = resourceInOntology(argName)
 
     override fun typeAllowedToHaveAName(type: Resource) =
-            model.contains(type, RDF.type, AidaDomainOntologiesCommon.CanHaveName)
+            model.contains(type, RDFS.subClassOf, AidaDomainOntologiesCommon.CanHaveName)
 
 
     override fun typeAllowedToHaveTextValue(type: Resource) =
-            model.contains(type, RDF.type, AidaDomainOntologiesCommon.CanHaveTextValue)
+            model.contains(type, RDFS.subClassOf, AidaDomainOntologiesCommon.CanHaveTextValue)
 
     override fun typeAllowedToHaveNumericValue(type: Resource) =
-            model.contains(type, RDF.type, AidaDomainOntologiesCommon.CanHaveNumericValue)
+            model.contains(type, RDFS.subClassOf, AidaDomainOntologiesCommon.CanHaveNumericValue)
 
     private fun resourceInOntology(uri: String): Resource? {
         val ret = ResourceFactory.createResource(uri)!!
