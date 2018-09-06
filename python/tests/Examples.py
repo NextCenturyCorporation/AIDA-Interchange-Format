@@ -2,7 +2,7 @@ import unittest
 import sys
 sys.path.append('../')
 from io import BytesIO
-from rdflib import URIRef
+from rdflib import URIRef, Graph, RDF
 from aida_interchange.Bounding_Box import Bounding_Box
 from aida_interchange.aida_rdf_ontologies import SEEDLING_TYPES_NIST
 from aida_interchange import aifutils
@@ -493,6 +493,70 @@ class Examples(unittest.TestCase):
         aifutils.mark_as_possible_cluster_member(g, president_cluster, trump_cluster, .6, system)
 
         self.dump_graph(g, "Seedling hierarchical cluster")
+
+
+    def test_read_and_write_turtle(self):
+        print("test read and write turtle")
+
+        # we want to say that the cluster of Trump entities might be the same as the cluster of the president entities
+        g = aifutils.make_graph()
+        g.bind('ldcOnt', SEEDLING_TYPES_NIST.uri)
+
+        #every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, 'http://www.test.edu/testSystem')
+
+        # create president entities
+        president_usa = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/1", president_usa, SEEDLING_TYPES_NIST.GeopoliticalEntity,
+                           system, 1.0)
+        aifutils.mark_name(g, president_usa, "the president")
+
+        new_president = aifutils.make_entity(g, "http://www.test.edu/entities/2", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/2", president_usa, SEEDLING_TYPES_NIST.GeopoliticalEntity,
+                           system, 1.0)
+        aifutils.mark_name(g, president_usa, "the newly-inaugurated president")
+
+        president_45 = aifutils.make_entity(g, "http://www.test.edu/entities/3", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/3", president_usa, SEEDLING_TYPES_NIST.GeopoliticalEntity,
+                           system, 1.0)
+        aifutils.mark_name(g, president_usa, "the 45th president")
+
+        # cluster president entities
+        president_cluster = aifutils.make_cluster_with_prototype(g, "http://www.test.edu/clusters/president",
+                                                                 president_usa, system)
+
+        aifutils.mark_as_possible_cluster_member(g, president_usa, president_cluster, 1, system)
+        aifutils.mark_as_possible_cluster_member(g, new_president, president_cluster, .9, system)
+        aifutils.mark_as_possible_cluster_member(g, president_45, president_cluster, .9, system)
+
+        # create Trump entities
+        donald_trump = aifutils.make_entity(g, "http://www.test.edu/entities/4", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/4", president_usa, SEEDLING_TYPES_NIST.Person, system, 1.0)
+        aifutils.mark_name(g, president_usa, "Donald Trump")
+
+        trump = aifutils.make_entity(g, "http://www.test.edu/entities/5", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/5", president_usa, SEEDLING_TYPES_NIST.Person, system, 1.0)
+        aifutils.mark_name(g, president_usa, "Trump")
+
+        # cluster trump entities
+        trump_cluster = aifutils.make_cluster_with_prototype(g, "http://www.test.edu/clusters/trump", donald_trump, system)
+        aifutils.mark_as_possible_cluster_member(g, donald_trump, trump_cluster, 1, system)
+        aifutils.mark_as_possible_cluster_member(g, trump, trump_cluster, .9, system)
+
+        aifutils.mark_as_possible_cluster_member(g, president_cluster, trump_cluster, .6, system)
+
+        # write graph to file
+        file = open("../test_read_and_write.ttl", "r+w")
+        file.write(g.serialize(format='turtle'))
+        file.close()
+
+        # create new graph and read in file
+        graph = Graph()
+        graph.parse("../test_read_and_write.ttl", format='turtle')
+
+        # verify that one of the trump entities exists in new graph object
+        dtrump = URIRef("http://www.test.edu/entities/4")
+        self.assertTrue((dtrump, None, None) in graph)
 
 
     def dump_graph(self, g, description):
