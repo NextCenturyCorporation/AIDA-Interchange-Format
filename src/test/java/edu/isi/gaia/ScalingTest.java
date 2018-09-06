@@ -3,15 +3,17 @@ package edu.isi.gaia;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.collect.ImmutableSet;
+import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
+import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.SKOS;
 import org.apache.jena.vocabulary.XSD;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -27,8 +29,10 @@ public class ScalingTest {
     private Resource system;
 
     // Beginning sizes of data, about what is in T101
-    private int entityCount = 1000;
-    private int eventCount = 300;
+    private int entityCount = 128000;
+    private int eventCount = 38400;
+    //    private int entityCount = 1000;
+//    private int eventCount = 300;
     private int relationCount = 200;
     // T101 has 3000 assertions, but 1500 of them are type assertions associated with entity and events, so
     // do not count them.
@@ -52,6 +56,8 @@ public class ScalingTest {
     private final Random r = new Random();
     private List<Resource> entityResourceList = new ArrayList<>();
 
+    private final String filename = "scalingdata.ttl";
+
     /**
      * Main function.  Call with no arguments
      */
@@ -60,9 +66,35 @@ public class ScalingTest {
         scalingTest.runtest();
     }
 
+    private void increase() {
+        entityCount *= 2;
+        eventCount *= 2;
+    }
+
     private void runtest() {
+
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
+
+        for (int ii = 0; ii < 200; ii++) {
+            System.out.println("Trying :  Entity count: " + entityCount);
+            runSingleTest();
+
+
+            long size = 0;
+            File f = new File(filename);
+            if (f.exists()) {
+                size = f.length();
+            }
+            size /= 1000000.;
+            System.out.println(" Size of output: " + size);
+
+            increase();
+        }
+    }
+
+    private void runSingleTest() {
+
 
         setup();
 
@@ -73,7 +105,7 @@ public class ScalingTest {
             addEvent();
         }
 
-        dumpAndAssertValid("scalingdata");
+        dumpAndAssertValid(filename);
     }
 
     private void setup() {
@@ -149,7 +181,12 @@ public class ScalingTest {
     }
 
     private Model createModel() {
-        final Model model = ModelFactory.createDefaultModel();
+
+        // Make a disk model
+        Dataset dataset = TDBFactory.createDataset("/tmp/model");
+        Model model = dataset.getDefaultModel();
+
+        // final Model model = ModelFactory.createDefaultModel();
         // adding namespace prefixes makes the Turtle output more readable
         model.setNsPrefix("rdf", RDF.uri);
         model.setNsPrefix("xsd", XSD.getURI());
