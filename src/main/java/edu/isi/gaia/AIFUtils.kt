@@ -2,6 +2,7 @@ package edu.isi.gaia
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.isi.gaia.AIFUtils.SparqlQueries.TYPE_QUERY
+import edu.isi.gaia.AIFUtils.markSystem
 import org.apache.jena.query.QueryExecutionFactory
 import org.apache.jena.query.QueryFactory
 import org.apache.jena.query.QuerySolutionMap
@@ -286,7 +287,7 @@ object AIFUtils {
         init {
             require(upperLeft.x <= lowerRight.x && upperLeft.y <= lowerRight.y) {
                 "Upper left of bounding box $upperLeft not above and to the left of lower right $lowerRight"
-            }
+           }
         }
     }
 
