@@ -215,9 +215,22 @@ class ColdStart2AidaInterchangeConverter(
             val relationTypeIri = ontologyMapping.relationType(csAssertion.relationType)
             return if (relationTypeIri != null) {
                 val (subjectRole, objectRole) = ontologyMapping.relationArgumentTypes(relationTypeIri)
-                AIFUtils.makeRelationInEventForm(model, assertionIriGenerator.nextIri(), relationTypeIri,
-                        subjectRole, toResource(csAssertion.subject), objectRole, toResource(csAssertion.obj),
-                        assertionIriGenerator.nextIri(), systemNode, confidence)
+
+                val relation = AIFUtils.makeRelation(model,
+                        assertionIriGenerator.nextIri(), systemNode)
+                val typeAssertion = AIFUtils.markType(model,
+                        assertionIriGenerator.nextIri(), relation, relationTypeIri,
+                        systemNode, confidence)
+                val subjectAssertion = AIFUtils.markAsArgument(model, relation, subjectRole,
+                        toResource(csAssertion.subject), systemNode, confidence)
+                val objectAssertion = AIFUtils.markAsArgument(model, relation, objectRole,
+                        toResource(csAssertion.obj), systemNode, confidence)
+                registerJustifications(typeAssertion, csAssertion.justifications, null,
+                        confidence, null)
+                registerJustifications(subjectAssertion, csAssertion.justifications, null,
+                        confidence, null)
+                registerJustifications(objectAssertion, csAssertion.justifications, null,
+                        confidence, null)
                 true
             } else {
                 false
