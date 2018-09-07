@@ -197,19 +197,19 @@
   rdfs:range :System ;
   rdfs:subPropertyOf owl:topObjectProperty; .
 
-:hasName rdf:type owl:DataTypeProperty ;
+:hasName rdf:type owl:DatatypeProperty ;
   rdfs:label "has name" ;
   rdfs:comment "Proper name for entity/filler of PER,ORG,GPE,FAC,LOC,WEA,VEH,LAW" ;
   rdfs:range xsd:string ;
   rdfs:subPropertyOf owl:topDataProperty .
 
-:textValue rdf:type owl:DataTypeProperty ;
+:textValue rdf:type owl:DatatypeProperty ;
   rdfs:label "text value" ;
   rdfs:comment "value for certain filler of RES,URL,TME,MON" ;
   rdfs:range xsd:string ;
   rdfs:subPropertyOf owl:topDataProperty .
 
-:numericValue rdf:type owl:DataTypeProperty ;
+:numericValue rdf:type owl:DatatypeProperty ;
   rdfs:label "numeric value" ;
   rdfs:comment "value for filler VAL,AGE" ;
   rdfs:domain :Entity ;
@@ -238,35 +238,35 @@
   rdfs:range :JustificationTypes ;
   rdfs:subPropertyOf owl:topObjectProperty .
 
-:source rdf:type owl:DataTypeProperty ;
+:source rdf:type owl:DatatypeProperty ;
   rdfs:label "source" ;
   rdfs:comment "Specify xsd:string identifier for source of justification" ;
   rdfs:domain :JustificationTypes ;
   rdfs:range xsd:string ;
   rdfs:subPropertyOf owl:topDataProperty .
 
-:startOffset rdf:type owl:DataTypeProperty ;
+:startOffset rdf:type owl:DatatypeProperty ;
   rdfs:label "start offset" ;
   rdfs:comment "Indicate the beginning of a text span" ;
   rdfs:domain :TextJustification ;
   rdfs:range xsd:int;
   rdfs:subPropertyOf owl:topDataProperty .
 
-:endOffsetInclusive rdf:type owl:DataTypeProperty ;
+:endOffsetInclusive rdf:type owl:DatatypeProperty ;
   rdfs:label "end offset inclusive" ;
   rdfs:comment "Indicate the end of a text span. The offset is included in the span" ;
   rdfs:domain :TextJustification ;
   rdfs:range xsd:int;
   rdfs:subPropertyOf owl:topDataProperty .
 
-:startTimestamp rdf:type owl:DataTypeProperty ;
+:startTimestamp rdf:type owl:DatatypeProperty ;
   rdfs:label "start timestamp" ;
   rdfs:comment "Indicate the beginning of an audio span" ;
   rdfs:domain :AudioJustification ;
   rdfs:range xsd:double ;
   rdfs:subPropertyOf owl:topDataProperty .
 
-:endTimestamp rdf:type owl:DataTypeProperty ;
+:endTimestamp rdf:type owl:DatatypeProperty ;
   rdfs:label "end timestamp" ;
   rdfs:comment "Indicate the end of an audio span" ;
   rdfs:domain :AudioJustification ;
@@ -284,42 +284,42 @@
   rdfs:range :BoundingBox ;
   rdfs:subPropertyOf owl:topObjectProperty .
 
-:boundingBoxUpperLeftX rdf:type owl:DataTypeProperty ;
+:boundingBoxUpperLeftX rdf:type owl:DatatypeProperty ;
   rdfs:label "bounding box upper left x" ;
   rdfs:comment "Indicate the x value of the upper left-hand point of the bounding box" ;
   rdfs:domain :BoundingBox;
   rdfs:range xsd:int;
   rdfs:subPropertyOf owl:topDataProperty .
 
-:boundingBoxUpperLeftY rdf:type owl:DataTypeProperty ;
+:boundingBoxUpperLeftY rdf:type owl:DatatypeProperty ;
   rdfs:label "bounding box upper left y" ;
   rdfs:comment "Indicate the y value of the upper left-hand point of the bounding box" ;
   rdfs:domain :BoundingBox;
   rdfs:range xsd:int;
   rdfs:subPropertyOf owl:topDataProperty .
 
-:boundingBoxLowerRightX rdf:type owl:DataTypeProperty ;
+:boundingBoxLowerRightX rdf:type owl:DatatypeProperty ;
   rdfs:label "bounding box lower right x" ;
   rdfs:comment "Indicate the x value of the lower right-hand point of the bounding box" ;
   rdfs:domain :BoundingBox;
   rdfs:range xsd:int;
   rdfs:subPropertyOf owl:topDataProperty .
 
-:boundingBoxLowerRightY rdf:type owl:DataTypeProperty ;
+:boundingBoxLowerRightY rdf:type owl:DatatypeProperty ;
   rdfs:label "bounding box lower right y" ;
   rdfs:comment "Indicate the y value of the lower right-hand point of the bounding box" ;
   rdfs:domain :BoundingBox;
   rdfs:range xsd:int;
   rdfs:subPropertyOf owl:topDataProperty .
 
-:keyFrame rdf:type owl:DataTypeProperty ;
+:keyFrame rdf:type owl:DatatypeProperty ;
   rdfs:label "key frame" ;
   rdfs:comment "Indicate the key frame of for a video justification" ;
   rdfs:domain :KeyFrameVideoJustification ;
   rdfs:range xsd:string;
   rdfs:subPropertyOf owl:topDataProperty .
 
-:shot rdf:type owl:DataTypeProperty ;
+:shot rdf:type owl:DatatypeProperty ;
   rdfs:label "shot" ;
   rdfs:comment "Indicate the shot for a ShotVideoJustification" ;
   rdfs:domain :ShotVideoJustification ;
@@ -333,14 +333,14 @@
   rdfs:range :LinkAssertion ;
   rdfs:subPropertyOf owl:topObjectProperty .
 
-:linkTarget rdf:type owl:DataTypeProperty;
+:linkTarget rdf:type owl:DatatypeProperty;
   rdfs:label "link target" ;
   rdfs:comment "Indicate the location of the external object that the internal entity is linked to" ;
   rdfs:domain :LinkAssertion ;
   rdfs:range xsd:string ;
   rdfs:subPropertyOf owl:topDataProperty .
 
-:noneOfTheAbove rdf:type owl:DataTypeProperty ;
+:noneOfTheAbove rdf:type owl:DatatypeProperty ;
   rdfs:label "none of the above" ;
   rdfs:comment "In a mutual exclusion, this indicates probability that none explicitly listed is correct" ;
   rdfs:domain :MutualExclusion ;
@@ -366,7 +366,7 @@
   rdfs:range :PrivateData ;
   rdfs:subPropertyOf owl:topObjectProperty .
 
-:jsonContent rdf:type owl:DataTypeProperty ;
+:jsonContent rdf:type owl:DatatypeProperty ;
   rdfs:label "json content" ;
   rdfs:comment "Json formatted string within private data" ;
   rdfs:domain :PrivateData ;
