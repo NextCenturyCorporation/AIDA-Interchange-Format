@@ -4,9 +4,7 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
 
 *    a formal representation of the format in terms of an OWL ontology in `interchange-format.ttl`.
      This ontology can be validated using the SHACL constraints file in
-     `src/main/resources/edu/isi/gaia/aida_ontology.shacl`. **At the moment the OWL ontology has not
-     been brought up-to-date with the latest changes. The SHACL file is a better guide. NCC will
-     reconcile them in the next week**.
+     `src/main/resources/edu/isi/gaia/aida_ontology.shacl`.
 
 *    utilities to make it easier to work with this format.  JVM utilities are in
      `src/main/java/edu/isi/gaia/AIFUtils.kt`. Although written in Kotlin, these can be used from any
@@ -57,8 +55,14 @@ are four parameters which are always required:
 * `systemUri`: a URI path to identify the system which generated the ColdStart output. For
     example `http://www.rpi.edu/tinkerbell`
 * `mode`: must be `FULL` or `SHATTER`, as explained below.
-* `ontology`: must be `coldstart`, `seedling`, or `rpi_seedling`, depending on the input's
-  ontology. `rpi_seedling` makes extra allowances for filler types.
+* `ontology`: path of the file describing the ontology to use in AIF. For the M9 Seedling
+    point to `src/main/resources/edu/isi/gaia/SeedlingOntology`.
+* `relationArgsFile`: In ColdStart, you assert a relation between two entities, with the one
+    on the left being the subject and the one on the right being the object.  In AIF relations
+    are represented more like events and the relation arguments have relation-specific names
+    instead of generic names like "subject" and "object". Because of this, you need a file 
+    which specifies these names for each relation. For the M9 Seedling ontology, you can use
+    `src/main/resources/edu/isi/gaia/seedling_relation_args.csv`
 
 If `mode` is `FULL`, then the entire ColdStartKB is converted into a single AIF RDF file in
 n-triples format (n-triples is used for greater I/O speed).  The following parameters then
