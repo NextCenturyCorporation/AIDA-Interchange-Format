@@ -546,7 +546,7 @@ class Examples(unittest.TestCase):
         aifutils.mark_as_possible_cluster_member(g, president_cluster, trump_cluster, .6, system)
 
         # write graph to file
-        file = open("../test_read_and_write.ttl", "r+w")
+        file = open("../test_read_and_write.ttl", "w")
         file.write(g.serialize(format='turtle'))
         file.close()
 
