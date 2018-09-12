@@ -29,14 +29,11 @@ public class ScalingTest {
     private Resource system;
 
     // Beginning sizes of data, about what is in T101
-    private int entityCount = 128000;
-    private int eventCount = 38400;
-    //    private int entityCount = 1000;
-//    private int eventCount = 300;
-    private int relationCount = 200;
-    // T101 has 3000 assertions, but 1500 of them are type assertions associated with entity and events, so
-    // do not count them.
-    private int assertionCount = 1500;
+    //private int entityCount = 128000;
+    //private int eventCount = 38400;
+
+    private int entityCount = 1000;
+    private int eventCount = 300;
 
     private int entityIndex = 1;
     private int eventIndex = 1;
@@ -66,20 +63,19 @@ public class ScalingTest {
         scalingTest.runtest();
     }
 
-    private void increase() {
-        entityCount *= 2;
-        eventCount *= 2;
-    }
-
-    private void runtest() {
+    protected void runtest() {
 
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
 
         for (int ii = 0; ii < 200; ii++) {
             System.out.println("Trying :  Entity count: " + entityCount);
+            long startTime = System.currentTimeMillis();
+
             runSingleTest();
 
+            long endTime = System.currentTimeMillis();
+            long duration = (endTime - startTime) / 1000;
 
             long size = 0;
             File f = new File(filename);
@@ -87,15 +83,18 @@ public class ScalingTest {
                 size = f.length();
             }
             size /= 1000000.;
-            System.out.println(" Size of output: " + size);
+            System.out.println(" Size of output: " + size + "  Time (sec) " + duration);
 
             increase();
         }
     }
 
+    private void increase() {
+        entityCount *= 2;
+        eventCount *= 2;
+    }
+
     private void runSingleTest() {
-
-
         setup();
 
         for (int ii = 0; ii < entityCount; ii++) {
@@ -170,7 +169,6 @@ public class ScalingTest {
     // we dump the test name and the model in Turtle format so that whenever the user
     // runs the tests, they will also get the examples
     private void dumpAndAssertValid(String testName) {
-        System.out.println("\n\n" + testName + "\n\n");
         try {
             // RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
             RDFDataMgr.write(Files.newOutputStream(Paths.get(testName)), model, RDFFormat.TURTLE_PRETTY);
