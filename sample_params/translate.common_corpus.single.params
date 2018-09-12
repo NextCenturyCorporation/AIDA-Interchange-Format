@@ -5,3 +5,5 @@ mode: FULL
 outputAIFFile:  /Users/gabbard/projects/gaia/en.ner.linking.rpi_event_aida.cs.ntriples
 restrictConfidencesToJustifications: true
 breakCrossDocCoref: false
+ontology: /Users/gabbard/projects/gaia/AIDA-Interchange-Format/src/main/resources/edu/isi/gaia/SeedlingOntology
+relationArgsFile: /Users/gabbard/projects/gaia/AIDA-Interchange-Format/src/main/resources/edu/isi/gaia/seedling_relation_args.csv
