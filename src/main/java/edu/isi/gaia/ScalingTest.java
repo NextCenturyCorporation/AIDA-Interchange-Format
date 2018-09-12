@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 import static edu.isi.gaia.AIFUtils.*;
 
@@ -69,7 +70,7 @@ public class ScalingTest {
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
 
         for (int ii = 0; ii < 200; ii++) {
-            System.out.println("Trying :  Entity count: " + entityCount);
+            System.out.print("Trying :  Entity count: " + entityCount);
             long startTime = System.currentTimeMillis();
 
             runSingleTest();
@@ -180,8 +181,13 @@ public class ScalingTest {
 
     private Model createModel() {
 
+        // Make a MEMORY model
+        // System.out.println("Using memory model");
+        //        Model model = ModelFactory.createDefaultModel();
+
         // Make a disk model
-        Dataset dataset = TDBFactory.createDataset("/tmp/model");
+        System.out.println("Using disk model");
+        Dataset dataset = TDBFactory.createDataset("/tmp/model-scaling-" + UUID.randomUUID());
         Model model = dataset.getDefaultModel();
 
         // final Model model = ModelFactory.createDefaultModel();
