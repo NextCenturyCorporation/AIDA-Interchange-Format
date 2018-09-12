@@ -5,10 +5,12 @@ import ch.qos.logback.classic.Logger;
 import com.google.common.collect.ImmutableSet;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.tdb.TDBFactory;
+import org.apache.jena.tdb2.TDB2Factory;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.SKOS;
 import org.apache.jena.vocabulary.XSD;
@@ -56,6 +58,10 @@ public class ScalingTest {
 
     private final String filename = "scalingdata.ttl";
 
+    private enum MODEL_TYPE {MEMORY, TDB, TDB2}
+
+    private final MODEL_TYPE MODEL_TYPE_TO_USE = MODEL_TYPE.TDB;
+
     /**
      * Main function.  Call with no arguments
      */
@@ -69,8 +75,23 @@ public class ScalingTest {
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
 
+        switch (MODEL_TYPE_TO_USE) {
+            case MEMORY:
+                System.out.println("Using memory model");
+                break;
+            case TDB:
+                System.out.println("Using disk model TDB ");
+                break;
+            case TDB2:
+                System.out.println("Using disk model TDB2 ");
+                break;
+            default:
+                System.out.println(" type of model not defined. ");
+                System.exit(2);
+        }
+
         for (int ii = 0; ii < 200; ii++) {
-            System.out.print("Trying :  Entity count: " + entityCount);
+            System.out.print("Trying :  Entity count: " + entityCount + " ");
             long startTime = System.currentTimeMillis();
 
             runSingleTest();
@@ -181,14 +202,27 @@ public class ScalingTest {
 
     private Model createModel() {
 
-        // Make a MEMORY model
-        // System.out.println("Using memory model");
-        //        Model model = ModelFactory.createDefaultModel();
+        switch (MODEL_TYPE_TO_USE) {
+            case MEMORY:
+                // Make a MEMORY model
+                model = ModelFactory.createDefaultModel();
+                break;
 
-        // Make a disk model
-        System.out.println("Using disk model");
-        Dataset dataset = TDBFactory.createDataset("/tmp/model-scaling-" + UUID.randomUUID());
-        Model model = dataset.getDefaultModel();
+            case TDB:
+                // Make a disk model
+                Dataset dataset = TDBFactory.createDataset("/tmp/model-scaling-" + UUID.randomUUID());
+                model = dataset.getDefaultModel();
+                break;
+
+            case TDB2:
+                Dataset dataset2 = TDB2Factory.connectDataset("/tmp/model-scaling-" + UUID.randomUUID());
+                model = dataset2.getDefaultModel();
+                break;
+
+            default:
+                System.out.println(" type of model not defined. ");
+                System.exit(2);
+        }
 
         // final Model model = ModelFactory.createDefaultModel();
         // adding namespace prefixes makes the Turtle output more readable
@@ -212,6 +246,7 @@ public class ScalingTest {
     private String getEventUri() {
         return getUri("event-" + eventIndex++);
     }
+
 
     private String getRelationUri() {
         return getUri("relation-" + relationIndex++);
