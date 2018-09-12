@@ -3,9 +3,11 @@ package edu.isi.gaia
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.google.common.base.Charsets
+import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableMultiset
 import com.google.common.io.Files
+import edu.isi.gaia.AIFUtils.markJustification
 import edu.isi.gaia.AIFUtils.markSystem
 import edu.isi.nlp.files.FileUtils
 import edu.isi.nlp.parameters.Parameters
@@ -64,6 +66,14 @@ class ColdStart2AidaInterchangeConverter(
     }
 
     /**
+     * The type of some object together with the AIF assertion assigning that type.
+     *
+     * NIST requires justifications on all type assertions. This a convenience class to help us track these
+     * type assertions for objects so that we can attach justifications to them in [Conversion.registerJustifications].
+     */
+    private data class TypeAndTypeAssertion(val type: Resource, val typeAssertion: Resource)
+
+    /**
      * Bundles together all the state for a conversion process.
      *
      * We use an inner class for this so that the converter object itself stays thread-safe.
@@ -105,7 +115,7 @@ class ColdStart2AidaInterchangeConverter(
         // each will return a boolean specifying whether or not the conversion was successful
         // except translateTypeAssertion, which returns the type asserted
 
-        fun translateTypeAssertion(cs_assertion: TypeAssertion, confidence: Double?): Resource? {
+        fun translateTypeAssertion(cs_assertion: TypeAssertion, confidence: Double?): TypeAndTypeAssertion? {
             val ontologyType = when (cs_assertion.subject) {
                 is EntityNode -> ontologyMapping.entityType(cs_assertion.type)
                 is EventNode -> ontologyMapping.eventType(cs_assertion.type)
@@ -115,7 +125,7 @@ class ColdStart2AidaInterchangeConverter(
             if (ontologyType != null) {
                 val entityOrEvent = toResource(cs_assertion.subject)
 
-                AIFUtils.markType(model, assertionIriGenerator.nextIri(), entityOrEvent,
+                val typeAssertion = AIFUtils.markType(model, assertionIriGenerator.nextIri(), entityOrEvent,
                         ontologyType, systemNode, confidence)
 
                 // when requested to use clusters, we need to generate a cluster for each entity
@@ -129,7 +139,7 @@ class ColdStart2AidaInterchangeConverter(
                             entityOrEvent, systemNode)
                 }
 
-                return ontologyType
+                return TypeAndTypeAssertion(type=ontologyType, typeAssertion = typeAssertion)
             } else {
                 return null
             }
@@ -137,18 +147,20 @@ class ColdStart2AidaInterchangeConverter(
 
         fun translateMention(cs_assertion: MentionAssertion, confidence: Double,
                              objectToCanonicalMentions: Map<Node, Provenance>,
-                             objectToType: Map<Node, Resource>): Boolean {
+                             objectToType: Map<Node, TypeAndTypeAssertion>): Boolean {
             val entityResource = toResource(cs_assertion.subject)
             // if this is a canonical mention, then we need to make a skos:preferredLabel triple
+            val (entityType, typeAssertion) = (objectToType[cs_assertion.subject]
+                    ?: throw RuntimeException("Entity $entityResource lacks a type"))
+
             if (cs_assertion.mentionType == CANONICAL_MENTION) {
-                val entityType = (objectToType[cs_assertion.subject]
-                        ?: throw RuntimeException("Entity $entityResource lacks a type"))
                 when {
                     ontologyMapping.typeAllowedToHaveAName(entityType) -> AidaAnnotationOntology.NAME_PROPERTY
                     ontologyMapping.typeAllowedToHaveTextValue(entityType) -> AidaAnnotationOntology.TEXT_VALUE_PROPERTY
                     ontologyMapping.typeAllowedToHaveNumericValue(entityType) -> AidaAnnotationOntology.NUMERIC_VALUE_PROPERTY
                     else -> null
-                }?.let { property -> entityResource.addProperty(property, model.createTypedLiteral(cs_assertion.string)) }
+                }?.let { property -> entityResource.addProperty(property,
+                        model.createTypedLiteral(cs_assertion.string)) }
             } else if (cs_assertion.justifications
                     == objectToCanonicalMentions.getValue(cs_assertion.subject)) {
                 // this mention assertion just duplicates a canonical mention assertion
@@ -173,18 +185,27 @@ class ColdStart2AidaInterchangeConverter(
 //            }
 
             registerJustifications(entityResource, cs_assertion.justifications,
-                    cs_assertion.string, confidence,
+                    typeAssertion, cs_assertion.string, confidence,
                     justificationType = cs_assertion.mentionType.name)
 
             return true
         }
 
         fun registerJustifications(resource: Resource,
-                                   provenance: Provenance, string: String? = null,
+                                   provenance: Provenance,
+                                   /**
+                                    * AIF Assertion assigning type to [resource]
+                                    */
+                                   typeAssertion: Resource? = null,
+                                   string: String? = null,
                                    confidence: Double, justificationType: String? = null) {
             for ((start, end_inclusive) in provenance.predicate_justifications) {
                 val justification = AIFUtils.markTextJustification(model, resource, provenance.docID,
                         start, end_inclusive, systemNode, confidence)
+                // NIST wants justifications on type assertions
+                if (typeAssertion != null) {
+                    markJustification(ImmutableList.of(typeAssertion), justification)
+                }
 
                 if (string != null) {
                     justification.addProperty(SKOS.prefLabel,
@@ -215,9 +236,22 @@ class ColdStart2AidaInterchangeConverter(
             val relationTypeIri = ontologyMapping.relationType(csAssertion.relationType)
             return if (relationTypeIri != null) {
                 val (subjectRole, objectRole) = ontologyMapping.relationArgumentTypes(relationTypeIri)
-                AIFUtils.makeRelationInEventForm(model, assertionIriGenerator.nextIri(), relationTypeIri,
-                        subjectRole, toResource(csAssertion.subject), objectRole, toResource(csAssertion.obj),
-                        assertionIriGenerator.nextIri(), systemNode, confidence)
+
+                val relation = AIFUtils.makeRelation(model,
+                        assertionIriGenerator.nextIri(), systemNode)
+                val typeAssertion = AIFUtils.markType(model,
+                        assertionIriGenerator.nextIri(), relation, relationTypeIri,
+                        systemNode, confidence)
+                val subjectAssertion = AIFUtils.markAsArgument(model, relation, subjectRole,
+                        toResource(csAssertion.subject), systemNode, confidence)
+                val objectAssertion = AIFUtils.markAsArgument(model, relation, objectRole,
+                        toResource(csAssertion.obj), systemNode, confidence)
+                registerJustifications(typeAssertion, csAssertion.justifications, null,
+                        null, confidence, null)
+                registerJustifications(subjectAssertion, csAssertion.justifications, null,
+                        null, confidence, null)
+                registerJustifications(objectAssertion, csAssertion.justifications, null,
+                        null, confidence, null)
                 true
             } else {
                 false
@@ -243,12 +277,12 @@ class ColdStart2AidaInterchangeConverter(
             val subjectRole = ontologyMapping.eventArgumentType(csAssertion.sentiment + "_holder") ?: RDF.subject
             val subjectArg = AIFUtils.markAsArgument(model, relation, subjectRole, sentimentHolder, systemNode, confidence)
             registerJustifications(subjectArg, csAssertion.justifications, null,
-                    confidence)
+                    confidence = confidence)
 
             val objectRole = ontologyMapping.eventArgumentType(csAssertion.sentiment + "_isAbout") ?: RDF.subject
             val objectArg = AIFUtils.markAsArgument(model, relation, objectRole, thingSentimentIsAbout, systemNode, confidence)
             registerJustifications(objectArg, csAssertion.justifications, null,
-                    confidence)
+                    confidence = confidence)
             return true
         }
 
@@ -262,7 +296,8 @@ class ColdStart2AidaInterchangeConverter(
                 val argAssertion = AIFUtils.markAsArgument(model, event,
                         argTypeIri, filler, systemNode, confidence)
 
-                registerJustifications(argAssertion, csAssertion.justifications, null, confidence)
+                registerJustifications(argAssertion, csAssertion.justifications, null,
+                        confidence = confidence)
                 return true
             } else {
                 return false
@@ -314,15 +349,15 @@ class ColdStart2AidaInterchangeConverter(
             // we process type assertions first because we want to omit all other things which reference
             // objects with types outside the target domain ontology
             val (typeAssertions, otherAssertions) = csKB.allAssertions.partition { it is TypeAssertion }
-            val objectToType = mutableMapOf<Node, Resource>()
+            val objectToType = mutableMapOf<Node, TypeAndTypeAssertion>()
 
             translateAssertions(typeAssertions, "type",
                     untranslatedFunction = { errorLogger.observeOutOfDomainType((it as TypeAssertion).type) })
             { assertion: Assertion, confidence: Double? ->
                 if (assertion is TypeAssertion) {
-                    val type = translateTypeAssertion(assertion, confidence)
-                    if (type != null) {
-                        objectToType[assertion.subject] = type
+                    val typeAndAssertion = translateTypeAssertion(assertion, confidence)
+                    if (typeAndAssertion != null) {
+                        objectToType[assertion.subject] = typeAndAssertion
                         true
                     } else {
                         false
