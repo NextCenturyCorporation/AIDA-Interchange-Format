@@ -1135,7 +1135,6 @@ class ValidExamples {
     System.out.println("Creating disk based model at " + tempLoc);
     Dataset dataset = TDBFactory.createDataset(tempLoc);
     Model model = dataset.getDefaultModel();
-    // model = ModelFactory.createDefaultModel();
     return addNamespacesToModel(model, seedling);
   }
 
