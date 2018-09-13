@@ -1,5 +1,5 @@
 ######################################################
-# Created by LDCOntology.java on 2018-08-28T19:58:32.438Z
+# Created by LDCOntology.java on 2018-09-13T13:56:11.844Z
 ######################################################
 @prefix schema: <http://schema.org/> .
 @prefix ldcOnt: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#> .
@@ -16,7 +16,7 @@
         rdfs:comment     "An ontology for creating messages from LDC data to use in AIDA interchange language development" ;
         rdfs:label       "AIDA Domain Ontology for LDC Seedling Corpus" ;
         owl:imports      <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon> ;
-        owl:versionInfo  "Version 1.1" .
+        owl:versionInfo  "Version 1.1.1" .
 
 ######################################################
 # Entity classes
@@ -64,7 +64,7 @@ ldcOnt:Money  a          owl:Class ;
 
 ldcOnt:NumericalValue
         a                owl:Class ;
-        rdfs:subClassOf  ldcOnt:FillerType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveNumericValue , ldcOnt:FillerType .
 
 ldcOnt:Results  a        owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , ldcOnt:FillerType .
