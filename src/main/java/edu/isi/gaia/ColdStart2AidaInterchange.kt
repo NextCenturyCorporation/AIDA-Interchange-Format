@@ -246,6 +246,8 @@ class ColdStart2AidaInterchangeConverter(
                         toResource(csAssertion.subject), systemNode, confidence)
                 val objectAssertion = AIFUtils.markAsArgument(model, relation, objectRole,
                         toResource(csAssertion.obj), systemNode, confidence)
+                registerJustifications(relation, csAssertion.justifications, null,
+                        null, confidence, null)
                 registerJustifications(typeAssertion, csAssertion.justifications, null,
                         null, confidence, null)
                 registerJustifications(subjectAssertion, csAssertion.justifications, null,
