@@ -8,22 +8,31 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import edu.isi.gaia.AIFUtils.*;
 import kotlin.text.Charsets;
+import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
+import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.SKOS;
 import org.apache.jena.vocabulary.XSD;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.UUID;
 
 import static edu.isi.gaia.AIFUtils.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -908,7 +917,31 @@ class ValidExamples {
         dumpAndAssertValid(model, "create a relation where both endpoints are ambiguous (unrestricted way)",
                 true);
     }
-}
+
+    @Test
+    void createEntityWithDiskBaseModelAndWriteOut() {
+        final Model model = createDiskBasedModel(true);
+
+        // every AIF needs an object for the system responsible for creating it
+        final Resource system = makeSystemWithURI(model, getTestSystemUri());
+
+        final Resource entity = makeEntity(model, putinDocumentEntityUri, system);
+        final Resource entityIsAPerson = markType(model, getAssertionUri(), entity, SeedlingOntologyMapper.PERSON,
+                system, 0.5);
+        final Resource entityIsAPoliticalEntity = markType(model, getAssertionUri(), entity,
+                SeedlingOntologyMapper.GPE, system, 0.2);
+
+        markTextJustification(model, ImmutableSet.of(entityIsAPerson),
+                "HC000T6IV", 1029, 1033, system, 0.973);
+
+        Path filename = writeModelToDisk(model);
+
+        final Model model2 = readModelFromDisk(filename, true);
+        Resource rtest = model2.getResource(putinDocumentEntityUri);
+        assertNotNull(rtest, "Entity does not exist");
+    }
+
+  }
 
   /**
    * Don't do what these do!
@@ -1049,7 +1082,6 @@ class ValidExamples {
     }
   }
 
-
   // we dump the test name and the model in Turtle format so that whenever the user
   // runs the tests, they will also get the examples
   private void dumpAndAssertValid(Model model, String testName, boolean seedling) {
@@ -1062,17 +1094,60 @@ class ValidExamples {
     }
   }
 
+  private Path writeModelToDisk(Model model) {
+
+      Path outputPath = null;
+      try {
+          outputPath = Files.createTempFile("testoutput", ".ttl");
+          System.out.println("Writing final model to " + outputPath);
+          RDFDataMgr.write(Files.newOutputStream(outputPath), model, RDFFormat.TURTLE_PRETTY);
+
+      } catch (Exception e) {
+          System.err.println("Unable to write to tempfile " + e.getMessage());
+          e.printStackTrace();
+      }
+      return outputPath;
+  }
+
+
+  private Model readModelFromDisk(Path filename, boolean seedling) {
+    try {
+      Model model = createDiskBasedModel(seedling);
+      RDFDataMgr.read( model, Files.newInputStream(filename), Lang.TURTLE);
+      return model;
+    }
+    catch (Exception e) {
+      System.err.println("Unable to write to tempfile " + e.getMessage());
+      e.printStackTrace();
+    }
+    return null;
+  }
+
   private Model createModel(boolean seedling) {
     final Model model = ModelFactory.createDefaultModel();
+    return addNamespacesToModel(model, seedling);
+  }
+
+  private Model createDiskBasedModel(boolean seedling)
+  {
+    String tempDir = System.getProperty("java.io.tmpdir");
+    String tempLoc = tempDir + File.separator + "model-scaling-" + UUID.randomUUID();
+    System.out.println("Creating disk based model at " + tempLoc);
+    Dataset dataset = TDBFactory.createDataset(tempLoc);
+    Model model = dataset.getDefaultModel();
+    return addNamespacesToModel(model, seedling);
+  }
+
+  private Model addNamespacesToModel(Model model, boolean seedling) {
     // adding namespace prefixes makes the Turtle output more readable
     model.setNsPrefix("rdf", RDF.uri);
     model.setNsPrefix("xsd", XSD.getURI());
     model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
     if (seedling) {
-        model.setNsPrefix("ldcOnt", SeedlingOntologyMapper.NAMESPACE_STATIC);
-        model.setNsPrefix("ldc", LDC_NS);
+      model.setNsPrefix("ldcOnt", SeedlingOntologyMapper.NAMESPACE_STATIC);
+      model.setNsPrefix("ldc", LDC_NS);
     } else {
-        model.setNsPrefix("coldstart", ColdStartOntologyMapper.NAMESPACE_STATIC);
+      model.setNsPrefix("coldstart", ColdStartOntologyMapper.NAMESPACE_STATIC);
     }
     model.setNsPrefix("skos", SKOS.uri);
     return model;
