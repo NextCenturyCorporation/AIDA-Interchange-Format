@@ -13,6 +13,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.tdb.TDBFactory;
@@ -31,6 +32,7 @@ import java.util.UUID;
 
 import static edu.isi.gaia.AIFUtils.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -932,7 +934,11 @@ class ValidExamples {
         markTextJustification(model, ImmutableSet.of(entityIsAPerson),
                 "HC000T6IV", 1029, 1033, system, 0.973);
 
-        writeModelToDisk(model);
+        Path filename = writeModelToDisk(model);
+
+        final Model model2 = readModelFromDisk(filename, true);
+        Resource rtest = model2.getResource(putinDocumentEntityUri);
+        assertNotNull(rtest, "Entity does not exist");
     }
 
   }
@@ -1088,17 +1094,33 @@ class ValidExamples {
     }
   }
 
-  private void writeModelToDisk(Model model) {
+  private Path writeModelToDisk(Model model) {
 
-      Path outputPath;
+      Path outputPath = null;
       try {
           outputPath = Files.createTempFile("testoutput", ".ttl");
           System.out.println("Writing final model to " + outputPath);
           RDFDataMgr.write(Files.newOutputStream(outputPath), model, RDFFormat.TURTLE_PRETTY);
+
       } catch (Exception e) {
           System.err.println("Unable to write to tempfile " + e.getMessage());
           e.printStackTrace();
       }
+      return outputPath;
+  }
+
+
+  private Model readModelFromDisk(Path filename, boolean seedling) {
+    try {
+      Model model = createDiskBasedModel(seedling);
+      RDFDataMgr.read( model, Files.newInputStream(filename), Lang.TURTLE);
+      return model;
+    }
+    catch (Exception e) {
+      System.err.println("Unable to write to tempfile " + e.getMessage());
+      e.printStackTrace();
+    }
+    return null;
   }
 
   private Model createModel(boolean seedling) {
