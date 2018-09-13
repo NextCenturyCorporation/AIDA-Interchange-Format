@@ -3,6 +3,7 @@ import aifutils
 import random
 from rdflib import URIRef
 import os.path
+import time
 
 class ScalingTest():
     filename = "scalingdata.ttl"
@@ -30,15 +31,19 @@ class ScalingTest():
     def run_scaling_test(self):
         for ii in range(200):
             print("trying : Entity count: ", self.entity_count)
+            start_time = int(round(time.time() * 1000))
+
             self.run_single_test()
 
+            end_time = int(round(time.time() * 1000))
+            duration = (start_time - end_time) / 1000
             size = 0
 
             f = open(self.filename)
             if os.path.isfile(self.filename):
                 size = os.path.getsize(self.filename)
             size /= 1000000.
-            print("Size of output: ", size)
+            print("Size of output: ", size, " duration: ", duration)
             self.increase()
 
 
