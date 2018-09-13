@@ -10,7 +10,6 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.tdb.TDBFactory;
-import org.apache.jena.tdb2.TDB2Factory;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.SKOS;
 import org.apache.jena.vocabulary.XSD;
@@ -32,33 +31,28 @@ public class ScalingTest {
     private Resource system;
 
     // Beginning sizes of data, about what is in T101
-    //private int entityCount = 128000;
-    //private int eventCount = 38400;
-
     private int entityCount = 1000;
     private int eventCount = 300;
 
     private int entityIndex = 1;
     private int eventIndex = 1;
-    private int relationIndex = 1;
     private int assertionIndex = 1;
 
     // Utility values, so that we can easily create random things
-    final static String abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    final Resource[] entityTypes = SeedlingOntologyMapper.ENTITY_TYPES.toArray(new Resource[0]);
+    private final static String abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private final Resource[] entityTypes = SeedlingOntologyMapper.ENTITY_TYPES.toArray(new Resource[0]);
 
-    final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
-
-    private final String putinDocumentEntityUri = getUri("E781167.00398");
-    private final String putinElectedDocumentEventUri = getUri("V779961.00010");
-    private final String russiaDocumentEntityUri = getUri("E779954.00004");
+    private final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
 
     private final Random r = new Random();
     private List<Resource> entityResourceList = new ArrayList<>();
 
     private final String filename = "scalingdata.ttl";
 
-    private enum MODEL_TYPE {MEMORY, TDB, TDB2}
+    // Whether to use in memory or disk based.  Note:  TDB2 requires transactions, which we do not do!
+    private enum MODEL_TYPE {
+        MEMORY, TDB, TDB2
+    }
 
     private final MODEL_TYPE MODEL_TYPE_TO_USE = MODEL_TYPE.TDB;
 
@@ -67,10 +61,10 @@ public class ScalingTest {
      */
     public static void main(String[] args) {
         ScalingTest scalingTest = new ScalingTest();
-        scalingTest.runtest();
+        scalingTest.runTest();
     }
 
-    protected void runtest() {
+    private void runTest() {
 
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
@@ -105,7 +99,7 @@ public class ScalingTest {
                 size = f.length();
             }
             size /= 1000000.;
-            System.out.println(" Size of output: " + size + "  Time (sec) " + duration);
+            System.out.println(" Size of output (mb): " + size + "  Time (sec): " + duration);
 
             increase();
         }
@@ -117,7 +111,8 @@ public class ScalingTest {
     }
 
     private void runSingleTest() {
-        setup();
+        createModel();
+        system = makeSystemWithURI(model, getTestSystemUri());
 
         for (int ii = 0; ii < entityCount; ii++) {
             addEntity();
@@ -127,11 +122,6 @@ public class ScalingTest {
         }
 
         dumpAndAssertValid(filename);
-    }
-
-    private void setup() {
-        model = createModel();
-        system = makeSystemWithURI(model, getTestSystemUri());
     }
 
     private void addEntity() {
@@ -200,7 +190,7 @@ public class ScalingTest {
         }
     }
 
-    private Model createModel() {
+    private void createModel() {
 
         switch (MODEL_TYPE_TO_USE) {
             case MEMORY:
@@ -212,11 +202,6 @@ public class ScalingTest {
                 // Make a disk model
                 Dataset dataset = TDBFactory.createDataset("/tmp/model-scaling-" + UUID.randomUUID());
                 model = dataset.getDefaultModel();
-                break;
-
-            case TDB2:
-                Dataset dataset2 = TDB2Factory.connectDataset("/tmp/model-scaling-" + UUID.randomUUID());
-                model = dataset2.getDefaultModel();
                 break;
 
             default:
@@ -232,7 +217,6 @@ public class ScalingTest {
         model.setNsPrefix("ldcOnt", SeedlingOntologyMapper.NAMESPACE_STATIC);
         model.setNsPrefix("ldc", LDC_NS);
         model.setNsPrefix("skos", SKOS.uri);
-        return model;
     }
 
     private static String getUri(String localName) {
@@ -245,11 +229,6 @@ public class ScalingTest {
 
     private String getEventUri() {
         return getUri("event-" + eventIndex++);
-    }
-
-
-    private String getRelationUri() {
-        return getUri("relation-" + relationIndex++);
     }
 
     private String getAssertionUri() {
@@ -276,11 +255,11 @@ public class ScalingTest {
     }
 
     private String getRandomString(int length) {
-        String s = "";
+        StringBuilder s = new StringBuilder();
         for (int ii = 0; ii < length; ii++) {
-            s += abc.charAt(r.nextInt(abc.length()));
+            s.append(abc.charAt(r.nextInt(abc.length())));
         }
-        return s;
+        return s.toString();
     }
 
     private Resource getRandomEntity() {
@@ -296,20 +275,16 @@ public class ScalingTest {
         return s;
     }
 
-
     private final String[] EVENT_TYPES = {
             "Business.DeclareBankruptcy", "Business.End", "Business.Merge", "Business.Start",
-            "Conflict.Attack", "Conflict.Demonstrate",
-            "Contact.Broadcast", "Contact.Contact", "Contact.Correspondence", "Contact.Meet",
-            "Existence.DamageDestroy",
-            "Government.Agreements", "Government.Legislate", "Government.Spy", "Government.Vote",
-            "Inspection.Artifact", "Inspection.People",
+            "Conflict.Attack", "Conflict.Demonstrate", "Contact.Broadcast", "Contact.Contact",
+            "Contact.Correspondence", "Contact.Meet", "Existence.DamageDestroy", "Government.Agreements",
+            "Government.Legislate", "Government.Spy", "Government.Vote", "Inspection.Artifact", "Inspection.People",
             "Justice.Acquit", "Justice.Appeal", "Justice.ArrestJail", "Justice.ChargeIndict", "Justice.Convict",
             "Justice.Execute", "Justice.Extradite", "Justice.Fine", "Justice.Investigate", "Justice.Pardon",
             "Justice.ReleaseParole", "Justice.Sentence", "Justice.Sue", "Justice.TrialHearing",
             "Life.BeBorn", "Life.Die", "Life.Divorce", "Life.Injure", "Life.Marry",
-            "Manufacture.Artifact",
-            "Movement.TransportArtifact", "Movement.TransportPerson",
+            "Manufacture.Artifact", "Movement.TransportArtifact", "Movement.TransportPerson",
             "Personnel.Elect", "Personnel.EndPosition", "Personnel.Nominate", "Personnel.StartPosition",
             "Transaction.Transaction", "Transaction.TransferControl", "Transaction.TransferMoney",
             "Transaction.TransferOwnership"};
