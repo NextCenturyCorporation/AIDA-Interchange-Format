@@ -26,11 +26,19 @@ import static edu.isi.gaia.AIFUtils.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Test to see how large we can scale  AIF.  AIF uses a Jena-based model, and so we rely on that
- * to determine how large it can get.
+ * Test to see how large we can scale AIF.  AIF uses a Jena-based model, and so we rely on that
+ * to determine how large it can get.  Change whether you are using a memory based model
+ * or a disk-based model (TDB) below in the line that defines MODEL_TYPE_TO_USE.  MEMORY is faster, but
+ * is more limited;  TDB is slower but can handle more statements.
  *
- *   16G Ubuntu 16.04   Memory:  
+ *   16G Ubuntu 16.04   Memory:    Entity count:  256000  NumberStatements: 11955372 Size of output (mb): 722  Time (sec): 75
+ *   16G Ubuntu 16.04   TDB:       Entity count:  256000  NumberStatements: 11955602 Size of output (mb): 711  Time (sec): 240
+ *   64G Ubuntu 16.04   Memory:    Entity count: 1024000  NumberStatements: 47821274 Size of output (mb): 2934  Time (sec): 295
+ *   64G Ubuntu 16.04   TDB:       Entity count: 1024000  NumberStatements: 47509095 Size of output (mb): 2885  Time (sec): 1017
  *
+ *
+ * Run with:
+ *   %  mvn exec:java -Dexec.mainClass="edu.isi.gaia.ScalingTest" -Dexec.classpathScope="test"
  */
 public class ScalingTest {
 
