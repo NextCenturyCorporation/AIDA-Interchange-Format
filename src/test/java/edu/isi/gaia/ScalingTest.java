@@ -6,9 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import kotlin.text.Charsets;
 import org.apache.jena.query.Dataset;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.tdb.TDBFactory;
@@ -30,8 +28,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test to see how large we can scale  AIF.  AIF uses a Jena-based model, and so we rely on that
  * to determine how large it can get.
- * 
- *   16G Ubuntu 16.04 machine:   Trying :  Entity count: 256000  Size of output (mb): 722  Time (sec): 73
+ *
+ *   16G Ubuntu 16.04   Memory:  
+ *
  */
 public class ScalingTest {
 
@@ -131,6 +130,15 @@ public class ScalingTest {
         for (int ii = 0; ii < eventCount; ii++) {
             addEvent();
         }
+
+
+        int numStatements = 0;
+        StmtIterator statmentIterator = model.listStatements();
+        while (statmentIterator.hasNext()) {
+            statmentIterator.nextStatement();
+            numStatements++;
+        }
+        System.out.print(" NumberStatements: " + numStatements);
 
         dumpAndAssertValid(filename);
     }
