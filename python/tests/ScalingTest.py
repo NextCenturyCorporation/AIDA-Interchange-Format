@@ -1,5 +1,7 @@
-from aida_rdf_ontologies import SEEDLING_TYPES_NIST
-import aifutils
+import sys
+sys.path.append('../')
+from aida_interchange.aida_rdf_ontologies import SEEDLING_TYPES_NIST
+from aida_interchange import aifutils
 import random
 from rdflib import URIRef
 import os.path
@@ -11,7 +13,7 @@ class ScalingTest():
     g = aifutils.make_graph()
     system = aifutils.make_system_with_uri(g, 'http://www.test.edu/testSystem')
 
-    # beginning sizes of data, about what is in T101
+    # beginning sizes of data
     entity_count = 128000
     event_count = 38400
     relations_count = 200
@@ -44,23 +46,28 @@ class ScalingTest():
                 size = os.path.getsize(self.filename)
             size /= 1000000.
             print("Size of output: ", size, " duration: ", duration)
+
+            # double size of entities and events after every iteration
             self.increase()
 
 
     def run_single_test(self):
+        # adds entities and events and wrties to file
         for ii in range(self.entity_count):
             self.add_entity()
 
         for i in range(self.event_count):
             self.add_event()
 
-        self.dump_and_assert_valid(self.filename)
+        self.write_to_file(self.filename)
 
 
     def add_entity(self):
+        # add an entity
         entity_resource = aifutils.make_entity(self.g, self.get_entity_uri(), self.system)
         self.entity_resource_list.append(entity_resource)
 
+        # sometimes add hasName, textValue, or numericValue, NOTE: This does not check type!!!
         rand = random.random()
         if rand < 0.15:
             aifutils.mark_name(self.g, entity_resource, self.get_random_string(5))
@@ -69,30 +76,38 @@ class ScalingTest():
         elif rand < 0.4:
             aifutils.mark_numeric_value_as_double(self.g, entity_resource, random.random())
 
+        # set the type
         type_to_use =  self.get_random_entity()
         type_assertion = aifutils.mark_type(self.g, self.get_assertion_uri(), entity_resource, type_to_use, self.system, 1.0)
         self.add_justification_and_private_data(type_assertion)
 
 
     def add_event(self):
+        # add an event
         event_resource = aifutils.make_event(self.g, self.get_event_uri(), self.system)
+
+        # add the type
         event_type_string = self.EVENT_TYPES[random.randint(0, len(self.EVENT_TYPES)) - 1]
         type_resource = SEEDLING_TYPES_NIST[event_type_string]
         type_assertion = aifutils.mark_type(self.g, self.get_assertion_uri(), event_resource, type_resource, self.system, 1.0)
 
         self.add_justification_and_private_data(type_assertion)
 
+        # make two arguments
         for i in range(2):
             arg = URIRef(SEEDLING_TYPES_NIST[event_type_string] + self.get_random_suffix())
             argument = aifutils.mark_as_argument(self.g, event_resource, arg, self.get_random_entity(), self.system,
-                                                 0.785, self.get_assertion_uri())
+                                                                         0.785, self.get_assertion_uri())
             self.add_justification_and_private_data(argument)
 
 
     def add_justification_and_private_data(self, resource):
         docId = self.get_random_doc_id()
+
+        # justify the type assertion
         aifutils.mark_text_justification(self.g, resource, docId, 1029, 1033, self.system, 0.973)
 
+        # add some private data
         aifutils.mark_private_data(self.g, resource, "{ 'provenance' : '" + docId + "' }", self.system)
 
 
@@ -160,7 +175,7 @@ class ScalingTest():
         return s
 
 
-    def dump_and_assert_valid(self, testname):
+    def write_to_file(self, testname):
         print("\n\n", testname, "\n\n")
         file = open(testname, "w")
         file.write(self.g.serialize(format='turtle'))
@@ -224,5 +239,4 @@ class ScalingTest():
              "Beneficiary", "Giver", "Recipient", "Thing", "Time"];
 
 if __name__ == "__main__":
-    scale_test = ScalingTest()
-    scale_test.run_scaling_test()
+    ScalingTest().run_scaling_test()
