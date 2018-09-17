@@ -483,13 +483,13 @@ aida:TextJustificationShape
    # exactly one start character offset within the document
    sh:property [
       sh:path aida:startOffset ;
-      sh:datatype xsd:int ;
+      sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )  ;
       sh:minCount 1;
       sh:maxCount 1 ];
    # and exactly one inclusive end offset within the document
    sh:property [
        sh:path aida:endOffsetInclusive ;
-       sh:datatype xsd:int ;
+       sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )  ;
        sh:minCount 1;
        sh:maxCount 1 ];
    # an optional string label for user consumption (TODO: is this allowed? Probably not?)
@@ -559,25 +559,25 @@ aida:BoundingBoxShape
 
    sh:property [
     sh:path aida:boundingBoxUpperLeftX ;
-    sh:datatype xsd:int ;
+    sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )  ;
     sh:minCount 1;
     sh:maxCount 1] ;
 
    sh:property [
     sh:path aida:boundingBoxUpperLeftY ;
-    sh:datatype xsd:int ;
+    sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )  ;
     sh:minCount 1;
     sh:maxCount 1] ;
 
    sh:property [
     sh:path aida:boundingBoxLowerRightX ;
-    sh:datatype xsd:int ;
+    sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )  ;
     sh:minCount 1;
     sh:maxCount 1] ;
 
    sh:property [
     sh:path aida:boundingBoxLowerRightY ;
-    sh:datatype xsd:int ;
+    sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )  ;
     sh:minCount 1;
     sh:maxCount 1] ;
 
