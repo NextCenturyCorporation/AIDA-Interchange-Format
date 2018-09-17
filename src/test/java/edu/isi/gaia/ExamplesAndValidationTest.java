@@ -26,14 +26,11 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.UUID;
 
 import static edu.isi.gaia.AIFUtils.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class ExamplesAndValidationTest {
@@ -484,17 +481,38 @@ class ValidExamples {
 
     @Test
     void createCompoundJustification() {
+        final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
+
         final Model model = createModel(true);
 
+        // every AIF needs an object for the system responsible for creating it
         final Resource system = makeSystemWithURI(model, getTestSystemUri());
 
-        final Resource entity = makeEntity(model, putinDocumentEntityUri, system);
+        // we make a resource for the event itself
+        // mark the event as a Personnel.Elect event; type is encoded separately so we can express
+        // uncertainty about type
+        String eventTypeString = "Personnel.Elect";
+        final Resource event = makeEvent(model, putinElectedDocumentEventUri, system);
+        final Resource eventTypeAssertion = markType(model, getAssertionUri(), event,
+                ontologyMapping.eventType(eventTypeString), system, 1.0);
 
-        // in order to allow uncertainty about the type of an entity, we don't mark an
-        // entity's type directly on the entity, but rather make a separate assertion for it
-        // its URI doesn't matter either
-        final Resource typeAssertion = markType(model, getAssertionUri(),
-                entity, SeedlingOntologyMapper.PERSON, system, 1.0);
+        // create the two entities involved in the event
+        final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
+        final Resource personTypeAssertion = markType(model, getAssertionUri(), putin,
+                SeedlingOntologyMapper.PERSON, system, 1.0);
+
+        final Resource russia = makeEntity(model, russiaDocumentEntityUri, system);
+        final Resource gpeTypeAssertion = markType(model, getAssertionUri(), russia,
+                SeedlingOntologyMapper.GPE, system, 1.0);
+
+        // link those entities to the event
+        final Resource electeeArgument = markAsArgument(model, event,
+                ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + "_Elect"),
+                putin, system, 0.785, getAssertionUri());
+        final Resource placeArgument = markAsArgument(model, event,
+                ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + "_Place"),
+                russia, system, 0.589, getAssertionUri());
+
 
         // the justification provides the evidence for our claim about the entity's type
         // we attach this justification to both the type assertion and the entity object
@@ -502,6 +520,9 @@ class ValidExamples {
         // in TA1 -> TA2 communications, we attach confidences at the level of justifications
         final Resource textJustification = makeTextJustification(model, "NYT_ENG_20181231",
                 42, 143, system, 0.973);
+
+        markJustification(personTypeAssertion, textJustification);
+        markJustification(putin, textJustification);
 
         // let's suppose we also have evidence from an image
         final Resource imageJustification = makeImageJustification(model, "NYT_ENG_20181231_03",
@@ -521,9 +542,12 @@ class ValidExamples {
                 4.566, 9.876, system, 0.789);
 
         // combine all jutifications into single justifiedBy triple with new confidence
-        markCompoundJustification(model, ImmutableSet.of(entity),
+        markCompoundJustification(model, ImmutableSet.of(electeeArgument),
                 ImmutableSet.of(textJustification, imageJustification, keyFrameVideoJustification,
                         shotVideoJustification, audioJustification), system, 0.321);
+
+        markCompoundJustification(model, ImmutableSet.of(placeArgument), ImmutableSet.of(textJustification),
+                system, 0.543);
 
         dumpAndAssertValid(model, "create a compound justification", true);
     }

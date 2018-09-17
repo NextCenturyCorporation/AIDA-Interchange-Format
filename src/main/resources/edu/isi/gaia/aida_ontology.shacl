@@ -709,7 +709,7 @@ aida:CompoundJustificationShape
        [sh:class aida:AudioJustification]
        [sh:class aida:KeyFrameVideoJustification]
        [sh:class aida:ShotVideoJustification] ) ;
-     sh:minCount 2 ] ;
+     sh:minCount 1 ] ;
 
    # justification must provide confidence
    sh:property aida:RequiredConfidencePropertyShape ;
