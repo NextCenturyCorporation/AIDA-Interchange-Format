@@ -111,8 +111,11 @@ def make_text_justification(g, doc_id, start_offset, end_offset_inclusive, syste
         raise RuntimeError('start_offset cannot be larger than end_offset_inclusive')
     if start_offset < 0:
         raise RuntimeError('start_offset must be a non-negative number')
-
-    justification = _make_aif_justification(g, doc_id, AIDA_ANNOTATION.TextJustification, system, confidence)
+    uri_ref = URIRef("{}/{}:{}".format(doc_id, start_offset,
+                                       end_offset_inclusive))
+    justification = _make_aif_justification(
+        g, doc_id, AIDA_ANNOTATION.TextJustification, system, confidence,
+        uri_ref)
     g.add((justification, AIDA_ANNOTATION.startOffset,
            Literal(start_offset, datatype=XSD.int)))
     g.add((justification, AIDA_ANNOTATION.endOffsetInclusive,
@@ -438,8 +441,8 @@ def _make_aif_resource(g, uri, class_type, system):
     return resource
 
 
-def _make_aif_justification(g, doc_id, class_type, system, confidence):
-    justification = _make_aif_resource(g, None, class_type, system)
+def _make_aif_justification(g, doc_id, class_type, system, confidence, uri_ref=None):
+    justification = _make_aif_resource(g, uri_ref, class_type, system)
     g.add((justification, AIDA_ANNOTATION.source,
            Literal(doc_id, datatype=XSD.string)))
     mark_confidence(g, justification,confidence, system)
