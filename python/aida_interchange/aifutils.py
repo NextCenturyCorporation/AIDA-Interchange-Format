@@ -251,7 +251,12 @@ def mark_audio_justification(g, things_to_justify, doc_id, start_timestamp, end_
 
 
 def make_keyframe_video_justification(g, doc_id, key_frame, boundingbox, system, confidence):
-    justification = _make_aif_justification(g, doc_id, AIDA_ANNOTATION.KeyFrameVideoJustification, system, confidence)
+    uri_ref = URIRef("{}/{}/({},{}):({},{})".format(
+        doc_id, key_frame, boundingbox.upper_left[0], boundingbox.upper_left[1],
+        boundingbox.lower_right[0], boundingbox.lower_right[1]))
+    justification = _make_aif_justification(
+        g, doc_id, AIDA_ANNOTATION.KeyFrameVideoJustification, system,
+        confidence, uri_ref)
     g.add((justification, AIDA_ANNOTATION.keyFrame,
            Literal(key_frame, datatype=XSD.string)))
     mark_boundingbox(g, justification, boundingbox)
