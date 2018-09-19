@@ -139,10 +139,11 @@ def mark_confidence(g, to_mark_on, confidence, system):
     Mark a confidence value on a resource.
 
     """
-    confidence_blank_node = _make_aif_resource(g, None, AIDA_ANNOTATION.Confidence, system)
-    g.add((confidence_blank_node, AIDA_ANNOTATION.confidenceValue,
+    confidence_node = _make_aif_resource(
+        g, to_mark_on + "#confidence", AIDA_ANNOTATION.Confidence, system)
+    g.add((confidence_node, AIDA_ANNOTATION.confidenceValue,
            Literal(confidence, datatype=XSD.double)))
-    g.add((to_mark_on, AIDA_ANNOTATION.confidence, confidence_blank_node))
+    g.add((to_mark_on, AIDA_ANNOTATION.confidence, confidence_node))
 
 
 def make_relation(g, relation_uri, system):
