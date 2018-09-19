@@ -211,7 +211,15 @@ def mark_boundingbox(g, to_mark_on, boundingbox):
 
 
 def make_image_justification(g, doc_id, boundingbox, system, confidence):
-    justification = _make_aif_justification(g, doc_id, AIDA_ANNOTATION.ImageJustification, system, confidence)
+    uri_ref = URIRef("{}/{}/({},{}):({},{})/{}".format(
+        system, doc_id, boundingbox.upper_left[0],
+        boundingbox.upper_left[1], boundingbox.lower_right[0],
+        boundingbox.lower_right[1], confidence))
+    if len([x for x in g[uri_ref]]) > 0:
+        return uri_ref  # We already have this justification in our graph
+    justification = _make_aif_justification(
+        g, doc_id, AIDA_ANNOTATION.ImageJustification, system, confidence,
+        uri_ref)
     mark_boundingbox(g, justification, boundingbox)
     return justification
 
