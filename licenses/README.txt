@@ -6,6 +6,7 @@ Apache License 2.0.	apache_license_2.0.txt
 	Google Guava:	https://github.com/google/guava
 	MicroUtils kotlin-logging	https://github.com/MicroUtils/kotlin-logging
 	JetBrains Kotlin	https://github.com/JetBrains/kotlin
+    FasterXML Jackson   https://github.com/FasterXML/jackson-core
 
 3-Clause BSD License.	3-clause_bsd_license.txt
 	RDFLib:		https://github.com/RDFLib/rdflib/
