@@ -6,6 +6,7 @@ import com.google.common.base.Charsets
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableMultiset
+import com.google.common.collect.ImmutableSetMultimap
 import com.google.common.io.Files
 import edu.isi.gaia.AIFUtils.markJustification
 import edu.isi.gaia.AIFUtils.markSystem
@@ -145,9 +146,17 @@ class ColdStart2AidaInterchangeConverter(
             }
         }
 
-        fun translateMention(cs_assertion: MentionAssertion, confidence: Double,
-                             objectToCanonicalMentions: Map<Node, Provenance>,
-                             objectToType: Map<Node, TypeAndTypeAssertion>): Boolean {
+        fun translateMention(
+                cs_assertion: MentionAssertion, confidence: Double,
+                objectToCanonicalMentions: Map<Node, Provenance>,
+                objectToType: Map<Node, TypeAndTypeAssertion>,
+                /**
+                 * Accumulates all names associated with entities of a type capable of bearing a
+                 * `hasName` property. At the end of translation this will be used to add the
+                 * `hasName` properties. We accumualte this way instead of adding the properties
+                 * immediately to avoid duplication.
+                 */
+                nameableEntitiesToNames: ImmutableSetMultimap.Builder<Resource, String>): Boolean {
             val entityResource = toResource(cs_assertion.subject)
             // if this is a canonical mention, then we need to make a skos:preferredLabel triple
             val (entityType, typeAssertion) = (objectToType[cs_assertion.subject]
@@ -155,22 +164,33 @@ class ColdStart2AidaInterchangeConverter(
 
             if (cs_assertion.mentionType == CANONICAL_MENTION) {
                 when {
-                    ontologyMapping.typeAllowedToHaveAName(entityType) -> AidaAnnotationOntology.NAME_PROPERTY
+                    // we deliberately don't translate for things which can have names because
+                    // the canonical string is not necessarily a name (e.g. if a name for the entity
+                    // is never mentioned in a document. Instead, we gather the names from
+                    // ColdStart "mention" mentions (which are in fact namem mentions) below
                     ontologyMapping.typeAllowedToHaveTextValue(entityType) -> AidaAnnotationOntology.TEXT_VALUE_PROPERTY
                     ontologyMapping.typeAllowedToHaveNumericValue(entityType) -> AidaAnnotationOntology.NUMERIC_VALUE_PROPERTY
                     else -> null
                 }?.let { property -> entityResource.addProperty(property,
                         model.createTypedLiteral(cs_assertion.string)) }
-            } else if (cs_assertion.justifications
-                    == objectToCanonicalMentions.getValue(cs_assertion.subject)) {
-                // this mention assertion just duplicates a canonical mention assertion
-                // so we won't add a duplicate RDF structure for it
-                // TODO: this will block the justification type being marked for such
-                // justifications.  On the other hand, this is probably ok, because knowing it
-                // is the canonical mention is more informative. Issue #46
-                // we return true here even though the statement wasn't translated because it is just a duplicate
-                // of an already translated assertion, so we don't need to warn about it
-                return true
+            } else {
+                if (cs_assertion.mentionType == NAME_MENTION
+                        && ontologyMapping.typeAllowedToHaveAName(entityType)) {
+                    // record name in order to create hasName property later
+                    nameableEntitiesToNames.put(entityResource, cs_assertion.string)
+                }
+
+                if (cs_assertion.justifications
+                        == objectToCanonicalMentions.getValue(cs_assertion.subject)) {
+                    // this mention assertion just duplicates a canonical mention assertion
+                    // so we won't add a duplicate RDF structure for it
+                    // TODO: this will block the justification type being marked for such
+                    // justifications.  On the other hand, this is probably ok, because knowing it
+                    // is the canonical mention is more informative. Issue #46
+                    // we return true here even though the statement wasn't translated because it is just a duplicate
+                    // of an already translated assertion, so we don't need to warn about it
+                    return true
+                }
             }
             AIFUtils.markSystem(entityResource, systemNode)
 
@@ -374,12 +394,15 @@ class ColdStart2AidaInterchangeConverter(
 
             assertionsInvolvingUntypedObjects.forEach { errorLogger.observeUntranslatableBecauseNodeOutsideOntology(it) }
 
+            // we use an ImmutableSetMultimap here for deterministic iteration ordering
+            val nameableEntitiesToNames =
+                    ImmutableSetMultimap.builder<Resource, String>()
             translateAssertions(assertionsInvolvingTypedObjects, "non-type",
                     errorLogger::observeUntranslatableForOtherReason) { assertion: Assertion, confidence: Double? ->
                 when (assertion) {
                     is TypeAssertion -> throw RuntimeException("Can't happen")
                     is MentionAssertion -> translateMention(assertion, confidence!!,
-                            objectToCanonicalMentions, objectToType)
+                            objectToCanonicalMentions, objectToType, nameableEntitiesToNames)
                     is LinkAssertion -> translateLink(assertion, confidence!!)
                     is SentimentAssertion -> translateSentiment(assertion, confidence!!)
                     is RelationAssertion -> translateRelation(assertion, confidence!!)
@@ -388,6 +411,16 @@ class ColdStart2AidaInterchangeConverter(
                 }
             }
 
+            // add hasName properties where applicable. We accumulate them all and do this at the
+            // end to avoid duplicates
+            nameableEntitiesToNames.build().asMap().forEach { entity, names ->
+                names.forEach { name ->
+                    entity.addProperty(AidaAnnotationOntology.NAME_PROPERTY,
+                            model.createTypedLiteral(name))
+                }
+            }
+
+            // make Turtle output prettier by setting some namespace prefixes
             AIFUtils.addStandardNamespaces(model)
             model.setNsPrefix("domainOntology", ontologyMapping.NAMESPACE)
         }

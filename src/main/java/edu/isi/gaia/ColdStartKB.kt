@@ -62,6 +62,7 @@ data class MentionType(val name: String) {
     }
 }
 
+val NAME_MENTION = MentionType("mention")
 val CANONICAL_MENTION = MentionType("canonical_mention")
 
 enum class Realis {
