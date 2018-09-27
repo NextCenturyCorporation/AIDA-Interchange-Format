@@ -89,6 +89,7 @@ class ValidExamples {
     private final String ukraineDocumentEntityUri = getUri("E779959.00021");
     private final String ukraineOwnsBukDocumentRelationUri = getUri("R779959.00002");
     private final String bukDocumentEntityUri = getUri("E779954.00005");
+    private final String bukKBEntityUri = getUri("E0084");
     private final String mh17AttackDocumentEventUri = getUri("V779961.00012");
     private final String mh17DocumentEntityUri = getUri("E779961.00032");
 
@@ -414,6 +415,58 @@ class ValidExamples {
         markDependsOnHypothesis(ukraineShotMH17, bukIsUkranianHypothesis);
 
         dumpAndAssertValid(model, "two seedling hypotheses", true);
+    }
+
+    // Create simple hypothesis that the BUK weapon system was owned by Russia
+    @Test
+    void simpleHypothesisWithCluster() {
+        final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
+
+        final Model model = createModel(true);
+
+        // every AIF needs an object for the system responsible for creating it
+        final Resource system = makeSystemWithURI(model, getTestSystemUri());
+
+        // buk document entity
+        final Resource buk = makeEntity(model, bukDocumentEntityUri, system);
+        final Resource bukIsWeapon = markType(model, getAssertionUri(), buk, SeedlingOntologyMapper.WEAPON,
+                system, 1.0);
+
+        // buk cross-document entity
+        final Resource bukKBEntity = makeEntity(model, bukKBEntityUri, system);
+        final Resource bukKBIsWeapon = markType(model, getAssertionUri(), bukKBEntity, SeedlingOntologyMapper.WEAPON,
+                system, 1.0);
+
+        // russia document entity
+        final Resource russia = makeEntity(model, russiaDocumentEntityUri, system);
+        final Resource russiaIsGPE = markType(model, getAssertionUri(), russia, SeedlingOntologyMapper.GPE,
+                system, 1.0);
+
+        // cluster buk
+        final Resource bukCluster = makeClusterWithPrototype(model, getClusterUri(), bukKBEntity, system);
+        final Resource bukIsClustered = markAsPossibleClusterMember(model, buk, bukCluster, .9, system);
+
+        // Russia owns buk relation
+        String affiliationRelationString = "GeneralAffiliation.APORA";
+        String affiliationRelationSubject = affiliationRelationString + "_Affiliate";
+        String affiliationRelationObject = affiliationRelationString + "_Affiliation";
+        final Resource bukIsRussian = makeRelation(model, russiaOwnsBukDocumentRelationUri, system);
+        markType(model, getAssertionUri(), bukIsRussian, ontologyMapping.relationType(affiliationRelationString),
+                system, 1.0);
+        final Resource bukArgument = markAsArgument(model, bukIsRussian,
+                ontologyMapping.eventArgumentTypeNotLowercase(affiliationRelationSubject), buk, system, 1.0);
+        final Resource russiaArgument = markAsArgument(model, bukIsRussian,
+                ontologyMapping.eventArgumentTypeNotLowercase(affiliationRelationObject), russia, system, 1.0);
+
+        // Russia owns buk hypothesis
+        final Resource bukIsRussianHypothesis = makeHypothesis(model, getUri("hypothesis-1"),
+                ImmutableSet.of(
+                        buk, bukIsWeapon, bukIsClustered,
+                        russia, russiaIsGPE,
+                        bukIsRussian, bukArgument, russiaArgument
+                ), system);
+
+        dumpAndAssertValid(model, "simple hypothesis with cluster", true);
     }
 
     @Test
