@@ -900,11 +900,6 @@ aida:ContentGraphShape
           [sh:class rdf:Statement] )
   ] ;
 
-  # a graph may provide a confidence
-  # this is not useful for a root graph but is for when we want to make confidence assertions
-  # about sub-graphs instead of single edges
-  sh:property aida:ConfidencePropertyShape ;
-
   # may provide an one or more source systems
   sh:property aida:SystemPropertyShape ;
 
