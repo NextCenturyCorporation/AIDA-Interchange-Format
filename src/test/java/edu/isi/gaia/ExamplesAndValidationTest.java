@@ -400,6 +400,7 @@ class ValidExamples {
                 ImmutableSet.of(bukIsRussian), system);
         final Resource russiaShotMH17 = markAsArgument(model, attackOnMH17, isAttacker, russia, system, 1.0);
         markDependsOnHypothesis(russiaShotMH17, bukIsRussianHypothesis);
+        markConfidence(model, bukIsRussianHypothesis, 0.75, system);
 
         // under the background hypothesis that BUK is Ukrainian, we believe Ukraine attacked MH17
         final Resource bukIsUkrainian = makeRelationInEventForm(model, ukraineOwnsBukDocumentRelationUri,
@@ -409,7 +410,7 @@ class ValidExamples {
                 getAssertionUri(), system, 1.0);
 
         final Resource bukIsUkranianHypothesis = makeHypothesis(model, getUri("hypothesis-2"),
-                ImmutableSet.of(bukIsUkrainian), system);
+                ImmutableSet.of(bukIsUkrainian), 0.25, system);
         final Resource ukraineShotMH17 = markAsArgument(model, attackOnMH17, isAttacker, russia, system, 1.0);
         markDependsOnHypothesis(ukraineShotMH17, bukIsUkranianHypothesis);
 
