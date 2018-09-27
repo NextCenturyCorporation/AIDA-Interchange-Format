@@ -977,25 +977,28 @@ aida:MutualExclusionAlternativeShape
     .
 
 aida:HypothesisShape
-   a sh:NodeShape ;
-   sh:targetClass aida:Hypothesis ;
+    a sh:NodeShape ;
+    sh:targetClass aida:Hypothesis ;
 
-   # all elements in a hypothesis sub-graph are assumed to be asserted (that is, they are
-   # interpreted as a conjunction)
-   sh:property [
-    a sh:PropertyShape ;
-    sh:path aida:hypothesisContent ;
-    sh:class aida:Subgraph ;
-    sh:minCount 1 ;
-    sh:maxCount 1] ;
+    # all elements in a hypothesis sub-graph are assumed to be asserted (that is, they are
+    # interpreted as a conjunction)
+    sh:property [
+        a sh:PropertyShape ;
+        sh:path aida:hypothesisContent ;
+        sh:class aida:Subgraph ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ] ;
 
-   sh:property aida:SystemPropertyShape ;
+    # a hypothesis can specify confidence
+    sh:property aida:ConfidencePropertyShape ;
 
-     # may bear system-private data
-     sh:property aida:PrivateDataPropertyShape ;
+    sh:property aida:SystemPropertyShape ;
 
-   sh:closed true ;
-   sh:ignoredProperties ( rdf:type ) .
+    # may bear system-private data
+    sh:property aida:PrivateDataPropertyShape ;
+
+    sh:closed true ;
+    sh:ignoredProperties ( rdf:type ) .
 
 aida:DependsOnHypothesisPropertyShape
   a sh:PropertyShape ;
