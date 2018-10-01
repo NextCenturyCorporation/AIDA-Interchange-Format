@@ -205,7 +205,7 @@ class ColdStart2AidaInterchangeConverter(
             val justificationType = provenanceToMentionType[cs_assertion.justifications]
                     .asSequence()
                     .maxWith(Ordering.explicit(listOf(CANONICAL_MENTION, PRONOMIAL_MENTION,
-                            NOMINAL_MENTION, NAME_MENTION)))!!
+                            NOMINAL_MENTION, NORMALIZED_MENTION, NAME_MENTION)))!!
 
             registerJustifications(entityResource, cs_assertion.justifications,
                     typeAssertion, cs_assertion.string, confidence,
