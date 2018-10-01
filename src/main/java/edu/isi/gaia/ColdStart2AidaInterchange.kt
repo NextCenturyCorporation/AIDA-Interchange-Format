@@ -3,10 +3,7 @@ package edu.isi.gaia
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.google.common.base.Charsets
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableMap
-import com.google.common.collect.ImmutableMultiset
-import com.google.common.collect.ImmutableSetMultimap
+import com.google.common.collect.*
 import com.google.common.io.Files
 import edu.isi.gaia.AIFUtils.markJustification
 import edu.isi.gaia.AIFUtils.markSystem
@@ -156,7 +153,8 @@ class ColdStart2AidaInterchangeConverter(
                  * `hasName` properties. We accumualte this way instead of adding the properties
                  * immediately to avoid duplication.
                  */
-                nameableEntitiesToNames: ImmutableSetMultimap.Builder<Resource, String>): Boolean {
+                nameableEntitiesToNames: ImmutableSetMultimap.Builder<Resource, String>,
+                provenanceToMentionType: ImmutableSetMultimap<Provenance, MentionType>): Boolean {
             val entityResource = toResource(cs_assertion.subject)
             // if this is a canonical mention, then we need to make a skos:preferredLabel triple
             val (entityType, typeAssertion) = (objectToType[cs_assertion.subject]
@@ -204,9 +202,14 @@ class ColdStart2AidaInterchangeConverter(
 //                associate_with_system(realisNode)
 //            }
 
+            val justificationType = provenanceToMentionType[cs_assertion.justifications]
+                    .asSequence()
+                    .maxWith(Ordering.explicit(listOf(CANONICAL_MENTION, PRONOMIAL_MENTION,
+                            NOMINAL_MENTION, NAME_MENTION)))!!
+
             registerJustifications(entityResource, cs_assertion.justifications,
                     typeAssertion, cs_assertion.string, confidence,
-                    justificationType = cs_assertion.mentionType.name)
+                    justificationType = justificationType.name)
 
             return true
         }
@@ -337,6 +340,11 @@ class ColdStart2AidaInterchangeConverter(
             val objectToCanonicalMentions = csKB.allAssertions.filterIsInstance<MentionAssertion>()
                     .filter { it.mentionType == CANONICAL_MENTION }
                     .map { it.subject to it.justifications }.toMap()
+            val provenanceToMentionType = csKB.allAssertions
+                    .asSequence()
+                    .filterIsInstance<MentionAssertion>()
+                    .map { it.justifications to it.mentionType }
+                    .toImmutableSetMultimap()
 
 
             // factors out common behavior from two passes we will make over the KB below
@@ -402,7 +410,8 @@ class ColdStart2AidaInterchangeConverter(
                 when (assertion) {
                     is TypeAssertion -> throw RuntimeException("Can't happen")
                     is MentionAssertion -> translateMention(assertion, confidence!!,
-                            objectToCanonicalMentions, objectToType, nameableEntitiesToNames)
+                            objectToCanonicalMentions, objectToType, nameableEntitiesToNames,
+                            provenanceToMentionType)
                     is LinkAssertion -> translateLink(assertion, confidence!!)
                     is SentimentAssertion -> translateSentiment(assertion, confidence!!)
                     is RelationAssertion -> translateRelation(assertion, confidence!!)
@@ -649,3 +658,6 @@ class DefaultErrorLogger : ErrorLogger {
     }
 }
 
+fun <K, V> Sequence<Pair<K, V>>.toImmutableSetMultimap(): ImmutableSetMultimap<K, V> {
+    return ImmutableSetMultimap.copyOf(this.map { java.util.AbstractMap.SimpleEntry(it.first, it.second) }.asIterable())
+}
