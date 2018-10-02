@@ -62,7 +62,7 @@ data class MentionType(val name: String) {
     }
 }
 
-val PRONOMIAL_MENTION = MentionType("pronominal_mention")
+val PRONOMINAL_MENTION = MentionType("pronominal_mention")
 val NOMINAL_MENTION = MentionType("nominal_mention")
 val NORMALIZED_MENTION = MentionType("normalized_mention")
 val NAME_MENTION = MentionType("mention")

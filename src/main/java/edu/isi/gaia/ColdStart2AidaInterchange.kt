@@ -202,10 +202,22 @@ class ColdStart2AidaInterchangeConverter(
 //                associate_with_system(realisNode)
 //            }
 
+            // it is possible that we have seen the same span of text assigned multiple
+            // mention types (in particular, for all canonical mentions, there will be another
+            // ColdStart assertion with a different mention type). What we want to record is
+            // the single "best" mention type, where names are best and pronouns are worst.
             val justificationType = provenanceToMentionType[cs_assertion.justifications]
                     .asSequence()
-                    .maxWith(Ordering.explicit(listOf(CANONICAL_MENTION, PRONOMIAL_MENTION,
+                    .maxWith(Ordering.explicit(listOf(CANONICAL_MENTION, PRONOMINAL_MENTION,
                             NOMINAL_MENTION, NORMALIZED_MENTION, NAME_MENTION)))!!
+
+            if (justificationType == CANONICAL_MENTION) {
+                logger.warn {
+                    "Got a canonical_mention as only mention type for $cs_assertion, " +
+                            "but there should always be another CS assertion with a more concrete" +
+                            "mention type"
+                }
+            }
 
             registerJustifications(entityResource, cs_assertion.justifications,
                     typeAssertion, cs_assertion.string, confidence,
