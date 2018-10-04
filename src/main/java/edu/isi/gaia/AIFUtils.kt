@@ -720,9 +720,10 @@ interface IriGenerator {
 /**
  *     A node generation strategy which uses UUIDs appended to a base URI.
  */
-class UuidIriGenerator(private val baseUri: String = "dummmy") : IriGenerator {
+class UuidIriGenerator(private val baseUri: String = "dummy") : IriGenerator {
     init {
         require(baseUri.isNotEmpty()) { "Base URI cannot be empty" }
+        require(baseUri.contains(":")) { "Base URI must contain a prefix" }
         require(!baseUri.endsWith("/")) { "Base URI cannot end in /" }
     }
 
