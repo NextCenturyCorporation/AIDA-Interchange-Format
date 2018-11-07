@@ -5,8 +5,12 @@ import ch.qos.logback.classic.Logger;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import kotlin.text.Charsets;
+import org.apache.jena.ext.com.google.common.collect.ImmutableList;
 import org.apache.jena.query.Dataset;
-import org.apache.jena.rdf.model.*;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.tdb.TDBFactory;
@@ -17,10 +21,7 @@ import org.apache.jena.vocabulary.XSD;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 import static edu.isi.gaia.AIFUtils.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,17 +29,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test to see how large we can scale AIF.  AIF uses a Jena-based model, and so we rely on that
  * to determine how large it can get.  Change whether you are using a memory based model
- * or a disk-based model (TDB) below in the line that defines MODEL_TYPE_TO_USE.  MEMORY is faster, but
+ * or a disk-based model (TDB) below in the line that defines modelTypeToUse.  MEMORY is faster, but
  * is more limited;  TDB is slower but can handle more statements.
- *
- *   16G Ubuntu 16.04   Memory:    Entity count:  256000  NumberStatements: 11955372 Size of output (mb): 722  Time (sec): 75
- *   16G Ubuntu 16.04   TDB:       Entity count:  256000  NumberStatements: 11955602 Size of output (mb): 711  Time (sec): 240
- *   64G Ubuntu 16.04   Memory:    Entity count: 1024000  NumberStatements: 47821274 Size of output (mb): 2934  Time (sec): 295
- *   64G Ubuntu 16.04   TDB:       Entity count: 1024000  NumberStatements: 47509095 Size of output (mb): 2885  Time (sec): 1017
- *
- *
+ * <p>
+ * 16G Ubuntu 16.04   Memory:    Entity count:  256000  NumberStatements: 11955372 Size of output (mb): 722  Time (sec): 75
+ * 16G Ubuntu 16.04   TDB:       Entity count:  256000  NumberStatements: 11955602 Size of output (mb): 711  Time (sec): 240
+ * 64G Ubuntu 16.04   Memory:    Entity count: 1024000  NumberStatements: 47821274 Size of output (mb): 2934  Time (sec): 295
+ * 64G Ubuntu 16.04   TDB:       Entity count: 1024000  NumberStatements: 47509095 Size of output (mb): 2885  Time (sec): 1017
+ * <p>
+ * <p>
  * Run with:
- *   %  mvn exec:java -Dexec.mainClass="edu.isi.gaia.ScalingTest" -Dexec.classpathScope="test"
+ * %  mvn exec:java -Dexec.mainClass="edu.isi.gaia.ScalingTest" -Dexec.classpathScope="test" -Dexec.args="[arguments]"
+ * where arguments are:
+ * <pre>
+ *       -o   try different output types (default is to use Turtle Pretty and scale)
+ *       -t   use tdb model (default is to use in-memory)
+ *       -p   do validation (default is to not do validation)
+ * </pre>
  */
 public class ScalingTest {
 
@@ -46,14 +53,13 @@ public class ScalingTest {
     private Model model;
     private Resource system;
 
-    // Beginning sizes of data, about what is in T101
-    private int entityCount = 1000;
-    private int eventCount = 300;
+    // Beginning sizes of data, about what is in 10x T101
+    private int entityCount = 10000;
+    private int eventCount = 3000;
 
     private int entityIndex = 1;
     private int eventIndex = 1;
     private int assertionIndex = 1;
-
 
     private final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
 
@@ -62,50 +68,86 @@ public class ScalingTest {
 
     private final String filename = "scalingdata.ttl";
 
-    // Set this to false unless the numbers are small.  It takes a long time.
-    private final boolean performValidation = false;
-
     // Whether to use in memory or disk based.
     // Note:  TDB2 requires transactions, which we do not do!  Do not use it!
     private enum MODEL_TYPE {
         MEMORY, TDB, TDB2
     }
 
-    private final MODEL_TYPE MODEL_TYPE_TO_USE = MODEL_TYPE.MEMORY;
+    // What output format to use, whether turtle pretty, or flat, or ntriple, or blocks
+    // See RDFFormat for a definition of these.
+    public static final ImmutableList<RDFFormat> outputFormats = ImmutableList.of(
+            RDFFormat.TURTLE_PRETTY,
+            RDFFormat.TURTLE_FLAT,
+            RDFFormat.TURTLE_BLOCKS,
+            RDFFormat.NTRIPLES,
+            RDFFormat.NQUADS,
+            RDFFormat.TRIG_PRETTY,
+            RDFFormat.TRIG_FLAT,
+            RDFFormat.TRIG_BLOCKS,
+            RDFFormat.JSONLD_PRETTY,
+            RDFFormat.JSONLD_COMPACT_FLAT,
+            RDFFormat.JSONLD_EXPAND_PRETTY,
+            // RDFFormat.JSONLD_FRAME_FLAT   // Does not work, because there is no frame object.
+            RDFFormat.RDFXML,
+            RDFFormat.TRIX
+    );
+
+    // Whether to use in-memory or to write to disk.  Memory is faster, but size-limited
+    private MODEL_TYPE modelTypeToUse = MODEL_TYPE.MEMORY;
+
+    // Set this to false unless the numbers are small.  It takes a long time.
+    private boolean performValidation = false;
+
+    // Set this to no perform scaling, but rather try different output formats
+    private boolean useMultipleOutputs = false;
 
     /**
-     * Main function.  Call with no arguments
+     * Main function.  See class description for arguments.
      */
     public static void main(String[] args) {
         ScalingTest scalingTest = new ScalingTest();
+        scalingTest.parseArgs(Arrays.asList(args));
         scalingTest.runTest();
     }
 
-    private void runTest() {
+    private void parseArgs(List<String> args) {
 
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
 
-        switch (MODEL_TYPE_TO_USE) {
-            case MEMORY:
-                System.out.println("Using memory model");
-                break;
-            case TDB:
-                System.out.println("Using disk model TDB ");
-                break;
-            case TDB2:
-                System.out.println("Using disk model TDB2 ");
-                break;
-            default:
-                System.out.println(" type of model not defined. ");
-                System.exit(2);
+        if (args.contains("-o")) {
+            useMultipleOutputs = true;
         }
+
+        if (args.contains("-t")) {
+            modelTypeToUse = MODEL_TYPE.TDB;
+        }
+
+        if (args.contains("-p")) {
+            performValidation = true;
+        }
+    }
+
+    private void runTest() {
+
+        if (useMultipleOutputs) {
+            runSingleTest();
+            dumpMultipleFormats();
+        } else {
+            runMultipleTests();
+        }
+    }
+
+    private void runMultipleTests() {
 
         for (int ii = 0; ii < 200; ii++) {
             System.out.print("Trying :  Entity count: " + entityCount + " ");
             long startTime = System.currentTimeMillis();
 
             runSingleTest();
+
+            dumpAndAssertValid();
 
             long endTime = System.currentTimeMillis();
             long duration = (endTime - startTime) / 1000;
@@ -115,16 +157,12 @@ public class ScalingTest {
             if (f.exists()) {
                 size = f.length();
             }
-            size /= 1000000.;
+            size /= 1000000.;      // Convert from milliseconds to seconds.
             System.out.println(" Size of output (mb): " + size + "  Time (sec): " + duration);
 
-            increase();
+            entityCount *= 2;
+            eventCount *= 2;
         }
-    }
-
-    private void increase() {
-        entityCount *= 2;
-        eventCount *= 2;
     }
 
     private void runSingleTest() {
@@ -139,16 +177,13 @@ public class ScalingTest {
             addEvent();
         }
 
-
         int numStatements = 0;
-        StmtIterator statmentIterator = model.listStatements();
-        while (statmentIterator.hasNext()) {
-            statmentIterator.nextStatement();
+        StmtIterator statementIterator = model.listStatements();
+        while (statementIterator.hasNext()) {
+            statementIterator.nextStatement();
             numStatements++;
         }
         System.out.print(" NumberStatements: " + numStatements);
-
-        dumpAndAssertValid(filename);
     }
 
     private void addEntity() {
@@ -210,21 +245,41 @@ public class ScalingTest {
 
     // we dump the test name and the model in Turtle format so that whenever the user
     // runs the tests, they will also get the examples
-    private void dumpAndAssertValid(String testName) {
+    private void dumpAndAssertValid() {
+
+
         try {
-            RDFDataMgr.write(Files.newOutputStream(Paths.get(testName)), model, RDFFormat.TURTLE_PRETTY);
+            RDFDataMgr.write(Files.newOutputStream(Paths.get(filename)), model, RDFFormat.TURTLE_PRETTY);
             if (performValidation) {
                 assertTrue(seedlingValidator.validateKB(model));
             }
         } catch (Exception e) {
-            System.err.println("Unable to write to file " + testName + " " + e.getMessage());
+            System.err.println("Unable to write to file " + filename + " " + e.getMessage());
             e.printStackTrace();
         }
     }
 
+    /**
+     * Try all the different types of output types.
+     */
+    private void dumpMultipleFormats() {
+
+        for (RDFFormat trialFormat : outputFormats) {
+            String outputFilename = filename + "." + trialFormat.toString();
+            outputFilename = outputFilename.replace(" ", "").replace("/", "_");
+            try {
+                RDFDataMgr.write(Files.newOutputStream(Paths.get(outputFilename)), model, trialFormat);
+            } catch (Exception e) {
+                System.err.println("Unable to write to file " + outputFilename + " " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+
+
     private void createModel() {
 
-        switch (MODEL_TYPE_TO_USE) {
+        switch (modelTypeToUse) {
             case MEMORY:
                 // Make a MEMORY model
                 model = ModelFactory.createDefaultModel();
@@ -285,16 +340,17 @@ public class ScalingTest {
         }
         s += "00";
         s += "" + (r.nextInt(1000));
-        s += abc.charAt(r.nextInt(abc.length()));
-        s += abc.charAt(r.nextInt(abc.length()));
-        s += abc.charAt(r.nextInt(abc.length()));
+        s += randomChar();
+        s += randomChar();
+        s += randomChar();
         return s;
     }
+
 
     private String getRandomString(int length) {
         StringBuilder s = new StringBuilder();
         for (int ii = 0; ii < length; ii++) {
-            s.append(abc.charAt(r.nextInt(abc.length())));
+            s.append(randomChar());
         }
         return s.toString();
     }
@@ -304,10 +360,12 @@ public class ScalingTest {
     }
 
     private String getRandomRole() {
-        String s = "_" + ROLES[r.nextInt(ROLES.length)];
-        return s;
+        return "_" + ROLES[r.nextInt(ROLES.length)];
     }
 
+    private char randomChar() {
+        return abc.charAt(r.nextInt(abc.length()));
+    }
 
     // Utility values, so that we can easily create random things
     private final static String abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
