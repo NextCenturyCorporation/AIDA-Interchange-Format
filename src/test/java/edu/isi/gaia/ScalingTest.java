@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
-import kotlin.text.Charsets;
 import org.apache.jena.ext.com.google.common.collect.ImmutableList;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
@@ -19,6 +18,7 @@ import org.apache.jena.vocabulary.SKOS;
 import org.apache.jena.vocabulary.XSD;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -257,7 +257,7 @@ public class ScalingTest {
     }
 
     private final ValidateAIF seedlingValidator = ValidateAIF.createForDomainOntologySource(
-            Resources.asCharSource(Resources.getResource("edu/isi/gaia/SeedlingOntology"), Charsets.UTF_8));
+            Resources.asCharSource(Resources.getResource("edu/isi/gaia/SeedlingOntology"), StandardCharsets.UTF_8));
 
     // we dump the test name and the model in Turtle format so that whenever the user
     // runs the tests, they will also get the examples
