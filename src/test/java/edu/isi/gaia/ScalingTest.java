@@ -37,6 +37,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 64G Ubuntu 16.04   Memory:    Entity count: 1024000  NumberStatements: 47821274 Size of output (mb): 2934  Time (sec): 295
  * 64G Ubuntu 16.04   TDB:       Entity count: 1024000  NumberStatements: 47509095 Size of output (mb): 2885  Time (sec): 1017
  * <p>
+ * In terms of file sizes with different outputs (set argument to '-o'), this what it produced:
+ * 14807532  scalingdata.ttl.JSON-LD_compactflat
+ * 19265665  scalingdata.ttl.JSON-LD_compactpretty
+ * 20636034  scalingdata.ttl.TriG_flat
+ * 20636034  scalingdata.ttl.Turtle_flat
+ * 22087664  scalingdata.ttl.TriG_blocks
+ * 22087664  scalingdata.ttl.Turtle_blocks
+ * 28159622  scalingdata.ttl.TriG_pretty
+ * 28159622  scalingdata.ttl.Turtle_pretty
+ * 39808258  scalingdata.ttl.RDF_XML_pretty
+ * 69187613  scalingdata.ttl.JSON-LD_expandpretty
+ * 89723786  scalingdata.ttl.N-Quads_utf-8
+ * 89723786  scalingdata.ttl.N-Triples_utf-8
+ * 123285222  scalingdata.ttl.TriX
+ * <p>
+ * The smaller ones are difficult to read, the large ones do not use prefixes. turtle_pretty is readable and not too large.
  * <p>
  * Run with:
  * %  mvn exec:java -Dexec.mainClass="edu.isi.gaia.ScalingTest" -Dexec.classpathScope="test" -Dexec.args="[arguments]"
