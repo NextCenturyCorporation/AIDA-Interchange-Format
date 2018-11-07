@@ -76,7 +76,7 @@ public class ScalingTest {
 
     // What output format to use, whether turtle pretty, or flat, or ntriple, or blocks
     // See RDFFormat for a definition of these.
-    public static final ImmutableList<RDFFormat> outputFormats = ImmutableList.of(
+    private static final ImmutableList<RDFFormat> outputFormats = ImmutableList.of(
             RDFFormat.TURTLE_PRETTY,
             RDFFormat.TURTLE_FLAT,
             RDFFormat.TURTLE_BLOCKS,
@@ -251,6 +251,7 @@ public class ScalingTest {
         try {
             RDFDataMgr.write(Files.newOutputStream(Paths.get(filename)), model, RDFFormat.TURTLE_PRETTY);
             if (performValidation) {
+                System.out.println("Doing validation");
                 assertTrue(seedlingValidator.validateKB(model));
             }
         } catch (Exception e) {
