@@ -144,7 +144,7 @@ def mark_confidence(g, to_mark_on, confidence, system):
 
     """
     confidence_node = _make_aif_resource(
-        g, to_mark_on + "#confidence", AIDA_ANNOTATION.Confidence, system)
+        g, to_mark_on + "/confidence", AIDA_ANNOTATION.Confidence, system)
     g.add((confidence_node, AIDA_ANNOTATION.confidenceValue,
            Literal(confidence, datatype=XSD.double)))
     g.add((to_mark_on, AIDA_ANNOTATION.confidence, confidence_node))
