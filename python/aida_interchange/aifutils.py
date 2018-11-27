@@ -111,7 +111,7 @@ def make_text_justification(g, doc_id, start_offset, end_offset_inclusive, syste
         raise RuntimeError('start_offset cannot be larger than end_offset_inclusive')
     if start_offset < 0:
         raise RuntimeError('start_offset must be a non-negative number')
-    uri_ref = URIRef("{}/{}/{}:{}/{}".format(
+    uri_ref = URIRef("{}/{}/{}-{}/{}".format(
         system, doc_id, start_offset, end_offset_inclusive, confidence))
     if len([x for x in g[uri_ref]]) > 0:
         return uri_ref  # We already have this justification in our graph
@@ -211,7 +211,7 @@ def mark_boundingbox(g, to_mark_on, boundingbox):
 
 
 def make_image_justification(g, doc_id, boundingbox, system, confidence):
-    uri_ref = URIRef("{}/{}/({},{}):({},{})/{}".format(
+    uri_ref = URIRef("{}/{}/({}_{})-({}_{})/{}".format(
         system, doc_id, boundingbox.upper_left[0],
         boundingbox.upper_left[1], boundingbox.lower_right[0],
         boundingbox.lower_right[1], confidence))
@@ -260,7 +260,7 @@ def mark_audio_justification(g, things_to_justify, doc_id, start_timestamp, end_
 
 
 def make_keyframe_video_justification(g, doc_id, key_frame, boundingbox, system, confidence):
-    uri_ref = URIRef("{}/{}/{}/({},{}):({},{})/{}".format(
+    uri_ref = URIRef("{}/{}/{}/({}_{})-({}_{})/{}".format(
         system, doc_id, key_frame, boundingbox.upper_left[0],
         boundingbox.upper_left[1], boundingbox.lower_right[0],
         boundingbox.lower_right[1], confidence))
