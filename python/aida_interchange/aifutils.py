@@ -106,15 +106,12 @@ def mark_justification(g, things_to_justify, justification):
         g.add((thing, AIDA_ANNOTATION.justifiedBy, justification))
 
 
-def make_text_justification(g, doc_id, start_offset, end_offset_inclusive, system, confidence):
+def make_text_justification(g, doc_id, start_offset, end_offset_inclusive,
+                            system, confidence, uri_ref=None):
     if start_offset > end_offset_inclusive:
         raise RuntimeError('start_offset cannot be larger than end_offset_inclusive')
     if start_offset < 0:
         raise RuntimeError('start_offset must be a non-negative number')
-    uri_ref = URIRef("{}/{}/{}-{}/{}".format(
-        system, doc_id, start_offset, end_offset_inclusive, confidence))
-    if len([x for x in g[uri_ref]]) > 0:
-        return uri_ref  # We already have this justification in our graph
     justification = _make_aif_justification(
         g, doc_id, AIDA_ANNOTATION.TextJustification, system, confidence,
         uri_ref)
@@ -126,13 +123,16 @@ def make_text_justification(g, doc_id, start_offset, end_offset_inclusive, syste
 
 
 def mark_text_justification(g, things_to_justify, doc_id, start_offset,
-                            end_offset_inclusive, system, confidence):
+                            end_offset_inclusive, system, confidence,
+                            uri_ref=None):
     """
     Mark multiple things as being justified by a particular snippet of text.
 
     :return: The text justification resource created.
     """
-    justification = make_text_justification(g, doc_id, start_offset, end_offset_inclusive, system, confidence)
+    justification = make_text_justification(
+        g, doc_id, start_offset, end_offset_inclusive, system, confidence,
+        uri_ref)
     mark_justification(g, things_to_justify, justification)
 
     return justification
@@ -210,13 +210,8 @@ def mark_boundingbox(g, to_mark_on, boundingbox):
     return bounding_box_resource
 
 
-def make_image_justification(g, doc_id, boundingbox, system, confidence):
-    uri_ref = URIRef("{}/{}/({}_{})-({}_{})/{}".format(
-        system, doc_id, boundingbox.upper_left[0],
-        boundingbox.upper_left[1], boundingbox.lower_right[0],
-        boundingbox.lower_right[1], confidence))
-    if len([x for x in g[uri_ref]]) > 0:
-        return uri_ref  # We already have this justification in our graph
+def make_image_justification(g, doc_id, boundingbox, system, confidence,
+                             uri_ref=None):
     justification = _make_aif_justification(
         g, doc_id, AIDA_ANNOTATION.ImageJustification, system, confidence,
         uri_ref)
@@ -224,22 +219,27 @@ def make_image_justification(g, doc_id, boundingbox, system, confidence):
     return justification
 
 
-def mark_image_justification(g, things_to_justify, doc_id, boundingbox, system, confidence):
+def mark_image_justification(g, things_to_justify, doc_id, boundingbox, system,
+                             confidence, uri_ref=None):
     """
     Marks a justification for something appearing in an image
 
     :return: The created image justification resource
     """
-    justification = make_image_justification(g, doc_id, boundingbox, system, confidence)
+    justification = make_image_justification(g, doc_id, boundingbox, system,
+                                             confidence, uri_ref)
     mark_justification(g, things_to_justify, justification)
 
     return justification
 
 
-def make_audio_justification(g, doc_id, start_timestamp, end_timestamp, system, confidence):
+def make_audio_justification(g, doc_id, start_timestamp, end_timestamp, system,
+                             confidence, uri_ref=None):
     if start_timestamp > end_timestamp:
         raise RuntimeError("start_timestamp cannot be larger than end_timestamp")
-    justification = _make_aif_justification(g, doc_id, AIDA_ANNOTATION.AudioJustification, system, confidence)
+    justification = _make_aif_justification(
+        g, doc_id, AIDA_ANNOTATION.AudioJustification, system, confidence,
+        uri_ref)
     g.add((justification, AIDA_ANNOTATION.startTimestamp,
            Literal(start_timestamp, datatype=XSD.double)))
     g.add((justification, AIDA_ANNOTATION.endTimestamp,
@@ -247,25 +247,22 @@ def make_audio_justification(g, doc_id, start_timestamp, end_timestamp, system, 
 
     return justification
 
-def mark_audio_justification(g, things_to_justify, doc_id, start_timestamp, end_timestamp, system, confidence):
+
+def mark_audio_justification(g, things_to_justify, doc_id, start_timestamp,
+                             end_timestamp, system, confidence, uri_ref=None):
     """
     Marks a justification for something referenced in audio
 
     :return: The created audio justification resource
     """
-    justification = make_audio_justification(g, doc_id, start_timestamp, end_timestamp, system, confidence)
+    justification = make_audio_justification(
+        g, doc_id, start_timestamp, end_timestamp, system, confidence, uri_ref)
     mark_justification(g, things_to_justify, justification)
 
     return justification
 
 
-def make_keyframe_video_justification(g, doc_id, key_frame, boundingbox, system, confidence):
-    uri_ref = URIRef("{}/{}/{}/({}_{})-({}_{})/{}".format(
-        system, doc_id, key_frame, boundingbox.upper_left[0],
-        boundingbox.upper_left[1], boundingbox.lower_right[0],
-        boundingbox.lower_right[1], confidence))
-    if len([x for x in g[uri_ref]]) > 0:
-        return uri_ref  # We already have this justification in our graph
+def make_keyframe_video_justification(g, doc_id, key_frame, boundingbox, system, confidence, uri_ref=None):
     justification = _make_aif_justification(
         g, doc_id, AIDA_ANNOTATION.KeyFrameVideoJustification, system,
         confidence, uri_ref)
@@ -276,33 +273,38 @@ def make_keyframe_video_justification(g, doc_id, key_frame, boundingbox, system,
     return justification
 
 
-def mark_keyframe_video_justification(g, things_to_justify, doc_id, key_frame, boundingbox, system, confidence):
+def mark_keyframe_video_justification(g, things_to_justify, doc_id, key_frame, boundingbox, system, confidence, uri_ref=None):
     """
     Marks a justification for something appearing in a key frame of a video.
 
     :return: The justification resource
     """
-    justification = make_keyframe_video_justification(g, doc_id, key_frame, boundingbox, system, confidence)
+    justification = make_keyframe_video_justification(g, doc_id, key_frame, boundingbox, system, confidence, uri_ref)
     mark_justification(g, things_to_justify, justification)
 
     return justification
 
 
-def make_shot_video_justification(g, doc_id, shot_id, system, confidence):
-    justification = _make_aif_justification(g, doc_id, AIDA_ANNOTATION.ShotVideoJustification, system, confidence)
+def make_shot_video_justification(g, doc_id, shot_id, system, confidence,
+                                  uri_ref=None):
+    justification = _make_aif_justification(
+        g, doc_id, AIDA_ANNOTATION.ShotVideoJustification, system, confidence,
+        uri_ref)
     g.add((justification, AIDA_ANNOTATION.shot,
            Literal(shot_id, datatype=XSD.string)))
 
     return justification
 
 
-def mark_shot_video_justification(g, things_to_justify, doc_id, shot_id, system, confidence):
+def mark_shot_video_justification(g, things_to_justify, doc_id, shot_id, system,
+                                  confidence, uri_ref):
     """
     Marks a justification for something appearing in a video but not in a key frame.
 
     :return: The justification resource
     """
-    justification = make_shot_video_justification(g, doc_id, shot_id, system, confidence)
+    justification = make_shot_video_justification(g, doc_id, shot_id, system,
+                                                  confidence, uri_ref)
     mark_justification(g, things_to_justify, justification)
 
     return justification
@@ -458,7 +460,8 @@ def _make_aif_resource(g, uri, class_type, system):
     return resource
 
 
-def _make_aif_justification(g, doc_id, class_type, system, confidence, uri_ref=None):
+def _make_aif_justification(g, doc_id, class_type, system, confidence,
+                            uri_ref=None):
     justification = _make_aif_resource(g, uri_ref, class_type, system)
     g.add((justification, AIDA_ANNOTATION.source,
            Literal(doc_id, datatype=XSD.string)))
