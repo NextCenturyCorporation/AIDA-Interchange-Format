@@ -578,7 +578,7 @@ object AIFUtils {
      * @return The hypothesis resource.
      */
     @JvmStatic
-    fun makeHypothesis(model: Model, hypothesisURI: String, hypothesisContent: Set<Resource>,
+    fun makeHypothesis(model: Model, hypothesisURI: String, hypothesisContent: Set<Resource>, confidence: Double?,
                        system: Resource): Resource {
         require(!hypothesisContent.isEmpty()) { "A hypothesis must have content" }
         val hypothesis = makeAIFResource(model, hypothesisURI, AidaAnnotationOntology.HYPOTHESIS_CLASS, system)
@@ -587,7 +587,25 @@ object AIFUtils {
         hypothesisContent.forEach { subgraph.addProperty(AidaAnnotationOntology.GRAPH_CONTAINS, it) }
         hypothesis.addProperty(AidaAnnotationOntology.HYPOTHESIS_CONTENT_PROPERTY, subgraph)
 
+        if (confidence != null) {
+            markConfidence(model, hypothesis, confidence, system)
+        }
+
         return hypothesis
+    }
+
+    /**
+     * Create a hypothesis
+     *
+     * You can then indicate that some other object depends on this hypothesis using
+     * [markDependsOnHypothesis].
+     *
+     * @return The hypothesis resource.
+     */
+    @JvmStatic
+    fun makeHypothesis(model: Model, hypothesisURI: String, hypothesisContent: Set<Resource>,
+                       system: Resource): Resource {
+        return makeHypothesis(model, hypothesisURI, hypothesisContent, null, system)
     }
 
     @JvmStatic
@@ -702,9 +720,11 @@ interface IriGenerator {
 /**
  *     A node generation strategy which uses UUIDs appended to a base URI.
  */
-class UuidIriGenerator(private val baseUri: String = "dummmy") : IriGenerator {
+class UuidIriGenerator(private val baseUri: String = "dummy:uri") : IriGenerator {
     init {
         require(baseUri.isNotEmpty()) { "Base URI cannot be empty" }
+        require(baseUri.substring(1).contains(":")) { 
+            "Base URI must contain a prefix followed by a colon separator" }
         require(!baseUri.endsWith("/")) { "Base URI cannot end in /" }
     }
 
