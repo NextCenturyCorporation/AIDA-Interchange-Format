@@ -296,7 +296,7 @@ def make_shot_video_justification(g, doc_id, shot_id, system, confidence,
 
 
 def mark_shot_video_justification(g, things_to_justify, doc_id, shot_id, system,
-                                  confidence, uri_ref):
+                                  confidence, uri_ref=None):
     """
     Marks a justification for something appearing in a video but not in a key frame.
 
