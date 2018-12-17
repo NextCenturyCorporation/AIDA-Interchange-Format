@@ -8,7 +8,7 @@ import java.util.Set;
  * A domain ontology.
  */
 interface OntologyMapping {
-    String NAMESPACE;
+    String NAMESPACE = null;
 
     Set<String> entityShortNames();
     Resource entityType(String ontology_type);
