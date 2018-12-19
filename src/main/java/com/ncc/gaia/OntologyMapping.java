@@ -8,7 +8,7 @@ import java.util.Set;
  * A domain ontology.
  */
 interface OntologyMapping {
-    String NAMESPACE = null;
+    String NAMESPACE = null; // TBDDAG
 
     Set<String> entityShortNames();
     Resource entityType(String ontology_type);

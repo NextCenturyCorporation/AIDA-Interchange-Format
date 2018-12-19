@@ -279,14 +279,14 @@ public class AIFUtils {
         private final int x;
         private final int y;
 
-        Point(int x, int y) {
+        public Point(int x, int y) {
             assert x >= 0 : "Aida image/video coordinates must be non-negative but got " + x;
             assert y >= 0 : "Aida image/video coordinates must be non-negative but got " + y;
             this.x = x;
             this.y = y;
         }
 
-        Point(Point point) {
+        public Point(Point point) {
             x = point.x;
             y = point.y;
         }
@@ -727,25 +727,6 @@ public class AIFUtils {
                 "}" +
                 "\"");
     }
-
-    /*  These are not used anywhere, so they weren't translated.
-    private static Set<Resource> getTypeAssertions(Model model, Resource typedObject) {
-        final QuerySolutionMap boundVariables = new QuerySolutionMap();
-        boundVariables.add("typedObject", typedObject);
-        final QueryExecution queryExecution =
-                QueryExecutionFactory.create(SparqlQueries.TYPE_QUERY, model, boundVariables);
-        final ResultSet results = queryExecution.execSelect();
-        return results.asSequence().map {
-            it.get("typeAssertion").asResource()
-        }.toSet();
-    }
-
-    private static Set<Resource> getConfidenceAssertions(Model model, Resource confidencedObject) {
-        return model.objectsWithProperty(confidencedObject, AidaAnnotationOntology.CONFIDENCE)
-                .map {
-            it.asResource()
-        }.toSet()
-    }*/
 
     private static Resource makeAIFResource(Model model, String uri, Resource classType, Resource system) {
         Resource resource = (uri == null ? model.createResource() : model.createResource(uri));

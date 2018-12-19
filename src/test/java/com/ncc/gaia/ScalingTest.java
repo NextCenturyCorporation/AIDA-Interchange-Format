@@ -23,7 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static edu.isi.gaia.AIFUtils.*;
+import static com.ncc.gaia.AIFUtils.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
