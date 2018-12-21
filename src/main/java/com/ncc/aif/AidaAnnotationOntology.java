@@ -1,4 +1,4 @@
-package com.ncc.gaia;
+package com.ncc.aif;
 
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.ResourceFactory;

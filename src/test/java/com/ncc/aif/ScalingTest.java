@@ -1,4 +1,4 @@
-package com.ncc.gaia;
+package com.ncc.aif;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -23,7 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static com.ncc.gaia.AIFUtils.*;
+import static com.ncc.aif.AIFUtils.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -55,7 +55,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * The smaller ones are difficult to read, the large ones do not use prefixes. turtle_pretty is readable and not too large.
  * <p>
  * Run with:
- * %  mvn exec:java -Dexec.mainClass="edu.isi.gaia.ScalingTest" -Dexec.classpathScope="test" -Dexec.args="[arguments]"
+ * %  mvn exec:java -Dexec.mainClass="edu.isi.aif.ScalingTest" -Dexec.classpathScope="test" -Dexec.args="[arguments]"
  * where arguments are:
  * <pre>
  *       -o   try different output types (default is to use Turtle Pretty and scale)

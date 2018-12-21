@@ -1,4 +1,4 @@
-package com.ncc.gaia;
+package com.ncc.aif;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -11,17 +11,13 @@ import edu.isi.nlp.parameters.Parameters;
 import mu.KLogging;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;
-import org.apache.jena.shared.JenaException;
 import org.apache.jena.util.FileUtils;
-import org.apache.jena.vocabulary.RDF;
 import org.topbraid.shacl.validation.ValidationUtil;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.HashSet;
-import java.util.List;
 
 
 public final class ValidateAIF {

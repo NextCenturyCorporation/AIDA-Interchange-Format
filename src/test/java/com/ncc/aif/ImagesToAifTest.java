@@ -1,4 +1,4 @@
-package com.ncc.gaia;
+package com.ncc.aif;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;

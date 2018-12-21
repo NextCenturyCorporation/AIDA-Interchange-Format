@@ -1,20 +1,12 @@
-package com.ncc.gaia;
+package com.ncc.aif;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import com.google.common.collect.ImmutableMap;
-import org.apache.jena.vocabulary.OWL;
-import org.apache.jena.vocabulary.RDF;
-import org.apache.jena.vocabulary.RDFS;
 
-import java.io.File;
 import java.util.*;
-import java.util.stream.*;
 
 /**
  * The Seedling domain ontology.

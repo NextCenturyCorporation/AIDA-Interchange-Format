@@ -1,20 +1,7 @@
-package com.ncc.gaia;
+package com.ncc.aif;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.io.Files;
-import edu.isi.nlp.files.FileUtils;
-import edu.isi.nlp.parameters.Parameters;
-import edu.isi.nlp.symbols.Symbol;
-import mu.KLogging;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.RDFFormat;
-import java.io.File;
 import kotlin.coroutines.experimental.buildSequence;
 
 /**

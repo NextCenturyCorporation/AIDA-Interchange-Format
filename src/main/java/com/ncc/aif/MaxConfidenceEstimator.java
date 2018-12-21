@@ -1,14 +1,13 @@
-package com.ncc.gaia;
+package com.ncc.aif;
 
 import com.google.common.io.Files;
 import edu.isi.nlp.parameters.Parameters;
-import mu.KLogging;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
-import java.io.File;
+
 import java.nio.charset.StandardCharsets;
 
 // this is an example of some code which works with the AIF format as both a consumer

@@ -1,4 +1,4 @@
-package com.ncc.gaia;
+package com.ncc.aif;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
-import com.ncc.gaia.AIFUtils.*;
+import com.ncc.aif.AIFUtils.*;
 import kotlin.text.Charsets;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
@@ -29,7 +29,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.UUID;
 
-import static com.ncc.gaia.AIFUtils.*;
+import static com.ncc.aif.AIFUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(Lifecycle.PER_CLASS)
