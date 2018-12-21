@@ -133,9 +133,6 @@ public final class ValidateAIF {
         }
     }
 
-    /* companion
-    }*/
-
     /**
      * Returns whether or not the KB and hypotheses are valid
      */
@@ -159,9 +156,9 @@ public final class ValidateAIF {
      * @param union             unified KB if not null
      */
     public boolean validateKB(Model dataToBeValidated, Model union) {
-// we unify the given KB with the background and domain KBs before validation
-// this is required so that constraints like "the object of a type must be an
-// entity type" will know what types are in fact entity types
+        // we unify the given KB with the background and domain KBs before validation
+        // this is required so that constraints like "the object of a type must be an
+        // entity type" will know what types are in fact entity types
         final Model unionModel = (union == null) ? ModelFactory.createUnion(domainModel, dataToBeValidated) : union;
 
         // we short-circuit because earlier validation failures may make later
@@ -229,7 +226,7 @@ public final class ValidateAIF {
      * validation passes.
      */
     private boolean validateAgainstShacl(Model dataToBeValidated, Model shacl) {
-// do SHACL validation
+        // do SHACL validation
         final Resource report = ValidationUtil.validateModel(dataToBeValidated, shacl, true);
         final boolean valid = report.getRequiredProperty(
                 shacl.createProperty("http://www.w3.org/ns/shacl#conforms")).getBoolean();
@@ -243,8 +240,8 @@ public final class ValidateAIF {
         HashSet<Double> badVals = new HashSet<>();
         NodeIterator nodeIter = dataToBeValidated.listObjectsOfProperty(AidaAnnotationOntology.CONFIDENCE_VALUE);
         while (nodeIter.hasNext()) {
-// we can assume all objects of confidenceValue are double-valued literals
-// or else we would have failed SHACL validation
+            // we can assume all objects of confidenceValue are double-valued literals
+            // or else we would have failed SHACL validation
             final double floatVal = nodeIter.nextNode().asLiteral().getDouble();
             if (floatVal < 0 || floatVal > 1.0) {
                 badVals.add(floatVal);
@@ -323,7 +320,7 @@ public final class ValidateAIF {
             // the referents are different types
             final boolean isNonPrototypeMemberOfCluster =
                     checkNonPrototypeMemberOfCluster(dataToBeValidated,
-                    AidaAnnotationOntology.CLUSTER_MEMBER, typelessEntityOrEvent);
+                            AidaAnnotationOntology.CLUSTER_MEMBER, typelessEntityOrEvent);
             if (!isNonPrototypeMemberOfCluster) {
                 System.err.println("Entity or event " + typelessEntityOrEvent.getURI() + " has no type assertion");
                 valid = false;

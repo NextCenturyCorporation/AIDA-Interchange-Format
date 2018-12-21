@@ -1,10 +1,13 @@
 package com.ncc.gaia;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
+import com.google.common.collect.ImmutableMap;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
@@ -22,33 +25,35 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
     //companion object {
     protected static final String NAMESPACE_STATIC = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#";
 
-    public static final Resource PERSON = ResourceFactory.createResource(NAMESPACE_STATIC + "Person");
-    public static final Resource ORGANIZATION = ResourceFactory.createResource(NAMESPACE_STATIC + "Organization");
-    public static final Resource LOCATION = ResourceFactory.createResource(NAMESPACE_STATIC + "Location");
-    public static final Resource GPE = ResourceFactory.createResource(NAMESPACE_STATIC + "GeopoliticalEntity");
-    public static final Resource FACILITY = ResourceFactory.createResource(NAMESPACE_STATIC + "Facility");
+    public final Resource PERSON = ResourceFactory.createResource(NAMESPACE_STATIC + "Person");
+    public final Resource ORGANIZATION = ResourceFactory.createResource(NAMESPACE_STATIC + "Organization");
+    public final Resource LOCATION = ResourceFactory.createResource(NAMESPACE_STATIC + "Location");
+    public final Resource GPE = ResourceFactory.createResource(NAMESPACE_STATIC + "GeopoliticalEntity");
+    public final Resource FACILITY = ResourceFactory.createResource(NAMESPACE_STATIC + "Facility");
 
-    public static final Resource WEAPON = ResourceFactory.createResource(NAMESPACE_STATIC + "Weapon");
+    public final Resource WEAPON = ResourceFactory.createResource(NAMESPACE_STATIC + "Weapon");
 
-    public static final Resource VEHICLE = ResourceFactory.createResource(NAMESPACE_STATIC + "Vehicle");
+    public final Resource VEHICLE = ResourceFactory.createResource(NAMESPACE_STATIC + "Vehicle");
 
-    public static final Resource LAW = ResourceFactory.createResource(NAMESPACE_STATIC + "Law");
+    public final Resource LAW = ResourceFactory.createResource(NAMESPACE_STATIC + "Law");
 
-    public static final Resource FILLER = ResourceFactory.createResource(NAMESPACE_STATIC + "FillerType");
+    public final Resource FILLER = ResourceFactory.createResource(NAMESPACE_STATIC + "FillerType");
 
-    public static final Resource RESULTS = ResourceFactory.createResource(NAMESPACE_STATIC + "Results");
+    public final Resource RESULTS = ResourceFactory.createResource(NAMESPACE_STATIC + "Results");
 
-    public static final Resource TIME = ResourceFactory.createResource(NAMESPACE_STATIC + "Time");
+    public final Resource TIME = ResourceFactory.createResource(NAMESPACE_STATIC + "Time");
 
-    public static final Resource MONEY = ResourceFactory.createResource(NAMESPACE_STATIC + "Money");
+    public final Resource MONEY = ResourceFactory.createResource(NAMESPACE_STATIC + "Money");
 
-    public static final Resource URL = ResourceFactory.createResource(NAMESPACE_STATIC + "URL");
+    public final Resource URL = ResourceFactory.createResource(NAMESPACE_STATIC + "URL");
 
-    public static final Resource AGE = ResourceFactory.createResource(NAMESPACE_STATIC + "Age");
+    public final Resource AGE = ResourceFactory.createResource(NAMESPACE_STATIC + "Age");
 
-    public static final Resource NUMERICAL_VALUE = ResourceFactory.createResource(NAMESPACE_STATIC + "NumericalValue");
+    public final Resource NUMERICAL_VALUE = ResourceFactory.createResource(NAMESPACE_STATIC + "NumericalValue");
 
-    public static final Resource ENTITY_TYPES = setOf(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY);
+    public final ImmutableSet<Resource> ENTITY_TYPES = ImmutableSet.of(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY);
+
+    //public static final Resource ENTITY_TYPES = setOf(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY);
 
     public static final Resource FILLER_TYPES_WHICH_CAN_HAVE_NAMES = setOf(WEAPON, VEHICLE, LAW);
 
@@ -59,9 +64,7 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
     public static final Resource TYPES_WHICH_CAN_HAVE_NUMERIC_VALUES = setOf(AGE, NUMERICAL_VALUE);
 
     internal val
-    SEEDLING_EVENT_TYPES_NIST =
-
-    listOf(
+    SEEDLING_EVENT_TYPES_NIST = listOf(
                 "Business.DeclareBankruptcy","Business.End","Business.Merge","Business.Start",
                         "Conflict.Attack","Conflict.Demonstrate",
                         "Contact.Broadcast","Contact.Contact","Contact.Correspondence","Contact.Meet",
@@ -77,153 +80,125 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
                         "Personnel.Elect","Personnel.EndPosition","Personnel.Nominate","Personnel.StartPosition",
                         "Transaction.Transaction","Transaction.TransferControl","Transaction.TransferMoney",
                         "Transaction.TransferOwnership")
-                .map
+                .map { it to it }
 
-    {
-        it to it
-    }
-
-    internal val
-    SEEDLING_EVENT_TYPES =
-
-    listOf(
+    internal val SEEDLING_EVENT_TYPES = listOf(
             // those in the first block match the seedling ontology except...
-                "CONFLICT_ATTACK","CONFLICT_DEMONSTRATE",
-                        "CONTACT_BROADCAST","CONTACT_CONTACT","CONTACT_CORRESPONDENCE","CONTACT_MEET",
+                "CONFLICT_ATTACK", "CONFLICT_DEMONSTRATE",
+                        "CONTACT_BROADCAST", "CONTACT_CONTACT", "CONTACT_CORRESPONDENCE", "CONTACT_MEET",
                         "JUSTICE_ARREST-JAIL",
-                        "LIFE_DIE","LIFE_INJURE","MANUFACTURE_ARTIFACT",
+                        "LIFE_DIE", "LIFE_INJURE", "MANUFACTURE_ARTIFACT",
                         "MOVEMENT_TRANSPORT-ARTIFACT",
-                        "MOVEMENT_TRANSPORT-PERSON","PERSONNEL_ELECT",
-                        "PERSONNEL_START-POSITION","TRANSACTION_TRANSACTION","TRANSACTION_TRANSFER-MONEY",
+                        "MOVEMENT_TRANSPORT-PERSON", "PERSONNEL_ELECT",
+                        "PERSONNEL_START-POSITION", "TRANSACTION_TRANSACTION", "TRANSACTION_TRANSFER-MONEY",
                         "TRANSACTION_TRANSFER-OWNERSHIP",
                         "BUSINESS_DECLARE-BANKRUPTCY",
                         "JUSTICE_ACQUIT",
-                        "JUSTICE_APPEAL","JUSTICE_CHARGE-INDICT","JUSTICE_CONVICT","JUSTICE_EXECUTE",
-                        "JUSTICE_EXTRADITE","JUSTICE_FINE","JUSTICE_RELEASE-PAROLE","JUSTICE_SENTENCE",
-                        "JUSTICE_SUE","JUSTICE_TRIAL-HEARING","LIFE_BE-BORN","LIFE_MARRY","LIFE_DIVORCE",
-                        "PERSONNEL_NOMINATE","PERSONNEL_ELECT","BUSINESS_END-BUSINESS",
-                        "BUSINESS_START-BUSINESS","BUSINESS_MERGE","CONTACT_CORRESPONDENCE",
+                        "JUSTICE_APPEAL", "JUSTICE_CHARGE-INDICT", "JUSTICE_CONVICT", "JUSTICE_EXECUTE",
+                        "JUSTICE_EXTRADITE", "JUSTICE_FINE", "JUSTICE_RELEASE-PAROLE", "JUSTICE_SENTENCE",
+                        "JUSTICE_SUE", "JUSTICE_TRIAL-HEARING", "LIFE_BE-BORN", "LIFE_MARRY", "LIFE_DIVORCE",
+                        "PERSONNEL_NOMINATE", "PERSONNEL_ELECT", "BUSINESS_END-BUSINESS",
+                        "BUSINESS_START-BUSINESS", "BUSINESS_MERGE", "CONTACT_CORRESPONDENCE",
                         "PERSONNEL_END-POSITION")
 
-    internal val
-    EVENT_TYPES =
-    // valid event types are seedling types directly
-    SEEDLING_EVENT_TYPES.map
-
-    {
-        it to it
-    }
-    // or seedling types with .s instead of underscores (more ACE-like)
-                        .
-
-    plus(SEEDLING_EVENT_TYPES.map {
-        it.replace('_', '.') to it
-    })
-            .
-
-    plus(SEEDLING_EVENT_TYPES_NIST)
-    // or these remaining special cases
-                        .
-
-    plus(listOf("BUSINESS.END-ORG"to"BUSINESS_END",
-                                "BUSINESS.START-ORG"to "BUSINESS_START",
-                        "BUSINESS.MERGE-ORG"to "BUSINESS_MERGE",
-         // needed to read RPI Seedling output
-                        "CONTACT.PHONE-WRITE"to "CONTACT_CORRESPONDENCE",
-                        "PERSONNEL.END-POSITION"to "PERSONNEL_END-POSITION"))
-            .map
-
-    {
-        it.first to ResourceFactory.createResource(NAMESPACE_STATIC + it.second)
-    }
-                .
-
-    toMap()
+            internal val EVENT_TYPES =
+            // valid event types are seedling types directly
+                    SEEDLING_EVENT_TYPES.map { it to it }
+                            // or seedling types with .s instead of underscores (more ACE-like)
+                            .plus(SEEDLING_EVENT_TYPES.map { it.replace('_', '.') to it })
+                            .plus(SEEDLING_EVENT_TYPES_NIST)
+                            // or these remaining special cases
+                            .plus(listOf("BUSINESS.END-ORG" to "BUSINESS_END",
+                                    "BUSINESS.START-ORG" to "BUSINESS_START",
+                            "BUSINESS.MERGE-ORG" to "BUSINESS_MERGE",
+                            // needed to read RPI Seedling output
+                            "CONTACT.PHONE-WRITE" to "CONTACT_CORRESPONDENCE",
+                            "PERSONNEL.END-POSITION" to "PERSONNEL_END-POSITION"))
+                    .map { it.first to ResourceFactory.createResource(NAMESPACE_STATIC + it.second) }
+                    .toMap()
 
     // these are currently unused
     // here for documentation only
-    internal val
-    NOT_IN_SEEDLING_BUT_REVERSE_IS =
+    private static final ImmutableSet<String> NOT_IN_SEEDLING_BUT_REVERSE_IS = ImmutableSet.of(
+            "students", "births_in_city", "births_in_country",
+            "residents_of_city", "residents_of_stateorprovince", "residents_of_country",
+            "shareholders", "founded_by", "top_members_employees", "members", "subsidiaries",
+            "city_of_headquarters", "stateorprovince_of_headquarters"
+    );
 
-    setOf("students","births_in_city","births_in_country",
-                  "residents_of_city","residents_of_stateorprovince","residents_of_country",
-                  "shareholders","founded_by","top_members_employees","members","subsidiaries",
-                  "city_of_headquarters","stateorprovince_of_headquarters")
+        internal val NOT_IN_SEEDLING = setOf("city_of_death", "deaths_in_city",
+                "stateorprovince_of_death", "deaths_in_stateorprovince",
+                "country_of_death", "deaths_in_country", "country_of_headquarters", "alternate_names",
+                "number_of_employees_members", "alternate_names", "date_founded", "date_of_death", "date_dissolved",
+                "cause_of_death", "charges", "likes", "dislikes",
+                "PART-WHOLE.Geographical", "GEN-AFF.Org-Location", "PART-WHOLE.Artifact")
 
-    internal val
-    NOT_IN_SEEDLING =
+    private static final String PERSONAL_SOCIAL_FAMILY = "persoc_fam";
+    private static final String PERSONAL_SOCIAL_UNSPECIFIED = "persoc_unspc";
+    private static final String MEMBER_RELIGIOUS_ETHNIC_GROUP = "genafl_more";
 
-    setOf("city_of_death","deaths_in_city",
-                  "stateorprovince_of_death","deaths_in_stateorprovince",
-                  "country_of_death","deaths_in_country","country_of_headquarters","alternate_names",
-                  "number_of_employees_members","alternate_names","date_founded","date_of_death","date_dissolved",
-                  "cause_of_death","charges","likes","dislikes",
-                  "PART-WHOLE.Geographical","GEN-AFF.Org-Location","PART-WHOLE.Artifact")
+    private static final String MEMBERSHIP = "orgafl_empmem";
+    private static final String ALUM = "orgafl_stualm";
 
-    private val PERSONAL_SOCIAL_FAMILY = "persoc_fam"
-    private val PERSONAL_SOCIAL_UNSPECIFIED = "persoc_unspc"
-    private val MEMBER_RELIGIOUS_ETHNIC_GROUP = "genafl_more"
+    private static final String WEBSITE = "genafl_orgweb";
+    private static final String PERSONAL_SOCIAL_BUSINESS = "persoc_bus";
+    private static final String PERSONAL_SOCIAL_ROLE = "persoc_role";
+    private static final String RESIDENT = "phys_resident";
+    private static final String INVESTOR = "orgafl_invshar";
+    private static final String FOUNDER = "orgafl_found";
+    private static final String LEADER = "orgafl_lead";
+    private static final String HEADQUARTERS = "phys_orghq";
+    private static final String SUBSIDIARY = "partwhole_subsid";
+    private static final String LOCATED_NEAR = "phys_locnear";
 
-    private val MEMBERSHIP = "orgafl_empmem"
-    private val ALUM = "orgafl_stualm"
+    private static final String PART_WHOLE_MEMBER = "partwhole_membership";
+    private static final String PART_WHOLE_SUBSIDIARY = "";
 
-    private val WEBSITE = "genafl_orgweb"
-    private val PERSONAL_SOCIAL_BUSINESS = "persoc_bus"
-    private val PERSONAL_SOCIAL_ROLE = "persoc_role"
-    private val RESIDENT = "phys_resident"
-    private val INVESTOR = "orgafl_invshar"
-    private val FOUNDER = "orgafl_found"
-    private val LEADER = "orgafl_lead"
-    private val HEADQUARTERS = "phys_orghq"
-    private val SUBSIDIARY = "partwhole_subsid"
-    private val LOCATED_NEAR = "phys_locnear"
+    private static final ImmutableMap<String, String> RELATION_SPECIAL_CASES =
+            ImmutableMap.<String, String>builder()
+                    .put("children", PERSONAL_SOCIAL_FAMILY)
+                    // TODO: this same relation seems to be used for organizational relationships
+                    // we ignore that for now
+                    .put("parents", PERSONAL_SOCIAL_FAMILY)
+                    .put("other_family", PERSONAL_SOCIAL_FAMILY)
+                    .put("siblings", PERSONAL_SOCIAL_FAMILY)
+                    .put("spouse", PERSONAL_SOCIAL_FAMILY)
+                    .put("PER-SOC.Family", PERSONAL_SOCIAL_FAMILY)
+                    .put("PER-SOC.Lasting-Personal", PERSONAL_SOCIAL_UNSPECIFIED)
+                    .put("PER-SOC.Business", PERSONAL_SOCIAL_BUSINESS)
+                    .put("title", PERSONAL_SOCIAL_ROLE)
+                    .put("employee_or_member_of", MEMBERSHIP)
+                    .put("ORG-AFF.Employment", MEMBERSHIP)
+                    .put("ORG-AFF.Sports-Affiliation", MEMBERSHIP)
+                    .put("ORG-AFF.Membership", MEMBERSHIP)
+                    .put("PART-WHOLE.Artifact", PART_WHOLE_MEMBER)
+                    .put("member_of", MEMBERSHIP)
+                    .put("schools_attended", ALUM)
+                    .put("cities_of_residence", RESIDENT)
+                    .put("statesorprovinces_of_residence", RESIDENT)
+                    .put("countries_of_residence", RESIDENT)
+                    .put("holds_shares_in", INVESTOR)
+                    .put("ORG-AFF.Investor-Shareholder", INVESTOR)
+                    .put("organizations_founded", FOUNDER)
+                    .put("ORG-AFF.Founder", FOUNDER)
+                    .put("top_member_employee_of", LEADER)
+                    .put("headquarters_in_city", HEADQUARTERS)
+                    .put("headquarters_in_stateorprovince", HEADQUARTERS)
+                    .put("headquarters_in_country", HEADQUARTERS)
+                    .put("political_religious_affiliation", MEMBER_RELIGIOUS_ETHNIC_GROUP)
+                    .put("GEN-AFF.Citizen-Resident-Religion-Ethnicity", MEMBER_RELIGIOUS_ETHNIC_GROUP)
+                    .put("PART-WHOLE.Subsidiary", SUBSIDIARY)
+                    .put("origin", MEMBER_RELIGIOUS_ETHNIC_GROUP)
+                    .put("website", WEBSITE)
+                    .put("religion", MEMBER_RELIGIOUS_ETHNIC_GROUP)
+                    .put("PHYS.Near", LOCATED_NEAR)
+                    .put("PHYS.Located", LOCATED_NEAR)
+                    .put("GEN-AFF.Org-Location", LOCATED_NEAR)
+                    .put("Part-Whole.Subsidiary", PART_WHOLE_SUBSIDIARY)
+                    .build();
 
-    private val PART_WHOLE_MEMBER = "partwhole_membership"
-    private val PART_WHOLE_SUBSIDIARY = ""
-
-
-    private val RELATION_SPECIAL_CASES = listOf(
-            "children"to PERSONAL_SOCIAL_FAMILY,
-            // TODO: this same relation seems to be used for organizational relationships
-            // we ignore that for now
-            "parents"to PERSONAL_SOCIAL_FAMILY,
-            "other_family"to PERSONAL_SOCIAL_FAMILY,
-            "siblings"to PERSONAL_SOCIAL_FAMILY,
-            "spouse"to PERSONAL_SOCIAL_FAMILY,
-            "PER-SOC.Family"to PERSONAL_SOCIAL_FAMILY,
-            "PER-SOC.Lasting-Personal"to PERSONAL_SOCIAL_UNSPECIFIED,
-            "PER-SOC.Business"to PERSONAL_SOCIAL_BUSINESS,
-            "title"to PERSONAL_SOCIAL_ROLE,
-            "employee_or_member_of"to MEMBERSHIP,
-            "ORG-AFF.Employment"to MEMBERSHIP,
-            "ORG-AFF.Sports-Affiliation"to MEMBERSHIP,
-            "ORG-AFF.Membership"to MEMBERSHIP,
-            "PART-WHOLE.Artifact"to PART_WHOLE_MEMBER,
-            "member_of"to MEMBERSHIP,
-            "schools_attended"to ALUM,
-            "cities_of_residence"to RESIDENT,
-            "statesorprovinces_of_residence"to RESIDENT,
-            "countries_of_residence"to RESIDENT,
-            "holds_shares_in"to INVESTOR,
-            "ORG-AFF.Investor-Shareholder"to INVESTOR,
-            "organizations_founded"to FOUNDER,
-            "ORG-AFF.Founder"to FOUNDER,
-            "top_member_employee_of"to LEADER,
-            "headquarters_in_city"to HEADQUARTERS,
-            "headquarters_in_stateorprovince"to HEADQUARTERS,
-            "headquarters_in_country"to HEADQUARTERS,
-            "political_religious_affiliation"to MEMBER_RELIGIOUS_ETHNIC_GROUP,
-            "GEN-AFF.Citizen-Resident-Religion-Ethnicity"to MEMBER_RELIGIOUS_ETHNIC_GROUP,
-            "PART-WHOLE.Subsidiary"to SUBSIDIARY,
-            "origin"to MEMBER_RELIGIOUS_ETHNIC_GROUP,
-            "website"to WEBSITE,
-            "religion"to MEMBER_RELIGIOUS_ETHNIC_GROUP,
-            "PHYS.Near"to LOCATED_NEAR,
-            "PHYS.Located"to LOCATED_NEAR,
-            "GEN-AFF.Org-Location"to LOCATED_NEAR,
-            "Part-Whole.Subsidiary"to PART_WHOLE_SUBSIDIARY)
-
-    private val RELATION_TYPES_NIST = listOf(
+    // was map:   .map { it to it }
+    private static final ImmutableList<String> RELATION_TYPES_NIST = ImmutableList.of(
             "GeneralAffiliation.APORA", "GeneralAffiliation.MORE", "GeneralAffiliation.OPRA",
             "GeneralAffiliation.OrganizationWebsite", "GeneralAffiliation.PersonAge", "GeneralAffiliation.Sponsorship",
             "Measurement.Count",
@@ -234,13 +209,7 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
             "PersonalSocial.Business", "PersonalSocial.Family", "PersonalSocial.RoleTitle",
             "PersonalSocial.Unspecified",
             "Physical.LocatedNear", "Physical.OrganizationHeadquarter", "Physical.OrganizationLocationOrigin",
-            "Physical.Resident")
-            .map
-
-    {
-        it to it
-    }
-
+            "Physical.Resident");
 
     private val RELATION_TYPES = listOf(
             // these are the seedling ontology types themselves, in case systems provide them directly
@@ -251,45 +220,28 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
             PART_WHOLE_MEMBER, SUBSIDIARY, PERSONAL_SOCIAL_BUSINESS,
             PERSONAL_SOCIAL_FAMILY, PERSONAL_SOCIAL_ROLE, PERSONAL_SOCIAL_UNSPECIFIED,
             LOCATED_NEAR, HEADQUARTERS, "phys_orglocorig",
-            RESIDENT).map
+            RESIDENT).map { it to it } // the types in the list don't need special treatment
+                .plus(RELATION_SPECIAL_CASES)
+                .plus(RELATION_TYPES_NIST)
+                .toMap()
+                .mapValues { ResourceFactory.createResource(NAMESPACE_STATIC + it.value) }
 
-    {
-        it to it
-    } // the types in the list don't need special treatment
-                .
-
-    plus(RELATION_SPECIAL_CASES)
-                .
-
-    plus(RELATION_TYPES_NIST)
-                .
-
-    toMap()
-                .mapValues
-
-    {
-        ResourceFactory.createResource(NAMESPACE_STATIC + it.value)
-    }
     //}
 
     String NAMESPACE = NAMESPACE_STATIC;
 
-    internal val
-    shortNames:Map<String, Resource> =
+    private static final ImmutableMap<String, Resource> shortNames =
+            ImmutableMap.<String, Resource>builder()
+                    .put("PER", PERSON)
+                    .put("ORG", ORGANIZATION)
+                    .put("LOC", LOCATION)
+                    .put("FAC", FACILITY)
+                    .put("GPE", GPE)
+                    .put("FILLER", FILLER)
+                    .build();
 
-    listOf(
-            "PER"to PERSON,
-            "ORG"to ORGANIZATION,
-            "LOC"to LOCATION,
-            "FAC"to FACILITY,
-            "GPE"to GPE,
-            "FILLER"to FILLER
-    ).
-
-    toMap()
-
-    Set<String> entityShortNames() {
-        return shortNames.keys;
+    public Set<String> entityShortNames() {
+        return shortNames.keySet();
     }
 
     public Resource entityType(String ontology_type) {
@@ -312,8 +264,9 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
     /*?: throw NoSuchElementException("Unknown event type: $eventName. Known relation " +
             "and event types: ${EVENT_TYPES.keys}")*/
 
-    // TBDDAG:  check Guava approach
-    private Map<String, String> eventArgumentSpecialCases = Stream.of(new String[][]{
+/* Java 8 Collections approach
+    private static final Map<String, String> eventArgumentSpecialCases =
+            Stream.of(new String[][]{
             {"conflict_demonstrate_entity", "conflict_demonstrate_demonstrator"},
             {"contact_meet_entity", "contact_meet_participant"},
             {"contact_phone-write_entity", "contact_correspondence_participant"},
@@ -326,6 +279,22 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
             {"transaction_transfer-ownership_artifact", "transaction_transfer-ownership_thing"},
             {"transaction_transfer-ownership_buyer", "transaction_transfer-ownership_recipient"},
     }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+*/
+
+    private static final ImmutableMap<String, String> eventArgumentSpecialCases =
+            ImmutableMap.<String, String>builder()
+                    .put("conflict_demonstrate_entity", "conflict_demonstrate_demonstrator")
+                    .put("contact_meet_entity", "contact_meet_participant")
+                    .put("contact_phone-write_entity", "contact_correspondence_participant")
+                    .put("contact_phone-write_place", "contact_correspondence_place")
+                    .put("contact_phone-write_time", "contact_correspondence_time")
+                    .put("justice_appeal_plaintiff", "justice_appeal_prosecutor")
+                    .put("personnel_end-position_entity", "personnel_end-position_organization")
+                    .put("personnel_elect_person", "personnel_elect_elect")
+                    .put("personnel_elect_entity", "personnel_elect_elector")
+                    .put("transaction_transfer-ownership_artifact", "transaction_transfer-ownership_thing")
+                    .put("transaction_transfer-ownership_buyer", "transaction_transfer-ownership_recipient")
+                    .build();
 
     public Resource eventArgumentType(String argName) {
         final String initialResult = argName.replace('.', '_').replace(':', '_').toLowerCase(Locale.ENGLISH);
