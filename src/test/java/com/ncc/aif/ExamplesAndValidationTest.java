@@ -592,7 +592,7 @@ public class ExamplesAndValidationTest {
             final Resource audioJustification = makeAudioJustification(model, "NYT_ENG_201181231",
                     4.566, 9.876, system, 0.789);
 
-            // combine all jutifications into single justifiedBy triple with new confidence
+            // combine all justifications into single justifiedBy triple with new confidence
             markCompoundJustification(model, ImmutableSet.of(electeeArgument),
                     ImmutableSet.of(textJustification, imageJustification, keyFrameVideoJustification,
                             shotVideoJustification, audioJustification), system, 0.321);

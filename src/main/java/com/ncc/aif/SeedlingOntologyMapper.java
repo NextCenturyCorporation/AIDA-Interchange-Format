@@ -1,10 +1,9 @@
 package com.ncc.aif;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.*;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
-import com.google.common.collect.ImmutableMap;
+
 
 import java.util.*;
 
@@ -14,86 +13,119 @@ import java.util.*;
  * For the moment, this is hard-coded to match Seedling.
  */
 public final class SeedlingOntologyMapper implements OntologyMapping {
-    //companion object {
     protected static final String NAMESPACE_STATIC = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#";
 
-    public final Resource PERSON = ResourceFactory.createResource(NAMESPACE_STATIC + "Person");
-    public final Resource ORGANIZATION = ResourceFactory.createResource(NAMESPACE_STATIC + "Organization");
-    public final Resource LOCATION = ResourceFactory.createResource(NAMESPACE_STATIC + "Location");
-    public final Resource GPE = ResourceFactory.createResource(NAMESPACE_STATIC + "GeopoliticalEntity");
-    public final Resource FACILITY = ResourceFactory.createResource(NAMESPACE_STATIC + "Facility");
+    static final Resource PERSON = ResourceFactory.createResource(NAMESPACE_STATIC + "Person");
+    public static final Resource ORGANIZATION = ResourceFactory.createResource(NAMESPACE_STATIC + "Organization");
+    public static final Resource LOCATION = ResourceFactory.createResource(NAMESPACE_STATIC + "Location");
+    public static final Resource GPE = ResourceFactory.createResource(NAMESPACE_STATIC + "GeopoliticalEntity");
+    public static final Resource FACILITY = ResourceFactory.createResource(NAMESPACE_STATIC + "Facility");
 
-    public final Resource WEAPON = ResourceFactory.createResource(NAMESPACE_STATIC + "Weapon");
+    public static final Resource WEAPON = ResourceFactory.createResource(NAMESPACE_STATIC + "Weapon");
 
-    public final Resource VEHICLE = ResourceFactory.createResource(NAMESPACE_STATIC + "Vehicle");
+    public static final Resource VEHICLE = ResourceFactory.createResource(NAMESPACE_STATIC + "Vehicle");
 
-    public final Resource LAW = ResourceFactory.createResource(NAMESPACE_STATIC + "Law");
+    public static final Resource LAW = ResourceFactory.createResource(NAMESPACE_STATIC + "Law");
 
-    public final Resource FILLER = ResourceFactory.createResource(NAMESPACE_STATIC + "FillerType");
+    public static final Resource FILLER = ResourceFactory.createResource(NAMESPACE_STATIC + "FillerType");
 
-    public final Resource RESULTS = ResourceFactory.createResource(NAMESPACE_STATIC + "Results");
+    public static final Resource RESULTS = ResourceFactory.createResource(NAMESPACE_STATIC + "Results");
 
-    public final Resource TIME = ResourceFactory.createResource(NAMESPACE_STATIC + "Time");
+    public static final Resource TIME = ResourceFactory.createResource(NAMESPACE_STATIC + "Time");
 
-    public final Resource MONEY = ResourceFactory.createResource(NAMESPACE_STATIC + "Money");
+    public static final Resource MONEY = ResourceFactory.createResource(NAMESPACE_STATIC + "Money");
 
-    public final Resource URL = ResourceFactory.createResource(NAMESPACE_STATIC + "URL");
+    public static final Resource URL = ResourceFactory.createResource(NAMESPACE_STATIC + "URL");
 
-    public final Resource AGE = ResourceFactory.createResource(NAMESPACE_STATIC + "Age");
+    public static final Resource AGE = ResourceFactory.createResource(NAMESPACE_STATIC + "Age");
 
-    public final Resource NUMERICAL_VALUE = ResourceFactory.createResource(NAMESPACE_STATIC + "NumericalValue");
+    public static final Resource NUMERICAL_VALUE = ResourceFactory.createResource(NAMESPACE_STATIC + "NumericalValue");
 
-    public final ImmutableSet<Resource> ENTITY_TYPES = ImmutableSet.of(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY);
+    public static final ImmutableSet<Resource> ENTITY_TYPES =
+            ImmutableSet.of(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY);
 
-    //public static final Resource ENTITY_TYPES = setOf(PERSON, ORGANIZATION, LOCATION, GPE, FACILITY);
+    public static final ImmutableSet<Resource> FILLER_TYPES_WHICH_CAN_HAVE_NAMES =
+            ImmutableSet.of(WEAPON, VEHICLE, LAW);
 
-    public static final Resource FILLER_TYPES_WHICH_CAN_HAVE_NAMES = setOf(WEAPON, VEHICLE, LAW);
+    public final ImmutableSet<Resource> TYPES_WHICH_CAN_HAVE_NAMES =
+            ImmutableSet.<Resource>builder()
+                    .addAll(ENTITY_TYPES)
+                    .addAll(FILLER_TYPES_WHICH_CAN_HAVE_NAMES)
+                    .build();
 
-    public static final Resource TYPES_WHICH_CAN_HAVE_NAMES = ENTITY_TYPES.union(FILLER_TYPES_WHICH_CAN_HAVE_NAMES).toSet();
+    public final ImmutableSet<Resource> TYPES_WHICH_CAN_HAVE_TEXT_VALUES =
+            ImmutableSet.of(RESULTS, TIME, MONEY, URL);
 
-    public static final Resource TYPES_WHICH_CAN_HAVE_TEXT_VALUES = setOf(RESULTS, TIME, MONEY, URL);
+    public final ImmutableSet<Resource> TYPES_WHICH_CAN_HAVE_NUMERIC_VALUES =
+            ImmutableSet.of(AGE, NUMERICAL_VALUE);
 
-    public static final Resource TYPES_WHICH_CAN_HAVE_NUMERIC_VALUES = setOf(AGE, NUMERICAL_VALUE);
+    private final ImmutableMap<String, String> SEEDLING_EVENT_TYPES_NIST =
+            Maps.toMap(ImmutableList.of(
+                    "Business.DeclareBankruptcy", "Business.End", "Business.Merge", "Business.Start",
+                    "Conflict.Attack", "Conflict.Demonstrate",
+                    "Contact.Broadcast", "Contact.Contact", "Contact.Correspondence", "Contact.Meet",
+                    "Existence.DamageDestroy",
+                    "Government.Agreements", "Government.Legislate", "Government.Spy", "Government.Vote",
+                    "Inspection.Artifact", "Inspection.People",
+                    "Justice.Acquit", "Justice.Appeal", "Justice.ArrestJail", "Justice.ChargeIndict", "Justice.Convict",
+                    "Justice.Execute", "Justice.Extradite", "Justice.Fine", "Justice.Investigate", "Justice.Pardon",
+                    "Justice.ReleaseParole", "Justice.Sentence", "Justice.Sue", "Justice.TrialHearing",
+                    "Life.BeBorn", "Life.Die", "Life.Divorce", "Life.Injure", "Life.Marry",
+                    "Manufacture.Artifact",
+                    "Movement.TransportArtifact", "Movement.TransportPerson",
+                    "Personnel.Elect", "Personnel.EndPosition", "Personnel.Nominate", "Personnel.StartPosition",
+                    "Transaction.Transaction", "Transaction.TransferControl", "Transaction.TransferMoney",
+                    "Transaction.TransferOwnership"), it -> it);
 
-    internal val
-    SEEDLING_EVENT_TYPES_NIST = listOf(
-                "Business.DeclareBankruptcy","Business.End","Business.Merge","Business.Start",
-                        "Conflict.Attack","Conflict.Demonstrate",
-                        "Contact.Broadcast","Contact.Contact","Contact.Correspondence","Contact.Meet",
-                        "Existence.DamageDestroy",
-                        "Government.Agreements","Government.Legislate","Government.Spy","Government.Vote",
-                        "Inspection.Artifact","Inspection.People",
-                        "Justice.Acquit","Justice.Appeal","Justice.ArrestJail","Justice.ChargeIndict","Justice.Convict",
-                        "Justice.Execute","Justice.Extradite","Justice.Fine","Justice.Investigate","Justice.Pardon",
-                        "Justice.ReleaseParole","Justice.Sentence","Justice.Sue","Justice.TrialHearing",
-                        "Life.BeBorn","Life.Die","Life.Divorce","Life.Injure","Life.Marry",
-                        "Manufacture.Artifact",
-                        "Movement.TransportArtifact","Movement.TransportPerson",
-                        "Personnel.Elect","Personnel.EndPosition","Personnel.Nominate","Personnel.StartPosition",
-                        "Transaction.Transaction","Transaction.TransferControl","Transaction.TransferMoney",
-                        "Transaction.TransferOwnership")
-                .map { it to it }
-
-    internal val SEEDLING_EVENT_TYPES = listOf(
+    private final ImmutableList<String> SEEDLING_EVENT_TYPES = ImmutableList.of(
             // those in the first block match the seedling ontology except...
-                "CONFLICT_ATTACK", "CONFLICT_DEMONSTRATE",
-                        "CONTACT_BROADCAST", "CONTACT_CONTACT", "CONTACT_CORRESPONDENCE", "CONTACT_MEET",
-                        "JUSTICE_ARREST-JAIL",
-                        "LIFE_DIE", "LIFE_INJURE", "MANUFACTURE_ARTIFACT",
-                        "MOVEMENT_TRANSPORT-ARTIFACT",
-                        "MOVEMENT_TRANSPORT-PERSON", "PERSONNEL_ELECT",
-                        "PERSONNEL_START-POSITION", "TRANSACTION_TRANSACTION", "TRANSACTION_TRANSFER-MONEY",
-                        "TRANSACTION_TRANSFER-OWNERSHIP",
-                        "BUSINESS_DECLARE-BANKRUPTCY",
-                        "JUSTICE_ACQUIT",
-                        "JUSTICE_APPEAL", "JUSTICE_CHARGE-INDICT", "JUSTICE_CONVICT", "JUSTICE_EXECUTE",
-                        "JUSTICE_EXTRADITE", "JUSTICE_FINE", "JUSTICE_RELEASE-PAROLE", "JUSTICE_SENTENCE",
-                        "JUSTICE_SUE", "JUSTICE_TRIAL-HEARING", "LIFE_BE-BORN", "LIFE_MARRY", "LIFE_DIVORCE",
-                        "PERSONNEL_NOMINATE", "PERSONNEL_ELECT", "BUSINESS_END-BUSINESS",
-                        "BUSINESS_START-BUSINESS", "BUSINESS_MERGE", "CONTACT_CORRESPONDENCE",
-                        "PERSONNEL_END-POSITION")
+            "CONFLICT_ATTACK", "CONFLICT_DEMONSTRATE",
+            "CONTACT_BROADCAST", "CONTACT_CONTACT", "CONTACT_CORRESPONDENCE", "CONTACT_MEET",
+            "JUSTICE_ARREST-JAIL",
+            "LIFE_DIE", "LIFE_INJURE", "MANUFACTURE_ARTIFACT",
+            "MOVEMENT_TRANSPORT-ARTIFACT",
+            "MOVEMENT_TRANSPORT-PERSON", "PERSONNEL_ELECT",
+            "PERSONNEL_START-POSITION", "TRANSACTION_TRANSACTION", "TRANSACTION_TRANSFER-MONEY",
+            "TRANSACTION_TRANSFER-OWNERSHIP",
+            "BUSINESS_DECLARE-BANKRUPTCY",
+            "JUSTICE_ACQUIT",
+            "JUSTICE_APPEAL", "JUSTICE_CHARGE-INDICT", "JUSTICE_CONVICT", "JUSTICE_EXECUTE",
+            "JUSTICE_EXTRADITE", "JUSTICE_FINE", "JUSTICE_RELEASE-PAROLE", "JUSTICE_SENTENCE",
+            "JUSTICE_SUE", "JUSTICE_TRIAL-HEARING", "LIFE_BE-BORN", "LIFE_MARRY", "LIFE_DIVORCE",
+            "PERSONNEL_NOMINATE", "PERSONNEL_ELECT", "BUSINESS_END-BUSINESS",
+            "BUSINESS_START-BUSINESS", "BUSINESS_MERGE", "CONTACT_CORRESPONDENCE",
+            "PERSONNEL_END-POSITION");
 
-            internal val EVENT_TYPES =
+    private final ImmutableList<String> SEEDLING_EVENT_TYPES_WITH_S =
+            ImmutableList.copyOf(Lists.transform(SEEDLING_EVENT_TYPES, it -> it.replace('_', '.')));
+
+/*
+    private final ImmutableMap<String, String> SEEDLING_EVENT_TYPES_MAP =
+            Maps.toMap(SEEDLING_EVENT_TYPES, it -> it);
+
+    private final ImmutableMap<String, String> SEEDLING_EVENT_TYPES_WITH_S_MAP =
+            Maps.toMap(SEEDLING_EVENT_TYPES_WITH_S, it -> it);
+*/
+
+    private final ImmutableMap<String, String> EVENT_TYPES_STRMAP =
+            ImmutableMap.<String, String>builder()
+                    .putAll(Maps.toMap(SEEDLING_EVENT_TYPES, it -> it))
+                    // or seedling types with .s instead of underscores (more ACE-like)
+                    .putAll(Maps.toMap(SEEDLING_EVENT_TYPES_WITH_S, it -> it))
+                    .putAll(SEEDLING_EVENT_TYPES_NIST)
+                    // or these remaining special cases
+                    .put("BUSINESS.END-ORG", "BUSINESS_END")
+                    .put("BUSINESS.MERGE-ORG", "BUSINESS_MERGE")
+                    // needed to read RPI Seedling output
+                    .put("CONTACT.PHONE-WRITE", "CONTACT_CORRESPONDENCE")
+                    .put("PERSONNEL.END-POSITION", "PERSONNEL_END-POSITION")
+                    .build();
+
+    private final ImmutableMap<String, Resource> EVENT_TYPES =
+            Maps.toMap(EVENT_TYPES_STRMAP.keySet(),
+                    it -> ResourceFactory.createResource(NAMESPACE_STATIC + EVENT_TYPES_STRMAP.get(it)));
+/*
+    internal val EVENT_TYPES =
             // valid event types are seedling types directly
                     SEEDLING_EVENT_TYPES.map { it to it }
                             // or seedling types with .s instead of underscores (more ACE-like)
@@ -108,7 +140,7 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
                             "PERSONNEL.END-POSITION" to "PERSONNEL_END-POSITION"))
                     .map { it.first to ResourceFactory.createResource(NAMESPACE_STATIC + it.second) }
                     .toMap()
-
+*/
     // these are currently unused
     // here for documentation only
     private static final ImmutableSet<String> NOT_IN_SEEDLING_BUT_REVERSE_IS = ImmutableSet.of(
@@ -117,13 +149,13 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
             "shareholders", "founded_by", "top_members_employees", "members", "subsidiaries",
             "city_of_headquarters", "stateorprovince_of_headquarters"
     );
-
-        internal val NOT_IN_SEEDLING = setOf("city_of_death", "deaths_in_city",
-                "stateorprovince_of_death", "deaths_in_stateorprovince",
-                "country_of_death", "deaths_in_country", "country_of_headquarters", "alternate_names",
-                "number_of_employees_members", "alternate_names", "date_founded", "date_of_death", "date_dissolved",
-                "cause_of_death", "charges", "likes", "dislikes",
-                "PART-WHOLE.Geographical", "GEN-AFF.Org-Location", "PART-WHOLE.Artifact")
+    private static final ImmutableSet<String> NOT_IN_SEEDLING = ImmutableSet.of(
+            "city_of_death", "deaths_in_city",
+            "stateorprovince_of_death", "deaths_in_stateorprovince",
+            "country_of_death", "deaths_in_country", "country_of_headquarters", "alternate_names",
+            "number_of_employees_members", "alternate_names", "date_founded", "date_of_death", "date_dissolved",
+            "cause_of_death", "charges", "likes", "dislikes",
+            "PART-WHOLE.Geographical", "GEN-AFF.Org-Location", "PART-WHOLE.Artifact");
 
     private static final String PERSONAL_SOCIAL_FAMILY = "persoc_fam";
     private static final String PERSONAL_SOCIAL_UNSPECIFIED = "persoc_unspc";
@@ -189,40 +221,44 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
                     .put("Part-Whole.Subsidiary", PART_WHOLE_SUBSIDIARY)
                     .build();
 
-    // was map:   .map { it to it }
-    private static final ImmutableList<String> RELATION_TYPES_NIST = ImmutableList.of(
-            "GeneralAffiliation.APORA", "GeneralAffiliation.MORE", "GeneralAffiliation.OPRA",
-            "GeneralAffiliation.OrganizationWebsite", "GeneralAffiliation.PersonAge", "GeneralAffiliation.Sponsorship",
-            "Measurement.Count",
-            "OrganizationAffiliation.EmploymentMembership", "OrganizationAffiliation.Founder",
-            "OrganizationAffiliation.InvestorShareholder", "OrganizationAffiliation.Leadership",
-            "OrganizationAffiliation.Ownership", "OrganizationAffiliation.StudentAlum",
-            "PartWhole.Membership", "PartWhole.Subsidiary",
-            "PersonalSocial.Business", "PersonalSocial.Family", "PersonalSocial.RoleTitle",
-            "PersonalSocial.Unspecified",
-            "Physical.LocatedNear", "Physical.OrganizationHeadquarter", "Physical.OrganizationLocationOrigin",
-            "Physical.Resident");
+    private final ImmutableMap<String, String> RELATION_TYPES_NIST =
+            Maps.toMap(ImmutableList.of(
+                    "GeneralAffiliation.APORA", "GeneralAffiliation.MORE", "GeneralAffiliation.OPRA",
+                    "GeneralAffiliation.OrganizationWebsite", "GeneralAffiliation.PersonAge", "GeneralAffiliation.Sponsorship",
+                    "Measurement.Count",
+                    "OrganizationAffiliation.EmploymentMembership", "OrganizationAffiliation.Founder",
+                    "OrganizationAffiliation.InvestorShareholder", "OrganizationAffiliation.Leadership",
+                    "OrganizationAffiliation.Ownership", "OrganizationAffiliation.StudentAlum",
+                    "PartWhole.Membership", "PartWhole.Subsidiary",
+                    "PersonalSocial.Business", "PersonalSocial.Family", "PersonalSocial.RoleTitle",
+                    "PersonalSocial.Unspecified",
+                    "Physical.LocatedNear", "Physical.OrganizationHeadquarter", "Physical.OrganizationLocationOrigin",
+                    "Physical.Resident"), it -> it);
 
-    private val RELATION_TYPES = listOf(
-            // these are the seedling ontology types themselves, in case systems provide them directly
-            "genafl_apora", MEMBER_RELIGIOUS_ETHNIC_GROUP, "genafl_opra", WEBSITE,
-            "genafl_perage", "genafl_spon", "measurement_count",
-            MEMBERSHIP, FOUNDER, INVESTOR,
-            LEADER, "orgafl_own", ALUM,
-            PART_WHOLE_MEMBER, SUBSIDIARY, PERSONAL_SOCIAL_BUSINESS,
-            PERSONAL_SOCIAL_FAMILY, PERSONAL_SOCIAL_ROLE, PERSONAL_SOCIAL_UNSPECIFIED,
-            LOCATED_NEAR, HEADQUARTERS, "phys_orglocorig",
-            RESIDENT).map { it to it } // the types in the list don't need special treatment
-                .plus(RELATION_SPECIAL_CASES)
-                .plus(RELATION_TYPES_NIST)
-                .toMap()
-                .mapValues { ResourceFactory.createResource(NAMESPACE_STATIC + it.value) }
+    private final ImmutableMap<String, String> RELATION_TYPES_STRMAP =
+            ImmutableMap.<String, String>builder()
+                    .putAll(Maps.toMap(ImmutableList.of(
+                            // these are the seedling ontology types themselves,
+                            // in case systems provide them directly
+                            "genafl_apora", MEMBER_RELIGIOUS_ETHNIC_GROUP, "genafl_opra", WEBSITE,
+                            "genafl_perage", "genafl_spon", "measurement_count",
+                            MEMBERSHIP, FOUNDER, INVESTOR,
+                            LEADER, "orgafl_own", ALUM,
+                            PART_WHOLE_MEMBER, SUBSIDIARY, PERSONAL_SOCIAL_BUSINESS,
+                            PERSONAL_SOCIAL_FAMILY, PERSONAL_SOCIAL_ROLE, PERSONAL_SOCIAL_UNSPECIFIED,
+                            LOCATED_NEAR, HEADQUARTERS, "phys_orglocorig",
+                            RESIDENT), it -> it)) // the types in the list don't need special treatment
+                    .putAll(RELATION_SPECIAL_CASES)
+                    .putAll(RELATION_TYPES_NIST)
+                    .build();
 
-    //}
+    private final ImmutableMap<String, Resource> RELATION_TYPES =
+            Maps.toMap(RELATION_TYPES_STRMAP.keySet(),
+                    it -> ResourceFactory.createResource(NAMESPACE_STATIC + RELATION_TYPES_STRMAP.get(it)));
 
     String NAMESPACE = NAMESPACE_STATIC;
 
-    private static final ImmutableMap<String, Resource> shortNames =
+    private final ImmutableMap<String, Resource> shortNames =
             ImmutableMap.<String, Resource>builder()
                     .put("PER", PERSON)
                     .put("ORG", ORGANIZATION)
@@ -237,20 +273,27 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
     }
 
     public Resource entityType(String ontology_type) {
-        return when(ontology_type) {
-            "STRING", "String" ->FILLER
-            else ->shortNames[ontology_type] ?:throw RuntimeException("Unknown ontology type $ontology_type")
-        }
+        Resource retVal;
+
+        if (ontology_type.equals("STRING") || ontology_type.equals("String"))
+            retVal = FILLER;
+        else
+            retVal = shortNames.get(ontology_type);
+
+        if (retVal == null)
+            throw new RuntimeException("Unknown ontology type " + ontology_type);
+        else
+            return retVal;
     }
 
     public Resource relationType(String relationName) {
-        return RELATION_TYPES[relationName];
+        return RELATION_TYPES.get(relationName);
     }
     /*?: throw NoSuchElementException("Unknown relation type: $relationName. Known relation " +
             "and event types ${RELATION_TYPES.keys}")*/
 
     public Resource eventType(String eventName) {
-        return EVENT_TYPES[eventName];
+        return EVENT_TYPES.get(eventName);
     }
 
     /*?: throw NoSuchElementException("Unknown event type: $eventName. Known relation " +
@@ -322,7 +365,7 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
 class RPISeedlingOntologyMapper implements OntologyMapping {
     private SeedlingOntologyMapper seedlingOM = new SeedlingOntologyMapper();
     protected String NAMESPACE = SeedlingOntologyMapper.NAMESPACE_STATIC;
-    Resource FILLER = ResourceFactory.createResource(NAMESPACE + "FillerType");
+    private Resource FILLER = ResourceFactory.createResource(NAMESPACE + "FillerType");
 
     public Set<String> entityShortNames() {
         HashSet<String> hs = new HashSet<>();

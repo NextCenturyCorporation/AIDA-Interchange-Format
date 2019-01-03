@@ -275,7 +275,7 @@ public class AIFUtils {
         return justification;
     }
 
-    final class Point {
+    public static final class Point {
         private final int x;
         private final int y;
 
@@ -300,7 +300,7 @@ public class AIFUtils {
         }
     }
 
-    final class BoundingBox {
+    public static final class BoundingBox {
         private final Point upperLeft;
         private final Point lowerRight;
 

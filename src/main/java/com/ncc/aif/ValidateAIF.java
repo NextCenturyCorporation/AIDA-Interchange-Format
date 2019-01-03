@@ -12,6 +12,7 @@ import mu.KLogging;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.util.FileUtils;
+import org.apache.jena.vocabulary.RDF;
 import org.topbraid.shacl.validation.ValidationUtil;
 
 import java.io.File;
@@ -253,48 +254,28 @@ public final class ValidateAIF {
     }
 
     // used by ensureEveryEntityAndEventHasAType below
-    private static final String ENSURE_TYPE_SPARQL_QUERY = "\"\n" +
-            "PREFIX rdf:\n" +
+    private static final String ENSURE_TYPE_SPARQL_QUERY =
+            "PREFIX rdf: <" + RDF.uri + ">\n" +
+            "PREFIX aida: <" + AidaAnnotationOntology.NAMESPACE + ">\n" +
             "\n" +
-            "    <$ {\n" +
-            "        RDF.uri\n" +
-            "    }>\n" +
-            "    PREFIX aida:\n" +
-            "\n" +
-            "    <$ {\n" +
-            "        AidaAnnotationOntology.NAMESPACE\n" +
-            "    }>\n" +
-            "\n" +
-            "    SELECT ?\n" +
-            "    entityOrEvent\n" +
-            "            WHERE\n" +
-            "\n" +
-            "    {\n" +
-            "        {?entityOrEvent a aida:\n" +
-            "        Entity\n" +
-            "        } UNION {?entityOrEvent a aida:\n" +
-            "    Event\n" +
+            "SELECT ?entityOrEvent\n" +
+            "WHERE {\n" +
+            "    {?entityOrEvent a aida:Entity} UNION  {?entityOrEvent a aida:Event}\n" +
+            "    FILTER NOT EXISTS {\n" +
+            "    ?typeAssertion a rdf:Statement .\n" +
+            "    ?typeAssertion rdf:predicate rdf:type .\n" +
+            "    ?typeAssertion rdf:subject ?entityOrEvent .\n" +
             "    }\n" +
-            "        FILTER NOT EXISTS {\n" +
-            "           ?typeAssertion a rdf:\n" +
-            "        Statement.\n" +
-            "                ? typeAssertion rdf:\n" +
-            "        predicate rdf:type.\n" +
-            "                ? typeAssertion rdf:\n" +
-            "        subject ? entityOrEvent.\n" +
-            "    }\n" +
-            "    }\n" +
-            "\"";
+            "}".replace("\n", System.getProperty("line.separator"));
 
     // Not currently used
-    private static final String LACKS_TYPES_QUERY = "\"\n" +
+    private static final String LACKS_TYPES_QUERY =
             "    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
             "    SELECT *\n" +
             "    WHERE {\n" +
             "        OPTIONAL {?node rdf:type ?type}\n" +
             "        FILTER(!bound(?type))\n" +
-            "    }" +
-            "\"";
+            "    }".replace("\n", System.getProperty("line.separator"));
 
     private boolean ensureEveryEntityAndEventHasAType(Model dataToBeValidated) {
         // it is okay if there are multiple type assertions (in case of uncertainty)
