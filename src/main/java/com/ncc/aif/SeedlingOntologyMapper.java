@@ -4,8 +4,11 @@ import com.google.common.collect.*;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 
-import java.util.*;
+import javafx.util.Pair;
 
 /**
  * The Seedling domain ontology.
@@ -96,29 +99,29 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
             "BUSINESS_START-BUSINESS", "BUSINESS_MERGE", "CONTACT_CORRESPONDENCE",
             "PERSONNEL_END-POSITION");
 
-    private final ImmutableList<String> SEEDLING_EVENT_TYPES_WITH_S =
+    private final ImmutableList<String> SEEDLING_EVENT_TYPES_WITH_DOTS =
             ImmutableList.copyOf(Lists.transform(SEEDLING_EVENT_TYPES, it -> it.replace('_', '.')));
 
-/*
+    /* Unused intermediate steps, useful for debugging
     private final ImmutableMap<String, String> SEEDLING_EVENT_TYPES_MAP =
             Maps.toMap(SEEDLING_EVENT_TYPES, it -> it);
 
-    private final ImmutableMap<String, String> SEEDLING_EVENT_TYPES_WITH_S_MAP =
-            Maps.toMap(SEEDLING_EVENT_TYPES_WITH_S, it -> it);
+    private final ImmutableMap<String, String> SEEDLING_EVENT_TYPES_WITH_DOTS_MAP =
+            Maps.toMap(SEEDLING_EVENT_TYPES_WITH_DOTS, it -> it.replace('.', '_'));
 */
 
     private final ImmutableMap<String, String> EVENT_TYPES_STRMAP =
             ImmutableMap.<String, String>builder()
                     .putAll(Maps.toMap(SEEDLING_EVENT_TYPES, it -> it))
-                    // or seedling types with .s instead of underscores (more ACE-like)
-                    .putAll(Maps.toMap(SEEDLING_EVENT_TYPES_WITH_S, it -> it))
+                    // or seedling types with dots instead of underscores (more ACE-like)
+                    .putAll(Maps.toMap(SEEDLING_EVENT_TYPES_WITH_DOTS, it -> it.replace('.', '_')))
                     .putAll(SEEDLING_EVENT_TYPES_NIST)
                     // or these remaining special cases
                     .put("BUSINESS.END-ORG", "BUSINESS_END")
                     .put("BUSINESS.MERGE-ORG", "BUSINESS_MERGE")
                     // needed to read RPI Seedling output
                     .put("CONTACT.PHONE-WRITE", "CONTACT_CORRESPONDENCE")
-                    .put("PERSONNEL.END-POSITION", "PERSONNEL_END-POSITION")
+                    //.put("PERSONNEL.END-POSITION", "PERSONNEL_END-POSITION")
                     .build();
 
     private final ImmutableMap<String, Resource> EVENT_TYPES =
@@ -354,7 +357,7 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
         return TYPES_WHICH_CAN_HAVE_NUMERIC_VALUES.contains(type);
     }
 
-    public ResourcePair relationArgumentTypes(Resource relation) {
+    public Pair<Resource, Resource> relationArgumentTypes(Resource relation) {
         // TODO("not implemented");
         // To change body of created functions use File | Settings | File Templates.
         return null;
@@ -407,7 +410,7 @@ class RPISeedlingOntologyMapper implements OntologyMapping {
         return seedlingOM.typeAllowedToHaveNumericValue(type);
     }
 
-    public ResourcePair relationArgumentTypes(Resource relation) {
+    public Pair<Resource, Resource> relationArgumentTypes(Resource relation) {
         // TODO("not implemented");
         // To change body of created functions use File | Settings | File Templates.
         return null;

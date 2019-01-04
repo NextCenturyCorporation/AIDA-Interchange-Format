@@ -8,7 +8,6 @@ import com.google.common.io.CharSource;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import edu.isi.nlp.parameters.Parameters;
-import mu.KLogging;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.util.FileUtils;
@@ -87,8 +86,6 @@ public final class ValidateAIF {
     }
 
     public static void main(String[] args) throws IOException {
-        final KLogging log = new KLogging();
-
         if (args.length != 1) {
             System.out.println("Usage: validateAIF paramFile\n\tSee repo README for details.");
             System.exit(1);
@@ -100,7 +97,7 @@ public final class ValidateAIF {
 
         final Parameters params = Parameters.loadSerifStyle(new File(args[0]));
         final File domainOntologyFile = params.getExistingFile("domainOntology");
-        log.getLogger().info("Using domain ontology file " + domainOntologyFile);
+        logger.info("Using domain ontology file " + domainOntologyFile);
 
         // this is an RDF model which uses SHACL to encode constraints on the AIF
         final ValidateAIF validator = ValidateAIF.createForDomainOntologySource(
@@ -118,7 +115,7 @@ public final class ValidateAIF {
 
         boolean allValid = true;
         for (File fileToValidate : filesToValidate) {
-            log.getLogger().info("Validating $fileToValidate");
+            logger.info("Validating $fileToValidate");
             final Model dataToBeValidated = loadModel(Files.asCharSource(fileToValidate, Charsets.UTF_8)
                     .openBufferedStream());
             allValid = validator.validateKB(dataToBeValidated) && allValid;
@@ -312,7 +309,7 @@ public final class ValidateAIF {
         boolean retVal = false;
         final ResIterator resIterator = model.listSubjectsWithProperty(property, resource);
         while (resIterator.hasNext()) {
-            // TBDDAG Need some logic here...
+            // Need some logic here...
             resIterator.nextResource();
         }
         return retVal;

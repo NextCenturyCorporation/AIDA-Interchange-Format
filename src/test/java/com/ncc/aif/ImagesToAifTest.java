@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
+import java.nio.charset.StandardCharsets;
 import java.io.File;
 import java.io.IOException;
 
@@ -38,7 +39,7 @@ public class ImagesToAifTest {
 
     Files.asCharSink(input_tab_path, Charsets.UTF_8).write(
         Resources.asCharSource(Resources.getResource("edu/isi/gaia/images_to_aif_sample.txt"),
-            Charsets.UTF_8).read());
+                StandardCharsets.UTF_8).read());
 
     //ImagesToAIF.run(params);
 

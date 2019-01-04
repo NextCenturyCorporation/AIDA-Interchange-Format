@@ -4,6 +4,8 @@ import org.apache.jena.rdf.model.Resource;
 
 import java.util.Set;
 
+import javafx.util.Pair;
+
 /**
  * A domain ontology.
  */
@@ -19,7 +21,7 @@ interface OntologyMapping {
     /**
      * Given a relation, get its two argument types in the same order as in LDC annotation.
      */
-    ResourcePair relationArgumentTypes(Resource relation);
+    Pair<Resource, Resource> relationArgumentTypes(Resource relation);
 
     /**
      * Is an object of this type allowed to have a name property?

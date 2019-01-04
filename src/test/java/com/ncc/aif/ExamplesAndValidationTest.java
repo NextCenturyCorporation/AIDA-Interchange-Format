@@ -2,12 +2,12 @@ package com.ncc.aif;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import com.ncc.aif.AIFUtils.*;
-import kotlin.text.Charsets;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -24,6 +24,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -43,7 +44,7 @@ public class ExamplesAndValidationTest {
     }
 
     private final ValidateAIF seedlingValidator = ValidateAIF.createForDomainOntologySource(
-            Resources.asCharSource(Resources.getResource("edu/isi/gaia/SeedlingOntology"), Charsets.UTF_8));
+            Resources.asCharSource(Resources.getResource("edu/isi/gaia/SeedlingOntology"), StandardCharsets.UTF_8));
 
     private int assertionCount = 1;
     private int entityCount = 1;
@@ -496,8 +497,14 @@ public class ExamplesAndValidationTest {
 
             // let's mark our entity with some arbitrary system-private data. You can attach such data
             // to nearly anything
-            markPrivateData(model, putin, getUri("testSystem-personVector"),
-                    Arrays.asList(2.0, 7.5, 0.2, 8.1), system);
+            try {
+                markPrivateData(model, putin, getUri("testSystem-personVector"),
+                        Arrays.asList(2.0, 7.5, 0.2, 8.1), system);
+            }
+            catch (JsonProcessingException jpe) {
+                System.err.println("Unable to convert vector data to String " + jpe.getMessage());
+                jpe.printStackTrace();
+            }
 
             dumpAndAssertValid(model, "create a seedling entity of type person with image " +
                     "justification and vector", true);

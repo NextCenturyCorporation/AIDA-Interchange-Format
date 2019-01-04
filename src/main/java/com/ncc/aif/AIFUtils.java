@@ -2,7 +2,7 @@ package com.ncc.aif;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.google.common.collect.ImmutableList;
+import com.google.common.collect.*;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
@@ -257,9 +257,8 @@ public class AIFUtils {
     public static Resource markTextJustification(Model model, Resource toMarkOn, String docId,
                                                  int startOffset, int endOffsetInclusive,
                                                  Resource system, Double confidence) {
-        final Set toMarkOnSet = new HashSet();
-        toMarkOnSet.add(toMarkOn);
-        return markTextJustification(model, toMarkOnSet, docId, startOffset, endOffsetInclusive, system, confidence);
+        return markTextJustification(model, ImmutableSet.of(toMarkOn), docId, startOffset,
+                endOffsetInclusive, system, confidence);
     }
 
     /**
@@ -354,9 +353,7 @@ public class AIFUtils {
 
     public static Resource markImageJustification(Model model, Resource toMarkOn, String docId,
                                                   BoundingBox boundingBox, Resource system, Double confidence) {
-        final Set toMarkOnSet = new HashSet();
-        toMarkOnSet.add(toMarkOn);
-        return markImageJustification(model, toMarkOnSet, docId, boundingBox, system, confidence);
+        return markImageJustification(model, ImmutableSet.of(toMarkOn), docId, boundingBox, system, confidence);
     }
 
     public static Resource markImageJustification(Model model, Collection<Resource> toMarkOn, String docId,
@@ -383,9 +380,8 @@ public class AIFUtils {
      */
     public static Resource markKeyFrameVideoJustification(Model model, Resource toMarkOn, String docId, String keyFrame,
                                                           BoundingBox boundingBox, Resource system, Double confidence) {
-        final Set toMarkOnSet = new HashSet();
-        toMarkOnSet.add(toMarkOn);
-        return markKeyFrameVideoJustification(model, toMarkOnSet, docId, keyFrame, boundingBox, system, confidence);
+        return markKeyFrameVideoJustification(model, ImmutableSet.of(toMarkOn), docId,
+                keyFrame, boundingBox, system, confidence);
     }
 
     /**
@@ -414,9 +410,7 @@ public class AIFUtils {
      */
     public static Resource markShotVideoJustification(Model model, Resource toMarkOn, String docId, String shotId,
                                                       Resource system, Double confidence) {
-        final Set toMarkOnSet = new HashSet();
-        toMarkOnSet.add(toMarkOn);
-        return markShotVideoJustification(model, toMarkOnSet, docId, shotId, system, confidence);
+        return markShotVideoJustification(model, ImmutableSet.of(toMarkOn), docId, shotId, system, confidence);
     }
 
     /**
@@ -447,9 +441,8 @@ public class AIFUtils {
     public static Resource markAudioJustification(Model model, Resource toMarkOn, String docId,
                                                   Double startTimestamp, Double endTimestamp,
                                                   Resource system, Double confidence) {
-        final Set toMarkOnSet = new HashSet();
-        toMarkOnSet.add(toMarkOn);
-        return markAudioJustification(model, toMarkOnSet, docId, startTimestamp, endTimestamp, system, confidence);
+        return markAudioJustification(model, ImmutableSet.of(toMarkOn), docId,
+                startTimestamp, endTimestamp, system, confidence);
     }
 
     public static Resource markAudioJustification(Model model, Collection<Resource> toMarkOn, String docId,
@@ -474,7 +467,7 @@ public class AIFUtils {
         // internal iterator
         // justifications.forEach(j -> compoundJustification.addProperty(AidaAnnotationOntology.CONTAINED_JUSTIFICATION, j));
         // external iterator
-        for (Resource j : toMarkOn) {
+        for (Resource j : justifications) {
             compoundJustification.addProperty(AidaAnnotationOntology.CONTAINED_JUSTIFICATION, j);
         }
         markJustification(toMarkOn, compoundJustification);
@@ -502,10 +495,11 @@ public class AIFUtils {
      *                           "none of the above" option.
      * @return The mutual exclusion assertion.
      */
-    public static Resource markEdgesAsMutuallyExclusive(Model model, Map<Resource, Double> alternatives,
+    public static Resource markEdgesAsMutuallyExclusive(Model model, ImmutableMap<Resource, Double> alternatives,
                                                         Resource system, Double noneOfTheAboveProb) {
 
         HashMap<Collection<Resource>, Double> newAltMap = new HashMap<>();
+        ImmutableMap<Collection<Resource>, Double> newAltMap2;
         for (Resource edge : alternatives.keySet()) {
             Collection<Resource> edges = new HashSet<>();
             edges.add(edge);
@@ -667,20 +661,11 @@ public class AIFUtils {
      * NumericValue, and TextValue properties.
      */
     public static Resource markPrivateData(Model model, Resource resource, String vectorType,
-                                           List<Double> vectorData, Resource system) {
+                                           List<Double> vectorData, Resource system) throws JsonProcessingException {
         final ObjectMapper mapper = new ObjectMapper();
-        final HashMap<String, Object> jsonMap = new HashMap<>(); // HashMap<Object, Object>  ?
-        jsonMap.put("vector_type", vectorType);
-        jsonMap.put("vector_data", vectorData);
-        String jsonString;
-        try {
-            jsonString = mapper.writeValueAsString(jsonMap);
-        } catch (JsonProcessingException jpe) {
-            jsonString = null;
-            // TODO: log error
-        }
-
-        return AIFUtils.markPrivateData(model, resource, jsonString, system);
+        final ImmutableMap<String, Object> jsonMap =
+                ImmutableMap.of("vector_type", vectorType, "vector_data", vectorData);
+        return AIFUtils.markPrivateData(model, resource, mapper.writeValueAsString(jsonMap), system);
     }
 
     public static Resource linkToExternalKB(Model model, Resource toLink, String externalKbId, Resource system,
