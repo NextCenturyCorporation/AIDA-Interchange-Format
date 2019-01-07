@@ -6,11 +6,9 @@ import com.google.common.collect.*;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
-//import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.SKOS;
 import org.apache.jena.vocabulary.XSD;
-//import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -166,7 +164,6 @@ public class AIFUtils {
 
         argAssertion.addProperty(RDF.subject, eventOrRelation);
         argAssertion.addProperty(RDF.predicate, argumentType);
-//        argAssertion.addProperty(RDF.`object`, argumentFiller);
         argAssertion.addProperty(RDF.object, argumentFiller);
         if (confidence != null) {
             markConfidence(model, argAssertion, confidence, system);
@@ -218,7 +215,7 @@ public class AIFUtils {
      * Mark multiple things as being justified by a particular justification
      */
     public static void markJustification(Collection<Resource> toMarkOn, Resource justification) {
-         toMarkOn.forEach(it -> markJustification(it, justification));
+        toMarkOn.forEach(it -> markJustification(it, justification));
     }
 
     /**
@@ -652,29 +649,7 @@ public class AIFUtils {
         return linkAssertion;
     }
 
-    /**
-     * Run a task on a model when the model might have grown too big to fit into memory.
-     * <p>
-     * This hides the setup and cleanup boilerplate for using a Jena TDB model backed by
-     * a temporary directory.
-     */
-/*    public static void workWithBigModel(workFunction:(Model) ->Unit)
-    {
-        final tempDir = createTempDir();
-        try {
-            LoggerFactory.getLogger("main").info("Using temporary directory $tempDir for " +
-                    "triple store");
-            final Dataset dataset = TDBFactory.createDataset("tempDir.absolutePath");
-            final Model model = dataset.getDefaultModel();
-            workFunction(model);
-        } finally {
-            tempDir.deleteRecursively();
-        }
-    }*/
 
-    /**
-     * Note: original Kotlin threw a NPE if TYPE_QUERY was null.
-     */
     static final class SparqlQueries {
         static final Query TYPE_QUERY = QueryFactory.create("\"" +
                 "PREFIX rdf: <" + RDF.uri + ">" +

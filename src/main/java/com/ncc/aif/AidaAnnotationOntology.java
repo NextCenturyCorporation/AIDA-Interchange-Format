@@ -1,8 +1,8 @@
 package com.ncc.aif;
 
 import org.apache.jena.rdf.model.Property;
-import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
 
 /**
  * The non-domain-specific portion of the AIDA ontology.
@@ -12,7 +12,6 @@ public final class AidaAnnotationOntology {
     // URI would change from isi.edu to something else if adopted program-wide
     public static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#";
 
-    // TODO: Ensure non-null in a Java way
     // properties
     public static final Property SYSTEM_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "system");
     public static final Property NAME_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "hasName");

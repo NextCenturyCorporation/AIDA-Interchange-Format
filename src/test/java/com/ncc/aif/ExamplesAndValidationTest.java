@@ -500,8 +500,7 @@ public class ExamplesAndValidationTest {
             try {
                 markPrivateData(model, putin, getUri("testSystem-personVector"),
                         Arrays.asList(2.0, 7.5, 0.2, 8.1), system);
-            }
-            catch (JsonProcessingException jpe) {
+            } catch (JsonProcessingException jpe) {
                 System.err.println("Unable to convert vector data to String " + jpe.getMessage());
                 jpe.printStackTrace();
             }
@@ -1028,7 +1027,7 @@ public class ExamplesAndValidationTest {
 
     /**
      * DISABLED because they all use ColdStart.
-     *
+     * <p>
      * Don't do what these do!
      * <p>
      * These should fail to validate.

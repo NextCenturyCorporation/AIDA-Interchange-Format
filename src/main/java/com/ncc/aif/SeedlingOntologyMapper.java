@@ -3,12 +3,11 @@ package com.ncc.aif;
 import com.google.common.collect.*;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-
-import javafx.util.Pair;
 
 /**
  * The Seedling domain ontology.
@@ -340,7 +339,7 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
         return TYPES_WHICH_CAN_HAVE_NUMERIC_VALUES.contains(type);
     }
 
-    public Pair<Resource, Resource> relationArgumentTypes(Resource relation) {
+    public ImmutablePair<Resource, Resource> relationArgumentTypes(Resource relation) {
         // TODO("not implemented");
         // To change body of created functions use File | Settings | File Templates.
         return null;
@@ -393,7 +392,7 @@ class RPISeedlingOntologyMapper implements OntologyMapping {
         return seedlingOM.typeAllowedToHaveNumericValue(type);
     }
 
-    public Pair<Resource, Resource> relationArgumentTypes(Resource relation) {
+    public ImmutablePair<Resource, Resource> relationArgumentTypes(Resource relation) {
         // TODO("not implemented");
         // To change body of created functions use File | Settings | File Templates.
         return null;

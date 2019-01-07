@@ -55,8 +55,6 @@ public final class ValidateAIF {
         return ret;
     }
 
-    //companion object {
-
     // Ensure what file name an RDF syntax error occurs in is printed, which
     // doesn't happen by default
     private static void loadOntologyWithFriendlyError(Model model, CharSource ontologySource) {
@@ -115,15 +113,21 @@ public final class ValidateAIF {
 
         boolean allValid = true;
         for (File fileToValidate : filesToValidate) {
-            logger.info("Validating $fileToValidate");
+            logger.info("Validating " + fileToValidate);
             final Model dataToBeValidated = loadModel(Files.asCharSource(fileToValidate, Charsets.UTF_8)
                     .openBufferedStream());
-            allValid = validator.validateKB(dataToBeValidated) && allValid;
+            if (!validator.validateKB(dataToBeValidated)) {
+                logger.info("Validation of " + fileToValidate + " failed.");
+                allValid = false;
+            }
         }
 
         if (!allValid) {
             // failure code if anything fails to validate
             System.exit(1);
+        }
+        else {
+            logger.info("All KBs were valid.");
         }
     }
 
@@ -253,26 +257,26 @@ public final class ValidateAIF {
     // used by ensureEveryEntityAndEventHasAType below
     private static final String ENSURE_TYPE_SPARQL_QUERY =
             "PREFIX rdf: <" + RDF.uri + ">\n" +
-            "PREFIX aida: <" + AidaAnnotationOntology.NAMESPACE + ">\n" +
-            "\n" +
-            "SELECT ?entityOrEvent\n" +
-            "WHERE {\n" +
-            "    {?entityOrEvent a aida:Entity} UNION  {?entityOrEvent a aida:Event}\n" +
-            "    FILTER NOT EXISTS {\n" +
-            "    ?typeAssertion a rdf:Statement .\n" +
-            "    ?typeAssertion rdf:predicate rdf:type .\n" +
-            "    ?typeAssertion rdf:subject ?entityOrEvent .\n" +
-            "    }\n" +
-            "}".replace("\n", System.getProperty("line.separator"));
+                    "PREFIX aida: <" + AidaAnnotationOntology.NAMESPACE + ">\n" +
+                    "\n" +
+                    "SELECT ?entityOrEvent\n" +
+                    "WHERE {\n" +
+                    "    {?entityOrEvent a aida:Entity} UNION  {?entityOrEvent a aida:Event}\n" +
+                    "    FILTER NOT EXISTS {\n" +
+                    "    ?typeAssertion a rdf:Statement .\n" +
+                    "    ?typeAssertion rdf:predicate rdf:type .\n" +
+                    "    ?typeAssertion rdf:subject ?entityOrEvent .\n" +
+                    "    }\n" +
+                    "}".replace("\n", System.getProperty("line.separator"));
 
     // Not currently used
     private static final String LACKS_TYPES_QUERY =
             "    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-            "    SELECT *\n" +
-            "    WHERE {\n" +
-            "        OPTIONAL {?node rdf:type ?type}\n" +
-            "        FILTER(!bound(?type))\n" +
-            "    }".replace("\n", System.getProperty("line.separator"));
+                    "    SELECT *\n" +
+                    "    WHERE {\n" +
+                    "        OPTIONAL {?node rdf:type ?type}\n" +
+                    "        FILTER(!bound(?type))\n" +
+                    "    }".replace("\n", System.getProperty("line.separator"));
 
     private boolean ensureEveryEntityAndEventHasAType(Model dataToBeValidated) {
         // it is okay if there are multiple type assertions (in case of uncertainty)

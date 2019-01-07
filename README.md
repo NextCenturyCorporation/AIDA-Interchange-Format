@@ -4,34 +4,44 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
 
 *    a formal representation of the format in terms of an OWL ontology in `interchange-format.ttl`.
      This ontology can be validated using the SHACL constraints file in
-     `src/main/resources/edu/isi/gaia/aida_ontology.shacl`.
+     `src/main/resources/com/ncc/aif/aida_ontology.shacl`.
 
-*    utilities to make it easier to work with this format.  JVM utilities are in
-     `src/main/java/edu/isi/gaia/AIFUtils.kt`. Although written in Kotlin, these can be used from any
+*    utilities to make it easier to work with this format.  Java utilities are in
+     `src/main/java/com/ncc/aif/AIFUtils.java`. These can be used by adding a Maven dependency on
+     `com.ncc:aida-interchange:1.0.0-SNAPSHOT`.  A Python translation of these utilities
+     is in `python/aida_interchange/aifutils.py`.  This version remains in active development.
+
+*    a version of the utilities written in Kotlin.  JVM utilities are in
+     `src/main/java/edu/isi/gaia/AIFUtils.kt`. These can be used from any
      JVM language by adding a Maven dependency on
-     `edu.isi:gaia-interchange-kotlin:1.0.0-SNAPSHOT`.  A Python translation of
-     these utilities is in `python/aida_interchange/aifutils.py`.
+     `edu.isi:gaia-interchange-kotlin:1.0.0-SNAPSHOT`.  This version will be deprecated at a later date.
 
 *    examples of how to use AIF. These are given in Java in the unit tests under
-     `src/text/java/edu/isi/gaia/ExamplesAndValidationTests`.  A Python
+     `src/test/java/com/ncc/aif/ExamplesAndValidationTests`.  A Python
      translation of these examples is in `python/tests/Examples.py`.  If you run either set of
      examples, the corresponding Turtle output will be dumped.  Validation tools for the Python output
      is currently in progress.
+	 
+	 * Validation tests that use the Kotlin implementation of AIF are located at
+	 `src/test/java/edu/isi/gaia/ExamplesAndValidationTests`.
 
 *    code to translate from the TAC KBP Coldstart++ KB format into this format.
-     `src/main/java/edu/isi/gaia/ColdStart2AidaInterchange.kt`.
+     `src/main/java/edu/isi/gaia/ColdStart2AidaInterchange.kt`.  ColdStart support is only available
+	 in Kotlin.
 
 *    code to translate a simple format for entity and event mentions in images to AIF:
-     `src/main/java/edu/isi/gaia/ImagesToAIF.kt`
+     `src/main/java/edu/isi/gaia/ImagesToAIF.kt`  This is currently only available in Kotlin.
 
 We recommend using Turtle format for AIF when working with single document files (for
 readability) but N-Triples for working with large KBs (for speed).
 
 # Installation
 
-* To install the JVM code, do `mvn install` from the root of this repository using Apache Maven.
-        Repeat the `mvn install` if you pull an updated version of the code. You can run the tests,
-        which should output the examples, by doing `mvn test`.
+* To install the Java code, do `mvn install` from the root of this repository using Apache Maven.
+Repeat the `mvn install` if you pull an updated version of the code. You can run the tests,
+which should output the examples, by doing `mvn test`.
+* To install in the Kotlin version, do `mvn -f pom-gaia.xml install` from the root of this
+repository using Apache Maven. You can run the tests of the Kotlin version with `mvn -f pom-gaia.xml test`.
 * The Python code is not currently set up for installation; just add AIDA-Interchange-Format/python to your `PYTHONPATH`.
 
 # Using the AIF Library
@@ -41,21 +51,24 @@ installation above into your build script or tool.  For gradle, for
 example, include the following in your dependencies in the build.gradle:
 
 `dependencies {
-    compile 'edu.isi:gaia-interchange-kotlin:1.0-SNAPSHOT'
+    compile 'com.ncc:aif-interchange-kotlin:1.0-SNAPSHOT'
 }`
 
 Then, create a model, add entities, relations, and events to the
 model, and then write the model out.
 
-The file `src/text/java/edu/isi/gaia/ExamplesAndValidationTests.java`
+The file `src/test/java/com/ncc/aif/ExamplesAndValidationTests.java`
 has a series of examples showing how to add things to the model.  The
-`src/text/java/edu/isi/gaia/ScalingTest.java` file has examples of how
+`src/text/java/com/ncc/aif/ScalingTest.java` file has examples of how
 to write the model out.
+
+To use the Kotlin version, add edu.isi:gaia-interchange-kotlin:1.0-SNAPSHOT as a dependency
+and consult the examples in `src/test/java/edu/isi/gaia/ExamplesAndValidationTests.java`.
 
 
 # Running the validator
 
-To run the validator, run `target/appassembler/bin/validateAIF` with a single argument, a parameter
+To run the validator from the command line, run `target/appassembler/bin/validateAIF` with a single argument, a parameter
 file. The parameter file should have keys and values separated by `:`. It should have either the
 parameter `kbToValidate` pointing to the single Turtle format KB to validate, or it should have
 `kbsToValidate` pointing to a file listing the paths of the Turtle format KBs to validate.
@@ -63,7 +76,7 @@ Additionally, it must have a parameter `domainOntology` pointing to the OWL file
 ontology to validate against.  Beware that validating large KBs can take a long time. There is
 a sample of a validator param file in `sample_params/validate.common_corpus.single.params`
 
-# Running the ColdStart -> AIF Converter
+# Running the ColdStart -> AIF Converter (Kotlin only)
 
 To convert a ColdStart KB, run `target/appassembler/bin/coldstart2AidaInterchange`. It takes a
 single argument, a key-value parameter file where keys and values are separated by `:`s.  There
@@ -115,21 +128,25 @@ There are sample shatter and single KB param files under `sample_params/translat
 # `maxConfidence`
 
 There is an example program showing how to consume AIF data in `edu.isi.gaia.MaxConfidenceEstimator`.
+This is currently only available in Kotlin.
 
 # `imagesToAif`
 
 There is an example program/utility for converting a simple tab-separated format for images to AIF.
 See class comment on `src/main/java/edu/isi/gaia/ImagesToAIF.kt` for details. You can run this
-program by running `target/appassembler/bin/images2Aif`.
+program by running `target/appassembler/bin/images2Aif`.  This is currently only available in Kotlin.
 
 # Developing
 
-If you need to edit the Kotlin or Java code:
+If you need to edit the Java code:
  1. Install IntelliJ IDEA.
  2. "Import Project from Existing Sources"
  3. Choose the `pom.xml` for this repository and accept all defaults.
 
 You should now be ready to go.
+
+If you need to edit the Kotlin code, the best approach is to rename pom.xml to pom-aif.xml and rename
+pom-gaia.xml to pom.xml, then import your project into IntelliJ IDEA.
 
 # FAQ
 
@@ -141,8 +158,8 @@ AIF was designed by Ryan Gabbard (gabbard@isi.edu) and Pedro Szekely
 (pszekeley@isi.edu) of USC ISI.  Gabbard also wrote the initial
 implementations of the associated tools.  The tools are now supported
 and extended by Eddie Curley (eddie.curley@nextcentury.com), Bao Pham
-(bao.pham@nextcentury.com), and Clark Dorman
-(clark.dorman@nextcentury.com) of Next Century.
+(bao.pham@nextcentury.com), Clark Dorman (clark.dorman@nextcentury.com),
+and Darren Gemoets (darren.gemoets@nextcentury.com) of Next Century.
 
 The open repository will support an open NIST evaluation. For
 questions related to this evaluation, please contact Hoa Dang
