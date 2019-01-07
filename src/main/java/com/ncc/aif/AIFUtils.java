@@ -191,7 +191,6 @@ public class AIFUtils {
         typeAssertion.addProperty(RDF.type, RDF.Statement);
         typeAssertion.addProperty(RDF.subject, entityOrEventOrRelation);
         typeAssertion.addProperty(RDF.predicate, RDF.type);
-//        typeAssertion.addProperty(RDF.`object`, type); TBDDAG
         typeAssertion.addProperty(RDF.object, type);
         typeAssertion.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
         if (confidence != null) {
@@ -219,14 +218,7 @@ public class AIFUtils {
      * Mark multiple things as being justified by a particular justification
      */
     public static void markJustification(Collection<Resource> toMarkOn, Resource justification) {
-        // original Kotlin
-        // toMarkOn.forEach { markJustification(it, justification) }
-        // TBDDAG: not sure whether to use an internal or external iterator (see below)
-        // toMarkOn.forEach(it -> { markJustification(it, justification)});
-        // external iterator
-        for (Resource it : toMarkOn) {
-            markJustification(it, justification);
-        }
+         toMarkOn.forEach(it -> markJustification(it, justification));
     }
 
     /**
@@ -459,17 +451,7 @@ public class AIFUtils {
         final Resource compoundJustification = makeAIFResource(model, null,
                 AidaAnnotationOntology.COMPOUND_JUSTIFICATION_CLASS, system);
         markConfidence(model, compoundJustification, confidence, system);
-        // TBDDAG: not sure whether to use an internal or external iterator (see below)
-        // original Kotlin
-/*        justifications.forEach {
-            compoundJustification.addProperty(AidaAnnotationOntology.CONTAINED_JUSTIFICATION, it)
-        }*/
-        // internal iterator
-        // justifications.forEach(j -> compoundJustification.addProperty(AidaAnnotationOntology.CONTAINED_JUSTIFICATION, j));
-        // external iterator
-        for (Resource j : justifications) {
-            compoundJustification.addProperty(AidaAnnotationOntology.CONTAINED_JUSTIFICATION, j);
-        }
+        justifications.forEach(j -> compoundJustification.addProperty(AidaAnnotationOntology.CONTAINED_JUSTIFICATION, j));
         markJustification(toMarkOn, compoundJustification);
         return compoundJustification;
     }
@@ -499,20 +481,11 @@ public class AIFUtils {
                                                         Resource system, Double noneOfTheAboveProb) {
 
         HashMap<Collection<Resource>, Double> newAltMap = new HashMap<>();
-        ImmutableMap<Collection<Resource>, Double> newAltMap2;
-        for (Resource edge : alternatives.keySet()) {
-            Collection<Resource> edges = new HashSet<>();
-            edges.add(edge);
-            newAltMap.put(edges, alternatives.get(edge));
-        }
-
-        /* TBDDAG Another possibility:
         alternatives.keySet().forEach(edge -> {
             Collection<Resource> edges = new HashSet<>();
             edges.add(edge);
             newAltMap.put(edges, alternatives.get(edge));
         });
-        */
 
         return markAsMutuallyExclusive(model, newAltMap, system, noneOfTheAboveProb);
     }

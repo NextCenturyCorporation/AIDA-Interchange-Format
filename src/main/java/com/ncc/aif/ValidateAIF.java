@@ -22,10 +22,10 @@ import java.util.HashSet;
 
 public final class ValidateAIF {
 
-    private static final String SHACL_RESNAME = "edu/isi/gaia/aida_ontology.shacl";
-    private static final String TA3_SHACL_RESNAME = "edu/isi/gaia/aida_hypothesis.shacl";
-    private static final String INTERCHANGE_RESNAME = "edu/isi/gaia/InterchangeOntology";
-    private static final String AIDA_DOMAIN_COMMON_RESNAME = "edu/isi/gaia/AidaDomainOntologiesCommon";
+    private static final String SHACL_RESNAME = "com/ncc/aif/aida_ontology.shacl";
+    private static final String TA3_SHACL_RESNAME = "com/ncc/aif/aida_hypothesis.shacl";
+    private static final String INTERCHANGE_RESNAME = "com/ncc/aif/InterchangeOntology";
+    private static final String AIDA_DOMAIN_COMMON_RESNAME = "com/ncc/aif/AidaDomainOntologiesCommon";
 
     private Model domainModel;
     private static Model shaclModel;
@@ -293,26 +293,15 @@ public final class ValidateAIF {
             // this could be the case when the entity arises from coreference resolution where
             // the referents are different types
             final boolean isNonPrototypeMemberOfCluster =
-                    checkNonPrototypeMemberOfCluster(dataToBeValidated,
-                            AidaAnnotationOntology.CLUSTER_MEMBER, typelessEntityOrEvent);
+                    dataToBeValidated.listSubjectsWithProperty(AidaAnnotationOntology.CLUSTER_MEMBER,
+                            typelessEntityOrEvent).hasNext();
+
             if (!isNonPrototypeMemberOfCluster) {
                 System.err.println("Entity or event " + typelessEntityOrEvent.getURI() + " has no type assertion");
                 valid = false;
             }
         }
         return valid;
-    }
-
-    // Use the default Jena interface with resource iterators even though it's cumbersome.
-    private boolean checkNonPrototypeMemberOfCluster(Model model, Property property,
-                                                     Resource resource) {
-        boolean retVal = false;
-        final ResIterator resIterator = model.listSubjectsWithProperty(property, resource);
-        while (resIterator.hasNext()) {
-            // Need some logic here...
-            resIterator.nextResource();
-        }
-        return retVal;
     }
 
 }

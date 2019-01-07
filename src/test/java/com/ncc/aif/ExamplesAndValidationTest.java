@@ -44,7 +44,7 @@ public class ExamplesAndValidationTest {
     }
 
     private final ValidateAIF seedlingValidator = ValidateAIF.createForDomainOntologySource(
-            Resources.asCharSource(Resources.getResource("edu/isi/gaia/SeedlingOntology"), StandardCharsets.UTF_8));
+            Resources.asCharSource(Resources.getResource("com/ncc/aif/SeedlingOntology"), StandardCharsets.UTF_8));
 
     private int assertionCount = 1;
     private int entityCount = 1;
@@ -1027,7 +1027,8 @@ public class ExamplesAndValidationTest {
 
 
     /**
-     * DELETED because they all use ColdStart:
+     * DISABLED because they all use ColdStart.
+     *
      * Don't do what these do!
      * <p>
      * These should fail to validate.
@@ -1078,8 +1079,6 @@ public class ExamplesAndValidationTest {
         RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
         if (seedling) {
             assertTrue(seedlingValidator.validateKB(model));
-        } else {
-//        assertTrue(validatorForColdStart.validateKB(model));
         }
     }
 
@@ -1134,9 +1133,6 @@ public class ExamplesAndValidationTest {
             model.setNsPrefix("ldcOnt", SeedlingOntologyMapper.NAMESPACE_STATIC);
             model.setNsPrefix("ldc", LDC_NS);
         }
-//    } else {
-////      model.setNsPrefix("coldstart", ColdStartOntologyMapper.NAMESPACE_STATIC);
-////    }
         model.setNsPrefix("skos", SKOS.uri);
         return model;
     }

@@ -10,8 +10,6 @@ import javafx.util.Pair;
  * A domain ontology.
  */
 interface OntologyMapping {
-    String NAMESPACE = null; // TBDDAG
-
     Set<String> entityShortNames();
     Resource entityType(String ontology_type);
 

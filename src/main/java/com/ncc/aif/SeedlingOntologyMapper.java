@@ -121,29 +121,12 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
                     .put("BUSINESS.MERGE-ORG", "BUSINESS_MERGE")
                     // needed to read RPI Seedling output
                     .put("CONTACT.PHONE-WRITE", "CONTACT_CORRESPONDENCE")
-                    //.put("PERSONNEL.END-POSITION", "PERSONNEL_END-POSITION")
                     .build();
 
     private final ImmutableMap<String, Resource> EVENT_TYPES =
             Maps.toMap(EVENT_TYPES_STRMAP.keySet(),
                     it -> ResourceFactory.createResource(NAMESPACE_STATIC + EVENT_TYPES_STRMAP.get(it)));
-/*
-    internal val EVENT_TYPES =
-            // valid event types are seedling types directly
-                    SEEDLING_EVENT_TYPES.map { it to it }
-                            // or seedling types with .s instead of underscores (more ACE-like)
-                            .plus(SEEDLING_EVENT_TYPES.map { it.replace('_', '.') to it })
-                            .plus(SEEDLING_EVENT_TYPES_NIST)
-                            // or these remaining special cases
-                            .plus(listOf("BUSINESS.END-ORG" to "BUSINESS_END",
-                                    "BUSINESS.START-ORG" to "BUSINESS_START",
-                            "BUSINESS.MERGE-ORG" to "BUSINESS_MERGE",
-                            // needed to read RPI Seedling output
-                            "CONTACT.PHONE-WRITE" to "CONTACT_CORRESPONDENCE",
-                            "PERSONNEL.END-POSITION" to "PERSONNEL_END-POSITION"))
-                    .map { it.first to ResourceFactory.createResource(NAMESPACE_STATIC + it.second) }
-                    .toMap()
-*/
+
     // these are currently unused
     // here for documentation only
     private static final ImmutableSet<String> NOT_IN_SEEDLING_BUT_REVERSE_IS = ImmutableSet.of(
@@ -259,7 +242,7 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
             Maps.toMap(RELATION_TYPES_STRMAP.keySet(),
                     it -> ResourceFactory.createResource(NAMESPACE_STATIC + RELATION_TYPES_STRMAP.get(it)));
 
-    String NAMESPACE = NAMESPACE_STATIC;
+    public String NAMESPACE = NAMESPACE_STATIC;
 
     private final ImmutableMap<String, Resource> shortNames =
             ImmutableMap.<String, Resource>builder()
