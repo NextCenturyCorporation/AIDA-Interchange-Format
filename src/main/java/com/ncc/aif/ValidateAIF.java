@@ -5,10 +5,12 @@ import ch.qos.logback.classic.Logger;
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import edu.isi.nlp.parameters.Parameters;
+
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.util.FileUtils;
@@ -70,13 +72,13 @@ public final class ValidateAIF {
 
     public static ValidateAIF createForDomainOntologySource(CharSource domainOntologySource) {
         final Model model = ModelFactory.createOntologyModel();
-        HashSet<CharSource> models = new HashSet<>();
 
         // data will always be interpreted in the context of these two ontology files
-        models.add(Resources.asCharSource(Resources.getResource(INTERCHANGE_RESNAME), Charsets.UTF_8));
-        models.add(Resources.asCharSource(Resources.getResource(AIDA_DOMAIN_COMMON_RESNAME), Charsets.UTF_8));
+        ImmutableSet<CharSource> models = ImmutableSet.of(
+                Resources.asCharSource(Resources.getResource(INTERCHANGE_RESNAME), Charsets.UTF_8),
+                Resources.asCharSource(Resources.getResource(AIDA_DOMAIN_COMMON_RESNAME), Charsets.UTF_8),
+                domainOntologySource);
 
-        models.add(domainOntologySource);
         for (CharSource source : models) {
             loadOntologyWithFriendlyError(model, source);
         }
@@ -126,8 +128,7 @@ public final class ValidateAIF {
         if (!allValid) {
             // failure code if anything fails to validate
             System.exit(1);
-        }
-        else {
+        } else {
             logger.info("All KBs were valid.");
         }
     }
@@ -168,17 +169,17 @@ public final class ValidateAIF {
                 && ensureEveryEntityAndEventHasAType(unionModel);
     }
 
-    private static final String ENSURE_EVERY_NAMED_NODE_HAS_A_TYPE_SPARQL_QUERY = "\"\n" +
+    private static final String ENSURE_EVERY_NAMED_NODE_HAS_A_TYPE_SPARQL_QUERY =
             "PREFIX rdf: <" + RDF.uri + ">\n" +
-            "PREFIX aida: <" + AidaAnnotationOntology.NAMESPACE + ">\n" +
-            "\n" +
-            "SELECT ?namedNode\n" +
-            "WHERE {\n" +
-            "    ?namedNode ?foo ?bar ;\n" +
-            "    FILTER (isIRI(?namedNode)  ) .\n" +
-            "    MINUS { ?nameNode rdf:type ?anything }\n" +
-            "    }\n" +
-            "}".replace("\n", System.getProperty("line.separator"));
+                    "PREFIX aida: <" + AidaAnnotationOntology.NAMESPACE + ">\n" +
+                    "\n" +
+                    "SELECT ?namedNode\n" +
+                    "WHERE {\n" +
+                    "    ?namedNode ?foo ?bar ;\n" +
+                    "    FILTER (isIRI(?namedNode)  ) .\n" +
+                    "    MINUS { ?nameNode rdf:type ?anything }\n" +
+                    "    }\n" +
+                    "}".replace("\n", System.getProperty("line.separator"));
 
     /**
      * Ensure that every named node has an RDF type specified.
@@ -244,7 +245,7 @@ public final class ValidateAIF {
 
     // used by ensureEveryEntityAndEventHasAType below
     private static final String ENSURE_TYPE_SPARQL_QUERY =
-            "PREFIX rdf: <" + RDF.uri + ">\n" +
+            ("PREFIX rdf: <" + RDF.uri + ">\n" +
                     "PREFIX aida: <" + AidaAnnotationOntology.NAMESPACE + ">\n" +
                     "\n" +
                     "SELECT ?entityOrEvent\n" +
@@ -255,16 +256,16 @@ public final class ValidateAIF {
                     "    ?typeAssertion rdf:predicate rdf:type .\n" +
                     "    ?typeAssertion rdf:subject ?entityOrEvent .\n" +
                     "    }\n" +
-                    "}".replace("\n", System.getProperty("line.separator"));
+                    "}").replace("\n", System.getProperty("line.separator"));
 
     // Not currently used
     private static final String LACKS_TYPES_QUERY =
-            "    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+            ("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
                     "    SELECT *\n" +
                     "    WHERE {\n" +
                     "        OPTIONAL {?node rdf:type ?type}\n" +
                     "        FILTER(!bound(?type))\n" +
-                    "    }".replace("\n", System.getProperty("line.separator"));
+                    "    }").replace("\n", System.getProperty("line.separator"));
 
     private boolean ensureEveryEntityAndEventHasAType(Model dataToBeValidated) {
         // it is okay if there are multiple type assertions (in case of uncertainty)

@@ -224,8 +224,13 @@ public class AIFUtils {
      */
     public static Resource makeTextJustification(Model model, String docId, int startOffset, int endOffsetInclusive,
                                                  Resource system, Double confidence) {
-        assert (endOffsetInclusive >= startOffset) : "End offset $endOffsetInclusive precedes start offset $startOffset";
-        assert startOffset >= 0 : "Start offset must be non-negative but got $startOffset";
+        if (endOffsetInclusive < startOffset) {
+            throw new IllegalArgumentException("End offset " + endOffsetInclusive + " precedes start offset " + startOffset);
+        }
+        if (startOffset < 0) {
+            throw new IllegalArgumentException("Start offset must be non-negative but got " + startOffset);
+        }
+
         final Resource justification = makeAIFJustification(model, docId, AidaAnnotationOntology.TEXT_JUSTIFICATION_CLASS,
                 system, confidence);
         // the document ID for the justifying source document
@@ -267,8 +272,12 @@ public class AIFUtils {
         private final int y;
 
         public Point(int x, int y) {
-            assert x >= 0 : "Aida image/video coordinates must be non-negative but got " + x;
-            assert y >= 0 : "Aida image/video coordinates must be non-negative but got " + y;
+            if (x < 0) {
+                throw new IllegalArgumentException("Aida image/video coordinates must be non-negative but got " + x);
+            }
+            if (y < 0) {
+                throw new IllegalArgumentException("Aida image/video coordinates must be non-negative but got " + y);
+            }
             this.x = x;
             this.y = y;
         }
@@ -415,8 +424,10 @@ public class AIFUtils {
 
     public static Resource makeAudioJustification(Model model, String docId, Double startTimestamp, Double endTimestamp,
                                                   Resource system, Double confidence) {
-        assert endTimestamp > startTimestamp :
-                "End timestamp " + endTimestamp + " does not follow start timestamp " + startTimestamp;
+        if (endTimestamp <= startTimestamp) {
+            throw new IllegalArgumentException("End timestamp " + endTimestamp
+                    + "does not follow start timestamp " + startTimestamp);
+        }
         final Resource justification = makeAIFJustification(model, docId, AidaAnnotationOntology.AUDIO_JUSTIFICATION_CLASS,
                 system, confidence);
 
@@ -480,12 +491,8 @@ public class AIFUtils {
                                                         Resource system, Double noneOfTheAboveProb) {
 
         HashMap<Collection<Resource>, Double> newAltMap = new HashMap<>();
-        alternatives.keySet().forEach(edge -> {
-            Collection<Resource> edges = new HashSet<>();
-            edges.add(edge);
-            newAltMap.put(edges, alternatives.get(edge));
-        });
-
+        alternatives.keySet().forEach(edge ->
+                newAltMap.put(ImmutableSet.of(edge), alternatives.get(edge)));
         return markAsMutuallyExclusive(model, newAltMap, system, noneOfTheAboveProb);
     }
 
@@ -498,10 +505,10 @@ public class AIFUtils {
      */
     public static Resource markAsMutuallyExclusive(Model model, Map<Collection<Resource>, Double> alternatives,
                                                    Resource system, Double noneOfTheAboveProb) {
-        assert alternatives.size() >= 2 :
-                "Must have at least two mutually exclusive things when " +
-                        "making a mutual exclusion constraint, but got " + alternatives;
-
+        if (alternatives.size() < 2) {
+            throw new IllegalArgumentException("Must have at least two mutually exclusive " +
+                    "things when making a mutual exclusion constraint, but got " + alternatives.size());
+        }
         final Resource mutualExclusionAssertion =
                 makeAIFResource(model, null, AidaAnnotationOntology.MUTUAL_EXCLUSION_CLASS, system);
 
@@ -574,7 +581,9 @@ public class AIFUtils {
      */
     public static Resource makeHypothesis(Model model, String hypothesisURI, Set<Resource> hypothesisContent,
                                           Double confidence, Resource system) {
-        assert !hypothesisContent.isEmpty() : "A hypothesis must have content";
+        if (hypothesisContent.isEmpty()) {
+            throw new IllegalArgumentException("A hypothesis must have content");
+        }
         final Resource hypothesis = makeAIFResource(model, hypothesisURI, AidaAnnotationOntology.HYPOTHESIS_CLASS, system);
         final Resource subgraph = model.createResource();
         subgraph.addProperty(RDF.type, AidaAnnotationOntology.SUBGRAPH_CLASS);
@@ -653,19 +662,17 @@ public class AIFUtils {
 
 
     static final class SparqlQueries {
-        static final Query TYPE_QUERY = QueryFactory.create("\"" +
-                "PREFIX rdf: <" + RDF.uri + ">" +
-                "SELECT ?typeAssertion WHERE {" +
-                "?typeAssertion a rdf:Statement ." +
-                "?typeAssertion rdf:predicate rdf:type ." +
-                "?typeAssertion rdf:subject ?typedObject ." +
-                "}" +
-                "\"");
+        static final Query TYPE_QUERY = QueryFactory.create(
+                ("PREFIX rdf: <" + RDF.uri + ">\n" +
+                        "SELECT ?typeAssertion WHERE {\n" +
+                        "?typeAssertion a rdf:Statement .\n" +
+                        "?typeAssertion rdf:predicate rdf:type .\n" +
+                        "?typeAssertion rdf:subject ?typedObject .\n" +
+                        "}").replace("\n", System.getProperty("line.separator")));
     }
 
     private static Resource makeAIFResource(Model model, String uri, Resource classType, Resource system) {
         Resource resource = (uri == null ? model.createResource() : model.createResource(uri));
-        assert resource != null;
         resource.addProperty(RDF.type, classType);
         markSystem(resource, system);
         return resource;
@@ -685,11 +692,20 @@ interface IriGenerator {
 final class UuidIriGenerator implements IriGenerator {
     private String baseUri;
 
+    UuidIriGenerator() {
+        baseUri = "dummy.uri";
+    }
+
     UuidIriGenerator(String baseUri) {
-        assert baseUri != null && !baseUri.isEmpty() : "Base URI cannot be empty";
-        assert baseUri.substring(1).contains(":") :
-                "Base URI must contain a prefix followed by a colon separator";
-        assert !baseUri.endsWith("/") : "Base URI cannot end in /";
+        if (baseUri == null || baseUri.isEmpty()) {
+            throw new IllegalArgumentException("Base URI cannot be empty");
+        }
+        if (!baseUri.substring(1).contains(":")) {
+            throw new IllegalArgumentException("Base URI must contain a prefix followed by a colon separator");
+        }
+        if (baseUri.endsWith("/")) {
+            throw new IllegalArgumentException("Base URI cannot end in /");
+        }
         this.baseUri = baseUri;
     }
 

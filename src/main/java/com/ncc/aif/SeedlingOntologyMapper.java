@@ -86,7 +86,7 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
             "JUSTICE_ARREST-JAIL",
             "LIFE_DIE", "LIFE_INJURE", "MANUFACTURE_ARTIFACT",
             "MOVEMENT_TRANSPORT-ARTIFACT",
-            "MOVEMENT_TRANSPORT-PERSON", "PERSONNEL_ELECT",
+            "MOVEMENT_TRANSPORT-PERSON",
             "PERSONNEL_START-POSITION", "TRANSACTION_TRANSACTION", "TRANSACTION_TRANSFER-MONEY",
             "TRANSACTION_TRANSFER-OWNERSHIP",
             "BUSINESS_DECLARE-BANKRUPTCY",
@@ -95,25 +95,14 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
             "JUSTICE_EXTRADITE", "JUSTICE_FINE", "JUSTICE_RELEASE-PAROLE", "JUSTICE_SENTENCE",
             "JUSTICE_SUE", "JUSTICE_TRIAL-HEARING", "LIFE_BE-BORN", "LIFE_MARRY", "LIFE_DIVORCE",
             "PERSONNEL_NOMINATE", "PERSONNEL_ELECT", "BUSINESS_END-BUSINESS",
-            "BUSINESS_START-BUSINESS", "BUSINESS_MERGE", "CONTACT_CORRESPONDENCE",
+            "BUSINESS_START-BUSINESS", "BUSINESS_MERGE",
             "PERSONNEL_END-POSITION");
-
-    private final ImmutableList<String> SEEDLING_EVENT_TYPES_WITH_DOTS =
-            ImmutableList.copyOf(Lists.transform(SEEDLING_EVENT_TYPES, it -> it.replace('_', '.')));
-
-    /* Unused intermediate steps, useful for debugging
-    private final ImmutableMap<String, String> SEEDLING_EVENT_TYPES_MAP =
-            Maps.toMap(SEEDLING_EVENT_TYPES, it -> it);
-
-    private final ImmutableMap<String, String> SEEDLING_EVENT_TYPES_WITH_DOTS_MAP =
-            Maps.toMap(SEEDLING_EVENT_TYPES_WITH_DOTS, it -> it.replace('.', '_'));
-*/
 
     private final ImmutableMap<String, String> EVENT_TYPES_STRMAP =
             ImmutableMap.<String, String>builder()
                     .putAll(Maps.toMap(SEEDLING_EVENT_TYPES, it -> it))
                     // or seedling types with dots instead of underscores (more ACE-like)
-                    .putAll(Maps.toMap(SEEDLING_EVENT_TYPES_WITH_DOTS, it -> it.replace('.', '_')))
+                    .putAll(Maps.uniqueIndex(SEEDLING_EVENT_TYPES, key -> key.replace('_', '.')))
                     .putAll(SEEDLING_EVENT_TYPES_NIST)
                     // or these remaining special cases
                     .put("BUSINESS.END-ORG", "BUSINESS_END")
@@ -278,8 +267,6 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
     public Resource relationType(String relationName) {
         return RELATION_TYPES.get(relationName);
     }
-    /*?: throw NoSuchElementException("Unknown relation type: $relationName. Known relation " +
-            "and event types ${RELATION_TYPES.keys}")*/
 
     public Resource eventType(String eventName) {
         return EVENT_TYPES.get(eventName);
