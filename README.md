@@ -37,11 +37,11 @@ readability) but N-Triples for working with large KBs (for speed).
 
 # Installation
 
-* To install the Java code, do `mvn install` from the root of this repository using Apache Maven.
-Repeat the `mvn install` if you pull an updated version of the code. You can run the tests,
-which should output the examples, by doing `mvn test`.
-* To install in the Kotlin version, do `mvn -f pom-gaia.xml install` from the root of this
-repository using Apache Maven. You can run the tests of the Kotlin version with `mvn -f pom-gaia.xml test`.
+* To install the Java code, do `mvn -f pom-aif.xml install` from the root of this repository using Apache Maven.
+Repeat this if you pull an updated version of the code. You can run the tests,
+which should output the examples, by doing `mvn -f pom-aif.xml test`.
+* To install in the Kotlin version, do `mvn install` from the root of this
+repository using Apache Maven. You can run the tests of the Kotlin version with `mvn test`.
 * The Python code is not currently set up for installation; just add AIDA-Interchange-Format/python to your `PYTHONPATH`.
 
 # Using the AIF Library
@@ -51,7 +51,7 @@ installation above into your build script or tool.  For gradle, for
 example, include the following in your dependencies in the build.gradle:
 
 `dependencies {
-    compile 'com.ncc:aif-interchange-kotlin:1.0-SNAPSHOT'
+    compile 'com.ncc:aida-interchange:1.0-SNAPSHOT'
 }`
 
 Then, create a model, add entities, relations, and events to the
@@ -79,7 +79,7 @@ a sample of a validator param file in `sample_params/validate.common_corpus.sing
 # Running the ColdStart -> AIF Converter (Kotlin only)
 
 To convert a ColdStart KB, run `target/appassembler/bin/coldstart2AidaInterchange`. It takes a
-single argument, a key-value parameter file where keys and values are separated by `:`s.  There
+single argument, a key-value parameter file where keys and values are separated by `:`.  There
 are four parameters which are always required:
 * `inputKBFile`: the path to the ColdStart KB to convert
 * `baseUri`: the URI path to use as the base for generated assertions URIs, entity URIs, etc.  For
@@ -138,15 +138,16 @@ program by running `target/appassembler/bin/images2Aif`.  This is currently only
 
 # Developing
 
-If you need to edit the Java code:
+If you need to edit the Kotlin code:
  1. Install IntelliJ IDEA.
  2. "Import Project from Existing Sources"
  3. Choose the `pom.xml` for this repository and accept all defaults.
 
 You should now be ready to go.
 
-If you need to edit the Kotlin code, the best approach is to rename pom.xml to pom-aif.xml and rename
-pom-gaia.xml to pom.xml, then import your project into IntelliJ IDEA.
+If you need to edit the Java code, first do an `mvn clean` if you've already built the Kotlin version.
+Then rename `pom.xml` to `pom-gaia.xml` and rename `pom-aif.xml` to `pom.xml`.
+Finally, import your project into IntelliJ IDEA.
 
 # FAQ
 

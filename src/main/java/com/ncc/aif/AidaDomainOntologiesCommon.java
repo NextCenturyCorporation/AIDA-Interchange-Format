@@ -6,21 +6,9 @@ import org.apache.jena.rdf.model.ResourceFactory;
 public final class AidaDomainOntologiesCommon {
     public static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#";
 
-    private static AidaDomainOntologiesCommon INSTANCE;
-    private Resource canHaveName = ResourceFactory.createResource(NAMESPACE + "CanHaveName");
-    private Resource canHaveTextValue = ResourceFactory.createResource(NAMESPACE + "CanHaveTextValue");
-    private Resource canHaveNumericValue = ResourceFactory.createResource(NAMESPACE + "CanHaveNumericValue");
-
-    private AidaDomainOntologiesCommon() {
-    }
-
-    public static AidaDomainOntologiesCommon getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new AidaDomainOntologiesCommon();
-        }
-
-        return INSTANCE;
-    }
+    private static Resource canHaveName = ResourceFactory.createResource(NAMESPACE + "CanHaveName");
+    private static Resource canHaveTextValue = ResourceFactory.createResource(NAMESPACE + "CanHaveTextValue");
+    private static Resource canHaveNumericValue = ResourceFactory.createResource(NAMESPACE + "CanHaveNumericValue");
 
     public Resource getCanHaveName() {
         return canHaveName;

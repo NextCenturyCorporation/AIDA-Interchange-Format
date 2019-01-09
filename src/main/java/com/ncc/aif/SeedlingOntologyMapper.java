@@ -260,15 +260,19 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
     public Resource entityType(String ontology_type) {
         Resource retVal;
 
-        if (ontology_type.equals("STRING") || ontology_type.equals("String"))
+        if (ontology_type.equals("STRING") || ontology_type.equals("String")) {
             retVal = FILLER;
-        else
+        }
+        else {
             retVal = shortNames.get(ontology_type);
+        }
 
-        if (retVal == null)
+        if (retVal == null) {
             throw new RuntimeException("Unknown ontology type " + ontology_type);
-        else
+        }
+        else {
             return retVal;
+        }
     }
 
     public Resource relationType(String relationName) {
@@ -280,26 +284,6 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
     public Resource eventType(String eventName) {
         return EVENT_TYPES.get(eventName);
     }
-
-    /*?: throw NoSuchElementException("Unknown event type: $eventName. Known relation " +
-            "and event types: ${EVENT_TYPES.keys}")*/
-
-/* Java 8 Collections approach
-    private static final Map<String, String> eventArgumentSpecialCases =
-            Stream.of(new String[][]{
-            {"conflict_demonstrate_entity", "conflict_demonstrate_demonstrator"},
-            {"contact_meet_entity", "contact_meet_participant"},
-            {"contact_phone-write_entity", "contact_correspondence_participant"},
-            {"contact_phone-write_place", "contact_correspondence_place"},
-            {"contact_phone-write_time", "contact_correspondence_time"},
-            {"justice_appeal_plaintiff", "justice_appeal_prosecutor"},
-            {"personnel_end-position_entity", "personnel_end-position_organization"},
-            {"personnel_elect_person", "personnel_elect_elect"},
-            {"personnel_elect_entity", "personnel_elect_elector"},
-            {"transaction_transfer-ownership_artifact", "transaction_transfer-ownership_thing"},
-            {"transaction_transfer-ownership_buyer", "transaction_transfer-ownership_recipient"},
-    }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-*/
 
     private static final ImmutableMap<String, String> eventArgumentSpecialCases =
             ImmutableMap.<String, String>builder()
@@ -353,23 +337,27 @@ class RPISeedlingOntologyMapper implements OntologyMapping {
     private Resource FILLER = ResourceFactory.createResource(NAMESPACE + "FillerType");
 
     public Set<String> entityShortNames() {
-        HashSet<String> hs = new HashSet<>();
-        hs.add(seedlingOM.entityShortNames() + "FILLER");
+        HashSet<String> hs = new HashSet<>(seedlingOM.entityShortNames());
+        hs.add("FILLER");
         return hs;
     }
 
     public Resource entityType(String ontology_type) {
-        if (ontology_type.equals("FILLER") || ontology_type.equals("String"))
+        if (ontology_type.equals("FILLER") || ontology_type.equals("String")) {
             return FILLER;
-        else
+        }
+        else {
             return seedlingOM.entityType(ontology_type);
+        }
     }
 
     public Resource relationType(String relationName) {
-        if (relationName.contains("FILLER"))
+        if (relationName.contains("FILLER")) {
             return FILLER;
-        else
+        }
+        else {
             return seedlingOM.relationType(relationName);
+        }
     }
 
     public Resource eventType(String eventName) {

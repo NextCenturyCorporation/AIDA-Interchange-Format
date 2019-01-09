@@ -122,10 +122,10 @@ public class AIFUtils {
     public static Resource makeRelationInEventForm(Model model, String relationUri, Resource relationType, Resource subjectRole,
                                                    Resource subjectResource, Resource objectRole, Resource objectResource,
                                                    String typeAssertionUri, Resource system, Double confidence) {
-        final Resource relation = AIFUtils.makeRelation(model, relationUri, system);
-        AIFUtils.markType(model, typeAssertionUri, relation, relationType, system, confidence);
-        AIFUtils.markAsArgument(model, relation, subjectRole, subjectResource, system, confidence);
-        AIFUtils.markAsArgument(model, relation, objectRole, objectResource, system, confidence);
+        final Resource relation = makeRelation(model, relationUri, system);
+        markType(model, typeAssertionUri, relation, relationType, system, confidence);
+        markAsArgument(model, relation, subjectRole, subjectResource, system, confidence);
+        markAsArgument(model, relation, objectRole, objectResource, system, confidence);
         return relation;
     }
 
@@ -184,7 +184,6 @@ public class AIFUtils {
     public static Resource markType(Model model, String typeAssertionUri, Resource entityOrEventOrRelation,
                                     Resource type, Resource system, Double confidence) {
         final Resource typeAssertion = model.createResource(typeAssertionUri);
-        assert typeAssertion != null;
         typeAssertion.addProperty(RDF.type, RDF.Statement);
         typeAssertion.addProperty(RDF.subject, entityOrEventOrRelation);
         typeAssertion.addProperty(RDF.predicate, RDF.type);
@@ -293,8 +292,10 @@ public class AIFUtils {
         private final Point lowerRight;
 
         public BoundingBox(Point upperLeft, Point lowerRight) {
-            assert upperLeft.x <= lowerRight.x && upperLeft.y <= lowerRight.y
-                    : "Upper left of bounding box $upperLeft not above and to the left of lower right $lowerRight";
+            if (upperLeft.x > lowerRight.x || upperLeft.y > lowerRight.y) {
+                throw new IllegalArgumentException("Upper left of bounding box " + upperLeft +
+                        " not above and to the left of lower right " + lowerRight);
+            }
             this.upperLeft = new Point(upperLeft.x, upperLeft.y);
             this.lowerRight = new Point(lowerRight.x, lowerRight.y);
         }
@@ -467,7 +468,8 @@ public class AIFUtils {
     /**
      * Mark the given resources as mutually exclusive.
      * <p>
-     * This is a special case of [markAsMutuallyExclusive] where the alternatives are each single edges.
+     * This is a special case of [markAsMutuallyExclusive] where the alternatives are each single edges,
+     * so we simply wrap each edge in a collection and pass to markAsMutuallyExclusive.
      *
      * @param alternatives       is a map from alternate edges to the confidence associated with each alternative.
      * @param noneOfTheAboveProb - if non-null, the given confidence will be applied to the
@@ -635,7 +637,7 @@ public class AIFUtils {
         final ObjectMapper mapper = new ObjectMapper();
         final ImmutableMap<String, Object> jsonMap =
                 ImmutableMap.of("vector_type", vectorType, "vector_data", vectorData);
-        return AIFUtils.markPrivateData(model, resource, mapper.writeValueAsString(jsonMap), system);
+        return markPrivateData(model, resource, mapper.writeValueAsString(jsonMap), system);
     }
 
     public static Resource linkToExternalKB(Model model, Resource toLink, String externalKbId, Resource system,

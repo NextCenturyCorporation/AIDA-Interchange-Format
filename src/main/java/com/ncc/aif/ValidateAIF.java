@@ -3,6 +3,7 @@ package com.ncc.aif;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.base.Charsets;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharSource;
 import com.google.common.io.Files;
@@ -44,7 +45,7 @@ public final class ValidateAIF {
             ta3ShaclModel = loadModel(Resources.asCharSource(Resources.getResource(TA3_SHACL_RESNAME), Charsets.UTF_8)
                     .openBufferedStream());
         } catch (IOException ioe) {
-            throw new RuntimeException("While parsing TA3 Shacl " + SHACL_RESNAME, ioe);
+            throw new RuntimeException("While parsing TA3 Shacl " + TA3_SHACL_RESNAME, ioe);
         }
     }
 
@@ -101,7 +102,7 @@ public final class ValidateAIF {
         final ValidateAIF validator = ValidateAIF.createForDomainOntologySource(
                 Files.asCharSource(domainOntologyFile, Charsets.UTF_8));
 
-        final com.google.common.base.Optional<File> fileList = params.getOptionalExistingFile("kbsToValidate");
+        final Optional<File> fileList = params.getOptionalExistingFile("kbsToValidate");
         final ImmutableList<File> filesToValidate;
         if (fileList.isPresent()) {
             filesToValidate = edu.isi.nlp.files.FileUtils.loadFileList(fileList.get());
@@ -168,29 +169,16 @@ public final class ValidateAIF {
     }
 
     private static final String ENSURE_EVERY_NAMED_NODE_HAS_A_TYPE_SPARQL_QUERY = "\"\n" +
-            "    PREFIX rdf:\n" +
+            "PREFIX rdf: <" + RDF.uri + ">\n" +
+            "PREFIX aida: <" + AidaAnnotationOntology.NAMESPACE + ">\n" +
             "\n" +
-            "    <$ {\n" +
-            "        RDF.uri\n" +
-            "    }>\n" +
-            "    PREFIX aida:\n" +
-            "\n" +
-            "    <$ {\n" +
-            "        AidaAnnotationOntology.NAMESPACE\n" +
-            "    }>\n" +
-            "\n" +
-            "\n" +
-            "    SELECT ?\n" +
-            "    namedNode\n" +
-            "            WHERE\n" +
-            "\n" +
-            "    {\n" +
-            "           ?namedNode ? foo ? bar;\n" +
-            "        FILTER(isIRI( ? namedNode)  ) .\n" +
-            "        MINUS { ?nameNode rdf:type ? anything\n" +
+            "SELECT ?namedNode\n" +
+            "WHERE {\n" +
+            "    ?namedNode ?foo ?bar ;\n" +
+            "    FILTER (isIRI(?namedNode)  ) .\n" +
+            "    MINUS { ?nameNode rdf:type ?anything }\n" +
             "    }\n" +
-            "    }\n" +
-            "\"\n";
+            "}".replace("\n", System.getProperty("line.separator"));
 
     /**
      * Ensure that every named node has an RDF type specified.
@@ -291,7 +279,7 @@ public final class ValidateAIF {
         boolean valid = true;
         while (results.hasNext()) {
             final QuerySolution match = results.nextSolution();
-            final Resource typelessEntityOrEvent = match.getResource("namedNode");
+            final Resource typelessEntityOrEvent = match.getResource("entityOrEvent");
 
             // an entity is permitted to lack a type if it is a non-prototype member of a cluster
             // this could be the case when the entity arises from coreference resolution where

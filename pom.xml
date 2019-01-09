@@ -25,7 +25,6 @@
             <artifactId>guava</artifactId>
             <version>23.0</version>
         </dependency>
-        <!-- TBD remove: currently only used for nlm FileUtils and Parameters in ValidateAIF. -->
         <dependency>
             <groupId>edu.isi.vista</groupId>
             <artifactId>common-core-open</artifactId>
@@ -95,7 +94,7 @@
 
                 <configuration>
                     <excludes>
-                        <exclude>**/edu/isi/gaia/*.java</exclude>
+                        <exclude>**/edu/isi/gaia/**</exclude>
                     </excludes>
                     <testExcludes>
                         <testExclude>**/edu/isi/gaia/*</testExclude>
