@@ -170,7 +170,7 @@ public final class ValidateAIF {
     }
 
     private static final String ENSURE_EVERY_NAMED_NODE_HAS_A_TYPE_SPARQL_QUERY =
-            "PREFIX rdf: <" + RDF.uri + ">\n" +
+            ("PREFIX rdf: <" + RDF.uri + ">\n" +
                     "PREFIX aida: <" + AidaAnnotationOntology.NAMESPACE + ">\n" +
                     "\n" +
                     "SELECT ?namedNode\n" +
@@ -179,7 +179,7 @@ public final class ValidateAIF {
                     "    FILTER (isIRI(?namedNode)  ) .\n" +
                     "    MINUS { ?nameNode rdf:type ?anything }\n" +
                     "    }\n" +
-                    "}".replace("\n", System.getProperty("line.separator"));
+                    "}").replace("\n", System.getProperty("line.separator"));
 
     /**
      * Ensure that every named node has an RDF type specified.

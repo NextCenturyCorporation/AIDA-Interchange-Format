@@ -693,7 +693,7 @@ final class UuidIriGenerator implements IriGenerator {
     private String baseUri;
 
     UuidIriGenerator() {
-        baseUri = "dummy.uri";
+        baseUri = "dummy:uri";
     }
 
     UuidIriGenerator(String baseUri) {

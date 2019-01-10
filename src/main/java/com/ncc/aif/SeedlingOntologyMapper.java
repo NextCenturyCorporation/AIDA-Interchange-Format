@@ -242,10 +242,12 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
                     .put("FILLER", FILLER)
                     .build();
 
+    @Override
     public Set<String> entityShortNames() {
         return shortNames.keySet();
     }
 
+    @Override
     public Resource entityType(String ontology_type) {
         Resource retVal;
 
@@ -264,10 +266,12 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
         }
     }
 
+    @Override
     public Resource relationType(String relationName) {
         return RELATION_TYPES.get(relationName);
     }
 
+    @Override
     public Resource eventType(String eventName) {
         return EVENT_TYPES.get(eventName);
     }
@@ -287,6 +291,7 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
                     .put("transaction_transfer-ownership_buyer", "transaction_transfer-ownership_recipient")
                     .build();
 
+    @Override
     public Resource eventArgumentType(String argName) {
         final String initialResult = argName.replace('.', '_').replace(':', '_').toLowerCase(Locale.ENGLISH);
 
@@ -298,18 +303,22 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
         return ResourceFactory.createResource(NAMESPACE_STATIC + argName);
     }
 
+    @Override
     public boolean typeAllowedToHaveAName(Resource type) {
         return TYPES_WHICH_CAN_HAVE_NAMES.contains(type);
     }
 
+    @Override
     public boolean typeAllowedToHaveTextValue(Resource type) {
         return TYPES_WHICH_CAN_HAVE_TEXT_VALUES.contains(type);
     }
 
+    @Override
     public boolean typeAllowedToHaveNumericValue(Resource type) {
         return TYPES_WHICH_CAN_HAVE_NUMERIC_VALUES.contains(type);
     }
 
+    @Override
     public ImmutablePair<Resource, Resource> relationArgumentTypes(Resource relation) {
         // TODO("not implemented");
         // To change body of created functions use File | Settings | File Templates.
@@ -323,12 +332,14 @@ class RPISeedlingOntologyMapper implements OntologyMapping {
     protected String NAMESPACE = SeedlingOntologyMapper.NAMESPACE_STATIC;
     private Resource FILLER = ResourceFactory.createResource(NAMESPACE + "FillerType");
 
+    @Override
     public Set<String> entityShortNames() {
         HashSet<String> hs = new HashSet<>(seedlingOM.entityShortNames());
         hs.add("FILLER");
         return hs;
     }
 
+    @Override
     public Resource entityType(String ontology_type) {
         if (ontology_type.equals("FILLER") || ontology_type.equals("String")) {
             return FILLER;
@@ -338,6 +349,7 @@ class RPISeedlingOntologyMapper implements OntologyMapping {
         }
     }
 
+    @Override
     public Resource relationType(String relationName) {
         if (relationName.contains("FILLER")) {
             return FILLER;
@@ -347,26 +359,32 @@ class RPISeedlingOntologyMapper implements OntologyMapping {
         }
     }
 
+    @Override
     public Resource eventType(String eventName) {
         return seedlingOM.eventType(eventName);
     }
 
+    @Override
     public Resource eventArgumentType(String argName) {
         return seedlingOM.eventArgumentType(argName);
     }
 
+    @Override
     public boolean typeAllowedToHaveAName(Resource type) {
         return seedlingOM.typeAllowedToHaveAName(type);
     }
 
+    @Override
     public boolean typeAllowedToHaveTextValue(Resource type) {
         return seedlingOM.typeAllowedToHaveTextValue(type);
     }
 
+    @Override
     public boolean typeAllowedToHaveNumericValue(Resource type) {
         return seedlingOM.typeAllowedToHaveNumericValue(type);
     }
 
+    @Override
     public ImmutablePair<Resource, Resource> relationArgumentTypes(Resource relation) {
         // TODO("not implemented");
         // To change body of created functions use File | Settings | File Templates.
