@@ -1,2 +1,2 @@
-kbToValidate: /Users/gabbard/projects/gaia/en.ner.linking.rpi_event_aida.cs.ntriples
-domainOntology: /Users/gabbard/projects/gaia/repos/gaia-interchange/src/main/resources/edu/isi/gaia/coldstart-ontology.ttl
+kbToValidate: ./test.ttl
+domainOntology: ./src/main/resources/com/ncc/aif/SeedlingOntology

@@ -1,0 +1,374 @@
+@prefix : <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+<https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology> rdf:type owl:Ontology ;
+    rdfs:label "AIDA Interchange Format Ontology" ;
+    rdfs:comment "This ontology is designed to represent information exchanged between TA1, TA2 and TA3 in the AIDA program" ;
+    owl:versionInfo "Version 1.0.2" .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+########## Data Representation Classes ##########
+
+:Entity a owl:Class ;
+   rdfs:label "Entity" ;
+   rdfs:comment "An entity in an AIDA KB, such as a person, organization, etc." .
+
+:Event a owl:Class ;
+   rdfs:label "Event" ;
+   rdfs:comment "An event in an AIDA KB" .
+
+:Relation a owl:Class ;
+   rdfs:label "Relation" ;
+   rdfs:comment "An relation in an AIDA KB" .
+
+:SameAsCluster a owl:Class ;
+   rdfs:label "Same-As Cluster";
+   rdfs:comment "Represents a collection of events or entities which may in fact be the same".
+
+:Subgraph a owl:Class ;
+   rdfs:label "Sub-graph" ;
+   rdfs:comment "A collection of entities, events, relations, sentiment assertions, and RDF statements about these".
+
+:Hypothesis a owl:Class ;
+    rdfs:label "Hypothesis" ;
+    skos:definition "Represents a hypothesis, which consists of a collection of entities, events, relations, sentiment assertions, and RDF statements about these." ;
+    skos:note "All elements linked to a hypothesis are assumed to be conjoined" .
+
+########## Annotation Classes ##########
+
+:Confidence a owl:Class ;
+   rdfs:label "Confidence" ;
+   rdfs:comment "A structure representing a system's confidence in something" .
+
+:System a owl:Class ;
+   rdfs:label "Confidence" ;
+   rdfs:comment "A structure representing a system's confidence in something" .
+
+:Justification a owl:Class ;
+   rdfs:label "Justification" ;
+   rdfs:comment "The evidence in a document/image/video/etc. for some KB assertion" .
+
+:TextJustification a owl:Class ;
+   rdfs:label "Text Justification" ;
+   rdfs:comment "The evidence in a text document for some KB assertion" .
+
+:AudioJustification a owl:Class ;
+   rdfs:label "Audio Justification" ;
+   rdfs:comment "The evidence in a speech or other audio for some KB assertion" .
+
+:ImageJustification a owl:Class ;
+   rdfs:label "Image Justification" ;
+   rdfs:comment "The evidence in an image for some KB assertion" .
+
+:KeyFrameVideoJustification a owl:Class ;
+   rdfs:label "Video Key Frame Justification" ;
+   rdfs:comment "The evidence from a key frame of a video for some KB assertion" .
+
+:ShotVideoJustification a owl:Class ;
+   rdfs:label "Video Non-Key-Frame Justification" ;
+   rdfs:comment "The evidence in a video outside a key frame for some KB assertion" .
+
+:BoundingBox a owl:Class ;
+   rdfs:label "Bounding Box" ;
+   rdfs:comment "Bounding box used to define image and video justifications" .
+
+:MutualExclusion a owl:Class ;
+   rdfs:label "Mutual Exclusion Constraint" ;
+   rdfs:comment "Marks a set of assertions or objects as mutually exclusive" .
+
+:MutualExclusionAlternative a owl:Class ;
+   rdfs:label "Mutual Exclusion Alternative" ;
+   rdfs:comment "One of the mutually exclusive alternatives of a mutual exclusion constraint" .
+
+:PrivateData a owl:Class ;
+   rdfs:label "Private Data" ;
+   rdfs:comment "System-specific private data" .
+
+:LinkAssertion a owl:Class ;
+   rdfs:label "Link Assertion" ;
+   rdfs:comment "Represents the claim that an entity or event is the same as the prototype of a cluster".
+
+:CompoundJustification a owl:Class ;
+    rdfs:label "Compound Justification" ;
+    rdfs:comment "Represents justification consisting of several other justifications" .
+
+:ClusterMembership a owl:Class ;
+    rdfs:label "Cluster Membership" ;
+    rdfs:comment "Specifies that a cluster member is part of a cluster" .
+
+:JustificationTypes a owl:Class ;
+    rdfs:label "Justification Types" ;
+    rdfs:comment "Convenience class to represent all justification types" ;
+    owl:unionOf (
+        :TextJustification
+        :ImageJustification
+        :AudioJustification
+        :KeyFrameVideoJustification
+        :ShotVideoJustification ) .
+
+#################################################################
+#        Properties
+#################################################################
+
+:alternativeGraph rdf:type owl:ObjectProperty ;
+  rdfs:domain :MutualExclusionAlternative ;
+  rdfs:label "alternate graph" ;
+  rdfs:range :Subgraph ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:alternative rdf:type owl:ObjectProperty ;
+  rdfs:domain [
+      rdf:type owl:Class ;
+      owl:unionOf (
+          :MutualExclusion
+          :Hypothesis ) ] ;
+  rdfs:label "alternative" ;
+  rdfs:range :MutualExclusionAlternative ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:cluster rdf:type owl:ObjectProperty ;
+  rdfs:domain :ClusterMembership ;
+  rdfs:label "cluster" ;
+  rdfs:range :SameAsCluster ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:confidence rdf:type owl:ObjectProperty ;
+  rdfs:label "confidence" ;
+  rdfs:range :Confidence ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:confidenceValue rdf:type owl:DatatypeProperty ;
+  rdfs:comment "Confidence instances might have numerical values associated with them, such as probabilities or likliehoods." ;
+  rdfs:domain :Confidence ;
+  rdfs:label "value" ;
+  rdfs:range xsd:float ;
+  rdfs:subPropertyOf owl:topDataProperty ; .
+
+:clusterMember rdf:type owl:ObjectProperty ;
+  rdfs:label "cluster member" ;
+  rdfs:domain :ClusterMembership ;
+  rdfs:range [
+        rdf:type owl:Class ;
+        owl:unionOf (
+            :Entity
+            :Event
+            :SameAsCluster ) ] ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:prototype rdf:type owl:ObjectProperty ;
+  rdfs:label "prototypical member" ;
+  rdfs:domain :SameAsCluster ;
+  rdfs:range [
+        rdf:type owl:Class ;
+        owl:unionOf (
+            :Entity
+            :Event
+            :Relation ) ] ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:subgraphContains rdf:type owl:ObjectProperty ;
+  rdfs:label "contains assertion" ;
+  rdfs:domain :Subgraph ;
+  rdfs:range [
+        rdf:type owl:Class ;
+        owl:unionOf (
+            :Entity
+            :Event
+            :Relation
+            :SentimentAssertion
+            :ClusterMembership
+            rdf:Statement ) ] ;
+  rdfs:subPropertyOf owl:topObjectProperty ; .
+
+:system rdf:type owl:ObjectProperty ;
+  rdfs:label "system" ;
+  rdfs:comment "Performer system id" ;
+  rdfs:range :System ;
+  rdfs:subPropertyOf owl:topObjectProperty; .
+
+:hasName rdf:type owl:DatatypeProperty ;
+  rdfs:label "has name" ;
+  rdfs:comment "Proper name for entity/filler of PER,ORG,GPE,FAC,LOC,WEA,VEH,LAW" ;
+  rdfs:range xsd:string ;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:textValue rdf:type owl:DatatypeProperty ;
+  rdfs:label "text value" ;
+  rdfs:comment "value for certain filler of RES,URL,TME,MON" ;
+  rdfs:range xsd:string ;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:numericValue rdf:type owl:DatatypeProperty ;
+  rdfs:label "numeric value" ;
+  rdfs:comment "value for filler VAL,AGE" ;
+  rdfs:domain :Entity ;
+  rdfs:range [
+        rdf:type owl:Class ;
+        owl:unionOf (
+            xsd:string
+            xsd:float
+            xsd:double ) ] ;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:justifiedBy rdf:type owl:ObjectProperty ;
+  rdfs:label "justified by" ;
+  rdfs:comment "Pointer to source that justifies the assertion" ;
+  rdfs:range [
+    rdf:type owl:Class ;
+    owl:unionOf (
+      :JustificationTypes
+      :CompoundJustification ) ] ;
+  rdfs:subPropertyOf owl:topObjectProperty .
+
+:containedJustification rdf:type owl:ObjectProperty ;
+  rdfs:label "contained justification" ;
+  rdfs:comment "Specify which justifications are contained in a Compound Justification" ;
+  rdfs:domain :CompoundJustification ;
+  rdfs:range :JustificationTypes ;
+  rdfs:subPropertyOf owl:topObjectProperty .
+
+:source rdf:type owl:DatatypeProperty ;
+  rdfs:label "source" ;
+  rdfs:comment "Specify xsd:string identifier for source of justification" ;
+  rdfs:domain :JustificationTypes ;
+  rdfs:range xsd:string ;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:startOffset rdf:type owl:DatatypeProperty ;
+  rdfs:label "start offset" ;
+  rdfs:comment "Indicate the beginning of a text span" ;
+  rdfs:domain :TextJustification ;
+  rdfs:range xsd:int;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:endOffsetInclusive rdf:type owl:DatatypeProperty ;
+  rdfs:label "end offset inclusive" ;
+  rdfs:comment "Indicate the end of a text span. The offset is included in the span" ;
+  rdfs:domain :TextJustification ;
+  rdfs:range xsd:int;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:startTimestamp rdf:type owl:DatatypeProperty ;
+  rdfs:label "start timestamp" ;
+  rdfs:comment "Indicate the beginning of an audio span" ;
+  rdfs:domain :AudioJustification ;
+  rdfs:range xsd:double ;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:endTimestamp rdf:type owl:DatatypeProperty ;
+  rdfs:label "end timestamp" ;
+  rdfs:comment "Indicate the end of an audio span" ;
+  rdfs:domain :AudioJustification ;
+  rdfs:range xsd:double ;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:boundingBox rdf:type owl:ObjectProperty ;
+  rdfs:label "bounding box" ;
+  rdfs:comment "Indicate that subject of this property uses the object of this property as a bounding box" ;
+  rdfs:domain [
+      rdf:type owl:Class ;
+      owl:unionOf (
+        :ImageJustification
+        :KeyFrameVideoJustification ) ] ;
+  rdfs:range :BoundingBox ;
+  rdfs:subPropertyOf owl:topObjectProperty .
+
+:boundingBoxUpperLeftX rdf:type owl:DatatypeProperty ;
+  rdfs:label "bounding box upper left x" ;
+  rdfs:comment "Indicate the x value of the upper left-hand point of the bounding box" ;
+  rdfs:domain :BoundingBox;
+  rdfs:range xsd:int;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:boundingBoxUpperLeftY rdf:type owl:DatatypeProperty ;
+  rdfs:label "bounding box upper left y" ;
+  rdfs:comment "Indicate the y value of the upper left-hand point of the bounding box" ;
+  rdfs:domain :BoundingBox;
+  rdfs:range xsd:int;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:boundingBoxLowerRightX rdf:type owl:DatatypeProperty ;
+  rdfs:label "bounding box lower right x" ;
+  rdfs:comment "Indicate the x value of the lower right-hand point of the bounding box" ;
+  rdfs:domain :BoundingBox;
+  rdfs:range xsd:int;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:boundingBoxLowerRightY rdf:type owl:DatatypeProperty ;
+  rdfs:label "bounding box lower right y" ;
+  rdfs:comment "Indicate the y value of the lower right-hand point of the bounding box" ;
+  rdfs:domain :BoundingBox;
+  rdfs:range xsd:int;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:keyFrame rdf:type owl:DatatypeProperty ;
+  rdfs:label "key frame" ;
+  rdfs:comment "Indicate the key frame of for a video justification" ;
+  rdfs:domain :KeyFrameVideoJustification ;
+  rdfs:range xsd:string;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:shot rdf:type owl:DatatypeProperty ;
+  rdfs:label "shot" ;
+  rdfs:comment "Indicate the shot for a ShotVideoJustification" ;
+  rdfs:domain :ShotVideoJustification ;
+  rdfs:range xsd:string ;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:link rdf:type owl:ObjectProperty ;
+  rdfs:label "link" ;
+  rdfs:comment "Link and entity to an external knowledge base" ;
+  rdfs:domain :Entity ;
+  rdfs:range :LinkAssertion ;
+  rdfs:subPropertyOf owl:topObjectProperty .
+
+:linkTarget rdf:type owl:DatatypeProperty;
+  rdfs:label "link target" ;
+  rdfs:comment "Indicate the location of the external object that the internal entity is linked to" ;
+  rdfs:domain :LinkAssertion ;
+  rdfs:range xsd:string ;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:noneOfTheAbove rdf:type owl:DatatypeProperty ;
+  rdfs:label "none of the above" ;
+  rdfs:comment "In a mutual exclusion, this indicates probability that none explicitly listed is correct" ;
+  rdfs:domain :MutualExclusion ;
+  rdfs:range xsd:double ;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:dependsOnHypothesis rdf:type owl:ObjectProperty ;
+  rdfs:label "depends on hypothesis" ;
+  rdfs:comment "Indicates an assertion depends on an hypothesis" ;
+  rdfs:range :Hypothesis ;
+  rdfs:subPropertyOf owl:topObjectProperty .
+
+:hypothesisContent rdf:type owl:ObjectProperty ;
+  rdfs:label "hypothesis content" ;
+  rdfs:comment "Adds a subgraph to a hypothesis" ;
+  rdfs:domain :Hypothesis ;
+  rdfs:range :Subgraph ;
+  rdfs:subPropertyOf owl:topObjectProperty .
+
+:privateData rdf:type owl:ObjectProperty ;
+  rdfs:label "private data" ;
+  rdfs:comment "Extra data for performers. Private data should not contain document-level content features. Allowable private data include:\n\nfringe type(s) for the KE\na vectorized representation of the KE, which cannot grow as the number of mentions/justifications for the KE increases, and from which a raw document (or significant portions thereof) cannot be recoverable.\nthe number of documents that justify the KE\ntime stamps of justification documents\nfringe type(s) for each image or shot, to describe features that are not represented explicitly in the seedling ontology. For example: Physical.LocatedNear.Inside(Arg1_Type=Person.Soldier, Arg2_Type=Facility.Hospital)\n\nThe KE is not allowed to contain any strings from document text except for the strings in the HasName, NumericValue, and TextValue properties" ;
+  rdfs:range :PrivateData ;
+  rdfs:subPropertyOf owl:topObjectProperty .
+
+:jsonContent rdf:type owl:DatatypeProperty ;
+  rdfs:label "json content" ;
+  rdfs:comment "Json formatted string within private data" ;
+  rdfs:domain :PrivateData ;
+  rdfs:range xsd:string ;
+  rdfs:subPropertyOf owl:topDataProperty .

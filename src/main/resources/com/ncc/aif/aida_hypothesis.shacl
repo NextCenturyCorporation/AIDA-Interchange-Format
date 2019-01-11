@@ -1,0 +1,17 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#> .
+@prefix aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#> .
+
+# we use RDF statements for four things: relations, type assertions, event argument, and
+# sentiment assertions. Each of these has already been described above. We want to forbid any other
+# use of RDF statement.
+aida:RdfStatementShape
+  a sh:NodeShape ;
+  sh:targetClass rdf:Statement ;
+  sh:nodeKind sh:IRI ;
+  sh:message "All rdf:Statement nodes must not be blank" ;
+  .
