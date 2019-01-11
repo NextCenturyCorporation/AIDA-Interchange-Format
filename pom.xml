@@ -178,22 +178,22 @@
                             <programs>
                                 <program>
                                     <mainClass>edu.isi.gaia.ColdStart2AidaInterchangeKt</mainClass>
-                                    <name>coldstart2AidaInterchange</name>
+                                    <id>coldstart2AidaInterchange</id>
                                 </program>
 
                                 <program>
                                     <mainClass>edu.isi.gaia.ValidateAIF</mainClass>
-                                    <name>validateAIF</name>
+                                    <id>validateAIF</id>
                                 </program>
 
                                 <program>
                                     <mainClass>edu.isi.gaia.ImagesToAIF</mainClass>
-                                    <name>images2Aif</name>
+                                    <id>images2Aif</id>
                                 </program>
    
                                    <program>
                                     <mainClass>com.ncc.aif.ValidateAIF</mainClass>
-                                    <name>validateAIF-java</name>
+                                    <id>validateAIF-java</id>
                                 </program>
                             </programs>
                         </configuration>

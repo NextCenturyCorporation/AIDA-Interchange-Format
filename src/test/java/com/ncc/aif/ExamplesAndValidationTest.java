@@ -1026,48 +1026,140 @@ public class ExamplesAndValidationTest {
 
 
     /**
-     * DISABLED because they all use ColdStart.
-     * <p>
      * Don't do what these do!
      * <p>
      * These should fail to validate.
      */
     @Nested
     class InvalidExamples {
-        @Disabled
         @Test
         void confidenceOutsideOfZeroOne() {
+            final Model model = createModel(true);
+
+            final Resource system = AIFUtils.makeSystemWithURI(model,
+                    "http://www.test.edu/testSystem");
+
+            final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
+                    system);
+
+            AIFUtils.markType(model, "http://www.test.org/assertions/1",
+                    // illegal confidence value - not in [0.0, 1.0]
+                    entity, SeedlingOntologyMapper.PERSON, system, 100.0);
+
+            assertFalse(seedlingValidator.validateKB(model));
         }
 
-        @Disabled
         @Test
         void entityMissingType() {
+            // having multiple type assertions in case of uncertainty is ok, but there must always
+            // be at least one type assertion
+            final Model model = createModel(true);
+
+            final Resource system = AIFUtils.makeSystemWithURI(model,
+                    "http://www.test.edu/testSystem");
+
+            AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
+                    system);
+            assertFalse(seedlingValidator.validateKB(model));
         }
 
-        @Disabled
         @Test
         void eventMissingType() {
+            // having multiple type assertions in case of uncertainty is ok, but there must always
+            // be at least one type assertion
+            final Model model = createModel(true);
+
+            final Resource system = AIFUtils.makeSystemWithURI(model,
+                    "http://www.test.edu/testSystem");
+
+            AIFUtils.makeEvent(model, "http://www.test.edu/events/1",
+                    system);
+            assertFalse(seedlingValidator.validateKB(model));
         }
 
-        @Disabled
         @Test
         void nonTypeUsedAsType() {
+            final Model model = createModel(true);
+
+            final Resource system = AIFUtils.makeSystemWithURI(model,
+                    "http://www.test.edu/testSystem");
+
+            final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
+                    system);
+            markType(model, "http://www.test.edu/typeAssertion/1", entity,
+                    // use a blank node as the bogus entity type
+                    model.createResource(), system, 1.0);
+            assertFalse(seedlingValidator.validateKB(model));
         }
 
-        @Disabled
         @Test
         void relationOfUnknownType() {
+            final Model model = createModel(true);
+
+            final Resource system = AIFUtils.makeSystemWithURI(model, "http://www.test.edu/testSystem");
+            final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
+
+            final Resource personEntity = AIFUtils
+                    .makeEntity(model, "http://www.test.edu/entities/1", system);
+            AIFUtils.markType(model, "http://www.test.org/assertions/1",
+                    personEntity, SeedlingOntologyMapper.PERSON, system, 1.0);
+            final Resource louisvilleEntity = AIFUtils
+                    .makeEntity(model, "http://www.test.edu/entities/2", system);
+            AIFUtils.markType(model, "http://www.test.org/assertions/1",
+                    louisvilleEntity, SeedlingOntologyMapper.GPE, system, 1.0);
+
+            String relation = SeedlingOntologyMapper.NAMESPACE_STATIC + "unknown_type";
+            makeRelationInEventForm(model, "http://www.test.edu/relations/1", model.createResource(relation),
+                    ontologyMapping.eventArgumentType(relation + "_person"), personEntity,
+                    ontologyMapping.eventArgumentType(relation + "_person"), louisvilleEntity,
+                    getAssertionUri(), system, 1.0);
+
+            assertFalse(seedlingValidator.validateKB(model));
         }
 
-        @Disabled
         @Test
         void justificationMissingConfidence() {
+            // having multiple type assertions in case of uncertainty is ok, but there must always
+            // be at least one type assertion
+            final Model model = createModel(true);
+
+            final Resource system = AIFUtils.makeSystemWithURI(model,
+                    "http://www.test.edu/testSystem");
+
+            final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/events/1",
+                    system);
+
+            // below is just the content of AIFUtils.markTextJustification, except without the required
+            // confidence
+
+            final Resource justification = model.createResource();
+            justification.addProperty(RDF.type, AidaAnnotationOntology.TEXT_JUSTIFICATION_CLASS);
+            // the document ID for the justifying source document
+            justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral("FOO"));
+            justification.addProperty(AidaAnnotationOntology.START_OFFSET,
+                    model.createTypedLiteral(14));
+            justification.addProperty(AidaAnnotationOntology.END_OFFSET_INCLUSIVE,
+                    model.createTypedLiteral(56));
+            justification.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
+            entity.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification);
+
+            assertFalse(seedlingValidator.validateKB(model));
         }
 
+        // this validation constraint is not working yet
         @Disabled
         @Test
-            // this validation constraint is not working yet
         void missingRdfTypeOnNamedNode() {
+            final Model model = createModel(true);
+
+            final Resource system = AIFUtils.makeSystemWithURI(model,
+                    "http://www.test.edu/testSystem");
+
+            // below we copy the code from AIFUtils.makeEntity but forget to mark it as an entity
+            final Resource entity = model.createResource("http://www.test.edu/entity/1");
+            entity.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
+            RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
+            assertFalse(seedlingValidator.validateKB(model));
         }
     }
 
