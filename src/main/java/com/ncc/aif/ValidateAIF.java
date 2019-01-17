@@ -19,7 +19,6 @@ import org.topbraid.shacl.validation.ValidationUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.HashSet;
 
 
@@ -36,39 +35,21 @@ public final class ValidateAIF {
 
     private ValidateAIF(Model domainModel) {
         this.domainModel = domainModel;
-        try {
-            shaclModel = loadModel(Resources.asCharSource(Resources.getResource(SHACL_RESNAME), Charsets.UTF_8)
-                    .openBufferedStream());
-        } catch (IOException ioe) {
-            throw new RuntimeException("While parsing AIDA Shacl " + SHACL_RESNAME, ioe);
-        }
-
-        try {
-            ta3ShaclModel = loadModel(Resources.asCharSource(Resources.getResource(TA3_SHACL_RESNAME), Charsets.UTF_8)
-                    .openBufferedStream());
-        } catch (IOException ioe) {
-            throw new RuntimeException("While parsing TA3 Shacl " + TA3_SHACL_RESNAME, ioe);
-        }
-    }
-
-    private static Model loadModel(Reader reader) {
-        Model ret = ModelFactory.createOntologyModel();
-
-        ret.read(reader, "urn:x-base", FileUtils.langTurtle);
-        return ret;
+        shaclModel = ModelFactory.createOntologyModel();
+        loadModel(shaclModel, Resources.asCharSource(Resources.getResource(SHACL_RESNAME), Charsets.UTF_8));
+        ta3ShaclModel = ModelFactory.createOntologyModel();
+        loadModel(ta3ShaclModel, Resources.asCharSource(Resources.getResource(TA3_SHACL_RESNAME), Charsets.UTF_8));
     }
 
     // Ensure what file name an RDF syntax error occurs in is printed, which
     // doesn't happen by default
-    private static void loadOntologyWithFriendlyError(Model model, CharSource ontologySource) {
+    private static void loadModel(Model model, CharSource ontologySource) {
         try {
             model.read(ontologySource.openBufferedStream(), "urn:x-base", FileUtils.langTurtle);
         } catch (Exception exception) { // includes IOException & JenaException
-            throw new RuntimeException("While parsing domain ontology " + ontologySource,
-                    exception);
+            throw new RuntimeException("While parsing " + ontologySource, exception);
         }
     }
-
 
     public static ValidateAIF createForDomainOntologySource(CharSource domainOntologySource) {
         final Model model = ModelFactory.createOntologyModel();
@@ -80,7 +61,7 @@ public final class ValidateAIF {
                 domainOntologySource);
 
         for (CharSource source : models) {
-            loadOntologyWithFriendlyError(model, source);
+            loadModel(model, source);
         }
 
         return new ValidateAIF(model);
@@ -117,8 +98,13 @@ public final class ValidateAIF {
         boolean allValid = true;
         for (File fileToValidate : filesToValidate) {
             logger.info("Validating " + fileToValidate);
-            final Model dataToBeValidated = loadModel(Files.asCharSource(fileToValidate, Charsets.UTF_8)
-                    .openBufferedStream());
+            final Model dataToBeValidated = ModelFactory.createOntologyModel();
+            try {
+                loadModel(dataToBeValidated, Files.asCharSource(fileToValidate, Charsets.UTF_8));
+            }
+            catch (Exception e) {
+                logger.error("Could not parse " + fileToValidate + "; " + e.getMessage());
+            }
             if (!validator.validateKB(dataToBeValidated)) {
                 logger.info("Validation of " + fileToValidate + " failed.");
                 allValid = false;

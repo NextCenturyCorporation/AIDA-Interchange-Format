@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.*;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.NodeIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.SKOS;
@@ -669,6 +670,38 @@ public class AIFUtils {
                         "?typeAssertion rdf:predicate rdf:type .\n" +
                         "?typeAssertion rdf:subject ?typedObject .\n" +
                         "}").replace("\n", System.getProperty("line.separator")));
+    }
+
+    public static ImmutableSet<Resource> getTypeAssertions(Model model, Resource typedObject)  {
+        final QuerySolutionMap boundVariables = new QuerySolutionMap();
+        boundVariables.add("typedObject", typedObject);
+
+        final QueryExecution queryExecution =
+                QueryExecutionFactory.create(SparqlQueries.TYPE_QUERY, model, boundVariables);
+        final ResultSet results = queryExecution.execSelect();
+
+        HashSet<Resource> matchSet = new HashSet<>();
+        while (results.hasNext()) {
+            final QuerySolution match = results.nextSolution();
+            matchSet.add(match.get("typeAssertion").asResource()); // check for null?
+        }
+
+        return ImmutableSet.<Resource>builder()
+                .addAll(matchSet)
+                .build();
+    }
+
+    public static ImmutableSet<Resource> getConfidenceAssertions(Model model, Resource confidencedObject) {
+        NodeIterator iter =
+                model.listObjectsOfProperty(confidencedObject, AidaAnnotationOntology.CONFIDENCE);
+        HashSet<Resource> matchSet = new HashSet<>();
+        while (iter.hasNext()) {
+            matchSet.add(iter.nextNode().asResource());
+        }
+
+        return ImmutableSet.<Resource>builder()
+                .addAll(matchSet)
+                .build();
     }
 
     private static Resource makeAIFResource(Model model, String uri, Resource classType, Resource system) {
