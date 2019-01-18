@@ -11,6 +11,7 @@ import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import edu.isi.nlp.parameters.Parameters;
 
+import org.apache.jena.ontology.OntModel;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.util.FileUtils;
@@ -28,6 +29,8 @@ public final class ValidateAIF {
     private static final String TA3_SHACL_RESNAME = "com/ncc/aif/aida_hypothesis.shacl";
     private static final String INTERCHANGE_RESNAME = "com/ncc/aif/InterchangeOntology";
     private static final String AIDA_DOMAIN_COMMON_RESNAME = "com/ncc/aif/AidaDomainOntologiesCommon";
+    private static final String INTERCHANGE_URI = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology";
+    private static final String AIDA_DOMAIN_COMMON_URI = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon";
 
     private Model domainModel;
     private static Model shaclModel;
@@ -52,7 +55,9 @@ public final class ValidateAIF {
     }
 
     public static ValidateAIF createForDomainOntologySource(CharSource domainOntologySource) {
-        final Model model = ModelFactory.createOntologyModel();
+        final OntModel model = ModelFactory.createOntologyModel();
+        model.addLoadedImport(INTERCHANGE_URI);
+        model.addLoadedImport(AIDA_DOMAIN_COMMON_URI);
 
         // data will always be interpreted in the context of these two ontology files
         ImmutableSet<CharSource> models = ImmutableSet.of(
