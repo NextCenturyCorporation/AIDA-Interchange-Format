@@ -22,8 +22,13 @@ import java.util.*;
  * @author Converted to Java by Next Century Corporation
  */
 public class AIFUtils {
+
+    // Do not instantiate AIFUtils, just access public methods statically.
+    private AIFUtils() {
+    }
+
     /**
-     * Adds common non-ontology-specific namespaces to make AIF files more readable
+     * Adds common non-ontology-specific namespaces to make AIF files more readable.
      */
     public static void addStandardNamespaces(Model model) {
         model.setNsPrefix("rdf", RDF.uri);
@@ -924,10 +929,11 @@ public class AIFUtils {
      * <ul>
      * <li>fringe type(s) for the KE;</li>
      * <li>a vectorized representation of the KE, which cannot grow as the number of mentions/justifications for the KE
-     * increases, and from which a raw document (or significant portions thereof) cannot be recoverable; or</li>
-     * <li>The number of documents that justify the KE time stamps of justification documents fringe type(s) for each
-     * image or shot, to describe features that are not represented explicitly in the seedling ontology.
-     * For example: Physical.LocatedNear.Inside(Arg1_Type=Person.Soldier, Arg2_Type=Facility.Hospital)</li>
+     * increases, and from which a raw document (or significant portions thereof) cannot be recoverable;</li>
+     * <li>the number of documents that justify the KE;</li>
+     * <li>time stamps of justification documents; or</li>
+     * <li>fringe type(s) for each image or shot, to describe features that are not represented explicitly in the
+     * seedling ontology.  For example: Physical.LocatedNear.Inside(Arg1_Type=Person.Soldier, Arg2_Type=Facility.Hospital)</li>
      * </ul>
      * <p>
      * The KE is not allowed to contain any strings from document text except for the strings in the HasName,
@@ -955,10 +961,11 @@ public class AIFUtils {
      * <ul>
      * <li>fringe type(s) for the KE;</li>
      * <li>a vectorized representation of the KE, which cannot grow as the number of mentions/justifications for the KE
-     * increases, and from which a raw document (or significant portions thereof) cannot be recoverable; or</li>
-     * <li>The number of documents that justify the KE time stamps of justification documents fringe type(s) for each
-     * image or shot, to describe features that are not represented explicitly in the seedling ontology.
-     * For example: Physical.LocatedNear.Inside(Arg1_Type=Person.Soldier, Arg2_Type=Facility.Hospital)</li>
+     * increases, and from which a raw document (or significant portions thereof) cannot be recoverable;</li>
+     * <li>the number of documents that justify the KE;</li>
+     * <li>time stamps of justification documents; or</li>
+     * <li>fringe type(s) for each image or shot, to describe features that are not represented explicitly in the
+     * seedling ontology.  For example: Physical.LocatedNear.Inside(Arg1_Type=Person.Soldier, Arg2_Type=Facility.Hospital)</li>
      * </ul>
      * <p>
      * The KE is not allowed to contain any strings from document text except for the strings in the HasName,

@@ -22,7 +22,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 
-
+/**
+ * An AIF Validator.  These are not instantiated directly; instead invoke {@link #createForDomainOntologySource} statically,
+ * specifying a domain ontology, and make calls to the returned validator.
+ *
+ * @author Ryan Gabbard (USC ISI)
+ * @author Converted to Java by Next Century Corporation
+ */
 public final class ValidateAIF {
 
     private static final String SHACL_RESNAME = "com/ncc/aif/aida_ontology.shacl";
@@ -54,6 +60,12 @@ public final class ValidateAIF {
         }
     }
 
+    /**
+     * Create an AIF validator for the specified domain ontology source.
+     *
+     * @param domainOntologySource A domain ontology
+     * @return An AIF validator for the specified ontology
+     */
     public static ValidateAIF createForDomainOntologySource(CharSource domainOntologySource) {
         final OntModel model = ModelFactory.createOntologyModel();
         model.addLoadedImport(INTERCHANGE_URI);
@@ -72,6 +84,13 @@ public final class ValidateAIF {
         return new ValidateAIF(model);
     }
 
+    /**
+     * A command-line AIF validator.  For details, see <a href="https://github.com/NextCenturyCorporation/AIDA-Interchange-Format">the AIF README</a>
+     * section entitled, <i>Running the validator</i>.
+     *
+     * @param args Command line arguments as specified in the README
+     * @throws IOException If the parameter file or KBs to validate cannot be opened
+     */
     public static void main(String[] args) throws IOException {
         if (args.length != 1) {
             System.out.println("Usage: validateAIF paramFile\n\tSee repo README for details.");
@@ -106,8 +125,7 @@ public final class ValidateAIF {
             final Model dataToBeValidated = ModelFactory.createOntologyModel();
             try {
                 loadModel(dataToBeValidated, Files.asCharSource(fileToValidate, Charsets.UTF_8));
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.error("Could not parse " + fileToValidate + "; " + e.getMessage());
             }
             if (!validator.validateKB(dataToBeValidated)) {
@@ -125,7 +143,10 @@ public final class ValidateAIF {
     }
 
     /**
-     * Returns whether or not the KB and hypotheses are valid
+     * Returns whether or not the KB and hypotheses are valid.
+     *
+     * @param dataToBeValidated The model to validate
+     * @return True if the KB and hypothesis are valid
      */
     public boolean validateTA3(Model dataToBeValidated) {
         final Model unionModel = ModelFactory.createUnion(domainModel, dataToBeValidated);
@@ -134,14 +155,17 @@ public final class ValidateAIF {
     }
 
     /**
-     * Returns whether or not the KB is valid
+     * Returns whether or not the KB is valid.
+     *
+     * @param dataToBeValidated The model to validate
+     * @return True if the KB is valid
      */
     public boolean validateKB(Model dataToBeValidated) {
         return validateKB(dataToBeValidated, null);
     }
 
     /**
-     * Returns whether or not the KB is valid
+     * Returns whether or not the KB is valid.
      *
      * @param dataToBeValidated KB to be validated
      * @param union             unified KB if not null

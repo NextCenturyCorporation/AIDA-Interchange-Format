@@ -529,7 +529,7 @@ public class ExamplesAndValidationTest {
             final Resource value = makeEntity(model, getUri("E831667.00871"), system);
             markType(model, getAssertionUri(), value, SeedlingOntologyMapper.NUMERICAL_VALUE, system, 1.0);
             markNumericValueAsDouble(value, 16.0);
-            markNumericValueAsLong(value, 16);
+            markNumericValueAsLong(value, 16l);
             markNumericValueAsString(value, "на висоті менше 16 кілометрів");
             markNumericValueAsString(value, "at a height less than 16 kilometers");
 
@@ -721,7 +721,7 @@ public class ExamplesAndValidationTest {
             markTextJustification(model, vladMightBePutin, "NYT_ENG_20181231", 42,
                     143, system, 0.973);
 
-            dumpAndAssertValid(model, "create a simple cluster", true);
+            dumpAndAssertValid(model, "create a simple cluster with justification", true);
         }
 
         /**
