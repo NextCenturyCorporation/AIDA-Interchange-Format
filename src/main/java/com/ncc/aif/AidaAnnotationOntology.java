@@ -9,7 +9,6 @@ import org.apache.jena.rdf.model.ResourceFactory;
  */
 public final class AidaAnnotationOntology {
 
-    // URI would change from isi.edu to something else if adopted program-wide
     public static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#";
 
     // properties
@@ -42,9 +41,6 @@ public final class AidaAnnotationOntology {
     public static final Property SHOT = ResourceFactory.createProperty(NAMESPACE + "shot");
     public static final Property LINK = ResourceFactory.createProperty(NAMESPACE + "link");
     public static final Property LINK_TARGET = ResourceFactory.createProperty(NAMESPACE + "linkTarget");
-    // realis is currently disabled because it probably won't be used in AIDA
-    //public static final Property REALIS = ResourceFactory.createProperty(NAMESPACE + "realis");
-    //public static final Property REALIS_VALUE = ResourceFactory.createProperty(NAMESPACE + "realisValue");
     public static final Property PROTOTYPE = ResourceFactory.createProperty(NAMESPACE + "prototype");
     public static final Property CLUSTER_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "cluster");
     public static final Property CLUSTER_MEMBER = ResourceFactory.createProperty(NAMESPACE + "clusterMember");
