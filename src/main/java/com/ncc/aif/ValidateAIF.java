@@ -32,7 +32,6 @@ import java.util.HashSet;
 public final class ValidateAIF {
 
     private static final String SHACL_RESNAME = "com/ncc/aif/aida_ontology.shacl";
-    private static final String TA3_SHACL_RESNAME = "com/ncc/aif/aida_hypothesis.shacl";
     private static final String INTERCHANGE_RESNAME = "com/ncc/aif/InterchangeOntology";
     private static final String AIDA_DOMAIN_COMMON_RESNAME = "com/ncc/aif/AidaDomainOntologiesCommon";
     private static final String INTERCHANGE_URI = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology";
@@ -40,14 +39,11 @@ public final class ValidateAIF {
 
     private Model domainModel;
     private static Model shaclModel;
-    private static Model ta3ShaclModel;
 
     private ValidateAIF(Model domainModel) {
         this.domainModel = domainModel;
         shaclModel = ModelFactory.createOntologyModel();
         loadModel(shaclModel, Resources.asCharSource(Resources.getResource(SHACL_RESNAME), Charsets.UTF_8));
-        ta3ShaclModel = ModelFactory.createOntologyModel();
-        loadModel(ta3ShaclModel, Resources.asCharSource(Resources.getResource(TA3_SHACL_RESNAME), Charsets.UTF_8));
     }
 
     // Ensure what file name an RDF syntax error occurs in is printed, which
@@ -123,11 +119,7 @@ public final class ValidateAIF {
         for (File fileToValidate : filesToValidate) {
             logger.info("Validating " + fileToValidate);
             final Model dataToBeValidated = ModelFactory.createOntologyModel();
-            try {
-                loadModel(dataToBeValidated, Files.asCharSource(fileToValidate, Charsets.UTF_8));
-            } catch (Exception e) {
-                logger.error("Could not parse " + fileToValidate + "; " + e.getMessage());
-            }
+            loadModel(dataToBeValidated, Files.asCharSource(fileToValidate, Charsets.UTF_8));
             if (!validator.validateKB(dataToBeValidated)) {
                 logger.info("Validation of " + fileToValidate + " failed.");
                 allValid = false;

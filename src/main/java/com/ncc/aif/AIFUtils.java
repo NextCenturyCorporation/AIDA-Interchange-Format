@@ -185,6 +185,7 @@ public class AIFUtils {
 
     /**
      * Mark an entity as filling an argument role for an event or relation.
+     * The argument assertion will be a blank node.
      *
      * @param model           The underlying RDF model for the operation
      * @param eventOrRelation The event or relation for which to mark the specified argument role
@@ -203,6 +204,7 @@ public class AIFUtils {
 
     /**
      * Mark an entity as filling an argument role for an event or relation.
+     * The argument assertion will be identified by the specified URI.
      *
      * @param model           The underlying RDF model for the operation
      * @param eventOrRelation The event or relation for which to mark the specified argument role
@@ -210,7 +212,7 @@ public class AIFUtils {
      * @param argumentFiller  The filler (object) of the argument
      * @param system          The system object for the system which created this argument
      * @param confidence      If non-null, the confidence with which to mark the specified argument
-     * @param uri             A String URI for the argument
+     * @param uri             A String URI for the argument assertion
      * @return The created event or relation argument assertion with uri
      */
     public static Resource markAsArgument(Model model, Resource eventOrRelation, Resource argumentType,
@@ -257,17 +259,8 @@ public class AIFUtils {
         return typeAssertion;
     }
 
-    /**
-     * Make a justification.
-     *
-     * @param model      The underlying RDF model for the operation
-     * @param docId      The String document Id of the source of the justification
-     * @param classType  The class of the justification (e.g., text, image, video)
-     * @param system     The system object for the system which made this justification
-     * @param confidence The confidence with which to mark the justification
-     * @return The created justification resource
-     */
-    public static Resource makeAIFJustification(Model model, String docId, Resource classType,
+    // Helper function to create a justification (text, image, audio, etc.) in the system.
+    private static Resource makeAIFJustification(Model model, String docId, Resource classType,
                                                 Resource system, Double confidence) {
         final Resource justification = makeAIFResource(model, null, classType, system);
         justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral(docId));
@@ -1008,10 +1001,8 @@ public class AIFUtils {
         return linkAssertion;
     }
 
-    /**
-     * This inner class contains SPARQL queries used in these utilities.
-     */
-    static final class SparqlQueries {
+    // This inner class contains SPARQL queries used in these utilities.
+    private static final class SparqlQueries {
         static final Query TYPE_QUERY = QueryFactory.create(
                 ("PREFIX rdf: <" + RDF.uri + ">\n" +
                         "SELECT ?typeAssertion WHERE {\n" +
