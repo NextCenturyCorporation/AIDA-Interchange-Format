@@ -5,7 +5,6 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
@@ -115,8 +114,7 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
             Maps.toMap(EVENT_TYPES_STRMAP.keySet(),
                     it -> ResourceFactory.createResource(NAMESPACE_STATIC + EVENT_TYPES_STRMAP.get(it)));
 
-    // these are currently unused
-    // here for documentation only
+    // These are currently unused; here for documentation only.
     private static final ImmutableSet<String> NOT_IN_SEEDLING_BUT_REVERSE_IS = ImmutableSet.of(
             "students", "births_in_city", "births_in_country",
             "residents_of_city", "residents_of_stateorprovince", "residents_of_country",
@@ -316,72 +314,6 @@ public final class SeedlingOntologyMapper implements OntologyMapping {
     @Override
     public boolean typeAllowedToHaveNumericValue(Resource type) {
         return TYPES_WHICH_CAN_HAVE_NUMERIC_VALUES.contains(type);
-    }
-
-    @Override
-    public ImmutablePair<Resource, Resource> relationArgumentTypes(Resource relation) {
-        // TODO("not implemented");
-        // To change body of created functions use File | Settings | File Templates.
-        return null;
-    }
-
-}
-
-class RPISeedlingOntologyMapper implements OntologyMapping {
-    private SeedlingOntologyMapper seedlingOM = new SeedlingOntologyMapper();
-    protected String NAMESPACE = SeedlingOntologyMapper.NAMESPACE_STATIC;
-    private Resource FILLER = ResourceFactory.createResource(NAMESPACE + "FillerType");
-
-    @Override
-    public Set<String> entityShortNames() {
-        HashSet<String> hs = new HashSet<>(seedlingOM.entityShortNames());
-        hs.add("FILLER");
-        return hs;
-    }
-
-    @Override
-    public Resource entityType(String ontology_type) {
-        if (ontology_type.equals("FILLER") || ontology_type.equals("String")) {
-            return FILLER;
-        }
-        else {
-            return seedlingOM.entityType(ontology_type);
-        }
-    }
-
-    @Override
-    public Resource relationType(String relationName) {
-        if (relationName.contains("FILLER")) {
-            return FILLER;
-        }
-        else {
-            return seedlingOM.relationType(relationName);
-        }
-    }
-
-    @Override
-    public Resource eventType(String eventName) {
-        return seedlingOM.eventType(eventName);
-    }
-
-    @Override
-    public Resource eventArgumentType(String argName) {
-        return seedlingOM.eventArgumentType(argName);
-    }
-
-    @Override
-    public boolean typeAllowedToHaveAName(Resource type) {
-        return seedlingOM.typeAllowedToHaveAName(type);
-    }
-
-    @Override
-    public boolean typeAllowedToHaveTextValue(Resource type) {
-        return seedlingOM.typeAllowedToHaveTextValue(type);
-    }
-
-    @Override
-    public boolean typeAllowedToHaveNumericValue(Resource type) {
-        return seedlingOM.typeAllowedToHaveNumericValue(type);
     }
 
     @Override
