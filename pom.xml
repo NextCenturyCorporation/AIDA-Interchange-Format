@@ -15,6 +15,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.1.2</version>
@@ -92,6 +97,23 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <id>ontology-generation</id>
+                        <phase>generate-sources</phase>
+                        <!--<goals>-->
+                            <!--<goal>exec</goal>-->
+                        <!--</goals>-->
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>com.ncc.aif.OntToJavaGen.OntologyGeneration</mainClass>
+                </configuration>
+            </plugin>
             <!-- to compile Kotlin code -->
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -215,7 +237,6 @@
                         <artifactId>junit-jupiter-engine</artifactId>
                         <version>5.2.0</version>
                     </dependency>
-
                 </dependencies>
             </plugin>
         </plugins>

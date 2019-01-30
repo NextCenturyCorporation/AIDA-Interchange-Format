@@ -92,6 +92,7 @@ class ValidExamples {
     private final String bukKBEntityUri = getUri("E0084");
     private final String mh17AttackDocumentEventUri = getUri("V779961.00012");
     private final String mh17DocumentEntityUri = getUri("E779961.00032");
+    private final String owgEntityAgencyUri = ExtendedEntity.Agency.getURI();
 
     @Test
     void createSeedlingEntityOfTypePersonWithAllJustificationTypesAndConfidence() {
@@ -102,7 +103,9 @@ class ValidExamples {
 
         // it doesn't matter what URI we give entities, events, etc. so long as they are
         // unique
-        final Resource putinMentionResource = makeEntity(model, putinDocumentEntityUri, system);
+   //     final Resource putinMentionResource = makeEntity(model, putinDocumentEntityUri, system);
+
+        final Resource putinMentionResource = makeEntity(model, owgEntityAgencyUri, system);
 
         // in order to allow uncertainty about the type of an entity, we don't mark an
         // entity's type directly on the entity, but rather make a separate assertion for it
