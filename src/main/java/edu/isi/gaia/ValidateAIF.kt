@@ -62,6 +62,9 @@ class ValidateAIF(private val domainModel: Model) {
         @JvmStatic
         fun createForDomainOntologySource(domainOntologySource: CharSource): ValidateAIF {
             val ret = ModelFactory.createOntologyModel()
+            listOf("https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology",
+                    "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon")
+                    .forEach { ret.addLoadedImport(it) }
 
             // ensure what file name an RDF syntax error occurs in is printed, which
             // doesn't happen by default
