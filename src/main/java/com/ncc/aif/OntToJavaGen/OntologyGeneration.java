@@ -64,7 +64,7 @@ public class OntologyGeneration {
 
 
     /**
-     *
+     * Creates the ontology model based on the ontology argument
      * @param processImports
      * @return
      */
@@ -83,20 +83,33 @@ public class OntologyGeneration {
 
     }
 
+    /**
+     * Will create java classes with resources from a given set of ontologies.
+     * @param args
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException {
 
-        OntologyGeneration ctx = new OntologyGeneration();
+        for (String arg : args) {
 
-        ctx.addOntologyToGenerate(new FileInputStream(args[0]));
+            OntologyGeneration ctx = new OntologyGeneration();
 
-        owgMapperWriter();
+            ctx.addOntologyToGenerate(new FileInputStream(arg));
+
+            owgMapperWriter();
+
+            owgClassList.clear();
+        }
     }
 
+    /**
+     * Writes the generated Java classes
+     * @throws IOException
+     */
     private static void owgMapperWriter() throws IOException {
 
         OWGClass test = owgClassList.get(0);
         String classNameTest = test.uri;
-        System.out.println(classNameTest);
         String variableClassName = classNameTest.substring(classNameTest.lastIndexOf('/') + 1, classNameTest.indexOf('#'));
 
      //   String variableClassName = "hello";
