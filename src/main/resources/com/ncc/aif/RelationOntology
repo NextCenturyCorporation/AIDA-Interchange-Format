@@ -1,0 +1,719 @@
+@prefix ext:   <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/ExtendedEntity#> .
+@prefix schema: <http://schema.org/> .
+@prefix olia:  <http://purl.org/olia/system.owl#> .
+@prefix aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#> .
+@prefix evt:   <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/EventsWithFringe#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rel:   <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/EntityRelations#> .
+@prefix aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/EntityRelations>
+        a                owl:Ontology ;
+        rdfs:comment     "An ontology for creating messages from LDC data to describe relations" ;
+        rdfs:label       "AIDA Relations Ontology" ;
+        owl:imports      <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon> ;
+        owl:versionInfo  "Version 1.0" .
+
+######################################################
+# Relation Types
+######################################################
+rel:Age  a               owl:Class ;
+        rdfs:label       "AGE" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Author  a            owl:Class ;
+        rdfs:label       "AUTH" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Color  a             owl:Class ;
+        rdfs:label       "COL" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Content  a           owl:Class ;
+        rdfs:label       "MSG" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Employment  a        owl:Class ;
+        rdfs:label       "EMP" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Evaluation  a        owl:Class ;
+        rdfs:label       "EVAL" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Function  a          owl:Class ;
+        rdfs:label       "FUN" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:GeneralAffiliation.APORA
+        a                owl:Class ;
+        rdfs:label       "APORA" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:GeneralAffiliation.MORE
+        a                owl:Class ;
+        rdfs:label       "MORE" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:GeneralAffiliation.OPRA
+        a                owl:Class ;
+        rdfs:label       "OPRA" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:GeneralAffiliation.OrganizationWebsite
+        a                owl:Class ;
+        rdfs:label       "OrganizationWebsite" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:GeneralAffiliation.PersonAge
+        a                owl:Class ;
+        rdfs:label       "PersonAge" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:GeneralAffiliation.Sponsorship
+        a                owl:Class ;
+        rdfs:label       "Sponsorship" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:LocRel  a            owl:Class ;
+        rdfs:label       "LOCREL" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Make  a              owl:Class ;
+        rdfs:label       "MAK" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Material  a          owl:Class ;
+        rdfs:label       "MAT" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Measurement.Count
+        a                owl:Class ;
+        rdfs:label       "Count" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Medium  a            owl:Class ;
+        rdfs:label       "MED" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Nationality  a       owl:Class ;
+        rdfs:label       "NATL" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:OrganizationAffiliation.EmploymentMembership
+        a                owl:Class ;
+        rdfs:label       "EmploymentMembership" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:OrganizationAffiliation.Founder
+        a                owl:Class ;
+        rdfs:label       "Founder" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:OrganizationAffiliation.InvestorShareholder
+        a                owl:Class ;
+        rdfs:label       "InvestorShareholder" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:OrganizationAffiliation.Leadership
+        a                owl:Class ;
+        rdfs:label       "Leadership" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:OrganizationAffiliation.Ownership
+        a                owl:Class ;
+        rdfs:label       "Ownership" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:OrganizationAffiliation.StudentAlum
+        a                owl:Class ;
+        rdfs:label       "StudentAlum" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:PartWhole.Membership
+        a                owl:Class ;
+        rdfs:label       "Membership" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:PartWhole.Subsidiary
+        a                owl:Class ;
+        rdfs:label       "Subsidiary" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:PersonalSocial.Business
+        a                owl:Class ;
+        rdfs:label       "Business" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:PersonalSocial.Family
+        a                owl:Class ;
+        rdfs:label       "Family" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:PersonalSocial.RoleTitle
+        a                owl:Class ;
+        rdfs:label       "RoleTitle" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:PersonalSocial.Unspecified
+        a                owl:Class ;
+        rdfs:label       "Unspecified" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Physical.LocatedNear
+        a                owl:Class ;
+        rdfs:label       "LocatedNear" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Physical.OrganizationHeadquarter
+        a                owl:Class ;
+        rdfs:label       "OrganizationHeadquarter" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Physical.OrganizationLocationOrigin
+        a                owl:Class ;
+        rdfs:label       "OrganizationLocationOrigin" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Physical.Resident
+        a                owl:Class ;
+        rdfs:label       "Resident" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Side  a              owl:Class ;
+        rdfs:label       "SID" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Size  a              owl:Class ;
+        rdfs:label       "SIZ" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Status  a            owl:Class ;
+        rdfs:label       "STAT" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Structure  a         owl:Class ;
+        rdfs:label       "STRUC" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+rel:Title  a             owl:Class ;
+        rdfs:label       "TTL" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+######################################################
+# Relation Argument Types
+######################################################
+rel:Age_Object  a        owl:ObjectProperty ;
+        rdfs:domain      rel:Age ;
+        rdfs:label       "Object" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      aidaDomainCommon:Measure .
+
+rel:Age_Subject  a       owl:ObjectProperty ;
+        rdfs:domain      rel:Age ;
+        rdfs:label       "Subject" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:PhysicalEntity .
+
+rel:Author_Object  a     owl:ObjectProperty ;
+        rdfs:domain      rel:Author ;
+        rdfs:label       "Object" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:GPE , aidaDomainCommon:ORG , ext:PER .
+
+rel:Author_Subject  a    owl:ObjectProperty ;
+        rdfs:domain      rel:Author ;
+        rdfs:label       "Subject" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:INFO .
+
+rel:Color_Object  a      owl:ObjectProperty ;
+        rdfs:domain      rel:Color ;
+        rdfs:label       "Object" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      aidaDomainCommon:String .
+
+rel:Color_Subject  a     owl:ObjectProperty ;
+        rdfs:domain      rel:Color ;
+        rdfs:label       "Subject" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:PhysicalEntity .
+
+rel:Content_Object  a    owl:ObjectProperty ;
+        rdfs:domain      rel:Content ;
+        rdfs:label       "Object" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:InformationObject .
+
+rel:Content_Subject  a   owl:ObjectProperty ;
+        rdfs:domain      rel:Content ;
+        rdfs:label       "Subject" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:INFO .
+
+rel:Employment_Object
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:Employment ;
+        rdfs:label       "Object" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      aidaDomainCommon:String .
+
+rel:Employment_Subject
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:Employment ;
+        rdfs:label       "Subject" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:PER .
+
+rel:Evaluation_Object
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:Evaluation ;
+        rdfs:label       "Object" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      aidaDomainCommon:String .
+
+rel:Evaluation_Subject
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:Evaluation ;
+        rdfs:label       "Subject" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:INFO , ext:Org , ext:GPE , ext:PER .
+
+rel:Function_Object  a   owl:ObjectProperty ;
+        rdfs:domain      rel:Function ;
+        rdfs:label       "Object" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      aidaDomainCommon:String .
+
+rel:Function_Subject  a  owl:ObjectProperty ;
+        rdfs:domain      rel:Function ;
+        rdfs:label       "Subject" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Artifact .
+
+rel:GeneralAffiliation.APORA_Affiliate
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:GeneralAffiliation.APORA ;
+        rdfs:label       "Affiliate" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Weapon , ext:Vehicle , ext:Facility , ext:Commodity .
+
+rel:GeneralAffiliation.APORA_Affiliation
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:GeneralAffiliation.APORA ;
+        rdfs:label       "Affiliation" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      aidaDomainCommon:Sides , ext:Person , ext:Org , ext:Loc , ext:GPE .
+
+rel:GeneralAffiliation.MORE_Affiliation
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:GeneralAffiliation.MORE ;
+        rdfs:label       "Affiliation" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      aidaDomainCommon:Sides , ext:Person , ext:Loc , ext:GPE .
+
+rel:GeneralAffiliation.MORE_Person
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:GeneralAffiliation.MORE ;
+        rdfs:label       "Person" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Person .
+
+rel:GeneralAffiliation.OPRA_Affiliation
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:GeneralAffiliation.OPRA ;
+        rdfs:label       "Affiliation" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      aidaDomainCommon:Sides , ext:Person , ext:Org .
+
+rel:GeneralAffiliation.OPRA_Organization
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:GeneralAffiliation.OPRA ;
+        rdfs:label       "Organization" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Org .
+
+rel:GeneralAffiliation.OrganizationWebsite_Organization
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:GeneralAffiliation.OrganizationWebsite ;
+        rdfs:label       "Organization" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Org .
+
+rel:GeneralAffiliation.OrganizationWebsite_Website
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:GeneralAffiliation.OrganizationWebsite ;
+        rdfs:label       "Website" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      aidaDomainCommon:URL .
+
+rel:GeneralAffiliation.PersonAge_Age
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:GeneralAffiliation.PersonAge ;
+        rdfs:label       "Age" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      aidaDomainCommon:Age .
+
+rel:GeneralAffiliation.PersonAge_Person
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:GeneralAffiliation.PersonAge ;
+        rdfs:label       "Person" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Person .
+
+rel:GeneralAffiliation.Sponsorship_Entity
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:GeneralAffiliation.Sponsorship ;
+        rdfs:label       "Entity" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Org , ext:Loc , ext:GPE , aidaDomainCommon:EventType .
+
+rel:GeneralAffiliation.Sponsorship_Sponsor
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:GeneralAffiliation.Sponsorship ;
+        rdfs:label       "Sponsor" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      aidaDomainCommon:Sides , ext:Org , ext:Loc , ext:GPE .
+
+rel:LocRel_Object  a     owl:ObjectProperty ;
+        rdfs:domain      rel:LocRel ;
+        rdfs:label       "Object" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:PhysicalEntity .
+
+rel:LocRel_Subject  a    owl:ObjectProperty ;
+        rdfs:domain      rel:LocRel ;
+        rdfs:label       "Subject" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:PhysicalEntity .
+
+rel:Make_Object  a       owl:ObjectProperty ;
+        rdfs:domain      rel:Make ;
+        rdfs:label       "Object" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:GPE , ext:PER , ext:Org .
+
+rel:Make_Subject  a      owl:ObjectProperty ;
+        rdfs:domain      rel:Make ;
+        rdfs:label       "Subject" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Artifact .
+
+rel:Material_Object  a   owl:ObjectProperty ;
+        rdfs:domain      rel:Material ;
+        rdfs:label       "Object" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      aidaDomainCommon:String .
+
+rel:Material_Subject  a  owl:ObjectProperty ;
+        rdfs:domain      rel:Material ;
+        rdfs:label       "Subject" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:PhysicalEntity .
+
+rel:Measurement.Count_Count
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:Measurement.Count ;
+        rdfs:label       "Count" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      aidaDomainCommon:NumericalValue .
+
+rel:Measurement.Count_Item
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:Measurement.Count ;
+        rdfs:label       "Item" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Commodity , ext:Loc , ext:Vehicle , ext:GPE , ext:Ballot , ext:Weapon , ext:Facility , ext:Person , ext:Org .
+
+rel:Medium_Object  a     owl:ObjectProperty ;
+        rdfs:domain      rel:Medium ;
+        rdfs:label       "Object" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:InfoMedium .
+
+rel:Medium_Subject  a    owl:ObjectProperty ;
+        rdfs:domain      rel:Medium ;
+        rdfs:label       "Subject" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:INFO .
+
+rel:Nationality_Object
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:Nationality ;
+        rdfs:label       "Object" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:GPE .
+
+rel:Nationality_Subject
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:Nationality ;
+        rdfs:label       "Subject" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Org , ext:PER .
+
+rel:OrganizationAffiliation.EmploymentMembership_Employee
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:OrganizationAffiliation.EmploymentMembership ;
+        rdfs:label       "Employee" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Person .
+
+rel:OrganizationAffiliation.EmploymentMembership_Organization
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:OrganizationAffiliation.EmploymentMembership ;
+        rdfs:label       "Organization" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Org , ext:GPE .
+
+rel:OrganizationAffiliation.Founder_Founder
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:OrganizationAffiliation.Founder ;
+        rdfs:label       "Founder" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Person , ext:Org , ext:GPE .
+
+rel:OrganizationAffiliation.Founder_Organization
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:OrganizationAffiliation.Founder ;
+        rdfs:label       "Organization" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Org .
+
+rel:OrganizationAffiliation.InvestorShareholder_InvestorShareholder
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:OrganizationAffiliation.InvestorShareholder ;
+        rdfs:label       "InvestorShareholder" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Person , ext:Org , ext:GPE .
+
+rel:OrganizationAffiliation.InvestorShareholder_Organization
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:OrganizationAffiliation.InvestorShareholder ;
+        rdfs:label       "Organization" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Org .
+
+rel:OrganizationAffiliation.Leadership_Leader
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:OrganizationAffiliation.Leadership ;
+        rdfs:label       "Leader" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Person .
+
+rel:OrganizationAffiliation.Leadership_Organization
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:OrganizationAffiliation.Leadership ;
+        rdfs:label       "Organization" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Org , ext:GPE .
+
+rel:OrganizationAffiliation.Ownership_Organization
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:OrganizationAffiliation.Ownership ;
+        rdfs:label       "Organization" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Org .
+
+rel:OrganizationAffiliation.Ownership_Owner
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:OrganizationAffiliation.Ownership ;
+        rdfs:label       "Owner" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Person .
+
+rel:OrganizationAffiliation.StudentAlum_Organization
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:OrganizationAffiliation.StudentAlum ;
+        rdfs:label       "Organization" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Org .
+
+rel:OrganizationAffiliation.StudentAlum_StudentAlum
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:OrganizationAffiliation.StudentAlum ;
+        rdfs:label       "StudentAlum" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Person .
+
+rel:PartWhole.Membership_Member
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:PartWhole.Membership ;
+        rdfs:label       "Member" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Org , ext:GPE .
+
+rel:PartWhole.Membership_Organization
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:PartWhole.Membership ;
+        rdfs:label       "Organization" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Org .
+
+rel:PartWhole.Subsidiary_Parent
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:PartWhole.Subsidiary ;
+        rdfs:label       "Parent" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Org , ext:GPE .
+
+rel:PartWhole.Subsidiary_Subsidiary
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:PartWhole.Subsidiary ;
+        rdfs:label       "Subsidiary" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Org .
+
+rel:PersonalSocial.Business_Person
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:PersonalSocial.Business ;
+        rdfs:label       "Person" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Person .
+
+rel:PersonalSocial.Family_Person
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:PersonalSocial.Family ;
+        rdfs:label       "Person" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Person .
+
+rel:PersonalSocial.RoleTitle_Person
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:PersonalSocial.RoleTitle ;
+        rdfs:label       "Person" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Person .
+
+rel:PersonalSocial.RoleTitle_Title
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:PersonalSocial.RoleTitle ;
+        rdfs:label       "Title" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Title .
+
+rel:PersonalSocial.Unspecified_Person
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:PersonalSocial.Unspecified ;
+        rdfs:label       "Person" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Person .
+
+rel:Physical.LocatedNear_Entity
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:Physical.LocatedNear ;
+        rdfs:label       "Entity" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Weapon , ext:Vehicle , ext:Person , ext:Facility , ext:Commodity .
+
+rel:Physical.LocatedNear_Place
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:Physical.LocatedNear ;
+        rdfs:label       "Place" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Loc , ext:GPE , ext:Facility .
+
+rel:Physical.OrganizationHeadquarter_Organization
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:Physical.OrganizationHeadquarter ;
+        rdfs:label       "Organization" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Org .
+
+rel:Physical.OrganizationHeadquarter_Place
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:Physical.OrganizationHeadquarter ;
+        rdfs:label       "Place" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Loc , ext:GPE , ext:Facility .
+
+rel:Physical.OrganizationLocationOrigin_Organization
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:Physical.OrganizationLocationOrigin ;
+        rdfs:label       "Organization" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Org .
+
+rel:Physical.OrganizationLocationOrigin_Place
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:Physical.OrganizationLocationOrigin ;
+        rdfs:label       "Place" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Loc , ext:GPE , ext:Facility .
+
+rel:Physical.Resident_Place
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:Physical.Resident ;
+        rdfs:label       "Place" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Loc , ext:GPE , ext:Facility .
+
+rel:Physical.Resident_Resident
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:Physical.Resident ;
+        rdfs:label       "Resident" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Person .
+
+rel:Side_Object  a       owl:ObjectProperty ;
+        rdfs:domain      rel:Side ;
+        rdfs:label       "Object" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      aidaDomainCommon:String .
+
+rel:Side_Subject  a      owl:ObjectProperty ;
+        rdfs:domain      rel:Side ;
+        rdfs:label       "Subject" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Org , ext:PER .
+
+rel:Size_Object  a       owl:ObjectProperty ;
+        rdfs:domain      rel:Size ;
+        rdfs:label       "Object" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      aidaDomainCommon:String .
+
+rel:Size_Subject  a      owl:ObjectProperty ;
+        rdfs:domain      rel:Size ;
+        rdfs:label       "Subject" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:PhysicalEntity .
+
+rel:Status_Object  a     owl:ObjectProperty ;
+        rdfs:domain      rel:Status ;
+        rdfs:label       "Object" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      aidaDomainCommon:String .
+
+rel:Status_Subject  a    owl:ObjectProperty ;
+        rdfs:domain      rel:Status ;
+        rdfs:label       "Subject" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:Org , ext:PER .
+
+rel:Structure_Object  a  owl:ObjectProperty ;
+        rdfs:domain      rel:Structure ;
+        rdfs:label       "Object" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      aidaDomainCommon:String .
+
+rel:Structure_Subject
+        a                owl:ObjectProperty ;
+        rdfs:domain      rel:Structure ;
+        rdfs:label       "Subject" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:PhysicalEntity .
+
+rel:Title_Object  a      owl:ObjectProperty ;
+        rdfs:domain      rel:Title ;
+        rdfs:label       "Object" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      aidaDomainCommon:String .
+
+rel:Title_Subject  a     owl:ObjectProperty ;
+        rdfs:domain      rel:Title ;
+        rdfs:label       "Subject" ;
+        rdfs:subClassOf  aidaDomainCommon:RelationArgumentType ;
+        owl:unionOf      ext:PER .
+
