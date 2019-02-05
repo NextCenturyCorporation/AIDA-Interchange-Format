@@ -116,6 +116,10 @@ public class OntologyGeneration {
 
         owgMapping.addAll(owgMapperHeader());
 
+        OWGClass example = owgClassList.get(0);
+
+        String baseURI = example.uri;
+
         String className = "public final class " + variableClassName + " {";
         owgMapping.add(className);
 
