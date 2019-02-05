@@ -3,6 +3,10 @@ package com.ncc.aif;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 
+// WARNING. This is a Generated File.  Please do not edit.
+// This class contains Variables generated from Ontologies using the OntologyGeneration Class
+// Please refer to the README at src/main/java/com/ncc/aif/ont2javagen for more information
+// Last Generated On: 02/05/2019 10:25:24
 public final class ExtendedEntity {
     public static final Resource Truck = ResourceFactory.createResource("https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/ExtendedEntity#Truck");
     public static final Resource Equipment = ResourceFactory.createResource("https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/ExtendedEntity#Equipment");

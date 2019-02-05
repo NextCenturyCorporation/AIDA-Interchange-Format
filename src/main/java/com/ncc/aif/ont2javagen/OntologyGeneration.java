@@ -1,4 +1,4 @@
-package com.ncc.aif.OntToJavaGen;
+package com.ncc.aif.ont2javagen;
 
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntClass;
@@ -14,12 +14,12 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
- * Generates java resources  from an ontology
+ * Generates java resources from an ontology
  */
 public class OntologyGeneration {
 
@@ -33,11 +33,7 @@ public class OntologyGeneration {
         this.classesToGenerate = new ArrayList();
     }
 
-
-    /**
-     * Reads in ontology File
-     * @param ontologyFile
-     */
+    // Reads in ontology File
     private void addOntologyToGenerate(InputStream ontologyFile) {
         OntModel temp = this.createOntModel(false);
         temp.read(ontologyFile, "urn:x-base", FileUtils.langTurtle);
@@ -46,10 +42,7 @@ public class OntologyGeneration {
         this.classIterateOntology(temp);
     }
 
-    /**
-     * Iterates through new ontology model to obtain the list of classes
-     * @param tempont
-     */
+    // Iterates through new ontology model to obtain the list of classes
     private void classIterateOntology(OntModel tempont) {
         Iterator it = tempont.listClasses();
 
@@ -62,12 +55,7 @@ public class OntologyGeneration {
         }
     }
 
-
-    /**
-     * Creates the ontology model based on the ontology argument
-     * @param processImports
-     * @return
-     */
+    // Creates the ontology model based on the ontology argument
     private OntModel createOntModel(boolean processImports) {
         OntModelSpec s = new OntModelSpec(OntModelSpec.OWL_MEM);
 
@@ -85,39 +73,43 @@ public class OntologyGeneration {
 
     /**
      * Will create java classes with resources from a given set of ontologies.
-     * @param args
-     * @throws IOException
+     * @param args String Array of locations to Ontologies that resources will be generated from.
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
-        for (String arg : args) {
+        try {
 
-            OntologyGeneration ctx = new OntologyGeneration();
+            for (String arg : args) {
 
-            ctx.addOntologyToGenerate(new FileInputStream(arg));
+                OntologyGeneration ctx = new OntologyGeneration();
 
-            owgMapperWriter();
+                ctx.addOntologyToGenerate(new FileInputStream(arg));
 
-            owgClassList.clear();
+                System.out.println("Generating for ontology located at " + arg);
+
+                owgMapperWriter();
+
+                owgClassList.clear();
+            }
+
+        } catch (IOException ex) {
+            System.err.println(ex.getMessage());
         }
     }
 
-    /**
-     * Writes the generated Java classes
-     * @throws IOException
-     */
+    // Writes the generated Java classes
     private static void owgMapperWriter() throws IOException {
 
         OWGClass test = owgClassList.get(0);
         String classNameTest = test.uri;
         String variableClassName = classNameTest.substring(classNameTest.lastIndexOf('/') + 1, classNameTest.indexOf('#'));
 
-     //   String variableClassName = "hello";
         List<String> lines = owgMapperInfo(variableClassName);
         Path file = Paths.get("src/main/java/com/ncc/aif/" + variableClassName + ".java");
         Files.write(file, lines, Charset.forName("UTF-8"));
     }
 
+    // Writes the static variables for each ontology class
     private static List<String> owgMapperInfo(String variableClassName) {
 
         List<String> owgMapping = new ArrayList<>();
@@ -146,12 +138,21 @@ public class OntologyGeneration {
         return owgMapping;
     }
 
+    // Writes the packages, imports and comments for the generated classes
     private static List<String> owgMapperHeader () {
 
         String lineEmpty = "";
         String lineOne = "package com.ncc.aif;";
         String lineThree = "import org.apache.jena.rdf.model.Resource;";
         String lineFour = "import org.apache.jena.rdf.model.ResourceFactory;";
+        String lineWarningOne = "// WARNING. This is a Generated File.  Please do not edit.";
+        String lineWarningTwo = "// This class contains Variables generated from Ontologies using the OntologyGeneration Class";
+        String lineWarningThree = "// Please refer to the README at src/main/java/com/ncc/aif/ont2javagen for more information";
+
+        DateFormat format = new SimpleDateFormat("MM/dd/yyy HH:mm:ss");
+        Date date = Calendar.getInstance().getTime();
+
+        String timeStamp = "// Last Generated On: " + format.format(date);
 
         List<String> headerStrings = new ArrayList<>();
 
@@ -160,11 +161,16 @@ public class OntologyGeneration {
         headerStrings.add(lineThree);
         headerStrings.add(lineFour);
         headerStrings.add(lineEmpty);
+        headerStrings.add(lineWarningOne);
+        headerStrings.add(lineWarningTwo);
+        headerStrings.add(lineWarningThree);
+        headerStrings.add(timeStamp);
 
         return headerStrings;
     }
 
-    public class OWGClass {
+    // Ontology classes that includes the name and uri of each class
+    private class OWGClass {
         private String name;
         private String uri;
 

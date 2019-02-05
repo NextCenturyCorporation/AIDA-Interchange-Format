@@ -3,6 +3,10 @@ package com.ncc.aif;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 
+// WARNING. This is a Generated File.  Please do not edit.
+// This class contains Variables generated from Ontologies using the OntologyGeneration Class
+// Please refer to the README at src/main/java/com/ncc/aif/ont2javagen for more information
+// Last Generated On: 02/05/2019 10:25:24
 public final class EntityRelations {
     public static final Resource OrganizationAffiliation_InvestorShareholder = ResourceFactory.createResource("https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/EntityRelations#OrganizationAffiliation.InvestorShareholder");
     public static final Resource GeneralAffiliation_APORA = ResourceFactory.createResource("https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/EntityRelations#GeneralAffiliation.APORA");
