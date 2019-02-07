@@ -281,9 +281,9 @@ public class ExamplesAndValidationTest {
             markType(model, getAssertionUri(), russia, SeedlingOntology.GeopoliticalEntity, system, 1.0);
 
             // link those entities to the event
-            markAsArgument(model, event, SeedlingOntology.Personnel_Elect,
+            markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Elect,
                     putin, system, 0.785, getUri("eventArgument-1"));
-            markAsArgument(model, event, SeedlingOntology.Personnel_Elect,
+            markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Place,
                     russia, system, 0.589, getUri("eventArgument-2"));
 
             dumpAndAssertValid(model, "create a seedling event with event assertion URI", true);
