@@ -36,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(Lifecycle.PER_CLASS)
 public class ExamplesAndValidationTest {
     private static final String LDC_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#";
+    private static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOwlOntology";
 
     @BeforeAll
     static void declutterLogging() {
@@ -178,8 +179,6 @@ public class ExamplesAndValidationTest {
             // every AIF needs an object for the system responsible for creating it
             final Resource system = makeSystemWithURI(model, getTestSystemUri());
 
-            final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
-
             // we want to represent a "city_of_birth" relation for a person, but we aren't sure whether
             // they were born in Louisville or Cambridge
             final Resource personEntity = makeEntity(model, putinDocumentEntityUri, system);
@@ -199,8 +198,8 @@ public class ExamplesAndValidationTest {
             String relation = "Physical.Resident";
             makeRelationInEventForm(model, putinResidesDocumentRelationUri,
                     SeedlingOntology.Physical_Resident,
-                    ontologyMapping.eventArgumentTypeNotLowercase(relation + "_Resident"), personEntity,
-                    ontologyMapping.eventArgumentTypeNotLowercase(relation + "_Place"), uncertainPlaceOfReidenceEntity,
+                    SeedlingOntology.Physical_Resident_Resident, personEntity,
+                    SeedlingOntology.Physical_Resident_Place, uncertainPlaceOfReidenceEntity,
                     getAssertionUri(), system, 1.0);
 
             // we use clusters to represent uncertainty about identity
@@ -226,7 +225,6 @@ public class ExamplesAndValidationTest {
 
         @Test
         void createSeedlingEvent() {
-            final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
 
             final Model model = createModel(true);
 
@@ -249,10 +247,10 @@ public class ExamplesAndValidationTest {
 
             // link those entities to the event
             markAsArgument(model, event,
-                    ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + "_Elect"),
+                    SeedlingOntology.Personnel_Elect_Elect,
                     putin, system, 0.785);
             markAsArgument(model, event,
-                    ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + "_Place"),
+                    SeedlingOntology.Personnel_Elect_Place,
                     russia, system, 0.589);
 
             dumpAndAssertValid(model, "create a seedling event", true);
@@ -263,7 +261,6 @@ public class ExamplesAndValidationTest {
          */
         @Test
         void createSeedlingEventWithEventArgumentURI() {
-            final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
 
             final Model model = createModel(true);
 
@@ -295,7 +292,6 @@ public class ExamplesAndValidationTest {
         @Test
         void useSubgraphConfidencesToShowMutuallyExclusiveLinkedSeedlingEventArgumentOptions() {
             // we want to say that either Ukraine or Russia attacked MH17, but we aren't sure which
-            final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
             final Model model = createModel(true);
 
             // every AIF needs an object for the system responsible for creating it
@@ -308,7 +304,7 @@ public class ExamplesAndValidationTest {
             // mark the event as a Personnel.Elect event; type is encoded separately so we can express
             // uncertainty about type
             // NOTE: mapper keys use '.' separator but produce correct seedling output
-            markType(model, getAssertionUri(), event, ontologyMapping.eventType(eventTypeString),
+            markType(model, getAssertionUri(), event, SeedlingOntology.Conflict_Attack,
                     system, 1.0);
 
             // create the entities involved in the event
@@ -327,15 +323,15 @@ public class ExamplesAndValidationTest {
             // we link all possible argument fillers to the event
             final ImmutableSet<Resource> ukraineAttackedMH17 = ImmutableSet.of(
                     markAsArgument(model, event,
-                            ontologyMapping.eventArgumentTypeNotLowercase(attackerString), ukraine, system, null),
+                            SeedlingOntology.Conflict_Attack_Attacker, ukraine, system, null),
                     markAsArgument(model, event,
-                            ontologyMapping.eventArgumentTypeNotLowercase(targetString), mh17, system, null));
+                            SeedlingOntology.Conflict_Attack_Target, mh17, system, null));
 
             final ImmutableSet<Resource> russiaAttackedMH17 = ImmutableSet.of(
                     markAsArgument(model, event,
-                            ontologyMapping.eventArgumentTypeNotLowercase(attackerString), russia, system, null),
+                            SeedlingOntology.Conflict_Attack_Attacker, russia, system, null),
                     markAsArgument(model, event,
-                            ontologyMapping.eventArgumentTypeNotLowercase(targetString), mh17, system, null));
+                            SeedlingOntology.Conflict_Attack_Target, mh17, system, null));
 
             // then we mark these as mutually exclusive
             // we also mark confidence 0.2 that neither of these are true
@@ -347,7 +343,6 @@ public class ExamplesAndValidationTest {
 
         @Test
         void twoSeedlingHypotheses() {
-            final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
 
             final Model model = createModel(true);
 
@@ -372,23 +367,23 @@ public class ExamplesAndValidationTest {
             String targetString = eventTypeString + "_Target";
             String instrumentString = eventTypeString + "_Instrument";
             final Resource attackOnMH17 = makeEvent(model, mh17AttackDocumentEventUri, system);
-            markType(model, getAssertionUri(), attackOnMH17, ontologyMapping.eventType(eventTypeString),
+            markType(model, getAssertionUri(), attackOnMH17, SeedlingOntology.Conflict_Attack,
                     system, 1.0);
-            markAsArgument(model, attackOnMH17, ontologyMapping.eventArgumentTypeNotLowercase(targetString),
+            markAsArgument(model, attackOnMH17, SeedlingOntology.Conflict_Attack_Target,
                     mh17, system, null);
-            markAsArgument(model, attackOnMH17, ontologyMapping.eventArgumentTypeNotLowercase(instrumentString),
+            markAsArgument(model, attackOnMH17, SeedlingOntology.Conflict_Attack_Instrument,
                     buk, system, null);
 
-            final Resource isAttacker = ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + "_Attacker");
+            final Resource isAttacker = SeedlingOntology.Conflict_Attack_Attacker;
             String affiliationRelationString = "GeneralAffiliation.APORA";
             String affiliationRelationSubject = affiliationRelationString + "_Affiliate";
             String affiliationRelationObject = affiliationRelationString + "_Affiliation";
 
             // under the background hypothesis that the BUK is Russian, we believe Russia attacked MH17
             final Resource bukIsRussian = makeRelationInEventForm(model, russiaOwnsBukDocumentRelationUri,
-                    ontologyMapping.relationType(affiliationRelationString),
-                    ontologyMapping.eventArgumentTypeNotLowercase(affiliationRelationSubject), buk,
-                    ontologyMapping.eventArgumentTypeNotLowercase(affiliationRelationObject), russia,
+                    SeedlingOntology.GeneralAffiliation_APORA,
+                    SeedlingOntology.GeneralAffiliation_APORA_Affiliate, buk,
+                    SeedlingOntology.GeneralAffiliation_APORA_Affiliation, russia,
                     getAssertionUri(), system, 1.0);
 
             final Resource bukIsRussianHypothesis = makeHypothesis(model, getUri("hypothesis-1"),
@@ -399,9 +394,9 @@ public class ExamplesAndValidationTest {
 
             // under the background hypothesis that BUK is Ukrainian, we believe Ukraine attacked MH17
             final Resource bukIsUkrainian = makeRelationInEventForm(model, ukraineOwnsBukDocumentRelationUri,
-                    ontologyMapping.relationType(affiliationRelationString),
-                    ontologyMapping.eventArgumentTypeNotLowercase(affiliationRelationSubject), buk,
-                    ontologyMapping.eventArgumentTypeNotLowercase(affiliationRelationObject), ukraine,
+                    SeedlingOntology.GeneralAffiliation_APORA,
+                    SeedlingOntology.GeneralAffiliation_APORA_Affiliate, buk,
+                    SeedlingOntology.GeneralAffiliation_APORA_Affiliation, ukraine,
                     getAssertionUri(), system, 1.0);
 
             final Resource bukIsUkranianHypothesis = makeHypothesis(model, getUri("hypothesis-2"),
@@ -415,7 +410,6 @@ public class ExamplesAndValidationTest {
         // Create simple hypothesis that the BUK weapon system was owned by Russia
         @Test
         void simpleHypothesisWithCluster() {
-            final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
 
             final Model model = createModel(true);
 
@@ -446,12 +440,12 @@ public class ExamplesAndValidationTest {
             String affiliationRelationSubject = affiliationRelationString + "_Affiliate";
             String affiliationRelationObject = affiliationRelationString + "_Affiliation";
             final Resource bukIsRussian = makeRelation(model, russiaOwnsBukDocumentRelationUri, system);
-            markType(model, getAssertionUri(), bukIsRussian, ontologyMapping.relationType(affiliationRelationString),
+            markType(model, getAssertionUri(), bukIsRussian, SeedlingOntology.GeneralAffiliation_APORA,
                     system, 1.0);
             final Resource bukArgument = markAsArgument(model, bukIsRussian,
-                    ontologyMapping.eventArgumentTypeNotLowercase(affiliationRelationSubject), buk, system, 1.0);
+                    SeedlingOntology.GeneralAffiliation_APORA_Affiliate, buk, system, 1.0);
             final Resource russiaArgument = markAsArgument(model, bukIsRussian,
-                    ontologyMapping.eventArgumentTypeNotLowercase(affiliationRelationObject), russia, system, 1.0);
+                    SeedlingOntology.GeneralAffiliation_APORA_Affiliation, russia, system, 1.0);
 
             // Russia owns buk hypothesis
             final Resource bukIsRussianHypothesis = makeHypothesis(model, getUri("hypothesis-1"),
@@ -477,7 +471,7 @@ public class ExamplesAndValidationTest {
             // in order to allow uncertainty about the type of an entity, we don't mark an
             // entity's type directly on the entity, but rather make a separate assertion for it
             // its URI doesn't matter either
-            final Resource typeAssertion = markType(model, getAssertionUri(), putin, SeedlingOntologyMapper.PERSON,
+            final Resource typeAssertion = markType(model, getAssertionUri(), putin, SeedlingOntology.Person,
                     system, 1.0);
 
             // the justification provides the evidence for our claim about the entity's type
@@ -534,8 +528,6 @@ public class ExamplesAndValidationTest {
 
         @Test
         void createCompoundJustification() {
-            final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
-
             final Model model = createModel(true);
 
             // every AIF needs an object for the system responsible for creating it
@@ -547,7 +539,7 @@ public class ExamplesAndValidationTest {
             String eventTypeString = "Personnel.Elect";
             final Resource event = makeEvent(model, putinElectedDocumentEventUri, system);
             final Resource eventTypeAssertion = markType(model, getAssertionUri(), event,
-                    ontologyMapping.eventType(eventTypeString), system, 1.0);
+                    SeedlingOntology.Personnel_Elect, system, 1.0);
 
             // create the two entities involved in the event
             final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
@@ -560,10 +552,10 @@ public class ExamplesAndValidationTest {
 
             // link those entities to the event
             final Resource electeeArgument = markAsArgument(model, event,
-                    ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + "_Elect"),
+                    SeedlingOntology.Personnel_Elect_Elect,
                     putin, system, 0.785, getAssertionUri());
             final Resource placeArgument = markAsArgument(model, event,
-                    ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + "_Place"),
+                    SeedlingOntology.Personnel_Elect_Place,
                     russia, system, 0.589, getAssertionUri());
 
 
@@ -664,8 +656,6 @@ public class ExamplesAndValidationTest {
             // every AIF needs an object for the system responsible for creating it
             final Resource system = makeSystemWithURI(model, getTestSystemUri());
 
-            final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
-
             // Two people, probably the same person
             final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
             markType(model, getAssertionUri(), putin, SeedlingOntology.Person, system, 1.0);
@@ -694,8 +684,6 @@ public class ExamplesAndValidationTest {
 
             // every AIF needs an object for the system responsible for creating it
             final Resource system = makeSystemWithURI(model, getTestSystemUri());
-
-            final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
 
             // Two people, probably the same person
             final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
@@ -856,10 +844,10 @@ public class ExamplesAndValidationTest {
             // relation that President Obama (of uncertain reference) worked with Secretary Clinton (of uncertain reference)
             // is asserted in document 2
             final Resource relation = makeRelationInEventForm(model, getUri("relation-1"),
-                    ResourceFactory.createResource(SeedlingOntologyMapper.NAMESPACE_STATIC + "PersonalSocial.Business"),
-                    ResourceFactory.createResource(SeedlingOntologyMapper.NAMESPACE_STATIC + "PersonalSocial.Business_Person"),
+                    ResourceFactory.createResource(NAMESPACE + "PersonalSocial.Business"),
+                    ResourceFactory.createResource(NAMESPACE + "PersonalSocial.Business_Person"),
                     uncertainPresidentObamaDoc2,
-                    ResourceFactory.createResource(SeedlingOntologyMapper.NAMESPACE_STATIC + "PersonalSocial.Business_Person"),
+                    ResourceFactory.createResource(NAMESPACE + "PersonalSocial.Business_Person"),
                     uncertainSecretaryClintonDoc2, getAssertionUri(), system, 0.75);
             // mark justification "President Obama worked with Secretary Clinton"
             markTextJustification(model, relation, "doc2", 0, 10, system,
@@ -981,10 +969,10 @@ public class ExamplesAndValidationTest {
             // relation that President Obama (of uncertain reference) worked with Secretary Clinton (of uncertain reference)
             // is asserted in document 2
             final Resource relation = makeRelationInEventForm(model, getUri("relation-1"),
-                    ResourceFactory.createResource(SeedlingOntologyMapper.NAMESPACE_STATIC + "PersonalSocial.Business"),
-                    ResourceFactory.createResource(SeedlingOntologyMapper.NAMESPACE_STATIC + "PersonalSocial.Business_Person"),
+                    ResourceFactory.createResource(NAMESPACE + "PersonalSocial.Business"),
+                    ResourceFactory.createResource(NAMESPACE + "PersonalSocial.Business_Person"),
                     presidentObama,
-                    ResourceFactory.createResource(SeedlingOntologyMapper.NAMESPACE_STATIC + "PersonalSocial.Business_Person"),
+                    ResourceFactory.createResource(NAMESPACE + "PersonalSocial.Business_Person"),
                     secretaryClinton, getAssertionUri(), system, 0.75);
 
             // mark justification "President Obama worked with Secretary Clinton"
@@ -1093,7 +1081,6 @@ public class ExamplesAndValidationTest {
             final Model model = createModel(true);
 
             final Resource system = AIFUtils.makeSystemWithURI(model, "http://www.test.edu/testSystem");
-            final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
 
             final Resource personEntity = AIFUtils
                     .makeEntity(model, "http://www.test.edu/entities/1", system);
@@ -1104,10 +1091,10 @@ public class ExamplesAndValidationTest {
             AIFUtils.markType(model, "http://www.test.org/assertions/1",
                     louisvilleEntity, SeedlingOntology.GeopoliticalEntity, system, 1.0);
 
-            String relation = SeedlingOntologyMapper.NAMESPACE_STATIC + "unknown_type";
+            String relation = NAMESPACE + "unknown_type";
             makeRelationInEventForm(model, "http://www.test.edu/relations/1", model.createResource(relation),
-                    ontologyMapping.eventArgumentType(relation + "_person"), personEntity,
-                    ontologyMapping.eventArgumentType(relation + "_person"), louisvilleEntity,
+                    SeedlingOntology.Commodity, personEntity,
+                    SeedlingOntology.Movement_TransportPerson_Agent, louisvilleEntity,
                     getAssertionUri(), system, 1.0);
 
             assertFalse(seedlingValidator.validateKB(model));
@@ -1217,7 +1204,7 @@ public class ExamplesAndValidationTest {
         model.setNsPrefix("xsd", XSD.getURI());
         model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
         if (seedling) {
-            model.setNsPrefix("ldcOnt", SeedlingOntologyMapper.NAMESPACE_STATIC);
+            model.setNsPrefix("ldcOnt", NAMESPACE);
             model.setNsPrefix("ldc", LDC_NS);
         }
         model.setNsPrefix("skos", SKOS.uri);

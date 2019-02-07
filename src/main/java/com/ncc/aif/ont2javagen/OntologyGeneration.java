@@ -1,9 +1,6 @@
 package com.ncc.aif.ont2javagen;
 
-import org.apache.jena.ontology.OntModel;
-import org.apache.jena.ontology.OntClass;
-import org.apache.jena.ontology.OntModelSpec;
-import org.apache.jena.ontology.OntDocumentManager;
+import org.apache.jena.ontology.*;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.util.FileUtils;
 
@@ -24,13 +21,11 @@ import java.util.*;
 public class OntologyGeneration {
 
     private OntModel ontModel;
-    private List classesToGenerate;
     private static List<OWGClass> owgClassList = new ArrayList<>();
 
 
     private OntologyGeneration() {
         this.ontModel = this.createOntModel(false);
-        this.classesToGenerate = new ArrayList();
     }
 
     // Reads in ontology File
@@ -50,7 +45,15 @@ public class OntologyGeneration {
             OntClass oc = (OntClass)it.next();
             if (!oc.isAnon()) {
                 setResources(oc.getURI(), oc.getLocalName());
-                this.classesToGenerate.add(oc.getURI());
+            }
+        }
+
+        Iterator itProperty = tempont.listAllOntProperties();
+
+        while(itProperty.hasNext()) {
+            OntProperty op = (OntProperty)itProperty.next();
+            if (!op.isAnon()) {
+                setResources(op.getURI(), op.getLocalName());
             }
         }
     }
@@ -115,10 +118,6 @@ public class OntologyGeneration {
         List<String> owgMapping = new ArrayList<>();
 
         owgMapping.addAll(owgMapperHeader());
-
-        OWGClass example = owgClassList.get(0);
-
-        String baseURI = example.uri;
 
         String className = "public final class " + variableClassName + " {";
         owgMapping.add(className);

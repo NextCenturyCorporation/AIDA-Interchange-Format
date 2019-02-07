@@ -77,7 +77,7 @@ public class ScalingTest {
     private int eventIndex = 1;
     private int assertionIndex = 1;
 
-    private final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
+    private static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOwlOntology";
 
     private final Random r = new Random();
     private List<Resource> entityResourceList = null;
@@ -219,7 +219,7 @@ public class ScalingTest {
         }
 
         // Set the type
-        Resource typeToUse = entityTypes[r.nextInt(entityTypes.length)];
+        Resource typeToUse = SeedlingOntology.Person;
         Resource typeAssertion = markType(model, getAssertionUri(), entityResource,
                 typeToUse, system, 1.0);
 
@@ -232,18 +232,21 @@ public class ScalingTest {
 
         // Set the type
         String eventTypeString = EVENT_TYPES[r.nextInt(EVENT_TYPES.length)];
-        Resource typeResource = ontologyMapping.eventType(eventTypeString);
+        Resource typeResource = SeedlingOntology.Physical_Resident;
         Resource typeAssertion = markType(model, getAssertionUri(), eventResource, typeResource, system, 1.0);
 
         addJustificationAndPrivateData(typeAssertion);
 
         // Make two arguments
-        for (int ii = 0; ii < 2; ii++) {
-            Resource argument = markAsArgument(model, eventResource,
-                    ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + getRandomRole()),
-                    getRandomEntity(), system, 0.785, getAssertionUri());
-            addJustificationAndPrivateData(argument);
-        }
+        Resource argument = markAsArgument(model, eventResource,
+                SeedlingOntology.Physical_Resident_Place,
+                getRandomEntity(), system, 0.785, getAssertionUri());
+        addJustificationAndPrivateData(argument);
+
+        Resource argumentTwo = markAsArgument(model, eventResource,
+                SeedlingOntology.Physical_Resident_Resident,
+                getRandomEntity(), system, 0.785, getAssertionUri());
+        addJustificationAndPrivateData(argumentTwo);
     }
 
     private void addJustificationAndPrivateData(Resource resource) {
@@ -318,7 +321,7 @@ public class ScalingTest {
         model.setNsPrefix("rdf", RDF.uri);
         model.setNsPrefix("xsd", XSD.getURI());
         model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
-        model.setNsPrefix("ldcOnt", SeedlingOntologyMapper.NAMESPACE_STATIC);
+        model.setNsPrefix("ldcOnt", NAMESPACE);
         model.setNsPrefix("ldc", LDC_NS);
         model.setNsPrefix("skos", SKOS.uri);
     }
@@ -386,7 +389,6 @@ public class ScalingTest {
 
     // Utility values, so that we can easily create random things
     private final static String abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private final Resource[] entityTypes = SeedlingOntologyMapper.ENTITY_TYPES.toArray(new Resource[0]);
 
     private final String[] EVENT_TYPES = {
             "Business.DeclareBankruptcy", "Business.End", "Business.Merge", "Business.Start",

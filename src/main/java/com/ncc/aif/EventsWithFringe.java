@@ -6,7 +6,7 @@ import org.apache.jena.rdf.model.ResourceFactory;
 // WARNING. This is a Generated File.  Please do not edit.
 // This class contains Variables generated from Ontologies using the OntologyGeneration Class
 // Please refer to the README at src/main/java/com/ncc/aif/ont2javagen for more information
-// Last Generated On: 02/05/2019 10:25:24
+// Last Generated On: 02/07/2019 09:45:01
 public final class EventsWithFringe {
     public static final Resource Pardon_LEGAL_ACTION = ResourceFactory.createResource("https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/EventsWithFringe#Pardon-LEGAL_ACTION");
     public static final Resource BringCarryUnload_COLOCATED_THEME_COTHEME = ResourceFactory.createResource("https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/EventsWithFringe#BringCarryUnload-COLOCATED_THEME_COTHEME");
