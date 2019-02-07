@@ -828,10 +828,10 @@ public class ExamplesAndValidationTest {
             // relation that President Obama (of uncertain reference) worked with Secretary Clinton (of uncertain reference)
             // is asserted in document 2
             final Resource relation = makeRelationInEventForm(model, getUri("relation-1"),
-                    ResourceFactory.createResource(NAMESPACE + "PersonalSocial.Business"),
-                    ResourceFactory.createResource(NAMESPACE + "PersonalSocial.Business_Person"),
+                    SeedlingOntology.PersonalSocial_Business,
+                    SeedlingOntology.PersonalSocial_Business_Person,
                     uncertainPresidentObamaDoc2,
-                    ResourceFactory.createResource(NAMESPACE + "PersonalSocial.Business_Person"),
+                    SeedlingOntology.PersonalSocial_Business_Person,
                     uncertainSecretaryClintonDoc2, getAssertionUri(), system, 0.75);
             // mark justification "President Obama worked with Secretary Clinton"
             markTextJustification(model, relation, "doc2", 0, 10, system,
@@ -953,10 +953,10 @@ public class ExamplesAndValidationTest {
             // relation that President Obama (of uncertain reference) worked with Secretary Clinton (of uncertain reference)
             // is asserted in document 2
             final Resource relation = makeRelationInEventForm(model, getUri("relation-1"),
-                    ResourceFactory.createResource(NAMESPACE + "PersonalSocial.Business"),
-                    ResourceFactory.createResource(NAMESPACE + "PersonalSocial.Business_Person"),
+                    SeedlingOntology.PersonalSocial_Business,
+                    SeedlingOntology.PersonalSocial_Business_Person,
                     presidentObama,
-                    ResourceFactory.createResource(NAMESPACE + "PersonalSocial.Business_Person"),
+                    SeedlingOntology.PersonalSocial_Business_Person,
                     secretaryClinton, getAssertionUri(), system, 0.75);
 
             // mark justification "President Obama worked with Secretary Clinton"
