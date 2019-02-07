@@ -87,7 +87,7 @@ public class ScalingTest {
     // Whether to use in memory or disk based.
     // Note:  TDB2 requires transactions, which we do not do!  Do not use it!
     private enum MODEL_TYPE {
-        MEMORY, TDB, TDB2
+        MEMORY, TDB
     }
 
     // What output format to use, whether turtle pretty, or flat, or ntriple, or blocks
@@ -231,7 +231,6 @@ public class ScalingTest {
         Resource eventResource = makeEvent(model, getEventUri(), system);
 
         // Set the type
-        String eventTypeString = EVENT_TYPES[r.nextInt(EVENT_TYPES.length)];
         Resource typeResource = SeedlingOntology.Physical_Resident;
         Resource typeAssertion = markType(model, getAssertionUri(), eventResource, typeResource, system, 1.0);
 
@@ -379,39 +378,11 @@ public class ScalingTest {
         return entityResourceList.get(r.nextInt(entityResourceList.size()));
     }
 
-    private String getRandomRole() {
-        return "_" + ROLES[r.nextInt(ROLES.length)];
-    }
-
     private char randomChar() {
         return abc.charAt(r.nextInt(abc.length()));
     }
 
     // Utility values, so that we can easily create random things
     private final static String abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-    private final String[] EVENT_TYPES = {
-            "Business.DeclareBankruptcy", "Business.End", "Business.Merge", "Business.Start",
-            "Conflict.Attack", "Conflict.Demonstrate", "Contact.Broadcast", "Contact.Contact",
-            "Contact.Correspondence", "Contact.Meet", "Existence.DamageDestroy", "Government.Agreements",
-            "Government.Legislate", "Government.Spy", "Government.Vote", "Inspection.Artifact", "Inspection.People",
-            "Justice.Acquit", "Justice.Appeal", "Justice.ArrestJail", "Justice.ChargeIndict", "Justice.Convict",
-            "Justice.Execute", "Justice.Extradite", "Justice.Fine", "Justice.Investigate", "Justice.Pardon",
-            "Justice.ReleaseParole", "Justice.Sentence", "Justice.Sue", "Justice.TrialHearing",
-            "Life.BeBorn", "Life.Die", "Life.Divorce", "Life.Injure", "Life.Marry",
-            "Manufacture.Artifact", "Movement.TransportArtifact", "Movement.TransportPerson",
-            "Personnel.Elect", "Personnel.EndPosition", "Personnel.Nominate", "Personnel.StartPosition",
-            "Transaction.Transaction", "Transaction.TransferControl", "Transaction.TransferMoney",
-            "Transaction.TransferOwnership"};
-
-    private final String[] ROLES = {"Attacker", "Instrument", "Place", "Target", "Time", "Broadcaster",
-            "Place", "Time", "Participant", "Place", "Participant", "Time",
-            "Participant", "Affiliate", "Affiliation", "Affiliation", "Person",
-            "Entity", "Sponsor", "Defendant", "Prosecutor", "Adjudicator",
-            "Defendant", "Agent", "Instrument", "Victim", "Artifact",
-            "Manufacturer", "Agent", "Artifact", "Destination", "Instrument",
-            "Origin", "Time", "Agent", "Destination", "Instrument", "Origin",
-            "Person", "Employee", "Organization", "Person", "Entity", "Place",
-            "Beneficiary", "Giver", "Recipient", "Thing", "Time"};
 
 }

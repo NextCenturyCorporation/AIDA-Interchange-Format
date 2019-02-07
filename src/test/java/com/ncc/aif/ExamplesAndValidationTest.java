@@ -195,7 +195,6 @@ public class ExamplesAndValidationTest {
             final Resource uncertainPlaceOfReidenceEntity = makeEntity(model, getEntityUri(), system);
 
             // whatever this place turns out to refer to, we're sure it's where they live
-            String relation = "Physical.Resident";
             makeRelationInEventForm(model, putinResidesDocumentRelationUri,
                     SeedlingOntology.Physical_Resident,
                     SeedlingOntology.Physical_Resident_Resident, personEntity,
@@ -234,7 +233,6 @@ public class ExamplesAndValidationTest {
             // we make a resource for the event itself
             // mark the event as a Personnel.Elect event; type is encoded separately so we can express
             // uncertainty about type
-            String eventTypeString = "Personnel.Elect";
             final Resource event = makeEvent(model, putinElectedDocumentEventUri, system);
             markType(model, getAssertionUri(), event, SeedlingOntology.Personnel_Elect, system, 1.0);
 
@@ -298,7 +296,6 @@ public class ExamplesAndValidationTest {
             final Resource system = makeSystemWithURI(model, getTestSystemUri());
 
             // we make a resource for the event itself
-            String eventTypeString = "Conflict.Attack";
             final Resource event = makeEvent(model, mh17AttackDocumentEventUri, system);
 
             // mark the event as a Personnel.Elect event; type is encoded separately so we can express
@@ -316,9 +313,6 @@ public class ExamplesAndValidationTest {
 
             final Resource mh17 = makeEntity(model, mh17DocumentEntityUri, system);
             markType(model, getAssertionUri(), mh17, SeedlingOntology.Vehicle, system, 1.0);
-
-            String attackerString = eventTypeString + "_Attacker";
-            String targetString = eventTypeString + "_Target";
 
             // we link all possible argument fillers to the event
             final ImmutableSet<Resource> ukraineAttackedMH17 = ImmutableSet.of(
@@ -363,9 +357,6 @@ public class ExamplesAndValidationTest {
             final Resource ukraine = makeEntity(model, ukraineDocumentEntityUri, system);
             markType(model, getAssertionUri(), ukraine, SeedlingOntology.GeopoliticalEntity, system, 1.0);
 
-            String eventTypeString = "Conflict.Attack";
-            String targetString = eventTypeString + "_Target";
-            String instrumentString = eventTypeString + "_Instrument";
             final Resource attackOnMH17 = makeEvent(model, mh17AttackDocumentEventUri, system);
             markType(model, getAssertionUri(), attackOnMH17, SeedlingOntology.Conflict_Attack,
                     system, 1.0);
@@ -375,9 +366,6 @@ public class ExamplesAndValidationTest {
                     buk, system, null);
 
             final Resource isAttacker = SeedlingOntology.Conflict_Attack_Attacker;
-            String affiliationRelationString = "GeneralAffiliation.APORA";
-            String affiliationRelationSubject = affiliationRelationString + "_Affiliate";
-            String affiliationRelationObject = affiliationRelationString + "_Affiliation";
 
             // under the background hypothesis that the BUK is Russian, we believe Russia attacked MH17
             final Resource bukIsRussian = makeRelationInEventForm(model, russiaOwnsBukDocumentRelationUri,
@@ -436,9 +424,6 @@ public class ExamplesAndValidationTest {
             final Resource bukIsClustered = markAsPossibleClusterMember(model, buk, bukCluster, .9, system);
 
             // Russia owns buk relation
-            String affiliationRelationString = "GeneralAffiliation.APORA";
-            String affiliationRelationSubject = affiliationRelationString + "_Affiliate";
-            String affiliationRelationObject = affiliationRelationString + "_Affiliation";
             final Resource bukIsRussian = makeRelation(model, russiaOwnsBukDocumentRelationUri, system);
             markType(model, getAssertionUri(), bukIsRussian, SeedlingOntology.GeneralAffiliation_APORA,
                     system, 1.0);
@@ -536,7 +521,6 @@ public class ExamplesAndValidationTest {
             // we make a resource for the event itself
             // mark the event as a Personnel.Elect event; type is encoded separately so we can express
             // uncertainty about type
-            String eventTypeString = "Personnel.Elect";
             final Resource event = makeEvent(model, putinElectedDocumentEventUri, system);
             final Resource eventTypeAssertion = markType(model, getAssertionUri(), event,
                     SeedlingOntology.Personnel_Elect, system, 1.0);
