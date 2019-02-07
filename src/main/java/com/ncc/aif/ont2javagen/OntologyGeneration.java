@@ -16,7 +16,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * Generates java resources from an ontology
+ * Generates java resources from an ontology.  Directions for how to generate java files from this class can be found at
+ * src/main/java/com/ncc/aif/ont2javagen/README.md
  */
 public class OntologyGeneration {
 
