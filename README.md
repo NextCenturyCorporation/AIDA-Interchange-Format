@@ -78,7 +78,7 @@ a sample of a validator param file in `sample_params/validate.common_corpus.sing
 # Running the Ontology Resource Generator
 
 To generate the resource variables from a particular ontology file, please refer to 
-the README located at `src/test/java/com/ncc/aif/ont2javagen/README.md`.
+the README located at `src/main/java/com/ncc/aif/ont2javagen/README.md`.
 
 # Running the ColdStart -> AIF Converter (Kotlin only)
 

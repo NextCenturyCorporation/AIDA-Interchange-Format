@@ -978,7 +978,7 @@ public class ExamplesAndValidationTest {
             final Resource entityIsAPerson = markType(model, getAssertionUri(), entity, SeedlingOntology.Person,
                     system, 0.5);
 //        final Resource entityIsAPoliticalEntity = markType(model, getAssertionUri(), entity,
-//                SeedlingOntologyMapper.GPE, system, 0.2);
+//                SeedlingOntology.GeopoliticalEntity, system, 0.2);
 
             markTextJustification(model, ImmutableSet.of(entityIsAPerson),
                     "HC000T6IV", 1029, 1033, system, 0.973);
