@@ -12,7 +12,6 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
@@ -45,7 +44,7 @@ public class ExamplesAndValidationTest {
     }
 
     private final ValidateAIF seedlingValidator = ValidateAIF.createForDomainOntologySource(
-            Resources.asCharSource(Resources.getResource("com/ncc/aif/SeedlingOntology"), StandardCharsets.UTF_8));
+            Resources.asCharSource(Resources.getResource("com/ncc/aif/ontologies/SeedlingOntology"), StandardCharsets.UTF_8));
 
     private int assertionCount = 1;
     private int entityCount = 1;
