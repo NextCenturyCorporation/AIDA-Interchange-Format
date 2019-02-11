@@ -77,7 +77,7 @@ public class ScalingTest {
     private int eventIndex = 1;
     private int assertionIndex = 1;
 
-    private static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOwlOntology";
+    private static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology";
 
     private final Random r = new Random();
     private List<Resource> entityResourceList = null;
