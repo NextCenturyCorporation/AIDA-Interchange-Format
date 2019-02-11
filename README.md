@@ -2,7 +2,7 @@
 
 This repository contains resources to support the AIDA Interchange Format (AIF).  It consists of:
 
-*    a formal representation of the format in terms of an OWL ontology in `src/main/resources/com/ncc/aif/InterchangeOntology`.
+*    a formal representation of the format in terms of an OWL ontology in `src/main/resources/com/ncc/aif/ontologies/InterchangeOntology`.
      This ontology can be validated using the SHACL constraints file in
      `src/main/resources/com/ncc/aif/aida_ontology.shacl`.
 
