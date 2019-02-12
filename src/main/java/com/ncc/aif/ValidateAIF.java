@@ -32,8 +32,8 @@ import java.util.HashSet;
 public final class ValidateAIF {
 
     private static final String SHACL_RESNAME = "com/ncc/aif/aida_ontology.shacl";
-    private static final String INTERCHANGE_RESNAME = "com/ncc/aif/InterchangeOntology";
-    private static final String AIDA_DOMAIN_COMMON_RESNAME = "com/ncc/aif/AidaDomainOntologiesCommon";
+    private static final String INTERCHANGE_RESNAME = "com/ncc/aif/ontologies/InterchangeOntology";
+    private static final String AIDA_DOMAIN_COMMON_RESNAME = "com/ncc/aif/ontologies/AidaDomainOntologiesCommon";
     private static final String INTERCHANGE_URI = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology";
     private static final String AIDA_DOMAIN_COMMON_URI = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon";
 
