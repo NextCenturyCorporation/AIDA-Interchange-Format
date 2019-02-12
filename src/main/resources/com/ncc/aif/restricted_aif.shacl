@@ -1,0 +1,163 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix aida: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#> .
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# restricted_aif.shacl
+#
+# Add on to aida_ontology.shacl use to enforce NIST-restricted-AIF.
+# Requires aida_ontology.shacl to be loaded
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+
+#########################
+# All Entity and Event objects are restricted to justifications
+# from a single document; that is, there can be multiple justification
+# sections, but need to have the same aida:source.
+#------------------------
+aida:EntityShape
+    sh:sparql [
+        sh:message "Entity justifications can only have 1 source" ;
+        sh:select """
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            SELECT $this
+            WHERE {
+                $this aida:justifiedBy [ aida:source|aida:containedJustification/aida:source ?source ] .
+            }
+            GROUP BY $this
+            HAVING (COUNT(DISTINCT ?source) > 1)
+        """ ;
+    ] .
+
+aida:EventShape
+    sh:sparql [
+        sh:message "Event justifications can only have 1 source" ;
+        sh:select """
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            SELECT $this
+            WHERE {
+                $this aida:justifiedBy [ aida:source|aida:containedJustification/aida:source ?source ] .
+            }
+            GROUP BY $this
+            HAVING (COUNT(DISTINCT ?source) > 1)
+        """ ;
+    ] .
+
+#########################
+# Each edge justification is limited to two or fewer spans
+#------------------------
+# Define requirement that edge justification contain no more than 2 justifications
+aida:NistEdgeJustificationLimit
+    a sh:PropertyShape ;
+    sh:path aida:containedJustification ;
+    sh:maxCount 2 ;
+    sh:message "Only 2 justifications allowed within compound edge justification" .
+
+# Define edge justification shape
+aida:EdgeJustificationShape
+    a sh:NodeShape ;
+    sh:targetClass aida:CompoundJustification ;
+
+    # can have at most 2 justifications
+    sh:property aida:NistEdgeJustificationLimit .
+
+# Turn off CompoundJustificationMinimum globally
+aida:CompoundJustificationMinimum sh:deactivated true .
+
+#########################
+# Each edge justification must be represented uniformly in AIF by
+# aida:CompoundJustification, even if only one span is provided
+# Edges are assumed to be relation and event arguments
+#------------------------
+# Define restriction where justification can only be compound justification
+aida:NistEdgeJustificationCompound
+    a sh:PropertyShape ;
+    sh:path aida:justifiedBy ;
+    sh:class aida:EdgeJustificationShape ;
+    sh:message "Edge justification must be of type aida:CompoundJustification" .
+
+# Enforce edge justification restriction on event and relation arguments
+aida:EventArgumentShape sh:property aida:NistEdgeJustificationCompound .
+aida:RelationArgumentShape sh:property aida:NistEdgeJustificationCompound .
+
+#########################
+# Video must use aida:KeyFrameVideoJustification. Remove ShotVideoJustification
+#------------------------
+# Restrict normal Justification types globally
+aida:JustificationPropertyShape
+    sh:xone (
+        [sh:class aida:TextJustification]
+        [sh:class aida:ImageJustification]
+        [sh:class aida:AudioJustification]
+        [sh:class aida:KeyFrameVideoJustification]
+        [sh:class aida:CompoundJustification] ) .
+
+# Restrict CompoundJustificationTypes globally
+aida:CompoundJustificationTypes
+    sh:xone (
+        [sh:class aida:TextJustification]
+        [sh:class aida:ImageJustification]
+        [sh:class aida:AudioJustification]
+        [sh:class aida:KeyFrameVideoJustification] ) .
+
+#########################
+# Members of clusters are entity objects, relation objects, and event objects (not clusters)
+#------------------------
+aida:ClusterMembershipShape
+    sh:property [
+        a sh:PropertyShape ;
+        sh:path aida:clusterMember ;
+        sh:xone (
+            [sh:class aida:Entity]
+            [sh:class aida:Event]
+            [sh:class aida:Relation]
+        ) ] .
+
+#########################
+# Entity, Relation, and Event object is required to be part of at least one cluster.
+# This is true even if there is nothing else in the cluster
+#------------------------
+aida:EntityShape
+    sh:sparql [
+        sh:message "Entity is not clustered" ;
+        sh:select """
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            SELECT $this
+            WHERE {
+                FILTER NOT EXISTS {
+                    ?membership a aida:ClusterMembership .
+                    ?membership aida:clusterMember $this .
+                }
+            }
+        """ ;
+    ] .
+
+aida:EventShape
+    sh:sparql [
+        sh:message "Event is not clustered" ;
+        sh:select """
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            SELECT $this
+            WHERE {
+                FILTER NOT EXISTS {
+                    ?membership a aida:ClusterMembership .
+                    ?membership aida:clusterMember $this .
+                }
+            }
+        """ ;
+    ] .
+
+aida:RelationMustBeClustered
+    a sh:NodeShape ;
+    sh:targetClass aida:Relation ;
+    sh:sparql [
+        sh:message "Relation is not clustered" ;
+        sh:select """
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            SELECT $this
+            WHERE {
+                FILTER NOT EXISTS {
+                    ?membership a aida:ClusterMembership .
+                    ?membership aida:clusterMember $this .
+                }
+            }
+        """ ;
+    ] .
