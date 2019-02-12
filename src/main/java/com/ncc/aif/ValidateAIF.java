@@ -79,7 +79,7 @@ public final class ValidateAIF {
     }
 
     /**
-     * Create an AIF validator for specifed domain ontologies and requirements.
+     * Create an AIF validator for specified domain ontologies and requirements.
      * @param ldcFlag Whether or not to validate against the LDC ontology
      * @param programFlag Whether or not to validate against the program working group's ontology
      * @param nistFlag Whether or not to validate against the NIST requirements
@@ -122,7 +122,7 @@ public final class ValidateAIF {
             loadModel(model, source);
         }
 
-        return new ValidateAIF(model, false /*nistFlag*/);
+        return new ValidateAIF(model, nistFlag);
     }
 
     // Show usage information.
@@ -172,7 +172,6 @@ public final class ValidateAIF {
         for (int i = 0; i < args.length; i++) {
             final String arg = args[i];
             final String strippedArg = arg.trim();
-            System.out.println(" Argument: |" + arg + "|");
             switch (strippedArg) {
                 case "-h":
                 case "--help" :
@@ -240,7 +239,7 @@ public final class ValidateAIF {
 
     /**
      * A command-line AIF validator.  For details, see <a href="https://github.com/NextCenturyCorporation/AIDA-Interchange-Format">the AIF README</a>
-     * section entitled, <i>Running the validator</i>.
+     * section entitled, <i>The AIF Validator</i>.
      *
      * @param args Command line arguments as specified in the README
      */
@@ -249,6 +248,7 @@ public final class ValidateAIF {
         final Set<String> domainOntologies = new HashSet<>();
         final Set<String> validationFiles = new LinkedHashSet<>();
         final Set<String> validationDirs = new LinkedHashSet<>();
+        final short SUCCESS=0;
         final short VALIDATION_ERROR=1;
         final short USAGE_ERROR=2;
         final short FILE_ERROR=3;
@@ -318,7 +318,7 @@ public final class ValidateAIF {
         }
 
         if (filesToValidate.isEmpty()) {
-            logger.error("No files with .ttl suffix were found.  Use -h option for help.");
+            logger.error("No files with .ttl suffix were specified.  Use -h option for help.");
             System.exit(FILE_ERROR);
         }
 
@@ -372,6 +372,7 @@ public final class ValidateAIF {
         } else {
             logger.info("All KBs were valid" + (skipCount > 0 ? " (" + skipCount + " skipped)." : "."));
         }
+        System.exit(skipCount == 0 ? SUCCESS : FILE_ERROR);
     }
 
     /**
@@ -389,6 +390,7 @@ public final class ValidateAIF {
      *
      * @param dataToBeValidated KB to be validated
      * @param union             unified KB if not null
+     * @return True if the KB is valid
      */
     public boolean validateKB(Model dataToBeValidated, Model union) {
         // We unify the given KB with the background and domain KBs before validation.
@@ -400,7 +402,6 @@ public final class ValidateAIF {
         // validation attempts misleading nonsense.
         return  validateAgainstShacl(unionModel, shaclModel)
                 && (nistModel == null || validateAgainstShacl(unionModel, nistModel))
-                // && ensureConfidencesInZeroOne(unionModel)
                 && ensureEveryEntityAndEventHasAType(unionModel);
     }
 
@@ -420,25 +421,6 @@ public final class ValidateAIF {
         return valid;
     }
 
-    private boolean ensureConfidencesInZeroOne(Model dataToBeValidated) {
-        HashSet<Double> badVals = new HashSet<>();
-        NodeIterator nodeIter = dataToBeValidated.listObjectsOfProperty(AidaAnnotationOntology.CONFIDENCE_VALUE);
-        while (nodeIter.hasNext()) {
-            // We can assume all objects of confidenceValue are double-valued literals
-            // or else we would have failed SHACL validation.
-            final double floatVal = nodeIter.nextNode().asLiteral().getDouble();
-            if (floatVal < 0 || floatVal > 1.0) {
-                badVals.add(floatVal);
-            }
-        }
-
-        if (!badVals.isEmpty()) {
-            // TODO: provide more context for this error
-            System.err.println("The following confidence values outside the range [0, 1.0] were found: " +
-                    badVals.toString());
-        }
-        return badVals.isEmpty();
-    }
 
     // Used by ensureEveryEntityAndEventHasAType below
     private static final String ENSURE_TYPE_SPARQL_QUERY =

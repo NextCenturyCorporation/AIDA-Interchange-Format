@@ -63,17 +63,72 @@ to write the model out.
 The file `src/test/java/edu/isi/gaia/ExamplesAndValidationTests.java`
 has similar examples that use the Kotlin version.
 
+# The AIF Validator
+The AIF validator is an extension of the validator written by Ryan Gabbard (USC ISI)
+and converted to Java by Next Century.  This version of the validator accepts multiple
+ontology files, can validate against NIST requirements (restricted AIF), and can
+validate N files or all files in a specified directory.
 
-# Running the validator
+### Running the AIF validator
+To run the validator from the command line, run `target/appassembler/bin/validateAIF`
+with a series of command-line arguments (in any order) honoring the following usage:  <br>
+Usage:  <br>
+`validateAIF { --ldc | --program | --ont FILE ...} [--nist] [-h | --help] {-f FILE ... | -d DIRNAME}`  <br>
+Options:  <br>
+`--ldc` validate against the LDC ontology  <br>
+`--program` validate against the program ontology  <br>
+`--ont FILE ...` validate against the OWL-formatted ontolog(ies) at the specified filename(s)  <br>
+`--nist` validate against the NIST restrictions  <br>
+`-h, --help` This help and usage text  <br>
+`-f FILE ...` validate the specified file(s) with a .ttl suffix  <br>
+`-d DIRNAME` validate all .ttl files in the specified directory  <br>
+Either a file (-f) or a directory (-d) must be specified (but not both).  <br>
+Exactly one of --ldc, --program, or --ont must be specified.  <br>
+Ontology files can be found in `src/main/resources/com/ncc/aif/ontologies`:
+- LDC (LO): `SeedlingOntology`
+- Program (AO): `EntityOntology`, `EventOntology`, `RelationOntology`
 
-To run the validator from the command line, run `target/appassembler/bin/validateAIF-java` with a single argument, a parameter
+### Validator return values
+Return values from the command-line validator are as follows:
+* `0 (Success)`.  There were no validation (or any other) errors.
+* `1 (Validation Error)`.	All specified files were validated but at least one failed validation.
+* `2 (Usage Error)`.  There was a problem interpreting command-line arguments.  No validation was performed.
+* `3 (File Error)`.  There was a problem reading one or more files or directories.  Validation may have been performed on a subset of specified KBs.  If there is an error loading any ontologies or SHACL files, then no validation is performed.
+
+### Running the validator in code
+To run the validator programmatically in Java code, first use `ValidateAIF.create()`
+to create a validator object, then call one of the public `validateKB()` methods.
+`create()` accepts a set of domain ontology CharSources and several flags.  See the JavaDocs.
+
+Note: the original `ValidateAIF.createForDomainOntologySource()` method remains for backward compatibility.
+
+### Differences from the legacy validator
+The AIF Validator bears certain important differences from the previous version of
+the validator (still currently available-- see *Running the legacy validator* below).
+* The validator no longer accepts a parameter file to specify, essentially,
+its program arguments.  Instead, it takes all arguments as command-line options.
+* The validator no longer ensures that confidences are between 0 and 1.
+* The validator will now only validate files with the `.ttl` extension.
+* The validator returns a variety of return codes (see above).
+
+### Validation duration
+All files taken from the performer S3 buckets at
+`https://s3.console.aws.amazon.com/s3/object/aida-ta-performers/` :
+* `OPERA_TA1a_1.zip` (TA1): 9.95GB, 7662 items.  XX hours and XX minutes
+* `GAIA_1.tar` (TA1): 26.9 GB, 10,984 items.  XX hours and XX minutes
+* `GAIA_1.GAIA_1.ttl` (TA2): 40.9GB, 1 item.  XX hours and XX minutes
+* `TA1-BBN_1.TA2-SAMSON_3.TA3-SAMSON_1_kb.zip` (TA3): 6 dirs, 25 files, 481MB.  XX hours and XX minutes
+* `OPERA_TA1a_2.OPERA_TA2_2.OPERA_TA3_2.zip` (TA3): 6 dirs, 170 files, 109MB.  XX hours and XX minutes
+
+### Running the legacy validator (Kotlin only)
+
+To run the legacy validator from the command line, run `target/appassembler/bin/validateAIF-kotlin` with a single argument, a parameter
 file. The parameter file should have keys and values separated by `:`. It should have either the
 parameter `kbToValidate` pointing to the single Turtle format KB to validate, or it should have
 `kbsToValidate` pointing to a file listing the paths of the Turtle format KBs to validate.
 Additionally, it must have a parameter `domainOntology` pointing to the OWL file for the domain
 ontology to validate against.  Beware that validating large KBs can take a long time. There is
-a sample of a validator param file in `sample_params/validate.common_corpus.single.params`
-* To run the validator using the Kotlin version, run `target/appassembler/bin/validateAIF`.
+a sample of a validator param file in `sample_params/validate.common_corpus.single.params`.
 
 # Running the Ontology Resource Generator
 

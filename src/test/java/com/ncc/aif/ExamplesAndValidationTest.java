@@ -1000,23 +1000,6 @@ public class ExamplesAndValidationTest {
     @Nested
     class InvalidExamples {
         @Test
-        void confidenceOutsideOfZeroOne() {
-            final Model model = createModel(true);
-
-            final Resource system = AIFUtils.makeSystemWithURI(model,
-                    "http://www.test.edu/testSystem");
-
-            final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
-                    system);
-
-            AIFUtils.markType(model, "http://www.test.org/assertions/1",
-                    // illegal confidence value - not in [0.0, 1.0]
-                    entity, SeedlingOntology.Person, system, 100.0);
-
-            assertFalse(seedlingValidator.validateKB(model));
-        }
-
-        @Test
         void entityMissingType() {
             // having multiple type assertions in case of uncertainty is ok, but there must always
             // be at least one type assertion
