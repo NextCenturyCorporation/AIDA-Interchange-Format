@@ -2,7 +2,7 @@
 
 This repository contains resources to support the AIDA Interchange Format (AIF).  It consists of:
 
-*    a formal representation of the format in terms of an OWL ontology in `src/main/resources/com/ncc/aif/InterchangeOntology`.
+*    a formal representation of the format in terms of an OWL ontology in `src/main/resources/com/ncc/aif/ontologies/InterchangeOntology`.
      This ontology can be validated using the SHACL constraints file in
      `src/main/resources/com/ncc/aif/aida_ontology.shacl`.
 
@@ -74,6 +74,11 @@ Additionally, it must have a parameter `domainOntology` pointing to the OWL file
 ontology to validate against.  Beware that validating large KBs can take a long time. There is
 a sample of a validator param file in `sample_params/validate.common_corpus.single.params`
 * To run the validator using the Kotlin version, run `target/appassembler/bin/validateAIF`.
+
+# Running the Ontology Resource Generator
+
+To generate the resource variables from a particular ontology file, please refer to 
+the README located at `src/main/java/com/ncc/aif/ont2javagen/README.md`.
 
 # Running the ColdStart -> AIF Converter (Kotlin only)
 

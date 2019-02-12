@@ -1,0 +1,1539 @@
+@prefix ext:   <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/ExtendedEntity#> .
+@prefix schema: <http://schema.org/> .
+@prefix olia:  <http://purl.org/olia/system.owl#> .
+@prefix aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#> .
+@prefix evt:   <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/EventsWithFringe#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rel:   <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/EntityRelations#> .
+@prefix aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/ExtendedEntity>
+        a                owl:Ontology ;
+        rdfs:comment     "An ontology for creating messages from LDC data to describe entities" ;
+        rdfs:label       "AIDA Entity Ontology" ;
+        owl:imports      <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon> ;
+        owl:versionInfo  "Version 1.0" .
+
+ext:ActivityField  a      owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Shish .
+
+ext:Address  a            owl:Class ;
+        rdfs:comment      "the place where a person or organization can be found or communicated with" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:GeographicPoint .
+
+ext:AdministrativeUnit
+        a                 owl:Class ;
+        rdfs:comment      "a unit with administrative responsibilities" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Org .
+
+ext:Administrator  a      owl:Class ;
+        rdfs:comment      "someone who administers a business" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Agency  a             owl:Class ;
+        rdfs:comment      "an administrative unit of government" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:AdministrativeUnit .
+
+ext:AirForce  a           owl:Class ;
+        rdfs:comment      "the airborne branch of a country's armed forces" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:MilitaryOrg .
+
+ext:Aircraft  a           owl:Class ;
+        rdfs:comment      "a vehicle that can fly" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Craft .
+
+ext:Aircraft_cabin  a     owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Aircraft_cabin" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:NonLivingTangiblePart .
+
+ext:Aircraft_carrier  a   owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Aircraft_carrier" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Ship .
+
+ext:Airplane  a           owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Fixed-wing_aircraft" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Aircraft .
+
+ext:Airport  a            owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Airport" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Facility .
+
+ext:Album  a              owl:Class ;
+        rdfs:comment      "one or more recordings issued together; originally released on 12-inch phonograph records (usually with attractive record covers) and later on cassette audiotape and compact disc" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:InfoMedium .
+
+ext:Ambassador  a         owl:Class ;
+        rdfs:comment      "a diplomat of the highest rank; accredited as representative from one country to another" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Ambulance  a          owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Ambulance" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Car .
+
+ext:American_flag  a      owl:Class ;
+        rdfs:isDefinedBy  "CMU" ;
+        rdfs:subClassOf   ext:Flag .
+
+ext:Animal  a             owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Animal" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:NonHumanLivingBeing .
+
+ext:Anti_aircraft  a      owl:Class ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Missile .
+
+ext:Army  a               owl:Class ;
+        rdfs:comment      "a permanent organization of the military land forces of a nation or state" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:MilitaryOrg .
+
+ext:Artifact  a           owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:PhysicalEntity .
+
+ext:Assault_rifle  a      owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Assault_rifle" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Gun .
+
+ext:Association  a        owl:Class ;
+        rdfs:comment      "a formal organization of people or groups of people" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Org .
+
+ext:Athlete  a            owl:Class ;
+        rdfs:comment      "a person trained to compete in sports" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Contestant .
+
+ext:Audience  a           owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Audience" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:NonOrgGroup .
+
+ext:Auditorium  a         owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Auditorium" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Structure .
+
+ext:Auto_part  a          owl:Class ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:NonLivingTangiblePart .
+
+ext:Back_pack  a          owl:Class ;
+        rdfs:isDefinedBy  "CMU" ;
+        rdfs:subClassOf   ext:Container .
+
+ext:Ballistic_vest  a     owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Bulletproof_vest" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Commodity .
+
+ext:Ballot  a             owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Artifact .
+
+ext:Barge  a              owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Barge" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Boat .
+
+ext:Barricade  a          owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Barricade" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Structure .
+
+ext:Bat  a                owl:Class ;
+        rdfs:isDefinedBy  "CMU" ;
+        rdfs:subClassOf   ext:Commodity .
+
+ext:Bicycle  a            owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Bicycle" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:WheeledVehicle .
+
+ext:Billboard  a          owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Billboard" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Structure .
+
+ext:BiologicalWeapon  a   owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Weapon .
+
+ext:Boat  a               owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Boat" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Watercraft .
+
+ext:BodyOfWater  a        owl:Class ;
+        rdfs:comment      "the part of the earth's surface covered with water (such as a river or lake or ocean)" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:NaturalNonLivingObject .
+
+ext:Bomb  a               owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Bomb" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Weapon .
+
+ext:Bomber  a             owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Bomber" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Military_aircraft .
+
+ext:Branch  a             owl:Class ;
+        rdfs:comment      "a division of some larger or more complex organization" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Division .
+
+ext:Bridge  a             owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Bridge" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Structure .
+
+ext:Broadcaster  a        owl:Class ;
+        rdfs:comment      "someone who broadcasts on radio or television" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:BroadcastingCompany
+        a                 owl:Class ;
+        rdfs:comment      "a company that manages tv or radio stations" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:CommercialOrg .
+
+ext:BroadcastingStation
+        a                 owl:Class ;
+        rdfs:comment      "a station equipped to broadcast radio or television programs" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Station .
+
+ext:Building  a           owl:Class ;
+        rdfs:comment      "a structure that has a roof and walls and stands more or less permanently in one place" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Structure .
+
+ext:BuildingConstruction
+        a                 owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Artifact .
+
+ext:Buk_missile  a        owl:Class ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Anti_aircraft .
+
+ext:Bullets  a            owl:Class ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Weapon .
+
+ext:Bus  a                owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Bus" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:WheeledVehicle .
+
+ext:Bus_stop  a           owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Bus_stop" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Station .
+
+ext:Businessperson  a     owl:Class ;
+        rdfs:comment      "a capitalist who engages in industrial commercial enterprise" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Cable  a              owl:Class ;
+        rdfs:comment      "a conductor for transmitting electrical or optical signals or electric power" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Instrument .
+
+ext:Cannon  a             owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Cannon" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Weapon .
+
+ext:Cape  a               owl:Class ;
+        rdfs:comment      "a strip of land projecting into a body of water" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Land .
+
+ext:Car  a                owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Car" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:WheeledVehicle .
+
+ext:Cargo_aircraft  a     owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Cargo_aircraft" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Aircraft .
+
+ext:Cash  a               owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Cash" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Money .
+
+ext:Cathedral  a          owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Cathedral" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Church .
+
+ext:Chapel  a             owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Chapel" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Place_of_worship .
+
+ext:Church  a             owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Church_(building)" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Place_of_worship .
+
+ext:City  a               owl:Class ;
+        rdfs:comment      "a large and densely populated urban area; may include several independent administrative districts" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:GPE .
+
+ext:Club  a               owl:Class ;
+        rdfs:comment      "a formal association of people with similar interests" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Association .
+
+ext:Collection  a         owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:NonPhysicalEntity .
+
+ext:Combatant  a          owl:Class ;
+        rdfs:comment      "someone who fights (or is fighting)" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:CommercialEnterprise
+        a                 owl:Class ;
+        rdfs:comment      "an enterprise connected with commerce" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:CommercialOrg .
+
+ext:CommercialOrg  a      owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Org .
+
+ext:Committee  a          owl:Class ;
+        rdfs:comment      "a special group delegated to consider some matter" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:AdministrativeUnit .
+
+ext:Commodity  a          owl:Class ;
+        rdfs:comment      "articles of commerce" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Artifact .
+
+ext:Compiler  a           owl:Class ;
+        rdfs:comment      "a person who compiles information (as for reference purposes)" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Writer .
+
+ext:Computer  a           owl:Class ;
+        rdfs:comment      "a machine for performing calculations automatically" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Machine .
+
+ext:Computer_monitor  a   owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Computer_monitor" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Machine .
+
+ext:Conference_hall  a    owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Conference_hall" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Building .
+
+ext:Construction_equipment
+        a                 owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Heavy_equipment" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Equipment .
+
+ext:Container  a          owl:Class ;
+        rdfs:comment      "any object that can be used to hold things (especially a large metal boxlike object of standardized dimensions that can be loaded from one form of transport to another)" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Instrument .
+
+ext:Contestant  a         owl:Class ;
+        rdfs:comment      "a person who participates in competitions" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Continent  a          owl:Class ;
+        rdfs:comment      "one of the large landmasses of the earth" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Land .
+
+ext:Convenience_store
+        a                 owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Convenience_store" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Structure .
+
+ext:Corporation  a        owl:Class ;
+        rdfs:comment      "a business firm whose articles of incorporation have been approved in some state" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:CommercialOrg .
+
+ext:Country  a            owl:Class ;
+        rdfs:comment      "the territory occupied by a nation" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:GPE .
+
+ext:Court  a              owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Court" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:PoliticalOrg .
+
+ext:Courthouse  a         owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Courthouse" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Facility .
+
+ext:Craft  a              owl:Class ;
+        rdfs:comment      "a vehicle designed for navigation in or on water or air or through outer space" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Vehicle .
+
+ext:Creation  a           owl:Class ;
+        rdfs:comment      "an artifact that has been brought into existence by someone" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Artifact .
+
+ext:Crowd  a              owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Crowd" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:NonOrgGroup .
+
+ext:Cruise_ship  a        owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Cruise_ship" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Ship .
+
+ext:Dagger  a             owl:Class ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Weapon .
+
+ext:DanceBand  a          owl:Class ;
+        rdfs:comment      "a group of musicians playing popular music for dancing" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:MusicalOrganization .
+
+ext:Department  a         owl:Class ;
+        rdfs:comment      "a specialized division of a large organization" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Division .
+
+ext:Depository  a         owl:Class ;
+        rdfs:comment      "a facility where things can be deposited for storage or safekeeping" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Facility .
+
+ext:Device  a             owl:Class ;
+        rdfs:comment      "an instrumentality invented for a particular purpose" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Instrument .
+
+ext:Director  a           owl:Class ;
+        rdfs:comment      "someone who controls resources and expenditures" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Administrator .
+
+ext:Division  a           owl:Class ;
+        rdfs:comment      "an administrative unit in government or business" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:AdministrativeUnit .
+
+ext:Dog  a                owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Dog" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Animal .
+
+ext:Dome  a               owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Dome" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Artifact .
+
+ext:Double-decker_bus
+        a                 owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Double-decker_bus" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Bus .
+
+ext:Engine  a             owl:Class ;
+        rdfs:isDefinedBy  "CMU" ;
+        rdfs:subClassOf   ext:Machine .
+
+ext:Engineer  a           owl:Class ;
+        rdfs:comment      "a person who uses scientific knowledge to solve practical problems" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Entity  a   owl:Class .
+
+ext:Equipment  a          owl:Class ;
+        rdfs:comment      "an instrumentality needed for an undertaking or to perform a service" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Instrument .
+
+ext:Executive  a          owl:Class ;
+        rdfs:comment      "a person responsible for the administration of a business" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Administrator .
+
+ext:Exile  a              owl:Class ;
+        rdfs:comment      "a person who is voluntarily absent from home or country" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Traveler .
+
+ext:Facility  a           owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:BuildingConstruction .
+
+ext:Fence  a              owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Fence" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Structure .
+
+ext:Ferry  a              owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Ferry" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Boat .
+
+ext:Fighter_aircraft  a   owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Fighter_aircraft" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Military_aircraft .
+
+ext:Fire_apparatus  a     owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Fire_engine" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:WheeledVehicle .
+
+ext:Fire_extinguisher
+        a                 owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Fire_extinguisher" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Equipment .
+
+ext:Firearm  a            owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Firearm" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Gun .
+
+ext:Firefighter  a        owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Firefighter" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Flag  a               owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Flag" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Creation .
+
+ext:Food  a               owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Food" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Artifact .
+
+ext:Fugitive  a           owl:Class ;
+        rdfs:comment      "someone who flees from an uncongenial situation" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Furniture  a          owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Furniture" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Commodity .
+
+ext:GPE  a                owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Shish .
+
+ext:Game  a               owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:ActivityField .
+
+ext:Gas_station  a        owl:Class ;
+        rdfs:isDefinedBy  "CMU" ;
+        rdfs:subClassOf   ext:Station .
+
+ext:GeneralCrime  a       owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:MeasurableAbstraction .
+
+ext:GeographicPoint  a    owl:Class ;
+        rdfs:comment      "a point on the surface of the Earth" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Point .
+
+ext:GeographicalArea  a   owl:Class ;
+        rdfs:comment      "a demarcated area of the Earth" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Loc .
+
+ext:Goggles  a            owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Goggles" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Commodity .
+
+ext:GovernmentBuilding
+        a                 owl:Class ;
+        rdfs:comment      "a building that houses a branch of government" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Building .
+
+ext:Governor  a           owl:Class ;
+        rdfs:comment      "the head of a state government" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Politician .
+
+ext:GuidedMissile  a      owl:Class ;
+        rdfs:comment      "a rocket-propelled missile whose path can be controlled during flight either by radio signals or by internal homing devices" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Missile .
+
+ext:Gun  a                owl:Class ;
+        rdfs:comment      "a weapon that discharges a missile at high velocity (especially from a metal tube or barrel)" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Weapon .
+
+ext:Handgun  a            owl:Class ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Gun .
+
+ext:Helicopter  a         owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Helicopter" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Aircraft .
+
+ext:Helmet  a             owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Helmet" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Commodity .
+
+ext:Highway  a            owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Highway" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Way .
+
+ext:House  a              owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/House" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Building .
+
+ext:Human_body  a         owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Human_body" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:LivingBodyPart .
+
+ext:Human_face  a         owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Face" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:LivingBodyPart .
+
+ext:Human_head  a         owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Head" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:LivingBodyPart .
+
+ext:INFO  a               owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Shish .
+
+ext:ImageInfo  a          owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:InformationObject .
+
+ext:ImmeasurableObject
+        a                 owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:NonPhysicalEntity .
+
+ext:InfoMedium  a         owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Artifact .
+
+ext:InformationObject
+        a                 owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:NonPhysicalEntity .
+
+ext:Instrument  a         owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Artifact .
+
+ext:Intellectual  a       owl:Class ;
+        rdfs:comment      "a person who uses the mind creatively" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Island  a             owl:Class ;
+        rdfs:comment      "a land mass (smaller than a continent) that is surrounded by water" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Land .
+
+ext:Journalist  a         owl:Class ;
+        rdfs:comment      "a writer for newspapers and magazines" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Writer .
+
+ext:Land  a               owl:Class ;
+        rdfs:comment      "the solid part of the earth's surface" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Loc .
+
+ext:Law  a                owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:InformationObject .
+
+ext:LawEnforcementAgency
+        a                 owl:Class ;
+        rdfs:comment      "an agency responsible for insuring obedience to the laws" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Agency .
+
+ext:Lawgiver  a           owl:Class ;
+        rdfs:comment      "a maker of laws; someone who gives a code of laws" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Lawman  a             owl:Class ;
+        rdfs:comment      "an officer of the law" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:League  a             owl:Class ;
+        rdfs:comment      "an association of sports teams that organizes matches for its members" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Association .
+
+ext:Lectern  a            owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Lectern" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Commodity .
+
+ext:Legislator  a         owl:Class ;
+        rdfs:comment      "someone who makes or enacts laws" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Politician .
+
+ext:Lifejacket  a         owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Personal_flotation_device" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Commodity .
+
+ext:Lighthouse  a         owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Lighthouse" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Facility .
+
+ext:Limousine  a          owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Limousine" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Car .
+
+ext:LivingBodyPart  a     owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:PhysicalEntity .
+
+ext:Loc  a                owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:MeasurableAbstraction .
+
+ext:Locomotive  a         owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Locomotive" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Train .
+
+ext:Logo_Trademark_Emblem_Badge
+        a                 owl:Class ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Artifact .
+
+ext:Luggage_and_bags  a   owl:Class ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Container .
+
+ext:Machine  a            owl:Class ;
+        rdfs:comment      "any mechanical or electrical device that transmits or modifies energy to perform or assist in the performance of human tasks" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Device .
+
+ext:Machine_gun  a        owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Machine_gun" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Gun .
+
+ext:Magazine  a           owl:Class ;
+        rdfs:comment      "a periodic publication containing pictures and stories and articles of interest to those who purchase it or subscribe to it" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:NewsMedium .
+
+ext:Manufacturer  a       owl:Class ;
+        rdfs:comment      "a business engaged in manufacturing some product" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:CommercialOrg .
+
+ext:Map  a                owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Map" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Creation .
+
+ext:Mayor  a              owl:Class ;
+        rdfs:comment      "the head of a city government" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Politician .
+
+ext:MeasurableAbstraction
+        a                 owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:NonPhysicalEntity .
+
+ext:MeasuredConcept  a    owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:MeasurableAbstraction .
+
+ext:MeasuringUnit  a      owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:InformationObject .
+
+ext:Medical_equipment
+        a                 owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Medical_equipment" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Equipment .
+
+ext:Medicine  a           owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:ActivityField .
+
+ext:MentalObject  a       owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:NonPhysicalEntity .
+
+ext:Microphone  a         owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Microphone" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Device .
+
+ext:Militant  a           owl:Class ;
+        rdfs:comment      "a militant reformer" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:MilitaryInstallation
+        a                 owl:Class ;
+        rdfs:comment      "any facility servicing military forces" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Facility .
+
+ext:MilitaryOfficer  a    owl:Class ;
+        rdfs:comment      "any person in the armed services who holds a position of authority or command" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Serviceman .
+
+ext:MilitaryOrg  a        owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Org .
+
+ext:Military_aircraft
+        a                 owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Military_aircraft" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Military_vehicle .
+
+ext:Military_transport_aircraft
+        a                 owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Military_transport_aircraft" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Military_aircraft .
+
+ext:Military_uniform  a   owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Military_uniform" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Uniform .
+
+ext:Military_vehicle  a   owl:Class ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Vehicle .
+
+ext:Minister  a           owl:Class ;
+        rdfs:comment      "a person appointed to a high office in the government" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Executive .
+
+ext:Missile  a            owl:Class ;
+        rdfs:comment      "a rocket carrying a warhead of conventional or nuclear explosives; may be ballistic or directed by remote control" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Weapon .
+
+ext:Missile_launcher  a   owl:Class ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Weapon .
+
+ext:Money  a              owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Money" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Commodity .
+
+ext:Monument  a           owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Monument" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Creation .
+
+ext:Motorcycle  a         owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Motorcycle" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:WheeledVehicle .
+
+ext:Mountain  a           owl:Class ;
+        rdfs:isDefinedBy  "CMU" ;
+        rdfs:subClassOf   ext:NaturalNonLivingObject .
+
+ext:MusicInfo  a          owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:InformationObject .
+
+ext:MusicalOrganization
+        a                 owl:Class ;
+        rdfs:comment      "an organization of musicians who perform together" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Org .
+
+ext:NaturalNonLivingObject
+        a                 owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:PhysicalEntity .
+
+ext:Navy  a               owl:Class ;
+        rdfs:comment      "an organization of military vessels belonging to a country and available for sea warfare" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:MilitaryOrg .
+
+ext:NewsAgency  a         owl:Class ;
+        rdfs:comment      "an agency to collects news reports for newspapers and distributes it electronically" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:CommercialOrg .
+
+ext:NewsMedium  a         owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:InfoMedium .
+
+ext:Newspaper  a          owl:Class ;
+        rdfs:comment      "a daily or weekly publication on folded sheets; contains news and articles and advertisements" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Press .
+
+ext:NonHumanLivingBeing
+        a                 owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:PhysicalEntity .
+
+ext:NonLivingTangiblePart
+        a                 owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:PhysicalEntity .
+
+ext:NonOrgGroup  a        owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Collection .
+
+ext:NonPhysicalEntity
+        a                 owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Entity .
+
+ext:Office_building  a    owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Office" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Building .
+
+ext:Org  a                owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Collection .
+
+ext:PER  a                owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Shish .
+
+ext:Parachute  a          owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Parachute" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Equipment .
+
+ext:Paramedics  a         owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Paramedic" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Park  a               owl:Class ;
+        rdfs:comment      "a large area of land preserved in its natural state as public property" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Tract .
+
+ext:Party  a              owl:Class ;
+        rdfs:comment      "an organization to gain political power" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PoliticalOrg .
+
+ext:Passenger_ship  a     owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Passenger_ship" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Ship .
+
+ext:Peninsula  a          owl:Class ;
+        rdfs:comment      "a large mass of land projecting into a body of water" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Land .
+
+ext:Person  a             owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:PhysicalEntity .
+
+ext:Phone  a              owl:Class ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Machine .
+
+ext:PhysicalEntity  a     owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Entity .
+
+ext:Pier  a               owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Pier" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Structure .
+
+ext:Place_of_worship  a   owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Place_of_worship" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Building .
+
+ext:Player  a             owl:Class ;
+        rdfs:comment      "a person who participates in or is skilled at some game" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Contestant .
+
+ext:Plaza  a              owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Plaza" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Structure .
+
+ext:Podium  a             owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Podium" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Commodity .
+
+ext:Point  a              owl:Class ;
+        rdfs:comment      "the precise location of something; a spatially limited location" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Loc .
+
+ext:Police  a             owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Police" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Lawman .
+
+ext:Police_car  a         owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Police_car" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Car .
+
+ext:Police_dog  a         owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Police_dog" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Dog .
+
+ext:PoliticalOrg  a       owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Org .
+
+ext:Politician  a         owl:Class ;
+        rdfs:comment      "a leader engaged in civil administration" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Politics  a           owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:ActivityField .
+
+ext:Port  a               owl:Class ;
+        rdfs:comment      "a place (seaport or airport) where people and merchandise can enter or leave a country" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:GeographicPoint .
+
+ext:Position  a           owl:Class ;
+        rdfs:comment      "the particular portion of space occupied by something" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Point .
+
+ext:Poster  a             owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Poster" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Artifact .
+
+ext:Press  a              owl:Class ;
+        rdfs:comment      "the print media responsible for gathering and publishing news in the form of newspapers or magazines" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:NewsMedium .
+
+ext:Propeller-driven_aircraft
+        a                 owl:Class ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Aircraft .
+
+ext:PublicSquare  a       owl:Class ;
+        rdfs:comment      "an open area at the meeting of two or more streets" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Tract .
+
+ext:Radar  a              owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Radar" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Machine .
+
+ext:Radical  a            owl:Class ;
+        rdfs:comment      "a person who has radical ideas or opinions" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Railway  a            owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Rail_transport" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Artifact .
+
+ext:Relation  a           owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:NonPhysicalEntity .
+
+ext:Reporter  a           owl:Class ;
+        rdfs:comment      "a person who investigates and reports or edits news stories" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Rescuers  a           owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Rescuer" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Rifle  a              owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Rifle" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Gun .
+
+ext:Riot_police  a        owl:Class ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Police .
+
+ext:RockGroup  a          owl:Class ;
+        rdfs:comment      "a band of musicians who play rock'n'roll music" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:DanceBand .
+
+ext:Rocket  a             owl:Class ;
+        rdfs:comment      "any vehicle self-propelled by a rocket engine" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Vehicle .
+
+ext:Rubble  a             owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Rubble" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:NonLivingTangiblePart .
+
+ext:Ruins  a              owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Ruins" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:NonLivingTangiblePart .
+
+ext:Ruler  a              owl:Class ;
+        rdfs:comment      "a person who rules or commands" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Russian_flag  a       owl:Class ;
+        rdfs:isDefinedBy  "CMU" ;
+        rdfs:subClassOf   ext:Flag .
+
+ext:Sailboat  a           owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Sailboat" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Boat .
+
+ext:Satellite  a          owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Satellite" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Equipment .
+
+ext:Scholar  a            owl:Class ;
+        rdfs:comment      "a learned person (especially in the humanities); someone who by long study has gained mastery in one or more disciplines" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Intellectual .
+
+ext:Science  a            owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:ActivityField .
+
+ext:Scientist  a          owl:Class ;
+        rdfs:comment      "a person with advanced knowledge of one or more sciences" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Sculpture  a          owl:Class ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Creation .
+
+ext:Senator  a            owl:Class ;
+        rdfs:comment      "a member of a senate" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Legislator .
+
+ext:Sentence  a           owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:MeasuredConcept .
+
+ext:Serviceman  a         owl:Class ;
+        rdfs:comment      "someone who serves in the armed forces; a member of a military force" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:ShapeAndStructureAbstraction
+        a                 owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:MeasurableAbstraction .
+
+ext:Ship  a               owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Ship" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Watercraft .
+
+ext:Shish  a              owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Entity .
+
+ext:Shotgun  a            owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Shotgun" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Gun .
+
+ext:Shrine  a             owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Shrine" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Place_of_worship .
+
+ext:Skyscraper  a         owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Skyscraper" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Building .
+
+ext:Smoke  a              owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Smoke" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:NaturalNonLivingObject .
+
+ext:Sniper  a             owl:Class ;
+        rdfs:comment      "a marksman who shoots at people from a concealed place" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:SocialGroup  a        owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Collection .
+
+ext:SocialMedium  a       owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:InfoMedium .
+
+ext:Source_Ontology  a    owl:Class ;
+        rdfs:isDefinedBy  "Uplink" ;
+        rdfs:subClassOf   ext:Definition .
+
+ext:Spacecraft  a         owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Spacecraft" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Craft .
+
+ext:Speaker  a            owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Public_speaking" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:SpeechInfo  a         owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:InformationObject .
+
+ext:Spokesperson  a       owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Spokesperson" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Spy  a                owl:Class ;
+        rdfs:comment      "(military) a secret agent hired by a state to obtain information about its enemies or by a business to obtain industrial secrets from competitors" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Station  a            owl:Class ;
+        rdfs:comment      "a facility equipped with special equipment and personnel for a particular purpose" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Facility .
+
+ext:Statue  a             owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Statue" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Creation .
+
+ext:Stream  a             owl:Class ;
+        rdfs:comment      "a natural body of running water flowing on or under the earth" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:BodyOfWater .
+
+ext:Street  a             owl:Class ;
+        rdfs:comment      "a thoroughfare (usually including sidewalks) that is lined with buildings" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Way .
+
+ext:Stretcher  a          owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Stretcher" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Medical_equipment .
+
+ext:Structure  a          owl:Class ;
+        rdfs:comment      "a thing constructed; a complex entity constructed of many parts" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:BuildingConstruction .
+
+ext:Subdivision  a        owl:Class ;
+        rdfs:comment      "an area composed of subdivided lots" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Tract .
+
+ext:Submarine  a          owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Submarine" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Ship .
+
+ext:SubsidiaryCompany
+        a                 owl:Class ;
+        rdfs:comment      "a company that is completely controlled by another company" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:CommercialOrg .
+
+ext:Surface-to-airMissile
+        a                 owl:Class ;
+        rdfs:comment      "a guided missile fired from land or shipboard against an airborne target" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:GuidedMissile .
+
+ext:Surveillance_camera
+        a                 owl:Class ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Equipment .
+
+ext:Tank  a               owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Tank" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Military_vehicle .
+
+ext:Taxi  a               owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Taxicab" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Car .
+
+ext:Team  a               owl:Class ;
+        rdfs:comment      "a cooperative unit (especially in sports)" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Org .
+
+ext:Tear_gas  a           owl:Class ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Weapon .
+
+ext:Television  a         owl:Class ;
+        rdfs:comment      "broadcasting visual images of stationary or moving objects" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:InfoMedium .
+
+ext:Television_set  a     owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Television" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Equipment .
+
+ext:Temple  a             owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Temple" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Place_of_worship .
+
+ext:Tent  a               owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Tent" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Artifact .
+
+ext:TextInfo  a           owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:InformationObject .
+
+ext:Theater  a            owl:Class ;
+        rdfs:comment      "a building where theatrical performances or motion-picture shows can be presented" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Building .
+
+ext:Time  a               owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:MeasurableAbstraction .
+
+ext:Title  a              owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Tool  a               owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Tool" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Instrument .
+
+ext:TopographicPoint  a   owl:Class ;
+        rdfs:comment      "a point located with respect to surface features of some region" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Point .
+
+ext:Tower  a              owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Tower" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Structure .
+
+ext:Town  a               owl:Class ;
+        rdfs:comment      "an urban area with a fixed boundary that is smaller than a city" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:GPE .
+
+ext:Tract  a              owl:Class ;
+        rdfs:comment      "an extended area of land" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:GeographicalArea .
+
+ext:Tractor  a            owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Tractor" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:WheeledVehicle .
+
+ext:Traffic_light  a      owl:Class ;
+        rdfs:isDefinedBy  "CMU" ;
+        rdfs:subClassOf   ext:Device .
+
+ext:Trailer_truck  a      owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Semi-trailer_truck" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Truck .
+
+ext:Train  a              owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Train" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:WheeledVehicle .
+
+ext:Train_station  a      owl:Class ;
+        rdfs:isDefinedBy  "CMU" ;
+        rdfs:subClassOf   ext:Station .
+
+ext:Traveler  a           owl:Class ;
+        rdfs:comment      "a person who changes location" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Truck  a              owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Truck" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:WheeledVehicle .
+
+ext:Ukraine_flag  a       owl:Class ;
+        rdfs:isDefinedBy  "CMU" ;
+        rdfs:subClassOf   ext:Flag .
+
+ext:Uniform  a            owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Uniform" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Commodity .
+
+ext:Union  a              owl:Class ;
+        rdfs:comment      "an organization of employees formed to bargain with the employer" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Org .
+
+ext:UrbanArea  a          owl:Class ;
+        rdfs:comment      "a geographical area constituting a city or town" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:GeographicalArea .
+
+ext:Van  a                owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Van" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Truck .
+
+ext:Vehicle  a            owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Artifact .
+
+ext:Water_cannon  a       owl:Class ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Equipment .
+
+ext:Watercraft  a         owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Watercraft" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Craft .
+
+ext:Way  a                owl:Class ;
+        rdfs:comment      "any artifact consisting of a road or path affording passage from one place to another" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Loc .
+
+ext:Weapon  a             owl:Class ;
+        rdfs:isDefinedBy  "AIDA-OWG" ;
+        rdfs:subClassOf   ext:Artifact .
+
+ext:WheeledVehicle  a     owl:Class ;
+        rdfs:comment      "a vehicle that moves on wheels and usually has a container for transporting things or people" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Vehicle .
+
+ext:WorldOrganization
+        a                 owl:Class ;
+        rdfs:comment      "an international alliance involving many different countries" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:Org .
+
+ext:Wreckage  a           owl:Class ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:NonLivingTangiblePart .
+
+ext:Writer  a             owl:Class ;
+        rdfs:comment      "writes (books or stories or articles or the like) professionally (for pay)" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:PER .
+
+ext:Yacht  a              owl:Class ;
+        rdfs:comment      "https://en.wikipedia.org/wiki/Yacht" ;
+        rdfs:isDefinedBy  "Columbia-RPI" ;
+        rdfs:subClassOf   ext:Watercraft .
+
+ext:Zone  a               owl:Class ;
+        rdfs:comment      "a locally circumscribed place characterized by some distinctive features" ;
+        rdfs:isDefinedBy  "RPI" ;
+        rdfs:subClassOf   ext:TopographicPoint .
+

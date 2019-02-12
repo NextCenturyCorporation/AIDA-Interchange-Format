@@ -77,7 +77,7 @@ public class ScalingTest {
     private int eventIndex = 1;
     private int assertionIndex = 1;
 
-    private final SeedlingOntologyMapper ontologyMapping = new SeedlingOntologyMapper();
+    private static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology";
 
     private final Random r = new Random();
     private List<Resource> entityResourceList = null;
@@ -87,7 +87,7 @@ public class ScalingTest {
     // Whether to use in memory or disk based.
     // Note:  TDB2 requires transactions, which we do not do!  Do not use it!
     private enum MODEL_TYPE {
-        MEMORY, TDB, TDB2
+        MEMORY, TDB
     }
 
     // What output format to use, whether turtle pretty, or flat, or ntriple, or blocks
@@ -219,7 +219,7 @@ public class ScalingTest {
         }
 
         // Set the type
-        Resource typeToUse = entityTypes[r.nextInt(entityTypes.length)];
+        Resource typeToUse = SeedlingOntology.Person;
         Resource typeAssertion = markType(model, getAssertionUri(), entityResource,
                 typeToUse, system, 1.0);
 
@@ -231,19 +231,21 @@ public class ScalingTest {
         Resource eventResource = makeEvent(model, getEventUri(), system);
 
         // Set the type
-        String eventTypeString = EVENT_TYPES[r.nextInt(EVENT_TYPES.length)];
-        Resource typeResource = ontologyMapping.eventType(eventTypeString);
+        Resource typeResource = SeedlingOntology.Physical_Resident;
         Resource typeAssertion = markType(model, getAssertionUri(), eventResource, typeResource, system, 1.0);
 
         addJustificationAndPrivateData(typeAssertion);
 
         // Make two arguments
-        for (int ii = 0; ii < 2; ii++) {
-            Resource argument = markAsArgument(model, eventResource,
-                    ontologyMapping.eventArgumentTypeNotLowercase(eventTypeString + getRandomRole()),
-                    getRandomEntity(), system, 0.785, getAssertionUri());
-            addJustificationAndPrivateData(argument);
-        }
+        Resource argument = markAsArgument(model, eventResource,
+                SeedlingOntology.Physical_Resident_Place,
+                getRandomEntity(), system, 0.785, getAssertionUri());
+        addJustificationAndPrivateData(argument);
+
+        Resource argumentTwo = markAsArgument(model, eventResource,
+                SeedlingOntology.Physical_Resident_Resident,
+                getRandomEntity(), system, 0.785, getAssertionUri());
+        addJustificationAndPrivateData(argumentTwo);
     }
 
     private void addJustificationAndPrivateData(Resource resource) {
@@ -318,7 +320,7 @@ public class ScalingTest {
         model.setNsPrefix("rdf", RDF.uri);
         model.setNsPrefix("xsd", XSD.getURI());
         model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
-        model.setNsPrefix("ldcOnt", SeedlingOntologyMapper.NAMESPACE_STATIC);
+        model.setNsPrefix("ldcOnt", NAMESPACE);
         model.setNsPrefix("ldc", LDC_NS);
         model.setNsPrefix("skos", SKOS.uri);
     }
@@ -376,40 +378,11 @@ public class ScalingTest {
         return entityResourceList.get(r.nextInt(entityResourceList.size()));
     }
 
-    private String getRandomRole() {
-        return "_" + ROLES[r.nextInt(ROLES.length)];
-    }
-
     private char randomChar() {
         return abc.charAt(r.nextInt(abc.length()));
     }
 
     // Utility values, so that we can easily create random things
     private final static String abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private final Resource[] entityTypes = SeedlingOntologyMapper.ENTITY_TYPES.toArray(new Resource[0]);
-
-    private final String[] EVENT_TYPES = {
-            "Business.DeclareBankruptcy", "Business.End", "Business.Merge", "Business.Start",
-            "Conflict.Attack", "Conflict.Demonstrate", "Contact.Broadcast", "Contact.Contact",
-            "Contact.Correspondence", "Contact.Meet", "Existence.DamageDestroy", "Government.Agreements",
-            "Government.Legislate", "Government.Spy", "Government.Vote", "Inspection.Artifact", "Inspection.People",
-            "Justice.Acquit", "Justice.Appeal", "Justice.ArrestJail", "Justice.ChargeIndict", "Justice.Convict",
-            "Justice.Execute", "Justice.Extradite", "Justice.Fine", "Justice.Investigate", "Justice.Pardon",
-            "Justice.ReleaseParole", "Justice.Sentence", "Justice.Sue", "Justice.TrialHearing",
-            "Life.BeBorn", "Life.Die", "Life.Divorce", "Life.Injure", "Life.Marry",
-            "Manufacture.Artifact", "Movement.TransportArtifact", "Movement.TransportPerson",
-            "Personnel.Elect", "Personnel.EndPosition", "Personnel.Nominate", "Personnel.StartPosition",
-            "Transaction.Transaction", "Transaction.TransferControl", "Transaction.TransferMoney",
-            "Transaction.TransferOwnership"};
-
-    private final String[] ROLES = {"Attacker", "Instrument", "Place", "Target", "Time", "Broadcaster",
-            "Place", "Time", "Participant", "Place", "Participant", "Time",
-            "Participant", "Affiliate", "Affiliation", "Affiliation", "Person",
-            "Entity", "Sponsor", "Defendant", "Prosecutor", "Adjudicator",
-            "Defendant", "Agent", "Instrument", "Victim", "Artifact",
-            "Manufacturer", "Agent", "Artifact", "Destination", "Instrument",
-            "Origin", "Time", "Agent", "Destination", "Instrument", "Origin",
-            "Person", "Employee", "Organization", "Person", "Entity", "Place",
-            "Beneficiary", "Giver", "Recipient", "Thing", "Time"};
 
 }
