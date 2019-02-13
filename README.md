@@ -96,9 +96,11 @@ Return values from the command-line validator are as follows:
 * `3 (File Error)`.  There was a problem reading one or more files or directories.  Validation may have been performed on a subset of specified KBs.  If there is an error loading any ontologies or SHACL files, then no validation is performed.
 
 ### Running the validator in code
-To run the validator programmatically in Java code, first use `ValidateAIF.create()`
-to create a validator object, then call one of the public `validateKB()` methods.
-`create()` accepts a set of domain ontology CharSources and several flags.  See the JavaDocs.
+To run the validator programmatically in Java code, first use one of the public `ValidateAIF.createXXX()`
+methods to create a validator object, then call one of the public `validateKB()` methods.
+`createForLDCOntology()` and `createForProgramOntology()` are convenience wrappers for `create()`, which
+is flexible enough to take a Set of ontologies.  All creation methods accept a flag for validating
+against restricted AIF.  See the JavaDocs.
 
 Note: the original `ValidateAIF.createForDomainOntologySource()` method remains for backward compatibility.
 
@@ -110,15 +112,6 @@ its program arguments.  Instead, it takes all arguments as command-line options.
 * The validator no longer ensures that confidences are between 0 and 1.
 * The validator will now only validate files with the `.ttl` extension.
 * The validator returns a variety of return codes (see above).
-
-### Validation duration
-All files taken from the performer S3 buckets at
-`https://s3.console.aws.amazon.com/s3/object/aida-ta-performers/` :
-* `OPERA_TA1a_1.zip` (TA1): 9.95GB, 7662 items.  XX hours and XX minutes
-* `GAIA_1.tar` (TA1): 26.9 GB, 10,984 items.  XX hours and XX minutes
-* `GAIA_1.GAIA_1.ttl` (TA2): 40.9GB, 1 item.  XX hours and XX minutes
-* `TA1-BBN_1.TA2-SAMSON_3.TA3-SAMSON_1_kb.zip` (TA3): 6 dirs, 25 files, 481MB.  XX hours and XX minutes
-* `OPERA_TA1a_2.OPERA_TA2_2.OPERA_TA3_2.zip` (TA3): 6 dirs, 170 files, 109MB.  XX hours and XX minutes
 
 ### Running the legacy validator (Kotlin only)
 

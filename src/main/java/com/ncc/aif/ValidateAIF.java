@@ -75,20 +75,41 @@ public final class ValidateAIF {
      * @return An AIF validator for the specified ontology
      */
     public static ValidateAIF createForDomainOntologySource(CharSource domainOntologySource) {
-        return create(false, false, false, ImmutableSet.of(domainOntologySource));
+        return create(ImmutableSet.of(domainOntologySource), false);
+    }
+
+    /**
+     * Create an AIF validator for the LDC ontology.
+     * @param nistFlag Whether or not to validate against the NIST requirements
+     * @return An AIF validator for the LDC ontology
+     */
+    public static ValidateAIF createForLDCOntology(boolean nistFlag) {
+        return create(ImmutableSet.of(Resources.asCharSource(Resources.getResource(LDC_RESNAME), Charsets.UTF_8)),
+                nistFlag);
+    }
+
+    /**
+     * Create an AIF validator for the Program ontology.
+     * @param nistFlag Whether or not to validate against the NIST requirements
+     * @return An AIF validator for the Program ontology
+     */
+    public static ValidateAIF createForProgramOntology(boolean nistFlag) {
+        return create(ImmutableSet.of(
+                Resources.asCharSource(Resources.getResource(AO_ENTITIES_RESNAME), Charsets.UTF_8),
+                Resources.asCharSource(Resources.getResource(AO_EVENTS_RESNAME), Charsets.UTF_8),
+                Resources.asCharSource(Resources.getResource(AO_RELATIONS_RESNAME), Charsets.UTF_8)),
+                nistFlag);
     }
 
     /**
      * Create an AIF validator for specified domain ontologies and requirements.
-     * @param ldcFlag Whether or not to validate against the LDC ontology
-     * @param programFlag Whether or not to validate against the program working group's ontology
      * @param nistFlag Whether or not to validate against the NIST requirements
-     * @param domainOntologySources A user-supplied domain ontology
+     * @param domainOntologySources User-supplied domain ontologies
      * @return An AIF validator for the specified ontologies and requirements
      */
-    public static ValidateAIF create(boolean ldcFlag, boolean programFlag, boolean nistFlag,
-                                     ImmutableSet<CharSource> domainOntologySources) {
-        if (!ldcFlag && !programFlag && (domainOntologySources == null || domainOntologySources.isEmpty())) {
+    public static ValidateAIF create(ImmutableSet<CharSource> domainOntologySources, boolean nistFlag) {
+
+        if (domainOntologySources == null || domainOntologySources.isEmpty()) {
             throw new IllegalArgumentException("Must validate against at least one domain ontology.");
         }
 
@@ -103,21 +124,7 @@ public final class ValidateAIF {
         );
 
         final HashSet<CharSource> models = new HashSet<>(aidaModels);
-        if (domainOntologySources != null) {
-            models.addAll(domainOntologySources);
-        }
-        if (ldcFlag) {
-            models.add(Resources.asCharSource(Resources.getResource(LDC_RESNAME), Charsets.UTF_8));
-        }
-        if (programFlag) {
-            ImmutableSet<CharSource> programModels = ImmutableSet.of(
-                    Resources.asCharSource(Resources.getResource(AO_ENTITIES_RESNAME), Charsets.UTF_8),
-                    Resources.asCharSource(Resources.getResource(AO_EVENTS_RESNAME), Charsets.UTF_8),
-                    Resources.asCharSource(Resources.getResource(AO_RELATIONS_RESNAME), Charsets.UTF_8)
-            );
-            models.addAll(programModels);
-        }
-
+        models.addAll(domainOntologySources);
         for (CharSource source : models) {
             loadModel(model, source);
         }
@@ -165,10 +172,8 @@ public final class ValidateAIF {
     }
 
     // Process command-line arguments, returning whether or not there were any errors.
-    private static boolean processArgs(String[] args, Set<String>flags, Set<String>domainOntologies,
+    private static boolean processArgs(String[] args, Map<ArgumentFlags, Boolean> flags, Set<String>domainOntologies,
                                        Set<String> validationFiles, Set<String> validationDirs) {
-        boolean dashD = false;
-        boolean dashF = false;
         for (int i = 0; i < args.length; i++) {
             final String arg = args[i];
             final String strippedArg = arg.trim();
@@ -177,17 +182,13 @@ public final class ValidateAIF {
                 case "--help" :
                     return false;
                 case "--ldc" :
-                    flags.add("LDC");
+                    flags.put(ArgumentFlags.LDC, true);
                     break;
                 case "--program" :
-                    flags.add("PROGRAM");
-                    break;
-                case "--both" :
-                    flags.add("LDC");
-                    flags.add("PROGRAM");
+                    flags.put(ArgumentFlags.PROGRAM, true);
                     break;
                 case "--nist" :
-                    flags.add("NIST");
+                    flags.put(ArgumentFlags.NIST, true);
                     break;
                 case "--ont" :
                     int numFiles = processFiles(args, i, domainOntologies);
@@ -198,15 +199,15 @@ public final class ValidateAIF {
                     i += numFiles;
                     break;
                 case "-f" :
-                    if (dashD) {
+                    if (flags.containsKey(ArgumentFlags.DIRECTORY) && flags.get(ArgumentFlags.DIRECTORY)) {
                         System.err.println("ERROR: Please specify either -d or -f, but not both.");
                         return false;
                     }
                     i += processFiles(args, i, validationFiles);
-                    dashF = true;
+                    flags.put(ArgumentFlags.FILES, true);
                     break;
                 case "-d" :
-                    if (dashF) {
+                    if (flags.containsKey(ArgumentFlags.FILES) && flags.get(ArgumentFlags.FILES)) {
                         System.err.println("ERROR: Please specify either -d or -f, but not both.");
                         return false;
                     }
@@ -216,15 +217,20 @@ public final class ValidateAIF {
                          *   i += processFiles(args, i, validationDirs);
                          */
                     }
-                    dashD = true;
+                    flags.put(ArgumentFlags.DIRECTORY, true);
                     break;
                 default:
                     System.err.println("Ignoring unknown argument: " + arg);
             }
         }
 
-        if (!flags.contains("LDC") && !flags.contains("PROGRAM") && domainOntologies.isEmpty()) {
-            System.err.println("ERROR: Must validate against at least one domain ontology.");
+        final int ontologyFlags = (
+                (flags.containsKey(ArgumentFlags.LDC) ? 1 : 0) +
+                (flags.containsKey(ArgumentFlags.PROGRAM) ? 1 : 0) +
+                (domainOntologies.isEmpty() ? 0 : 1)
+        );
+        if (ontologyFlags != 1) {
+            System.err.println("ERROR: Please specify exactly one of --ldc, --program, and --ont.");
             return false;
         }
         if ( (validationFiles.isEmpty() && validationDirs.isEmpty()) ||
@@ -237,6 +243,15 @@ public final class ValidateAIF {
         return true;
     }
 
+    // Program return codes from the AIF Validator.
+    private enum ReturnCode {
+        SUCCESS, VALIDATION_ERROR, USAGE_ERROR, FILE_ERROR
+    }
+    // Command-line argument flags
+    private enum ArgumentFlags {
+        NIST, LDC, PROGRAM, FILES, DIRECTORY
+    }
+
     /**
      * A command-line AIF validator.  For details, see <a href="https://github.com/NextCenturyCorporation/AIDA-Interchange-Format">the AIF README</a>
      * section entitled, <i>The AIF Validator</i>.
@@ -244,14 +259,10 @@ public final class ValidateAIF {
      * @param args Command line arguments as specified in the README
      */
     public static void main(String[] args) {
-        final Set<String> flags = new HashSet<>();
+        Map<ArgumentFlags, Boolean> flags = new HashMap<>();
         final Set<String> domainOntologies = new HashSet<>();
         final Set<String> validationFiles = new LinkedHashSet<>();
         final Set<String> validationDirs = new LinkedHashSet<>();
-        final short SUCCESS=0;
-        final short VALIDATION_ERROR=1;
-        final short USAGE_ERROR=2;
-        final short FILE_ERROR=3;
 
         // Prevent too much logging from obscuring the actual problems.
         final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
@@ -261,30 +272,37 @@ public final class ValidateAIF {
         // Process the arguments:  if there are any errors, show usage and exit.
         if (!processArgs(args, flags, domainOntologies, validationFiles, validationDirs)) {
             showUsage();
-            System.exit(USAGE_ERROR);
+            System.exit(ReturnCode.USAGE_ERROR.ordinal());
         }
 
         // Collect the flags parsed from the arguments
-        final boolean nistFlag = flags.contains("NIST");
-        final boolean ldcFlag = flags.contains("LDC");
-        final boolean programFlag = flags.contains("PROGRAM");
-
-        // Convert the specified domain ontologies (if any) to CharSources.
-        Set<CharSource> domainOntologySources = new HashSet<>();
-        for (String source : domainOntologies) {
-            File file = new File(source);
-            domainOntologySources.add(Files.asCharSource(file, Charsets.UTF_8));
-        }
+        final boolean nistFlag = flags.containsKey(ArgumentFlags.NIST) && flags.get(ArgumentFlags.NIST);
+        final boolean ldcFlag = flags.containsKey(ArgumentFlags.LDC) && flags.get(ArgumentFlags.LDC);
+        final boolean programFlag = flags.containsKey(ArgumentFlags.PROGRAM) && flags.get(ArgumentFlags.PROGRAM);
 
         // Finally, try to create the validator, but fail if required elements can't be loaded/parsed.
         ValidateAIF validator = null;
         try {
-            validator = create(ldcFlag, programFlag, nistFlag, ImmutableSet.copyOf(domainOntologySources));
+            if (ldcFlag) {
+                validator = createForLDCOntology(nistFlag);
+            }
+            else if (programFlag) {
+                validator = createForProgramOntology(nistFlag);
+            }
+            else {
+                // Convert the specified domain ontologies to CharSources.
+                Set<CharSource> domainOntologySources = new HashSet<>();
+                for (String source : domainOntologies) {
+                    File file = new File(source);
+                    domainOntologySources.add(Files.asCharSource(file, Charsets.UTF_8));
+                }
+                validator = create(ImmutableSet.copyOf(domainOntologySources), nistFlag);
+            }
         }
         catch (RuntimeException rte) {
             logger.error("Could not read/parse all domain ontologies or SHACL files...exiting.");
             logger.error("--> " + rte.getLocalizedMessage());
-            System.exit(FILE_ERROR);
+            System.exit(ReturnCode.FILE_ERROR.ordinal());
         }
 
         // Collect the file(s) to be validated.
@@ -319,18 +337,20 @@ public final class ValidateAIF {
 
         if (filesToValidate.isEmpty()) {
             logger.error("No files with .ttl suffix were specified.  Use -h option for help.");
-            System.exit(FILE_ERROR);
+            System.exit(ReturnCode.FILE_ERROR.ordinal());
         }
 
         // Display a summary of what we're going to do.
         if (!validationFiles.isEmpty()) {
-            logger.info("-> Validating KB(s): " + filesToValidate);
+            logger.info("-> Validating KB(s): " +
+                    (filesToValidate.size() <= 5 ? filesToValidate : "from command-line arguments."));
         }
         else { // We'd have failed by now if there were no TTL files in the directory
             // This would need to be addressed if we supported validating files in N directories.
             logger.info("-> Validating all KBs (*.ttl) in directory: " + validationDirs);
         }
-        String ontologyStr = (ldcFlag ? "LDC " : "") + (programFlag ? "Program " : "") + domainOntologies;
+        final String ontologyStr = (ldcFlag ? "LDC (LO)" : "") + (programFlag ? "Program (AO)" : "") +
+                (domainOntologies.isEmpty() ? "" : domainOntologies);
         logger.info("-> Validating with domain ontology(ies): " + ontologyStr);
         if (nistFlag) {
             logger.info("-> Validating against NIST SHACL.");
@@ -341,10 +361,13 @@ public final class ValidateAIF {
         final DateFormat format = new SimpleDateFormat("EEE, MMM d HH:mm:ss");
         boolean allValid = true;
         short skipCount = 0;
+        int fileNum = 1;
         for (File fileToValidate : filesToValidate) {
             Date date = Calendar.getInstance().getTime();
             boolean skipped = false;
-            logger.info("-> Validating " + fileToValidate + " at " + format.format(date) + ".");
+            logger.info("-> Validating " + fileToValidate + " at " + format.format(date) +
+                    " (" + fileNum++ + " of " + filesToValidate.size() + ").");
+
             final Model dataToBeValidated = ModelFactory.createOntologyModel();
             try {
                 loadModel(dataToBeValidated, Files.asCharSource(fileToValidate, Charsets.UTF_8));
@@ -368,11 +391,11 @@ public final class ValidateAIF {
         if (!allValid) {
             logger.info("At least one KB was invalid" + (skipCount > 0 ? " (" + skipCount + " skipped)." : "."));
             // Return a failure code if anything fails to validate.
-            System.exit(VALIDATION_ERROR);
+            System.exit(ReturnCode.VALIDATION_ERROR.ordinal());
         } else {
             logger.info("All KBs were valid" + (skipCount > 0 ? " (" + skipCount + " skipped)." : "."));
         }
-        System.exit(skipCount == 0 ? SUCCESS : FILE_ERROR);
+        System.exit(skipCount == 0 ? ReturnCode.SUCCESS.ordinal() : ReturnCode.FILE_ERROR.ordinal());
     }
 
     /**
