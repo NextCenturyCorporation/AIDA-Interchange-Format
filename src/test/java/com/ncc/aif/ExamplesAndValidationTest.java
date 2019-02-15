@@ -52,7 +52,7 @@ public class ExamplesAndValidationTest {
             ValidateAIF.createForDomainOntologySource(SEEDLING_ONTOLOGY);
 
     private static final ValidateAIF nistSeedlingValidator =
-            ValidateAIF.create(false, false, true, ImmutableSet.of(SEEDLING_ONTOLOGY));
+            ValidateAIF.create(ImmutableSet.of(SEEDLING_ONTOLOGY), true);
 
     private int assertionCount;
     private int entityCount;
@@ -1008,24 +1008,6 @@ public class ExamplesAndValidationTest {
      */
     @Nested
     class InvalidExamples {
-        @Disabled
-        @Test
-        void confidenceOutsideOfZeroOne() {
-            final Model model = createModel();
-
-            final Resource system = AIFUtils.makeSystemWithURI(model,
-                    "http://www.test.edu/testSystem");
-
-            final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
-                    system);
-
-            AIFUtils.markType(model, "http://www.test.org/assertions/1",
-                    // illegal confidence value - not in [0.0, 1.0]
-                    entity, SeedlingOntology.Person, system, 100.0);
-
-            assertFalse(seedlingValidator.validateKB(model));
-        }
-
         @Test
         void entityMissingType() {
             // having multiple type assertions in case of uncertainty is ok, but there must always

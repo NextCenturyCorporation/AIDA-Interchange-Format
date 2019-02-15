@@ -183,7 +183,7 @@
 
                                 <program>
                                     <mainClass>edu.isi.gaia.ValidateAIF</mainClass>
-                                    <id>validateAIF</id>
+                                    <id>validateAIF-kotlin</id>
                                 </program>
 
                                 <program>
@@ -193,7 +193,7 @@
    
                                    <program>
                                     <mainClass>com.ncc.aif.ValidateAIF</mainClass>
-                                    <id>validateAIF-java</id>
+                                    <id>validateAIF</id>
                                 </program>
                             </programs>
                         </configuration>

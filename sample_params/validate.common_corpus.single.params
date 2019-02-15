@@ -1,2 +1,2 @@
 kbToValidate: ./test.ttl
-domainOntology: ./src/main/resources/com/ncc/aif/SeedlingOntology
+domainOntology: ./src/main/resources/edu/isi/gaia/ontologies/SeedlingOntology
