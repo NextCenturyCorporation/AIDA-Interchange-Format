@@ -31,7 +31,7 @@ import java.util.*;
 public final class ValidateAIF {
 
     private static final String AIDA_SHACL_RESNAME = "com/ncc/aif/aida_ontology.shacl";
-    private static final String NIST_SHACL_RESNAME = "com/ncc/aif/nist.shacl";
+    private static final String NIST_SHACL_RESNAME = "com/ncc/aif/restricted_aif.shacl";
     private static final String INTERCHANGE_RESNAME = "com/ncc/aif/ontologies/InterchangeOntology";
     private static final String AIDA_DOMAIN_COMMON_RESNAME = "com/ncc/aif/ontologies/AidaDomainOntologiesCommon";
     private static final String LDC_RESNAME = "com/ncc/aif/ontologies/SeedlingOntology";
@@ -41,21 +41,23 @@ public final class ValidateAIF {
     private static final String INTERCHANGE_URI = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology";
     private static final String AIDA_DOMAIN_COMMON_URI = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon";
 
-    private Model domainModel;
     private static Model shaclModel;
     private static Model nistModel;
+    static {
+        shaclModel = ModelFactory.createOntologyModel();
+        CharSource aifSource = Resources.asCharSource(Resources.getResource(AIDA_SHACL_RESNAME), Charsets.UTF_8);
+        loadModel(shaclModel, aifSource);
 
+        nistModel = ModelFactory.createOntologyModel();
+        loadModel(nistModel, aifSource);
+        loadModel(nistModel, Resources.asCharSource(Resources.getResource(NIST_SHACL_RESNAME), Charsets.UTF_8));
+    }
+
+    private Model domainModel;
+    private boolean useRestrictedAIF;
     private ValidateAIF(Model domainModel, boolean nistFlag) {
         this.domainModel = domainModel;
-        shaclModel = ModelFactory.createOntologyModel();
-        loadModel(shaclModel, Resources.asCharSource(Resources.getResource(AIDA_SHACL_RESNAME), Charsets.UTF_8));
-        if (nistFlag) {
-            nistModel = ModelFactory.createOntologyModel();
-            loadModel(nistModel, Resources.asCharSource(Resources.getResource(NIST_SHACL_RESNAME), Charsets.UTF_8));
-        }
-        else {
-            nistModel = null;
-        }
+        this.useRestrictedAIF = nistFlag;
     }
 
     // Ensure what file name an RDF syntax error occurs in is printed, which
@@ -122,7 +124,7 @@ public final class ValidateAIF {
             loadModel(model, source);
         }
 
-        return new ValidateAIF(model, false /*nistFlag*/);
+        return new ValidateAIF(model, nistFlag);
     }
 
     // Show usage information.
@@ -398,10 +400,9 @@ public final class ValidateAIF {
 
         // We short-circuit because earlier validation failures may make later
         // validation attempts misleading nonsense.
-        return  validateAgainstShacl(unionModel, shaclModel)
-                && (nistModel == null || validateAgainstShacl(unionModel, nistModel))
-                // && ensureConfidencesInZeroOne(unionModel)
-                && ensureEveryEntityAndEventHasAType(unionModel);
+        return useRestrictedAIF ?
+                validateAgainstShacl(unionModel, nistModel) :
+                validateAgainstShacl(unionModel, shaclModel);
     }
 
     /**
@@ -419,70 +420,4 @@ public final class ValidateAIF {
         }
         return valid;
     }
-
-    private boolean ensureConfidencesInZeroOne(Model dataToBeValidated) {
-        HashSet<Double> badVals = new HashSet<>();
-        NodeIterator nodeIter = dataToBeValidated.listObjectsOfProperty(AidaAnnotationOntology.CONFIDENCE_VALUE);
-        while (nodeIter.hasNext()) {
-            // We can assume all objects of confidenceValue are double-valued literals
-            // or else we would have failed SHACL validation.
-            final double floatVal = nodeIter.nextNode().asLiteral().getDouble();
-            if (floatVal < 0 || floatVal > 1.0) {
-                badVals.add(floatVal);
-            }
-        }
-
-        if (!badVals.isEmpty()) {
-            // TODO: provide more context for this error
-            System.err.println("The following confidence values outside the range [0, 1.0] were found: " +
-                    badVals.toString());
-        }
-        return badVals.isEmpty();
-    }
-
-    // Used by ensureEveryEntityAndEventHasAType below
-    private static final String ENSURE_TYPE_SPARQL_QUERY =
-            ("PREFIX rdf: <" + RDF.uri + ">\n" +
-                    "PREFIX aida: <" + AidaAnnotationOntology.NAMESPACE + ">\n" +
-                    "\n" +
-                    "SELECT ?entityOrEvent\n" +
-                    "WHERE {\n" +
-                    "    {?entityOrEvent a aida:Entity} UNION  {?entityOrEvent a aida:Event}\n" +
-                    "    FILTER NOT EXISTS {\n" +
-                    "    ?typeAssertion a rdf:Statement .\n" +
-                    "    ?typeAssertion rdf:predicate rdf:type .\n" +
-                    "    ?typeAssertion rdf:subject ?entityOrEvent .\n" +
-                    "    }\n" +
-                    "}").replace("\n", System.getProperty("line.separator"));
-
-    private boolean ensureEveryEntityAndEventHasAType(Model dataToBeValidated) {
-        // It is okay if there are multiple type assertions (in case of uncertainty)
-        // but there has to be at least one.
-        // TODO: we would like to make sure if there are multiple, then they must be in some sort
-        // of mutual exclusion relationship. This may be complicated and slow, however, so we
-        // don't do it yet.
-        final Query query = QueryFactory.create(ENSURE_TYPE_SPARQL_QUERY);
-        final QueryExecution queryExecution = QueryExecutionFactory.create(query, dataToBeValidated);
-        final ResultSet results = queryExecution.execSelect();
-
-        boolean valid = true;
-        while (results.hasNext()) {
-            final QuerySolution match = results.nextSolution();
-            final Resource typelessEntityOrEvent = match.getResource("entityOrEvent");
-
-            // An entity is permitted to lack a type if it is a non-prototype member of a cluster
-            // this could be the case when the entity arises from coreference resolution where
-            // the referents are different types.
-            final boolean isNonPrototypeMemberOfCluster =
-                    dataToBeValidated.listSubjectsWithProperty(AidaAnnotationOntology.CLUSTER_MEMBER,
-                            typelessEntityOrEvent).hasNext();
-
-            if (!isNonPrototypeMemberOfCluster) {
-                System.err.println("Entity or event " + typelessEntityOrEvent.getURI() + " has no type assertion");
-                valid = false;
-            }
-        }
-        return valid;
-    }
-
 }

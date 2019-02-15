@@ -44,20 +44,12 @@ aida:EventShape
 #########################
 # Each edge justification is limited to two or fewer spans
 #------------------------
-# Define requirement that edge justification contain no more than 2 justifications
-aida:NistEdgeJustificationLimit
+# Can have a maximum of 2 justifiedBy/containedJustification properties
+aida:EdgeJustificationLimit
     a sh:PropertyShape ;
-    sh:path aida:containedJustification ;
+    sh:path ( aida:justifiedBy aida:containedJustification ) ;
     sh:maxCount 2 ;
-    sh:message "Only 2 justifications allowed within compound edge justification" .
-
-# Define edge justification shape
-aida:EdgeJustificationShape
-    a sh:NodeShape ;
-    sh:targetClass aida:CompoundJustification ;
-
-    # can have at most 2 justifications
-    sh:property aida:NistEdgeJustificationLimit .
+    sh:message "Only 2 contained justifications allowed for an edge" .
 
 # Turn off CompoundJustificationMinimum globally
 aida:CompoundJustificationMinimum sh:deactivated true .
@@ -68,15 +60,17 @@ aida:CompoundJustificationMinimum sh:deactivated true .
 # Edges are assumed to be relation and event arguments
 #------------------------
 # Define restriction where justification can only be compound justification
-aida:NistEdgeJustificationCompound
+aida:EdgeJustificationCompound
     a sh:PropertyShape ;
     sh:path aida:justifiedBy ;
-    sh:class aida:EdgeJustificationShape ;
+    sh:class aida:CompoundJustification ;
     sh:message "Edge justification must be of type aida:CompoundJustification" .
 
 # Enforce edge justification restriction on event and relation arguments
-aida:EventArgumentShape sh:property aida:NistEdgeJustificationCompound .
-aida:RelationArgumentShape sh:property aida:NistEdgeJustificationCompound .
+aida:EventArgumentShape
+    sh:property aida:EdgeJustificationCompound, aida:EdgeJustificationLimit .
+aida:RelationArgumentShape
+    sh:property aida:EdgeJustificationCompound, aida:EdgeJustificationLimit .
 
 #########################
 # Video must use aida:KeyFrameVideoJustification. Remove ShotVideoJustification
@@ -109,7 +103,9 @@ aida:ClusterMembershipShape
             [sh:class aida:Entity]
             [sh:class aida:Event]
             [sh:class aida:Relation]
-        ) ] .
+        ) ;
+        sh:message "Cluster member type not allowed to be part of cluster"
+    ] .
 
 #########################
 # Entity, Relation, and Event object is required to be part of at least one cluster.

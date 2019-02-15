@@ -159,13 +159,16 @@ aida:EventArgumentShape
    a sh:NodeShape ;
 
   # this shape only applies when the predicate is an event argument type from the ontology
-  sh:SPARQLTarget [
+  sh:target [
+    a sh:SPARQLTarget ;
     sh:select """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#>
         SELECT ?this
         WHERE {
             ?this a rdf:Statement .
-            ?pred a aidaDomainCommon:EventArgumentType .
+            ?pred rdfs:subClassOf+|rdf:type/rdfs:subClassOf* aidaDomainCommon:EventArgumentType .
             ?this rdf:predicate ?pred .
         }
         """ ;
@@ -174,7 +177,9 @@ aida:EventArgumentShape
   # the subject is the event some entity is participating in
   sh:property [
     sh:path rdf:subject ;
-    sh:class aida:Event ] ;
+    sh:class aida:Event ;
+    sh:message "The subject of an event argument must be an event"
+  ] ;
 
   # the object is the entity participating in the event
   sh:property [
@@ -213,24 +218,28 @@ aida:EventArgumentShape
 aida:RelationArgumentShape
    a sh:NodeShape ;
 
-  #TODO: this may only retrieve first-order Relation types. Should use subclass?
   # this shape only applies when the predicate is an event argument type from the ontology
-  sh:SPARQLTarget [
+  sh:target [
+    a sh:SPARQLTarget ;
     sh:select """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#>
         SELECT ?this
         WHERE {
             ?this a rdf:Statement .
-            ?pred a aidaDomainCommon:RelationArgumentType .
+            ?pred rdfs:subClassOf+|rdf:type/rdfs:subClassOf* aidaDomainCommon:RelationArgumentType .
             ?this rdf:predicate ?pred .
         }
         """ ;
-  ];
+  ] ;
 
   # the subject is the event some entity is participating in
   sh:property [
     sh:path rdf:subject ;
-    sh:class aida:Relation ] ;
+    sh:class aida:Relation ;
+    sh:message "The subject of a relation argument must be an relation"
+  ] ;
 
   # the object is the entity participating in the event
   sh:property [
@@ -527,7 +536,7 @@ aida:RelationTypeShape
             ]
         ]
     ) ;
-    sh:message "Cannot assign a non-Relation type to an Relation"
+    sh:message "Cannot assign a non-Relation type to a Relation"
     .
 
 # Most things may be annotated with a confidence structure.
@@ -993,18 +1002,40 @@ aida:NumericPropertyShape
 # sentiment assertions. Each of these has already been described above. We want to forbid any other
 # use of RDF statement.
 aida:RdfStatementShape
-  a sh:NodeShape ;
-  sh:targetClass rdf:Statement ;
+    a sh:NodeShape ;
+    sh:targetClass rdf:Statement ;
 
-  sh:property [
-     sh:path rdf:predicate ;
-     sh:xone (
-        [ sh:hasValue rdf:type ]
-          aida:EventArgumentSubclass
-          aida:RelationArgumentSubclass ) ;
-      sh:message "All rdf:Statements must be type declarations or have predicates from the domain relation or event argument types. This error is often caused by using a value outside the domain ontology"
-     ]
-  .
+    # subject/predicate/object must exist exactly once
+    sh:property [
+        sh:path rdf:subject ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Number of subjects specified for edge must be 1"
+    ] ;
+
+    sh:property [
+        sh:path rdf:predicate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Number of predicates specified for edge must be 1"
+    ] ;
+
+    sh:property [
+        sh:path rdf:object ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Number of objects specified for edge must be 1"
+    ] ;
+
+    sh:property [
+        sh:path rdf:predicate ;
+        sh:xone (
+            [ sh:hasValue rdf:type ]
+            aida:EventArgumentSubclass
+            aida:RelationArgumentSubclass ) ;
+        sh:message "All rdf:Statements must be type declarations or have predicates from the domain relation or event argument types. This error is often caused by using a value outside the domain ontology"
+    ]
+    .
 
 # Sometimes there is uncertainty about whether or not two entities or events are the same.
 # In such cases, we make "cluster" objects which can link together the possibly identical
@@ -1060,7 +1091,9 @@ aida:ClusterMembershipShape
                 [sh:class aida:Relation]
                 [sh:class aida:SameAsCluster] )  ;
       sh:minCount 1 ;
-      sh:maxCount 1 ] ;
+      sh:maxCount 1 ;
+      sh:message "Cluster member type not allowed to be part of cluster"
+  ] ;
 
    # may provide a confidence
    sh:property aida:ConfidencePropertyShape ;
