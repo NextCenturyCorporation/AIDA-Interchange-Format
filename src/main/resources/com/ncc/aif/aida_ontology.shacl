@@ -781,7 +781,7 @@ aida:KeyFrameVideoJustificationShape
    sh:property [
        sh:path aida:keyFrame ;
        sh:datatype xsd:string ;
-       sh:mintCount 1;
+       sh:minCount 1;
        sh:maxCount 1 ] ;
 
    sh:property aida:BoundingBoxPropertyShape ;
