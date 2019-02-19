@@ -8,12 +8,10 @@ import com.google.common.io.CharSource;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import org.apache.jena.ontology.OntModel;
-import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.util.FileUtils;
-import org.apache.jena.vocabulary.RDF;
 import org.topbraid.shacl.validation.ValidationUtil;
 
 import java.io.File;
@@ -43,19 +41,26 @@ public final class ValidateAIF {
 
     private static Model shaclModel;
     private static Model nistModel;
-    static {
-        shaclModel = ModelFactory.createOntologyModel();
-        CharSource aifSource = Resources.asCharSource(Resources.getResource(AIDA_SHACL_RESNAME), Charsets.UTF_8);
-        loadModel(shaclModel, aifSource);
+    private static boolean initialized = false;
 
-        nistModel = ModelFactory.createOntologyModel();
-        loadModel(nistModel, aifSource);
-        loadModel(nistModel, Resources.asCharSource(Resources.getResource(NIST_SHACL_RESNAME), Charsets.UTF_8));
+    private static void initializeSHACLModels() {
+        if (!initialized) {
+            shaclModel = ModelFactory.createOntologyModel();
+            CharSource aifSource = Resources.asCharSource(Resources.getResource(AIDA_SHACL_RESNAME), Charsets.UTF_8);
+            loadModel(shaclModel, aifSource);
+
+            nistModel = ModelFactory.createOntologyModel();
+            loadModel(nistModel, aifSource);
+            loadModel(nistModel, Resources.asCharSource(Resources.getResource(NIST_SHACL_RESNAME), Charsets.UTF_8));
+
+            initialized = true;
+        }
     }
 
     private Model domainModel;
     private boolean useRestrictedAIF;
     private ValidateAIF(Model domainModel, boolean nistFlag) {
+        initializeSHACLModels();
         this.domainModel = domainModel;
         this.useRestrictedAIF = nistFlag;
     }

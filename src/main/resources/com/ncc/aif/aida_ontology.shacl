@@ -54,16 +54,19 @@ aida:EntityShape
 
     # Ensure that entity has type
     sh:sparql [
-        sh:message "Entity must have type assertion" ;
+        sh:message "Entity must have type assertion or be non-prototype member of cluster" ;
         sh:select """
             PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
             SELECT $this
             WHERE {
-                FILTER NOT EXISTS {
-                    ?typeAssertion a rdf:Statement .
-                    ?typeAssertion rdf:predicate rdf:type .
-                    ?typeAssertion rdf:subject $this .
-                }
+                FILTER ( NOT EXISTS {
+                        ?typeAssertion a rdf:Statement .
+                        ?typeAssertion rdf:predicate rdf:type .
+                        ?typeAssertion rdf:subject $this .
+                    } && ( NOT EXISTS { ?membership aida:clusterMember $this . } ||
+                            EXISTS { ?cluster aida:prototype $this . } )
+                )
             }
         """ ;
     ] ;
@@ -110,16 +113,19 @@ aida:EventShape
 
     # Ensure that event has type
     sh:sparql [
-        sh:message "Event must have type assertion" ;
+        sh:message "Event must have type assertion or be non-prototype member of cluster" ;
         sh:select """
             PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
             SELECT $this
             WHERE {
-                FILTER NOT EXISTS {
-                    ?typeAssertion a rdf:Statement .
-                    ?typeAssertion rdf:predicate rdf:type .
-                    ?typeAssertion rdf:subject $this .
-                }
+                FILTER ( NOT EXISTS {
+                        ?typeAssertion a rdf:Statement .
+                        ?typeAssertion rdf:predicate rdf:type .
+                        ?typeAssertion rdf:subject $this .
+                    } && ( NOT EXISTS { ?membership aida:clusterMember $this . } ||
+                            EXISTS { ?cluster aida:prototype $this . } )
+                )
             }
         """ ;
     ] ;
@@ -275,16 +281,19 @@ aida:RelationShape
 
     # Ensure that relation has type
     sh:sparql [
-       sh:message "Relation must have type assertion" ;
+       sh:message "Relation must have type assertion or be non-prototype member of cluster" ;
        sh:select """
            PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-           SELECT $this
-           WHERE {
-               FILTER NOT EXISTS {
-                   ?typeAssertion a rdf:Statement .
-                   ?typeAssertion rdf:predicate rdf:type .
-                   ?typeAssertion rdf:subject $this .
-               }
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            SELECT $this
+            WHERE {
+                FILTER ( NOT EXISTS {
+                        ?typeAssertion a rdf:Statement .
+                        ?typeAssertion rdf:predicate rdf:type .
+                        ?typeAssertion rdf:subject $this .
+                    } && ( NOT EXISTS { ?membership aida:clusterMember $this . } ||
+                            EXISTS { ?cluster aida:prototype $this . } )
+                )
            }
        """ ;
     ] ;
