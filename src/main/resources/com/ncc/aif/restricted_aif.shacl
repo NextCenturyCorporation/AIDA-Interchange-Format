@@ -9,39 +9,6 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
 #########################
-# All Entity and Event objects are restricted to justifications
-# from a single document; that is, there can be multiple justification
-# sections, but need to have the same aida:source.
-#------------------------
-aida:EntityShape
-    sh:sparql [
-        sh:message "Entity justifications can only have 1 source" ;
-        sh:select """
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
-            SELECT $this
-            WHERE {
-                $this aida:justifiedBy [ aida:source|aida:containedJustification/aida:source ?source ] .
-            }
-            GROUP BY $this
-            HAVING (COUNT(DISTINCT ?source) > 1)
-        """ ;
-    ] .
-
-aida:EventShape
-    sh:sparql [
-        sh:message "Event justifications can only have 1 source" ;
-        sh:select """
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
-            SELECT $this
-            WHERE {
-                $this aida:justifiedBy [ aida:source|aida:containedJustification/aida:source ?source ] .
-            }
-            GROUP BY $this
-            HAVING (COUNT(DISTINCT ?source) > 1)
-        """ ;
-    ] .
-
-#########################
 # Each edge justification is limited to two or fewer spans
 #------------------------
 # Can have a maximum of 2 justifiedBy/containedJustification properties

@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @TestInstance(Lifecycle.PER_CLASS)
 public class ExamplesAndValidationTest {
     // Set this flag to true if attempting to get examples
-    private static final boolean FORCE_DUMP = true;
+    private static final boolean FORCE_DUMP = false;
 
     private static final String LDC_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#";
     private static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#";
@@ -1146,34 +1146,6 @@ public class ExamplesAndValidationTest {
             addType(event, SeedlingOntology.Conflict_Attack);
             entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, system);
             eventCluster = makeClusterWithPrototype(model, getClusterUri(), event, system);
-        }
-
-        // All Entity and Event objects are restricted to justifications
-        // from a single document; that is, there can be multiple justification
-        // sections, but need to have the same aida:source.
-        @Nested
-        class SingleSourceForEntitiesAndEvents {
-            @Test
-            void invalid() {
-                markTextJustification(model, entity, "source1", 0, 4, system, 1d);
-                markTextJustification(model, entity, "source2", 0, 4, system, 1d);
-
-                markTextJustification(model, event, "source1", 0, 4, system, 1d);
-                markTextJustification(model, event, "source2", 0, 4, system, 1d);
-                assertAndDump(model, "NIST.invalid: single source for entities and events", nistSeedlingValidator,
-                        false);
-            }
-
-            @Test
-            void valid() {
-                markTextJustification(model, entity, "source1", 0, 4, system, 1d);
-                markTextJustification(model, entity, "source1", 10, 14, system, 1d);
-
-                markTextJustification(model, event, "source1", 0, 4, system, 1d);
-                markTextJustification(model, event, "source1", 10, 14, system, 1d);
-                assertAndDump(model, "NIST.valid: single source for entities and events", nistSeedlingValidator,
-                        true);
-            }
         }
 
         // Each edge justification must be represented uniformly in AIF by
