@@ -7,14 +7,14 @@ import setuptools
 with open("README.md", "r") as fh:
   long_description = fh.read()
 
-setup(name='gaia-interchange',
+setup(name='aida-interchange',
       version='0.1.0',
       author='Ryan Gabbard',
       author_email='gabbard@isi.edu',
       description='AIDA Interchange Format tools',
       long_description=long_description,
       long_description_content_type='text/markdown',
-      url='https://github.com/isi-vista/gaia-interchange',
+      url='https://github.com/NextCenturyCorporation/AIDA-Interchange-Format.git',
       packages=setuptools.find_packages(where='./python/', exclude=['tests']),
       package_dir={
           '' : 'python'
