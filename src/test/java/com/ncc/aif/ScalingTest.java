@@ -171,8 +171,7 @@ public class ScalingTest {
             dumpMultipleFormats();
         } else if (runScalingTest) {
             runScalingTest();
-        }
-        else {
+        } else {
             runSingleTest();
         }
     }
@@ -245,8 +244,7 @@ public class ScalingTest {
         } else if (rand < 0.4) {
             markNumericValueAsDouble(entityResource, r.nextDouble());
             typeToUse = SeedlingOntology.Age;
-        }
-        else {
+        } else {
             typeToUse = SeedlingOntology.Person;
         }
 
@@ -262,8 +260,7 @@ public class ScalingTest {
         double rand = r.nextDouble();
         if (rand < 0.5) {
             addEvent();
-        }
-        else {
+        } else {
             addRelation();
         }
     }
