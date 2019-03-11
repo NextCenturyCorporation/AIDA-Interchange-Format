@@ -120,7 +120,7 @@ public class ScalingTest {
     // Set this to no perform scaling, but rather try different output formats
     private boolean useMultipleOutputs = false;
 
-    // Set this to true to run multiple, scaling tests, or false to run a single unscaled test
+    // Set this to false to run a single, unscaled test
     private boolean runScalingTest = true;
 
     /**
@@ -135,7 +135,6 @@ public class ScalingTest {
     }
 
     private void parseArgs(List<String> args) {
-
         if (args.contains("-o")) {
             useMultipleOutputs = true;
             runScalingTest = false;
@@ -161,11 +160,9 @@ public class ScalingTest {
             System.err.println("Cannot perform validation on multiple output type tests.");
             System.exit(1);
         }
-
     }
 
     private void runTest() {
-
         if (useMultipleOutputs) {
             runOneTest();
             dumpMultipleFormats();
@@ -177,7 +174,6 @@ public class ScalingTest {
     }
 
     private void runScalingTest() {
-
         for (int ii = 0; ii < 200; ii++) {
             runSingleTest();
             entityCount *= 2;
@@ -190,18 +186,17 @@ public class ScalingTest {
         long startTime = System.currentTimeMillis();
 
         runOneTest();
-
         dumpAndAssertValid();
 
         long endTime = System.currentTimeMillis();
-        long duration = (endTime - startTime) / 1000;      // Convert from milliseconds to seconds.
+        long duration = (endTime - startTime) / 1000; // Convert from milliseconds to seconds.
 
         long size = 0;
         File f = new File(filename);
         if (f.exists()) {
             size = f.length();
         }
-        size /= 1000000.;      // Convert from bytes to megabytes.
+        size /= 1000000.; // Convert from bytes to megabytes.
         System.out.println(" Size of output (mb): " + size + "  Time (sec): " + duration);
     }
 
@@ -227,7 +222,6 @@ public class ScalingTest {
     }
 
     private void addEntity() {
-
         // Add an entity
         Resource entityResource = makeEntity(model, getEntityUri(), system);
         entityResourceList.add(entityResource);
@@ -326,8 +320,6 @@ public class ScalingTest {
     // we dump the test name and the model in Turtle format so that whenever the user
     // runs the tests, they will also get the examples
     private void dumpAndAssertValid() {
-
-
         try {
             RDFDataMgr.write(Files.newOutputStream(Paths.get(filename)), model, RDFFormat.TURTLE_PRETTY);
             if (performValidation) {
@@ -344,7 +336,6 @@ public class ScalingTest {
      * Try all the different types of output types.
      */
     private void dumpMultipleFormats() {
-
         for (RDFFormat trialFormat : outputFormats) {
             String outputFilename = filename + "." + trialFormat.toString();
             outputFilename = outputFilename.replace(" ", "").replace("/", "_");
@@ -356,7 +347,6 @@ public class ScalingTest {
             }
         }
     }
-
 
     private void createModel() {
 
@@ -428,7 +418,6 @@ public class ScalingTest {
         s += randomChar();
         return s;
     }
-
 
     private String getRandomString(int length) {
         StringBuilder s = new StringBuilder();
