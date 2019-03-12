@@ -188,9 +188,9 @@ aida:EventArgumentShape
   ] ;
 
   # the object is the entity participating in the event
-  sh:property [
-    sh:path rdf:object ;
-    sh:class aida:Entity ] ;
+#  sh:property [
+#    sh:path rdf:object ;
+#    sh:class aida:Entity ] ;
    # TODO: handle temporal or string values
 
    # may have zero or more string labels for user consumption
@@ -216,7 +216,7 @@ aida:EventArgumentShape
   # no other properties are allowed
   sh:closed true ;
   # except rdf:type
-  sh:ignoredProperties (rdf:type rdf:predicate)
+  sh:ignoredProperties (rdf:type rdf:predicate rdf:object)
   .
 
 # It was decided that Relations should be represented similarly to Events.
@@ -248,9 +248,9 @@ aida:RelationArgumentShape
   ] ;
 
   # the object is the entity participating in the event
-  sh:property [
-    sh:path rdf:object ;
-    sh:class aida:Entity ] ;
+#  sh:property [
+#    sh:path rdf:object ;
+#    sh:class aida:Entity ] ;
    # TODO: handle temporal or string values
 
   # may provide a confidence
@@ -271,7 +271,7 @@ aida:RelationArgumentShape
   # no other properties are allowed
   sh:closed true ;
   # except rdf:type
-  sh:ignoredProperties (rdf:type rdf:predicate)
+  sh:ignoredProperties (rdf:type rdf:predicate rdf:object)
   .
 
 # the fourth type of content node is a relation assertion.
