@@ -58,7 +58,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * %  mvn exec:java -Dexec.mainClass="com.ncc.aif.ScalingTest" -Dexec.classpathScope="test" -Dexec.args="[arguments]"
  * where arguments are:
  * <pre>
- *       -s   run a single test on a single output type (i.e., do not scale)
+ *       -s   run a single test on a single output type (i.e., do not scale). Incompatible with -o.
  *       -o   run a single test on different output types (incompatible with -s and -v)
  *       -t   use tdb model (default is to use in-memory)
  *       -v   do validation (default is to not do validation, incompatible with -o)
@@ -358,8 +358,7 @@ public class ScalingTest {
             case TDB:
                 try {
                     // Make a disk model
-                    final Path local = FileSystems.getDefault().getPath(".");
-                    final Path outputPath = Files.createTempDirectory(local, "model-scaling-");
+                    final Path outputPath = Files.createTempDirectory("model-scaling-");
                     final Dataset dataset = TDBFactory.createDataset(outputPath.toString());
                     model = dataset.getDefaultModel();
                 } catch (Exception e) {
