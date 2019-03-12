@@ -232,7 +232,7 @@ public class ExamplesAndValidationTest {
                     ImmutableSet.of(placeOfResidenceInRussiaCluster), 0.6),
                     system, null);
 
-            assertAndDump(model, "create a relation between two seedling entities where there"
+            assertAndDump(model, "create a relation between two seedling entities where there "
                     + "is uncertainty about identity of one argument", seedlingValidator, true);
         }
 
@@ -518,7 +518,7 @@ public class ExamplesAndValidationTest {
             final Resource value = makeEntity(model, getUri("E831667.00871"), system);
             markType(model, getAssertionUri(), value, SeedlingOntology.NumericalValue, system, 1.0);
             markNumericValueAsDouble(value, 16.0);
-            markNumericValueAsLong(value, 16l);
+            markNumericValueAsLong(value, (long) 16);
             markNumericValueAsString(value, "на висоті менше 16 кілометрів");
             markNumericValueAsString(value, "at a height less than 16 kilometers");
 
@@ -618,16 +618,16 @@ public class ExamplesAndValidationTest {
 
             // cluster president entities
             final Resource presidentCluster = makeClusterWithPrototype(model, getClusterUri(), presidentUSA, system);
-            markAsPossibleClusterMember(model, newPresident, presidentCluster, .9, system);
-            markAsPossibleClusterMember(model, president45, presidentCluster, .9, system);
+            markAsPossibleClusterMember(model, newPresident, presidentCluster, .8, system);
+            markAsPossibleClusterMember(model, president45, presidentCluster, .7, system);
 
             // create Trump entities
             final Resource donaldTrump = makeEntity(model, getEntityUri(), system);
-            markType(model, getAssertionUri(), donaldTrump, SeedlingOntology.Person, system, 1.0);
+            markType(model, getAssertionUri(), donaldTrump, SeedlingOntology.Person, system, .4);
             markName(donaldTrump, "Donald Trump");
 
             final Resource trump = makeEntity(model, getEntityUri(), system);
-            markType(model, getAssertionUri(), trump, SeedlingOntology.Person, system, 1.0);
+            markType(model, getAssertionUri(), trump, SeedlingOntology.Person, system, .5);
             markName(trump, "Trump");
 
             // cluster trump entities
@@ -945,7 +945,7 @@ public class ExamplesAndValidationTest {
             final Resource billClintonCluster = makeClusterWithPrototype(model, getClusterUri(), billClinton, system);
             final Resource hillaryClintonCluster = makeClusterWithPrototype(model, getClusterUri(), hillaryClinton, system);
 
-            // mark coref uncertainty for "President Obama" and "Secretary Clinon"
+            // mark coref uncertainty for "President Obama" and "Secretary Clinton"
             final Resource presidentObamaIsMichelle = markAsPossibleClusterMember(model,
                     presidentObama, michelleObamaCluster, 0.5, system);
             final Resource presidentObamaIsBarack = markAsPossibleClusterMember(model,
@@ -955,10 +955,10 @@ public class ExamplesAndValidationTest {
 
             final Resource secretaryClintonIsBill = markAsPossibleClusterMember(model,
                     secretaryClinton, billClintonCluster, 0.5, system);
-            final Resource secretaryClintoIsHillary = markAsPossibleClusterMember(model,
+            final Resource secretaryClintonIsHillary = markAsPossibleClusterMember(model,
                     secretaryClinton, hillaryClintonCluster, 0.5, system);
             markEdgesAsMutuallyExclusive(model, ImmutableMap.of(secretaryClintonIsBill, 0.5,
-                    secretaryClintoIsHillary, 0.5), system, null);
+                    secretaryClintonIsHillary, 0.5), system, null);
 
             // relation that President Obama (of uncertain reference) worked with Secretary Clinton (of uncertain reference)
             // is asserted in document 2
@@ -1218,7 +1218,7 @@ public class ExamplesAndValidationTest {
 
                 // test event
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity,
-                        system,1.0, getAssertionUri());
+                        system, 1.0, getAssertionUri());
                 markJustification(eventEdge, compound);
 
                 assertAndDump(model, "NIST.invalid: edge justification contains at most two mentions",
