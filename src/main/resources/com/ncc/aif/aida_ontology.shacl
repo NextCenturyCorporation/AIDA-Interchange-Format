@@ -244,7 +244,7 @@ aida:RelationArgumentShape
   sh:property [
     sh:path rdf:subject ;
     sh:class aida:Relation ;
-    sh:message "The subject of a relation argument must be an relation"
+    sh:message "The subject of a relation argument must be a relation"
   ] ;
 
   # the object is the entity participating in the event
@@ -1248,7 +1248,6 @@ aida:DependsOnHypothesisPropertyShape
 
 aida:PrivateDataShape
    sh:targetClass aida:PrivateData ;
-   sh:property aida:RequiredSystemPropertyShape ;
    sh:property aida:JsonContentPropertyShape ;
    # this class is not closed, so you can stick whatever else you want here
    .

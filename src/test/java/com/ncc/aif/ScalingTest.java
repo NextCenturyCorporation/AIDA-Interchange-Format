@@ -19,16 +19,15 @@ import org.apache.jena.vocabulary.XSD;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.*;
 
 import static com.ncc.aif.AIFUtils.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Test to see how large we can scale AIF.  AIF uses a Jena-based model, and so we rely on that
- * to determine how large it can get.  Change whether you are using a memory based model
+ * Test to see how large we can scale AIF with the LDC Seedling ontology.  AIF uses a Jena-based model,
+ * and so we rely on that to determine how large it can get.  Change whether you are using a memory based model
  * or a disk-based model (TDB) below in the line that defines modelTypeToUse.  MEMORY is faster, but
  * is more limited;  TDB is slower but can handle more statements.
  * <p>
@@ -53,14 +52,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 123285222  scalingdata.ttl.TriX
  * <p>
  * The smaller ones are difficult to read, the large ones do not use prefixes. turtle_pretty is readable and not too large.
+ * By default, this class runs a scaling test using the Turtle Pretty output type.
  * <p>
  * Run with:
- * %  mvn exec:java -Dexec.mainClass="edu.isi.aif.ScalingTest" -Dexec.classpathScope="test" -Dexec.args="[arguments]"
+ * %  mvn exec:java -Dexec.mainClass="com.ncc.aif.ScalingTest" -Dexec.classpathScope="test" -Dexec.args="[arguments]"
  * where arguments are:
  * <pre>
- *       -o   try different output types (default is to use Turtle Pretty and scale)
+ *       -s   run a single test on a single output type (i.e., do not scale). Incompatible with -o.
+ *       -o   run a single test on different output types (incompatible with -s and -v)
  *       -t   use tdb model (default is to use in-memory)
- *       -p   do validation (default is to not do validation)
+ *       -v   do validation (default is to not do validation, incompatible with -o)
  * </pre>
  */
 public class ScalingTest {
@@ -118,70 +119,87 @@ public class ScalingTest {
     // Set this to no perform scaling, but rather try different output formats
     private boolean useMultipleOutputs = false;
 
+    // Set this to false to run a single, unscaled test
+    private boolean runScalingTest = true;
+
     /**
      * Main function.  See class description for arguments.
      */
     public static void main(String[] args) {
+        // prevent too much logging from obscuring the Turtle examples which will be printed
+        ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
         ScalingTest scalingTest = new ScalingTest();
         scalingTest.parseArgs(Arrays.asList(args));
         scalingTest.runTest();
     }
 
     private void parseArgs(List<String> args) {
-
-        // prevent too much logging from obscuring the Turtle examples which will be printed
-        ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
-
         if (args.contains("-o")) {
             useMultipleOutputs = true;
+            runScalingTest = false;
+            if (args.contains("-s")) {
+                System.err.println("Please use only one of -o and -s.");
+                System.exit(1);
+            }
+        }
+
+        if (args.contains("-s")) {
+            runScalingTest = false;
         }
 
         if (args.contains("-t")) {
             modelTypeToUse = MODEL_TYPE.TDB;
         }
 
-        if (args.contains("-p")) {
+        if (args.contains("-v")) {
             performValidation = true;
+        }
+
+        if (useMultipleOutputs && performValidation) {
+            System.err.println("Cannot perform validation on multiple output type tests.");
+            System.exit(1);
         }
     }
 
     private void runTest() {
-
         if (useMultipleOutputs) {
-            runSingleTest();
+            runOneTest();
             dumpMultipleFormats();
+        } else if (runScalingTest) {
+            runScalingTest();
         } else {
-            runMultipleTests();
+            runSingleTest();
         }
     }
 
-    private void runMultipleTests() {
-
+    private void runScalingTest() {
         for (int ii = 0; ii < 200; ii++) {
-            System.out.print("Trying :  Entity count: " + entityCount + " ");
-            long startTime = System.currentTimeMillis();
-
             runSingleTest();
-
-            dumpAndAssertValid();
-
-            long endTime = System.currentTimeMillis();
-            long duration = (endTime - startTime) / 1000;
-
-            long size = 0;
-            File f = new File(filename);
-            if (f.exists()) {
-                size = f.length();
-            }
-            size /= 1000000.;      // Convert from milliseconds to seconds.
-            System.out.println(" Size of output (mb): " + size + "  Time (sec): " + duration);
-
             entityCount *= 2;
             eventCount *= 2;
         }
     }
 
     private void runSingleTest() {
+        System.out.print("Trying :  Entity count: " + entityCount + " ");
+        long startTime = System.currentTimeMillis();
+
+        runOneTest();
+        dumpAndAssertValid();
+
+        long endTime = System.currentTimeMillis();
+        long duration = (endTime - startTime) / 1000; // Convert from milliseconds to seconds.
+
+        long size = 0;
+        File f = new File(filename);
+        if (f.exists()) {
+            size = f.length();
+        }
+        size /= 1000000.; // Convert from bytes to megabytes.
+        System.out.println(" Size of output (mb): " + size + "  Time (sec): " + duration);
+    }
+
+    private void runOneTest() {
         createModel();
         system = makeSystemWithURI(model, getTestSystemUri());
 
@@ -190,7 +208,7 @@ public class ScalingTest {
             addEntity();
         }
         for (int ii = 0; ii < eventCount; ii++) {
-            addEvent();
+            addEventOrRelation();
         }
 
         int numStatements = 0;
@@ -203,32 +221,69 @@ public class ScalingTest {
     }
 
     private void addEntity() {
-
         // Add an entity
         Resource entityResource = makeEntity(model, getEntityUri(), system);
         entityResourceList.add(entityResource);
 
-        // sometimes add hasName, textValue, or numericValue, NOTE:  This does not check type!!!!
+        // sometimes add hasName, textValue, or numericValue
         double rand = r.nextDouble();
+        Resource typeToUse;
         if (rand < 0.15) {
             markName(entityResource, getRandomString(5));
+            typeToUse = SeedlingOntology.Person;
         } else if (rand < 0.3) {
             markTextValue(entityResource, getRandomString(7));
+            typeToUse = SeedlingOntology.Results;
         } else if (rand < 0.4) {
             markNumericValueAsDouble(entityResource, r.nextDouble());
+            typeToUse = SeedlingOntology.Age;
+        } else {
+            typeToUse = SeedlingOntology.Person;
         }
 
         // Set the type
-        Resource typeToUse = SeedlingOntology.Person;
         Resource typeAssertion = markType(model, getAssertionUri(), entityResource,
                 typeToUse, system, 1.0);
 
         addJustificationAndPrivateData(typeAssertion);
     }
 
+    private void addEventOrRelation() {
+        // sometimes add an event, other times a relation
+        double rand = r.nextDouble();
+        if (rand < 0.5) {
+            addEvent();
+        } else {
+            addRelation();
+        }
+    }
+
     private void addEvent() {
         // Add an event
         Resource eventResource = makeEvent(model, getEventUri(), system);
+
+        // Set the type
+        Resource typeResource = SeedlingOntology.Business_DeclareBankruptcy;
+        Resource typeAssertion = markType(model, getAssertionUri(), eventResource, typeResource, system, 1.0);
+
+        addJustificationAndPrivateData(typeAssertion);
+
+        // Make two arguments
+        Resource argument = markAsArgument(model, eventResource,
+                SeedlingOntology.Business_DeclareBankruptcy_Place,
+                getRandomEntity(), system, 0.785, getAssertionUri());
+        addJustificationAndPrivateData(argument);
+
+        Resource argumentTwo = markAsArgument(model, eventResource,
+                SeedlingOntology.Business_DeclareBankruptcy_Organization,
+                getRandomEntity(), system, 0.785, getAssertionUri());
+        addJustificationAndPrivateData(argumentTwo);
+
+    }
+
+    private void addRelation() {
+        // Add a relation
+        Resource eventResource = makeRelation(model, getEventUri(), system);
 
         // Set the type
         Resource typeResource = SeedlingOntology.Physical_Resident;
@@ -259,17 +314,15 @@ public class ScalingTest {
     }
 
     private final ValidateAIF seedlingValidator = ValidateAIF.createForDomainOntologySource(
-            Resources.asCharSource(Resources.getResource("edu/isi/gaia/SeedlingOntology"), StandardCharsets.UTF_8));
+            Resources.asCharSource(Resources.getResource("com/ncc/aif/ontologies/SeedlingOntology"), StandardCharsets.UTF_8));
 
     // we dump the test name and the model in Turtle format so that whenever the user
     // runs the tests, they will also get the examples
     private void dumpAndAssertValid() {
-
-
         try {
             RDFDataMgr.write(Files.newOutputStream(Paths.get(filename)), model, RDFFormat.TURTLE_PRETTY);
             if (performValidation) {
-                System.out.println("Doing validation");
+                System.out.println("\nDoing validation.  Validation errors (if any) follow:");
                 assertTrue(seedlingValidator.validateKB(model));
             }
         } catch (Exception e) {
@@ -282,7 +335,6 @@ public class ScalingTest {
      * Try all the different types of output types.
      */
     private void dumpMultipleFormats() {
-
         for (RDFFormat trialFormat : outputFormats) {
             String outputFilename = filename + "." + trialFormat.toString();
             outputFilename = outputFilename.replace(" ", "").replace("/", "_");
@@ -295,7 +347,6 @@ public class ScalingTest {
         }
     }
 
-
     private void createModel() {
 
         switch (modelTypeToUse) {
@@ -305,9 +356,15 @@ public class ScalingTest {
                 break;
 
             case TDB:
-                // Make a disk model
-                Dataset dataset = TDBFactory.createDataset("/tmp/model-scaling-" + UUID.randomUUID());
-                model = dataset.getDefaultModel();
+                try {
+                    // Make a disk model
+                    final Path outputPath = Files.createTempDirectory("model-scaling-");
+                    final Dataset dataset = TDBFactory.createDataset(outputPath.toString());
+                    model = dataset.getDefaultModel();
+                } catch (Exception e) {
+                    System.err.println("Unable to create temp directory: " + e.getMessage());
+                    e.printStackTrace();
+                }
                 break;
 
             default:
@@ -364,7 +421,6 @@ public class ScalingTest {
         s += randomChar();
         return s;
     }
-
 
     private String getRandomString(int length) {
         StringBuilder s = new StringBuilder();

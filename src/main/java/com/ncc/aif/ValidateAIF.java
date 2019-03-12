@@ -370,7 +370,9 @@ public final class ValidateAIF {
             logger.info("-> Validating " + fileToValidate + " at " + format.format(date) +
                     " (" + fileNum++ + " of " + filesToValidate.size() + ").");
 
-            final Model dataToBeValidated = ModelFactory.createOntologyModel();
+            final OntModel dataToBeValidated = ModelFactory.createOntologyModel();
+            dataToBeValidated.addLoadedImport(INTERCHANGE_URI);
+            dataToBeValidated.addLoadedImport(AIDA_DOMAIN_COMMON_URI);
             try {
                 loadModel(dataToBeValidated, Files.asCharSource(fileToValidate, Charsets.UTF_8));
             } catch (RuntimeException rte) {

@@ -24,13 +24,11 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.UUID;
 
 import static com.ncc.aif.AIFUtils.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -1378,12 +1376,17 @@ public class ExamplesAndValidationTest {
     }
 
     private Model createDiskBasedModel() {
-        String tempDir = System.getProperty("java.io.tmpdir");
-        String tempLoc = tempDir + File.separator + "model-scaling-" + UUID.randomUUID();
-        System.out.println("Creating disk based model at " + tempLoc);
-        Dataset dataset = TDBFactory.createDataset(tempLoc);
-        Model model = dataset.getDefaultModel();
-        return addNamespacesToModel(model);
+        try {
+            final Path outputPath = Files.createTempDirectory("diskbased-model-");
+            System.out.println("Creating disk based model at " + outputPath.toString());
+            final Dataset dataset = TDBFactory.createDataset(outputPath.toString());
+            final Model model = dataset.getDefaultModel();
+            return addNamespacesToModel(model);
+        } catch (Exception e) {
+            System.err.println("Unable to create temp directory: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private Model addNamespacesToModel(Model model) {
