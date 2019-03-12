@@ -19,8 +19,7 @@ import org.apache.jena.vocabulary.XSD;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.*;
 
 import static com.ncc.aif.AIFUtils.*;
@@ -357,11 +356,16 @@ public class ScalingTest {
                 break;
 
             case TDB:
-                // Make a disk model
-                String tempDir = System.getProperty("java.io.tmpdir");
-                String tempLoc = tempDir + File.separator + "model-scaling-" + UUID.randomUUID();
-                Dataset dataset = TDBFactory.createDataset(tempLoc);
-                model = dataset.getDefaultModel();
+                try {
+                    // Make a disk model
+                    final Path local = FileSystems.getDefault().getPath(".");
+                    final Path outputPath = Files.createTempDirectory(local, "model-scaling-");
+                    final Dataset dataset = TDBFactory.createDataset(outputPath.toString());
+                    model = dataset.getDefaultModel();
+                } catch (Exception e) {
+                    System.err.println("Unable to create temp directory: " + e.getMessage());
+                    e.printStackTrace();
+                }
                 break;
 
             default:
