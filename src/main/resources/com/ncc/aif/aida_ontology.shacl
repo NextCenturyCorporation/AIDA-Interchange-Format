@@ -219,7 +219,7 @@ aida:EventArgumentShape
   # no other properties are allowed
   sh:closed true ;
   # except rdf:type
-  sh:ignoredProperties (rdf:type rdf:predicate rdf:object)
+  sh:ignoredProperties (rdf:type rdf:predicate)
   .
 
 # It was decided that Relations should be represented similarly to Events.
@@ -277,7 +277,7 @@ aida:RelationArgumentShape
   # no other properties are allowed
   sh:closed true ;
   # except rdf:type
-  sh:ignoredProperties (rdf:type rdf:predicate rdf:object)
+  sh:ignoredProperties (rdf:type rdf:predicate)
   .
 
 # the fourth type of content node is a relation assertion.
