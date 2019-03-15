@@ -188,9 +188,12 @@ aida:EventArgumentShape
   ] ;
 
   # the object is the entity participating in the event
-#  sh:property [
-#    sh:path rdf:object ;
-#    sh:class aida:Entity ] ;
+  sh:property [
+    sh:path rdf:object ;
+    sh:xone ( [sh:class aida:Entity ]
+              [sh:class aida:Event ]
+              [sh:class aida:Relation ] )
+  ] ;
    # TODO: handle temporal or string values
 
    # may have zero or more string labels for user consumption
@@ -248,10 +251,13 @@ aida:RelationArgumentShape
   ] ;
 
   # the object is the entity participating in the event
-#  sh:property [
-#    sh:path rdf:object ;
-#    sh:class aida:Entity ] ;
-   # TODO: handle temporal or string values
+  sh:property [
+    sh:path rdf:object ;
+    sh:xone ( [sh:class aida:Entity ]
+              [sh:class aida:Event ]
+              [sh:class aida:Relation ] ) ;
+  ] ;
+  # TODO: handle temporal or string values
 
   # may provide a confidence
   sh:property aida:ConfidencePropertyShape ;
