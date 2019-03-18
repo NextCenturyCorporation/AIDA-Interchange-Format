@@ -42,6 +42,7 @@ public final class AidaAnnotationOntology {
     public static final Property LINK = ResourceFactory.createProperty(NAMESPACE + "link");
     public static final Property LINK_TARGET = ResourceFactory.createProperty(NAMESPACE + "linkTarget");
     public static final Property PROTOTYPE = ResourceFactory.createProperty(NAMESPACE + "prototype");
+    public static final Property HANDLE = ResourceFactory.createProperty(NAMESPACE + "handle");
     public static final Property CLUSTER_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "cluster");
     public static final Property CLUSTER_MEMBER = ResourceFactory.createProperty(NAMESPACE + "clusterMember");
     public static final Property GRAPH_CONTAINS = ResourceFactory.createProperty(NAMESPACE + "subgraphContains");
