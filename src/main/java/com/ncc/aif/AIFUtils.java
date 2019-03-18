@@ -2,7 +2,8 @@ package com.ncc.aif;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.NodeIterator;
@@ -355,6 +356,19 @@ public class AIFUtils {
                                                  Resource system, Double confidence) {
         final Resource justification = makeTextJustification(model, docId, startOffset, endOffsetInclusive, system, confidence);
         markJustification(toMarkOn, justification);
+        return justification;
+    }
+
+    /**
+     * Add a sourceDocument to a pre-existing justification
+     *
+     * @param model              The underlying RDF model for the operation
+     * @param justification      A pre-existing justification resource
+     * @param sourceDocument     A string containing the source document id
+     * @return The modified justification resource
+     */
+    public static Resource addSourceDocumentToJustification(Model model, Resource justification, String sourceDocument) {
+        justification.addProperty(AidaAnnotationOntology.SOURCE_DOCUMENT, model.createTypedLiteral(sourceDocument));
         return justification;
     }
 
