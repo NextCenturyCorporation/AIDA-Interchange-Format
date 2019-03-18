@@ -187,7 +187,7 @@ aida:EventArgumentShape
     sh:message "The subject of an event argument must be an event"
   ] ;
 
-  # the object is the entity participating in the event
+  # the object is the argument of the event role
   sh:property [
     sh:path rdf:object ;
     sh:xone ( [sh:class aida:Entity ]
@@ -250,7 +250,7 @@ aida:RelationArgumentShape
     sh:message "The subject of a relation argument must be a relation"
   ] ;
 
-  # the object is the entity participating in the event
+  # the object is the argument of the relation role
   sh:property [
     sh:path rdf:object ;
     sh:xone ( [sh:class aida:Entity ]
