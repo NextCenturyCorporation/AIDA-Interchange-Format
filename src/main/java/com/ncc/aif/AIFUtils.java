@@ -362,13 +362,12 @@ public class AIFUtils {
     /**
      * Add a sourceDocument to a pre-existing justification
      *
-     * @param model              The underlying RDF model for the operation
      * @param justification      A pre-existing justification resource
      * @param sourceDocument     A string containing the source document id
      * @return The modified justification resource
      */
-    public static Resource addSourceDocumentToJustification(Model model, Resource justification, String sourceDocument) {
-        justification.addProperty(AidaAnnotationOntology.SOURCE_DOCUMENT, model.createTypedLiteral(sourceDocument));
+    public static Resource addSourceDocumentToJustification(Resource justification, String sourceDocument) {
+        justification.addProperty(AidaAnnotationOntology.SOURCE_DOCUMENT, sourceDocument);
         return justification;
     }
 

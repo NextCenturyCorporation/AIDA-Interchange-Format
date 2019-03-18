@@ -564,7 +564,7 @@ public class ExamplesAndValidationTest {
 
             markJustification(personTypeAssertion, textJustification);
             markJustification(putin, textJustification);
-            addSourceDocumentToJustification(model, textJustification, "NYT_PARENT_ENG_20181231_03");
+            addSourceDocumentToJustification(textJustification, "NYT_PARENT_ENG_20181231_03");
 
             // let's suppose we also have evidence from an image
             final Resource imageJustification = makeImageJustification(model, "NYT_ENG_20181231_03",
