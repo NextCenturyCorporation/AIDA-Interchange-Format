@@ -1217,6 +1217,11 @@ aida:MutualExclusionAlternativeShape
     sh:ignoredProperties ( rdf:type )
     .
 
+aida:ImportancePropertyShape
+  a sh:PropertyShape ;
+  sh:path aida:importance ;
+  sh:datatype xsd:int .
+
 aida:HypothesisShape
     a sh:NodeShape ;
     sh:targetClass aida:Hypothesis ;
@@ -1232,6 +1237,9 @@ aida:HypothesisShape
 
     # a hypothesis can specify confidence
     sh:property aida:ConfidencePropertyShape ;
+
+    # may provide a importance
+    sh:property aida:ImportancePropertyShape ;
 
     sh:property aida:SystemPropertyShape ;
 
