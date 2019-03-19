@@ -201,6 +201,9 @@ aida:EventArgumentShape
   # may provide a confidence
   sh:property aida:ConfidencePropertyShape ;
 
+  # may provide an importance
+  sh:property aida:ImportancePropertyShape .
+
   # may provide an one or more source systems
   sh:property aida:SystemPropertyShape ;
 
@@ -255,6 +258,9 @@ aida:RelationArgumentShape
 
   # may provide a confidence
   sh:property aida:ConfidencePropertyShape ;
+
+  # may provide an importance
+  sh:property aida:ImportancePropertyShape .
 
   # may provide an one or more source systems
   sh:property aida:SystemPropertyShape ;
@@ -1043,10 +1049,7 @@ aida:RdfStatementShape
             aida:EventArgumentSubclass
             aida:RelationArgumentSubclass ) ;
         sh:message "All rdf:Statements must be type declarations or have predicates from the domain relation or event argument types. This error is often caused by using a value outside the domain ontology"
-    ] ;
-
-    # may provide a importance
-    sh:property aida:ImportancePropertyShape .
+    ] .
 
 # Sometimes there is uncertainty about whether or not two entities or events are the same.
 # In such cases, we make "cluster" objects which can link together the possibly identical
@@ -1067,7 +1070,7 @@ aida:ClusterShape
       sh:minCount 1 ;
       sh:maxCount 1  ] ;
 
-   # may provide a importance
+   # may provide an importance
    sh:property aida:ImportancePropertyShape ;
 
    # may provide an one or more source systems
@@ -1243,7 +1246,7 @@ aida:HypothesisShape
     # a hypothesis can specify confidence
     sh:property aida:ConfidencePropertyShape ;
 
-    # may provide a importance
+    # may provide an importance
     sh:property aida:ImportancePropertyShape ;
 
     sh:property aida:SystemPropertyShape ;
