@@ -202,7 +202,7 @@ aida:EventArgumentShape
   sh:property aida:ConfidencePropertyShape ;
 
   # may provide an importance
-  sh:property aida:ImportancePropertyShape .
+  sh:property aida:ImportancePropertyShape ;
 
   # may provide an one or more source systems
   sh:property aida:SystemPropertyShape ;
@@ -260,7 +260,7 @@ aida:RelationArgumentShape
   sh:property aida:ConfidencePropertyShape ;
 
   # may provide an importance
-  sh:property aida:ImportancePropertyShape .
+  sh:property aida:ImportancePropertyShape ;
 
   # may provide an one or more source systems
   sh:property aida:SystemPropertyShape ;
