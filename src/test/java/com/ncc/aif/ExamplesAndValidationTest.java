@@ -752,6 +752,35 @@ public class ExamplesAndValidationTest {
         }
 
         /**
+         * Simplest possible cluster example, plus handle
+         */
+        @Test
+        void createASimpleClusterWithHandle() {
+            final Model model = createModel();
+
+            // every AIF needs an object for the system responsible for creating it
+            final Resource system = makeSystemWithURI(model, getTestSystemUri());
+
+            // Two people, probably the same person
+            final String vladName = "Vladimir Putin";
+            final Resource vladimirPutin = makeEntity(model, getUri("E780885.00311"), system);
+            markType(model, getAssertionUri(), vladimirPutin, SeedlingOntology.Person, system, 1.0);
+            markName(vladimirPutin, vladName);
+
+            final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
+            markType(model, getAssertionUri(), putin, SeedlingOntology.Person, system, 1.0);
+            markName(putin, "Путин");
+
+            // create a cluster with prototype
+            final Resource putinCluster = makeClusterWithPrototype(model, getClusterUri(), vladimirPutin, vladName, system);
+
+            // person 1 is definitely in the cluster, person 2 is probably in the cluster
+            markAsPossibleClusterMember(model, putin, putinCluster, 0.71, system);
+
+            assertAndDump(model, "create a simple cluster with handle", seedlingValidator, true);
+        }
+
+        /**
          * Shows how to create a relation with uncertain endpoints using the version of coreference expected for
          * output NIST will execute SPARQL queries on.
          * <p>

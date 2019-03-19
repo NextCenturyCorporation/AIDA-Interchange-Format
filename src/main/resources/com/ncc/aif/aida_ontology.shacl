@@ -1070,6 +1070,13 @@ aida:ClusterShape
       sh:minCount 1 ;
       sh:maxCount 1  ] ;
 
+   # allow clusters to have handle property
+   sh:property [
+      sh:path aida:handle ;
+      sh:datatype xsd:string ;
+      sh:maxCount 1 ;
+   ] ;
+
    # may provide an importance
    sh:property aida:ImportancePropertyShape ;
 
