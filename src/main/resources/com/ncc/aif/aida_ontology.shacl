@@ -1082,9 +1082,6 @@ aida:ClusterShape
    # may bear system-private data
    sh:property aida:PrivateDataPropertyShape ;
 
-   # may provide a importance
-       sh:property aida:ImportancePropertyShape ;
-
    sh:closed true ;
    sh:ignoredProperties (rdf:type).
 
