@@ -155,6 +155,18 @@
   rdfs:range xsd:float ;
   rdfs:subPropertyOf owl:topDataProperty ; .
 
+:importance rdf:type owl:DatatypeProperty ;
+  rdfs:comment "Value for importance represented as an integer." ;
+  rdfs:domain [
+        rdf:type owl:Class ;
+        owl:unionOf (
+            :rdf:Statement
+            :Hypothesis
+            :SameAsCluster ) ] ;
+  rdfs:label "importance" ;
+  rdfs:range xsd:int ;
+  rdfs:subPropertyOf owl:topDataProperty ; .
+
 :clusterMember rdf:type owl:ObjectProperty ;
   rdfs:label "cluster member" ;
   rdfs:domain :ClusterMembership ;
@@ -165,7 +177,6 @@
             :Event
             :SameAsCluster ) ] ;
   rdfs:subPropertyOf owl:topObjectProperty ; .
-
 :prototype rdf:type owl:ObjectProperty ;
   rdfs:label "prototypical member" ;
   rdfs:domain :SameAsCluster ;

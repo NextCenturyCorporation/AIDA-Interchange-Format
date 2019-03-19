@@ -933,6 +933,16 @@ public class AIFUtils {
     }
 
     /**
+     *  Mark [entity] as having the specified [importance] value.
+     *
+     * @param entity     The Resource to mark with the specified importance
+     * @param importance The importance value with which to mark the specified Resource
+     */
+    public static void markImportance(Resource entity, Integer importance) {
+        entity.addLiteral(AidaAnnotationOntology.IMPORTANCE_PROPERTY, importance);
+    }
+
+    /**
      * Mark an argument as depending on a hypothesis.
      *
      * @param depender   the argument that depends on the specified hypothesis
