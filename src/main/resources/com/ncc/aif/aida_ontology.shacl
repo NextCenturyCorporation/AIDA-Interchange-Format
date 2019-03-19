@@ -1043,8 +1043,10 @@ aida:RdfStatementShape
             aida:EventArgumentSubclass
             aida:RelationArgumentSubclass ) ;
         sh:message "All rdf:Statements must be type declarations or have predicates from the domain relation or event argument types. This error is often caused by using a value outside the domain ontology"
-    ]
-    .
+    ] ;
+
+    # may provide a importance
+    sh:property aida:ImportancePropertyShape .
 
 # Sometimes there is uncertainty about whether or not two entities or events are the same.
 # In such cases, we make "cluster" objects which can link together the possibly identical
@@ -1064,6 +1066,9 @@ aida:ClusterShape
                 [sh:class aida:Relation] ) ;
       sh:minCount 1 ;
       sh:maxCount 1  ] ;
+
+   # may provide a importance
+   sh:property aida:ImportancePropertyShape ;
 
    # may provide an one or more source systems
    sh:property aida:SystemPropertyShape ;
