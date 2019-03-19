@@ -455,6 +455,55 @@ public class ExamplesAndValidationTest {
             assertAndDump(model, "simple hypothesis with cluster", seedlingValidator, true);
         }
 
+        // Create simple hypothesis with BUK weapon system cluster with importance property
+        @Test
+        void simpleHypothesisWithClusterWithImportance() {
+
+            final Model model = createModel();
+
+            // every AIF needs an object for the system responsible for creating it
+            final Resource system = makeSystemWithURI(model, getTestSystemUri());
+
+            // buk document entity
+            final Resource buk = makeEntity(model, bukDocumentEntityUri, system);
+            final Resource bukIsWeapon = markType(model, getAssertionUri(), buk, SeedlingOntology.Weapon,
+                    system, 1.0);
+
+            // buk cross-document entity
+            final Resource bukKBEntity = makeEntity(model, bukKBEntityUri, system);
+            final Resource bukKBIsWeapon = markType(model, getAssertionUri(), bukKBEntity, SeedlingOntology.Weapon,
+                    system, 1.0);
+
+            // russia document entity
+            final Resource russia = makeEntity(model, russiaDocumentEntityUri, system);
+            final Resource russiaIsGPE = markType(model, getAssertionUri(), russia, SeedlingOntology.GeopoliticalEntity,
+                    system, 1.0);
+
+            // cluster buk
+            final Resource bukCluster = makeClusterWithPrototype(model, getClusterUri(), bukKBEntity, system);
+            final Resource bukIsClustered = markAsPossibleClusterMember(model, buk, bukCluster, .9, system);
+            markImportance(bukCluster, 90);
+
+            // Russia owns buk relation
+            final Resource bukIsRussian = makeRelation(model, russiaOwnsBukDocumentRelationUri, system);
+            markType(model, getAssertionUri(), bukIsRussian, SeedlingOntology.GeneralAffiliation_APORA,
+                    system, 1.0);
+            final Resource bukArgument = markAsArgument(model, bukIsRussian,
+                    SeedlingOntology.GeneralAffiliation_APORA_Affiliate, buk, system, 1.0);
+            final Resource russiaArgument = markAsArgument(model, bukIsRussian,
+                    SeedlingOntology.GeneralAffiliation_APORA_Affiliation, russia, system, 1.0);
+
+            // Russia owns buk hypothesis
+            final Resource bukIsRussianHypothesis = makeHypothesis(model, getUri("hypothesis-1"),
+                    ImmutableSet.of(
+                            buk, bukIsWeapon, bukIsClustered,
+                            russia, russiaIsGPE,
+                            bukIsRussian, bukArgument, russiaArgument
+                    ), system);
+
+            assertAndDump(model, "simple hypothesis with cluster with importance", seedlingValidator, true);
+        }
+
         // Create simple hypothesis with an importance value where the BUK weapon system was owned by Russia
         @Test
         void simpleHypothesisWithImportanceWithCluster() {
