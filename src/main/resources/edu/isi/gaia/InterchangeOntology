@@ -156,7 +156,7 @@
   rdfs:subPropertyOf owl:topDataProperty ; .
 
 :importance rdf:type owl:DatatypeProperty ;
-  rdfs:comment "Confidence instances might have numerical values associated with them, such as probabilities or likliehoods." ;
+  rdfs:comment "Value for importance represented as an integer." ;
   rdfs:domain [
         rdf:type owl:Class ;
         owl:unionOf (
@@ -177,7 +177,6 @@
             :Event
             :SameAsCluster ) ] ;
   rdfs:subPropertyOf owl:topObjectProperty ; .
-
 :prototype rdf:type owl:ObjectProperty ;
   rdfs:label "prototypical member" ;
   rdfs:domain :SameAsCluster ;
