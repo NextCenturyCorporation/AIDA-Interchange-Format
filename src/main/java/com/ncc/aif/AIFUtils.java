@@ -2,7 +2,8 @@ package com.ncc.aif;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.NodeIterator;
@@ -11,6 +12,7 @@ import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.SKOS;
 import org.apache.jena.vocabulary.XSD;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 /**
@@ -827,8 +829,32 @@ public class AIFUtils {
      */
     public static Resource makeClusterWithPrototype(Model model, String clusterUri, Resource prototype,
                                                     Resource system) {
+        return makeClusterWithPrototype(model, clusterUri, prototype, null, system);
+    }
+
+    /**
+     * Create a "same-as" cluster.
+     * <p>
+     * A same-as cluster is used to represent multiple entities which might be the same, but we
+     * aren't sure. (If we were sure, they would just be a single node).
+     * <p>
+     * Every cluster requires a [prototype] - an entity or event that we are <b>certain</b> is in the
+     * cluster. This also automatically adds a membership relation with the prototype with confidence 1.0.
+     *
+     * @param model      The underlying RDF model for the operation
+     * @param clusterUri A unique String URI for the cluster
+     * @param prototype  an entity or event that we are certain is in the cluster
+     * @param handle     a string describing the cluster
+     * @param system     The system object for the system which created the specified cluster
+     * @return The created cluster resource
+     */
+    public static Resource makeClusterWithPrototype(Model model, String clusterUri, Resource prototype,
+                                                    @Nullable String handle, Resource system) {
         final Resource cluster = makeAIFResource(model, clusterUri, AidaAnnotationOntology.SAME_AS_CLUSTER_CLASS, system);
         cluster.addProperty(AidaAnnotationOntology.PROTOTYPE, prototype);
+        if (handle != null) {
+            cluster.addProperty(AidaAnnotationOntology.HANDLE, handle);
+        }
         markAsPossibleClusterMember(model, prototype, cluster, 1.0, system);
         return cluster;
     }
