@@ -166,12 +166,12 @@
             :SameAsCluster ) ] ;
   rdfs:subPropertyOf owl:topObjectProperty ; .
 
-:handle rdf:type owl:ObjectProperty ;
+:handle rdf:type owl:DatatypeProperty ;
   rdfs:label "cluster handle" ;
   rdfs:comment "Simple string description/reference of cluster" ;
   rdfs:domain :SameAsCluster ;
   rdfs:range xsd:string ;
-  rdfs:subPropertyOf owl:topObjectProperty .
+  rdfs:subPropertyOf owl:topDataProperty .
 
 :prototype rdf:type owl:ObjectProperty ;
   rdfs:label "prototypical member" ;
