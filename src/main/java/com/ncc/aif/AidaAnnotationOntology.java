@@ -16,6 +16,7 @@ public final class AidaAnnotationOntology {
     public static final Property NAME_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "hasName");
     public static final Property TEXT_VALUE_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "textValue");
     public static final Property NUMERIC_VALUE_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "numericValue");
+    public static final Property IMPORTANCE_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "importance");
     public static final Property CONFIDENCE = ResourceFactory.createProperty(NAMESPACE + "confidence");
     public static final Property CONFIDENCE_VALUE = ResourceFactory.createProperty(NAMESPACE + "confidenceValue");
     public static final Property JUSTIFIED_BY = ResourceFactory.createProperty(NAMESPACE + "justifiedBy");
@@ -43,6 +44,7 @@ public final class AidaAnnotationOntology {
     public static final Property LINK = ResourceFactory.createProperty(NAMESPACE + "link");
     public static final Property LINK_TARGET = ResourceFactory.createProperty(NAMESPACE + "linkTarget");
     public static final Property PROTOTYPE = ResourceFactory.createProperty(NAMESPACE + "prototype");
+    public static final Property HANDLE = ResourceFactory.createProperty(NAMESPACE + "handle");
     public static final Property CLUSTER_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "cluster");
     public static final Property CLUSTER_MEMBER = ResourceFactory.createProperty(NAMESPACE + "clusterMember");
     public static final Property GRAPH_CONTAINS = ResourceFactory.createProperty(NAMESPACE + "subgraphContains");

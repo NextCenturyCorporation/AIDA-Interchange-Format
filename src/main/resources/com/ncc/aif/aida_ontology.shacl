@@ -187,10 +187,13 @@ aida:EventArgumentShape
     sh:message "The subject of an event argument must be an event"
   ] ;
 
-  # the object is the entity participating in the event
+  # the object is the argument of the event role
   sh:property [
     sh:path rdf:object ;
-    sh:class aida:Entity ] ;
+    sh:xone ( [sh:class aida:Entity ]
+              [sh:class aida:Event ]
+              [sh:class aida:Relation ] )
+  ] ;
    # TODO: handle temporal or string values
 
    # may have zero or more string labels for user consumption
@@ -200,6 +203,9 @@ aida:EventArgumentShape
 
   # may provide a confidence
   sh:property aida:ConfidencePropertyShape ;
+
+  # may provide an importance
+  sh:property aida:ImportancePropertyShape ;
 
   # may provide an one or more source systems
   sh:property aida:SystemPropertyShape ;
@@ -247,14 +253,20 @@ aida:RelationArgumentShape
     sh:message "The subject of a relation argument must be a relation"
   ] ;
 
-  # the object is the entity participating in the event
+  # the object is the argument of the relation role
   sh:property [
     sh:path rdf:object ;
-    sh:class aida:Entity ] ;
-   # TODO: handle temporal or string values
+    sh:xone ( [sh:class aida:Entity ]
+              [sh:class aida:Event ]
+              [sh:class aida:Relation ] ) ;
+  ] ;
+  # TODO: handle temporal or string values
 
   # may provide a confidence
   sh:property aida:ConfidencePropertyShape ;
+
+  # may provide an importance
+  sh:property aida:ImportancePropertyShape ;
 
   # may provide an one or more source systems
   sh:property aida:SystemPropertyShape ;
@@ -1055,8 +1067,7 @@ aida:RdfStatementShape
             aida:EventArgumentSubclass
             aida:RelationArgumentSubclass ) ;
         sh:message "All rdf:Statements must be type declarations or have predicates from the domain relation or event argument types. This error is often caused by using a value outside the domain ontology"
-    ]
-    .
+    ] .
 
 # Sometimes there is uncertainty about whether or not two entities or events are the same.
 # In such cases, we make "cluster" objects which can link together the possibly identical
@@ -1076,6 +1087,16 @@ aida:ClusterShape
                 [sh:class aida:Relation] ) ;
       sh:minCount 1 ;
       sh:maxCount 1  ] ;
+
+   # allow clusters to have handle property
+   sh:property [
+      sh:path aida:handle ;
+      sh:datatype xsd:string ;
+      sh:maxCount 1 ;
+   ] ;
+
+   # may provide an importance
+   sh:property aida:ImportancePropertyShape ;
 
    # may provide an one or more source systems
    sh:property aida:SystemPropertyShape ;
@@ -1229,6 +1250,11 @@ aida:MutualExclusionAlternativeShape
     sh:ignoredProperties ( rdf:type )
     .
 
+aida:ImportancePropertyShape
+  a sh:PropertyShape ;
+  sh:path aida:importance ;
+  sh:datatype xsd:int .
+
 aida:HypothesisShape
     a sh:NodeShape ;
     sh:targetClass aida:Hypothesis ;
@@ -1244,6 +1270,9 @@ aida:HypothesisShape
 
     # a hypothesis can specify confidence
     sh:property aida:ConfidencePropertyShape ;
+
+    # may provide an importance
+    sh:property aida:ImportancePropertyShape ;
 
     sh:property aida:SystemPropertyShape ;
 

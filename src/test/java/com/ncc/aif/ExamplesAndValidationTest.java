@@ -455,6 +455,62 @@ public class ExamplesAndValidationTest {
             assertAndDump(model, "simple hypothesis with cluster", seedlingValidator, true);
         }
 
+        // Create simple hypothesis with an importance value where the BUK weapon system was owned by Russia
+        @Test
+        void simpleHypothesisWithImportanceWithCluster() {
+
+            final Model model = createModel();
+
+            // every AIF needs an object for the system responsible for creating it
+            final Resource system = makeSystemWithURI(model, getTestSystemUri());
+
+            // buk document entity
+            final Resource buk = makeEntity(model, bukDocumentEntityUri, system);
+            final Resource bukIsWeapon = markType(model, getAssertionUri(), buk, SeedlingOntology.Weapon,
+                    system, 1.0);
+
+            // buk cross-document entity
+            final Resource bukKBEntity = makeEntity(model, bukKBEntityUri, system);
+            final Resource bukKBIsWeapon = markType(model, getAssertionUri(), bukKBEntity, SeedlingOntology.Weapon,
+                    system, 1.0);
+
+            // russia document entity
+            final Resource russia = makeEntity(model, russiaDocumentEntityUri, system);
+            final Resource russiaIsGPE = markType(model, getAssertionUri(), russia, SeedlingOntology.GeopoliticalEntity,
+                    system, 1.0);
+
+            // cluster buk
+            final Resource bukCluster = makeClusterWithPrototype(model, getClusterUri(), bukKBEntity, system);
+            final Resource bukIsClustered = markAsPossibleClusterMember(model, buk, bukCluster, .9, system);
+            // add importance of 90
+            markImportance(bukCluster, 90);
+
+            // Russia owns buk relation
+            final Resource bukIsRussian = makeRelation(model, russiaOwnsBukDocumentRelationUri, system);
+            markType(model, getAssertionUri(), bukIsRussian, SeedlingOntology.GeneralAffiliation_APORA,
+                    system, 1.0);
+            final Resource bukArgument = markAsArgument(model, bukIsRussian,
+                    SeedlingOntology.GeneralAffiliation_APORA_Affiliate, buk, system, 1.0);
+            final Resource russiaArgument = markAsArgument(model, bukIsRussian,
+                    SeedlingOntology.GeneralAffiliation_APORA_Affiliation, russia, system, 1.0);
+            // add importance to the statements
+            markImportance(bukArgument, 100);
+            markImportance(russiaArgument, 125);
+
+            // Russia owns buk hypothesis
+            final Resource bukIsRussianHypothesis = makeHypothesis(model, getUri("hypothesis-1"),
+                    ImmutableSet.of(
+                            buk, bukIsWeapon, bukIsClustered,
+                            russia, russiaIsGPE,
+                            bukIsRussian, bukArgument, russiaArgument
+                    ), system);
+
+            markImportance(bukIsRussianHypothesis, 102); //add importance of 102
+
+            assertAndDump(model, "simple hypothesis with importance with cluster",
+                    seedlingValidator, true);
+        }
+
         @Test
         void createSeedlingEntityOfTypePersonWithImageJustificationAndVector() {
             final Model model = createModel();
@@ -699,6 +755,35 @@ public class ExamplesAndValidationTest {
                     143, system, 0.973);
 
             assertAndDump(model, "create a simple cluster with justification", seedlingValidator, true);
+        }
+
+        /**
+         * Simplest possible cluster example, plus handle
+         */
+        @Test
+        void createASimpleClusterWithHandle() {
+            final Model model = createModel();
+
+            // every AIF needs an object for the system responsible for creating it
+            final Resource system = makeSystemWithURI(model, getTestSystemUri());
+
+            // Two people, probably the same person
+            final String vladName = "Vladimir Putin";
+            final Resource vladimirPutin = makeEntity(model, getUri("E780885.00311"), system);
+            markType(model, getAssertionUri(), vladimirPutin, SeedlingOntology.Person, system, 1.0);
+            markName(vladimirPutin, vladName);
+
+            final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
+            markType(model, getAssertionUri(), putin, SeedlingOntology.Person, system, 1.0);
+            markName(putin, "Путин");
+
+            // create a cluster with prototype
+            final Resource putinCluster = makeClusterWithPrototype(model, getClusterUri(), vladimirPutin, vladName, system);
+
+            // person 1 is definitely in the cluster, person 2 is probably in the cluster
+            markAsPossibleClusterMember(model, putin, putinCluster, 0.71, system);
+
+            assertAndDump(model, "create a simple cluster with handle", seedlingValidator, true);
         }
 
         /**
@@ -1195,7 +1280,7 @@ public class ExamplesAndValidationTest {
             }
         }
 
-        // Each edge justification is limited to two or fewer spans
+        // Each edge justification is limited to either one or two spans.
         @Nested
         class EdgeJustificationLimit {
             @Test
@@ -1214,14 +1299,20 @@ public class ExamplesAndValidationTest {
                         ImmutableSet.of(justification1, justification2, justification3),
                         system,
                         1d);
+                final Resource emptyCompound = markCompoundJustification(model,
+                        ImmutableSet.of(relationEdge),
+                        ImmutableSet.of(),
+                        system,
+                        1d);
 
                 // test event
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity,
                         system, 1.0, getAssertionUri());
                 markJustification(eventEdge, compound);
+                markJustification(eventEdge, emptyCompound);
 
                 assertAndDump(model, "NIST.invalid: edge justification contains at most two mentions",
-                        nistSeedlingValidator, false);
+                        nistSeedlingValidator, true);
             }
 
             @Test
@@ -1237,6 +1328,29 @@ public class ExamplesAndValidationTest {
                 final Resource compound = markCompoundJustification(model,
                         ImmutableSet.of(relationEdge),
                         ImmutableSet.of(justification1, justification2),
+                        system,
+                        1d);
+
+                // test event
+                final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
+                markJustification(eventEdge, compound);
+
+                assertAndDump(model, "NIST.valid: edge justification contains at most two mentions",
+                        nistSeedlingValidator, true);
+            }
+
+            @Test
+            void validOneSpan() {
+                // test relation
+                final Resource relation = makeRelation(model, getUri("relationX"), system);
+                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
+                makeClusterWithPrototype(model, getClusterUri(), relation, system);
+                final Resource relationEdge = markAsArgument(model, relation,
+                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
+                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                final Resource compound = markCompoundJustification(model,
+                        ImmutableSet.of(relationEdge),
+                        ImmutableSet.of(justification1),
                         system,
                         1d);
 
@@ -1314,6 +1428,25 @@ public class ExamplesAndValidationTest {
                 makeClusterWithPrototype(model, getClusterUri(), newEvent, system);
 
                 assertAndDump(model, "NIST.valid: Everything has cluster", nistSeedlingValidator, true);
+            }
+        }
+
+        // Each confidence value must be between 0 and 1
+        @Nested
+        class ConfidenceValueRange {
+            @Test
+            void invalid() {
+                final Resource newEntity = makeEntity(model, getEntityUri(), system);
+                addType(newEntity, SeedlingOntology.Person);
+                markAsPossibleClusterMember(model, newEntity, entityCluster, 1.2, system);
+                assertAndDump(model, "NIST.invalid: confidence must be between 0 and 1", nistSeedlingValidator, false);
+            }
+            @Test
+            void valid() {
+                final Resource newEntity = makeEntity(model, getEntityUri(), system);
+                addType(newEntity, SeedlingOntology.Person);
+                markAsPossibleClusterMember(model, newEntity, entityCluster, .7, system);
+                assertAndDump(model, "NIST.valid: confidence must be between 0 and 1", nistSeedlingValidator, true);
             }
         }
     }

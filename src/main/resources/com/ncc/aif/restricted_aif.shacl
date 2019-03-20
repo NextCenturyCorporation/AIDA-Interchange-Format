@@ -15,8 +15,9 @@
 aida:EdgeJustificationLimit
     a sh:PropertyShape ;
     sh:path ( aida:justifiedBy aida:containedJustification ) ;
+    sh:minCount 1 ;
     sh:maxCount 2 ;
-    sh:message "Only 2 contained justifications allowed for an edge" .
+    sh:message "Only 1 or 2 contained justifications allowed for an edge" .
 
 # Turn off CompoundJustificationMinimum globally
 aida:CompoundJustificationMinimum sh:deactivated true .
@@ -124,3 +125,16 @@ aida:RelationMustBeClustered
             }
         """ ;
     ] .
+
+#########################
+# Each confidence value must be between 0 and 1
+#------------------------
+aida:ConfidenceValueRange
+    a sh:NodeShape ;
+    sh:targetClass aida:Confidence ;
+    sh:property [
+        sh:path aida:confidenceValue ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1;
+        sh:message "Confidence value must be between 0 and 1"]
+    .
