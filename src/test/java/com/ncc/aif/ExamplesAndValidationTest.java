@@ -493,7 +493,7 @@ public class ExamplesAndValidationTest {
                     SeedlingOntology.GeneralAffiliation_APORA_Affiliation, russia, system, 1.0);
             // add importance to the statements
             markImportance(bukArgument, 100);
-            markImportance(russiaArgument, 100);
+            markImportance(russiaArgument, 125);
 
             // Russia owns buk hypothesis
             final Resource bukIsRussianHypothesis = makeHypothesis(model, getUri("hypothesis-1"),
