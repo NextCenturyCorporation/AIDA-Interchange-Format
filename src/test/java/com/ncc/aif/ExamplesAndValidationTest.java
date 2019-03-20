@@ -1398,10 +1398,12 @@ public class ExamplesAndValidationTest {
 
         // Each confidence value must be between 0 and 1
         @Nested
-        class ConfidenceValidRange {
+        class ConfidenceValueRange {
             @Test
             void invalid() {
-                markAsPossibleClusterMember(model, eventCluster, entityCluster, 1.2, system);
+                final Resource newEntity = makeEntity(model, getEntityUri(), system);
+                addType(newEntity, SeedlingOntology.Person);
+                markAsPossibleClusterMember(model, newEntity, entityCluster, 1.2, system);
                 assertAndDump(model, "NIST.invalid: confidence must be between 0 and 1", nistSeedlingValidator, false);
             }
             @Test
