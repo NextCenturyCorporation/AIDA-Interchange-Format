@@ -4,7 +4,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # restricted_aif.shacl
 #
-# Add on to aida_ontology.shacl use to enforce NIST-restricted-AIF.
+# Add-on to aida_ontology.shacl used to enforce NIST-restricted-AIF.
 # Requires aida_ontology.shacl to be loaded
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 

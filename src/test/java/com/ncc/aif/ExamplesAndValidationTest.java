@@ -56,7 +56,10 @@ public class ExamplesAndValidationTest {
             ValidateAIF.createForDomainOntologySource(SEEDLING_ONTOLOGY);
 
     private static final ValidateAIF nistSeedlingValidator =
-            ValidateAIF.create(ImmutableSet.of(SEEDLING_ONTOLOGY), true);
+            ValidateAIF.create(ImmutableSet.of(SEEDLING_ONTOLOGY), ValidateAIF.Restriction.NIST);
+
+    private static final ValidateAIF nistSeedlingHypothesisValidator =
+            ValidateAIF.create(ImmutableSet.of(SEEDLING_ONTOLOGY), ValidateAIF.Restriction.NIST_HYPOTHESIS);
 
     private int assertionCount;
     private int entityCount;
