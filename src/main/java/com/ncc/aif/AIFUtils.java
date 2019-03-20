@@ -293,7 +293,7 @@ public class AIFUtils {
      * Create a justification from a particular snippet of text.
      *
      * @param model              The underlying RDF model for the operation
-     * @param docId              The String document Id of the source of the justification
+     * @param docId              A string containing the document element (child) ID of the source of the justification
      * @param startOffset        An integer offset within the document for the start of the justification
      * @param endOffsetInclusive An integer offset within the document for the end of the justification
      * @param system             The system object for the system which made this justification
@@ -325,7 +325,7 @@ public class AIFUtils {
      *
      * @param model              The underlying RDF model for the operation
      * @param toMarkOn           The Resource to be marked by the specified text document
-     * @param docId              The String document Id of the source of the justification
+     * @param docId              A string containing the document element (child) ID of the source of the justification
      * @param startOffset        An integer offset within the document for start of the justification
      * @param endOffsetInclusive An integer offset within the document for the end of the justification
      * @param system             The system object for the system which marked this justification
@@ -344,7 +344,7 @@ public class AIFUtils {
      *
      * @param model              The underlying RDF model for the operation
      * @param toMarkOn           A Collection of Resources to be marked by the specified text document
-     * @param docId              The String document Id of the source of the justification
+     * @param docId              A string containing the document element (child) ID of the source of the justification
      * @param startOffset        An integer offset within the document for start of the justification
      * @param endOffsetInclusive An integer offset within the document for the end of the justification
      * @param system             The system object for the system which marked this justification
@@ -363,7 +363,7 @@ public class AIFUtils {
      * Add a sourceDocument to a pre-existing justification
      *
      * @param justification      A pre-existing justification resource
-     * @param sourceDocument     A string containing the source document id
+     * @param sourceDocument     A string containing the source document (parent) ID
      * @return The modified justification resource
      */
     public static Resource addSourceDocumentToJustification(Resource justification, String sourceDocument) {
@@ -499,7 +499,7 @@ public class AIFUtils {
      * Make an image justification.
      *
      * @param model       The underlying RDF model for the operation
-     * @param docId       The String document Id of the source of the justification
+     * @param docId       A string containing the document element (child) ID of the source of the justification
      * @param boundingBox A rectangular box within the image that bounds the justification
      * @param system      The system object for the system which made this justification
      * @param confidence  The confidence with which to mark the justification
@@ -518,7 +518,7 @@ public class AIFUtils {
      *
      * @param model       The underlying RDF model for the operation
      * @param toMarkOn    The Resource to be marked by the specified image document
-     * @param docId       The String document Id of the source of the justification
+     * @param docId       A string containing the document element (child) ID of the source of the justification
      * @param boundingBox A rectangular box within the image that bounds the justification
      * @param system      The system object for the system which marked this justification
      * @param confidence  The confidence with which to mark the justification
@@ -534,7 +534,7 @@ public class AIFUtils {
      *
      * @param model       The underlying RDF model for the operation
      * @param toMarkOn    A Collection of Resources to be marked by the specified image document
-     * @param docId       The String document Id of the source of the justification
+     * @param docId       A string containing the document element (child) ID of the source of the justification
      * @param boundingBox A rectangular box within the image that bounds the justification
      * @param system      The system object for the system which made this justification
      * @param confidence  The confidence with which to mark the justification
@@ -551,7 +551,7 @@ public class AIFUtils {
      * Create a justification from something appearing in a key frame of a video.
      *
      * @param model       The underlying RDF model for the operation
-     * @param docId       The String document Id of the source of the justification
+     * @param docId       A string containing the document element (child) ID of the source of the justification
      * @param keyFrame    The String Id of the key frame of the specified video document
      * @param boundingBox A rectangular box within the key frame that bounds the justification
      * @param system      The system object for the system which made this justification
@@ -572,7 +572,7 @@ public class AIFUtils {
      *
      * @param model       The underlying RDF model for the operation
      * @param toMarkOn    The Resource to be marked by the specified video document
-     * @param docId       The String document Id of the source of the justification
+     * @param docId       A string containing the document element (child) ID of the source of the justification
      * @param keyFrame    The String Id of the key frame of the specified video document
      * @param boundingBox A rectangular box within the key frame that bounds the justification
      * @param system      The system object for the system which made this justification
@@ -590,7 +590,7 @@ public class AIFUtils {
      *
      * @param model       The underlying RDF model for the operation
      * @param toMarkOn    A Collection of Resources to be marked by the specified video document
-     * @param docId       The String document Id of the source of the justification
+     * @param docId       A string containing the document element (child) ID of the source of the justification
      * @param keyFrame    The String Id of the key frame of the specified video document
      * @param boundingBox A rectangular box within the key frame that bounds the justification
      * @param system      The system object for the system which made this justification
@@ -608,7 +608,7 @@ public class AIFUtils {
      * Create a justification from something appearing in a video but not in a key frame.
      *
      * @param model      The underlying RDF model for the operation
-     * @param docId      The String document Id of the source of the justification
+     * @param docId      A string containing the document element (child) ID of the source of the justification
      * @param shotId     The String Id of the shot of the specified video document
      * @param system     The system object for the system which made this justification
      * @param confidence The confidence with which to mark the justification
@@ -627,7 +627,7 @@ public class AIFUtils {
      *
      * @param model      The underlying RDF model for the operation
      * @param toMarkOn   A Resource to be marked by the specified video document
-     * @param docId      The String document Id of the source of the justification
+     * @param docId      A string containing the document element (child) ID of the source of the justification
      * @param shotId     The String Id of the shot of the specified video document
      * @param system     The system object for the system which made this justification
      * @param confidence The confidence with which to mark the justification
@@ -643,7 +643,7 @@ public class AIFUtils {
      *
      * @param model      The underlying RDF model for the operation
      * @param toMarkOn   A Collection of Resources to be marked by the specified video document
-     * @param docId      The String document Id of the source of the justification
+     * @param docId      A string containing the document element (child) ID of the source of the justification
      * @param shotId     The String Id of the shot of the specified video document
      * @param system     The system object for the system which made this justification
      * @param confidence The confidence with which to mark the justification
@@ -660,7 +660,7 @@ public class AIFUtils {
      * Make an audio justification.
      *
      * @param model          The underlying RDF model for the operation
-     * @param docId          The String document Id of the source of the justification
+     * @param docId          A string containing the document element (child) ID of the source of the justification
      * @param startTimestamp A timestamp within the audio document where the justification starts
      * @param endTimestamp   A timestamp within the audio document where the justification ends
      * @param system         The system object for the system which made this justification
@@ -689,7 +689,7 @@ public class AIFUtils {
      *
      * @param model          The underlying RDF model for the operation
      * @param toMarkOn       A Resource to be marked by the specified audio document
-     * @param docId          The String document Id of the source of the justification
+     * @param docId          A string containing the document element (child) ID of the source of the justification
      * @param startTimestamp A timestamp within the audio document where the justification starts
      * @param endTimestamp   A timestamp within the audio document where the justification ends
      * @param system         The system object for the system which made this justification
@@ -708,7 +708,7 @@ public class AIFUtils {
      *
      * @param model          The underlying RDF model for the operation
      * @param toMarkOn       A Collection of Resources to be marked by the specified audio document
-     * @param docId          The String document Id of the source of the justification
+     * @param docId          A string containing the document element (child) ID of the source of the justification
      * @param startTimestamp A timestamp within the audio document where the justification starts
      * @param endTimestamp   A timestamp within the audio document where the justification ends
      * @param system         The system object for the system which made this justification

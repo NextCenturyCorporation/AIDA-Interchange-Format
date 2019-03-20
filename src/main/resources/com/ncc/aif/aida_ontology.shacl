@@ -614,14 +614,14 @@ aida:SystemPropertyShape
 aida:SharedJustificationShape
     a sh:NodeShape ;
 
-    # each justification must have exactly one source document ID
+    # each justification must have exactly one document element (child) ID
     sh:property [
         sh:path aida:source ;
         sh:datatype xsd:string ;
         sh:minCount 1;
         sh:maxCount 1 ] ;
 
-    # allow sourceDocument property as well
+    # allow sourceDocument property for document (parent) ID
     sh:property [
         sh:path aida:sourceDocument ;
         sh:datatype xsd:string ;
