@@ -482,6 +482,8 @@ public class ExamplesAndValidationTest {
             // cluster buk
             final Resource bukCluster = makeClusterWithPrototype(model, getClusterUri(), bukKBEntity, system);
             final Resource bukIsClustered = markAsPossibleClusterMember(model, buk, bukCluster, .9, system);
+            // add importance of 90
+            markImportance(bukCluster, 90);
 
             // Russia owns buk relation
             final Resource bukIsRussian = makeRelation(model, russiaOwnsBukDocumentRelationUri, system);
