@@ -15,8 +15,9 @@
 aida:EdgeJustificationLimit
     a sh:PropertyShape ;
     sh:path ( aida:justifiedBy aida:containedJustification ) ;
+    sh:minCount 1 ;
     sh:maxCount 2 ;
-    sh:message "Only 2 contained justifications allowed for an edge" .
+    sh:message "Only 1 or 2 contained justifications allowed for an edge" .
 
 # Turn off CompoundJustificationMinimum globally
 aida:CompoundJustificationMinimum sh:deactivated true .
@@ -124,18 +125,3 @@ aida:RelationMustBeClustered
             }
         """ ;
     ] .
-
-#########################
-# A justification for an AIF argument assertion must have either one or two spans and must be represented
-# by aida:CompoundJustification, even if only one span is provided.
-#------------------------
-aida:CompoundJustificationShape
-   a sh:NodeShape ;
-   sh:targetClass aida:CompoundJustification ;
-
-   # must have either one or two contained justifications of specified types
-   sh:property [
-        sh:path aida:containedJustification ;
-        sh:minCount 1 ;
-        sh:maxCount 2 ] ;
-   sh:message "CompoundJustification for an AIF argument assertion must have either one or two spans" .
