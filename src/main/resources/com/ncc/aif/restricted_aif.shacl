@@ -41,6 +41,29 @@ aida:RelationArgumentShape
     sh:property aida:EdgeJustificationCompound, aida:EdgeJustificationLimit .
 
 #########################
+# CompoundJustification must be used only for justifications of argument assertions,
+# and not for justifications for entities, events, or relation KEs
+#------------------------
+aida:RestrictCompoundJustificationShape
+    a sh:NodeShape ;
+    sh:targetObjectsOf aida:CompoundJustification ;
+    sh:sparql [
+        sh:message "CompoundJustification must be used only for justifications of argument assertions" ;
+        sh:select """
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            SELECT $this
+            WHERE {
+                ?typeAssertion rdf:subject $this .
+                ?typeAssertion rdf:predicate rdf:type .
+                ?typeAssertion rdf:object ?type .
+                ?statement    aida:justifiedBy  ?justification .
+                ?justification a aida:CompoundJustification .
+                FILTER (?type = aida:EventArgumentShape || ? type = aida:RelationArgumentShape)
+             }
+         """ ;
+        ] .
+
+#########################
 # Video must use aida:KeyFrameVideoJustification. Remove ShotVideoJustification
 #------------------------
 # Restrict normal Justification types globally

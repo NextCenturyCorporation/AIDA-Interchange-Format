@@ -1449,6 +1449,79 @@ public class ExamplesAndValidationTest {
                 assertAndDump(model, "NIST.valid: confidence must be between 0 and 1", nistSeedlingValidator, true);
             }
         }
+
+        @Nested
+        class RestrictCompoundJustification {
+            @Test
+            void invalid() {
+
+                // test entity
+                final Resource newEntity = makeEntity(model, getEntityUri(), system);
+                addType(newEntity, SeedlingOntology.GeneralAffiliation_APORA);
+                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                final Resource compound1 = markCompoundJustification(model,
+                        ImmutableSet.of(newEntity),
+                        ImmutableSet.of(justification1),
+                        system,
+                        1d);
+
+                markJustification(newEntity, compound1);
+
+                //test relation
+                final Resource relation = makeRelation(model, getUri("relationX"), system);
+                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
+                final Resource justification2 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                final Resource compound2 = markCompoundJustification(model,
+                        ImmutableSet.of(newEntity),
+                        ImmutableSet.of(justification2),
+                        system,
+                        1d);
+
+                markJustification(newEntity, compound2);
+
+                //test event
+                final Resource newEvent = makeEvent(model, getUri("eventX"), system);
+                addType(newEvent, SeedlingOntology.Life_BeBorn);
+                final Resource justification3 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                final Resource compound3 = markCompoundJustification(model,
+                        ImmutableSet.of(newEntity),
+                        ImmutableSet.of(justification3),
+                        system,
+                        1d);
+
+                markJustification(newEntity, compound3);
+
+                assertAndDump(model, "NIST.invalid: CompoundJustification must be used only for " +
+                                "justifications of argument assertions",
+                        nistSeedlingValidator, false);
+
+            }
+            @Test
+            void valid() {
+
+                // test relation
+                final Resource relation = makeRelation(model, getUri("relationX"), system);
+                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
+                makeClusterWithPrototype(model, getClusterUri(), relation, system);
+                final Resource relationEdge = markAsArgument(model, relation,
+                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
+                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                final Resource compound = markCompoundJustification(model,
+                        ImmutableSet.of(relationEdge),
+                        ImmutableSet.of(justification1),
+                        system,
+                        1d);
+
+                // test event
+                final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
+                markJustification(eventEdge, compound);
+
+                assertAndDump(model, "NIST.valid: CompoundJustification must be used only for " +
+                                "justifications of argument assertions",
+                        nistSeedlingValidator, true);
+
+            }
+        }
     }
 
     // we dump the test name and the model in Turtle format so that whenever the user
