@@ -1400,6 +1400,25 @@ public class ExamplesAndValidationTest {
                 assertAndDump(model, "NIST.valid: Everything has cluster", nistSeedlingValidator, true);
             }
         }
+
+        // Each confidence value must be between 0 and 1
+        @Nested
+        class ConfidenceValueRange {
+            @Test
+            void invalid() {
+                final Resource newEntity = makeEntity(model, getEntityUri(), system);
+                addType(newEntity, SeedlingOntology.Person);
+                markAsPossibleClusterMember(model, newEntity, entityCluster, 1.2, system);
+                assertAndDump(model, "NIST.invalid: confidence must be between 0 and 1", nistSeedlingValidator, false);
+            }
+            @Test
+            void valid() {
+                final Resource newEntity = makeEntity(model, getEntityUri(), system);
+                addType(newEntity, SeedlingOntology.Person);
+                markAsPossibleClusterMember(model, newEntity, entityCluster, .7, system);
+                assertAndDump(model, "NIST.valid: confidence must be between 0 and 1", nistSeedlingValidator, true);
+            }
+        }
     }
 
     // we dump the test name and the model in Turtle format so that whenever the user
