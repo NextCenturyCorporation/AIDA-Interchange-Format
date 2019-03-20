@@ -129,3 +129,16 @@ aida:RelationMustBeClustered
             }
         """ ;
     ] .
+
+#########################
+# Each confidence value must be between 0 and 1
+#------------------------
+aida:ConfidenceValueRange
+    a sh:NodeShape ;
+    sh:targetClass aida:Confidence ;
+    sh:property [
+        sh:path aida:confidenceValue ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1;
+        sh:message "Confidence value must be between 0 and 1"]
+    .
