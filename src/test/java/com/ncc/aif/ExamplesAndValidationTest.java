@@ -1408,7 +1408,7 @@ public class ExamplesAndValidationTest {
             void valid() {
                 final Resource newEntity = makeEntity(model, getEntityUri(), system);
                 addType(newEntity, SeedlingOntology.Person);
-                markAsPossibleClusterMember(model, newEntity, entityCluster, .75, system);
+                markAsPossibleClusterMember(model, newEntity, entityCluster, .7, system);
                 assertAndDump(model, "NIST.valid: confidence must be between 0 and 1", nistSeedlingValidator, true);
             }
         }
