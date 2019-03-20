@@ -1298,16 +1298,22 @@ public class ExamplesAndValidationTest {
                         ImmutableSet.of(justification1, justification2, justification3),
                         system,
                         1d);
+                final Resource emptyCompound = markCompoundJustification(model,
+                        ImmutableSet.of(relationEdge),
+                        ImmutableSet.of(),
+                        system,
+                        1d);
 
                 // test event
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity,
                         system, 1.0, getAssertionUri());
                 markJustification(eventEdge, compound);
+                markJustification(eventEdge, emptyCompound);
 
                 assertAndDump(model, "NIST.invalid: edge justification contains at most two mentions",
-                        nistSeedlingValidator, false);
+                        nistSeedlingValidator, true);
             }
-            
+
             @Test
             void valid() {
                 // test relation
