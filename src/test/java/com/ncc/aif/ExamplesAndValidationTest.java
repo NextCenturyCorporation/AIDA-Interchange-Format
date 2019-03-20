@@ -620,6 +620,7 @@ public class ExamplesAndValidationTest {
 
             markJustification(personTypeAssertion, textJustification);
             markJustification(putin, textJustification);
+            addSourceDocumentToJustification(textJustification, "NYT_PARENT_ENG_20181231_03");
 
             // let's suppose we also have evidence from an image
             final Resource imageJustification = makeImageJustification(model, "NYT_ENG_20181231_03",
@@ -1311,7 +1312,7 @@ public class ExamplesAndValidationTest {
                 markJustification(eventEdge, emptyCompound);
 
                 assertAndDump(model, "NIST.invalid: edge justification contains at most two mentions",
-                        nistSeedlingValidator, true);
+                        nistSeedlingValidator, false);
             }
 
             @Test

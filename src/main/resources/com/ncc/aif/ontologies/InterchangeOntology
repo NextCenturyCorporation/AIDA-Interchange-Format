@@ -247,7 +247,14 @@
 
 :source rdf:type owl:DatatypeProperty ;
   rdfs:label "source" ;
-  rdfs:comment "Specify xsd:string identifier for source of justification" ;
+  rdfs:comment "Specify xsd:string identifier for document element (child) of justification" ;
+  rdfs:domain :JustificationTypes ;
+  rdfs:range xsd:string ;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:sourceDocument rdf:type owl:DatatypeProperty ;
+  rdfs:label "source document" ;
+  rdfs:comment "Specify xsd:string identifier for document (parent) of justification" ;
   rdfs:domain :JustificationTypes ;
   rdfs:range xsd:string ;
   rdfs:subPropertyOf owl:topDataProperty .
