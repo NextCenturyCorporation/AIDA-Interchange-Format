@@ -1274,7 +1274,7 @@ public class ExamplesAndValidationTest {
             }
         }
 
-        // Each edge justification is limited to two or fewer spans
+        // Each edge justification is limited to either one or two spans.
         @Nested
         class EdgeJustificationLimit {
             @Test
@@ -1303,6 +1303,7 @@ public class ExamplesAndValidationTest {
                         nistSeedlingValidator, false);
             }
 
+
             @Test
             void valid() {
                 // test relation
@@ -1316,6 +1317,29 @@ public class ExamplesAndValidationTest {
                 final Resource compound = markCompoundJustification(model,
                         ImmutableSet.of(relationEdge),
                         ImmutableSet.of(justification1, justification2),
+                        system,
+                        1d);
+
+                // test event
+                final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
+                markJustification(eventEdge, compound);
+
+                assertAndDump(model, "NIST.valid: edge justification contains at most two mentions",
+                        nistSeedlingValidator, true);
+            }
+
+            @Test
+            void validOneSpan() {
+                // test relation
+                final Resource relation = makeRelation(model, getUri("relationX"), system);
+                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
+                makeClusterWithPrototype(model, getClusterUri(), relation, system);
+                final Resource relationEdge = markAsArgument(model, relation,
+                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
+                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                final Resource compound = markCompoundJustification(model,
+                        ImmutableSet.of(relationEdge),
+                        ImmutableSet.of(justification1),
                         system,
                         1d);
 
