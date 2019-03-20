@@ -1316,7 +1316,7 @@ public class ExamplesAndValidationTest {
                 markJustification(eventEdge, emptyCompound);
 
                 assertAndDump(model, "NIST.invalid: edge justification contains at most two mentions",
-                        nistSeedlingValidator, true);
+                        nistSeedlingValidator, false);
             }
 
             @Test
