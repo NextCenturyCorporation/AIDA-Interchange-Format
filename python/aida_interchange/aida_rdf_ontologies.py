@@ -26,7 +26,7 @@ SEEDLING_TYPES_NIST = ClosedNamespace(
            "Personnel.Elect", "Personnel.EndPosition", "Personnel.Nominate", "Personnel.StartPosition",
            "Transaction.Transaction", "Transaction.TransferControl", "Transaction.TransferMoney",
            "Transaction.TransferOwnership",
-           "GeneralAffiliation.APORA", "GeneralAffiliation.MORE", "GeneralAffiliation.OPRA",
+           "GeneralAffiliation_APORA", "GeneralAffiliation_APORA_Affiliate", "GeneralAffiliation_APORA_Affiliation", "GeneralAffiliation.MORE", "GeneralAffiliation.OPRA",
            "GeneralAffiliation.OrganizationWebsite", "GeneralAffiliation.PersonAge", "GeneralAffiliation.Sponsorship",
            "Measurement.Count",
            "OrganizationAffiliation.EmploymentMembership", "OrganizationAffiliation.Founder",
@@ -36,7 +36,7 @@ SEEDLING_TYPES_NIST = ClosedNamespace(
            "PersonalSocial.Business", "PersonalSocial.Family", "PersonalSocial.RoleTitle",
            "PersonalSocial.Unspecified",
            "Physical.LocatedNear", "Physical.OrganizationHeadquarter", "Physical.OrganizationLocationOrigin",
-           "Physical.Resident"])
+           "Physical.Resident", "Weapon"])
 
 """
 The domain ontology.
@@ -200,6 +200,7 @@ AIDA_ANNOTATION = ClosedNamespace(
       'endTimestamp',
       'hasName',
       'hypothesisContent',
+      'importance',
       'jsonContent',
       'justifiedBy',
       'keyFrame',
