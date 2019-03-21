@@ -61,6 +61,11 @@ aida:CompoundJustificationTypes
         [sh:class aida:KeyFrameVideoJustification] ) .
 
 #########################
+# 4.3 #2 Each cluster must have an IRI
+#------------------------
+aida:ClusterShape sh:nodeKind sh:IRI .
+
+#########################
 # Members of clusters are entity objects, relation objects, and event objects (not clusters)
 #------------------------
 aida:ClusterMembershipShape
