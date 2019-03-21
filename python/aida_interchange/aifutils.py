@@ -345,6 +345,7 @@ def mark_as_possible_cluster_member(g, possible_cluster_member, cluster, confide
     g.add((cluster_member_assertion, AIDA_ANNOTATION.cluster, cluster))
     g.add((cluster_member_assertion, AIDA_ANNOTATION.clusterMember, possible_cluster_member))
     mark_confidence(g, cluster_member_assertion, confidence, system)
+    print('cluster_member_assertion', cluster_member_assertion)
     return cluster_member_assertion
 
 
@@ -364,7 +365,9 @@ def make_hypothesis(g, hypothesis_uri, hypothesis_content, system):
     subgraph = BNode()
     g.add((subgraph, RDF.type, AIDA_ANNOTATION.Subgraph))
 
+    print('hypo_content', hypothesis_content)
     for content in hypothesis_content:
+        #print('content', content)
         g.add((subgraph, AIDA_ANNOTATION.subgraphContains, content))
 
     g.add((hypothesis, AIDA_ANNOTATION.hypothesisContent, subgraph))
