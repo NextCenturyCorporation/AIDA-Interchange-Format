@@ -1426,18 +1426,7 @@ public class ExamplesAndValidationTest {
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target,
                         entity, system, 1.0, getAssertionUri());
                 markJustification(eventEdge, justification);
-                assertAndDump(model, "NIST.invalid: edge justification is compound", nistSeedlingValidator,
-                        false);
 
-
-                //test entity is not allowed to have compound justification
-                addType(entity, SeedlingOntology.GeneralAffiliation_APORA);
-
-                //test relation is not allowed to have compound justification
-                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
-
-                //test event is not allowed to have compound justification
-                addType(event, SeedlingOntology.Life_BeBorn);
 
                 final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
                 final Resource compound1 = markCompoundJustification(model,
@@ -1475,12 +1464,6 @@ public class ExamplesAndValidationTest {
 
                 // test event argument
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
-                final Resource justification2 = makeTextJustification(model, "source1", 0, 4, system, 1d);
-                final Resource compound2 = markCompoundJustification(model,
-                        ImmutableSet.of(eventEdge),
-                        ImmutableSet.of(justification2),
-                        system,
-                        1d);
 
                 markJustification(eventEdge, compound);
 
