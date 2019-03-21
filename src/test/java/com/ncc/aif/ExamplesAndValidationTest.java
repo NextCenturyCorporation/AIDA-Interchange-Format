@@ -1450,6 +1450,8 @@ public class ExamplesAndValidationTest {
             }
         }
 
+        // CompoundJustification must be used only for justifications of argument assertions,
+        // and not for justifications for entities, events, or relation KEs
         @Nested
         class RestrictCompoundJustification {
             @Test
