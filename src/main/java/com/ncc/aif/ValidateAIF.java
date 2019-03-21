@@ -209,7 +209,7 @@ public final class ValidateAIF {
                 case "--nist":
                     flags.add(ArgumentFlags.NIST);
                     break;
-                case "--hypo":
+                case "--nist-ta3":
                     flags.add(ArgumentFlags.NIST);
                     flags.add(ArgumentFlags.HYPO);
                     break;
