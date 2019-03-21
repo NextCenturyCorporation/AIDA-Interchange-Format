@@ -523,7 +523,8 @@ class Examples(unittest.TestCase):
         russia_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST.GeneralAffiliation_APORA_Affiliation, russia, system, 1.0)
 
         # Russia owns buk hypothesis
-        buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#hypothesis-1", [buk, buk_is_weapon, buk_is_clustered, buk_is_russian, buk_argument, russia_argument], system)
+        buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#hypothesis-1", 
+                                                            [buk, buk_is_weapon, buk_is_clustered, buk_is_russian, buk_argument, russia_argument], system)
 
         self.dump_graph(g, "Simple hypothesis with cluster")
 
@@ -561,12 +562,10 @@ class Examples(unittest.TestCase):
         aifutils.mark_importance(g, russia_argument, 100)
 
         # Russia owns buk hypothesis
-        buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#hypothesis-1", [buk, buk_is_weapon, buk_is_clustered, buk_is_russian, buk_argument, russia_argument], system)
+        buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#hypothesis-1", 
+                                                            [buk, buk_is_weapon, buk_is_clustered, buk_is_russian, buk_argument, russia_argument], system)
         aifutils.mark_importance(g, buk_is_russian_hypothesis, 120)
 
-        file = open("../uncertaintyAboutIDOfOneArg.ttl", "r+w")
-        file.write(g.serialize(format='turtle'))
-        file.close()
         self.dump_graph(g, "Simple hypothesis with cluster")
 
     def test_read_and_write_turtle(self):
