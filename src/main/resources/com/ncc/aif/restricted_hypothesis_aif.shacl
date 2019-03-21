@@ -1,0 +1,10 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix aida: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#> .
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# restricted_hypothesis_aif.shacl
+#
+# Add-on to restricted_aif.shacl used to enforce NIST-restricted-AIF for hypothesis (TA3) output.
+# Requires aida_ontology.shacl and restricted_aif.shacl to be loaded.
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+

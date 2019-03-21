@@ -28,8 +28,12 @@ import java.util.*;
  */
 public final class ValidateAIF {
 
+    // Enum to track restrictions
+    public enum Restriction {NONE, NIST, NIST_HYPOTHESIS}
+
     private static final String AIDA_SHACL_RESNAME = "com/ncc/aif/aida_ontology.shacl";
     private static final String NIST_SHACL_RESNAME = "com/ncc/aif/restricted_aif.shacl";
+    private static final String NIST_HYPOTHESIS_SHACL_RESNAME = "com/ncc/aif/restricted_hypothesis_aif.shacl";
     private static final String INTERCHANGE_RESNAME = "com/ncc/aif/ontologies/InterchangeOntology";
     private static final String AIDA_DOMAIN_COMMON_RESNAME = "com/ncc/aif/ontologies/AidaDomainOntologiesCommon";
     private static final String LDC_RESNAME = "com/ncc/aif/ontologies/SeedlingOntology";
@@ -41,28 +45,33 @@ public final class ValidateAIF {
 
     private static Model shaclModel;
     private static Model nistModel;
+    private static Model nistHypoModel;
     private static boolean initialized = false;
 
     private static void initializeSHACLModels() {
         if (!initialized) {
             shaclModel = ModelFactory.createOntologyModel();
-            CharSource aifSource = Resources.asCharSource(Resources.getResource(AIDA_SHACL_RESNAME), Charsets.UTF_8);
-            loadModel(shaclModel, aifSource);
+            loadModel(shaclModel, Resources.asCharSource(Resources.getResource(AIDA_SHACL_RESNAME), Charsets.UTF_8));
 
             nistModel = ModelFactory.createOntologyModel();
-            loadModel(nistModel, aifSource);
+            nistModel.add(shaclModel);
             loadModel(nistModel, Resources.asCharSource(Resources.getResource(NIST_SHACL_RESNAME), Charsets.UTF_8));
+
+            nistHypoModel = ModelFactory.createOntologyModel();
+            nistHypoModel.add(nistModel);
+            loadModel(nistHypoModel,
+                    Resources.asCharSource(Resources.getResource(NIST_HYPOTHESIS_SHACL_RESNAME), Charsets.UTF_8));
 
             initialized = true;
         }
     }
 
     private Model domainModel;
-    private boolean useRestrictedAIF;
-    private ValidateAIF(Model domainModel, boolean nistFlag) {
+    private Restriction restriction;
+    private ValidateAIF(Model domainModel, Restriction restriction) {
         initializeSHACLModels();
         this.domainModel = domainModel;
-        this.useRestrictedAIF = nistFlag;
+        this.restriction = restriction;
     }
 
     // Ensure what file name an RDF syntax error occurs in is printed, which
@@ -82,42 +91,42 @@ public final class ValidateAIF {
      * @return An AIF validator for the specified ontology
      */
     public static ValidateAIF createForDomainOntologySource(CharSource domainOntologySource) {
-        return create(ImmutableSet.of(domainOntologySource), false);
+        return create(ImmutableSet.of(domainOntologySource), Restriction.NONE);
     }
 
     /**
      * Create an AIF validator for the LDC ontology.
      *
-     * @param nistFlag Whether or not to validate against the NIST requirements
+     * @param restriction Type of restriction (if any) that should be applied during validation
      * @return An AIF validator for the LDC ontology
      */
-    public static ValidateAIF createForLDCOntology(boolean nistFlag) {
+    public static ValidateAIF createForLDCOntology(Restriction restriction) {
         return create(ImmutableSet.of(Resources.asCharSource(Resources.getResource(LDC_RESNAME), Charsets.UTF_8)),
-                nistFlag);
+                restriction);
     }
 
     /**
      * Create an AIF validator for the Program ontology.
      *
-     * @param nistFlag Whether or not to validate against the NIST requirements
+     * @param restriction Type of restriction (if any) that should be applied during validation
      * @return An AIF validator for the Program ontology
      */
-    public static ValidateAIF createForProgramOntology(boolean nistFlag) {
+    public static ValidateAIF createForProgramOntology(Restriction restriction) {
         return create(ImmutableSet.of(
                 Resources.asCharSource(Resources.getResource(AO_ENTITIES_RESNAME), Charsets.UTF_8),
                 Resources.asCharSource(Resources.getResource(AO_EVENTS_RESNAME), Charsets.UTF_8),
                 Resources.asCharSource(Resources.getResource(AO_RELATIONS_RESNAME), Charsets.UTF_8)),
-                nistFlag);
+                restriction);
     }
 
     /**
      * Create an AIF validator for specified domain ontologies and requirements.
      *
-     * @param nistFlag              Whether or not to validate against the NIST requirements
+     * @param restriction           Type of restriction (if any) that should be applied during validation
      * @param domainOntologySources User-supplied domain ontologies
      * @return An AIF validator for the specified ontologies and requirements
      */
-    public static ValidateAIF create(ImmutableSet<CharSource> domainOntologySources, boolean nistFlag) {
+    public static ValidateAIF create(ImmutableSet<CharSource> domainOntologySources, Restriction restriction) {
 
         if (domainOntologySources == null || domainOntologySources.isEmpty()) {
             throw new IllegalArgumentException("Must validate against at least one domain ontology.");
@@ -139,18 +148,19 @@ public final class ValidateAIF {
             loadModel(model, source);
         }
 
-        return new ValidateAIF(model, nistFlag);
+        return new ValidateAIF(model, restriction == null ? Restriction.NONE : restriction);
     }
 
     // Show usage information.
     private static void showUsage() {
         System.out.println("Usage:\n" +
-                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [-h | --help] {-f FILE ... | -d DIRNAME}\n" +
+                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-h | --help] {-f FILE ... | -d DIRNAME}\n" +
                 "Options:\n" +
                 "--ldc\t\tValidate against the LDC ontology\n" +
                 "--program\t\tValidate against the program ontology\n" +
                 "--ont FILE ...\tValidate against the OWL-formatted ontolog(ies) at the specified filename(s)\n" +
                 "--nist\t\tValidate against the NIST restrictions\n" +
+                "--nist-ta3\t\tValidate against the NIST hypothesis restrictions (implies --nist)\n" +
                 "-h, --help\tShow this help and usage text\n" +
                 "-f FILE ...\tvalidate the specified file(s) with a .ttl suffix\n" +
                 "-d DIRNAME\tValidate all .ttl files in the specified directory\n" +
@@ -198,6 +208,10 @@ public final class ValidateAIF {
                     break;
                 case "--nist":
                     flags.add(ArgumentFlags.NIST);
+                    break;
+                case "--hypo":
+                    flags.add(ArgumentFlags.NIST);
+                    flags.add(ArgumentFlags.HYPO);
                     break;
                 case "--ont":
                     int numFiles = processFiles(args, i, domainOntologies);
@@ -259,7 +273,7 @@ public final class ValidateAIF {
 
     // Command-line argument flags
     private enum ArgumentFlags {
-        NIST, LDC, PROGRAM, FILES, DIRECTORY
+        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY
     }
 
     /**
@@ -286,7 +300,8 @@ public final class ValidateAIF {
         }
 
         // Collect the flags parsed from the arguments
-        final boolean nistFlag = flags.contains(ArgumentFlags.NIST);
+        final Restriction restriction = !flags.contains(ArgumentFlags.NIST) ? Restriction.NONE :
+                flags.contains(ArgumentFlags.HYPO) ? Restriction.NIST_HYPOTHESIS : Restriction.NIST;
         final boolean ldcFlag = flags.contains(ArgumentFlags.LDC);
         final boolean programFlag = flags.contains(ArgumentFlags.PROGRAM);
 
@@ -294,9 +309,9 @@ public final class ValidateAIF {
         ValidateAIF validator = null;
         try {
             if (ldcFlag) {
-                validator = createForLDCOntology(nistFlag);
+                validator = createForLDCOntology(restriction);
             } else if (programFlag) {
-                validator = createForProgramOntology(nistFlag);
+                validator = createForProgramOntology(restriction);
             } else {
                 // Convert the specified domain ontologies to CharSources.
                 Set<CharSource> domainOntologySources = new HashSet<>();
@@ -304,7 +319,7 @@ public final class ValidateAIF {
                     File file = new File(source);
                     domainOntologySources.add(Files.asCharSource(file, Charsets.UTF_8));
                 }
-                validator = create(ImmutableSet.copyOf(domainOntologySources), nistFlag);
+                validator = create(ImmutableSet.copyOf(domainOntologySources), restriction);
             }
         } catch (RuntimeException rte) {
             logger.error("Could not read/parse all domain ontologies or SHACL files...exiting.");
@@ -354,8 +369,10 @@ public final class ValidateAIF {
         final String ontologyStr = (ldcFlag ? "LDC (LO)" : "") + (programFlag ? "Program (AO)" : "") +
                 (domainOntologies.isEmpty() ? "" : domainOntologies);
         logger.info("-> Validating with domain ontology(ies): " + ontologyStr);
-        if (nistFlag) {
+        if (restriction == Restriction.NIST) {
             logger.info("-> Validating against NIST SHACL.");
+        } else if (restriction == Restriction.NIST_HYPOTHESIS) {
+            logger.info("-> Validating against NIST Hypothesis SHACL.");
         }
         logger.info("*** Beginning validation of " + filesToValidate.size() + " file(s). ***");
 
@@ -424,11 +441,20 @@ public final class ValidateAIF {
         // entity type" will know what types are in fact entity types.
         final Model unionModel = (union == null) ? ModelFactory.createUnion(domainModel, dataToBeValidated) : union;
 
-        // We short-circuit because earlier validation failures may make later
-        // validation attempts misleading nonsense.
-        return useRestrictedAIF ?
-                validateAgainstShacl(unionModel, nistModel) :
-                validateAgainstShacl(unionModel, shaclModel);
+        // Apply appropriate shacl restrictions
+        Model shacl;
+        switch (restriction) {
+            case NIST:
+                shacl = nistModel;
+                break;
+            case NIST_HYPOTHESIS:
+                shacl = nistHypoModel;
+                break;
+            case NONE: // fall-through on purpose
+            default:
+                shacl = shaclModel;
+        }
+        return validateAgainstShacl(unionModel, shacl);
     }
 
     /**
