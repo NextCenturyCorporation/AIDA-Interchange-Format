@@ -1232,54 +1232,6 @@ public class ExamplesAndValidationTest {
             eventCluster = makeClusterWithPrototype(model, getClusterUri(), event, system);
         }
 
-        // Each edge justification must be represented uniformly in AIF by
-        // aida:CompoundJustification, even if only one span is provided
-        // Edges are assumed to be relation and event arguments
-        @Nested
-        class EdgeJustificationCompound {
-            @Test
-            void invalid() {
-                // test relation
-                final Resource relation = makeRelation(model, getUri("relationX"), system);
-                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
-                makeClusterWithPrototype(model, getClusterUri(), relation, system);
-                final Resource relationEdge = markAsArgument(model, relation,
-                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d, getAssertionUri());
-                final Resource justification = markTextJustification(model, relationEdge,
-                        "source1", 0, 4, system, 1d);
-
-                // test event
-                final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target,
-                        entity, system, 1.0, getAssertionUri());
-                markJustification(eventEdge, justification);
-                assertAndDump(model, "NIST.invalid: edge justification is compound", nistSeedlingValidator,
-                        false);
-            }
-
-            @Test
-            void valid() {
-                // test relation
-                final Resource relation = makeRelation(model, getUri("relationX"), system);
-                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
-                makeClusterWithPrototype(model, getClusterUri(), relation, system);
-                final Resource relationEdge = markAsArgument(model, relation,
-                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
-                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
-                final Resource compound = markCompoundJustification(model,
-                        ImmutableSet.of(relationEdge),
-                        ImmutableSet.of(justification1),
-                        system,
-                        1d);
-
-                // test event
-                final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
-                markJustification(eventEdge, compound);
-
-                assertAndDump(model, "NIST.valid: edge justification is compound", nistSeedlingValidator,
-                        true);
-            }
-        }
-
         // Each edge justification is limited to either one or two spans.
         @Nested
         class EdgeJustificationLimit {
@@ -1450,48 +1402,53 @@ public class ExamplesAndValidationTest {
             }
         }
 
+        // Each edge justification must be represented uniformly in AIF by
+        // aida:CompoundJustification, even if only one span is provided
+        // Edges are assumed to be relation and event arguments
+        //
         // CompoundJustification must be used only for justifications of argument assertions,
         // and not for justifications for entities, events, or relation KEs
         @Nested
-        class RestrictCompoundJustification {
+        class RestrictJustification {
             @Test
             void invalid() {
 
-                //test entity
-                final Resource newEntity = makeEntity(model, getEntityUri(), system);
-                addType(newEntity, SeedlingOntology.GeneralAffiliation_APORA);
+                // test relation edge argument must have a compound justification
+                final Resource relation = makeRelation(model, getUri("relationX"), system);
+                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
+                makeClusterWithPrototype(model, getClusterUri(), relation, system);
+                final Resource relationEdge = markAsArgument(model, relation,
+                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d, getAssertionUri());
+                final Resource justification = markTextJustification(model, relationEdge,
+                        "source1", 0, 4, system, 1d);
+
+                // test event edge argument is must have a compound justification
+                final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target,
+                        entity, system, 1.0, getAssertionUri());
+                markJustification(eventEdge, justification);
+                assertAndDump(model, "NIST.invalid: edge justification is compound", nistSeedlingValidator,
+                        false);
+
+
+                //test entity is not allowed to have compound justification
+                addType(entity, SeedlingOntology.GeneralAffiliation_APORA);
+
+                //test relation is not allowed to have compound justification
+                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
+
+                //test event is not allowed to have compound justification
+                addType(event, SeedlingOntology.Life_BeBorn);
+
                 final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
                 final Resource compound1 = markCompoundJustification(model,
-                        ImmutableSet.of(newEntity),
+                        ImmutableSet.of(entity, relation, event),
                         ImmutableSet.of(justification1),
                         system,
                         1d);
 
-                markJustification(newEntity, compound1);
-
-                //test relation
-                final Resource newRelation = makeRelation(model, getUri("relationX"), system);
-                addType(newRelation, SeedlingOntology.GeneralAffiliation_APORA);
-                final Resource justification2 = makeTextJustification(model, "source1", 0, 4, system, 1d);
-                final Resource compound2 = markCompoundJustification(model,
-                        ImmutableSet.of(newRelation),
-                        ImmutableSet.of(justification2),
-                        system,
-                        1d);
-
-                markJustification(newRelation, compound2);
-
-                //test event
-                final Resource newEvent = makeEvent(model, getUri("eventX"), system);
-                addType(newEvent, SeedlingOntology.Life_BeBorn);
-                final Resource justification3 = makeTextJustification(model, "source1", 0, 4, system, 1d);
-                final Resource compound3 = markCompoundJustification(model,
-                        ImmutableSet.of(newEvent),
-                        ImmutableSet.of(justification3),
-                        system,
-                        1d);
-
-                markJustification(newEvent, compound3);
+                markJustification(entity, compound1);
+                markJustification(relation, compound1);
+                markJustification(event, compound1);
 
                 assertAndDump(model, "NIST.invalid: CompoundJustification must be used only for " +
                                 "justifications of argument assertions",
