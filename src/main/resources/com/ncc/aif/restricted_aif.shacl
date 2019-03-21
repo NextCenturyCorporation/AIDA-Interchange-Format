@@ -47,7 +47,7 @@ aida:RelationArgumentShape
 aida:RestrictCompoundJustificationPropertyShape
    a sh:PropertyShape ;
    sh:path aida:justifiedBy ;
-   sh:not ([sh:class aida:CompoundJustification] );
+   sh:not [sh:class aida:CompoundJustification] ;
    sh:message "CompoundJustification must be used only for justifications of argument assertions" .
 
 aida:EventShape

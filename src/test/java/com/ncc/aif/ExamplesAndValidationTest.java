@@ -1455,7 +1455,7 @@ public class ExamplesAndValidationTest {
             @Test
             void invalid() {
 
-                // test entity
+                //test entity
                 final Resource newEntity = makeEntity(model, getEntityUri(), system);
                 addType(newEntity, SeedlingOntology.GeneralAffiliation_APORA);
                 final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
@@ -1468,28 +1468,28 @@ public class ExamplesAndValidationTest {
                 markJustification(newEntity, compound1);
 
                 //test relation
-                final Resource relation = makeRelation(model, getUri("relationX"), system);
-                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
+                final Resource newRelation = makeRelation(model, getUri("relationX"), system);
+                addType(newRelation, SeedlingOntology.GeneralAffiliation_APORA);
                 final Resource justification2 = makeTextJustification(model, "source1", 0, 4, system, 1d);
                 final Resource compound2 = markCompoundJustification(model,
-                        ImmutableSet.of(newEntity),
+                        ImmutableSet.of(newRelation),
                         ImmutableSet.of(justification2),
                         system,
                         1d);
 
-                markJustification(newEntity, compound2);
+                markJustification(newRelation, compound2);
 
                 //test event
                 final Resource newEvent = makeEvent(model, getUri("eventX"), system);
                 addType(newEvent, SeedlingOntology.Life_BeBorn);
                 final Resource justification3 = makeTextJustification(model, "source1", 0, 4, system, 1d);
                 final Resource compound3 = markCompoundJustification(model,
-                        ImmutableSet.of(newEntity),
+                        ImmutableSet.of(newEvent),
                         ImmutableSet.of(justification3),
                         system,
                         1d);
 
-                markJustification(newEntity, compound3);
+                markJustification(newEvent, compound3);
 
                 assertAndDump(model, "NIST.invalid: CompoundJustification must be used only for " +
                                 "justifications of argument assertions",
@@ -1499,7 +1499,7 @@ public class ExamplesAndValidationTest {
             @Test
             void valid() {
 
-                // test relation
+                // test relation argument
                 final Resource relation = makeRelation(model, getUri("relationX"), system);
                 addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
                 makeClusterWithPrototype(model, getClusterUri(), relation, system);
@@ -1512,8 +1512,17 @@ public class ExamplesAndValidationTest {
                         system,
                         1d);
 
-                // test event
+                markJustification(relationEdge, compound);
+
+                // test event argument
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
+                final Resource justification2 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                final Resource compound2 = markCompoundJustification(model,
+                        ImmutableSet.of(eventEdge),
+                        ImmutableSet.of(justification2),
+                        system,
+                        1d);
+
                 markJustification(eventEdge, compound);
 
                 assertAndDump(model, "NIST.valid: CompoundJustification must be used only for " +
