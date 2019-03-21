@@ -8,3 +8,19 @@
 # Requires aida_ontology.shacl and restricted_aif.shacl to be loaded
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
+#########################
+# 4.3 TA3 #1: Exactly 1 Hypothesis should exist
+#------------------------
+# Use SystemShape because we want this to always trigger and there should only be one
+aida:SystemShape
+    sh:sparql [
+        sh:message "Exactly 1 Hypothesis should exist. Found {$this}" ;
+        sh:select """
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            SELECT (COUNT(?x) AS $this)
+            WHERE {
+                ?x a aida:Hypothesis .
+            }
+            HAVING ((COUNT(?x)) != 1)
+        """ ;
+    ] .

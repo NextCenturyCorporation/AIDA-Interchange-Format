@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 
 import static com.ncc.aif.AIFUtils.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -1207,26 +1208,46 @@ public class ExamplesAndValidationTest {
         }
     }
 
-    /**
-     * Set of tests to show that NIST restrictions pass and fail appropriately
-     */
-    @Nested
-    class NISTExamples {
+    class BaseExample {
         Model model;
         Resource system;
-        Resource entity;
-        Resource event;
-        Resource entityCluster;
-        Resource eventCluster;
+        ValidateAIF validator = seedlingValidator;
+
+        void setup() {
+            model = createModel();
+            system = makeSystemWithURI(model, getTestSystemUri());
+        }
 
         void addType(Resource resource, Resource type) {
             markType(model, getAssertionUri(), resource, type, system, 1d);
         }
 
+        void testInvalid(String name) {
+            assertAndDump(model, name, validator, false);
+        }
+
+        void testValid(String name) {
+            assertAndDump(model, name, validator, true);
+        }
+
+    }
+
+    /**
+     * Set of tests to show that NIST restrictions pass and fail appropriately
+     */
+    @Nested
+    class NISTExamples extends BaseExample {
+        Resource entity;
+        Resource event;
+        Resource entityCluster;
+        Resource eventCluster;
+        NISTExamples() { validator = nistSeedlingValidator; }
+
+
         @BeforeEach
         void setup() {
-            model = createModel();
-            system = AIFUtils.makeSystemWithURI(model, getTestSystemUri());
+            super.setup();
+
             entity = AIFUtils.makeEntity(model, getEntityUri(), system);
             addType(entity, SeedlingOntology.Person);
             event = AIFUtils.makeEvent(model, getUri("event1"), system);
@@ -1255,8 +1276,7 @@ public class ExamplesAndValidationTest {
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target,
                         entity, system, 1.0, getAssertionUri());
                 markJustification(eventEdge, justification);
-                assertAndDump(model, "NIST.invalid: edge justification is compound", nistSeedlingValidator,
-                        false);
+                testInvalid("NIST.invalid: edge justification is compound");
             }
 
             @Test
@@ -1278,8 +1298,7 @@ public class ExamplesAndValidationTest {
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
                 markJustification(eventEdge, compound);
 
-                assertAndDump(model, "NIST.valid: edge justification is compound", nistSeedlingValidator,
-                        true);
+                testValid("NIST.valid: edge justification is compound");
             }
         }
 
@@ -1314,8 +1333,7 @@ public class ExamplesAndValidationTest {
                 markJustification(eventEdge, compound);
                 markJustification(eventEdge, emptyCompound);
 
-                assertAndDump(model, "NIST.invalid: edge justification contains at most two mentions",
-                        nistSeedlingValidator, false);
+                testInvalid("NIST.invalid: edge justification contains at most two mentions");
             }
 
             @Test
@@ -1338,8 +1356,7 @@ public class ExamplesAndValidationTest {
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
                 markJustification(eventEdge, compound);
 
-                assertAndDump(model, "NIST.valid: edge justification contains at most two mentions",
-                        nistSeedlingValidator, true);
+                testValid("NIST.valid: edge justification contains at most two mentions");
             }
 
             @Test
@@ -1361,8 +1378,7 @@ public class ExamplesAndValidationTest {
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
                 markJustification(eventEdge, compound);
 
-                assertAndDump(model, "NIST.valid: edge justification contains at most two mentions",
-                        nistSeedlingValidator, true);
+                testValid("NIST.valid: edge justification contains at most two mentions");
             }
         }
 
@@ -1372,14 +1388,14 @@ public class ExamplesAndValidationTest {
             @Test
             void invalid() {
                 markShotVideoJustification(model, entity, "source1", "shotId", system, 1d);
-                assertAndDump(model, "NIST.invalid: No shot video", nistSeedlingValidator, false);
+                testInvalid("NIST.invalid: No shot video");
             }
 
             @Test
             void valid() {
                 markKeyFrameVideoJustification(model, entity, "source1", "keyframe",
                         new BoundingBox(new Point(0, 0), new Point(100, 100)), system, 1d);
-                assertAndDump(model, "NIST.valid: No shot video", nistSeedlingValidator, true);
+                testValid("NIST.valid: No shot video");
             }
         }
 
@@ -1389,7 +1405,7 @@ public class ExamplesAndValidationTest {
             @Test
             void invalid() {
                 markAsPossibleClusterMember(model, eventCluster, entityCluster, .5, system);
-                assertAndDump(model, "NIST.invalid: Flat clusters", nistSeedlingValidator, false);
+                testInvalid("NIST.invalid: Flat clusters");
             }
 
             @Test
@@ -1397,7 +1413,7 @@ public class ExamplesAndValidationTest {
                 final Resource newEntity = makeEntity(model, getEntityUri(), system);
                 addType(newEntity, SeedlingOntology.Person);
                 markAsPossibleClusterMember(model, newEntity, entityCluster, .75, system);
-                assertAndDump(model, "NIST.valid: Flat clusters", nistSeedlingValidator, true);
+                testValid("NIST.valid: Flat clusters");
             }
         }
 
@@ -1413,7 +1429,7 @@ public class ExamplesAndValidationTest {
                         SeedlingOntology.GeneralAffiliation_APORA);
                 addType(makeEvent(model, getUri("eventX"), system),
                         SeedlingOntology.Life_BeBorn);
-                assertAndDump(model, "NIST.invalid: Everything has cluster", nistSeedlingValidator, false);
+                testInvalid( "NIST.invalid: Everything has cluster");
             }
 
             @Test
@@ -1430,7 +1446,7 @@ public class ExamplesAndValidationTest {
                 addType(newEvent, SeedlingOntology.Life_BeBorn);
                 makeClusterWithPrototype(model, getClusterUri(), newEvent, system);
 
-                assertAndDump(model, "NIST.valid: Everything has cluster", nistSeedlingValidator, true);
+                testValid("NIST.valid: Everything has cluster");
             }
         }
 
@@ -1442,14 +1458,54 @@ public class ExamplesAndValidationTest {
                 final Resource newEntity = makeEntity(model, getEntityUri(), system);
                 addType(newEntity, SeedlingOntology.Person);
                 markAsPossibleClusterMember(model, newEntity, entityCluster, 1.2, system);
-                assertAndDump(model, "NIST.invalid: confidence must be between 0 and 1", nistSeedlingValidator, false);
+                testInvalid("NIST.invalid: confidence must be between 0 and 1");
             }
             @Test
             void valid() {
                 final Resource newEntity = makeEntity(model, getEntityUri(), system);
                 addType(newEntity, SeedlingOntology.Person);
                 markAsPossibleClusterMember(model, newEntity, entityCluster, .7, system);
-                assertAndDump(model, "NIST.valid: confidence must be between 0 and 1", nistSeedlingValidator, true);
+                testValid("NIST.valid: confidence must be between 0 and 1");
+            }
+        }
+    }
+
+    /**
+     * Set of tests to show that NIST Hypothesis restrictions pass and fail appropriately
+     */
+    @Nested
+    class NISTHypothesisExamples extends BaseExample {
+        Resource entity;
+        Resource entityCluster;
+        NISTHypothesisExamples() { validator = nistSeedlingHypothesisValidator; }
+
+        @BeforeEach
+        void setup() {
+            super.setup();
+            entity = makeEntity(model, getEntityUri(), system);
+            addType(entity, SeedlingOntology.Person);
+            entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, system);
+        }
+
+        // Exactly 1 hypthesis should exist in model
+        @Nested
+        class SingleHypothesis {
+            @Test
+            void invalidTooMany() {
+                makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(entity), system);
+                makeHypothesis(model, getUri("hypothesis-2"), Collections.singleton(entity), system);
+                testInvalid("NISTHypothesis.invalid (too many): there should only be 1 hypothesis");
+            }
+
+            @Test
+            void invalidTooFew() {
+                testInvalid("NISTHypothesis.invalid (too few): there should only be 1 hypothesis");
+            }
+
+            @Test
+            void valid() {
+                makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(entity), system);
+                testValid("NISTHypothesis.valid: there should only be 1 hypothesis");
             }
         }
     }
