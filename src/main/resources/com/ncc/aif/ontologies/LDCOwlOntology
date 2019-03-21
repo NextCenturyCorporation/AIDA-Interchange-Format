@@ -1,12 +1,14 @@
 ######################################################
-# Created by com.ncc.verdi.ldc.LDCOntologyPostPilot on 2019-03-08T01:18:25.855Z
+# Created by com.ncc.verdi.ldc.LDCOntologyPostPilot on 2019-03-21T13:59:27.137Z
+# For more information about this file, refer to:
+# https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/tree/master/src/main/resources/com/ncc/aif/ontologies/README.md
 ######################################################
 @prefix ldcOnt: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/LDCOntology#> .
 @prefix aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#> .
 @prefix owl:   <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 
-<https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/LDCOWLOntology>
+<https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/LDCOwlOntology>
         a                owl:Ontology ;
         rdfs:comment     "An ontology for creating messages from LDC data to use in AIDA interchange language development" ;
         rdfs:label       "AIDA Domain Ontology for LDC Annotations" ;
@@ -756,25 +758,6 @@ ldcOnt:null.PhysicalEntity.BuildingConstruction
 ######################################################
 # Relation types
 ######################################################
-ldcOnt:Evaluate.Deliberateness.Accidental
-        a                owl:Class ;
-        rdfs:label       "Evaluate.Deliberateness.Accidental" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Holder" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
-                                              ] ;
-                           owl:onProperty     ldcOnt:Evaluate.Deliberateness.Accidental_Holder
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Event" ;
-                                                owl:unionOf  ( aidaDomainCommon:EventType )
-                                              ] ;
-                           owl:onProperty     ldcOnt:Evaluate.Deliberateness.Accidental_Event
-                         ] .
-
 ldcOnt:Evaluate.Deliberateness.Deliberate
         a                owl:Class ;
         rdfs:label       "Evaluate.Deliberateness.Deliberate" ;
@@ -792,25 +775,6 @@ ldcOnt:Evaluate.Deliberateness.Deliberate
                                                 owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
                                               ] ;
                            owl:onProperty     ldcOnt:Evaluate.Deliberateness.Deliberate_Holder
-                         ] .
-
-ldcOnt:Evaluate.Legitimacy.Illegitimate
-        a                owl:Class ;
-        rdfs:label       "Evaluate.Legitimacy.Illegitimate" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Event" ;
-                                                owl:unionOf  ( aidaDomainCommon:EventType )
-                                              ] ;
-                           owl:onProperty     ldcOnt:Evaluate.Legitimacy.Illegitimate_Event
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Holder" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
-                                              ] ;
-                           owl:onProperty     ldcOnt:Evaluate.Legitimacy.Illegitimate_Holder
                          ] .
 
 ldcOnt:Evaluate.Legitimacy.Legitimate
@@ -832,25 +796,6 @@ ldcOnt:Evaluate.Legitimacy.Legitimate
                            owl:onProperty     ldcOnt:Evaluate.Legitimacy.Legitimate_Holder
                          ] .
 
-ldcOnt:Evaluate.Sentiment.Negative
-        a                owl:Class ;
-        rdfs:label       "Evaluate.Sentiment.Negative" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Holder" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
-                                              ] ;
-                           owl:onProperty     ldcOnt:Evaluate.Sentiment.Negative_Holder
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "SentimentTarget" ;
-                                                owl:unionOf  ( aidaDomainCommon:EventType ldcOnt:Ballot ldcOnt:Crime ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Law ldcOnt:Location ldcOnt:Money ldcOnt:Organization ldcOnt:Person ldcOnt:Results ldcOnt:Sides )
-                                              ] ;
-                           owl:onProperty     ldcOnt:Evaluate.Sentiment.Negative_SentimentTarget
-                         ] .
-
 ldcOnt:Evaluate.Sentiment.Positive
         a                owl:Class ;
         rdfs:label       "Evaluate.Sentiment.Positive" ;
@@ -868,63 +813,6 @@ ldcOnt:Evaluate.Sentiment.Positive
                                                 owl:unionOf  ( aidaDomainCommon:EventType ldcOnt:Ballot ldcOnt:Crime ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Law ldcOnt:Location ldcOnt:Money ldcOnt:Organization ldcOnt:Person ldcOnt:Results ldcOnt:Sides )
                                               ] ;
                            owl:onProperty     ldcOnt:Evaluate.Sentiment.Positive_SentimentTarget
-                         ] .
-
-ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation
-        a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Artifact" ;
-                                                owl:unionOf  ( ldcOnt:Ballot ldcOnt:Commodity ldcOnt:Facility ldcOnt:Money ldcOnt:Vehicle ldcOnt:Weapon )
-                                              ] ;
-                           owl:onProperty     ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation_Artifact
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "EntityOrFiller" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
-                                              ] ;
-                           owl:onProperty     ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller
-                         ] .
-
-ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.ControlTerritory
-        a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.ControlTerritory" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Controller" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
-                                              ] ;
-                           owl:onProperty     ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.ControlTerritory_Controller
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Territory" ;
-                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                                              ] ;
-                           owl:onProperty     ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.ControlTerritory_Territory
-                         ] .
-
-ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.NationalityCitizen
-        a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.NationalityCitizen" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Nationality" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity )
-                                              ] ;
-                           owl:onProperty     ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.NationalityCitizen_Nationality
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Artifact" ;
-                                                owl:unionOf  ( ldcOnt:Ballot ldcOnt:Commodity ldcOnt:Facility ldcOnt:Money ldcOnt:Vehicle ldcOnt:Weapon )
-                                              ] ;
-                           owl:onProperty     ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.NationalityCitizen_Artifact
                          ] .
 
 ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.OwnershipPossession
@@ -946,44 +834,6 @@ ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.Owne
                            owl:onProperty     ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.OwnershipPossession_Artifact
                          ] .
 
-ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity
-        a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.MemberOriginReligionEthnicity" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "EntityOrFiller" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Person ldcOnt:Sides )
-                                              ] ;
-                           owl:onProperty     ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity_EntityOrFiller
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Person" ;
-                                                owl:unionOf  ( ldcOnt:Person )
-                                              ] ;
-                           owl:onProperty     ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity_Person
-                         ] .
-
-ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.Ethnicity
-        a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.MemberOriginReligionEthnicity.Ethnicity" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Ethnicity" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Person ldcOnt:Sides )
-                                              ] ;
-                           owl:onProperty     ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.Ethnicity_Ethnicity
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Person" ;
-                                                owl:unionOf  ( ldcOnt:Person )
-                                              ] ;
-                           owl:onProperty     ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.Ethnicity_Person
-                         ] .
-
 ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.NationalityCitizen
         a                owl:Class ;
         rdfs:label       "GeneralAffiliation.MemberOriginReligionEthnicity.NationalityCitizen" ;
@@ -1001,25 +851,6 @@ ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.NationalityCitizen
                                                 owl:unionOf  ( ldcOnt:GeopoliticalEntity )
                                               ] ;
                            owl:onProperty     ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.NationalityCitizen_Nationality
-                         ] .
-
-ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation
-        a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.OrganizationPoliticalReligiousAffiliation" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "EntityOrFiller" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
-                                              ] ;
-                           owl:onProperty     ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation_EntityOrFiller
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Organization" ;
-                                                owl:unionOf  ( ldcOnt:Organization )
-                                              ] ;
-                           owl:onProperty     ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation_Organization
                          ] .
 
 ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation.NationalityCitizen
@@ -1058,63 +889,6 @@ ldcOnt:GeneralAffiliation.OrganizationWebsite.OrganizationWebsite
                                                 owl:unionOf  ( ldcOnt:NumericalValue )
                                               ] ;
                            owl:onProperty     ldcOnt:GeneralAffiliation.OrganizationWebsite.OrganizationWebsite_Website
-                         ] .
-
-ldcOnt:GeneralAffiliation.Sponsorship
-        a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.Sponsorship" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "ActorOrEvent" ;
-                                                owl:unionOf  ( aidaDomainCommon:EventType ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Organization )
-                                              ] ;
-                           owl:onProperty     ldcOnt:GeneralAffiliation.Sponsorship_ActorOrEvent
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Sponsor" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
-                                              ] ;
-                           owl:onProperty     ldcOnt:GeneralAffiliation.Sponsorship_Sponsor
-                         ] .
-
-ldcOnt:GeneralAffiliation.Sponsorship.AdvisePlanOrganize
-        a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.Sponsorship.AdvisePlanOrganize" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "ActorOrEvent" ;
-                                                owl:unionOf  ( aidaDomainCommon:EventType ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Organization )
-                                              ] ;
-                           owl:onProperty     ldcOnt:GeneralAffiliation.Sponsorship.AdvisePlanOrganize_ActorOrEvent
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Sponsor" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
-                                              ] ;
-                           owl:onProperty     ldcOnt:GeneralAffiliation.Sponsorship.AdvisePlanOrganize_Sponsor
-                         ] .
-
-ldcOnt:GeneralAffiliation.Sponsorship.Affiliated
-        a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.Sponsorship.Affiliated" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Sponsor" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization ldcOnt:Person ldcOnt:Sides )
-                                              ] ;
-                           owl:onProperty     ldcOnt:GeneralAffiliation.Sponsorship.Affiliated_Sponsor
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "ActorOrEvent" ;
-                                                owl:unionOf  ( aidaDomainCommon:EventType ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Organization )
-                                              ] ;
-                           owl:onProperty     ldcOnt:GeneralAffiliation.Sponsorship.Affiliated_ActorOrEvent
                          ] .
 
 ldcOnt:GeneralAffiliation.Sponsorship.HelpSupport
@@ -1174,82 +948,6 @@ ldcOnt:Information.Make.Make
                            owl:onProperty     ldcOnt:Information.Make.Make_Brand
                          ] .
 
-ldcOnt:Measurement.Size
-        a                owl:Class ;
-        rdfs:label       "Measurement.Size" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Measurement" ;
-                                                owl:unionOf  ( ldcOnt:NumericalValue )
-                                              ] ;
-                           owl:onProperty     ldcOnt:Measurement.Size_Measurement
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "EntityOrFiller" ;
-                                                owl:unionOf  ( ldcOnt:Ballot ldcOnt:Commodity ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Person ldcOnt:Vehicle ldcOnt:Weapon )
-                                              ] ;
-                           owl:onProperty     ldcOnt:Measurement.Size_EntityOrFiller
-                         ] .
-
-ldcOnt:Measurement.Size.Count
-        a                owl:Class ;
-        rdfs:label       "Measurement.Size.Count" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Measurement" ;
-                                                owl:unionOf  ( ldcOnt:NumericalValue )
-                                              ] ;
-                           owl:onProperty     ldcOnt:Measurement.Size.Count_Measurement
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "EntityOrFiller" ;
-                                                owl:unionOf  ( ldcOnt:Ballot ldcOnt:Commodity ldcOnt:Crime ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Law ldcOnt:Location ldcOnt:Money ldcOnt:Organization ldcOnt:Person ldcOnt:Results ldcOnt:Sides ldcOnt:Vehicle ldcOnt:Weapon )
-                                              ] ;
-                           owl:onProperty     ldcOnt:Measurement.Size.Count_EntityOrFiller
-                         ] .
-
-ldcOnt:Measurement.Size.HeightLengthWidth
-        a                owl:Class ;
-        rdfs:label       "Measurement.Size.HeightLengthWidth" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Measurement" ;
-                                                owl:unionOf  ( ldcOnt:NumericalValue )
-                                              ] ;
-                           owl:onProperty     ldcOnt:Measurement.Size.HeightLengthWidth_Measurement
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "EntityOrFiller" ;
-                                                owl:unionOf  ( ldcOnt:Ballot ldcOnt:Commodity ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Money ldcOnt:Person ldcOnt:Vehicle ldcOnt:Weapon )
-                                              ] ;
-                           owl:onProperty     ldcOnt:Measurement.Size.HeightLengthWidth_EntityOrFiller
-                         ] .
-
-ldcOnt:Measurement.Size.Percentage
-        a                owl:Class ;
-        rdfs:label       "Measurement.Size.Percentage" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Measurement" ;
-                                                owl:unionOf  ( ldcOnt:NumericalValue )
-                                              ] ;
-                           owl:onProperty     ldcOnt:Measurement.Size.Percentage_Measurement
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "EntityOrFiller" ;
-                                                owl:unionOf  ( ldcOnt:Ballot ldcOnt:Commodity ldcOnt:Crime ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Law ldcOnt:Location ldcOnt:Money ldcOnt:Organization ldcOnt:Person ldcOnt:Results ldcOnt:Sides ldcOnt:Vehicle ldcOnt:Weapon )
-                                              ] ;
-                           owl:onProperty     ldcOnt:Measurement.Size.Percentage_EntityOrFiller
-                         ] .
-
 ldcOnt:Measurement.Size.Weight
         a                owl:Class ;
         rdfs:label       "Measurement.Size.Weight" ;
@@ -1267,44 +965,6 @@ ldcOnt:Measurement.Size.Weight
                                                 owl:unionOf  ( ldcOnt:Ballot ldcOnt:Commodity ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location ldcOnt:Money ldcOnt:Person ldcOnt:Vehicle ldcOnt:Weapon )
                                               ] ;
                            owl:onProperty     ldcOnt:Measurement.Size.Weight_EntityOrFiller
-                         ] .
-
-ldcOnt:OrganizationAffiliation.EmploymentMembership
-        a                owl:Class ;
-        rdfs:label       "OrganizationAffiliation.EmploymentMembership" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "EmployeeMember" ;
-                                                owl:unionOf  ( ldcOnt:Person )
-                                              ] ;
-                           owl:onProperty     ldcOnt:OrganizationAffiliation.EmploymentMembership_EmployeeMember
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "PlaceOfEmploymentMembership" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization )
-                                              ] ;
-                           owl:onProperty     ldcOnt:OrganizationAffiliation.EmploymentMembership_PlaceOfEmploymentMembership
-                         ] .
-
-ldcOnt:OrganizationAffiliation.EmploymentMembership.Employment
-        a                owl:Class ;
-        rdfs:label       "OrganizationAffiliation.EmploymentMembership.Employment" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Employee" ;
-                                                owl:unionOf  ( ldcOnt:Person )
-                                              ] ;
-                           owl:onProperty     ldcOnt:OrganizationAffiliation.EmploymentMembership.Employment_Employee
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "PlaceOfEmployment" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization )
-                                              ] ;
-                           owl:onProperty     ldcOnt:OrganizationAffiliation.EmploymentMembership.Employment_PlaceOfEmployment
                          ] .
 
 ldcOnt:OrganizationAffiliation.EmploymentMembership.Membership
@@ -1345,63 +1005,6 @@ ldcOnt:OrganizationAffiliation.Founder.Founder
                            owl:onProperty     ldcOnt:OrganizationAffiliation.Founder.Founder_Organization
                          ] .
 
-ldcOnt:OrganizationAffiliation.Leadership
-        a                owl:Class ;
-        rdfs:label       "OrganizationAffiliation.Leadership" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Organization" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization )
-                                              ] ;
-                           owl:onProperty     ldcOnt:OrganizationAffiliation.Leadership_Organization
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Leader" ;
-                                                owl:unionOf  ( ldcOnt:Person )
-                                              ] ;
-                           owl:onProperty     ldcOnt:OrganizationAffiliation.Leadership_Leader
-                         ] .
-
-ldcOnt:OrganizationAffiliation.Leadership.Government
-        a                owl:Class ;
-        rdfs:label       "OrganizationAffiliation.Leadership.Government" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "GovernmentBodyOrGPE" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization )
-                                              ] ;
-                           owl:onProperty     ldcOnt:OrganizationAffiliation.Leadership.Government_GovernmentBodyOrGPE
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Leader" ;
-                                                owl:unionOf  ( ldcOnt:Person )
-                                              ] ;
-                           owl:onProperty     ldcOnt:OrganizationAffiliation.Leadership.Government_Leader
-                         ] .
-
-ldcOnt:OrganizationAffiliation.Leadership.HeadOfState
-        a                owl:Class ;
-        rdfs:label       "OrganizationAffiliation.Leadership.HeadOfState" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Country" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity )
-                                              ] ;
-                           owl:onProperty     ldcOnt:OrganizationAffiliation.Leadership.HeadOfState_Country
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Leader" ;
-                                                owl:unionOf  ( ldcOnt:Person )
-                                              ] ;
-                           owl:onProperty     ldcOnt:OrganizationAffiliation.Leadership.HeadOfState_Leader
-                         ] .
-
 ldcOnt:OrganizationAffiliation.Leadership.MilitaryPolice
         a                owl:Class ;
         rdfs:label       "OrganizationAffiliation.Leadership.MilitaryPolice" ;
@@ -1419,44 +1022,6 @@ ldcOnt:OrganizationAffiliation.Leadership.MilitaryPolice
                                                 owl:unionOf  ( ldcOnt:Organization )
                                               ] ;
                            owl:onProperty     ldcOnt:OrganizationAffiliation.Leadership.MilitaryPolice_MilitaryPoliceORG
-                         ] .
-
-ldcOnt:PartWhole.Subsidiary
-        a                owl:Class ;
-        rdfs:label       "PartWhole.Subsidiary" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Parent" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization )
-                                              ] ;
-                           owl:onProperty     ldcOnt:PartWhole.Subsidiary_Parent
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Subsidiary" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity ldcOnt:Organization )
-                                              ] ;
-                           owl:onProperty     ldcOnt:PartWhole.Subsidiary_Subsidiary
-                         ] .
-
-ldcOnt:PartWhole.Subsidiary.NationalityCitizen
-        a                owl:Class ;
-        rdfs:label       "PartWhole.Subsidiary.NationalityCitizen" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Parent" ;
-                                                owl:unionOf  ( ldcOnt:GeopoliticalEntity )
-                                              ] ;
-                           owl:onProperty     ldcOnt:PartWhole.Subsidiary.NationalityCitizen_Parent
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Subsidiary" ;
-                                                owl:unionOf  ( ldcOnt:Organization )
-                                              ] ;
-                           owl:onProperty     ldcOnt:PartWhole.Subsidiary.NationalityCitizen_Subsidiary
                          ] .
 
 ldcOnt:PartWhole.Subsidiary.OrganizationSubsidiary
@@ -1478,44 +1043,6 @@ ldcOnt:PartWhole.Subsidiary.OrganizationSubsidiary
                            owl:onProperty     ldcOnt:PartWhole.Subsidiary.OrganizationSubsidiary_Subsidiary
                          ] .
 
-ldcOnt:PersonalSocial.Role
-        a                owl:Class ;
-        rdfs:label       "PersonalSocial.Role" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Role" ;
-                                                owl:unionOf  ( ldcOnt:Title )
-                                              ] ;
-                           owl:onProperty     ldcOnt:PersonalSocial.Role_Role
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Person" ;
-                                                owl:unionOf  ( ldcOnt:Person )
-                                              ] ;
-                           owl:onProperty     ldcOnt:PersonalSocial.Role_Person
-                         ] .
-
-ldcOnt:PersonalSocial.Role.ProfessionalRole
-        a                owl:Class ;
-        rdfs:label       "PersonalSocial.Role.ProfessionalRole" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "JobRole" ;
-                                                owl:unionOf  ( ldcOnt:Title )
-                                              ] ;
-                           owl:onProperty     ldcOnt:PersonalSocial.Role.ProfessionalRole_JobRole
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Person" ;
-                                                owl:unionOf  ( ldcOnt:Person )
-                                              ] ;
-                           owl:onProperty     ldcOnt:PersonalSocial.Role.ProfessionalRole_Person
-                         ] .
-
 ldcOnt:PersonalSocial.Role.TitleFormOfAddress
         a                owl:Class ;
         rdfs:label       "PersonalSocial.Role.TitleFormOfAddress" ;
@@ -1535,25 +1062,6 @@ ldcOnt:PersonalSocial.Role.TitleFormOfAddress
                            owl:onProperty     ldcOnt:PersonalSocial.Role.TitleFormOfAddress_Person
                          ] .
 
-ldcOnt:PersonalSocial.Unspecified
-        a                owl:Class ;
-        rdfs:label       "PersonalSocial.Unspecified" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Person" ;
-                                                owl:unionOf  ( ldcOnt:Person )
-                                              ] ;
-                           owl:onProperty     ldcOnt:PersonalSocial.Unspecified_Person
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Person" ;
-                                                owl:unionOf  ( ldcOnt:Person )
-                                              ] ;
-                           owl:onProperty     ldcOnt:PersonalSocial.Unspecified_Person
-                         ] .
-
 ldcOnt:PersonalSocial.Unspecified.Political
         a                owl:Class ;
         rdfs:label       "PersonalSocial.Unspecified.Political" ;
@@ -1571,25 +1079,6 @@ ldcOnt:PersonalSocial.Unspecified.Political
                                                 owl:unionOf  ( ldcOnt:Person )
                                               ] ;
                            owl:onProperty     ldcOnt:PersonalSocial.Unspecified.Political_Person
-                         ] .
-
-ldcOnt:Physical.LocatedNear
-        a                owl:Class ;
-        rdfs:label       "Physical.LocatedNear" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "EntityOrFiller" ;
-                                                owl:unionOf  ( ldcOnt:Ballot ldcOnt:Commodity ldcOnt:Facility ldcOnt:Person ldcOnt:Vehicle ldcOnt:Weapon )
-                                              ] ;
-                           owl:onProperty     ldcOnt:Physical.LocatedNear_EntityOrFiller
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Place" ;
-                                                owl:unionOf  ( ldcOnt:Facility ldcOnt:GeopoliticalEntity ldcOnt:Location )
-                                              ] ;
-                           owl:onProperty     ldcOnt:Physical.LocatedNear_Place
                          ] .
 
 ldcOnt:Physical.LocatedNear.Surround
@@ -6793,32 +6282,12 @@ ldcOnt:Disaster.FireExplosion.FireExplosion_Place
         rdfs:label          "Place" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-ldcOnt:Evaluate.Deliberateness.Accidental_Event
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Event" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:Evaluate.Deliberateness.Accidental_Holder
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Holder" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
 ldcOnt:Evaluate.Deliberateness.Deliberate_Event
         a                   owl:ObjectProperty ;
         rdfs:label          "Event" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
 ldcOnt:Evaluate.Deliberateness.Deliberate_Holder
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Holder" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:Evaluate.Legitimacy.Illegitimate_Event
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Event" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:Evaluate.Legitimacy.Illegitimate_Holder
         a                   owl:ObjectProperty ;
         rdfs:label          "Holder" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
@@ -6833,16 +6302,6 @@ ldcOnt:Evaluate.Legitimacy.Legitimate_Holder
         rdfs:label          "Holder" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-ldcOnt:Evaluate.Sentiment.Negative_Holder
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Holder" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:Evaluate.Sentiment.Negative_SentimentTarget
-        a                   owl:ObjectProperty ;
-        rdfs:label          "SentimentTarget" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
 ldcOnt:Evaluate.Sentiment.Positive_Holder
         a                   owl:ObjectProperty ;
         rdfs:label          "Holder" ;
@@ -6851,26 +6310,6 @@ ldcOnt:Evaluate.Sentiment.Positive_Holder
 ldcOnt:Evaluate.Sentiment.Positive_SentimentTarget
         a                   owl:ObjectProperty ;
         rdfs:label          "SentimentTarget" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.ControlTerritory_Controller
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Controller" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.ControlTerritory_Territory
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Territory" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.NationalityCitizen_Artifact
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Artifact" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.NationalityCitizen_Nationality
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Nationality" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
 ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.OwnershipPossession_Artifact
@@ -6883,26 +6322,6 @@ ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.Owne
         rdfs:label          "Owner" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation_Artifact
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Artifact" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller
-        a                   owl:ObjectProperty ;
-        rdfs:label          "EntityOrFiller" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.Ethnicity_Ethnicity
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Ethnicity" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.Ethnicity_Person
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Person" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
 ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.NationalityCitizen_Citizen
         a                   owl:ObjectProperty ;
         rdfs:label          "Citizen" ;
@@ -6913,32 +6332,12 @@ ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.NationalityCitizen_Natio
         rdfs:label          "Nationality" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity_EntityOrFiller
-        a                   owl:ObjectProperty ;
-        rdfs:label          "EntityOrFiller" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity_Person
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Person" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
 ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation.NationalityCitizen_Nationality
         a                   owl:ObjectProperty ;
         rdfs:label          "Nationality" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
 ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation.NationalityCitizen_Organization
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Organization" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation_EntityOrFiller
-        a                   owl:ObjectProperty ;
-        rdfs:label          "EntityOrFiller" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation_Organization
         a                   owl:ObjectProperty ;
         rdfs:label          "Organization" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
@@ -6953,42 +6352,12 @@ ldcOnt:GeneralAffiliation.OrganizationWebsite.OrganizationWebsite_Website
         rdfs:label          "Website" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-ldcOnt:GeneralAffiliation.Sponsorship.AdvisePlanOrganize_ActorOrEvent
-        a                   owl:ObjectProperty ;
-        rdfs:label          "ActorOrEvent" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:GeneralAffiliation.Sponsorship.AdvisePlanOrganize_Sponsor
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Sponsor" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:GeneralAffiliation.Sponsorship.Affiliated_ActorOrEvent
-        a                   owl:ObjectProperty ;
-        rdfs:label          "ActorOrEvent" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:GeneralAffiliation.Sponsorship.Affiliated_Sponsor
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Sponsor" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
 ldcOnt:GeneralAffiliation.Sponsorship.HelpSupport_ActorOrEvent
         a                   owl:ObjectProperty ;
         rdfs:label          "ActorOrEvent" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
 ldcOnt:GeneralAffiliation.Sponsorship.HelpSupport_Sponsor
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Sponsor" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:GeneralAffiliation.Sponsorship_ActorOrEvent
-        a                   owl:ObjectProperty ;
-        rdfs:label          "ActorOrEvent" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:GeneralAffiliation.Sponsorship_Sponsor
         a                   owl:ObjectProperty ;
         rdfs:label          "Sponsor" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
@@ -7658,52 +7027,12 @@ ldcOnt:Manufacture.Artifact_Place
         rdfs:label          "Place" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-ldcOnt:Measurement.Size.Count_EntityOrFiller
-        a                   owl:ObjectProperty ;
-        rdfs:label          "EntityOrFiller" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:Measurement.Size.Count_Measurement
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Measurement" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:Measurement.Size.HeightLengthWidth_EntityOrFiller
-        a                   owl:ObjectProperty ;
-        rdfs:label          "EntityOrFiller" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:Measurement.Size.HeightLengthWidth_Measurement
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Measurement" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:Measurement.Size.Percentage_EntityOrFiller
-        a                   owl:ObjectProperty ;
-        rdfs:label          "EntityOrFiller" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:Measurement.Size.Percentage_Measurement
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Measurement" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
 ldcOnt:Measurement.Size.Weight_EntityOrFiller
         a                   owl:ObjectProperty ;
         rdfs:label          "EntityOrFiller" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
 ldcOnt:Measurement.Size.Weight_Measurement
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Measurement" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:Measurement.Size_EntityOrFiller
-        a                   owl:ObjectProperty ;
-        rdfs:label          "EntityOrFiller" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:Measurement.Size_Measurement
         a                   owl:ObjectProperty ;
         rdfs:label          "Measurement" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
@@ -8253,16 +7582,6 @@ ldcOnt:Movement.TransportPerson_Vehicle
         rdfs:label          "Vehicle" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-ldcOnt:OrganizationAffiliation.EmploymentMembership.Employment_Employee
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Employee" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:OrganizationAffiliation.EmploymentMembership.Employment_PlaceOfEmployment
-        a                   owl:ObjectProperty ;
-        rdfs:label          "PlaceOfEmployment" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
 ldcOnt:OrganizationAffiliation.EmploymentMembership.Membership_Member
         a                   owl:ObjectProperty ;
         rdfs:label          "Member" ;
@@ -8271,16 +7590,6 @@ ldcOnt:OrganizationAffiliation.EmploymentMembership.Membership_Member
 ldcOnt:OrganizationAffiliation.EmploymentMembership.Membership_PlaceOfMembership
         a                   owl:ObjectProperty ;
         rdfs:label          "PlaceOfMembership" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:OrganizationAffiliation.EmploymentMembership_EmployeeMember
-        a                   owl:ObjectProperty ;
-        rdfs:label          "EmployeeMember" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:OrganizationAffiliation.EmploymentMembership_PlaceOfEmploymentMembership
-        a                   owl:ObjectProperty ;
-        rdfs:label          "PlaceOfEmploymentMembership" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
 ldcOnt:OrganizationAffiliation.Founder.Founder_Founder
@@ -8293,26 +7602,6 @@ ldcOnt:OrganizationAffiliation.Founder.Founder_Organization
         rdfs:label          "Organization" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-ldcOnt:OrganizationAffiliation.Leadership.Government_GovernmentBodyOrGPE
-        a                   owl:ObjectProperty ;
-        rdfs:label          "GovernmentBodyOrGPE" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:OrganizationAffiliation.Leadership.Government_Leader
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Leader" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:OrganizationAffiliation.Leadership.HeadOfState_Country
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Country" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:OrganizationAffiliation.Leadership.HeadOfState_Leader
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Leader" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
 ldcOnt:OrganizationAffiliation.Leadership.MilitaryPolice_Leader
         a                   owl:ObjectProperty ;
         rdfs:label          "Leader" ;
@@ -8321,26 +7610,6 @@ ldcOnt:OrganizationAffiliation.Leadership.MilitaryPolice_Leader
 ldcOnt:OrganizationAffiliation.Leadership.MilitaryPolice_MilitaryPoliceORG
         a                   owl:ObjectProperty ;
         rdfs:label          "MilitaryPoliceORG" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:OrganizationAffiliation.Leadership_Leader
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Leader" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:OrganizationAffiliation.Leadership_Organization
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Organization" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:PartWhole.Subsidiary.NationalityCitizen_Parent
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Parent" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:PartWhole.Subsidiary.NationalityCitizen_Subsidiary
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Subsidiary" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
 ldcOnt:PartWhole.Subsidiary.OrganizationSubsidiary_Parent
@@ -8353,26 +7622,6 @@ ldcOnt:PartWhole.Subsidiary.OrganizationSubsidiary_Subsidiary
         rdfs:label          "Subsidiary" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-ldcOnt:PartWhole.Subsidiary_Parent
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Parent" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:PartWhole.Subsidiary_Subsidiary
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Subsidiary" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:PersonalSocial.Role.ProfessionalRole_JobRole
-        a                   owl:ObjectProperty ;
-        rdfs:label          "JobRole" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:PersonalSocial.Role.ProfessionalRole_Person
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Person" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
 ldcOnt:PersonalSocial.Role.TitleFormOfAddress_Person
         a                   owl:ObjectProperty ;
         rdfs:label          "Person" ;
@@ -8383,22 +7632,7 @@ ldcOnt:PersonalSocial.Role.TitleFormOfAddress_Title
         rdfs:label          "Title" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-ldcOnt:PersonalSocial.Role_Person
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Person" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:PersonalSocial.Role_Role
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Role" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
 ldcOnt:PersonalSocial.Unspecified.Political_Person
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Person" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:PersonalSocial.Unspecified_Person
         a                   owl:ObjectProperty ;
         rdfs:label          "Person" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
@@ -8514,16 +7748,6 @@ ldcOnt:Physical.LocatedNear.Surround_EntityOrFiller
         rdfs:subPropertyOf  owl:topObjectProperty .
 
 ldcOnt:Physical.LocatedNear.Surround_Place
-        a                   owl:ObjectProperty ;
-        rdfs:label          "Place" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:Physical.LocatedNear_EntityOrFiller
-        a                   owl:ObjectProperty ;
-        rdfs:label          "EntityOrFiller" ;
-        rdfs:subPropertyOf  owl:topObjectProperty .
-
-ldcOnt:Physical.LocatedNear_Place
         a                   owl:ObjectProperty ;
         rdfs:label          "Place" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
