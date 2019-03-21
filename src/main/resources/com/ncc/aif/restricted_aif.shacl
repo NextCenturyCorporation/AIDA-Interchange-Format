@@ -44,24 +44,23 @@ aida:RelationArgumentShape
 # CompoundJustification must be used only for justifications of argument assertions,
 # and not for justifications for entities, events, or relation KEs
 #------------------------
-aida:RestrictCompoundJustificationShape
-    a sh:NodeShape ;
-    sh:targetObjectsOf aida:CompoundJustification ;
-    sh:sparql [
-        sh:message "CompoundJustification must be used only for justifications of argument assertions" ;
-        sh:select """
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
-            SELECT $this
-            WHERE {
-                ?typeAssertion rdf:subject $this .
-                ?typeAssertion rdf:predicate rdf:type .
-                ?typeAssertion rdf:object ?type .
-                ?statement    aida:justifiedBy  ?justification .
-                ?justification a aida:CompoundJustification .
-                FILTER (?type = aida:EventArgumentShape || ? type = aida:RelationArgumentShape)
-             }
-         """ ;
-        ] .
+aida:RestrictCompoundJustificationPropertyShape
+   a sh:PropertyShape ;
+   sh:path aida:justifiedBy ;
+   sh:not ([sh:class aida:CompoundJustification] );
+   sh:message "CompoundJustification must be used only for justifications of argument assertions" .
+
+aida:EventTypeShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:RelationTypeShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:EntityTypeShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
 
 #########################
 # Video must use aida:KeyFrameVideoJustification. Remove ShotVideoJustification
