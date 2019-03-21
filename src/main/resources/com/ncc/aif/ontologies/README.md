@@ -21,14 +21,14 @@ created by individually selecting those class values and not from any other sour
 
 A collection of Entity classes determined by the Ontology working group.  Entity referring to
 a physical being or intangible concept that either interacts or is subject to interaction.  This in combination with Events
-and Relations are the three cornerstones of creating messages.
+and Relations ontologies contain the vocabulary that will be used for defining messages post-M18 evaluation.
 
 ## EventOntology
 
 A collection of Event classes determined by the Ontology working group.  Event referring to
 an experience that occurs when two or more Events interact in some way.  Some examples being building weaponry, signing a
 treaty, and the moving of people from one place to another. This in combination with Entity
-and Relations are the three cornerstones of creating messages.
+and Relations ontologies contain the vocabulary that will be used for defining messages post-M18 evaluation.
 
 ## InterchangeOntology
 
@@ -51,7 +51,7 @@ replace SeedlingOwlOntology once the original LDC data has been removed from our
 A collection of Relation Type classes determined by the Ontology working group.  Relations referring to
 A specification of the connection between two or more Entities. This includes such things as the material used to create
 a weapon, the nationality of an individual and the title an employee holds. This in combination with Entities
-and Events are the three cornerstones of creating messages.
+and Events ontologies contain the vocabulary that will be used for defining messages post-M18 evaluation.
 
 ## SeedlingOntology
 
