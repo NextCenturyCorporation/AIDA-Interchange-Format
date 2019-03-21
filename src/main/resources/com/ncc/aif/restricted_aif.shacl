@@ -15,8 +15,9 @@
 aida:EdgeJustificationLimit
     a sh:PropertyShape ;
     sh:path ( aida:justifiedBy aida:containedJustification ) ;
+    sh:minCount 1 ;
     sh:maxCount 2 ;
-    sh:message "Only 2 contained justifications allowed for an edge" .
+    sh:message "Only 1 or 2 contained justifications allowed for an edge" .
 
 # Turn off CompoundJustificationMinimum globally
 aida:CompoundJustificationMinimum sh:deactivated true .
@@ -58,6 +59,11 @@ aida:CompoundJustificationTypes
         [sh:class aida:ImageJustification]
         [sh:class aida:AudioJustification]
         [sh:class aida:KeyFrameVideoJustification] ) .
+
+#########################
+# 4.3 #2 Each cluster must have an IRI
+#------------------------
+aida:ClusterShape sh:nodeKind sh:IRI .
 
 #########################
 # Members of clusters are entity objects, relation objects, and event objects (not clusters)

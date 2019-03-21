@@ -23,6 +23,7 @@ public final class AidaAnnotationOntology {
     public static final Property CONTAINED_JUSTIFICATION =
             ResourceFactory.createProperty(NAMESPACE + "containedJustification");
     public static final Property SOURCE = ResourceFactory.createProperty(NAMESPACE + "source");
+    public static final Property SOURCE_DOCUMENT = ResourceFactory.createProperty(NAMESPACE + "sourceDocument");
     public static final Property START_OFFSET = ResourceFactory.createProperty(NAMESPACE + "startOffset");
     public static final Property END_OFFSET_INCLUSIVE = ResourceFactory.createProperty(NAMESPACE
             + "endOffsetInclusive");

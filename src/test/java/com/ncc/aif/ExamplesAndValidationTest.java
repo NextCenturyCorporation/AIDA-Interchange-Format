@@ -620,6 +620,7 @@ public class ExamplesAndValidationTest {
 
             markJustification(personTypeAssertion, textJustification);
             markJustification(putin, textJustification);
+            addSourceDocumentToJustification(textJustification, "NYT_PARENT_ENG_20181231_03");
 
             // let's suppose we also have evidence from an image
             final Resource imageJustification = makeImageJustification(model, "NYT_ENG_20181231_03",
@@ -1211,8 +1212,10 @@ public class ExamplesAndValidationTest {
         Model model;
         Resource system;
         Resource entity;
+        Resource relation;
         Resource event;
         Resource entityCluster;
+        Resource relationCluster;
         Resource eventCluster;
 
         void addType(Resource resource, Resource type) {
@@ -1227,8 +1230,11 @@ public class ExamplesAndValidationTest {
             addType(entity, SeedlingOntology.Person);
             event = AIFUtils.makeEvent(model, getUri("event1"), system);
             addType(event, SeedlingOntology.Conflict_Attack);
+            relation = makeRelation(model, getUri("relation1"), system);
+            addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
             entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, system);
             eventCluster = makeClusterWithPrototype(model, getClusterUri(), event, system);
+            relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation, system);
         }
 
         // Each edge justification must be represented uniformly in AIF by
@@ -1279,7 +1285,7 @@ public class ExamplesAndValidationTest {
             }
         }
 
-        // Each edge justification is limited to two or fewer spans
+        // Each edge justification is limited to either one or two spans.
         @Nested
         class EdgeJustificationLimit {
             @Test
@@ -1298,11 +1304,17 @@ public class ExamplesAndValidationTest {
                         ImmutableSet.of(justification1, justification2, justification3),
                         system,
                         1d);
+                final Resource emptyCompound = markCompoundJustification(model,
+                        ImmutableSet.of(relationEdge),
+                        ImmutableSet.of(),
+                        system,
+                        1d);
 
                 // test event
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity,
                         system, 1.0, getAssertionUri());
                 markJustification(eventEdge, compound);
+                markJustification(eventEdge, emptyCompound);
 
                 assertAndDump(model, "NIST.invalid: edge justification contains at most two mentions",
                         nistSeedlingValidator, false);
@@ -1321,6 +1333,29 @@ public class ExamplesAndValidationTest {
                 final Resource compound = markCompoundJustification(model,
                         ImmutableSet.of(relationEdge),
                         ImmutableSet.of(justification1, justification2),
+                        system,
+                        1d);
+
+                // test event
+                final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
+                markJustification(eventEdge, compound);
+
+                assertAndDump(model, "NIST.valid: edge justification contains at most two mentions",
+                        nistSeedlingValidator, true);
+            }
+
+            @Test
+            void validOneSpan() {
+                // test relation
+                final Resource relation = makeRelation(model, getUri("relationX"), system);
+                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
+                makeClusterWithPrototype(model, getClusterUri(), relation, system);
+                final Resource relationEdge = markAsArgument(model, relation,
+                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
+                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                final Resource compound = markCompoundJustification(model,
+                        ImmutableSet.of(relationEdge),
+                        ImmutableSet.of(justification1),
                         system,
                         1d);
 
@@ -1417,6 +1452,25 @@ public class ExamplesAndValidationTest {
                 addType(newEntity, SeedlingOntology.Person);
                 markAsPossibleClusterMember(model, newEntity, entityCluster, .7, system);
                 assertAndDump(model, "NIST.valid: confidence must be between 0 and 1", nistSeedlingValidator, true);
+            }
+        }
+
+        // Entity, Relation, and Event clusters must have IRI
+        @Nested
+        class ClusterHasIRI {
+            @Test
+            void invalid() {
+                // Test entity, relation, and event. Correct other than being clustered
+                makeClusterWithPrototype(model, null, entity, system);
+                makeClusterWithPrototype(model, null, relation, system);
+                makeClusterWithPrototype(model, null, event, system);
+
+                assertAndDump(model, "NIST.invalid: Cluster has IRI", nistSeedlingValidator, false);
+            }
+
+            @Test
+            void valid() {
+                assertAndDump(model, "NIST.valid: Cluster has IRI", nistSeedlingValidator, true);
             }
         }
     }
