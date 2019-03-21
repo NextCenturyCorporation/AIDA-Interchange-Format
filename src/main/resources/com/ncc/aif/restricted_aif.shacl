@@ -50,15 +50,35 @@ aida:RestrictCompoundJustificationPropertyShape
    sh:not ([sh:class aida:CompoundJustification] );
    sh:message "CompoundJustification must be used only for justifications of argument assertions" .
 
-aida:EventTypeShape
+aida:EventShape
     # may not provide compound justification
     sh:property aida:RestrictCompoundJustificationPropertyShape .
 
-aida:RelationTypeShape
+aida:RelationShape
     # may not provide compound justification
     sh:property aida:RestrictCompoundJustificationPropertyShape .
 
-aida:EntityTypeShape
+aida:EntityShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:SentimentShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:SharedTypeShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:LinkAssertionShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:ClusterMembershipShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:MutualExclusionConstraintShape
     # may not provide compound justification
     sh:property aida:RestrictCompoundJustificationPropertyShape .
 
