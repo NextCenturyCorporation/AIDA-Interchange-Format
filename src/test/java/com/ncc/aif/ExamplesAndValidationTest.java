@@ -1212,8 +1212,10 @@ public class ExamplesAndValidationTest {
         Model model;
         Resource system;
         Resource entity;
+        Resource relation;
         Resource event;
         Resource entityCluster;
+        Resource relationCluster;
         Resource eventCluster;
 
         void addType(Resource resource, Resource type) {
@@ -1228,8 +1230,11 @@ public class ExamplesAndValidationTest {
             addType(entity, SeedlingOntology.Person);
             event = AIFUtils.makeEvent(model, getUri("event1"), system);
             addType(event, SeedlingOntology.Conflict_Attack);
+            relation = makeRelation(model, getUri("relation1"), system);
+            addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
             entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, system);
             eventCluster = makeClusterWithPrototype(model, getClusterUri(), event, system);
+            relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation, system);
         }
 
         // Each edge justification must be represented uniformly in AIF by
@@ -1531,6 +1536,22 @@ public class ExamplesAndValidationTest {
                                 "justifications of argument assertions",
                         nistSeedlingValidator, true);
 
+        // Entity, Relation, and Event clusters must have IRI
+        @Nested
+        class ClusterHasIRI {
+            @Test
+            void invalid() {
+                // Test entity, relation, and event. Correct other than being clustered
+                makeClusterWithPrototype(model, null, entity, system);
+                makeClusterWithPrototype(model, null, relation, system);
+                makeClusterWithPrototype(model, null, event, system);
+
+                assertAndDump(model, "NIST.invalid: Cluster has IRI", nistSeedlingValidator, false);
+            }
+
+            @Test
+            void valid() {
+                assertAndDump(model, "NIST.valid: Cluster has IRI", nistSeedlingValidator, true);
             }
         }
     }
