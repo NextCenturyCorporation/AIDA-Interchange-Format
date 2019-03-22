@@ -12,6 +12,7 @@ import edu.isi.nlp.parameters.Parameters
 import edu.isi.nlp.parameters.Parameters.loadSerifStyle
 import edu.isi.nlp.symbols.Symbol
 import mu.KLogging
+import org.apache.jena.enhanced.BuiltinPersonalities.model
 import org.apache.jena.rdf.model.Model
 import org.apache.jena.rdf.model.ModelFactory
 import org.apache.jena.rdf.model.Resource
@@ -43,7 +44,7 @@ class ColdStart2AidaInterchangeConverter(
         val useClustersForCoref: Boolean = false,
         val restrictConfidencesToJustifications: Boolean = false,
         val defaultMentionConfidence: Double? = null,
-        val ontologyMapping: OntologyMapping = ColdStartOntologyMapper()) {
+        val ontologyMapping: OntologyMapping) {
     companion object : KLogging()
 
     /**
@@ -99,13 +100,6 @@ class ColdStart2AidaInterchangeConverter(
                 objectToUri.put(node, rdfNode)
             }
             return objectToUri.getValue(node)
-        }
-
-        // converts a ColdStart ontology type to a corresponding RDF identifier
-        fun toRealisType(realis: Realis) = when (realis) {
-            Realis.actual -> ColdStartOntologyMapper.ACTUAL
-            Realis.generic -> ColdStartOntologyMapper.GENERIC
-            Realis.other -> ColdStartOntologyMapper.OTHER
         }
 
         // below are the functions for translating each individual type of ColdStart assertion
@@ -295,34 +289,6 @@ class ColdStart2AidaInterchangeConverter(
             }
         }
 
-        fun translateSentiment(csAssertion: SentimentAssertion, confidence: Double): Boolean {
-
-
-            fun toSentimentType(sentiment: String) = when (sentiment.toLowerCase()) {
-                "likes" -> ColdStartOntologyMapper.LIKES
-                "dislikes" -> ColdStartOntologyMapper.DISLIKES
-                else -> throw RuntimeException("Unknown sentiment $sentiment")
-            }
-
-            val sentimentHolder = toResource(csAssertion.subject)
-            val thingSentimentIsAbout = toResource(csAssertion.obj)
-
-            val relation = AIFUtils.makeRelation(model, assertionIriGenerator.nextIri(), systemNode)
-            AIFUtils.markType(model, assertionIriGenerator.nextIri(), relation, toSentimentType(csAssertion.sentiment),
-                    systemNode, confidence)
-
-            val subjectRole = ontologyMapping.eventArgumentType(csAssertion.sentiment + "_holder") ?: RDF.subject
-            val subjectArg = AIFUtils.markAsArgument(model, relation, subjectRole, sentimentHolder, systemNode, confidence)
-            registerJustifications(subjectArg, csAssertion.justifications, null,
-                    confidence = confidence)
-
-            val objectRole = ontologyMapping.eventArgumentType(csAssertion.sentiment + "_isAbout") ?: RDF.subject
-            val objectArg = AIFUtils.markAsArgument(model, relation, objectRole, thingSentimentIsAbout, systemNode, confidence)
-            registerJustifications(objectArg, csAssertion.justifications, null,
-                    confidence = confidence)
-            return true
-        }
-
         fun translateEventArgument(csAssertion: EventArgumentAssertion, confidence: Double)
                 : Boolean {
             val event = toResource(csAssertion.subject)
@@ -425,7 +391,6 @@ class ColdStart2AidaInterchangeConverter(
                             objectToCanonicalMentions, objectToType, nameableEntitiesToNames,
                             provenanceToMentionType)
                     is LinkAssertion -> translateLink(assertion, confidence!!)
-                    is SentimentAssertion -> translateSentiment(assertion, confidence!!)
                     is RelationAssertion -> translateRelation(assertion, confidence!!)
                     is EventArgumentAssertion -> translateEventArgument(assertion, confidence!!)
                     else -> false
