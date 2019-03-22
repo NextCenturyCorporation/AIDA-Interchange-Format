@@ -13,7 +13,7 @@ of important values.  Both the Owl and non-Owl ontology should define the same v
 
 ## AidaDomainOntologiesCommon
 
-A collection of top level classes most other ontologies reference as the highest level class.  Additionally, there are
+A collection of top level classes all Domain Ontologies reference.  Additionally, there are
 also a few universal classes that include important properties such as the CanHaveNumericValue class.  This ontology was
 created by individually selecting those class values and not from any other source of data.
 
