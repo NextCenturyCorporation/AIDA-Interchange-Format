@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 
 import static com.ncc.aif.AIFUtils.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -64,6 +65,9 @@ public class ExamplesAndValidationTest {
     private int assertionCount;
     private int entityCount;
     private int clusterCount;
+    private Model model;
+    private Resource system;
+    private ValidateAIF validator;
 
     private static String getUri(String localName) {
         return LDC_NS + localName;
@@ -85,15 +89,34 @@ public class ExamplesAndValidationTest {
         return getUri("testSystem");
     }
 
+    private void addType(Resource resource, Resource type) {
+        markType(model, getAssertionUri(), resource, type, system, 1d);
+    }
+
+    private void testInvalid(String name) {
+        assertAndDump(model, name, validator, false);
+    }
+
+    private void testValid(String name) {
+        assertAndDump(model, name, validator, true);
+    }
+
     @BeforeEach
-    void setUp() {
+    void setup() {
         assertionCount = 1;
         entityCount = 1;
         clusterCount = 1;
+
+        // create Jena model to house AIF graph
+        model = createModel();
+
+        // every AIF needs an object for the system responsible for creating it
+        system = makeSystemWithURI(model, getTestSystemUri());
     }
 
     @Nested
     class ValidExamples {
+        ValidExamples() { validator = seedlingValidator; }
         private final String putinDocumentEntityUri = getUri("E781167.00398");
         private final String putinResidesDocumentRelationUri = getUri("R779959.00000");
         private final String putinElectedDocumentEventUri = getUri("V779961.00010");
@@ -108,11 +131,6 @@ public class ExamplesAndValidationTest {
 
         @Test
         void createSeedlingEntityOfTypePersonWithAllJustificationTypesAndConfidence() {
-            final Model model = createModel();
-
-            // every AIF needs an object for the system responsible for creating it
-            final Resource system = makeSystemWithURI(model, getTestSystemUri());
-
             // it doesn't matter what URI we give entities, events, etc. so long as they are
             // unique
             final Resource putinMentionResource = makeEntity(model, putinDocumentEntityUri, system);
@@ -157,17 +175,11 @@ public class ExamplesAndValidationTest {
             // to nearly anything
             markPrivateData(model, putinMentionResource, "{ 'privateKey' : 'privateValue' }", system);
 
-            assertAndDump(model, "create a seedling entity of type person with textual " +
-                    "justification and confidence", seedlingValidator, true);
+            testValid("create a seedling entity of type person with textual justification and confidence");
         }
 
         @Test
         void createSeedlingEntityWithUncertaintyAboutItsType() {
-            final Model model = createModel();
-
-            // every AIF needs an object for the system responsible for creating it
-            final Resource system = makeSystemWithURI(model, getTestSystemUri());
-
             final Resource entity = makeEntity(model, putinDocumentEntityUri, system);
             final Resource entityIsAPerson = markType(model, getAssertionUri(), entity, SeedlingOntology.Person,
                     system, 0.5);
@@ -183,16 +195,11 @@ public class ExamplesAndValidationTest {
             markAsMutuallyExclusive(model, ImmutableMap.of(ImmutableSet.of(entityIsAPerson), 0.5,
                     ImmutableSet.of(entityIsAPoliticalEntity), 0.2), system, null);
 
-            assertAndDump(model, "create a seedling entity with uncertainty about its type", seedlingValidator, true);
+            testValid("create a seedling entity with uncertainty about its type");
         }
 
         @Test
         void createARelationBetweenTwoSeedlingEntitiesWhereThereIsUncertaintyAboutIdentityOfOneArgument() {
-            final Model model = createModel();
-
-            // every AIF needs an object for the system responsible for creating it
-            final Resource system = makeSystemWithURI(model, getTestSystemUri());
-
             // we want to represent a "city_of_birth" relation for a person, but we aren't sure whether
             // they were born in Louisville or Cambridge
             final Resource personEntity = makeEntity(model, putinDocumentEntityUri, system);
@@ -233,18 +240,12 @@ public class ExamplesAndValidationTest {
                     ImmutableSet.of(placeOfResidenceInRussiaCluster), 0.6),
                     system, null);
 
-            assertAndDump(model, "create a relation between two seedling entities where there "
-                    + "is uncertainty about identity of one argument", seedlingValidator, true);
+            testValid("create a relation between two seedling entities where there "
+                    + "is uncertainty about identity of one argument");
         }
 
         @Test
         void createSeedlingEvent() {
-
-            final Model model = createModel();
-
-            // every AIF needs an object for the system responsible for creating it
-            final Resource system = makeSystemWithURI(model, getTestSystemUri());
-
             // we make a resource for the event itself
             // mark the event as a Personnel.Elect event; type is encoded separately so we can express
             // uncertainty about type
@@ -266,7 +267,7 @@ public class ExamplesAndValidationTest {
                     SeedlingOntology.Personnel_Elect_Place,
                     russia, system, 0.589);
 
-            assertAndDump(model, "create a seedling event", seedlingValidator, true);
+            testValid("create a seedling event");
         }
 
         /**
@@ -274,12 +275,6 @@ public class ExamplesAndValidationTest {
          */
         @Test
         void createSeedlingEventWithEventArgumentURI() {
-
-            final Model model = createModel();
-
-            // every AIF needs an object for the system responsible for creating it
-            final Resource system = makeSystemWithURI(model, getTestSystemUri());
-
             // we make a resource for the event itself
             // mark the event as a Personnel.Elect event; type is encoded separately so we can express
             // uncertainty about type
@@ -299,16 +294,12 @@ public class ExamplesAndValidationTest {
             markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Place,
                     russia, system, 0.589, getUri("eventArgument-2"));
 
-            assertAndDump(model, "create a seedling event with event assertion URI", seedlingValidator, true);
+            testValid("create a seedling event with event assertion URI");
         }
 
         @Test
         void useSubgraphConfidencesToShowMutuallyExclusiveLinkedSeedlingEventArgumentOptions() {
             // we want to say that either Ukraine or Russia attacked MH17, but we aren't sure which
-            final Model model = createModel();
-
-            // every AIF needs an object for the system responsible for creating it
-            final Resource system = makeSystemWithURI(model, getTestSystemUri());
 
             // we make a resource for the event itself
             final Resource event = makeEvent(model, mh17AttackDocumentEventUri, system);
@@ -347,17 +338,11 @@ public class ExamplesAndValidationTest {
             markAsMutuallyExclusive(model, ImmutableMap.of(ukraineAttackedMH17, 0.6,
                     russiaAttackedMH17, 0.2), system, 0.2);
 
-            assertAndDump(model, "seedling sub-graph confidences", seedlingValidator, true);
+            testValid("seedling sub-graph confidences");
         }
 
         @Test
         void twoSeedlingHypotheses() {
-
-            final Model model = createModel();
-
-            // every AIF needs an object for the system responsible for creating it
-            final Resource system = makeSystemWithURI(model, getTestSystemUri());
-
             // we want to represent that we know, regardless of hypothesis, that there is a BUK missile launcher,
             // a plane MH17, two countries (Russia and Ukraine), and the BUK missile launcher was used to attack MH17
             final Resource buk = makeEntity(model, bukDocumentEntityUri, system);
@@ -407,18 +392,12 @@ public class ExamplesAndValidationTest {
             final Resource ukraineShotMH17 = markAsArgument(model, attackOnMH17, isAttacker, russia, system, 1.0);
             markDependsOnHypothesis(ukraineShotMH17, bukIsUkranianHypothesis);
 
-            assertAndDump(model, "two seedling hypotheses", seedlingValidator, true);
+            testValid("two seedling hypotheses");
         }
 
         // Create simple hypothesis that the BUK weapon system was owned by Russia
         @Test
         void simpleHypothesisWithCluster() {
-
-            final Model model = createModel();
-
-            // every AIF needs an object for the system responsible for creating it
-            final Resource system = makeSystemWithURI(model, getTestSystemUri());
-
             // buk document entity
             final Resource buk = makeEntity(model, bukDocumentEntityUri, system);
             final Resource bukIsWeapon = markType(model, getAssertionUri(), buk, SeedlingOntology.Weapon,
@@ -455,18 +434,12 @@ public class ExamplesAndValidationTest {
                             bukIsRussian, bukArgument, russiaArgument
                     ), system);
 
-            assertAndDump(model, "simple hypothesis with cluster", seedlingValidator, true);
+            testValid("simple hypothesis with cluster");
         }
 
         // Create simple hypothesis with an importance value where the BUK weapon system was owned by Russia
         @Test
         void simpleHypothesisWithImportanceWithCluster() {
-
-            final Model model = createModel();
-
-            // every AIF needs an object for the system responsible for creating it
-            final Resource system = makeSystemWithURI(model, getTestSystemUri());
-
             // buk document entity
             final Resource buk = makeEntity(model, bukDocumentEntityUri, system);
             final Resource bukIsWeapon = markType(model, getAssertionUri(), buk, SeedlingOntology.Weapon,
@@ -510,17 +483,11 @@ public class ExamplesAndValidationTest {
 
             markImportance(bukIsRussianHypothesis, 102); //add importance of 102
 
-            assertAndDump(model, "simple hypothesis with importance with cluster",
-                    seedlingValidator, true);
+            testValid("simple hypothesis with importance with cluster");
         }
 
         @Test
         void createSeedlingEntityOfTypePersonWithImageJustificationAndVector() {
-            final Model model = createModel();
-
-            // every AIF needs an object for the system responsible for creating it
-            final Resource system = makeSystemWithURI(model, getTestSystemUri());
-
             // it doesn't matter what URI we give entities, events, etc. so long as they are unique
             final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
 
@@ -551,16 +518,12 @@ public class ExamplesAndValidationTest {
                 jpe.printStackTrace();
             }
 
-            assertAndDump(model, "create a seedling entity of type person with image " +
-                    "justification and vector", seedlingValidator, true);
+            testValid("create a seedling entity of type person with image " +
+                    "justification and vector");
         }
 
         @Test
         void createSeedlingEntityWithAlternateNames() {
-            final Model model = createModel();
-
-            final Resource system = makeSystemWithURI(model, getTestSystemUri());
-
             // assign alternate names to the putin entity
             final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
             markType(model, getAssertionUri(), putin, SeedlingOntology.Person, system, 1.0);
@@ -579,16 +542,11 @@ public class ExamplesAndValidationTest {
             markNumericValueAsString(value, "на висоті менше 16 кілометрів");
             markNumericValueAsString(value, "at a height less than 16 kilometers");
 
-            assertAndDump(model, "create a seedling entity of type person with names", seedlingValidator, true);
+            testValid("create a seedling entity of type person with names");
         }
 
         @Test
         void createCompoundJustification() {
-            final Model model = createModel();
-
-            // every AIF needs an object for the system responsible for creating it
-            final Resource system = makeSystemWithURI(model, getTestSystemUri());
-
             // we make a resource for the event itself
             // mark the event as a Personnel.Elect event; type is encoded separately so we can express
             // uncertainty about type
@@ -650,17 +608,12 @@ public class ExamplesAndValidationTest {
             markCompoundJustification(model, ImmutableSet.of(placeArgument), ImmutableSet.of(textJustification, imageJustification),
                     system, 0.543);
 
-            assertAndDump(model, "create a compound justification", seedlingValidator, true);
+            testValid("create a compound justification");
         }
 
         @Test
         void createHierarchicalCluster() {
             // we want to say that the cluster of Trump entities might be the same as the cluster of the president entities
-            final Model model = createModel();
-
-            // every AIF needs an object for the system responsible for creating it
-            final Resource system = makeSystemWithURI(model, getTestSystemUri());
-
             // create president entities
             final Resource presidentUSA = makeEntity(model, getEntityUri(), system);
             markType(model, getAssertionUri(), presidentUSA, SeedlingOntology.GeopoliticalEntity, system, 1.0);
@@ -695,7 +648,7 @@ public class ExamplesAndValidationTest {
             // mark president cluster as being part of trump cluster
             markAsPossibleClusterMember(model, presidentCluster, trumpCluster, .6, system);
 
-            assertAndDump(model, "seedling hierarchical cluster", seedlingValidator, true);
+            testValid("seedling hierarchical cluster");
         }
 
         /**
@@ -703,11 +656,6 @@ public class ExamplesAndValidationTest {
          */
         @Test
         void createASimpleCluster() {
-            final Model model = createModel();
-
-            // every AIF needs an object for the system responsible for creating it
-            final Resource system = makeSystemWithURI(model, getTestSystemUri());
-
             // Two people, probably the same person
             final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
             markType(model, getAssertionUri(), putin, SeedlingOntology.Person, system, 1.0);
@@ -724,7 +672,7 @@ public class ExamplesAndValidationTest {
             markAsPossibleClusterMember(model, putin, putinCluster, 1d, system);
             markAsPossibleClusterMember(model, vladimirPutin, putinCluster, 0.71, system);
 
-            assertAndDump(model, "create a simple cluster", seedlingValidator, true);
+            testValid("create a simple cluster");
         }
 
         /**
@@ -732,11 +680,6 @@ public class ExamplesAndValidationTest {
          */
         @Test
         void createASimpleClusterWithJustification() {
-            final Model model = createModel();
-
-            // every AIF needs an object for the system responsible for creating it
-            final Resource system = makeSystemWithURI(model, getTestSystemUri());
-
             // Two people, probably the same person
             final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
             markType(model, getAssertionUri(), putin, SeedlingOntology.Person, system, 1.0);
@@ -757,7 +700,7 @@ public class ExamplesAndValidationTest {
             markTextJustification(model, vladMightBePutin, "NYT_ENG_20181231", 42,
                     143, system, 0.973);
 
-            assertAndDump(model, "create a simple cluster with justification", seedlingValidator, true);
+            testValid("create a simple cluster with justification");
         }
 
         /**
@@ -765,11 +708,6 @@ public class ExamplesAndValidationTest {
          */
         @Test
         void createASimpleClusterWithHandle() {
-            final Model model = createModel();
-
-            // every AIF needs an object for the system responsible for creating it
-            final Resource system = makeSystemWithURI(model, getTestSystemUri());
-
             // Two people, probably the same person
             final String vladName = "Vladimir Putin";
             final Resource vladimirPutin = makeEntity(model, getUri("E780885.00311"), system);
@@ -786,7 +724,7 @@ public class ExamplesAndValidationTest {
             // person 1 is definitely in the cluster, person 2 is probably in the cluster
             markAsPossibleClusterMember(model, putin, putinCluster, 0.71, system);
 
-            assertAndDump(model, "create a simple cluster with handle", seedlingValidator, true);
+            testValid("create a simple cluster with handle");
         }
 
         /**
@@ -799,11 +737,6 @@ public class ExamplesAndValidationTest {
          */
         @Test
         void relationWhereBothEndpointsAreAmbiguousNISTRestrictedVersion() {
-            final Model model = createModel();
-
-            // every AIF needs an object for the system responsible for creating it
-            final Resource system = makeSystemWithURI(model, getTestSystemUri());
-
             // let's imagine we have three documents.  We will make TextJustification objects for some entity mentions in
             // them which we will use later (with bogus offsets, because I don't want to bother to count them out).
             // Since NAIF requires entities to be restricted to justifications from a single document, we go ahead and
@@ -934,8 +867,7 @@ public class ExamplesAndValidationTest {
             markTextJustification(model, relation, "doc2", 0, 10, system,
                     0.75);
 
-            assertAndDump(model, "create a relation where both endpoints are ambiguous (NIST way)",
-                    seedlingValidator, true);
+            testValid("create a relation where both endpoints are ambiguous (NIST way)");
         }
 
         /**
@@ -947,11 +879,6 @@ public class ExamplesAndValidationTest {
          */
         @Test
         void relationWhereBothEndpointsAreAmbiguousCrossDocEntitiesVersion() {
-            final Model model = createModel();
-
-            // every AIF needs an object for the system responsible for creating it
-            final Resource system = makeSystemWithURI(model, getTestSystemUri());
-
             // let's imagine we have three documents.  We will make TextJustification objects for some entity mentions in
             // them which we will use later (with bogus offsets, because I don't want to bother to count them out).
 
@@ -1060,8 +987,7 @@ public class ExamplesAndValidationTest {
             markTextJustification(model, relation, "doc2", 0, 10, system,
                     0.75);
 
-            assertAndDump(model, "create a relation where both endpoints are ambiguous (unrestricted way)",
-                    seedlingValidator, true);
+            testValid("create a relation where both endpoints are ambiguous (unrestricted way)");
         }
 
         @Test
@@ -1097,55 +1023,33 @@ public class ExamplesAndValidationTest {
      */
     @Nested
     class InvalidExamples {
+        InvalidExamples() { validator = seedlingValidator; }
         @Test
         void entityMissingType() {
             // having multiple type assertions in case of uncertainty is ok, but there must always
             // be at least one type assertion
-            final Model model = createModel();
-
-            final Resource system = AIFUtils.makeSystemWithURI(model,
-                    "http://www.test.edu/testSystem");
-
-            AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
-                    system);
-            assertAndDump(model, "Invalid: entity with missing type", seedlingValidator, false);
+            AIFUtils.makeEntity(model, "http://www.test.edu/entities/1", system);
+            testInvalid("Invalid: entity with missing type");
         }
 
         @Test
         void eventMissingType() {
             // having multiple type assertions in case of uncertainty is ok, but there must always
             // be at least one type assertion
-            final Model model = createModel();
-
-            final Resource system = AIFUtils.makeSystemWithURI(model,
-                    "http://www.test.edu/testSystem");
-
-            AIFUtils.makeEvent(model, "http://www.test.edu/events/1",
-                    system);
-            assertAndDump(model, "Invalid: event missing type", seedlingValidator, false);
+            AIFUtils.makeEvent(model, "http://www.test.edu/events/1", system);
+            testInvalid("Invalid: event missing type");
         }
 
         @Test
         void nonTypeUsedAsType() {
-            final Model model = createModel();
-
-            final Resource system = AIFUtils.makeSystemWithURI(model,
-                    "http://www.test.edu/testSystem");
-
-            final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1",
-                    system);
-            markType(model, "http://www.test.edu/typeAssertion/1", entity,
-                    // use a blank node as the bogus entity type
-                    model.createResource(), system, 1.0);
-            assertAndDump(model, "Invalid: non-type used as type", seedlingValidator, false);
+            final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/entities/1", system);
+            // use a blank node as the bogus entity type
+            addType(entity, model.createResource());
+            testInvalid("Invalid: non-type used as type");
         }
 
         @Test
         void relationOfUnknownType() {
-            final Model model = createModel();
-
-            final Resource system = AIFUtils.makeSystemWithURI(model, "http://www.test.edu/testSystem");
-
             final Resource personEntity = makeEntity(model, getEntityUri(), system);
             markType(model, getAssertionUri(), personEntity, SeedlingOntology.Person, system, 1.0);
 
@@ -1158,25 +1062,17 @@ public class ExamplesAndValidationTest {
                     SeedlingOntology.Physical_Resident_Place, louisvilleEntity,
                     getAssertionUri(), system, 1.0);
 
-            assertAndDump(model, "Invalid: relation of unknown type", seedlingValidator, false);
+            testInvalid("Invalid: relation of unknown type");
         }
 
         @Test
         void justificationMissingConfidence() {
-            // having multiple type assertions in case of uncertainty is ok, but there must always
-            // be at least one type assertion
-            final Model model = createModel();
-
-            final Resource system = AIFUtils.makeSystemWithURI(model,
-                    "http://www.test.edu/testSystem");
-
             final Resource entity = AIFUtils.makeEntity(model, "http://www.test.edu/events/1",
                     system);
             markType(model, getAssertionUri(), entity, SeedlingOntology.Person, system, 1d);
 
             // below is just the content of AIFUtils.markTextJustification, except without the required
             // confidence
-
             final Resource justification = model.createResource();
             justification.addProperty(RDF.type, AidaAnnotationOntology.TEXT_JUSTIFICATION_CLASS);
             // the document ID for the justifying source document
@@ -1188,22 +1084,17 @@ public class ExamplesAndValidationTest {
             justification.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
             entity.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification);
 
-            assertAndDump(model, "Invalid: justification missing confidence", seedlingValidator, false);
+            testInvalid("Invalid: justification missing confidence");
         }
 
         // this validation constraint is not working yet
         @Disabled
         @Test
         void missingRdfTypeOnNamedNode() {
-            final Model model = createModel();
-
-            final Resource system = AIFUtils.makeSystemWithURI(model,
-                    "http://www.test.edu/testSystem");
-
             // below we copy the code from AIFUtils.makeEntity but forget to mark it as an entity
             final Resource entity = model.createResource("http://www.test.edu/entity/1");
             entity.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
-            assertAndDump(model, "Invalid: missing rdf type", seedlingValidator, false);
+            testInvalid("Invalid: missing rdf type");
         }
     }
 
@@ -1212,197 +1103,25 @@ public class ExamplesAndValidationTest {
      */
     @Nested
     class NISTExamples {
-        Model model;
-        Resource system;
         Resource entity;
         Resource event;
+        Resource relation;
         Resource entityCluster;
         Resource eventCluster;
-
-        void addType(Resource resource, Resource type) {
-            markType(model, getAssertionUri(), resource, type, system, 1d);
-        }
+        Resource relationCluster;
+        NISTExamples() { validator = nistSeedlingValidator; }
 
         @BeforeEach
         void setup() {
-            model = createModel();
-            system = AIFUtils.makeSystemWithURI(model, getTestSystemUri());
             entity = AIFUtils.makeEntity(model, getEntityUri(), system);
             addType(entity, SeedlingOntology.Person);
             event = AIFUtils.makeEvent(model, getUri("event1"), system);
             addType(event, SeedlingOntology.Conflict_Attack);
+            relation = makeRelation(model, getUri("relation1"), system);
+            addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
             entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, system);
             eventCluster = makeClusterWithPrototype(model, getClusterUri(), event, system);
-        }
-
-        // Each edge justification is limited to either one or two spans.
-        @Nested
-        class EdgeJustificationLimit {
-            @Test
-            void invalid() {
-                // test relation
-                final Resource relation = makeRelation(model, getUri("relationX"), system);
-                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
-                makeClusterWithPrototype(model, getClusterUri(), relation, system);
-                final Resource relationEdge = markAsArgument(model, relation,
-                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d, getAssertionUri());
-                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
-                final Resource justification2 = makeTextJustification(model, "source1", 10, 14, system, 1d);
-                final Resource justification3 = makeTextJustification(model, "source1", 20, 24, system, 1d);
-                final Resource compound = markCompoundJustification(model,
-                        ImmutableSet.of(relationEdge),
-                        ImmutableSet.of(justification1, justification2, justification3),
-                        system,
-                        1d);
-                final Resource emptyCompound = markCompoundJustification(model,
-                        ImmutableSet.of(relationEdge),
-                        ImmutableSet.of(),
-                        system,
-                        1d);
-
-                // test event
-                final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity,
-                        system, 1.0, getAssertionUri());
-                markJustification(eventEdge, compound);
-                markJustification(eventEdge, emptyCompound);
-
-                assertAndDump(model, "NIST.invalid: edge justification contains at most two mentions",
-                        nistSeedlingValidator, false);
-            }
-
-            @Test
-            void valid() {
-                // test relation
-                final Resource relation = makeRelation(model, getUri("relationX"), system);
-                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
-                makeClusterWithPrototype(model, getClusterUri(), relation, system);
-                final Resource relationEdge = markAsArgument(model, relation,
-                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
-                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
-                final Resource justification2 = makeTextJustification(model, "source1", 10, 14, system, 1d);
-                final Resource compound = markCompoundJustification(model,
-                        ImmutableSet.of(relationEdge),
-                        ImmutableSet.of(justification1, justification2),
-                        system,
-                        1d);
-
-                // test event
-                final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
-                markJustification(eventEdge, compound);
-
-                assertAndDump(model, "NIST.valid: edge justification contains at most two mentions",
-                        nistSeedlingValidator, true);
-            }
-
-            @Test
-            void validOneSpan() {
-                // test relation
-                final Resource relation = makeRelation(model, getUri("relationX"), system);
-                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
-                makeClusterWithPrototype(model, getClusterUri(), relation, system);
-                final Resource relationEdge = markAsArgument(model, relation,
-                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
-                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
-                final Resource compound = markCompoundJustification(model,
-                        ImmutableSet.of(relationEdge),
-                        ImmutableSet.of(justification1),
-                        system,
-                        1d);
-
-                // test event
-                final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
-                markJustification(eventEdge, compound);
-
-                assertAndDump(model, "NIST.valid: edge justification contains at most two mentions",
-                        nistSeedlingValidator, true);
-            }
-        }
-
-        // Video must use aida:KeyFrameVideoJustification. Remove ShotVideoJustification
-        @Nested
-        class PreventShotVideo {
-            @Test
-            void invalid() {
-                markShotVideoJustification(model, entity, "source1", "shotId", system, 1d);
-                assertAndDump(model, "NIST.invalid: No shot video", nistSeedlingValidator, false);
-            }
-
-            @Test
-            void valid() {
-                markKeyFrameVideoJustification(model, entity, "source1", "keyframe",
-                        new BoundingBox(new Point(0, 0), new Point(100, 100)), system, 1d);
-                assertAndDump(model, "NIST.valid: No shot video", nistSeedlingValidator, true);
-            }
-        }
-
-        // Members of clusters are entity objects, relation objects, and event objects (not clusters)
-        @Nested
-        class FlatClusters {
-            @Test
-            void invalid() {
-                markAsPossibleClusterMember(model, eventCluster, entityCluster, .5, system);
-                assertAndDump(model, "NIST.invalid: Flat clusters", nistSeedlingValidator, false);
-            }
-
-            @Test
-            void valid() {
-                final Resource newEntity = makeEntity(model, getEntityUri(), system);
-                addType(newEntity, SeedlingOntology.Person);
-                markAsPossibleClusterMember(model, newEntity, entityCluster, .75, system);
-                assertAndDump(model, "NIST.valid: Flat clusters", nistSeedlingValidator, true);
-            }
-        }
-
-        // Entity, Relation, and Event object is required to be part of at least one cluster.
-        // This is true even if there is nothing else in the cluster
-        @Nested
-        class EverythingClustered {
-            @Test
-            void invalid() {
-                // Test entity, relation, and event. Correct other than being clustered
-                addType(makeEntity(model, getEntityUri(), system), SeedlingOntology.Weapon);
-                addType(makeRelation(model, getUri("relationX"), system),
-                        SeedlingOntology.GeneralAffiliation_APORA);
-                addType(makeEvent(model, getUri("eventX"), system),
-                        SeedlingOntology.Life_BeBorn);
-                assertAndDump(model, "NIST.invalid: Everything has cluster", nistSeedlingValidator, false);
-            }
-
-            @Test
-            void valid() {
-                final Resource newEntity = makeEntity(model, getEntityUri(), system);
-                addType(newEntity, SeedlingOntology.Weapon);
-                makeClusterWithPrototype(model, getClusterUri(), newEntity, system);
-
-                final Resource relation = makeRelation(model, getUri("relationX"), system);
-                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
-                makeClusterWithPrototype(model, getClusterUri(), relation, system);
-
-                final Resource newEvent = makeEvent(model, getUri("eventX"), system);
-                addType(newEvent, SeedlingOntology.Life_BeBorn);
-                makeClusterWithPrototype(model, getClusterUri(), newEvent, system);
-
-                assertAndDump(model, "NIST.valid: Everything has cluster", nistSeedlingValidator, true);
-            }
-        }
-
-        // Each confidence value must be between 0 and 1
-        @Nested
-        class ConfidenceValueRange {
-            @Test
-            void invalid() {
-                final Resource newEntity = makeEntity(model, getEntityUri(), system);
-                addType(newEntity, SeedlingOntology.Person);
-                markAsPossibleClusterMember(model, newEntity, entityCluster, 1.2, system);
-                assertAndDump(model, "NIST.invalid: confidence must be between 0 and 1", nistSeedlingValidator, false);
-            }
-            @Test
-            void valid() {
-                final Resource newEntity = makeEntity(model, getEntityUri(), system);
-                addType(newEntity, SeedlingOntology.Person);
-                markAsPossibleClusterMember(model, newEntity, entityCluster, .7, system);
-                assertAndDump(model, "NIST.valid: confidence must be between 0 and 1", nistSeedlingValidator, true);
-            }
+            relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation, system);
         }
 
         // Each edge justification must be represented uniformly in AIF by
@@ -1417,9 +1136,6 @@ public class ExamplesAndValidationTest {
             void invalid() {
 
                 // test relation edge argument must have a compound justification
-                final Resource relation = makeRelation(model, getUri("relationX"), system);
-                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
-                makeClusterWithPrototype(model, getClusterUri(), relation, system);
                 final Resource relationEdge = markAsArgument(model, relation,
                         SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d, getAssertionUri());
                 final Resource justification = markTextJustification(model, relationEdge,
@@ -1442,18 +1158,13 @@ public class ExamplesAndValidationTest {
                 markJustification(relation, compound1);
                 markJustification(event, compound1);
 
-                assertAndDump(model, "NIST.invalid: CompoundJustification must be used only for " +
-                                "justifications of argument assertions",
-                        nistSeedlingValidator, false);
+                testInvalid("NIST.invalid: CompoundJustification must be used only for justifications of argument assertions");
 
             }
             @Test
             void valid() {
 
                 // test relation argument
-                final Resource relation = makeRelation(model, getUri("relationX"), system);
-                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
-                makeClusterWithPrototype(model, getClusterUri(), relation, system);
                 final Resource relationEdge = markAsArgument(model, relation,
                         SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
                 final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
@@ -1470,17 +1181,239 @@ public class ExamplesAndValidationTest {
 
                 markJustification(eventEdge, compound);
 
-                assertAndDump(model, "NIST.valid: CompoundJustification must be used only for " +
-                                "justifications of argument assertions",
-                        nistSeedlingValidator, true);
+                testValid("NIST.valid: CompoundJustification must be used only for justifications of argument assertions");
 
+            }
+        }
+
+        // Each edge justification is limited to either one or two spans.
+        @Nested
+        class EdgeJustificationLimit {
+            @Test
+            void invalid() {
+                // test relation
+                final Resource relationEdge = markAsArgument(model, relation,
+                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d, getAssertionUri());
+                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                final Resource justification2 = makeTextJustification(model, "source1", 10, 14, system, 1d);
+                final Resource justification3 = makeTextJustification(model, "source1", 20, 24, system, 1d);
+                final Resource compound = markCompoundJustification(model,
+                        ImmutableSet.of(relationEdge),
+                        ImmutableSet.of(justification1, justification2, justification3),
+                        system,
+                        1d);
+                final Resource emptyCompound = markCompoundJustification(model,
+                        ImmutableSet.of(relationEdge),
+                        ImmutableSet.of(),
+                        system,
+                        1d);
+
+                // test event
+                final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity,
+                        system, 1.0, getAssertionUri());
+                markJustification(eventEdge, compound);
+                markJustification(eventEdge, emptyCompound);
+
+                testInvalid("NIST.invalid: edge justification contains at most two mentions");
+            }
+
+            @Test
+            void valid() {
+                // test relation
+                final Resource relationEdge = markAsArgument(model, relation,
+                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
+                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                final Resource justification2 = makeTextJustification(model, "source1", 10, 14, system, 1d);
+                final Resource compound = markCompoundJustification(model,
+                        ImmutableSet.of(relationEdge),
+                        ImmutableSet.of(justification1, justification2),
+                        system,
+                        1d);
+
+                // test event
+                final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
+                markJustification(eventEdge, compound);
+
+                testValid("NIST.valid: edge justification contains at most two mentions");
+            }
+
+            @Test
+            void validOneSpan() {
+                // test relation
+                final Resource relationEdge = markAsArgument(model, relation,
+                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
+                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                final Resource compound = markCompoundJustification(model,
+                        ImmutableSet.of(relationEdge),
+                        ImmutableSet.of(justification1),
+                        system,
+                        1d);
+
+                // test event
+                final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
+                markJustification(eventEdge, compound);
+
+                testValid("NIST.valid: edge justification contains at most two mentions");
+            }
+        }
+
+        // Video must use aida:KeyFrameVideoJustification. Remove ShotVideoJustification
+        @Nested
+        class PreventShotVideo {
+            @Test
+            void invalid() {
+                markShotVideoJustification(model, entity, "source1", "shotId", system, 1d);
+                testInvalid("NIST.invalid: No shot video");
+            }
+
+            @Test
+            void valid() {
+                markKeyFrameVideoJustification(model, entity, "source1", "keyframe",
+                        new BoundingBox(new Point(0, 0), new Point(100, 100)), system, 1d);
+                testValid("NIST.valid: No shot video");
+            }
+        }
+
+        // Members of clusters are entity objects, relation objects, and event objects (not clusters)
+        @Nested
+        class FlatClusters {
+            @Test
+            void invalid() {
+                markAsPossibleClusterMember(model, eventCluster, entityCluster, .5, system);
+                testInvalid("NIST.invalid: Flat clusters");
+            }
+
+            @Test
+            void valid() {
+                final Resource newEntity = makeEntity(model, getEntityUri(), system);
+                addType(newEntity, SeedlingOntology.Person);
+                markAsPossibleClusterMember(model, newEntity, entityCluster, .75, system);
+                testValid("NIST.valid: Flat clusters");
+            }
+        }
+
+        // Entity, Relation, and Event object is required to be part of at least one cluster.
+        // This is true even if there is nothing else in the cluster
+        @Nested
+        class EverythingClustered {
+            @Test
+            void invalid() {
+                // Test entity, relation, and event. Correct other than being clustered
+                addType(makeEntity(model, getEntityUri(), system), SeedlingOntology.Weapon);
+                addType(makeRelation(model, getUri("relationX"), system),
+                        SeedlingOntology.GeneralAffiliation_APORA);
+                addType(makeEvent(model, getUri("eventX"), system),
+                        SeedlingOntology.Life_BeBorn);
+                testInvalid( "NIST.invalid: Everything has cluster");
+            }
+
+            @Test
+            void valid() {
+                final Resource newEntity = makeEntity(model, getEntityUri(), system);
+                addType(newEntity, SeedlingOntology.Weapon);
+                makeClusterWithPrototype(model, getClusterUri(), newEntity, system);
+
+                final Resource relation = makeRelation(model, getUri("relationX"), system);
+                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
+                makeClusterWithPrototype(model, getClusterUri(), relation, system);
+
+                final Resource newEvent = makeEvent(model, getUri("eventX"), system);
+                addType(newEvent, SeedlingOntology.Life_BeBorn);
+                makeClusterWithPrototype(model, getClusterUri(), newEvent, system);
+
+                testValid("NIST.valid: Everything has cluster");
+            }
+        }
+
+        // Each confidence value must be between 0 and 1
+        @Nested
+        class ConfidenceValueRange {
+            @Test
+            void invalid() {
+                final Resource newEntity = makeEntity(model, getEntityUri(), system);
+                addType(newEntity, SeedlingOntology.Person);
+                markAsPossibleClusterMember(model, newEntity, entityCluster, 1.2, system);
+                testInvalid("NIST.invalid: confidence must be between 0 and 1");
+            }
+            @Test
+            void valid() {
+                final Resource newEntity = makeEntity(model, getEntityUri(), system);
+                addType(newEntity, SeedlingOntology.Person);
+                markAsPossibleClusterMember(model, newEntity, entityCluster, .7, system);
+                testValid("NIST.valid: confidence must be between 0 and 1");
+            }
+        }
+
+        // Entity, Relation, and Event clusters must have IRI
+        @Nested
+        class ClusterHasIRI {
+            @Test
+            void invalid() {
+                // Test entity, relation, and event. Correct other than being clustered
+                makeClusterWithPrototype(model, null, entity, system);
+                makeClusterWithPrototype(model, null, relation, system);
+                makeClusterWithPrototype(model, null, event, system);
+
+                testInvalid("NIST.invalid: Cluster has IRI");
+            }
+
+            @Test
+            void valid() {
+                testValid("NIST.valid: Cluster has IRI");
             }
         }
     }
 
-    // we dump the test name and the model in Turtle format so that whenever the user
-    // runs the tests, they will also get the examples7
+    /**
+     * Set of tests to show that NIST Hypothesis restrictions pass and fail appropriately
+     */
+    @Nested
+    class NISTHypothesisExamples {
+        Resource entity;
+        Resource entityCluster;
+        NISTHypothesisExamples() { validator = nistSeedlingHypothesisValidator; }
+
+        @BeforeEach
+        void setup() {
+            entity = makeEntity(model, getEntityUri(), system);
+            addType(entity, SeedlingOntology.Person);
+            entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, system);
+        }
+
+        // Exactly 1 hypothesis should exist in model
+        @Nested
+        class SingleHypothesis {
+            @Test
+            void invalidTooMany() {
+                makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(entity), system);
+                makeHypothesis(model, getUri("hypothesis-2"), Collections.singleton(entity), system);
+                testInvalid("NISTHypothesis.invalid (too many): there should be exactly 1 hypothesis");
+            }
+
+            @Test
+            void invalidTooFew() {
+                testInvalid("NISTHypothesis.invalid (too few): there should be exactly 1 hypothesis");
+            }
+
+            @Test
+            void valid() {
+                makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(entity), system);
+                testValid("NISTHypothesis.valid: there should be exactly 1 hypothesis");
+            }
+        }
+    }
+
+    /**
+     * This method will validate the model using the provided validator and will dump the model as TURTLE if
+     * either the validation result is unexpected or if the model is valid and FORCE_DUMP is true. Thus, FORCE_DUMP
+     * can be used to write all the valid examples to console.
+     * @param model     {@link Model} containing the triples to be validated
+     * @param testName  {@link String} containing the name of the test
+     * @param validator {@link ValidateAIF} object used to validate {@code model}
+     * @param expected  true if validation is expected to pass, false o/w
+     */
     private void assertAndDump(Model model, String testName, ValidateAIF validator, boolean expected) {
+        // capture System.err. Required as validator automatically writes error reports to System.err
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream oldErr = System.err;
         System.setErr(new PrintStream(baos));
