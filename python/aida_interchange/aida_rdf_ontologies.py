@@ -26,7 +26,7 @@ SEEDLING_TYPES_NIST = ClosedNamespace(
            "Personnel.Elect", "Personnel.EndPosition", "Personnel.Nominate", "Personnel.StartPosition",
            "Transaction.Transaction", "Transaction.TransferControl", "Transaction.TransferMoney",
            "Transaction.TransferOwnership",
-           "GeneralAffiliation_APORA", "GeneralAffiliation_APORA_Affiliate", "GeneralAffiliation_APORA_Affiliation", "GeneralAffiliation.MORE", "GeneralAffiliation.OPRA",
+           "GeneralAffiliation.APORA", "GeneralAffiliation.APORA_Affiliate", "GeneralAffiliation.APORA_Affiliation", "GeneralAffiliation.MORE", "GeneralAffiliation.OPRA",
            "GeneralAffiliation.OrganizationWebsite", "GeneralAffiliation.PersonAge", "GeneralAffiliation.Sponsorship",
            "Measurement.Count",
            "OrganizationAffiliation.EmploymentMembership", "OrganizationAffiliation.Founder",

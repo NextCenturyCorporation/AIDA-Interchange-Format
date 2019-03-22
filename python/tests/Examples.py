@@ -518,9 +518,9 @@ class Examples(unittest.TestCase):
 
         # Russia owns buk relation
         buk_is_russian = aifutils.make_relation(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#R779959.00004", system)
-        aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-4", buk_is_russian, SEEDLING_TYPES_NIST.GeneralAffiliation_APORA, system, 1.0)
-        buk_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST.GeneralAffiliation_APORA_Affiliate, buk, system, 1.0)
-        russia_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST.GeneralAffiliation_APORA_Affiliation, russia, system, 1.0)
+        aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-4", buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA'], system, 1.0)
+        buk_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA_Affiliate'], buk, system, 1.0)
+        russia_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA_Affiliation'], russia, system, 1.0)
 
         # Russia owns buk hypothesis
         buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#hypothesis-1", 
@@ -554,9 +554,9 @@ class Examples(unittest.TestCase):
 
         # Russia owns buk relation
         buk_is_russian = aifutils.make_relation(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#R779959.00004", system)
-        aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-4", buk_is_russian, SEEDLING_TYPES_NIST.GeneralAffiliation_APORA, system, 1.0)
-        buk_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST.GeneralAffiliation_APORA_Affiliate, buk, system, 1.0)
-        russia_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST.GeneralAffiliation_APORA_Affiliation, russia, system, 1.0)
+        aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-4", buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA'], system, 1.0)
+        buk_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA_Affiliate'], buk, system, 1.0)
+        russia_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA_Affiliation'], russia, system, 1.0)
         # add importance to the statements
         aifutils.mark_importance(g, buk_argument, 94)
         aifutils.mark_importance(g, russia_argument, 100)
@@ -566,6 +566,9 @@ class Examples(unittest.TestCase):
                                                             [buk, buk_is_weapon, buk_is_clustered, buk_is_russian, buk_argument, russia_argument], system)
         aifutils.mark_importance(g, buk_is_russian_hypothesis, 120)
 
+        file = open("../uncertaintyAboutIDOfOneArg.ttl", "r+w")
+        file.write(g.serialize(format='turtle'))
+        file.close()
         self.dump_graph(g, "Simple hypothesis with importance with cluster")
 
     def test_read_and_write_turtle(self):
