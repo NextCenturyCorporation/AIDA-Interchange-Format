@@ -44,8 +44,17 @@ class ColdStart2AidaInterchangeConverter(
         val useClustersForCoref: Boolean = false,
         val restrictConfidencesToJustifications: Boolean = false,
         val defaultMentionConfidence: Double? = null,
-        val ontologyMapping: OntologyMapping) {
+        val ontologyMapping: OntologyMapping,
+        // this is not allowed in the real eval and should be done only for debugging
+        val includePrefLabelsOnJustifications: Boolean = false) {
     companion object : KLogging()
+
+    init {
+        if (includePrefLabelsOnJustifications) {
+            logger.warn { "Including prefLabels. This should be done for debugging only and" +
+                    " should be turned off for the evaluation" }
+        }
+    }
 
     /**
      * Concert a ColdStart KB to an RDFLib graph in the proposed AIDA interchange format.
@@ -226,7 +235,7 @@ class ColdStart2AidaInterchangeConverter(
                     markJustification(ImmutableList.of(typeAssertion), justification)
                 }
 
-                if (string != null) {
+                if (includePrefLabelsOnJustifications && string != null) {
                     justification.addProperty(SKOS.prefLabel,
                             model.createTypedLiteral(string))
                 }
@@ -580,7 +589,9 @@ private fun configureConverterFromParams(
             restrictConfidencesToJustifications = restrictConfidencesToJustifications,
             // support TA1s which erroneously leave confidences off some of their mentions
             defaultMentionConfidence = params.getOptionalPositiveDouble(
-                    "defaultMentionConfidence").orNull())
+                    "defaultMentionConfidence").orNull(),
+            includePrefLabelsOnJustifications = params.getOptionalBoolean("includeDebugPrefLabels").orNull() ?: false
+    )
 }
 
 interface ErrorLogger {
