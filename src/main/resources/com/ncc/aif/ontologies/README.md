@@ -15,7 +15,6 @@ of important values.  Both the Owl and non-Owl ontology should define the same v
 
 A collection of top level classes all Domain Ontologies reference.  Additionally, there are
 also a few universal classes that include important properties such as the CanHaveNumericValue class.  This ontology is a hand-written source file and is not generated.
-created by individually selecting those class values and not from any other source of data.
 
 ## EntityOntology
 
