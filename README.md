@@ -177,6 +177,10 @@ The following optional parameters are available in both modes:
 
 There are sample shatter and single KB param files under `sample_params/translate.*`
 
+# Additional Information about Individual Ontolgies
+
+There is another README located at `src/main/resources/com/ncc/aif/ontologies/README.md` that gives a description about each of the ontology files currently available in AIF.
+
 # `maxConfidence`
 
 There is an example program showing how to consume AIF data in `edu.isi.gaia.MaxConfidenceEstimator`.
