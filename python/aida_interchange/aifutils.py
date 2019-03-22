@@ -375,7 +375,7 @@ def mark_importance(g, entity, importance):
     """
     Mark resource as having an importance value
     """
-    g.add((entity, AIDA_ANNOTATION.importance, Literal(importance, datatype=XSD.integer)))
+    g.add((entity, AIDA_ANNOTATION.importance, Literal(importance, datatype=XSD.int)))
 
 
 def mark_depends_on_hypothesis(g, depender, hypothesis):

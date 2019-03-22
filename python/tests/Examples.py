@@ -566,9 +566,6 @@ class Examples(unittest.TestCase):
                                                             [buk, buk_is_weapon, buk_is_clustered, buk_is_russian, buk_argument, russia_argument], system)
         aifutils.mark_importance(g, buk_is_russian_hypothesis, 120)
 
-        file = open("../uncertaintyAboutIDOfOneArg.ttl", "r+w")
-        file.write(g.serialize(format='turtle'))
-        file.close()
         self.dump_graph(g, "Simple hypothesis with importance with cluster")
 
     def test_read_and_write_turtle(self):
