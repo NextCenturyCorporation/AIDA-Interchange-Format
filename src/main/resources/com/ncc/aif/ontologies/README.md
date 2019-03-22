@@ -18,7 +18,7 @@ also a few universal classes that include important properties such as the CanHa
 
 ## EntityOntology
 
-A collection of Entity classes determined by the Ontology working group.  Entity referring to
+A collection of Entity classes determined by the AIDA Ontology Working Group. The term 'Entity' refers to
 a physical being or intangible concept that either interacts or is subject to interaction.  This in combination with Events
 and Relations ontologies contain the vocabulary that will be used for defining messages post-M18 evaluation.
 
