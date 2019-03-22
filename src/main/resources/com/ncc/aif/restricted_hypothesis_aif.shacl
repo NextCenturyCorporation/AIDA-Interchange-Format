@@ -4,8 +4,8 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # restricted_hypothesis_aif.shacl
 #
-# Add-on to restricted_aif.shacl used to enforce NIST-restricted-AIF for hypothesis output.
-# Requires aida_ontology.shacl and restricted_aif.shacl to be loaded
+# Add-on to restricted_aif.shacl used to enforce NIST-restricted-AIF for hypothesis (TA3) output.
+# Requires aida_ontology.shacl and restricted_aif.shacl to be loaded.
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
 #########################

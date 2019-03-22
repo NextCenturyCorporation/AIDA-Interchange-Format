@@ -154,13 +154,13 @@ public final class ValidateAIF {
     // Show usage information.
     private static void showUsage() {
         System.out.println("Usage:\n" +
-                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist | --hypo] [-h | --help] {-f FILE ... | -d DIRNAME}\n" +
+                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-h | --help] {-f FILE ... | -d DIRNAME}\n" +
                 "Options:\n" +
                 "--ldc\t\tValidate against the LDC ontology\n" +
                 "--program\t\tValidate against the program ontology\n" +
                 "--ont FILE ...\tValidate against the OWL-formatted ontolog(ies) at the specified filename(s)\n" +
                 "--nist\t\tValidate against the NIST restrictions\n" +
-                "--hypo\t\tValidate against the NIST hypothesis restrictions (assumes --nist)\n" +
+                "--nist-ta3\t\tValidate against the NIST hypothesis restrictions (implies --nist)\n" +
                 "-h, --help\tShow this help and usage text\n" +
                 "-f FILE ...\tvalidate the specified file(s) with a .ttl suffix\n" +
                 "-d DIRNAME\tValidate all .ttl files in the specified directory\n" +
@@ -209,7 +209,7 @@ public final class ValidateAIF {
                 case "--nist":
                     flags.add(ArgumentFlags.NIST);
                     break;
-                case "--hypo":
+                case "--nist-ta3":
                     flags.add(ArgumentFlags.NIST);
                     flags.add(ArgumentFlags.HYPO);
                     break;
@@ -372,7 +372,7 @@ public final class ValidateAIF {
         if (restriction == Restriction.NIST) {
             logger.info("-> Validating against NIST SHACL.");
         } else if (restriction == Restriction.NIST_HYPOTHESIS) {
-            logger.info("-> Validating against NIST Hypothesis SHACL");
+            logger.info("-> Validating against NIST Hypothesis SHACL.");
         }
         logger.info("*** Beginning validation of " + filesToValidate.size() + " file(s). ***");
 

@@ -41,6 +41,48 @@ aida:RelationArgumentShape
     sh:property aida:EdgeJustificationCompound, aida:EdgeJustificationLimit .
 
 #########################
+# CompoundJustification must be used only for justifications of argument assertions,
+# and not for justifications for entities, events, or relation KEs
+#------------------------
+aida:RestrictCompoundJustificationPropertyShape
+   a sh:PropertyShape ;
+   sh:path aida:justifiedBy ;
+   sh:not [sh:class aida:CompoundJustification] ;
+   sh:message "CompoundJustification must be used only for justifications of argument assertions" .
+
+aida:EventShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:RelationShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:EntityShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:SentimentShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:SharedTypeShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:LinkAssertionShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:ClusterMembershipShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:MutualExclusionConstraintShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+#########################
 # Video must use aida:KeyFrameVideoJustification. Remove ShotVideoJustification
 #------------------------
 # Restrict normal Justification types globally
@@ -59,6 +101,11 @@ aida:CompoundJustificationTypes
         [sh:class aida:ImageJustification]
         [sh:class aida:AudioJustification]
         [sh:class aida:KeyFrameVideoJustification] ) .
+
+#########################
+# 4.3 #2 Each cluster must have an IRI
+#------------------------
+aida:ClusterShape sh:nodeKind sh:IRI .
 
 #########################
 # Members of clusters are entity objects, relation objects, and event objects (not clusters)
