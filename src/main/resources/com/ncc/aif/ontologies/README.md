@@ -1,7 +1,7 @@
 # AIDA Ontologies
 
 The following is a listing of the ontologies found at AIDA-Interchange-Format/src/main/resources/com/ncc/aif/ontologies.
-Each ontology will contain a short description of what they are built from, what they are used for,
+Each section in this README contains a short description of what they are built from, what they are used for,
 and any other points of relevant information that might be of some use to individuals using these files.
 
 ## Differences Between *Ontology and *OwlOntology Files
@@ -42,7 +42,7 @@ Ontology files will remain for performers to use.
 
 # Program-Wide Ontology Files
 
-The Entities, Events, and Relations ontologies contain the vocabulary that will be used for definning messages post-M18 evaluation.
+The Entities, Events, and Relations ontologies contain the vocabulary that will be used for defining messages post-M18 evaluation.
 
 ## EntityOntology
 
@@ -58,5 +58,5 @@ treaty, and the moving of people from one place to another.
 ## RelationOntology
 
 A collection of Relation Type classes determined by the AIDA Ontology Working Group. The term 'Relation' refers to
-A connection between two or more Entities. This includes such things as the material used to create
+a connection between two or more Entities. This includes such things as the material used to create
 a weapon, the nationality of an individual and the title an employee holds.
