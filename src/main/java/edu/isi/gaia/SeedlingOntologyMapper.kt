@@ -1,6 +1,5 @@
 package edu.isi.gaia
 
-import org.apache.commons.csv.CSVFormat
 import org.apache.jena.rdf.model.Model
 import org.apache.jena.rdf.model.ModelFactory
 import org.apache.jena.rdf.model.Resource
@@ -9,63 +8,64 @@ import org.apache.jena.vocabulary.OWL
 import org.apache.jena.vocabulary.RDF
 import org.apache.jena.vocabulary.RDFS
 import java.io.File
-import java.util.*
 
-class PassThroughOntologyMapper(private val model: Model,
-                                override val NAMESPACE: String,
-                                private val relationsToArguments: Map<Resource, Pair<Resource, Resource>>) : OntologyMapping {
+class M18OntologyMapping(private val entityModel: Model,
+                         private val eventModel: Model,
+                         private val relationModel: Model,
+                         private val prefixes: Map<Resource, String>) : OntologyMapping {
     companion object {
-        fun fromFile(ontologyFile: File, relationArgFile: File): PassThroughOntologyMapper {
-            val model = ModelFactory.createDefaultModel()
-            model.read(ontologyFile.absolutePath, "TURTLE")
-            val ontologyObject = model.subjectsWithProperty(RDF.type, OWL.Ontology).first()
+        fun fromOntologyFiles(entityOntologyFile: File, eventOntologyFile: File,
+                     relationOntologyFile: File): M18OntologyMapping {
+            val ontologyNameToModel = mapOf("entityOnt" to entityOntologyFile,
+                    "eventOnt" to eventOntologyFile,
+                    "relationOnt" to relationOntologyFile)
+                    .mapValues {
+                        val model = ModelFactory.createDefaultModel()
+                        model.read(it.value.absolutePath, "TURTLE")
+                        model
+                    }
 
-            val relationsToArgumentAssertion = relationArgFile.bufferedReader().use {
-                val records = CSVFormat.EXCEL.withHeader("Relation Name", "Arg1", "Arg2")
-                        .parse(it)
-                records.asSequence().map {
-                    ResourceFactory.createResource(it.get("Relation Name")!!) to
-                            Pair(ResourceFactory.createResource(it.get("Arg1")!!),
-                                    ResourceFactory.createResource(it.get("Arg2")!!))
-                }.toMap()
-            }
+            val prefixToIri = ontologyNameToModel.mapValues {
+                it.value.subjectsWithProperty(RDF.type, OWL.Ontology).first()
+            }.entries.associate { (k, v) -> v to k }
 
-            return PassThroughOntologyMapper(model, ontologyObject.uri, relationsToArgumentAssertion)
+            return M18OntologyMapping(ontologyNameToModel.getValue("entityOny"),
+                    ontologyNameToModel.getValue("eventOnt"),
+                    ontologyNameToModel.getValue("relationOnt"),
+                    prefixToIri)
         }
     }
 
-    override fun entityShortNames() = setOf<String>()
+    override fun prefixes() = prefixes
 
-    override fun entityType(ontology_type: String) = resourceInOntology(ontology_type)
+    override fun entityType(ontology_type: String) = resourceInOntology(entityModel, ontology_type)
 
-    override fun relationType(relationName: String) = resourceInOntology(relationName)
+    override fun relationType(relationName: String) = resourceInOntology(relationModel, relationName)
 
-    override fun eventType(eventName: String) = resourceInOntology(eventName)
+    override fun eventType(eventName: String) = resourceInOntology(eventModel, eventName)
 
-    override fun eventArgumentType(argName: String) = resourceInOntology(argName)
+    override fun eventArgumentType(argName: String) = resourceInOntology(eventModel, argName)
+
+    override fun relationArgumentType(relationArgumentName: String) = resourceInOntology(
+            relationModel, relationArgumentName)
 
     override fun typeAllowedToHaveAName(type: Resource) =
-            model.contains(type, RDFS.subClassOf, AidaDomainOntologiesCommon.CanHaveName)
+            entityModel.contains(type, RDFS.subClassOf, AidaDomainOntologiesCommon.CanHaveName)
 
 
     override fun typeAllowedToHaveTextValue(type: Resource) =
-            model.contains(type, RDFS.subClassOf, AidaDomainOntologiesCommon.CanHaveTextValue)
+            entityModel.contains(type, RDFS.subClassOf, AidaDomainOntologiesCommon.CanHaveTextValue)
 
     override fun typeAllowedToHaveNumericValue(type: Resource) =
-            model.contains(type, RDFS.subClassOf, AidaDomainOntologiesCommon.CanHaveNumericValue)
+            entityModel.contains(type, RDFS.subClassOf, AidaDomainOntologiesCommon.CanHaveNumericValue)
 
-    private fun resourceInOntology(uri: String): Resource? {
+    private fun resourceInOntology(model: Model, uri: String): Resource? {
         val ret = ResourceFactory.createResource(uri)!!
         return if (model.containsResource(ret)) {
             ret
         } else {
             null
         }
-    }
-
-    override fun relationArgumentTypes(relation: Resource): Pair<Resource, Resource> {
-        return relationsToArguments[relation]
-                ?: throw RuntimeException("Arguments not known for relation ${relation.uri}")
     }
 }
 

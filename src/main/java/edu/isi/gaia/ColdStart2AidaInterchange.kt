@@ -159,7 +159,7 @@ class ColdStart2AidaInterchangeConverter(
                     // we deliberately don't translate for things which can have names because
                     // the canonical string is not necessarily a name (e.g. if a name for the entity
                     // is never mentioned in a document. Instead, we gather the names from
-                    // ColdStart "mention" mentions (which are in fact namem mentions) below
+                    // ColdStart "mention" mentions (which are in fact name mentions) below
                     ontologyMapping.typeAllowedToHaveTextValue(entityType) -> AidaAnnotationOntology.TEXT_VALUE_PROPERTY
                     ontologyMapping.typeAllowedToHaveNumericValue(entityType) -> AidaAnnotationOntology.NUMERIC_VALUE_PROPERTY
                     else -> null
@@ -185,16 +185,6 @@ class ColdStart2AidaInterchangeConverter(
                 }
             }
             AIFUtils.markSystem(entityResource, systemNode)
-
-            // for the moment, we don't do anything with realis because it is unclear how it
-            // fits into AIDA
-//            if (cs_assertion is EventMentionAssertion) {
-//                val realisNode = model.createResource()
-//                entityResource.addProperty(AidaAnnotationOntology.REALIS, realisNode)
-//                realisNode.addProperty(AidaAnnotationOntology.REALIS_VALUE,
-//                        toRealisType(cs_assertion.realis))
-//                associate_with_system(realisNode)
-//            }
 
             // it is possible that we have seen the same span of text assigned multiple
             // mention types (in particular, for all canonical mentions, there will be another
@@ -408,7 +398,10 @@ class ColdStart2AidaInterchangeConverter(
 
             // make Turtle output prettier by setting some namespace prefixes
             AIFUtils.addStandardNamespaces(model)
-            model.setNsPrefix("domainOntology", ontologyMapping.NAMESPACE)
+
+            ontologyMapping.prefixes().forEach { ontologyIri, prefix ->
+                model.setNsPrefix(prefix, ontologyIri.uri)
+            }
         }
     }
 }
@@ -448,10 +441,10 @@ fun main(args: Array<String>) {
     // don't log too much Jena-internal stuff
     (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.INFO
 
-    val ontologyFile = params.getExistingFile("ontology")
-    val relationArgsFile = params.getExistingFile("relationArgsFile")
-    val ontologyMapping = PassThroughOntologyMapper.fromFile(ontologyFile,
-            relationArgsFile)
+    val ontologyMapping = M18OntologyMapping.fromOntologyFiles(
+            entityOntologyFile = params.getExistingFile("entityOntology"),
+            eventOntologyFile = params.getExistingFile("eventOntology"),
+            relationOntologyFile = params.getExistingFile("relationOntology"))
 
     // this will track which assertions could not be converted. This is useful for debugging.
     // we pull this out into its own object instead of doing it inside the conversion method
