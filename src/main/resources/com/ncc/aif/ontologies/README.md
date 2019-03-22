@@ -1,4 +1,4 @@
-# AIF Ontologies
+# AIDA Ontologies
 
 The following is a listing of the ontologies found at AIDA-Interchange-Format/src/main/resources/com/ncc/aif/ontologies.
 Each ontology will contain a short description of what they are built from, what they are used for,
