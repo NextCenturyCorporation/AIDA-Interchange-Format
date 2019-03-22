@@ -73,12 +73,13 @@ validate N files or all files in a specified directory.
 To run the validator from the command line, run `target/appassembler/bin/validateAIF`
 with a series of command-line arguments (in any order) honoring the following usage:  <br>
 Usage:  <br>
-`validateAIF { --ldc | --program | --ont FILE ...} [--nist] [-h | --help] {-f FILE ... | -d DIRNAME}`  <br>
+`validateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-h | --help] {-f FILE ... | -d DIRNAME}`  <br>
 Options:  <br>
 `--ldc` validate against the LDC ontology  <br>
 `--program` validate against the program ontology  <br>
 `--ont FILE ...` validate against the OWL-formatted ontolog(ies) at the specified filename(s)  <br>
 `--nist` validate against the NIST restrictions  <br>
+`--nist-ta3` validate against the NIST hypothesis restrictions (implies --nist) <br>
 `-h, --help` This help and usage text  <br>
 `-f FILE ...` validate the specified file(s) with a .ttl suffix  <br>
 `-d DIRNAME` validate all .ttl files in the specified directory  <br>
