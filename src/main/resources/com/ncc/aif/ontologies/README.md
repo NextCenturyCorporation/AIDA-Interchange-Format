@@ -8,7 +8,7 @@ and any other points of relevent information that might be of some use to indivi
 
 Some ontologies have a corresponding file with a similar name such as SeedlingOntology and SeedlingOwlOntology. In these
 cases, the OWL ontology signifies that the rdf file is compatible with strict OWL, in particular using the correct OWL syntax
-for more complex properties of classes such as RangeIncludes. The non-Owl ontology uses a simpler structure for easier extraction
+in lieu of non-OWL properties like schema:rangeIncludes. The non-OWL ontology is not restricted and can make use of third-party properties to simplify definitions.
 of important values.  Both the Owl and non-Owl ontology should define the same vocabulary.
 
 ## AidaDomainOntologiesCommon
