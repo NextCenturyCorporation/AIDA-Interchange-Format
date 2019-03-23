@@ -114,7 +114,10 @@ public class ExamplesAndValidationTest {
 
     @Nested
     class ValidExamples {
-        ValidExamples() { validator = seedlingValidator; }
+        ValidExamples() {
+            validator = seedlingValidator;
+        }
+
         private final String putinDocumentEntityUri = getUri("E781167.00398");
         private final String putinResidesDocumentRelationUri = getUri("R779959.00000");
         private final String putinElectedDocumentEventUri = getUri("V779961.00010");
@@ -1021,7 +1024,10 @@ public class ExamplesAndValidationTest {
      */
     @Nested
     class InvalidExamples {
-        InvalidExamples() { validator = seedlingValidator; }
+        InvalidExamples() {
+            validator = seedlingValidator;
+        }
+
         @Test
         void entityMissingType() {
             // having multiple type assertions in case of uncertainty is ok, but there must always
@@ -1109,7 +1115,9 @@ public class ExamplesAndValidationTest {
         Resource relationCluster;
         Resource typeAssertionJustification; // For use when tests create their own entities, events, and relations
 
-        NISTExamples() { validator = nistSeedlingValidator; }
+        NISTExamples() {
+            validator = nistSeedlingValidator;
+        }
 
         @BeforeEach
         void setup() {
@@ -1314,7 +1322,7 @@ public class ExamplesAndValidationTest {
                 final Resource newEvent = makeEvent(model, getUri("eventX"), system);
                 markJustification(addType(newEvent, SeedlingOntology.Life_BeBorn), typeAssertionJustification);
 
-                testInvalid( "NIST.invalid: Everything has cluster");
+                testInvalid("NIST.invalid: Everything has cluster");
             }
 
             @Test
@@ -1336,6 +1344,7 @@ public class ExamplesAndValidationTest {
                 markAsPossibleClusterMember(model, newEntity, entityCluster, 1.2, system);
                 testInvalid("NIST.invalid: confidence must be between 0 and 1");
             }
+
             @Test
             void valid() {
                 final Resource newEntity = makeEntity(model, getEntityUri(), system);
@@ -1408,7 +1417,10 @@ public class ExamplesAndValidationTest {
     class NISTHypothesisExamples {
         Resource entity;
         Resource entityCluster;
-        NISTHypothesisExamples() { validator = nistSeedlingHypothesisValidator; }
+
+        NISTHypothesisExamples() {
+            validator = nistSeedlingHypothesisValidator;
+        }
 
         @BeforeEach
         void setup() {
@@ -1446,6 +1458,7 @@ public class ExamplesAndValidationTest {
      * This method will validate the model using the provided validator and will dump the model as TURTLE if
      * either the validation result is unexpected or if the model is valid and FORCE_DUMP is true. Thus, FORCE_DUMP
      * can be used to write all the valid examples to console.
+     *
      * @param model     {@link Model} containing the triples to be validated
      * @param testName  {@link String} containing the name of the test
      * @param validator {@link ValidateAIF} object used to validate {@code model}
