@@ -494,6 +494,79 @@ class Examples(unittest.TestCase):
 
         self.dump_graph(g, "Seedling hierarchical cluster")
 
+    def test_simple_hypothesis_with_cluster(self):
+        g = aifutils.make_graph()
+        g.bind('ldcOnt', SEEDLING_TYPES_NIST.uri)
+
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, 'http://www.test.edu/testSystem')
+        # buk document entity
+        buk = aifutils.make_entity(g, "E779954.00005", system)
+        buk_is_weapon = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-1", buk, SEEDLING_TYPES_NIST.Weapon, system, 1.0)
+
+        # buk cross-document-entity
+        buk_kb_entity = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#E0084", system)
+        buk_kb_is_weapon = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-2", buk_kb_entity, SEEDLING_TYPES_NIST.Weapon, system, 1.0)
+
+        # russia document entity
+        russia = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#E779954.00004", system)
+        russia_is_gpe = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-3", russia, SEEDLING_TYPES_NIST.GeopoliticalEntity, system, 1.0)
+
+        # cluster buk
+        buk_cluster = aifutils.make_cluster_with_prototype(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#cluster-1", buk_kb_entity, system)
+        buk_is_clustered = aifutils.mark_as_possible_cluster_member(g, buk, buk_cluster, .9, system)
+
+        # Russia owns buk relation
+        buk_is_russian = aifutils.make_relation(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#R779959.00004", system)
+        aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-4", buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA'], system, 1.0)
+        buk_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA_Affiliate'], buk, system, 1.0)
+        russia_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA_Affiliation'], russia, system, 1.0)
+
+        # Russia owns buk hypothesis
+        buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#hypothesis-1", 
+                                                            [buk, buk_is_weapon, buk_is_clustered, buk_is_russian, buk_argument, russia_argument], system)
+
+        self.dump_graph(g, "Simple hypothesis with cluster")
+
+    def test_simple_hypothesis_with_importance_with_cluster(self):
+        g = aifutils.make_graph()
+        g.bind('ldcOnt', SEEDLING_TYPES_NIST.uri)
+
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, 'http://www.test.edu/testSystem')
+        # buk document entity
+        buk = aifutils.make_entity(g, "E779954.00005", system)
+        buk_is_weapon = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-1", buk, SEEDLING_TYPES_NIST.Weapon, system, 1.0)
+
+        # buk cross-document-entity
+        buk_kb_entity = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#E0084", system)
+        buk_kb_is_weapon = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-2", buk_kb_entity, SEEDLING_TYPES_NIST.Weapon, system, 1.0)
+
+        # russia document entity
+        russia = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#E779954.00004", system)
+        russia_is_gpe = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-3", russia, SEEDLING_TYPES_NIST.GeopoliticalEntity, system, 1.0)
+
+        # cluster buk
+        buk_cluster = aifutils.make_cluster_with_prototype(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#cluster-1", buk_kb_entity, system)
+        buk_is_clustered = aifutils.mark_as_possible_cluster_member(g, buk, buk_cluster, .9, system)
+        # add importance to the cluster
+        aifutils.mark_importance(g, buk_cluster, 70)
+
+        # Russia owns buk relation
+        buk_is_russian = aifutils.make_relation(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#R779959.00004", system)
+        aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-4", buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA'], system, 1.0)
+        buk_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA_Affiliate'], buk, system, 1.0)
+        russia_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA_Affiliation'], russia, system, 1.0)
+        # add importance to the statements
+        aifutils.mark_importance(g, buk_argument, 94)
+        aifutils.mark_importance(g, russia_argument, 100)
+
+        # Russia owns buk hypothesis
+        buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#hypothesis-1", 
+                                                            [buk, buk_is_weapon, buk_is_clustered, buk_is_russian, buk_argument, russia_argument], system)
+        aifutils.mark_importance(g, buk_is_russian_hypothesis, 120)
+
+        self.dump_graph(g, "Simple hypothesis with importance with cluster")
 
     def test_read_and_write_turtle(self):
         print("test read and write turtle")

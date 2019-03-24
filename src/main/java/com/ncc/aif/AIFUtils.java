@@ -945,13 +945,13 @@ public class AIFUtils {
     }
 
     /**
-     *  Mark [entity] as having the specified [importance] value.
+     *  Mark [resource] as having the specified [importance] value.
      *
-     * @param entity     The Resource to mark with the specified importance
+     * @param resource     The Resource to mark with the specified importance
      * @param importance The importance value with which to mark the specified Resource
      */
-    public static void markImportance(Resource entity, Integer importance) {
-        entity.addLiteral(AidaAnnotationOntology.IMPORTANCE_PROPERTY, importance);
+    public static void markImportance(Resource resource, Integer importance) {
+        resource.addLiteral(AidaAnnotationOntology.IMPORTANCE_PROPERTY, importance);
     }
 
     /**
