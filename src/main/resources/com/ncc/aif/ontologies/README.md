@@ -7,55 +7,57 @@ and any other points of relevant information that might be of some use to indivi
 ## Differences Between *Ontology and *OwlOntology Files
 
 Some ontologies have a corresponding file with a similar name such as SeedlingOntology and SeedlingOwlOntology. In these
-cases, the *OwlOntology files signifies that the rdf file is compatible with strict OWL, in particular using the correct syntax
-in lieu of *Ontology file properties like schema:rangeIncludes. The *Ontology files are not restricted and can make use of third-party properties to simplify definitions.
+cases, the *OwlOntology file uses strict OWL and won't include third-party properties/classes
+like schema:rangeIncludes. The *Ontology files are not restricted and make use of third-party properties/classes to simplify definitions.
 Both the *OwlOntology and *Ontology files define the same vocabulary.
 
-# Common Ontology Files
+# AIF Ontology Files
 
-## AidaDomainOntologiesCommon
+### AidaDomainOntologiesCommon
 
 A collection of top level classes all Domain Ontologies reference.  Additionally, there are
 also a few universal classes that include important properties such as the CanHaveNumericValue class.  This ontology is
 a hand-written source file and is not generated.
 
-## InterchangeOntology
+### InterchangeOntology
 
 This ontology contains the Interchange vocabulary and is written in strict OWL. In particular, it contains
 the OWL definitions for domain and range which describe how each property interacts with defined classes.
 
-# LDC Ontology Files
+# Domain Ontologies
+
+## LDC Ontology Files
 
 This Domain Ontology was provided by LDC as an evolution of the SeedlingOntology and SeedlingOwlOntology and will be used for the M18 evaluation.
 
 - LDCOntology
 - LDCOwlOntology
 
-# Seedling Ontology Files
+## Seedling Ontology Files
 
-This Domain Ontology created from the first cut of data from LDC and was primarily used by performers during the M9 evaluation.
+This Domain Ontology was created from the first cut of data from LDC and was primarily used by performers during the M9 evaluation.
 Ideally, this will become a legacy ontology replaced by LDCOntology and LDCOwlOntology, but until we completely remove data from pre-M9, these
 Ontology files will remain for performers to use.
 
 - SeedlingOntology
 - SeedlingOwlOntology
 
-# Program-Wide Ontology Files
+## Program-Wide Ontology Files
 
 The Entities, Events, and Relations ontologies contain the vocabulary that will be used for defining messages post-M18 evaluation.
 
-## EntityOntology
+### EntityOntology
 
 A collection of Entity classes determined by the AIDA Ontology Working Group. The term 'Entity' refers to
 a physical being or intangible concept that either interacts or is subject to interaction.
 
-## EventOntology
+### EventOntology
 
 A collection of Event classes determined by the AIDA Ontology Working Group. The term 'Event' refers to
 something that occurs when two or more Entities interact in some way.  Some examples being building weaponry, signing a
 treaty, and the moving of people from one place to another.
 
-## RelationOntology
+### RelationOntology
 
 A collection of Relation Type classes determined by the AIDA Ontology Working Group. The term 'Relation' refers to
 a connection between two or more Entities. This includes such things as the material used to create
