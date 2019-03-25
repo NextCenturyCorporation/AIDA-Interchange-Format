@@ -1322,7 +1322,7 @@ public class ExamplesAndValidationTest {
 
             @Test
             void valid() {
-                // setup() already already creates an entity, event, and relation
+                // setup() already creates an entity, event, and relation
                 // object, and adds them to a cluster.
 
                 testValid("NIST.valid: Everything has cluster");
@@ -1394,7 +1394,7 @@ public class ExamplesAndValidationTest {
 
             @Test
             void valid() {
-                // setup() already already makes type assertions on the entity, event,
+                // setup() already makes type assertions on the entity, event,
                 // and relation objects, justified by a text justification.
 
                 // Note that if you use makeRelationInEventForm, you will need to use the Jena API to obtain
