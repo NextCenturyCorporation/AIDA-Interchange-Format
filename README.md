@@ -177,7 +177,7 @@ The following optional parameters are available in both modes:
 
 There are sample shatter and single KB param files under `sample_params/translate.*`
 
-# Additional Information about Individual Ontolgies
+# Additional Information about Individual Ontologies
 
 There is another README located at `src/main/resources/com/ncc/aif/ontologies/README.md` that gives a description about each of the ontology files currently available in AIF.
 
