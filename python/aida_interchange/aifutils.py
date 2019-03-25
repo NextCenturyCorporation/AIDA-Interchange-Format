@@ -318,6 +318,12 @@ def mark_compound_justification(g, things_to_justify, justifications, system, co
     return compound_justification
 
 
+def add_source_document_to_justification(g, justification, source_document) :
+    g.add((justification, AIDA_ANNOTATION.sourceDocument, 
+            Literal(source_document, datatype=XSD.string)))
+    return justification
+
+
 def make_cluster_with_prototype(g, cluster_uri, prototype, system):
     """
     Create a "same-as" cluster.
