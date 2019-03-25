@@ -1158,16 +1158,12 @@ public class ExamplesAndValidationTest {
                         entity, system, 1.0, getAssertionUri());
                 markJustification(eventEdge, justification);
 
-                // The text justification above doesn't count as a valid edge justification,
-                // so add a compound justification to the edges
                 final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
                 final Resource compound1 = markCompoundJustification(model,
                         ImmutableSet.of(entity, relation, event),
                         ImmutableSet.of(justification1),
                         system,
                         1d);
-                markJustification(eventEdge, compound1);
-                markJustification(relationEdge, compound1);
 
                 // test that compound justification can only be used for argument assertions
                 markJustification(entity, compound1);
@@ -1199,7 +1195,6 @@ public class ExamplesAndValidationTest {
 
                 testValid("NIST.valid: CompoundJustification must be used only for justifications of argument assertions");
             }
-
         }
 
         // Each edge justification is limited to either one or two spans.
@@ -1502,7 +1497,6 @@ public class ExamplesAndValidationTest {
         }
         return outputPath;
     }
-
 
     private Model readModelFromDisk(Path filename) {
         try {

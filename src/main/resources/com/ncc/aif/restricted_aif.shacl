@@ -9,15 +9,17 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
 #########################
-# Each edge justification is limited to two or fewer spans
+# Each edge justification is limited to one or two spans
 #------------------------
-# Can have a maximum of 2 justifiedBy/containedJustification properties
-aida:EdgeJustificationLimit
-    a sh:PropertyShape ;
-    sh:path ( aida:justifiedBy aida:containedJustification ) ;
-    sh:minCount 1 ;
-    sh:maxCount 2 ;
-    sh:message "Exactly 1 or 2 contained justifications required for an edge" .
+# Can have 1 or 2 containedJustification properties
+aida:CompoundJustificationShape
+    sh:property [
+        a sh:PropertyShape ;
+        sh:path aida:containedJustification ;
+        sh:minCount 1 ;
+        sh:maxCount 2 ;
+        sh:message "Exactly 1 or 2 contained justifications required for an edge"
+    ] .
 
 # Turn off CompoundJustificationMinimum globally
 aida:CompoundJustificationMinimum sh:deactivated true .
@@ -36,9 +38,9 @@ aida:EdgeJustificationCompound
 
 # Enforce edge justification restriction on event and relation arguments
 aida:EventArgumentShape
-    sh:property aida:EdgeJustificationCompound, aida:EdgeJustificationLimit .
+    sh:property aida:EdgeJustificationCompound .
 aida:RelationArgumentShape
-    sh:property aida:EdgeJustificationCompound, aida:EdgeJustificationLimit .
+    sh:property aida:EdgeJustificationCompound .
 
 #########################
 # CompoundJustification must be used only for justifications of argument assertions,
