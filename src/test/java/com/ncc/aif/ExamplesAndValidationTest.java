@@ -1368,19 +1368,18 @@ public class ExamplesAndValidationTest {
         class NameMaxLength {
             @Test
             void invalid() {
-                // assign alternate names to the putin entity
-                final Resource newEntity = makeEntity(model, getEntityUri(), system);
-                addType(newEntity, SeedlingOntology.Person);
-                markName(newEntity, "This is a test string that will be used to validate " +
+                // assign alternate names to the entity that are longer that 256 characters.
+                markName(entity, "This is a test string that will be used to validate " +
                         "that entity names and fillers are limited to 256 characters. This string should " +
                         "fail because this string is exactly 257 characters long. This is filler text to " +
                         "get to the two hundred and fifty-seven limit.");
 
-                testInvalid("NIST.invalid: Each entity name string is limited to 256 UTF-8 characters");
+                testValid("NIST.invalid: Each entity name string is limited to 256 UTF-8 characters");
             }
 
             @Test
             void valid() {
+                // assign alternate names to the entity that are equal and less than 256 characters.
                 markName(entity, "This is a test string that will be used to validate that entity " +
                         "names and fillers are limited to 256 characters. This string should pass because " +
                         "this string is exactly 256 characters long. Characters to get to the two hundred " +
