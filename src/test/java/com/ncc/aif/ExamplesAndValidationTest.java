@@ -1374,7 +1374,7 @@ public class ExamplesAndValidationTest {
                         "fail because this string is exactly 257 characters long. This is filler text to " +
                         "get to the two hundred and fifty-seven limit.");
 
-                testValid("NIST.invalid: Each entity name string is limited to 256 UTF-8 characters");
+                testInvalid("NIST.invalid: Each entity name string is limited to 256 UTF-8 characters");
             }
 
             @Test
