@@ -1,5 +1,7 @@
 ######################################################
-# Created by com.ncc.verdi.ldc.LDCOntologyPostPilot on 2019-03-08T01:18:26.005Z
+# Created by com.ncc.verdi.ldc.LDCOntologyPostPilot on 2019-03-22T14:00:30.701Z
+# For more information about this file, refer to: 
+# https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/tree/master/src/main/resources/com/ncc/aif/ontologies/README.md
 ######################################################
 @prefix schema: <http://schema.org/> .
 @prefix ldcOnt: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/LDCOntology#> .

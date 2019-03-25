@@ -207,3 +207,9 @@ aida:RequiredJustificationPropertyShape
    sh:propertyShape aida:JustificationPropertyShape ;
    sh:minCount 1 ;
    sh:message "Type assertions must have at least one justification" .
+
+#########################
+# Each entity/filler name string is limited to 256 UTF-8 characters
+#------------------------
+aida:NamePropertyShape
+  sh:maxLength 256;
