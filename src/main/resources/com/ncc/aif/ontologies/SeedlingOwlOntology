@@ -1,7 +1,6 @@
 ######################################################
-# Created by LDCOntology.java on 2018-09-13T13:56:11.844Z
+# Created by com.ncc.verdi.ldc.LDCOntology on 2019-03-21T14:01:49.123Z
 ######################################################
-@prefix schema: <http://schema.org/> .
 @prefix ldcOnt: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#> .
 @prefix olia:  <http://purl.org/olia/system.owl#> .
 @prefix aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#> .
