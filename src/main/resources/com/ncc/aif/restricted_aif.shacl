@@ -191,3 +191,4 @@ aida:ConfidenceValueRange
 #------------------------
 aida:NamePropertyShape
   sh:maxLength 256;
+  
