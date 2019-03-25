@@ -185,3 +185,9 @@ aida:ConfidenceValueRange
         sh:maxInclusive 1;
         sh:message "Confidence value must be between 0 and 1"]
     .
+
+#########################
+# Each entity/filler name string is limited to 256 UTF-8 characters
+#------------------------
+aida:NamePropertyShape
+  sh:maxLength 256;
