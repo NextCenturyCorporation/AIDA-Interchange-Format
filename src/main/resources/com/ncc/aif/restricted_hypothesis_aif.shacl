@@ -51,10 +51,3 @@ aida:HypothesisEntityCluster
         sh:minCount 1 ;
         sh:maxCount 1  ]
     .
-
-
-
-
-
-
-
