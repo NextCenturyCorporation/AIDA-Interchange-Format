@@ -453,6 +453,20 @@ aida:RelationArgumentSubclass
 aida:SharedTypeShape
     a sh:NodeShape ;
 
+    # this shape applies when the predicate of the RDF statement is rdf:type
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            SELECT ?this
+            WHERE {
+                ?this a rdf:Statement .
+                ?this rdf:predicate rdf:type .
+            }
+        """
+    ] ;
+
     # may provide a confidence
     sh:property aida:ConfidencePropertyShape ;
 
@@ -490,15 +504,10 @@ aida:EntityTypeShape
             }
         """
     ] ;
-    sh:and (
-        aida:SharedTypeShape
-        [
-            sh:property [
-                sh:path rdf:object ;
-                sh:property aida:EntitySubclass
-            ]
-        ]
-    ) ;
+    sh:property [
+        sh:path rdf:object ;
+        sh:property aida:EntitySubclass
+    ] ;
     sh:message "Cannot assign a non-Entity type to an Entity"
     .
 
@@ -519,15 +528,10 @@ aida:EventTypeShape
             }
         """
     ] ;
-    sh:and (
-        aida:SharedTypeShape
-        [
-            sh:property [
-                sh:path rdf:object ;
-                sh:property aida:EventSubclass
-            ]
-        ]
-    ) ;
+    sh:property [
+        sh:path rdf:object ;
+        sh:property aida:EventSubclass
+    ] ;
     sh:message "Cannot assign a non-Event type to an Event"
     .
 
@@ -548,15 +552,10 @@ aida:RelationTypeShape
             }
         """
     ] ;
-    sh:and (
-        aida:SharedTypeShape
-        [
-            sh:property [
-                sh:path rdf:object ;
-                sh:property aida:RelationSubclass
-            ]
-        ]
-    ) ;
+    sh:property [
+        sh:path rdf:object ;
+        sh:property aida:RelationSubclass
+    ] ;
     sh:message "Cannot assign a non-Relation type to a Relation"
     .
 

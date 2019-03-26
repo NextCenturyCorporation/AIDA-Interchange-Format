@@ -9,7 +9,6 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.NodeIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDF;
-import org.apache.jena.vocabulary.SKOS;
 import org.apache.jena.vocabulary.XSD;
 
 import javax.annotation.Nullable;
@@ -36,7 +35,6 @@ public class AIFUtils {
         model.setNsPrefix("rdf", RDF.uri);
         model.setNsPrefix("xsd", XSD.getURI());
         model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
-        model.setNsPrefix("skos", SKOS.uri);
     }
 
     /**

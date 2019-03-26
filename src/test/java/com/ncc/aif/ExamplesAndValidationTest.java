@@ -18,8 +18,6 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.vocabulary.RDF;
-import org.apache.jena.vocabulary.SKOS;
-import org.apache.jena.vocabulary.XSD;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
@@ -89,8 +87,8 @@ public class ExamplesAndValidationTest {
         return getUri("testSystem");
     }
 
-    private void addType(Resource resource, Resource type) {
-        markType(model, getAssertionUri(), resource, type, system, 1d);
+    private Resource addType(Resource resource, Resource type) {
+        return markType(model, getAssertionUri(), resource, type, system, 1d);
     }
 
     private void testInvalid(String name) {
@@ -116,7 +114,10 @@ public class ExamplesAndValidationTest {
 
     @Nested
     class ValidExamples {
-        ValidExamples() { validator = seedlingValidator; }
+        ValidExamples() {
+            validator = seedlingValidator;
+        }
+
         private final String putinDocumentEntityUri = getUri("E781167.00398");
         private final String putinResidesDocumentRelationUri = getUri("R779959.00000");
         private final String putinElectedDocumentEventUri = getUri("V779961.00010");
@@ -213,14 +214,14 @@ public class ExamplesAndValidationTest {
             markType(model, getAssertionUri(), ukraineDocumentEntity, SeedlingOntology.GeopoliticalEntity, system, 1.0);
 
             // create an entity for the uncertain place of birth
-            final Resource uncertainPlaceOfReidenceEntity = makeEntity(model, getEntityUri(), system);
-            markType(model, getAssertionUri(), uncertainPlaceOfReidenceEntity, SeedlingOntology.GeopoliticalEntity, system, 1d);
+            final Resource uncertainPlaceOfResidenceEntity = makeEntity(model, getEntityUri(), system);
+            markType(model, getAssertionUri(), uncertainPlaceOfResidenceEntity, SeedlingOntology.GeopoliticalEntity, system, 1d);
 
             // whatever this place turns out to refer to, we're sure it's where they live
             makeRelationInEventForm(model, putinResidesDocumentRelationUri,
                     SeedlingOntology.Physical_Resident,
                     SeedlingOntology.Physical_Resident_Resident, personEntity,
-                    SeedlingOntology.Physical_Resident_Place, uncertainPlaceOfReidenceEntity,
+                    SeedlingOntology.Physical_Resident_Place, uncertainPlaceOfResidenceEntity,
                     getAssertionUri(), system, 1.0);
 
             // we use clusters to represent uncertainty about identity
@@ -230,9 +231,9 @@ public class ExamplesAndValidationTest {
 
             // the uncertain place of birth is either Louisville or Cambridge
             final Resource placeOfResidenceInRussiaCluster = markAsPossibleClusterMember(model,
-                    uncertainPlaceOfReidenceEntity, russiaCluster, 0.4, system);
+                    uncertainPlaceOfResidenceEntity, russiaCluster, 0.4, system);
             final Resource placeOfResidenceInUkraineCluster = markAsPossibleClusterMember(model,
-                    uncertainPlaceOfReidenceEntity, ukraineCluster, 0.6, system);
+                    uncertainPlaceOfResidenceEntity, ukraineCluster, 0.6, system);
 
             // but not both
             markAsMutuallyExclusive(model, ImmutableMap.of(
@@ -1023,7 +1024,10 @@ public class ExamplesAndValidationTest {
      */
     @Nested
     class InvalidExamples {
-        InvalidExamples() { validator = seedlingValidator; }
+        InvalidExamples() {
+            validator = seedlingValidator;
+        }
+
         @Test
         void entityMissingType() {
             // having multiple type assertions in case of uncertainty is ok, but there must always
@@ -1109,16 +1113,24 @@ public class ExamplesAndValidationTest {
         Resource entityCluster;
         Resource eventCluster;
         Resource relationCluster;
-        NISTExamples() { validator = nistSeedlingValidator; }
+        Resource typeAssertionJustification; // For use when tests create their own entities, events, and relations
+
+        NISTExamples() {
+            validator = nistSeedlingValidator;
+        }
 
         @BeforeEach
         void setup() {
-            entity = AIFUtils.makeEntity(model, getEntityUri(), system);
-            addType(entity, SeedlingOntology.Person);
-            event = AIFUtils.makeEvent(model, getUri("event1"), system);
-            addType(event, SeedlingOntology.Conflict_Attack);
+            typeAssertionJustification = makeTextJustification(model, "NYT_ENG_20181231",
+                    42, 143, system, 0.973);
+
+            entity = makeEntity(model, getEntityUri(), system);
+            markJustification(addType(entity, SeedlingOntology.Person), typeAssertionJustification);
+            event = makeEvent(model, getUri("event1"), system);
+            markJustification(addType(event, SeedlingOntology.Conflict_Attack), typeAssertionJustification);
             relation = makeRelation(model, getUri("relation1"), system);
-            addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
+            markJustification(addType(relation, SeedlingOntology.GeneralAffiliation_APORA), typeAssertionJustification);
+
             entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, system);
             eventCluster = makeClusterWithPrototype(model, getClusterUri(), event, system);
             relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation, system);
@@ -1141,11 +1153,10 @@ public class ExamplesAndValidationTest {
                 final Resource justification = markTextJustification(model, relationEdge,
                         "source1", 0, 4, system, 1d);
 
-                // test event edge argument is must have a compound justification
+                // test event edge argument must have a compound justification
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target,
                         entity, system, 1.0, getAssertionUri());
                 markJustification(eventEdge, justification);
-
 
                 final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
                 final Resource compound1 = markCompoundJustification(model,
@@ -1154,13 +1165,14 @@ public class ExamplesAndValidationTest {
                         system,
                         1d);
 
+                // test that compound justification can only be used for argument assertions
                 markJustification(entity, compound1);
                 markJustification(relation, compound1);
                 markJustification(event, compound1);
 
                 testInvalid("NIST.invalid: CompoundJustification must be used only for justifications of argument assertions");
-
             }
+
             @Test
             void valid() {
 
@@ -1182,7 +1194,6 @@ public class ExamplesAndValidationTest {
                 markJustification(eventEdge, compound);
 
                 testValid("NIST.valid: CompoundJustification must be used only for justifications of argument assertions");
-
             }
         }
 
@@ -1286,7 +1297,7 @@ public class ExamplesAndValidationTest {
             @Test
             void valid() {
                 final Resource newEntity = makeEntity(model, getEntityUri(), system);
-                addType(newEntity, SeedlingOntology.Person);
+                markJustification(addType(newEntity, SeedlingOntology.Person), typeAssertionJustification);
                 markAsPossibleClusterMember(model, newEntity, entityCluster, .75, system);
                 testValid("NIST.valid: Flat clusters");
             }
@@ -1299,27 +1310,20 @@ public class ExamplesAndValidationTest {
             @Test
             void invalid() {
                 // Test entity, relation, and event. Correct other than being clustered
-                addType(makeEntity(model, getEntityUri(), system), SeedlingOntology.Weapon);
-                addType(makeRelation(model, getUri("relationX"), system),
-                        SeedlingOntology.GeneralAffiliation_APORA);
-                addType(makeEvent(model, getUri("eventX"), system),
-                        SeedlingOntology.Life_BeBorn);
-                testInvalid( "NIST.invalid: Everything has cluster");
+                final Resource newEntity = makeEntity(model, getEntityUri(), system);
+                markJustification(addType(newEntity, SeedlingOntology.Weapon), typeAssertionJustification);
+                final Resource newRelation = makeRelation(model, getUri("relationX"), system);
+                markJustification(addType(newRelation, SeedlingOntology.GeneralAffiliation_APORA), typeAssertionJustification);
+                final Resource newEvent = makeEvent(model, getUri("eventX"), system);
+                markJustification(addType(newEvent, SeedlingOntology.Life_BeBorn), typeAssertionJustification);
+
+                testInvalid("NIST.invalid: Everything has cluster");
             }
 
             @Test
             void valid() {
-                final Resource newEntity = makeEntity(model, getEntityUri(), system);
-                addType(newEntity, SeedlingOntology.Weapon);
-                makeClusterWithPrototype(model, getClusterUri(), newEntity, system);
-
-                final Resource relation = makeRelation(model, getUri("relationX"), system);
-                addType(relation, SeedlingOntology.GeneralAffiliation_APORA);
-                makeClusterWithPrototype(model, getClusterUri(), relation, system);
-
-                final Resource newEvent = makeEvent(model, getUri("eventX"), system);
-                addType(newEvent, SeedlingOntology.Life_BeBorn);
-                makeClusterWithPrototype(model, getClusterUri(), newEvent, system);
+                // setup() already creates an entity, event, and relation
+                // object, and adds them to a cluster.
 
                 testValid("NIST.valid: Everything has cluster");
             }
@@ -1331,14 +1335,15 @@ public class ExamplesAndValidationTest {
             @Test
             void invalid() {
                 final Resource newEntity = makeEntity(model, getEntityUri(), system);
-                addType(newEntity, SeedlingOntology.Person);
+                markJustification(addType(newEntity, SeedlingOntology.Person), typeAssertionJustification);
                 markAsPossibleClusterMember(model, newEntity, entityCluster, 1.2, system);
                 testInvalid("NIST.invalid: confidence must be between 0 and 1");
             }
+
             @Test
             void valid() {
                 final Resource newEntity = makeEntity(model, getEntityUri(), system);
-                addType(newEntity, SeedlingOntology.Person);
+                markJustification(addType(newEntity, SeedlingOntology.Person), typeAssertionJustification);
                 markAsPossibleClusterMember(model, newEntity, entityCluster, .7, system);
                 testValid("NIST.valid: confidence must be between 0 and 1");
             }
@@ -1359,7 +1364,71 @@ public class ExamplesAndValidationTest {
 
             @Test
             void valid() {
+                // setup() already creates an entity, relation, and event in clusters with an IRI.
                 testValid("NIST.valid: Cluster has IRI");
+            }
+        }
+
+        // Each entity/relation/event type statement must have at least one justification
+        @Nested
+        class JustifyTypeAssertions {
+            @Test
+            void invalid() {
+                // Create an entity, but do not mark its type assertion with a justification.
+                final Resource newEntity = makeEntity(model, getEntityUri(), system);
+                addType(newEntity, SeedlingOntology.Person);
+                makeClusterWithPrototype(model, getClusterUri(), newEntity, system);
+
+                // Create an event, but do not mark its type assertion with a justification.
+                final Resource newEvent = makeEvent(model, getUri("event-5"), system);
+                addType(newEvent, SeedlingOntology.Conflict_Attack);
+                makeClusterWithPrototype(model, getClusterUri(), newEvent, system);
+
+                // Create a relation, but do not mark its type assertion with a justification.
+                final Resource newRelation = makeRelation(model, getUri("relation-2"), system);
+                addType(newRelation, SeedlingOntology.GeneralAffiliation_APORA);
+                makeClusterWithPrototype(model, getClusterUri(), newRelation, system);
+
+                testInvalid("NIST.invalid: type assertions must be justified");
+            }
+
+            @Test
+            void valid() {
+                // setup() already makes type assertions on the entity, event,
+                // and relation objects, justified by a text justification.
+
+                // Note that if you use makeRelationInEventForm, you will need to use the Jena API to obtain
+                // the type assertion property from the created relation so that you can add a justification.
+
+                testValid("NIST.valid: type assertions must be justified");
+            }
+        }
+
+        // Each entity/filler name string is limited to 256 UTF-8 characters
+        @Nested
+        class NameMaxLength {
+            @Test
+            void invalid() {
+                // assign alternate names to the entity that are longer that 256 characters.
+                markName(entity, "This is a test string that will be used to validate " +
+                        "that entity names and fillers are limited to 256 characters. This string should " +
+                        "fail because this string is exactly 257 characters long. This is filler text to " +
+                        "get to the two hundred and fifty-seven limit.");
+
+                testInvalid("NIST.invalid: Each entity name string is limited to 256 UTF-8 characters");
+            }
+
+            @Test
+            void valid() {
+                // assign alternate names to the entity that are equal and less than 256 characters.
+                markName(entity, "This is a test string that will be used to validate that entity " +
+                        "names and fillers are limited to 256 characters. This string should pass because " +
+                        "this string is exactly 256 characters long. Characters to get to the two hundred " +
+                        "and fifty-six character limit.");
+
+                markName(entity, "Small string size");
+
+                testValid("NIST.valid: Each entity name string is limited to 256 UTF-8 characters");
             }
         }
     }
@@ -1371,13 +1440,19 @@ public class ExamplesAndValidationTest {
     class NISTHypothesisExamples {
         Resource entity;
         Resource entityCluster;
-        NISTHypothesisExamples() { validator = nistSeedlingHypothesisValidator; }
+
+        NISTHypothesisExamples() {
+            validator = nistSeedlingHypothesisValidator;
+        }
 
         @BeforeEach
         void setup() {
+            final Resource justification = makeTextJustification(model, "NYT_ENG_20181231",
+                    42, 143, system, 0.973);
             entity = makeEntity(model, getEntityUri(), system);
             addType(entity, SeedlingOntology.Person);
             entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, "handle", system);
+            markJustification(addType(entity, SeedlingOntology.Person), justification);
         }
 
         // Exactly 1 hypothesis should exist in model
@@ -1444,6 +1519,7 @@ public class ExamplesAndValidationTest {
      * This method will validate the model using the provided validator and will dump the model as TURTLE if
      * either the validation result is unexpected or if the model is valid and FORCE_DUMP is true. Thus, FORCE_DUMP
      * can be used to write all the valid examples to console.
+     *
      * @param model     {@link Model} containing the triples to be validated
      * @param testName  {@link String} containing the name of the test
      * @param validator {@link ValidateAIF} object used to validate {@code model}
@@ -1488,7 +1564,6 @@ public class ExamplesAndValidationTest {
         return outputPath;
     }
 
-
     private Model readModelFromDisk(Path filename) {
         try {
             Model model = createDiskBasedModel();
@@ -1522,12 +1597,9 @@ public class ExamplesAndValidationTest {
 
     private Model addNamespacesToModel(Model model) {
         // adding namespace prefixes makes the Turtle output more readable
-        model.setNsPrefix("rdf", RDF.uri);
-        model.setNsPrefix("xsd", XSD.getURI());
-        model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
+        AIFUtils.addStandardNamespaces(model);
         model.setNsPrefix("ldcOnt", NAMESPACE);
         model.setNsPrefix("ldc", LDC_NS);
-        model.setNsPrefix("skos", SKOS.uri);
         return model;
     }
 }
