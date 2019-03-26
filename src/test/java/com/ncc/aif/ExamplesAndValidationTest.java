@@ -1485,7 +1485,7 @@ public class ExamplesAndValidationTest {
                 Resource newEntity = makeEntity(model, getEntityUri(), system);
                 addType(newEntity, SeedlingOntology.Person);
                 makeClusterWithPrototype(model, getClusterUri(), newEntity, system);
-                markJustification(addType(entity, SeedlingOntology.Person), justification);
+                markJustification(addType(newEntity, SeedlingOntology.Person), justification);
                 makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(newEntity), system);
 
                 testInvalid("NISTHypothesis.invalid: Each entity cluster in the hypothesis graph must have " +
@@ -1500,7 +1500,7 @@ public class ExamplesAndValidationTest {
                 addType(newEntity, SeedlingOntology.Person);
                 Resource cluster = makeClusterWithPrototype(model, getClusterUri(), newEntity, "handle2", system);
                 cluster.addProperty(AidaAnnotationOntology.HANDLE, "handle3");
-                markJustification(addType(entity, SeedlingOntology.Person), justification);
+                markJustification(addType(newEntity, SeedlingOntology.Person), justification);
                 makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(newEntity), system);
 
                 testInvalid("NISTHypothesis.invalid: Each entity cluster in the hypothesis graph must have " +
