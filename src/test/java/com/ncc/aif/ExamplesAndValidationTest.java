@@ -1423,7 +1423,7 @@ public class ExamplesAndValidationTest {
                 Resource cluster = makeClusterWithPrototype(model, getClusterUri(), newEntity, "handle2", system);
                 cluster.addProperty(AidaAnnotationOntology.HANDLE, "handle3");
 
-                testValid("NISTHypothesis.invalid: Each entity cluster in the hypothesis graph must have " +
+                testInvalid("NISTHypothesis.invalid: Each entity cluster in the hypothesis graph must have " +
                             "exactly one handle");
             }
 
