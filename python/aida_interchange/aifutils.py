@@ -328,8 +328,6 @@ def mark_compound_justification(g, things_to_justify, justifications, system, co
     mark_justification(g, things_to_justify, compound_justification)
     return compound_justification
 
-
-def make_cluster_with_prototype(g, cluster_uri, prototype, system, handle=None):
 def add_source_document_to_justification(g, justification, source_document) :
     """
     Add a sourceDocument to a pre-existing justification
@@ -345,7 +343,7 @@ def add_source_document_to_justification(g, justification, source_document) :
     return justification
 
 
-def make_cluster_with_prototype(g, cluster_uri, prototype, system):
+def make_cluster_with_prototype(g, cluster_uri, prototype, system, handle=None):
     """
     Create a "same-as" cluster.
 
