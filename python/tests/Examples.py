@@ -1,3 +1,5 @@
+# Remove the below comment once we update to python3
+# -*- coding: utf-8 -*-
 import unittest
 import sys
 sys.path.append('../')
@@ -583,6 +585,33 @@ class Examples(unittest.TestCase):
         aifutils.mark_importance(g, buk_is_russian_hypothesis, 120)
 
         self.dump_graph(g, "Simple hypothesis with importance with cluster")
+
+    def test_create_a_simple_cluster_with_handle(self):
+        g = aifutils.make_graph()
+        g.bind('ldcOnt', SEEDLING_TYPES_NIST.uri)
+
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, 'http://www.test.edu/testSystem')
+
+        # Two people, probably the same person
+        vladimir_putin = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/1", vladimir_putin, SEEDLING_TYPES_NIST.Person,
+                           system, 1.0)
+        aifutils.mark_name(g, vladimir_putin, "Vladimir Putin")
+
+        putin = aifutils.make_entity(g, "http://www.test.edu/entities/2", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/2", putin, SEEDLING_TYPES_NIST.Person,
+                           system, 1.0)
+
+        aifutils.mark_name(g, putin, "Путин")
+
+        # create a cluster with prototype
+        put_in_cluster = aifutils.make_cluster_with_prototype(g, "http://www.test.edu/clusters/1", vladimir_putin, system, "Vladimir Putin")
+
+        # person 1 is definitely in the cluster, person 2 is probably in the cluster
+        aifutils.mark_as_possible_cluster_member(g, putin, put_in_cluster, 0.71, system)
+
+        self.dump_graph(g, "create a simple cluster with handle")
 
     def test_read_and_write_turtle(self):
         print("test read and write turtle")

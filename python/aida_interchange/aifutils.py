@@ -328,7 +328,6 @@ def mark_compound_justification(g, things_to_justify, justifications, system, co
     mark_justification(g, things_to_justify, compound_justification)
     return compound_justification
 
-
 def add_source_document_to_justification(g, justification, source_document) :
     """
     Add a sourceDocument to a pre-existing justification
@@ -339,12 +338,12 @@ def add_source_document_to_justification(g, justification, source_document) :
 
     :return: The modified justification
     """
-    g.add((justification, AIDA_ANNOTATION.sourceDocument, 
+    g.add((justification, AIDA_ANNOTATION.sourceDocument,
             Literal(source_document, datatype=XSD.string)))
     return justification
 
 
-def make_cluster_with_prototype(g, cluster_uri, prototype, system):
+def make_cluster_with_prototype(g, cluster_uri, prototype, system, handle=None):
     """
     Create a "same-as" cluster.
 
@@ -358,8 +357,9 @@ def make_cluster_with_prototype(g, cluster_uri, prototype, system):
     """
     cluster = _make_aif_resource(g, cluster_uri, AIDA_ANNOTATION.SameAsCluster, system)
     g.add((cluster, AIDA_ANNOTATION.prototype, prototype))
+    if handle is not None:
+        g.add((cluster, AIDA_ANNOTATION.handle, Literal(handle, datatype=XSD.string)))
     return cluster
-
 
 def mark_as_possible_cluster_member(g, possible_cluster_member, cluster, confidence, system):
     """

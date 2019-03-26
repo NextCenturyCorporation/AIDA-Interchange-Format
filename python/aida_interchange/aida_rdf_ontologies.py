@@ -198,6 +198,7 @@ AIDA_ANNOTATION = ClosedNamespace(
       'dependsOnHypothesis',
       'endOffsetInclusive',
       'endTimestamp',
+      'handle',
       'hasName',
       'hypothesisContent',
       'importance',
