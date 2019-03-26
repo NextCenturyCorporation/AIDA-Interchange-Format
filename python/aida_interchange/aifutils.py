@@ -318,7 +318,7 @@ def mark_compound_justification(g, things_to_justify, justifications, system, co
     return compound_justification
 
 
-def make_cluster_with_prototype(g, cluster_uri, prototype, system):
+def make_cluster_with_prototype(g, cluster_uri, prototype, system, handle=None):
     """
     Create a "same-as" cluster.
 
@@ -332,8 +332,9 @@ def make_cluster_with_prototype(g, cluster_uri, prototype, system):
     """
     cluster = _make_aif_resource(g, cluster_uri, AIDA_ANNOTATION.SameAsCluster, system)
     g.add((cluster, AIDA_ANNOTATION.prototype, prototype))
+    if handle == None:
+        g.add((cluster, AIDA_ANNOTATION.handle, handle))
     return cluster
-
 
 def mark_as_possible_cluster_member(g, possible_cluster_member, cluster, confidence, system):
     """
