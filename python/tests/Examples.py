@@ -570,7 +570,7 @@ class Examples(unittest.TestCase):
 
         self.dump_graph(g, "Simple hypothesis with importance with cluster")
 
-    def create_a_simple_cluster_with_handle(self):
+    def test_create_a_simple_cluster_with_handle(self):
         g = aifutils.make_graph()
         g.bind('ldcOnt', SEEDLING_TYPES_NIST.uri)
 
