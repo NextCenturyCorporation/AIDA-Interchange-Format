@@ -411,9 +411,20 @@ class Examples(unittest.TestCase):
     def test_create_compound_justification(self):
         g = aifutils.make_graph()
         system = aifutils.make_system_with_uri(g, "http://www.test.edu/system")
-        entity = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
-        type_assertion = aifutils.mark_type(g, "http://www.test.org/assertions/1", entity, SEEDLING_TYPES_NIST.Person,
-                                            system, 1.0)
+
+        event = aifutils.make_event(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#V779961.00010", system)
+        event_type_assertion = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-1", event, SEEDLING_TYPES_NIST['Personnel.Elect'], system, 1.0)
+
+        # create the two entities involved in the event
+        putin = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#E781167.00398", system)
+        person_type_assertion = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-2", putin, SEEDLING_TYPES_NIST.Person, system, 1.0)
+
+        russia = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#E779954.00004", system)
+        gpe_type_assertion = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-3", russia, SEEDLING_TYPES_NIST.GeopoliticalEntity, system, 1.0)
+
+        # link those entities to the event
+        electee_argument = aifutils.mark_as_argument(g, event, SEEDLING_TYPES_NIST['Personnel.Elect_Elect'], putin, system, 0.785, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-4")
+        place_argument = aifutils.mark_as_argument(g, event, SEEDLING_TYPES_NIST['Personnel.Elect_Place'], russia, system, 0.589, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-5")
 
 
         # the justification provides the evidence for our claim about the entity's type
@@ -422,6 +433,10 @@ class Examples(unittest.TestCase):
         # in TA1 -> TA2 communications, we attach confidences at the level of justifications
         text_justification = aifutils.make_text_justification(g, "NYT_ENG_20181231",
                                                               42, 143, system, 0.973)
+        aifutils.mark_justification(g, person_type_assertion, text_justification)
+        aifutils.mark_justification(g, putin, text_justification)
+        aifutils.add_source_document_to_justification(g, text_justification, "NYT_PARENT_ENG_20181231_03")
+
         bb1 = Bounding_Box((123, 45), (167, 98))
         # let's suppose we also have evidence from an image
         image_justification = aifutils.make_image_justification(g, "NYT_ENG_20181231_03",
@@ -436,10 +451,11 @@ class Examples(unittest.TestCase):
         audio_justification = aifutils.make_audio_justification(g, "NYT_ENG_201181231", 4.566, 9.876, system, 0.789)
 
         # combine all justifications into single justifiedBy triple with new confidence
-        entity_set = [entity]
-        justification_set = [text_justification, image_justification, keyframe_video_justification,
-                             shot_video_justification, audio_justification]
-        aifutils.mark_compound_justification(g, entity_set, justification_set, system, .321)
+        aifutils.mark_compound_justification(g, [electee_argument], 
+                                            [text_justification, image_justification, keyframe_video_justification, shot_video_justification, audio_justification],
+                                            system, .321)
+
+        aifutils.mark_compound_justification(g, [place_argument], [text_justification, image_justification], system, 0.543)
 
         self.dump_graph(g, "Example of compound justification")
 

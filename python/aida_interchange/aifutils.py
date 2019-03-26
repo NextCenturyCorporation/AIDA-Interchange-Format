@@ -310,12 +310,38 @@ def mark_shot_video_justification(g, things_to_justify, doc_id, shot_id, system,
 
 
 def mark_compound_justification(g, things_to_justify, justifications, system, confidence):
+    """
+    Combine justifications into single justifiedBy triple with new confidence.
+
+    :param g: The underlying RDF model for the operation
+    :param things_to_justify: A list of resources to be marked by the specified justifications
+    :param justifications: A list of resources that justify the resources to be marked
+    :param system: The system object for the system which made these justifications
+    :param confidence: The confidence with which to mark each justification
+
+    :return: The created compound justification resource
+    """
     compound_justification = _make_aif_resource(g, None, AIDA_ANNOTATION.CompoundJustification, system)
     mark_confidence(g, compound_justification, confidence, system)
     for justification in justifications:
         g.add((compound_justification, AIDA_ANNOTATION.containedJustification, justification))
     mark_justification(g, things_to_justify, compound_justification)
     return compound_justification
+
+
+def add_source_document_to_justification(g, justification, source_document) :
+    """
+    Add a sourceDocument to a pre-existing justification
+
+    :param g: The underlying RDF model for the operation
+    :param justification: A pre-existing justification resource
+    :param source_document: A string containing the source document (parent) ID
+
+    :return: The modified justification
+    """
+    g.add((justification, AIDA_ANNOTATION.sourceDocument, 
+            Literal(source_document, datatype=XSD.string)))
+    return justification
 
 
 def make_cluster_with_prototype(g, cluster_uri, prototype, system):
