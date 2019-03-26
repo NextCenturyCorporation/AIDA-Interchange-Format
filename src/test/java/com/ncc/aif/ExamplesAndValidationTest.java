@@ -1450,7 +1450,6 @@ public class ExamplesAndValidationTest {
             final Resource justification = makeTextJustification(model, "NYT_ENG_20181231",
                     42, 143, system, 0.973);
             entity = makeEntity(model, getEntityUri(), system);
-            addType(entity, SeedlingOntology.Person);
             entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, "handle", system);
             markJustification(addType(entity, SeedlingOntology.Person), justification);
         }
