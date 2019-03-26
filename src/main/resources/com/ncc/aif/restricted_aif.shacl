@@ -12,14 +12,21 @@
 # Each edge justification is limited to one or two spans
 #------------------------
 # Can have 1 or 2 containedJustification properties
-aida:CompoundJustificationShape
-    sh:property [
-        a sh:PropertyShape ;
-        sh:path aida:containedJustification ;
-        sh:minCount 1 ;
-        sh:maxCount 2 ;
-        sh:message "Exactly 1 or 2 contained justifications required for an edge"
-    ] .
+aida:EdgeJustificationCount
+    a sh:SPARQLConstraint ;
+    sh:message "Exactly 1 or 2 contained justifications required for an edge" ;
+    sh:select """
+        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+        SELECT $this (COUNT(DISTINCT ?source) AS $value)
+        WHERE {
+            $this aida:justifiedBy ?x .
+            ?x a aida:CompoundJustification .
+            OPTIONAL { ?x aida:containedJustification ?source }
+        }
+        GROUP BY $this ?x
+        HAVING (COUNT(?source) > 2 || COUNT(?source) < 1)
+    """
+    .
 
 # Turn off CompoundJustificationMinimum globally
 aida:CompoundJustificationMinimum sh:deactivated true .
@@ -36,11 +43,15 @@ aida:EdgeJustificationCompound
     sh:class aida:CompoundJustification ;
     sh:message "Edge justification must be of type aida:CompoundJustification" .
 
-# Enforce edge justification restriction on event and relation arguments
+# Enforce edge justification restrictions on event and relation arguments
 aida:EventArgumentShape
-    sh:property aida:EdgeJustificationCompound .
+    sh:property aida:EdgeJustificationCompound ;
+    sh:sparql aida:EdgeJustificationCount
+    .
 aida:RelationArgumentShape
-    sh:property aida:EdgeJustificationCompound .
+    sh:property aida:EdgeJustificationCompound ;
+    sh:sparql aida:EdgeJustificationCount
+    .
 
 #########################
 # CompoundJustification must be used only for justifications of argument assertions,
@@ -191,13 +202,7 @@ aida:ConfidenceValueRange
 #########################
 # Each entity/relation/event type statement must have at least one justification
 #------------------------
-aida:EntityTypeShape
-	sh:property aida:RequiredJustificationPropertyShape .
-
-aida:EventTypeShape
-	sh:property aida:RequiredJustificationPropertyShape .
-
-aida:RelationTypeShape
+aida:SharedTypeShape
 	sh:property aida:RequiredJustificationPropertyShape .
 
 # Use this instead of aida:JustificationPropertyShape when you wish to force justifications to be present
