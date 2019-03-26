@@ -1377,7 +1377,7 @@ public class ExamplesAndValidationTest {
         void setup() {
             entity = makeEntity(model, getEntityUri(), system);
             addType(entity, SeedlingOntology.Person);
-            entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, system);
+            entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, "handle", system);
         }
 
         // Exactly 1 hypothesis should exist in model
@@ -1398,9 +1398,43 @@ public class ExamplesAndValidationTest {
             @Test
             void valid() {
                 makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(entity), system);
-                testValid("NISTHypothesis.valid: there should be exactly 1 hypothesis");
+                testInvalid("NISTHypothesis.valid: there should be exactly 1 hypothesis");
             }
         }
+
+        @Nested
+        class EntityClusterRequiredHandle {
+            @Test
+            void invalidNoHandle() {
+                Resource newEntity = makeEntity(model, getEntityUri(), system);
+                addType(newEntity, SeedlingOntology.Person);
+                makeClusterWithPrototype(model, getClusterUri(), newEntity, system);
+                makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(newEntity), system);
+
+                testInvalid("NISTHypothesis.invalid: Each entity cluster in the hypothesis graph must have " +
+                        "exactly one handle");
+            }
+
+            @Test
+            void invalidMultipleHandles() {
+
+                Resource newEntity = makeEntity(model, getEntityUri(), system);
+                addType(newEntity, SeedlingOntology.Person);
+                Resource cluster = makeClusterWithPrototype(model, getClusterUri(), newEntity, "handle2", system);
+                cluster.addProperty(AidaAnnotationOntology.HANDLE, "handle3");
+
+                testValid("NISTHypothesis.invalid: Each entity cluster in the hypothesis graph must have " +
+                            "exactly one handle");
+            }
+
+            @Test
+            void valid() {
+                makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(entity), system);
+                testValid("NISTHypothesis.invalid: Each entity cluster in the hypothesis graph must have " +
+                        "exactly one handle");
+            }
+        }
+
     }
 
     /**

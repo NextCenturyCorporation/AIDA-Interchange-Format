@@ -24,3 +24,37 @@ aida:SystemShape
             HAVING ((COUNT(?x)) != 1)
         """ ;
     ] .
+
+########################
+# 4.3 TA3 #7 Each entity (cluster) in the hypothesis graph must
+# have exactly one text description (called a "handle")
+#------------------------
+aida:HypothesisEntityCluster
+    a sh:NodeShape ;
+
+    sh:target [
+      a sh:SPARQLTarget ;
+      sh:select """
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            SELECT ?entityCluster
+            WHERE {
+                ?entityCluster a aida:SameAsCluster .
+                ?entityCluster aida:prototype ?prototype .
+                ?prototype a aida:Entity .
+            }
+        """ ;
+     ];
+
+    sh:property [
+        a sh:PropertyShape ;
+        sh:path aida:handle ;
+        sh:minCount 1 ;
+        sh:maxCount 1  ]
+    .
+
+
+
+
+
+
+
