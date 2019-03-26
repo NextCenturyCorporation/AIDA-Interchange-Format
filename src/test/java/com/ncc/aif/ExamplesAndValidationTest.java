@@ -1405,6 +1405,7 @@ public class ExamplesAndValidationTest {
         @Nested
         class EntityClusterRequiredHandle {
             @Test
+            // No handle property on entity cluster in hypothesis
             void invalidNoHandle() {
                 Resource newEntity = makeEntity(model, getEntityUri(), system);
                 addType(newEntity, SeedlingOntology.Person);
@@ -1416,6 +1417,7 @@ public class ExamplesAndValidationTest {
             }
 
             @Test
+            // Two handle properties on entity cluster in hypothesis
             void invalidMultipleHandles() {
 
                 Resource newEntity = makeEntity(model, getEntityUri(), system);
@@ -1428,6 +1430,7 @@ public class ExamplesAndValidationTest {
             }
 
             @Test
+            // One handle on entity cluster in hypothesis
             void valid() {
                 makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(entity), system);
                 testValid("NISTHypothesis.invalid: Each entity cluster in the hypothesis graph must have " +
