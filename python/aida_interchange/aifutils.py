@@ -333,7 +333,7 @@ def make_cluster_with_prototype(g, cluster_uri, prototype, system, handle=None):
     cluster = _make_aif_resource(g, cluster_uri, AIDA_ANNOTATION.SameAsCluster, system)
     g.add((cluster, AIDA_ANNOTATION.prototype, prototype))
     if handle is not None:
-        g.add((cluster, AIDA_ANNOTATION.handle, handle))
+        g.add((cluster, AIDA_ANNOTATION.handle, Literal(handle, datatype=XSD.string)))
     return cluster
 
 def mark_as_possible_cluster_member(g, possible_cluster_member, cluster, confidence, system):
