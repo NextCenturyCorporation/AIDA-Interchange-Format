@@ -332,7 +332,7 @@ def make_cluster_with_prototype(g, cluster_uri, prototype, system, handle=None):
     """
     cluster = _make_aif_resource(g, cluster_uri, AIDA_ANNOTATION.SameAsCluster, system)
     g.add((cluster, AIDA_ANNOTATION.prototype, prototype))
-    if handle == None:
+    if handle != None:
         g.add((cluster, AIDA_ANNOTATION.handle, handle))
     return cluster
 
