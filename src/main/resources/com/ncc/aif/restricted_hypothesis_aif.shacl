@@ -29,7 +29,7 @@ aida:SystemShape
 # 4.3 TA3 #7 Each entity (cluster) in the hypothesis graph must
 # have exactly one text description (called a "handle")
 #------------------------
-aida:HypothesisEntityCluster
+aida:HypothesisEntityClusterRequireHandle
     a sh:NodeShape ;
 
     sh:target [
@@ -49,5 +49,7 @@ aida:HypothesisEntityCluster
         a sh:PropertyShape ;
         sh:path aida:handle ;
         sh:minCount 1 ;
-        sh:maxCount 1  ]
-    .
+        sh:maxCount 1 ;
+        sh:message "Each entity (cluster) in the hypothesis graph must have exactly one handle"
+    ] .
+
