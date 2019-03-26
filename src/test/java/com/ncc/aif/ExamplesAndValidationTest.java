@@ -1398,7 +1398,7 @@ public class ExamplesAndValidationTest {
             @Test
             void valid() {
                 makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(entity), system);
-                testInvalid("NISTHypothesis.valid: there should be exactly 1 hypothesis");
+                testValid("NISTHypothesis.valid: there should be exactly 1 hypothesis");
             }
         }
 
