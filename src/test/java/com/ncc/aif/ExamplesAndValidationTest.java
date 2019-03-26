@@ -1440,6 +1440,7 @@ public class ExamplesAndValidationTest {
     class NISTHypothesisExamples {
         Resource entity;
         Resource entityCluster;
+        Resource justification;
 
         NISTHypothesisExamples() {
             validator = nistSeedlingHypothesisValidator;
@@ -1447,7 +1448,7 @@ public class ExamplesAndValidationTest {
 
         @BeforeEach
         void setup() {
-            final Resource justification = makeTextJustification(model, "NYT_ENG_20181231",
+            justification = makeTextJustification(model, "NYT_ENG_20181231",
                     42, 143, system, 0.973);
             entity = makeEntity(model, getEntityUri(), system);
             entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, "handle", system);
@@ -1484,6 +1485,7 @@ public class ExamplesAndValidationTest {
                 Resource newEntity = makeEntity(model, getEntityUri(), system);
                 addType(newEntity, SeedlingOntology.Person);
                 makeClusterWithPrototype(model, getClusterUri(), newEntity, system);
+                markJustification(addType(entity, SeedlingOntology.Person), justification);
                 makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(newEntity), system);
 
                 testInvalid("NISTHypothesis.invalid: Each entity cluster in the hypothesis graph must have " +
@@ -1498,6 +1500,8 @@ public class ExamplesAndValidationTest {
                 addType(newEntity, SeedlingOntology.Person);
                 Resource cluster = makeClusterWithPrototype(model, getClusterUri(), newEntity, "handle2", system);
                 cluster.addProperty(AidaAnnotationOntology.HANDLE, "handle3");
+                markJustification(addType(entity, SeedlingOntology.Person), justification);
+                makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(newEntity), system);
 
                 testInvalid("NISTHypothesis.invalid: Each entity cluster in the hypothesis graph must have " +
                             "exactly one handle");
