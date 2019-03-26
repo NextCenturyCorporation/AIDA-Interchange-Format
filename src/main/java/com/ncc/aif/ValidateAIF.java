@@ -440,6 +440,7 @@ public final class ValidateAIF {
         // This is required so that constraints like "the object of a type must be an
         // entity type" will know what types are in fact entity types.
         final Model unionModel = (union == null) ? ModelFactory.createUnion(domainModel, dataToBeValidated) : union;
+        unionModel.setNsPrefix("sh", "http://www.w3.org/ns/shacl#");
 
         // Apply appropriate shacl restrictions
         Model shacl;

@@ -9,15 +9,24 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
 #########################
-# Each edge justification is limited to two or fewer spans
+# Each edge justification is limited to one or two spans
 #------------------------
-# Can have a maximum of 2 justifiedBy/containedJustification properties
-aida:EdgeJustificationLimit
-    a sh:PropertyShape ;
-    sh:path ( aida:justifiedBy aida:containedJustification ) ;
-    sh:minCount 1 ;
-    sh:maxCount 2 ;
-    sh:message "Only 1 or 2 contained justifications allowed for an edge" .
+# Can have 1 or 2 containedJustification properties
+aida:EdgeJustificationCount
+    a sh:SPARQLConstraint ;
+    sh:message "Exactly 1 or 2 contained justifications required for an edge" ;
+    sh:select """
+        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+        SELECT $this (COUNT(DISTINCT ?source) AS $value)
+        WHERE {
+            $this aida:justifiedBy ?x .
+            ?x a aida:CompoundJustification .
+            OPTIONAL { ?x aida:containedJustification ?source }
+        }
+        GROUP BY $this ?x
+        HAVING (COUNT(?source) > 2 || COUNT(?source) < 1)
+    """
+    .
 
 # Turn off CompoundJustificationMinimum globally
 aida:CompoundJustificationMinimum sh:deactivated true .
@@ -34,11 +43,15 @@ aida:EdgeJustificationCompound
     sh:class aida:CompoundJustification ;
     sh:message "Edge justification must be of type aida:CompoundJustification" .
 
-# Enforce edge justification restriction on event and relation arguments
+# Enforce edge justification restrictions on event and relation arguments
 aida:EventArgumentShape
-    sh:property aida:EdgeJustificationCompound, aida:EdgeJustificationLimit .
+    sh:property aida:EdgeJustificationCompound ;
+    sh:sparql aida:EdgeJustificationCount
+    .
 aida:RelationArgumentShape
-    sh:property aida:EdgeJustificationCompound, aida:EdgeJustificationLimit .
+    sh:property aida:EdgeJustificationCompound ;
+    sh:sparql aida:EdgeJustificationCount
+    .
 
 #########################
 # CompoundJustification must be used only for justifications of argument assertions,
@@ -185,6 +198,20 @@ aida:ConfidenceValueRange
         sh:maxInclusive 1;
         sh:message "Confidence value must be between 0 and 1"]
     .
+
+#########################
+# Each entity/relation/event type statement must have at least one justification
+#------------------------
+aida:SharedTypeShape
+	sh:property aida:RequiredJustificationPropertyShape .
+
+# Use this instead of aida:JustificationPropertyShape when you wish to force justifications to be present
+aida:RequiredJustificationPropertyShape
+   a sh:PropertyShape ;
+   sh:path aida:justifiedBy ;
+   sh:propertyShape aida:JustificationPropertyShape ;
+   sh:minCount 1 ;
+   sh:message "Type assertions must have at least one justification" .
 
 #########################
 # Each entity/filler name string is limited to 256 UTF-8 characters
