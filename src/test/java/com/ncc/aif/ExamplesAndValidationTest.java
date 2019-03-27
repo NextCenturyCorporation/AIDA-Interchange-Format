@@ -1483,7 +1483,6 @@ public class ExamplesAndValidationTest {
             // No handle property on entity cluster in hypothesis
             void invalidNoHandle() {
                 Resource newEntity = makeEntity(model, getEntityUri(), system);
-                addType(newEntity, SeedlingOntology.Person);
                 makeClusterWithPrototype(model, getClusterUri(), newEntity, system);
                 markJustification(addType(newEntity, SeedlingOntology.Person), justification);
                 makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(newEntity), system);
@@ -1497,7 +1496,6 @@ public class ExamplesAndValidationTest {
             void invalidMultipleHandles() {
 
                 Resource newEntity = makeEntity(model, getEntityUri(), system);
-                addType(newEntity, SeedlingOntology.Person);
                 Resource cluster = makeClusterWithPrototype(model, getClusterUri(), newEntity, "handle2", system);
                 cluster.addProperty(AidaAnnotationOntology.HANDLE, "handle3");
                 markJustification(addType(newEntity, SeedlingOntology.Person), justification);
