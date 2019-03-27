@@ -260,34 +260,6 @@ class ColdStart2AidaInterchangeConverter(
             return true
         }
 
-        fun translateRelation(csAssertion: RelationAssertion, confidence: Double): Boolean {
-            val relationTypeIri = ontologyMapping.relationType(csAssertion.relationType)
-            return if (relationTypeIri != null) {
-                val (subjectRole, objectRole) = ontologyMapping.relationArgumentTypes(relationTypeIri)
-
-                val relation = AIFUtils.makeRelation(model,
-                        assertionIriGenerator.nextIri(), systemNode)
-                val typeAssertion = AIFUtils.markType(model,
-                        assertionIriGenerator.nextIri(), relation, relationTypeIri,
-                        systemNode, confidence)
-                val subjectAssertion = AIFUtils.markAsArgument(model, relation, subjectRole,
-                        toResource(csAssertion.subject), systemNode, confidence)
-                val objectAssertion = AIFUtils.markAsArgument(model, relation, objectRole,
-                        toResource(csAssertion.obj), systemNode, confidence)
-                registerJustifications(relation, csAssertion.justifications, null,
-                        null, confidence, null)
-                registerJustifications(typeAssertion, csAssertion.justifications, null,
-                        null, confidence, null)
-                registerJustifications(subjectAssertion, csAssertion.justifications, null,
-                        null, confidence, null)
-                registerJustifications(objectAssertion, csAssertion.justifications, null,
-                        null, confidence, null)
-                true
-            } else {
-                false
-            }
-        }
-
         fun translateEventArgument(csAssertion: EventArgumentAssertion, confidence: Double)
                 : Boolean {
             val event = toResource(csAssertion.subject)
@@ -390,7 +362,6 @@ class ColdStart2AidaInterchangeConverter(
                             objectToCanonicalMentions, objectToType, nameableEntitiesToNames,
                             provenanceToMentionType)
                     is LinkAssertion -> translateLink(assertion, confidence!!)
-                    is RelationAssertion -> translateRelation(assertion, confidence!!)
                     is EventArgumentAssertion -> translateEventArgument(assertion, confidence!!)
                     else -> false
                 }
@@ -472,8 +443,7 @@ fun main(args: Array<String>) {
             // we need to let the ColdStart KB loader itself know we are shattering by document so it
             // knows to eliminate the cross-document coreference links which have already been added by
             // the ColdStart system
-            breakCrossDocCoref = breakCrossDocCoref,
-            ontologyMapping = ontologyMapping).load(inputKBFile)
+            breakCrossDocCoref = breakCrossDocCoref).load(inputKBFile)
 
     when(mode) {
         // converting entire ColdStart KB at once

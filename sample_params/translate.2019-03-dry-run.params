@@ -1,0 +1,7 @@
+inputKBFile: /Users/gabbard/Downloads/en_full_new.cs
+baseURI: http://www.isi.edu/gaia
+systemURI: http://www.rpi.edu
+mode: SHATTER
+outputAIFDirectory: /Users/gabbard/projects/gaia/2019-03-dry-run/ta1-rpi-converted
+ontology: /Users/gabbard/projects/gaia/aif/repos/AIDA-Interchange-Format/src/main/resources/com/ncc/aif/ontologies/LDCOntology
+git f
