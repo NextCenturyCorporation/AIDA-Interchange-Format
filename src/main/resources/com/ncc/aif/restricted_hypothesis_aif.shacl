@@ -28,11 +28,14 @@ aida:SystemShape
 #########################
 # 4.3 TA3 #4 Each hypothesis graph must have exactly one hypothesis importance value
 #------------------------
-aida:HypothesisGraphImportanceRequiredShape
+aida:HypothesisImportanceRequiredShape
     a sh:PropertyShape ;
-    sh:path ( aida:HypothesisShape aida:ImportancePropertyShape ) ;
+    sh:path aida:importance;
     sh:minCount 1 ;
     sh:maxCount 1 .
+
+aida:HypothesisShape
+    sh:property aida:HypothesisImportanceRequiredShape .
 
 #########################
 # 4.3 TA3 #5 Each event or relation (cluster) in the hypothesis must have exactly one event/relation importance value
@@ -49,31 +52,20 @@ aida:HypothesisEventRelationClusterImportanceRequiredShape
                 ?prototype a aida:SameAsCluster .
                 ?prototype aida:prototype/a ?type .
                 FILTER( ?type = aida:Event || ?type = aida:Relation )
-            }rest
+            }
         """ ;
     ];
 
-    sh:property [
-        a sh:PropertyShape ;
-        sh:path aida:importance ;
-        sh:minCount 1 ;
-        sh:maxCount 1 ;
-    ] .
+    sh:property aida:HypothesisImportanceRequiredShape .
 
 #########################
 # 4.3 TA3 #6 Each edge KE in the hypothesis graph must have exactly one edge importance value
 #------------------------
-aida:HypothesisEdgeRequireImportanceShape
-    a sh:PropertyShape ;
-    sh:path ( aida:importance) ;
-    sh:minCount 1;
-    sh:maxCount 1 .
-
 aida:EventArgumentShape
-    sh:property HypothesisEdgeRequireImportanceShape .
+    sh:property aida:HypothesisImportanceRequiredShape .
 
 aida:RelationArgumentShape
-    sh:property HypothesisEdgeRequireImportanceShape .
+    sh:property aida:HypothesisImportanceRequiredShape .
 
 ########################
 # 4.3 TA3 #7 Each entity (cluster) in the hypothesis graph must
