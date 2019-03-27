@@ -21,7 +21,8 @@ a hand-written source file and is not generated.
 
 ### InterchangeOntology
 
-This ontology contains the Interchange vocabulary and how the defined classes and properties may interact.
+This ontology contains the Interchange vocabulary and specifies how the defined classes and properties may interact.
+It is defined using strict OWL and should be able to be used with OWL reasoners.
 
 # Domain Ontologies
 
