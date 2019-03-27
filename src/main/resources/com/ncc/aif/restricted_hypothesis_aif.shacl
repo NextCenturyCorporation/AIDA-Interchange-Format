@@ -63,7 +63,17 @@ aida:HypothesisEventRelationClusterImportanceRequiredShape
 #########################
 # 4.3 TA3 #6 Each edge KE in the hypothesis graph must have exactly one edge importance value
 #------------------------
+aida:HypothesisEdgeRequireImportanceShape
+    a sh:PropertyShape ;
+    sh:path ( aida:importance) ;
+    sh:minCount 1;
+    sh:maxCount 1 .
 
+aida:EventArgumentShape
+    sh:property HypothesisEdgeRequireImportanceShape .
+
+aida:RelationArgumentShape
+    sh:property HypothesisEdgeRequireImportanceShape .
 
 ########################
 # 4.3 TA3 #7 Each entity (cluster) in the hypothesis graph must
