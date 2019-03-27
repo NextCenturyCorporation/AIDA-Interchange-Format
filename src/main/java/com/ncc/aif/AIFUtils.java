@@ -160,8 +160,8 @@ public class AIFUtils {
      * @param system           The system object for the system which created the specified relation
      * @param confidence       If non-null, the confidence with which to mark the specified relation
      * @return The created relation resource
-     * @deprecated AIF no longer represents relations as simply a connection between two entities,
-     * so use {@link #makeRelation(Model, String, Resource)} instead
+     * @deprecated This method doesn't allow the user access to the blank nodes created for type and argument assertions.
+     * Use {@link #makeRelation(Model, String, Resource)} instead
      */
     @Deprecated
     public static Resource makeRelationInEventForm(Model model, String relationUri, Resource relationType, Resource subjectRole,

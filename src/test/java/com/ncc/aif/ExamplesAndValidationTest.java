@@ -1390,9 +1390,6 @@ public class ExamplesAndValidationTest {
                 // setup() already makes type assertions on the entity, event,
                 // and relation objects, justified by a text justification.
 
-                // Note that if you use the deprecated makeRelationInEventForm, you will need to use the Jena API to obtain
-                // the type assertion property from the created relation so that you can add a justification.
-
                 testValid("NIST.valid: type assertions must be justified");
             }
         }

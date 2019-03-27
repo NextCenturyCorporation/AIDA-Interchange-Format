@@ -22,7 +22,7 @@ a hand-written source file and is not generated.
 ### InterchangeOntology
 
 This ontology contains the Interchange vocabulary and specifies how the defined classes and properties may interact.
-It is defined in such a way that it should be able to be used with OWL reasoners.
+It is defined using strict OWL and should be able to be used with OWL reasoners.
 
 # Domain Ontologies
 
