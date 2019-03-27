@@ -201,8 +201,8 @@ public class ExamplesAndValidationTest {
 
         @Test
         void createARelationBetweenTwoSeedlingEntitiesWhereThereIsUncertaintyAboutIdentityOfOneArgument() {
-            // we want to represent a "city_of_birth" relation for a person, but we aren't sure whether
-            // they were born in Louisville or Cambridge
+            // we want to represent a "physical_resident" relation for a person, but we aren't sure whether
+            // they reside in Russia or Ukraine
             final Resource personEntity = makeEntity(model, putinDocumentEntityUri, system);
             markType(model, getAssertionUri(), personEntity, SeedlingOntology.Person, system, 1.0);
 
@@ -213,23 +213,22 @@ public class ExamplesAndValidationTest {
             final Resource ukraineDocumentEntity = makeEntity(model, russiaDocumentEntityUri, system);
             markType(model, getAssertionUri(), ukraineDocumentEntity, SeedlingOntology.GeopoliticalEntity, system, 1.0);
 
-            // create an entity for the uncertain place of birth
+            // create an entity for the uncertain place of residence
             final Resource uncertainPlaceOfResidenceEntity = makeEntity(model, getEntityUri(), system);
             markType(model, getAssertionUri(), uncertainPlaceOfResidenceEntity, SeedlingOntology.GeopoliticalEntity, system, 1d);
 
             // whatever this place turns out to refer to, we're sure it's where they live
-            makeRelationInEventForm(model, putinResidesDocumentRelationUri,
-                    SeedlingOntology.Physical_Resident,
-                    SeedlingOntology.Physical_Resident_Resident, personEntity,
-                    SeedlingOntology.Physical_Resident_Place, uncertainPlaceOfResidenceEntity,
-                    getAssertionUri(), system, 1.0);
+            final Resource relation = makeRelation(model, putinResidesDocumentRelationUri, system);
+            markType(model, getAssertionUri(), relation, SeedlingOntology.Physical_Resident, system, 1.0);
+            markAsArgument(model, relation, SeedlingOntology.Physical_Resident_Resident, personEntity, system, 1.0);
+            markAsArgument(model, relation, SeedlingOntology.Physical_Resident_Place, uncertainPlaceOfResidenceEntity, system, 1.0);
 
             // we use clusters to represent uncertainty about identity
             // we make two clusters, one for Russia and one for Ukraine
             final Resource russiaCluster = makeClusterWithPrototype(model, getClusterUri(), russiaDocumentEntity, system);
             final Resource ukraineCluster = makeClusterWithPrototype(model, getClusterUri(), ukraineDocumentEntity, system);
 
-            // the uncertain place of birth is either Louisville or Cambridge
+            // the uncertain place of residence is either Russia or Ukraine
             final Resource placeOfResidenceInRussiaCluster = markAsPossibleClusterMember(model,
                     uncertainPlaceOfResidenceEntity, russiaCluster, 0.4, system);
             final Resource placeOfResidenceInUkraineCluster = markAsPossibleClusterMember(model,
@@ -369,11 +368,10 @@ public class ExamplesAndValidationTest {
             final Resource isAttacker = SeedlingOntology.Conflict_Attack_Attacker;
 
             // under the background hypothesis that the BUK is Russian, we believe Russia attacked MH17
-            final Resource bukIsRussian = makeRelationInEventForm(model, russiaOwnsBukDocumentRelationUri,
-                    SeedlingOntology.GeneralAffiliation_APORA,
-                    SeedlingOntology.GeneralAffiliation_APORA_Affiliate, buk,
-                    SeedlingOntology.GeneralAffiliation_APORA_Affiliation, russia,
-                    getAssertionUri(), system, 1.0);
+            final Resource bukIsRussian = makeRelation(model, russiaOwnsBukDocumentRelationUri, system);
+            markType(model, getAssertionUri(), bukIsRussian, SeedlingOntology.GeneralAffiliation_APORA, system, 1.0);
+            markAsArgument(model, bukIsRussian, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, buk, system, 1.0);
+            markAsArgument(model, bukIsRussian, SeedlingOntology.GeneralAffiliation_APORA_Affiliation, russia, system, 1.0);
 
             final Resource bukIsRussianHypothesis = makeHypothesis(model, getUri("hypothesis-1"),
                     ImmutableSet.of(bukIsRussian), system);
@@ -382,11 +380,10 @@ public class ExamplesAndValidationTest {
             markConfidence(model, bukIsRussianHypothesis, 0.75, system);
 
             // under the background hypothesis that BUK is Ukrainian, we believe Ukraine attacked MH17
-            final Resource bukIsUkrainian = makeRelationInEventForm(model, ukraineOwnsBukDocumentRelationUri,
-                    SeedlingOntology.GeneralAffiliation_APORA,
-                    SeedlingOntology.GeneralAffiliation_APORA_Affiliate, buk,
-                    SeedlingOntology.GeneralAffiliation_APORA_Affiliation, ukraine,
-                    getAssertionUri(), system, 1.0);
+            final Resource bukIsUkrainian = makeRelation(model, ukraineOwnsBukDocumentRelationUri, system);
+            markType(model, getAssertionUri(), bukIsUkrainian, SeedlingOntology.GeneralAffiliation_APORA, system, 1.0);
+            markAsArgument(model, bukIsUkrainian, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, buk, system, 1.0);
+            markAsArgument(model, bukIsUkrainian, SeedlingOntology.GeneralAffiliation_APORA_Affiliation, ukraine, system, 1.0);
 
             final Resource bukIsUkranianHypothesis = makeHypothesis(model, getUri("hypothesis-2"),
                     ImmutableSet.of(bukIsUkrainian), 0.25, system);
@@ -858,12 +855,11 @@ public class ExamplesAndValidationTest {
 
             // relation that President Obama (of uncertain reference) worked with Secretary Clinton (of uncertain reference)
             // is asserted in document 2
-            final Resource relation = makeRelationInEventForm(model, getUri("relation-1"),
-                    SeedlingOntology.PersonalSocial_Business,
-                    SeedlingOntology.PersonalSocial_Business_Person,
-                    uncertainPresidentObamaDoc2,
-                    SeedlingOntology.PersonalSocial_Business_Person,
-                    uncertainSecretaryClintonDoc2, getAssertionUri(), system, 0.75);
+            final Resource relation = makeRelation(model, getUri("relation-1"), system);
+            markType(model, getAssertionUri(), relation, SeedlingOntology.PersonalSocial_Business, system, 0.75);
+            markAsArgument(model, relation, SeedlingOntology.PersonalSocial_Business_Person, uncertainPresidentObamaDoc2, system, 0.75);
+            markAsArgument(model, relation, SeedlingOntology.PersonalSocial_Business_Person, uncertainSecretaryClintonDoc2, system, 0.75);
+
             // mark justification "President Obama worked with Secretary Clinton"
             markTextJustification(model, relation, "doc2", 0, 10, system,
                     0.75);
@@ -977,12 +973,10 @@ public class ExamplesAndValidationTest {
 
             // relation that President Obama (of uncertain reference) worked with Secretary Clinton (of uncertain reference)
             // is asserted in document 2
-            final Resource relation = makeRelationInEventForm(model, getUri("relation-1"),
-                    SeedlingOntology.PersonalSocial_Business,
-                    SeedlingOntology.PersonalSocial_Business_Person,
-                    presidentObama,
-                    SeedlingOntology.PersonalSocial_Business_Person,
-                    secretaryClinton, getAssertionUri(), system, 0.75);
+            final Resource relation = makeRelation(model, getUri("relation-1"), system);
+            markType(model, getAssertionUri(), relation, SeedlingOntology.PersonalSocial_Business, system, 0.75);
+            markAsArgument(model, relation, SeedlingOntology.PersonalSocial_Business_Person, presidentObama, system, 0.75);
+            markAsArgument(model, relation, SeedlingOntology.PersonalSocial_Business_Person, secretaryClinton, system, 0.75);
 
             // mark justification "President Obama worked with Secretary Clinton"
             markTextJustification(model, relation, "doc2", 0, 10, system,
@@ -1060,11 +1054,10 @@ public class ExamplesAndValidationTest {
             final Resource louisvilleEntity = makeEntity(model, getEntityUri(), system);
             markType(model, getAssertionUri(), louisvilleEntity, SeedlingOntology.GeopoliticalEntity, system, 1.0);
 
-            makeRelationInEventForm(model, "http://www.test.edu/relations/1",
-                    model.createResource(NAMESPACE + "unknown_type"),
-                    SeedlingOntology.Physical_Resident_Resident, personEntity,
-                    SeedlingOntology.Physical_Resident_Place, louisvilleEntity,
-                    getAssertionUri(), system, 1.0);
+            final Resource relation = makeRelation(model, "http://www.test.edu/relations/1", system);
+            markType(model, getAssertionUri(), relation, model.createResource(NAMESPACE + "unknown_type"), system, 1.0);
+            markAsArgument(model, relation, SeedlingOntology.Physical_Resident_Resident, personEntity, system, 1.0);
+            markAsArgument(model, relation, SeedlingOntology.Physical_Resident_Place, louisvilleEntity, system, 1.0);
 
             testInvalid("Invalid: relation of unknown type");
         }
@@ -1397,7 +1390,7 @@ public class ExamplesAndValidationTest {
                 // setup() already makes type assertions on the entity, event,
                 // and relation objects, justified by a text justification.
 
-                // Note that if you use makeRelationInEventForm, you will need to use the Jena API to obtain
+                // Note that if you use the deprecated makeRelationInEventForm, you will need to use the Jena API to obtain
                 // the type assertion property from the created relation so that you can add a justification.
 
                 testValid("NIST.valid: type assertions must be justified");

@@ -163,6 +163,7 @@
         owl:unionOf (
             :Entity
             :Event
+            :Relation
             :SameAsCluster ) ] ;
   rdfs:subPropertyOf owl:topObjectProperty ; .
 
