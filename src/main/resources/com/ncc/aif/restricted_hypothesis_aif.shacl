@@ -49,6 +49,5 @@ aida:HypothesisEntityClusterRequireHandle
         a sh:PropertyShape ;
         sh:path aida:handle ;
         sh:minCount 1 ;
-        sh:message "Each entity (cluster) in the hypothesis graph must have exactly one handle"
     ] .
 
