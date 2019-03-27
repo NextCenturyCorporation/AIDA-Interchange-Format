@@ -110,8 +110,7 @@ class Examples(unittest.TestCase):
         aifutils.mark_text_justification(g, [entity, entity_is_an_organization],
                                          "NYT_ENG_201181231", 343, 367, system, 0.3)
 
-        aifutils.mark_as_mutually_exclusive(g, [([entity_is_a_person], 0.5),
-                                                ([entity_is_an_organization], 0.2)], system, None)
+        aifutils.mark_as_mutually_exclusive(g, { tuple([entity_is_a_person]):0.5, tuple([entity_is_an_organization]):0.2}, system, None)
 
         self.dump_graph(g, "Example of entity with uncertainty about type")
 
@@ -157,10 +156,11 @@ class Examples(unittest.TestCase):
                                                                                         louisville_cluster, 0.4, system)
         place_of_birth_in_cambridge_cluster = aifutils.mark_as_possible_cluster_member(g, uncertain_place_of_birth_entity,
                                                                                        cambridge_cluster, 0.6, system)
+        print("place of birth cambridge", place_of_birth_in_cambridge_cluster)
 
         # but not both
-        aifutils.mark_as_mutually_exclusive(g, [([place_of_birth_in_cambridge_cluster], 0.4),
-                                                ([place_of_birth_in_louisville_cluster], 0.6)], system, None)
+        aifutils.mark_as_mutually_exclusive(g, { tuple([place_of_birth_in_cambridge_cluster]):0.4,
+                                                 tuple([place_of_birth_in_louisville_cluster]):0.6}, system, None)
 
         self.dump_graph(g, "Relation between two entities with uncertainty about id of one")
 
@@ -263,7 +263,7 @@ class Examples(unittest.TestCase):
 
         # then we mark these as mutually exclusive
         # we also mark confidence 0.2 that neither of these are true
-        aifutils.mark_as_mutually_exclusive(g, [(bob_hit_fred_assertions, 0.6), (fred_hit_bob_assertions, 0.2)], system, 0.2)
+        aifutils.mark_as_mutually_exclusive(g, { tuple(bob_hit_fred_assertions):0.6, tuple(fred_hit_bob_assertions):0.2}, system, 0.2)
 
         self.dump_graph(g, "Example of subgraph confidences to show mutually exclusive linked event argument options")
 
@@ -546,7 +546,7 @@ class Examples(unittest.TestCase):
         aifutils.mark_as_possible_cluster_member(g, president_cluster, trump_cluster, .6, system)
 
         # write graph to file
-        file = open("../test_read_and_write.ttl", "w")
+        file = open("../test_read_and_write.ttl", "wb")
         file.write(g.serialize(format='turtle'))
         file.close()
 
