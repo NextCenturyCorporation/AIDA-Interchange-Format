@@ -1,5 +1,5 @@
 ######################################################
-# Created by com.ncc.verdi.ldc.LDCOntologyPostPilot on 2019-03-22T14:00:30.557Z
+# Created by com.ncc.verdi.ldc.LDCOntologyPostPilot on 2019-03-27T15:57:47.705Z
 # For more information about this file, refer to: 
 # https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/tree/master/src/main/resources/com/ncc/aif/ontologies/README.md
 ######################################################
@@ -522,11 +522,11 @@ ldcOnt:Money.Cash.Cash
 
 ldcOnt:NumericalValue
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveNumericValue , ldcOnt:FillerType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , ldcOnt:FillerType .
 
 ldcOnt:NumericalValue.Number.Number
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveNumericValue , ldcOnt:FillerType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , ldcOnt:FillerType .
 
 ldcOnt:Results  a        owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , ldcOnt:FillerType .
