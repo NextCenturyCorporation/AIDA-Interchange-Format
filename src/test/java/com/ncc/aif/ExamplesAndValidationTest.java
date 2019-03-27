@@ -1440,6 +1440,7 @@ public class ExamplesAndValidationTest {
     class NISTHypothesisExamples {
         Resource entity;
         Resource entityCluster;
+        Resource justification;
 
         NISTHypothesisExamples() {
             validator = nistSeedlingHypothesisValidator;
@@ -1447,11 +1448,11 @@ public class ExamplesAndValidationTest {
 
         @BeforeEach
         void setup() {
-            final Resource justification = makeTextJustification(model, "NYT_ENG_20181231",
+            justification = makeTextJustification(model, "NYT_ENG_20181231",
                     42, 143, system, 0.973);
             entity = makeEntity(model, getEntityUri(), system);
+            entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, "handle", system);
             markJustification(addType(entity, SeedlingOntology.Person), justification);
-            entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, system);
         }
 
         // Exactly 1 hypothesis should exist in model
@@ -1475,6 +1476,44 @@ public class ExamplesAndValidationTest {
                 testValid("NISTHypothesis.valid: there should be exactly 1 hypothesis");
             }
         }
+
+        @Nested
+        class EntityClusterRequiredHandle {
+            @Test
+            // No handle property on entity cluster in hypothesis
+            void invalidNoHandle() {
+                Resource newEntity = makeEntity(model, getEntityUri(), system);
+                makeClusterWithPrototype(model, getClusterUri(), newEntity, system);
+                markJustification(addType(newEntity, SeedlingOntology.Person), justification);
+                makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(newEntity), system);
+
+                testInvalid("NISTHypothesis.invalid: Each entity cluster in the hypothesis graph must have " +
+                        "exactly one handle");
+            }
+
+            @Test
+            // Two handle properties on entity cluster in hypothesis
+            void invalidMultipleHandles() {
+
+                Resource newEntity = makeEntity(model, getEntityUri(), system);
+                Resource cluster = makeClusterWithPrototype(model, getClusterUri(), newEntity, "handle2", system);
+                cluster.addProperty(AidaAnnotationOntology.HANDLE, "handle3");
+                markJustification(addType(newEntity, SeedlingOntology.Person), justification);
+                makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(newEntity), system);
+
+                testInvalid("NISTHypothesis.invalid: Each entity cluster in the hypothesis graph must have " +
+                            "exactly one handle");
+            }
+
+            @Test
+            // One handle on entity cluster in hypothesis
+            void valid() {
+                makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(entity), system);
+                testValid("NISTHypothesis.invalid: Each entity cluster in the hypothesis graph must have " +
+                        "exactly one handle");
+            }
+        }
+
     }
 
     /**
