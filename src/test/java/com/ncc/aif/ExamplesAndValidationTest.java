@@ -1014,6 +1014,24 @@ public class ExamplesAndValidationTest {
             assertNotNull(rtest, "Entity does not exist");
         }
 
+        @Test
+        void createEventWithLDCTime() {
+            // Create a start position event with unknown start and end time
+            final Resource eventStartPosition = makeEvent(model, getUri("event-1"), system);
+            markType(model, getAssertionUri(), eventStartPosition, SeedlingOntology.Personnel_StartPosition, system, 1.0);
+            LDCTimeComponent unknown = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.UNKNOWN, null, null, null);
+            LDCTimeComponent endBefore = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, 2016, null, null);
+            markLDCTime(model, eventStartPosition, unknown, endBefore, system);
+
+            // Create an attack event with an unknown start date, but definite end date
+            final Resource eventAttackUnknown = makeEvent(model, getUri("event-2"), system);
+            markType(model, getAssertionUri(), eventAttackUnknown, SeedlingOntology.Conflict_Attack, system, 1.0);
+            LDCTimeComponent start = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, 2014, 2, null);
+            LDCTimeComponent end = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.ON, 2014, 2, 21);
+            markLDCTime(model, eventAttackUnknown, start, end, system);
+
+            testValid("create an event with LDCTime");
+        }
     }
 
 

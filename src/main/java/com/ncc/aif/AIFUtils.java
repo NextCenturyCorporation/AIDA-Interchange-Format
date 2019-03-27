@@ -7,10 +7,12 @@ import com.google.common.collect.ImmutableSet;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.NodeIterator;
+import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.XSD;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
@@ -1104,11 +1106,66 @@ public class AIFUtils {
                 .build();
     }
 
+    /**
+     * This inner class encapsulates the LDC representation of time.
+     */
+    public static final class LDCTimeComponent {
+        public enum LDCTimeType { ON, BEFORE, AFTER, UNKNOWN }
+
+        private final Integer year;
+        private final Integer month;
+        private final Integer date;
+        private final LDCTimeType type;
+
+        public LDCTimeComponent(LDCTimeType type, Integer year, Integer month, Integer date) {
+            this.type = type;
+            this.year = year;
+            this.month = month;
+            this.date = date;
+        }
+
+        private Resource makeAIFTimeComponent(Model model) {
+            final Resource timeComponent = makeAIFResource(model, null, AidaAnnotationOntology.LDC_TIME_COMPONENT, null);
+            timeComponent.addProperty(AidaAnnotationOntology.LDC_TIME_TYPE, type.toString());
+            addInteger(timeComponent, AidaAnnotationOntology.LDC_TIME_YEAR, year);
+            addInteger(timeComponent, AidaAnnotationOntology.LDC_TIME_MONTH, month);
+            addInteger(timeComponent, AidaAnnotationOntology.LDC_TIME_DATE, date);
+            return timeComponent;
+        }
+
+        private static void addInteger(Resource timeComponent, Property property, Integer value) {
+            if (value != null) {
+                timeComponent.addLiteral(property, value);
+            }
+        }
+    }
+
+    /**
+     * Add LDC start and end time representation to an Event or Relation
+     *
+     * @param model  The underlying RDF model for the operation
+     * @param toMark The Event or Relation to add the LDC time data to
+     * @param start  {@link LDCTimeComponent} containing the start time information
+     * @param end    {@link LDCTimeComponent} containing the end time information
+     * @param system The system object for the system which marks the time
+     * @return
+     */
+    public static Resource markLDCTime(Model model, Resource toMark, LDCTimeComponent start, LDCTimeComponent end, Resource system) {
+        final Resource ldcTime = makeAIFResource(model, null, AidaAnnotationOntology.LDC_TIME_CLASS, system);
+        ldcTime.addProperty(AidaAnnotationOntology.LDC_TIME_START, start.makeAIFTimeComponent(model));
+        ldcTime.addProperty(AidaAnnotationOntology.LDC_TIME_END, end.makeAIFTimeComponent(model));
+
+        toMark.addProperty(AidaAnnotationOntology.LDC_TIME_PROPERTY, ldcTime);
+        return ldcTime;
+    }
+
     // Helper function to create an event, relation, justification, etc. in the system.
-    private static Resource makeAIFResource(Model model, String uri, Resource classType, Resource system) {
+    private static Resource makeAIFResource(@Nonnull Model model, @Nullable String uri, @Nonnull Resource classType, @Nullable Resource system) {
         Resource resource = (uri == null ? model.createResource() : model.createResource(uri));
         resource.addProperty(RDF.type, classType);
-        markSystem(resource, system);
+        if (system != null) {
+            markSystem(resource, system);
+        }
         return resource;
     }
 }
