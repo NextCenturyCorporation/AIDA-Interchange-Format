@@ -894,15 +894,15 @@ aida:LDCTimeComponentShape
     sh:targetClass aida:LDCTimeComponent ;
     sh:property [
         sh:path aida:year ;
-        sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )
+        sh:datatype xsd:gYear
     ] ;
     sh:property [
         sh:path aida:month ;
-        sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )
+        sh:datatype xsd:gMonth
     ] ;
     sh:property [
         sh:path aida:date ;
-        sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )
+        sh:datatype xsd:gDay
     ] ;
     sh:property [
         sh:path aida:timeType ;

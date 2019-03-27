@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import org.apache.jena.datatypes.RDFDatatype;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.NodeIterator;
@@ -1112,12 +1114,12 @@ public class AIFUtils {
     public static final class LDCTimeComponent {
         public enum LDCTimeType { ON, BEFORE, AFTER, UNKNOWN }
 
-        private final Integer year;
-        private final Integer month;
-        private final Integer date;
         private final LDCTimeType type;
+        private final String year;
+        private final String month;
+        private final String date;
 
-        public LDCTimeComponent(LDCTimeType type, Integer year, Integer month, Integer date) {
+        public LDCTimeComponent(LDCTimeType type, String year, String month, String date) {
             this.type = type;
             this.year = year;
             this.month = month;
@@ -1127,15 +1129,16 @@ public class AIFUtils {
         private Resource makeAIFTimeComponent(Model model) {
             final Resource timeComponent = makeAIFResource(model, null, AidaAnnotationOntology.LDC_TIME_COMPONENT, null);
             timeComponent.addProperty(AidaAnnotationOntology.LDC_TIME_TYPE, type.toString());
-            addInteger(timeComponent, AidaAnnotationOntology.LDC_TIME_YEAR, year);
-            addInteger(timeComponent, AidaAnnotationOntology.LDC_TIME_MONTH, month);
-            addInteger(timeComponent, AidaAnnotationOntology.LDC_TIME_DATE, date);
+            addInteger(model, timeComponent, AidaAnnotationOntology.LDC_TIME_YEAR, year, XSD.gYear);
+            addInteger(model, timeComponent, AidaAnnotationOntology.LDC_TIME_MONTH, month, XSD.gMonth);
+            addInteger(model, timeComponent, AidaAnnotationOntology.LDC_TIME_DATE, date, XSD.gDay);
             return timeComponent;
         }
 
-        private static void addInteger(Resource timeComponent, Property property, Integer value) {
+        private static void addInteger(Model model, Resource timeComponent, Property property, String value, Resource type) {
             if (value != null) {
-                timeComponent.addLiteral(property, value);
+                RDFDatatype literalType = NodeFactory.getType(type.getURI());
+                timeComponent.addLiteral(property, model.createTypedLiteral(value, literalType));
             }
         }
     }
