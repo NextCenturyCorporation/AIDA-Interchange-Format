@@ -1488,7 +1488,7 @@ public class ExamplesAndValidationTest {
             @Test
             // No handle property on entity cluster in hypothesis
             void invalidNoHandle() {
-                Resource newEntity = makeEntity(model, getEntityUri(), system);
+                final Resource newEntity = makeEntity(model, getEntityUri(), system);
                 makeClusterWithPrototype(model, getClusterUri(), newEntity, system);
                 markJustification(addType(newEntity, SeedlingOntology.Person), justification);
                 markImportance(makeHypothesis(model, getUri("hypothesis-1"),
@@ -1502,8 +1502,8 @@ public class ExamplesAndValidationTest {
             // Two handle properties on entity cluster in hypothesis
             void invalidMultipleHandles() {
 
-                Resource newEntity = makeEntity(model, getEntityUri(), system);
-                Resource cluster = makeClusterWithPrototype(model, getClusterUri(), newEntity, "handle2", system);
+                final Resource newEntity = makeEntity(model, getEntityUri(), system);
+                final Resource cluster = makeClusterWithPrototype(model, getClusterUri(), newEntity, "handle2", system);
                 cluster.addProperty(AidaAnnotationOntology.HANDLE, "handle3");
                 markJustification(addType(newEntity, SeedlingOntology.Person), justification);
                 markImportance(makeHypothesis(model, getUri("hypothesis-1"),
@@ -1541,6 +1541,58 @@ public class ExamplesAndValidationTest {
             }
         }
 
+        // Each event or relation (cluster) in the hypothesis must have exactly one importance value
+        @Nested
+        class HypothesisEntityRelationClusterImportanceValue {
+
+            private final String documentEventUri = getUri("V779961.00010");
+            private final String putinResidesDocumentRelationUri = getUri("R779959.00000");
+            Resource event;
+            Resource relation;
+
+            @BeforeEach
+            void setup() {
+                event = makeEvent(model, documentEventUri, system);
+                markJustification(markType(model, getAssertionUri(), event,
+                        SeedlingOntology.Personnel_Elect, system, 1.0), justification);
+                markImportance(makeClusterWithPrototype(model, getClusterUri(), event, system), 88);
+
+                relation = makeRelation(model, putinResidesDocumentRelationUri, system);
+                markJustification(markType(model, getAssertionUri(), relation,
+                        SeedlingOntology.GeneralAffiliation_APORA, system, 1.0), justification);
+
+                markImportance(makeHypothesis(model, getUri("hypothesis-1"),
+                        Collections.singleton(event), system), 100);
+
+            }
+
+            @Test
+            void invalidEvent() {
+                //invalid event cluster no importance
+                makeClusterWithPrototype(model, getClusterUri(), event, system);
+                markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, system), 99);
+                testInvalid("NISTHypothesis.invalid: Each event or relation (cluster) in the hypothesis must " +
+                        "have exactly one importance value");
+            }
+
+            @Test
+            void invalidRelation() {
+                //invalid relation cluster no importance
+                markImportance(makeClusterWithPrototype(model, getClusterUri(), event, system), 88);
+                makeClusterWithPrototype(model, getClusterUri(), relation, system);
+                testInvalid("NISTHypothesis.invalid: Each event or relation (cluster) in the hypothesis must " +
+                        "have exactly one importance value");
+            }
+
+            @Test
+            void valid() {
+                markImportance(makeClusterWithPrototype(model, getClusterUri(), event, system), 88);
+                markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, system), 99);
+                testValid("NISTHypothesis.valid: Each event or relation (cluster) in the hypothesis must " +
+                        "have exactly one importance value");
+            }
+        }
+
         // Each edge KE in the hypothesis graph must have exactly one edge importance value
         @Nested
         class HypothesisEdgeImportanceValue {
@@ -1563,48 +1615,54 @@ public class ExamplesAndValidationTest {
 
                 markImportance(makeClusterWithPrototype(model, getClusterUri(), event, system), 88);
                 markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, system), 88);
-
-                markImportance(makeHypothesis(model, getUri("hypothesis-1"),
-                        Collections.singleton(relation), system), 100);
             }
 
             @Test
-            void invalidEvent() {
+            void invalidEventEdge() {
 
                 markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Elect,
                         entity, system, 0.785);
 
+                markImportance(makeHypothesis(model, getUri("hypothesis-1"),
+                        Collections.singleton(event), system), 100);
+
                 testInvalid("NISTHypothesis.invalid: Each edge KE in the hypothesis graph must have exactly one " +
                         "edge importance value");
             }
 
             @Test
-            void invalidRelation() {
+            void invalidRelationEdge() {
 
                 markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliation,
                         entity, system, 0.785);
+                markImportance(makeHypothesis(model, getUri("hypothesis-1"),
+                        Collections.singleton(relation), system), 100);
 
                 testInvalid("NISTHypothesis.invalid: Each edge KE in the hypothesis graph must have exactly one " +
                         "edge importance value");
             }
 
             @Test
-            void validEvent() {
+            void validEventEdge() {
 
                 // link entity to the event
                 markImportance(markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Elect,
                         entity, system, 0.785), 110);
+                markImportance(makeHypothesis(model, getUri("hypothesis-1"),
+                        Collections.singleton(event), system), 100);
 
                 testValid("NISTHypothesis.valid: Each edge KE in the hypothesis graph must have exactly one " +
                         "edge importance value");
             }
 
             @Test
-            void validRelation() {
+            void validRelationEdge() {
 
                 // link entity to the relation
                 markImportance(markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliation,
                         entity, system, 0.785), 120);
+                markImportance(makeHypothesis(model, getUri("hypothesis-1"),
+                        Collections.singleton(relation), system), 100);
 
                 testValid("NISTHypothesis.valid: Each edge KE in the hypothesis graph must have exactly one " +
                         "edge importance value");
