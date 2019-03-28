@@ -196,11 +196,6 @@ aida:EventArgumentShape
   ] ;
    # TODO: handle temporal or string values
 
-   # may have zero or more string labels for user consumption
-  sh:property [
-    sh:path skos:prefLabel ;
-    sh:datatype xsd:string ];
-
   # may provide a confidence
   sh:property aida:ConfidencePropertyShape ;
 
@@ -1158,39 +1153,50 @@ aida:ClusterMembershipShape
 # sub-graphs of the full knowledge graph for when we need to specify confidences or mutual
 # exclusion constraints over large structures
 aida:ContentGraphShape
-  # note this is a declaration of a set of node constraints
-  a sh:NodeShape ;
-  # and that these contains apply to nodes of type aida:KnowledgeGraph
-  sh:targetClass aida:Subgraph ;
-  # a Subgraph can have a property (=outgoing labelled edge)
-  sh:property [
-     # which is called "subgraphContains"
-     sh:path aida:subgraphContains ;
-     # every content graph must contain at least one content assertion
-     sh:minCount 1 ;
-     # the contained nodes must be of the content node types
-     sh:xone (
-          [sh:class aida:Entity]
-          [sh:class aida:Event]
-          [sh:class aida:Relation]
-          [sh:class aida:SentimentAssertion]
-          [sh:class aida:ClusterMembership]
-          [sh:class rdf:Statement] )
-  ] ;
+    # note this is a declaration of a set of node constraints
+    a sh:NodeShape ;
 
-  # may provide an one or more source systems
-  sh:property aida:SystemPropertyShape ;
+    # and that these contains apply to nodes of type aida:KnowledgeGraph
+    sh:targetClass aida:Subgraph ;
 
-  # may depend on a hypothesis
-  sh:property aida:DependsOnHypothesisPropertyShape ;
+    # a Subgraph must have a property (=outgoing labelled edge)
+    sh:property [
+        # which is called "subgraphContains"
+        sh:path aida:subgraphContains ;
 
-  # may bear system-private data
-  sh:property aida:PrivateDataPropertyShape ;
+        # every content graph must contain at least one content assertion
+        sh:minCount 1 ;
+        sh:message "Content graph must contain at least one content assertion" ;
+    ] ;
 
-  # and can't contain anything else
-  sh:closed true ;
-  # (except the rdf:type assertion)
-  sh:ignoredProperties (rdf:type) .
+    # a Subgraph can only be composed of the following types
+    sh:property [
+        sh:path aida:subgraphContains ;
+
+        # the contained nodes must be of the content node types
+        sh:xone (
+            [sh:class aida:Entity]
+            [sh:class aida:Event]
+            [sh:class aida:Relation]
+            [sh:class aida:SentimentAssertion]
+            [sh:class aida:ClusterMembership]
+            [sh:class rdf:Statement] ) ;
+        sh:message "Content graph cannot contain this type of node"
+    ] ;
+
+    # may provide an one or more source systems
+    sh:property aida:SystemPropertyShape ;
+
+    # may depend on a hypothesis
+    sh:property aida:DependsOnHypothesisPropertyShape ;
+
+    # may bear system-private data
+    sh:property aida:PrivateDataPropertyShape ;
+
+    # and can't contain anything else
+    sh:closed true ;
+    # (except the rdf:type assertion)
+    sh:ignoredProperties (rdf:type) .
 
 # Sometimes we need to indicate that either one set of assertions about the world should be
 # included in a graph *or* some other set of assertions should. In these cases we use a

@@ -1445,12 +1445,16 @@ public class ExamplesAndValidationTest {
             markJustification(addType(entity, SeedlingOntology.Person), justification);
         }
 
+        private Resource makeValidHypothesis() {
+            return makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(entity), system);
+        }
+
         // Exactly 1 hypothesis should exist in model
         @Nested
         class SingleHypothesis {
             @Test
             void invalidTooMany() {
-                makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(entity), system);
+                makeValidHypothesis();
                 makeHypothesis(model, getUri("hypothesis-2"), Collections.singleton(entity), system);
                 testInvalid("NISTHypothesis.invalid (too many): there should be exactly 1 hypothesis");
             }
@@ -1462,7 +1466,7 @@ public class ExamplesAndValidationTest {
 
             @Test
             void valid() {
-                makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(entity), system);
+                makeValidHypothesis();
                 testValid("NISTHypothesis.valid: there should be exactly 1 hypothesis");
             }
         }
@@ -1498,12 +1502,58 @@ public class ExamplesAndValidationTest {
             @Test
             // One handle on entity cluster in hypothesis
             void valid() {
-                makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(entity), system);
-                testValid("NISTHypothesis.invalid: Each entity cluster in the hypothesis graph must have " +
+                makeValidHypothesis();
+                testValid("NISTHypothesis.valid: Each entity cluster in the hypothesis graph must have " +
                         "exactly one handle");
             }
         }
 
+        @Nested
+        class KEsInHypothesisMustBeDefined {
+            @Test
+            void invalid() {
+                Resource fakeEntity = model.createResource(getEntityUri());
+                makeHypothesis(model, getUri("hypothesis-1"), ImmutableSet.of(fakeEntity, entity), system);
+                testInvalid("NISTHypothesis.invalid: All KEs referenced by hypothesis must be defined in model");
+            }
+
+            @Test
+            void valid() {
+                makeValidHypothesis();
+                testValid("NISTHypothesis.valid: All KEs referenced by hypothesis must be difined in model");
+            }
+        }
+
+        @Nested
+        class KEsInModelMustBeReferencedByHypothesis{
+            @Test
+            void invalid() {
+                final Resource unreferencedEntity = makeEntity(model, getEntityUri(), system);
+                makeClusterWithPrototype(model, getClusterUri(), unreferencedEntity, "Entity", system);
+                markJustification(addType(unreferencedEntity, SeedlingOntology.Person), justification);
+
+                final Resource unreferencedRelation = makeRelation(model, getUri("relation-1"), system);
+                makeClusterWithPrototype(model, getClusterUri(), unreferencedRelation, "Relation", system);
+                markJustification(addType(unreferencedRelation, SeedlingOntology.GeneralAffiliation_APORA), justification);
+                markAsArgument(model, unreferencedRelation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate,
+                        unreferencedEntity, system, 1d, getAssertionUri());
+
+                final Resource unreferencedEvent = makeEvent(model, getUri("event-1"), system);
+                makeClusterWithPrototype(model, getClusterUri(), unreferencedEvent, "Event", system);
+                markJustification(addType(unreferencedEvent, SeedlingOntology.Conflict_Attack), justification);
+                markAsArgument(model, unreferencedEvent, SeedlingOntology.Conflict_Attack_Attacker,
+                        unreferencedEntity, system, 1d, getAssertionUri());
+
+                makeValidHypothesis();
+                testInvalid("NISTHypothesis.invalid: All KEs in model must be referenced by hypothesis");
+            }
+
+            @Test
+            void valid() {
+                makeValidHypothesis();
+                testValid("NISTHypothesis.valid: All KEs in model must be referenced by hypothesis");
+            }
+        }
     }
 
     /**
