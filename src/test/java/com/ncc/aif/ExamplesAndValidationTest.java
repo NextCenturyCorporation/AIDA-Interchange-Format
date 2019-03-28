@@ -1623,7 +1623,7 @@ public class ExamplesAndValidationTest {
 
                 //invalid event argument, needs importance value
                 markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Elect,
-                        entity, system, 0.785);
+                        entity, system, 0.785, "event-argument-1");
 
                 markImportance(makeHypothesis(model, getUri("hypothesis-1"),
                         Collections.singleton(event), system), 100);
@@ -1637,7 +1637,7 @@ public class ExamplesAndValidationTest {
 
                 //invalid erelation argument, needs importance value
                 markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliation,
-                        entity, system, 0.785);
+                        entity, system, 0.785, "relation-argument-1");
                 markImportance(makeHypothesis(model, getUri("hypothesis-1"),
                         Collections.singleton(relation), system), 100);
 
@@ -1650,7 +1650,7 @@ public class ExamplesAndValidationTest {
 
                 // link entity to the event
                 markImportance(markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Elect,
-                        entity, system, 0.785), 110);
+                        entity, system, 0.785, "event-argument-1"), 110);
                 markImportance(makeHypothesis(model, getUri("hypothesis-1"),
                         Collections.singleton(event), system), 100);
 
@@ -1663,7 +1663,7 @@ public class ExamplesAndValidationTest {
 
                 // link entity to the relation
                 markImportance(markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliation,
-                        entity, system, 0.785), 120);
+                        entity, system, 0.785, "relation-argument-1"), 120);
                 markImportance(makeHypothesis(model, getUri("hypothesis-1"),
                         Collections.singleton(relation), system), 100);
 
