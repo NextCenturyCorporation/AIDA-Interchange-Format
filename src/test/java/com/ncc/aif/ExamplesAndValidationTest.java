@@ -1544,7 +1544,7 @@ public class ExamplesAndValidationTest {
 
         // Each event or relation (cluster) in the hypothesis must have exactly one importance value
         @Nested
-        class HypothesisEntityRelationClusterImportanceValue {
+        class HypothesisEventRelationClusterImportanceValue {
 
             private final String documentEventUri = getUri("event-1");
             private final String relationUri = getUri("relation-1");
