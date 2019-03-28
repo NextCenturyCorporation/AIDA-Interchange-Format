@@ -1546,8 +1546,8 @@ public class ExamplesAndValidationTest {
         @Nested
         class HypothesisEntityRelationClusterImportanceValue {
 
-            private final String documentEventUri = getUri("ldc:event-1");
-            private final String relationUri = getUri("ldc:relation-1");
+            private final String documentEventUri = getUri("event-1");
+            private final String relationUri = getUri("relation-1");
             Resource event;
             Resource relation;
 
@@ -1598,8 +1598,8 @@ public class ExamplesAndValidationTest {
         @Nested
         class HypothesisEdgeImportanceValue {
 
-            private final String documentEventUri = getUri("ldc:event-1");
-            private final String relationUri = getUri("ldc:relation-1");
+            private final String documentEventUri = getUri("event-1");
+            private final String relationUri = getUri("relation-1");
             Resource event;
             Resource relation;
 
