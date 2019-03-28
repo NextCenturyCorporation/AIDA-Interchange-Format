@@ -1106,6 +1106,9 @@ aida:ClusterShape
    # may bear system-private data
    sh:property aida:PrivateDataPropertyShape ;
 
+   # my provide a link
+   sh:property aida:LinkPropertyShape ;
+
    sh:closed true ;
    sh:ignoredProperties (rdf:type).
 
