@@ -1563,7 +1563,7 @@ public class ExamplesAndValidationTest {
                         SeedlingOntology.GeneralAffiliation_APORA, system, 1.0), justification);
 
                 markImportance(makeHypothesis(model, getUri("hypothesis-1"),
-                        Collections.singleton(event), system), 100);
+                        ImmutableSet.of(event, relation), system), 100);
 
             }
 
