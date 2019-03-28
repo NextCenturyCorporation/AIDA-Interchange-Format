@@ -1452,6 +1452,7 @@ public class ExamplesAndValidationTest {
                     42, 143, system, 0.973);
             entity = makeEntity(model, getEntityUri(), system);
             entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, "handle", system);
+
             markJustification(addType(entity, SeedlingOntology.Person), justification);
         }
 
@@ -1528,14 +1529,102 @@ public class ExamplesAndValidationTest {
             @Test
             void invalid() {
                 makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(entity), system);
-                testInvalid("NISTHypothesis.invalid: Each hypothesis graph must have exactly one hypothesis importance value");
+                testInvalid("NISTHypothesis.invalid: Each hypothesis graph must have exactly one" +
+                        " hypothesis importance value");
             }
             @Test
             void valid() {
                 markImportance(makeHypothesis(model, getUri("hypothesis-1"),
                         Collections.singleton(entity), system), 100);
-                testValid("NISTHypothesis.valid: Each entity cluster in the hypothesis graph must have " +
-                        "exactly one handle");
+                testValid("NISTHypothesis.valid: Each hypothesis graph must have exactly one" +
+                        " hypothesis importance value");
+            }
+        }
+
+        // Each edge KE in the hypothesis graph must have exactly one edge importance value
+        @Nested
+        class HypothesisEdgeImportanceValue {
+
+            private final String documentEventUri = getUri("V779961.00010");
+            private final String putinResidesDocumentRelationUri = getUri("R779959.00000");
+
+            @Test
+            void invalidEvent() {
+                final Resource event = makeEvent(model, documentEventUri, system);
+                markJustification(markType(model, getAssertionUri(), event,
+                        SeedlingOntology.Personnel_Elect, system, 1.0), justification);
+
+                makeClusterWithPrototype(model, getClusterUri(), event, system);
+
+                markImportance(makeHypothesis(model, getUri("hypothesis-1"),
+                        Collections.singleton(event), system), 100);
+
+                markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Elect,
+                        entity, system, 0.785);
+
+                testInvalid("NISTHypothesis.invalid: Each edge KE in the hypothesis graph must have exactly one " +
+                        "edge importance value");
+            }
+
+            @Test
+            void invalidRelation() {
+
+                final Resource relation = makeRelation(model, putinResidesDocumentRelationUri, system);
+                markJustification(markType(model, getAssertionUri(), relation,
+                        SeedlingOntology.GeneralAffiliation_APORA, system, 1.0), justification);
+
+                makeClusterWithPrototype(model, getClusterUri(), relation, system);
+
+                // link entity to the relation
+                markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliation,
+                        entity, system, 0.785);
+
+                markImportance(makeHypothesis(model, getUri("hypothesis-1"),
+                        Collections.singleton(relation), system), 100);
+
+                testInvalid("NISTHypothesis.invalid: Each edge KE in the hypothesis graph must have exactly one " +
+                        "edge importance value");
+            }
+
+            @Test
+            void validEvent() {
+
+
+                final Resource event = makeEvent(model, documentEventUri, system);
+                markJustification(markType(model, getAssertionUri(), event,
+                        SeedlingOntology.Personnel_Elect, system, 1.0), justification);
+
+                makeClusterWithPrototype(model, getClusterUri(), event, system);
+
+                // link entity to the event
+                markImportance(markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Elect,
+                        entity, system, 0.785), 110);
+
+                markImportance(makeHypothesis(model, getUri("hypothesis-1"),
+                       Collections.singleton(event), system), 100);
+
+                testValid("NISTHypothesis.valid: Each edge KE in the hypothesis graph must have exactly one " +
+                        "edge importance value");
+            }
+
+            @Test
+            void validRelation() {
+
+                final Resource relation = makeRelation(model, putinResidesDocumentRelationUri, system);
+                markJustification(markType(model, getAssertionUri(), relation,
+                        SeedlingOntology.GeneralAffiliation_APORA, system, 1.0), justification);
+
+                makeClusterWithPrototype(model, getClusterUri(), relation, system);
+
+                // link entity to the relation
+                markImportance(markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliation,
+                        entity, system, 0.785), 120);
+
+                markImportance(makeHypothesis(model, getUri("hypothesis-1"),
+                        Collections.singleton(relation), system), 100);
+
+                testValid("NISTHypothesis.valid: Each edge KE in the hypothesis graph must have exactly one " +
+                        "edge importance value");
             }
         }
 
