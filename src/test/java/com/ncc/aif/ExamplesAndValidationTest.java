@@ -1463,7 +1463,6 @@ public class ExamplesAndValidationTest {
             void invalidTooMany() {
                 markImportance(makeHypothesis(model, getUri("hypothesis-1"),
                         Collections.singleton(entity), system), 100);
-
                 markImportance(makeHypothesis(model, getUri("hypothesis-2"),
                         Collections.singleton(entity), system), 101);
                 testInvalid("NISTHypothesis.invalid (too many): there should be exactly 1 hypothesis");
@@ -1503,7 +1502,8 @@ public class ExamplesAndValidationTest {
             void invalidMultipleHandles() {
 
                 final Resource newEntity = makeEntity(model, getEntityUri(), system);
-                final Resource cluster = makeClusterWithPrototype(model, getClusterUri(), newEntity, "handle2", system);
+                final Resource cluster = makeClusterWithPrototype(model, getClusterUri(), newEntity,
+                        "handle2", system);
                 cluster.addProperty(AidaAnnotationOntology.HANDLE, "handle3");
                 markJustification(addType(newEntity, SeedlingOntology.Person), justification);
                 markImportance(makeHypothesis(model, getUri("hypothesis-1"),
@@ -1528,6 +1528,7 @@ public class ExamplesAndValidationTest {
         class HypothesisImportanceValue {
             @Test
             void invalid() {
+                //invalid hypothesis, no importance value
                 makeHypothesis(model, getUri("hypothesis-1"), Collections.singleton(entity), system);
                 testInvalid("NISTHypothesis.invalid: Each hypothesis graph must have exactly one" +
                         " hypothesis importance value");
@@ -1545,8 +1546,8 @@ public class ExamplesAndValidationTest {
         @Nested
         class HypothesisEntityRelationClusterImportanceValue {
 
-            private final String documentEventUri = getUri("V779961.00010");
-            private final String putinResidesDocumentRelationUri = getUri("R779959.00000");
+            private final String documentEventUri = getUri("ldc:event-1");
+            private final String relationUri = getUri("ldc:relation-1");
             Resource event;
             Resource relation;
 
@@ -1557,7 +1558,7 @@ public class ExamplesAndValidationTest {
                         SeedlingOntology.Personnel_Elect, system, 1.0), justification);
                 markImportance(makeClusterWithPrototype(model, getClusterUri(), event, system), 88);
 
-                relation = makeRelation(model, putinResidesDocumentRelationUri, system);
+                relation = makeRelation(model, relationUri, system);
                 markJustification(markType(model, getAssertionUri(), relation,
                         SeedlingOntology.GeneralAffiliation_APORA, system, 1.0), justification);
 
@@ -1568,7 +1569,7 @@ public class ExamplesAndValidationTest {
 
             @Test
             void invalidEvent() {
-                //invalid event cluster no importance
+                //invalid event cluster, no importance value
                 makeClusterWithPrototype(model, getClusterUri(), event, system);
                 markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, system), 99);
                 testInvalid("NISTHypothesis.invalid: Each event or relation (cluster) in the hypothesis must " +
@@ -1577,7 +1578,7 @@ public class ExamplesAndValidationTest {
 
             @Test
             void invalidRelation() {
-                //invalid relation cluster no importance
+                //invalid relation cluster, no importance value
                 markImportance(makeClusterWithPrototype(model, getClusterUri(), event, system), 88);
                 makeClusterWithPrototype(model, getClusterUri(), relation, system);
                 testInvalid("NISTHypothesis.invalid: Each event or relation (cluster) in the hypothesis must " +
@@ -1597,8 +1598,8 @@ public class ExamplesAndValidationTest {
         @Nested
         class HypothesisEdgeImportanceValue {
 
-            private final String documentEventUri = getUri("V779961.00010");
-            private final String putinResidesDocumentRelationUri = getUri("R779959.00000");
+            private final String documentEventUri = getUri("ldc:event-1");
+            private final String relationUri = getUri("ldc:relation-1");
             Resource event;
             Resource relation;
 
@@ -1609,7 +1610,7 @@ public class ExamplesAndValidationTest {
                 markJustification(markType(model, getAssertionUri(), event,
                         SeedlingOntology.Personnel_Elect, system, 1.0), justification);
 
-                relation = makeRelation(model, putinResidesDocumentRelationUri, system);
+                relation = makeRelation(model, relationUri, system);
                 markJustification(markType(model, getAssertionUri(), relation,
                         SeedlingOntology.GeneralAffiliation_APORA, system, 1.0), justification);
 
@@ -1620,6 +1621,7 @@ public class ExamplesAndValidationTest {
             @Test
             void invalidEventEdge() {
 
+                //invalid event argument, needs importance value
                 markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Elect,
                         entity, system, 0.785);
 
@@ -1633,6 +1635,7 @@ public class ExamplesAndValidationTest {
             @Test
             void invalidRelationEdge() {
 
+                //invalid erelation argument, needs importance value
                 markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliation,
                         entity, system, 0.785);
                 markImportance(makeHypothesis(model, getUri("hypothesis-1"),
