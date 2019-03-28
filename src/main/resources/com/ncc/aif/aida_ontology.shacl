@@ -619,6 +619,7 @@ aida:SystemPropertyShape
 # Shape to enforce properties shared by all justifications
 aida:SharedJustificationShape
     a sh:NodeShape ;
+    sh:targetClass aida:Justification ;
 
     # each justification must have exactly one document element (child) ID
     sh:property [
@@ -650,75 +651,64 @@ aida:TextJustificationShape
     a sh:NodeShape ;
     sh:targetClass aida:TextJustification ;
 
-    sh:and (
-        aida:SharedJustificationShape
-        [
-            # exactly one start character offset within the document
-            sh:property [
-                sh:path aida:startOffset ;
-                sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )  ;
-                sh:minCount 1;
-                sh:maxCount 1 ];
+    # exactly one start character offset within the document
+    sh:property [
+        sh:path aida:startOffset ;
+        sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )  ;
+        sh:minCount 1;
+        sh:maxCount 1 ];
 
-            # and exactly one inclusive end offset within the document
-            sh:property [
-                sh:path aida:endOffsetInclusive ;
-                sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )  ;
-                sh:minCount 1;
-                sh:maxCount 1 ] ;
+    # and exactly one inclusive end offset within the document
+    sh:property [
+        sh:path aida:endOffsetInclusive ;
+        sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )  ;
+        sh:minCount 1;
+        sh:maxCount 1 ] ;
 
-            # no other properties are allowed
-            sh:closed true ;
+    # no other properties are allowed
+    sh:closed true ;
 
-            # except shared properties and rdf:type
-            sh:ignoredProperties (
-                aida:confidence
-                aida:dependsOnHypothesis
-                aida:privateData
-                aida:source
-                aida:sourceDocument
-                aida:system
-                rdf:type
-            )
-        ]
+    # except shared properties and rdf:type
+    sh:ignoredProperties (
+        aida:confidence
+        aida:dependsOnHypothesis
+        aida:privateData
+        aida:source
+        aida:sourceDocument
+        aida:system
+        rdf:type
     ) .
-
 
 aida:AudioJustificationShape
     a sh:NodeShape ;
     sh:targetClass aida:AudioJustification ;
 
-    sh:and (
-        aida:SharedJustificationShape
-        [
-            # exactly one start timestamp
-            sh:property [
-                sh:path aida:startTimestamp ;
-                sh:datatype xsd:double ;
-                sh:minCount 1;
-                sh:maxCount 1 ];
+    # exactly one start timestamp
+    sh:property [
+        sh:path aida:startTimestamp ;
+        sh:datatype xsd:double ;
+        sh:minCount 1;
+        sh:maxCount 1 ];
 
-            # and exactly one end timestamp
-            sh:property [
-                sh:path aida:endTimestamp ;
-                sh:datatype xsd:double ;
-                sh:minCount 1;
-                sh:maxCount 1 ] ;
+    # and exactly one end timestamp
+    sh:property [
+        sh:path aida:endTimestamp ;
+        sh:datatype xsd:double ;
+        sh:minCount 1;
+        sh:maxCount 1 ] ;
 
-            # no other properties are allowed
-            sh:closed true ;
+    # no other properties are allowed
+    sh:closed true ;
 
-            # except shared properties and rdf:type
-            sh:ignoredProperties (
-                aida:confidence
-                aida:dependsOnHypothesis
-                aida:privateData
-                aida:source
-                aida:sourceDocument
-                aida:system
-                rdf:type
-            )
-        ]
+    # except shared properties and rdf:type
+    sh:ignoredProperties (
+        aida:confidence
+        aida:dependsOnHypothesis
+        aida:privateData
+        aida:source
+        aida:sourceDocument
+        aida:system
+        rdf:type
     ) .
 
 # bounding boxes are used by both image and video justifications
@@ -765,26 +755,21 @@ aida:ImageJustificationShape
     a sh:NodeShape ;
     sh:targetClass aida:ImageJustification ;
 
-    sh:and (
-        aida:SharedJustificationShape
-        [
-            # must include a bounding box
-            sh:property aida:BoundingBoxPropertyShape ;
+    # must include a bounding box
+    sh:property aida:BoundingBoxPropertyShape ;
 
-            # no other properties are allowed
-            sh:closed true ;
+    # no other properties are allowed
+    sh:closed true ;
 
-            # except shared properties and rdf:type
-            sh:ignoredProperties (
-                aida:confidence
-                aida:dependsOnHypothesis
-                aida:privateData
-                aida:source
-                aida:sourceDocument
-                aida:system
-                rdf:type
-            )
-        ]
+    # except shared properties and rdf:type
+    sh:ignoredProperties (
+        aida:confidence
+        aida:dependsOnHypothesis
+        aida:privateData
+        aida:source
+        aida:sourceDocument
+        aida:system
+        rdf:type
     ) .
 
 # According to NIST, there are two types of video justifications.
@@ -796,64 +781,54 @@ aida:KeyFrameVideoJustificationShape
     a sh:NodeShape ;
     sh:targetClass aida:KeyFrameVideoJustification ;
 
-    sh:and (
-        aida:SharedJustificationShape
-        [
-            # must include a bounding box
-            sh:property aida:BoundingBoxPropertyShape ;
+    # must include a bounding box
+    sh:property aida:BoundingBoxPropertyShape ;
 
-            # must include a key frame
-            sh:property [
-                sh:path aida:keyFrame ;
-                sh:datatype xsd:string ;
-                sh:minCount 1 ;
-                sh:maxCount 1 ] ;
+    # must include a key frame
+    sh:property [
+        sh:path aida:keyFrame ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ] ;
 
-            # no other properties are allowed
-            sh:closed true ;
+    # no other properties are allowed
+    sh:closed true ;
 
-            # except shared properties and rdf:type
-            sh:ignoredProperties (
-                aida:confidence
-                aida:dependsOnHypothesis
-                aida:privateData
-                aida:source
-                aida:sourceDocument
-                aida:system
-                rdf:type
-            )
-        ]
+    # except shared properties and rdf:type
+    sh:ignoredProperties (
+        aida:confidence
+        aida:dependsOnHypothesis
+        aida:privateData
+        aida:source
+        aida:sourceDocument
+        aida:system
+        rdf:type
     ) .
 
 aida:ShotVideoJustificationShape
     a sh:NodeShape ;
     sh:targetClass aida:ShotVideoJustification ;
 
-    sh:and (
-        aida:SharedJustificationShape
-        [
-            # to justify entities/events in videos which do not occur at keyframes, bounding boxes
-            # are not used - only the ID of the shot they appear somewhere in (per NIST)
-            sh:property [
-                sh:path aida:shot ;
-                sh:datatype xsd:string ;
-                sh:minCount 1;
-                sh:maxCount 1 ] ;
+    # to justify entities/events in videos which do not occur at keyframes, bounding boxes
+    # are not used - only the ID of the shot they appear somewhere in (per NIST)
+    sh:property [
+        sh:path aida:shot ;
+        sh:datatype xsd:string ;
+        sh:minCount 1;
+        sh:maxCount 1 ] ;
 
-            # no other properties are allowed
-            sh:closed true ;
+    # no other properties are allowed
+    sh:closed true ;
 
-            # except shared properties and rdf:type
-            sh:ignoredProperties (
-                aida:confidence
-                aida:dependsOnHypothesis
-                aida:privateData
-                aida:source
-                aida:sourceDocument
-                aida:system
-                rdf:type
-            )
-        ]
+    # except shared properties and rdf:type
+    sh:ignoredProperties (
+        aida:confidence
+        aida:dependsOnHypothesis
+        aida:privateData
+        aida:source
+        aida:sourceDocument
+        aida:system
+        rdf:type
     ) .
 
 aida:CompoundJustificationShape
@@ -869,7 +844,14 @@ aida:CompoundJustificationShape
    sh:property aida:RequiredConfidencePropertyShape ;
 
    # may provide an optional source system
-   sh:property aida:SystemPropertyShape .
+   sh:property aida:SystemPropertyShape ;
+
+   # no other properties are allowed
+   sh:closed true ;
+
+   # except shared properties and rdf:type
+   sh:ignoredProperties ( rdf:type)
+   .
 
 aida:CompoundJustificationMinimum
    a sh:PropertyShape ;
