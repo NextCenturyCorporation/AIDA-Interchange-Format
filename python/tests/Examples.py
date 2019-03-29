@@ -156,7 +156,6 @@ class Examples(unittest.TestCase):
                                                                                         louisville_cluster, 0.4, system)
         place_of_birth_in_cambridge_cluster = aifutils.mark_as_possible_cluster_member(g, uncertain_place_of_birth_entity,
                                                                                        cambridge_cluster, 0.6, system)
-        print("place of birth cambridge", place_of_birth_in_cambridge_cluster)
 
         # but not both
         aifutils.mark_as_mutually_exclusive(g, { tuple([place_of_birth_in_cambridge_cluster]):0.4,
