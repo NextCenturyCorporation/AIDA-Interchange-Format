@@ -725,6 +725,31 @@ public class ExamplesAndValidationTest {
             testValid("create a simple cluster with handle");
         }
 
+        @Test
+        void createEntityAndClusterWithInformativeJustification() {
+            // Two people, probably the same person
+            final String vladName = "Vladimir Putin";
+            final Resource vladimirPutin = makeEntity(model, getUri("E780885.00311"), system);
+            markName(vladimirPutin, vladName);
+
+            final Resource typeAssertion = markType(model, getAssertionUri(), vladimirPutin, SeedlingOntology.Person, system, 1.0);
+            final Resource justification = markTextJustification(model, typeAssertion, "HC00002Z0", 0, 10, system, 1d);
+            markInformativeJustification(vladimirPutin, justification);
+
+            final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
+            markType(model, getAssertionUri(), putin, SeedlingOntology.Person, system, 1.0);
+            markName(putin, "Путин");
+
+            // create a cluster with prototype
+            final Resource putinCluster = makeClusterWithPrototype(model, getClusterUri(), vladimirPutin, vladName, system);
+            markInformativeJustification(putinCluster, justification);
+
+            // person 1 is definitely in the cluster, person 2 is probably in the cluster
+            markAsPossibleClusterMember(model, putin, putinCluster, 0.71, system);
+
+            testValid("create an entity and cluster with informative mention");
+        }
+
         /**
          * Shows how to create a relation with uncertain endpoints using the version of coreference expected for
          * output NIST will execute SPARQL queries on.

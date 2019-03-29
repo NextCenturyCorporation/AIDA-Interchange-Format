@@ -74,6 +74,9 @@ aida:EntityShape
     # entities must have unique identifiers
     sh:nodeKind sh:IRI ;
 
+    # may provide an informative justification
+    sh:property aida:InformativeJustificationPropertyShape ;
+
     # may be linked to one or more things in an external KB
     sh:property aida:LinkPropertyShape ;
 
@@ -133,10 +136,8 @@ aida:EventShape
     # events must have unique identifiers
     sh:nodeKind sh:IRI ;
 
-    # may have zero or more string labels for user consumption
-    sh:property [
-     sh:path skos:prefLabel ;
-     sh:datatype xsd:string ];
+    # may provide an informative justification
+    sh:property aida:InformativeJustificationPropertyShape ;
 
     # may provide a confidence
     sh:property aida:ConfidencePropertyShape ;
@@ -313,10 +314,8 @@ aida:RelationShape
     # must have unique identifiers
     sh:nodeKind sh:IRI ;
 
-    # may have zero or more string labels for user consumption
-    sh:property [
-    sh:path skos:prefLabel ;
-    sh:datatype xsd:string ];
+    # may provide an informative justification
+    sh:property aida:InformativeJustificationPropertyShape ;
 
     # may provide a confidence
     sh:property aida:ConfidencePropertyShape ;
@@ -885,13 +884,24 @@ aida:CompoundJustificationMinimum
 aida:CompoundJustificationTypes
    a sh:PropertyShape ;
    sh:path aida:containedJustification ;
-   sh:xone (
-     [sh:class aida:TextJustification]
-     [sh:class aida:ImageJustification]
-     [sh:class aida:AudioJustification]
-     [sh:class aida:KeyFrameVideoJustification]
-     [sh:class aida:ShotVideoJustification] ) ;
+   sh:xone aida:JustificationTypeList ;
    sh:message "Unsupported compound justification type" .
+
+aida:JustificationTypeList
+    a rdf:List ;
+    rdf:rest (
+        [ sh:class aida:TextJustification ]
+        [ sh:class aida:AudioJustification ]
+        [ sh:class aida:ImageJustification ]
+        [ sh:class aida:KeyFrameVideoJustification ]
+        [ sh:class aida:ShotVideoJustification ]
+    ) .
+
+aida:InformativeJustificationPropertyShape
+    a sh:PropertyShape ;
+    sh:path aida:informativeJustification ;
+    sh:xone aida:JustificationTypeList
+    .
 
 aida:JustificationPropertyShape
    a sh:PropertyShape ;
@@ -1096,6 +1106,9 @@ aida:ClusterShape
 
    # may provide an importance
    sh:property aida:ImportancePropertyShape ;
+
+   # may provide an informative justification
+   sh:property aida:InformativeJustificationPropertyShape ;
 
    # may provide an one or more source systems
    sh:property aida:SystemPropertyShape ;
