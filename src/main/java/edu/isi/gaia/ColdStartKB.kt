@@ -12,6 +12,8 @@ sealed class Node
 
 class EventNode : Node()
 
+class RelationNode : Node()
+
 class EntityNode : Node()
 
 class StringNode : Node()
@@ -100,6 +102,12 @@ data class EventMentionAssertion(override val subject: EventNode, override val m
     override fun nodes() = setOf(subject)
 }
 
+data class RelationMentionAssertion(override val subject: RelationNode, override val mentionType: MentionType,
+                                    override val string: String,
+                                    override val justifications: Provenance) : MentionAssertion {
+    override fun nodes() = setOf(subject)
+}
+
 data class RelationAssertion(override val subject: Node, val relationType: String,
                         val obj: Node, val justifications: Provenance)
     : Assertion {
@@ -124,49 +132,20 @@ data class EventArgumentAssertion(override val subject: Node, val argument_role:
     override fun nodes() = setOf(subject, argument)
 }
 
+data class RelationArgumentAssertion(override val subject: Node, val argument_role: String,
+                                     val argument: Node,
+                                     val justifications: Provenance) : Assertion {
+    init {
+        require(argument_role.isNotEmpty()) { "Empty argument role not allowed" }
+    }
+
+    override fun nodes() = setOf(subject, argument)
+}
+
 data class ColdStartKB(val assertionsToConfidence: Map<Assertion, Double>,
                   val assertionsWithoutConfidences: Set<Assertion>) {
     val allAssertions: Set<Assertion> by lazy {
         return@lazy assertionsToConfidence.keys.union(assertionsWithoutConfidences)
-    }
-
-    /**
-     * Get this ColdStartKB split into one mini-KB per document.
-     *
-     * @return A map from a document ID to a mini-ColdStartKB containing only items
-     * with justifications in that document.
-     */
-    fun shatterByDocument(): Map<String, ColdStartKB> {
-        val nodesToDoc = mutableMapOf<Node, String>()
-
-        // a node is in a document if it has any justification in that document
-        for (justifiedAssertion in allAssertions.filterIsInstance<JustifiedAssertion>()) {
-            val docID = justifiedAssertion.justifications.docID
-            for (node in justifiedAssertion.nodes()) {
-                nodesToDoc[node] = docID
-            }
-        }
-
-        // group assertions by what document they come from
-        // we can determine this by examining what nodes are involved.
-        val docIDToAssertionB = ImmutableSetMultimap.builder<String, Assertion>()
-        for (assertion in allAssertions) {
-            val docIDsForAssertion = assertion.nodes().map { nodesToDoc[it]!! }.toSet()
-            check(docIDsForAssertion.size == 1)
-            docIDToAssertionB.put(docIDsForAssertion.first(), assertion)
-        }
-
-        // add an extension function to Map to make a copy keeping only the specified keys
-        fun <K,V> Map<K,V>.copyRestrictingKeys(keysToKeep: Iterable<K>) : Map<K,V> {
-            return keysToKeep.filter { it in this }.map{it to getValue(it)}.toMap()
-        }
-
-        return ImmutableMap.copyOf(docIDToAssertionB.build().asMap().mapValues(
-                { (_, assertions) ->
-                    ColdStartKB(assertionsToConfidence.copyRestrictingKeys(assertions),
-                            // the order here is important - `assertions` is much smaller
-                            assertions.intersect(assertionsWithoutConfidences))
-                }))
     }
 }
 
@@ -183,7 +162,67 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
      */
     companion object: KLogging()
 
-    fun load(source: Path) : ColdStartKB {
+    data class LoadingResult(val kb: ColdStartKB,
+            // we return this to enable printing more user-friendly error messages
+                             val nodeToInputIds: Map<Node, String>) {
+        /**
+         * Get this ColdStartKB split into one mini-KB per document.
+         *
+         * @return A map from a document ID to a mini-ColdStartKB containing only items
+         * with justifications in that document.
+         */
+        fun shatterByDocument(): Map<String, LoadingResult> {
+            val nodesToDoc = mutableMapOf<Node, String>()
+
+            val fillerNodes = nodeToInputIds.filter { it.value.contains("Filler") }
+                    .map { it.key }
+                    .toSet()
+
+            // a node is in a document if it has any justification in that document
+            for (justifiedAssertion in kb.allAssertions.filterIsInstance<JustifiedAssertion>()) {
+                val docID = justifiedAssertion.justifications.docID
+                for (node in justifiedAssertion.nodes()) {
+                    nodesToDoc[node] = docID
+                    if (fillerNodes.contains(node)) {
+                        System.out.println("${nodeToInputIds[node]} <-- $node")
+                    }
+                }
+            }
+
+            // group assertions by what document they come from
+            // we can determine this by examining what nodes are involved.
+            val docIDToAssertionB = ImmutableSetMultimap.builder<String, Assertion>()
+            for (assertion in kb.allAssertions) {
+                assertion.nodes().forEach {
+                    if (!nodesToDoc.containsKey(it)) {
+                        System.out.println("failed on $it")
+                    }
+                }
+                val docIDsForAssertion = assertion.nodes()
+                        .map {
+                            nodesToDoc[it]
+                                    ?: throw RuntimeException("Cannot map ${nodeToInputIds[it]} to a document ID; " +
+                                            "it must be lacking a mention.")
+                        }.toSet()
+                check(docIDsForAssertion.size == 1)
+                docIDToAssertionB.put(docIDsForAssertion.first(), assertion)
+            }
+
+            // add an extension function to Map to make a copy keeping only the specified keys
+            fun <K, V> Map<K, V>.copyRestrictingKeys(keysToKeep: Iterable<K>): Map<K, V> {
+                return keysToKeep.filter { it in this }.map { it to getValue(it) }.toMap()
+            }
+
+            return ImmutableMap.copyOf(docIDToAssertionB.build().asMap().mapValues { (_, assertions) ->
+                LoadingResult(kb = ColdStartKB(kb.assertionsToConfidence.copyRestrictingKeys(assertions),
+                        // the order here is important - `assertions` is much smaller
+                        assertions.intersect(kb.assertionsWithoutConfidences)),
+                        nodeToInputIds = nodeToInputIds)
+            })
+        }
+    }
+
+    fun load(source: Path): LoadingResult {
         return Loading().load(source)
     }
 
@@ -205,6 +244,8 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
         val _ASSERTION_PAT = Regex("""^(?:(?:$.*):)?(.+?)\.?(other|generic|actual)?$""")
 
         val idToNode: MutableMap<String, Node> = HashMap()
+        // we track this mapping so we can give more informative error messages
+        val nodeToId: MutableMap<Node, String> = HashMap()
         // if `breakCrossDocCoref` is false, this will match `idToNode` exactly
         // otherwise, it will account for each original ColdStart ID now corresponding to many
         // per-document entity nodes
@@ -212,7 +253,7 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
         // this won't be available until the second pass of document processing (see `load`)
         var rawCSIdToNodes: ImmutableSetMultimap<String, Node>? = null
 
-        fun load(source: Path): ColdStartKB {
+        fun load(source: Path): ColdStartKBLoader.LoadingResult {
             val assertionToConfidence = mutableListOf<Pair<Assertion, Double>>()
             val assertionsWithoutConfidence = mutableListOf<Assertion>()
 
@@ -265,21 +306,26 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
 
             rawCSIdToNodes = rawCSIdToNodesB.build()
 
+            System.out.println(assertionToConfidence.filter { it.first is RelationMentionAssertion }.size)
+            System.out.println(assertionsWithoutConfidence.filter { it is RelationMentionAssertion }.size)
+
             // and on the second pass we associated types with them. This is trivial if
             // `breakCrossDocCoref` is not on, but if it is, for each entity, etc. appearing in the
             // ColdStart KB, we need to add a copy of the type and link assertion for each
             // entity (etc.) we shattered it into.
-            parseColdStartFile("types/links", {
+            parseColdStartFile("types/links") {
                 val assertionType = extractAssertionType(it)
                 return@parseColdStartFile when (assertionType.toLowerCase()) {
                     "type" -> parseTypeAssertion(it)
                     "link" -> parseLinkAssertion(it)
                     else -> listOf()
                 }
-            })
+            }
 
-            return ColdStartKB(assertionToConfidence.toMap(),
-                    assertionsWithoutConfidence.toSet())
+            return ColdStartKBLoader.LoadingResult(
+                    kb = ColdStartKB(assertionToConfidence.toMap(),
+                            assertionsWithoutConfidence.toSet()),
+                    nodeToInputIds = nodeToId)
         }
 
         private fun extractAssertionType(fields: List<String>) : String {
@@ -348,6 +394,14 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
                                     provenance),
                             confidence)
                 }
+                is RelationNode -> {
+                    MaybeScoredAssertion(
+                            RelationMentionAssertion(subjectNode,
+                                    MentionType(mention_type),
+                                    mention_string,
+                                    provenance),
+                            confidence)
+                }
                 is EntityNode -> MaybeScoredAssertion(
                         EntityMentionAssertion(subjectNode,
                                 MentionType(mention_type),
@@ -410,13 +464,16 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
                             fields[_CONF_FLOAT].toDouble())
                 }
 
-                else -> MaybeScoredAssertion(
-                        RelationAssertion(
-                                subjectNode,
-                                relation_type,
-                                objectNode,
-                                provenance),
-                        fields[_CONF_FLOAT].toDouble())
+                subjectNode is RelationNode -> {
+                    MaybeScoredAssertion(RelationArgumentAssertion(
+                            subjectNode,
+                            relation_type,
+                            objectNode,
+                            provenance),
+                            fields[_CONF_FLOAT].toDouble())
+                }
+
+                else -> throw java.lang.RuntimeException("Cannot parse assertion")
             })
         }
 
@@ -517,11 +574,15 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
                 trueNodeName.startsWith(":Entity") -> EntityNode()
                 trueNodeName.startsWith(":Filler") -> EntityNode()
                 trueNodeName.startsWith(":Event") -> EventNode()
+                trueNodeName.startsWith(":Relation") -> RelationNode()
                 trueNodeName.startsWith(":String") -> StringNode()
                 else -> throw IOException("Unknown node type for node name $nodeName")
             }
 
             idToNode.put(trueNodeName, created)
+            // we track what IDs in the CS input file go with each node so we can print
+            // informative error messages
+            nodeToId.put(created, trueNodeName)
             // if we are shattering by document, we need to keep track of all nodes originating
             // from the same original ColdStart ID (without the doc ID prefix) so we can
             // copy type and linking assertions to each of them

@@ -29,7 +29,7 @@ class M18OntologyMapping(private val entityModel: Model,
                 it.value.subjectsWithProperty(RDF.type, OWL.Ontology).first()
             }.entries.associate { (k, v) -> v to k }
 
-            return M18OntologyMapping(ontologyNameToModel.getValue("entityOny"),
+            return M18OntologyMapping(ontologyNameToModel.getValue("entityOnt"),
                     ontologyNameToModel.getValue("eventOnt"),
                     ontologyNameToModel.getValue("relationOnt"),
                     prefixToIri)

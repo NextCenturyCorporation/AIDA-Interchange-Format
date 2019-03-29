@@ -3,5 +3,7 @@ baseURI: http://www.isi.edu/gaia
 systemURI: http://www.rpi.edu
 mode: SHATTER
 outputAIFDirectory: /Users/gabbard/projects/gaia/2019-03-dry-run/ta1-rpi-converted
-ontology: /Users/gabbard/projects/gaia/aif/repos/AIDA-Interchange-Format/src/main/resources/com/ncc/aif/ontologies/LDCOntology
-git f
+entityOntology: /Users/gabbard/projects/gaia/aif/repos/AIDA-Interchange-Format/src/main/resources/com/ncc/aif/ontologies/LDCOntology
+relationOntology: /Users/gabbard/projects/gaia/aif/repos/AIDA-Interchange-Format/src/main/resources/com/ncc/aif/ontologies/LDCOntology
+eventOntology: /Users/gabbard/projects/gaia/aif/repos/AIDA-Interchange-Format/src/main/resources/com/ncc/aif/ontologies/LDCOntology
+out_of_domain_type_whitelist:/Users/gabbard/projects/gaia/aif/repos/aida-tools/data/2019-03-29-dry-run.out-of-domain-whitelist.txt
