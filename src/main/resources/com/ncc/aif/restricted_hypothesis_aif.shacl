@@ -1,4 +1,4 @@
-@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
 @prefix aida: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#> .
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -76,8 +76,8 @@ aida:HypothesisEntityClusterRequireHandle
     a sh:NodeShape ;
 
     sh:target [
-      a sh:SPARQLTarget ;
-      sh:select """
+        a sh:SPARQLTarget ;
+        sh:select """
             PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
             SELECT ?entityCluster
             WHERE {
@@ -85,7 +85,7 @@ aida:HypothesisEntityClusterRequireHandle
                 ?entityCluster aida:prototype/a aida:Entity .
             }
         """ ;
-     ];
+    ];
 
     # sh:maxCount 1 is inherited from aida_ontology.shacl
     sh:property [
@@ -94,3 +94,41 @@ aida:HypothesisEntityClusterRequireHandle
         sh:minCount 1 ;
     ] .
 
+########################
+# 4.3 TA3 #1.a All KEs in model should be referenced by hypothesis
+#------------------------
+aida:KEsMustBeReferenced
+    a sh:SPARQLConstraint ;
+    sh:message "This KE is unreferenced by the hypothesis" ;
+    sh:select """
+        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+        SELECT $this
+        WHERE {
+            ?hypothesis a aida:Hypothesis .
+            FILTER NOT EXISTS { ?hypothesis aida:hypothesisContent/aida:subgraphContains $this }
+        }
+    """
+    .
+
+aida:AllKEsReferencedShape
+    a sh:NodeShape ;
+    sh:targetClass aida:Entity, aida:Event, aida:Relation ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#>
+            SELECT ?argumentAssertion
+            WHERE {
+                ?argumentAssertion a rdf:Statement .
+                ?argumentAssertion rdf:predicate ?pred .
+                { ?pred rdfs:subClassOf+ aidaDomainCommon:RelationArgumentType }
+                UNION
+                { ?pred rdfs:subClassOf+ aidaDomainCommon:EventArgumentType }
+            }
+        """ ;
+    ] ;
+
+    sh:sparql aida:KEsMustBeReferenced
+    .
