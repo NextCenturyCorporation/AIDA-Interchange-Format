@@ -1214,7 +1214,7 @@ public class ExamplesAndValidationTest {
                         system, 1.0, getAssertionUri());
                 markJustification(eventEdge, compound);
 
-                testInvalid("NIST.invalid: edge justification contains one or two mentions");
+                testInvalid("NIST.invalid: edge justification contains one or two mentions (three is too many)");
             }
 
 
@@ -1233,7 +1233,7 @@ public class ExamplesAndValidationTest {
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
                 markJustification(eventEdge, compound);
 
-                testInvalid("NIST.invalid: edge justification contains one or two mentions");
+                testInvalid("NIST.invalid: edge justification contains one or two mentions (zero is not enough)");
             }
 
 	    @Test
