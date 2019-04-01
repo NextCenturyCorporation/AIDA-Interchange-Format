@@ -28,8 +28,8 @@
 # There are two RDF ontologies to be concerned with. What is described and validated here is the
 # "interchange ontology".  The domain working group is also specifying a "domain ontology" (e.g.
 # entity types, event types, etc.).  The AIDA program domain ontology has not yet been specified.
-# We currently have two available domain ontologies, but for ColdStart and LDC Seedling, both of
-# which have OWL files in the src/main/resources/edu/gaia directory of this repository.
+# We currently have two available domain ontologies, but for LDC and LDC Seedling, both of
+# which have OWL files in the src/main/resources/com/ncc/aif/ontologies directory of this repository.
 # We assume all domain ontologies
 # derive their entity, event, and relation types from aidaDomainCommon:EntityType, etc.
 #
