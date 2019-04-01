@@ -25,6 +25,36 @@ aida:SystemShape
         """ ;
     ] .
 
+#########################
+# 4.3 TA3 #3: Each hypothesis graph must have at least one event or relation with at least one edge.
+#------------------------
+aida:SystemShape
+    sh:sparql[
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#>
+            SELECT (COUNT(?hypothesis) AS $this)
+            WHERE {
+                ?argumentAssertion a rdf:Statement .
+                ?argumentAssertion rdf:subject ?subject .
+                ?argumentAssertion rdf:predicate ?pred .
+                {
+                    ?pred rdfs:subClassOf+ aidaDomainCommon:RelationArgumentType .
+                    ?hypothesis aida:hypothesisContent/aida:subgraphContains ?pred
+                 }
+                UNION
+                {
+                    ?pred rdfs:subClassOf+ aidaDomainCommon:EventArgumentType .
+                    ?hypothesis aida:hypothesisContent/aida:subgraphContains ?pred
+                }
+            }
+            HAVING (COUNT(?hypothesis) > 0)
+        """ ;
+    ] .
+
 #########################.;
 # 4.3 TA3 #4 Each hypothesis graph must have exactly one hypothesis importance value
 #------------------------
@@ -35,7 +65,8 @@ aida:ImportanceRequiredShape
     sh:maxCount 1 .
 
 aida:HypothesisShape
-    sh:property aida:ImportanceRequiredShape .
+    sh:property aida:ImportanceRequiredShape ;
+    sh:property aida:HypothesisMustHaveEventRelationShape .
 
 #########################
 # 4.3 TA3 #5 Each event or relation (cluster) in the hypothesis must have exactly one event/relation importance value
