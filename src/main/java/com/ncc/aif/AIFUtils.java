@@ -956,6 +956,16 @@ public class AIFUtils {
     }
 
     /**
+     * Mark [resource] as having the specified [informativeJustification] value.
+     *
+     * @param resource                 The Resource to mark with the specified importance
+     * @param informativeJustification The justification which will be considered informative
+     */
+    public static void markInformativeJustification(Resource resource, Resource informativeJustification) {
+        resource.addProperty(AidaAnnotationOntology.INFORMATIVE_JUSTIFICATION, informativeJustification);
+    }
+
+    /**
      * Mark an argument as depending on a hypothesis.
      *
      * @param depender   the argument that depends on the specified hypothesis
