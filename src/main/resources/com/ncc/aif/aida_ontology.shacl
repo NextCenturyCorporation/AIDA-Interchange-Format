@@ -2,7 +2,6 @@
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
-@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
 @prefix aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#> .
 @prefix aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#> .
 
@@ -361,11 +360,6 @@ aida:SentimentShape
     sh:xone ( [sh:class aida:Entity ]
               [sh:class aida:Event ] ) ] ;
    # TODO: handle temporal or string values
-
-   # may have zero or more string labels for user consumption
-  sh:property [
-    sh:path skos:prefLabel ;
-    sh:datatype xsd:string ];
 
   # may provide a confidence
   sh:property aida:ConfidencePropertyShape ;
