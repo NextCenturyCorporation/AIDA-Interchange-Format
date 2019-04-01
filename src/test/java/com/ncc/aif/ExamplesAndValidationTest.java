@@ -1208,19 +1208,13 @@ public class ExamplesAndValidationTest {
                         ImmutableSet.of(justification1, justification2, justification3),
                         system,
                         1d);
-                final Resource emptyCompound = markCompoundJustification(model,
-                        ImmutableSet.of(relationEdge),
-                        ImmutableSet.of(),
-                        system,
-                        1d);
 
                 // test event
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity,
                         system, 1.0, getAssertionUri());
                 markJustification(eventEdge, compound);
-                markJustification(eventEdge, emptyCompound);
 
-                testInvalid("NIST.invalid: edge justification contains at most two mentions");
+                testInvalid("NIST.invalid: edge justification contains one or two mentions");
             }
 
 
@@ -1239,7 +1233,7 @@ public class ExamplesAndValidationTest {
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
                 markJustification(eventEdge, compound);
 
-                testInvalid("NIST.invalid: edge justification contains no mentions");
+                testInvalid("NIST.invalid: edge justification contains one or two mentions");
             }
 
 	    @Test
@@ -1757,9 +1751,9 @@ public class ExamplesAndValidationTest {
         System.setErr(oldErr);
 
         // print model if result unexpected or if forcing (for examples)
-	// Swap comments following 2 lines if FORCE_DUMP should ALWAYS dump output
+        // Swap comments following 2 lines if FORCE_DUMP should ALWAYS dump output
         // if (valid != expected || FORCE_DUMP) {
-	if (valid != expected || (FORCE_DUMP && expected)) {
+        if (valid != expected || (FORCE_DUMP && expected)) {
             System.out.println("\n----------------------------------------------\n" + testName + "\n\nAIF Model:");
             RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
         }
