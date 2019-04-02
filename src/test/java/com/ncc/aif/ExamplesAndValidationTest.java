@@ -1720,7 +1720,13 @@ public class ExamplesAndValidationTest {
 
             @Test
             void invalid() {
-                model.removeAll(); //remove everything in the model to ensure no KE's exist
+                //remove everything in the model to ensure no edge KE's exist
+                ExamplesAndValidationTest.this.setup();
+                justification = makeTextJustification(model, "NYT_ENG_20181231",
+                        42, 143, system, 0.973);
+                entity = makeEntity(model, getEntityUri(), system);
+                entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, "handle", system);
+                markJustification(addType(entity, SeedlingOntology.Person), justification);
                 makeValidHypothesis(entity);
                 testInvalid("NISTHypothesis.invalid: Each hypothesis graph must have at least one " +
                         "event or relation with at least one edge.");
