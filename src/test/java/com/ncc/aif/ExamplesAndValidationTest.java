@@ -1806,7 +1806,7 @@ public class ExamplesAndValidationTest {
                 markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, "Relation", system), 103);
                 markJustification(addType(relation, SeedlingOntology.GeneralAffiliation_APORA), justification);
 
-                //create invalid relation edge with event argument type
+                // create invalid relation edge with event argument type
                 Resource invalidRelationEdge = model.createResource("relation-edge-with-event-1");
                 invalidRelationEdge.addProperty(RDF.type, relation);
                 markSystem(invalidRelationEdge, system);
