@@ -1805,6 +1805,7 @@ public class ExamplesAndValidationTest {
                 markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, "Relation", system), 103);
                 markJustification(addType(relation, SeedlingOntology.GeneralAffiliation_APORA), justification);
 
+                //create invalid relation edge with event argument type
                 final Resource invalidRelationEdge = markAsArgument(model, relation, SeedlingOntology.Conflict_Attack_Attacker,
                         entity, system, 1d, getAssertionUri());
                 markImportance(invalidRelationEdge, 102);
