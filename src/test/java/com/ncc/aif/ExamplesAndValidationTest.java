@@ -1718,45 +1718,87 @@ public class ExamplesAndValidationTest {
             }
         }
 
+        // Each hypothesis graph must have at least one event or relation with at least one edge.
         @Nested
         class HypothesisRequiredOneEventOrRelationWithOneEdge {
-            Resource relation;
-            Resource event;
-            Resource relationEdge;
-            Resource eventEdge;
-
-            @BeforeEach
-            void setup() {
-                relation = makeRelation(model, getUri("relation-1"), system);
-                markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, "Relation", system), 103);
-                markJustification(addType(relation, SeedlingOntology.GeneralAffiliation_APORA), justification);
-                relationEdge = markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate,
-                        entity, system, 1d, getAssertionUri());
-                markImportance(relationEdge, 102);
-
-                /*event = makeEvent(model, getUri("event-1"), system);
-                markImportance(makeClusterWithPrototype(model, getClusterUri(), event, "Event", system), 104);
-                markJustification(addType(event, SeedlingOntology.Conflict_Attack), justification);
-                eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Attacker,
-                        entity, system, 1d, getAssertionUri());
-                markImportance(eventEdge, 101);*/
-            }
 
             @Test
             void invalid() {
                 makeValidHypothesis(entity);
-                testInvalid("NISTHypothesis.invalid: changeme");
+                testInvalid("NISTHypothesis.invalid: Each hypothesis graph must have at least one " +
+                        "event or relation with at least one edge.");
+            }
+
+            @Test
+            void invalidRelationAndEventEdge() {
+                final Resource relation = makeRelation(model, getUri("relation-1"), system);
+                markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, "Relation", system), 103);
+                markJustification(addType(relation, SeedlingOntology.GeneralAffiliation_APORA), justification);
+
+                final Resource eventEdge = markAsArgument(model, relation, SeedlingOntology.Conflict_Attack_Attacker,
+                        entity, system, 1d, getAssertionUri());
+                markImportance(eventEdge, 101);
+
+                makeValidHypothesis(entity, relation, eventEdge);
+                testInvalid("NISTHypothesis.invalid: Each hypothesis graph must have at least one event " +
+                        "or relation with at least one edge.");
             }
 
             @Test
             void validRelationAndRelationEdge() {
+
+                final Resource relation = makeRelation(model, getUri("relation-1"), system);
+                markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, "Relation", system), 103);
+                markJustification(addType(relation, SeedlingOntology.GeneralAffiliation_APORA), justification);
+
+                final Resource relationEdge = markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate,
+                        entity, system, 1d, getAssertionUri());
+                markImportance(relationEdge, 102);
+
                 makeValidHypothesis(entity, relation, relationEdge);
-                testValid("NISTHypothesis.valid: changme");
+                testValid("NISTHypothesis.valid: Each hypothesis graph must have at least one event " +
+                        "or relation with at least one edge.");
+            }
+
+            @Test
+            void validEventAndEventEdge() {
+
+                final Resource event = makeEvent(model, getUri("event-1"), system);
+                markImportance(makeClusterWithPrototype(model, getClusterUri(), event, "Event", system), 104);
+                markJustification(addType(event, SeedlingOntology.Conflict_Attack), justification);
+
+                final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Attacker,
+                        entity, system, 1d, getAssertionUri());
+                markImportance(eventEdge, 101);
+                makeValidHypothesis(entity, event,eventEdge);
+                testValid("NISTHypothesis.valid: Each hypothesis graph must have at least one " +
+                        "event or relation with at least one edge.");
+            }
+
+            @Test
+            void validEventRelationAndEventRelationEdge() {
+
+                final Resource event = makeEvent(model, getUri("event-1"), system);
+                markImportance(makeClusterWithPrototype(model, getClusterUri(), event, "Event", system), 104);
+                markJustification(addType(event, SeedlingOntology.Conflict_Attack), justification);
+
+                final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Attacker,
+                        entity, system, 1d, getAssertionUri());
+                markImportance(eventEdge, 101);
+
+                final Resource relation = makeRelation(model, getUri("relation-1"), system);
+                markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, "Relation", system), 103);
+                markJustification(addType(relation, SeedlingOntology.GeneralAffiliation_APORA), justification);
+
+                final Resource relationEdge = markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate,
+                        entity, system, 1d, getAssertionUri());
+                markImportance(relationEdge, 102);
+
+                makeValidHypothesis(entity, event,eventEdge, relation, relationEdge);
+                testValid("NISTHypothesis.valid: Each hypothesis graph must have at least one " +
+                        "event or relation with at least one edge.");
             }
         }
-
-
-
     }
 
     /**

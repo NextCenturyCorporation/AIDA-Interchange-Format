@@ -30,7 +30,7 @@ aida:SystemShape
 #------------------------
 aida:SystemShape
     sh:sparql[
-        a sh:SPARQLTarget ;
+        sh:message "Each hypothesis graph must have at least one event or relation with at least one edge. Found {$this}" ;
         sh:select """
             PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -43,15 +43,17 @@ aida:SystemShape
                 ?argumentAssertion rdf:predicate ?pred .
                 {
                     ?pred rdfs:subClassOf+ aidaDomainCommon:RelationArgumentType .
-                    ?hypothesis aida:hypothesisContent/aida:subgraphContains ?pred
-                 }
+                    ?hypothesis aida:hypothesisContent/aida:subgraphContains ?argumentAssertion .
+                    ?hypothesis aida:hypothesisContent/aida:subgraphContains ?subject
+                }
                 UNION
                 {
                     ?pred rdfs:subClassOf+ aidaDomainCommon:EventArgumentType .
-                    ?hypothesis aida:hypothesisContent/aida:subgraphContains ?pred
+                    ?hypothesis aida:hypothesisContent/aida:subgraphContains ?argumentAssertion .
+                    ?hypothesis aida:hypothesisContent/aida:subgraphContains ?subject
                 }
             }
-            HAVING (COUNT(?hypothesis) > 0)
+            HAVING (COUNT(?hypothesis) < 1)
         """ ;
     ] .
 
