@@ -94,7 +94,9 @@ Return values from the command-line validator are as follows:
 * `0 (Success)`.  There were no validation (or any other) errors.
 * `1 (Validation Error)`.	All specified files were validated but at least one failed validation.
 * `2 (Usage Error)`.  There was a problem interpreting command-line arguments.  No validation was performed.
-* `3 (File Error)`.  There was a problem reading one or more files or directories.  Validation may have been performed on a subset of specified KBs.  If there is an error loading any ontologies or SHACL files, then no validation is performed.
+* `3 (File Error)`.  A file was rejected, either due to an I/O error or because it didn't meet certain criteria.
+  Logging indicates the nature of the problem(s).  Validation may have been performed on a subset of specified KBs.
+  If there is an error loading any ontologies or SHACL files, then no validation is performed.
 
 ### Running the validator in code
 To run the validator programmatically in Java code, first use one of the public `ValidateAIF.createXXX()`
