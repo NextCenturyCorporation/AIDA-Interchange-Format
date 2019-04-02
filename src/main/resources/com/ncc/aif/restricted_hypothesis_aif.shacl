@@ -65,8 +65,7 @@ aida:ImportanceRequiredShape
     sh:maxCount 1 .
 
 aida:HypothesisShape
-    sh:property aida:ImportanceRequiredShape ;
-    sh:property aida:HypothesisMustHaveEventRelationShape .
+    sh:property aida:ImportanceRequiredShape .
 
 #########################
 # 4.3 TA3 #5 Each event or relation (cluster) in the hypothesis must have exactly one event/relation importance value
