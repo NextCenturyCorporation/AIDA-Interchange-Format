@@ -1458,7 +1458,6 @@ public class ExamplesAndValidationTest {
         // Exactly 1 hypothesis should exist in model
         @Nested
         class SingleHypothesis {
-
             Resource event;
             Resource eventEdge;
 
@@ -1477,7 +1476,7 @@ public class ExamplesAndValidationTest {
             void invalidTooMany() {
                 makeValidHypothesis(entity, event, eventEdge);
                 markImportance(makeHypothesis(model, getUri("hypothesis-2"),
-                        Collections.singleton(entity), system), 101);
+                        ImmutableSet.of(entity, event, eventEdge), system), 101);
                 testInvalid("NISTHypothesis.invalid (too many): there should be exactly 1 hypothesis");
             }
 
@@ -1806,24 +1805,17 @@ public class ExamplesAndValidationTest {
                 markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, "Relation", system), 103);
                 markJustification(addType(relation, SeedlingOntology.GeneralAffiliation_APORA), justification);
 
-                // create invalid relation edge with event argument type
-                Resource invalidRelationEdge = model.createResource("relation-edge-with-event-1");
-                invalidRelationEdge.addProperty(RDF.type, relation);
-                markSystem(invalidRelationEdge, system);
-                invalidRelationEdge.addProperty(RDF.subject, relation);
-                invalidRelationEdge.addProperty(RDF.predicate,  SeedlingOntology.Conflict_Attack_Attacker);
-                invalidRelationEdge.addProperty(RDF.object, entity);
-                markConfidence(model, invalidRelationEdge, 1d, system);
-                markImportance(invalidRelationEdge, 101);
+                final Resource invalidRelationEdge = markAsArgument(model, relation, SeedlingOntology.Conflict_Attack_Attacker,
+                        entity, system, 1d, getAssertionUri());
+                markImportance(invalidRelationEdge, 102);
 
                 makeValidHypothesis(entity, relation, invalidRelationEdge);
-                testValid("NISTHypothesis.invalid: Each hypothesis graph must have at least one event " +
+                testInvalid("NISTHypothesis.invalid: Each hypothesis graph must have at least one event " +
                         "or relation with at least one edge.");
             }
 
             @Test
             void validRelationAndRelationEdge() {
-
                 final Resource relation = makeRelation(model, getUri("relation-1"), system);
                 markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, "Relation", system), 103);
                 markJustification(addType(relation, SeedlingOntology.GeneralAffiliation_APORA), justification);
@@ -1839,7 +1831,6 @@ public class ExamplesAndValidationTest {
 
             @Test
             void validEventAndEventEdge() {
-
                 final Resource event = makeEvent(model, getUri("event-1"), system);
                 markImportance(makeClusterWithPrototype(model, getClusterUri(), event, "Event", system), 104);
                 markJustification(addType(event, SeedlingOntology.Conflict_Attack), justification);
@@ -1855,7 +1846,6 @@ public class ExamplesAndValidationTest {
 
             @Test
             void validEventRelationAndEventRelationEdge() {
-
                 final Resource event = makeEvent(model, getUri("event-1"), system);
                 markImportance(makeClusterWithPrototype(model, getClusterUri(), event, "Event", system), 104);
                 markJustification(addType(event, SeedlingOntology.Conflict_Attack), justification);
@@ -1872,7 +1862,7 @@ public class ExamplesAndValidationTest {
                         entity, system, 1d, getAssertionUri());
                 markImportance(relationEdge, 102);
 
-                makeValidHypothesis(entity, event,eventEdge, relation, relationEdge);
+                makeValidHypothesis(entity, event, eventEdge, relation, relationEdge);
                 testValid("NISTHypothesis.valid: Each hypothesis graph must have at least one " +
                         "event or relation with at least one edge.");
             }
