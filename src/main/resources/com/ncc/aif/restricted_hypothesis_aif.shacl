@@ -35,7 +35,6 @@ aida:SystemShape
     sh:sparql[
         sh:message "Each hypothesis graph must have at least one event or relation with at least one edge. Found {$this}" ;
         sh:select """
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#>
