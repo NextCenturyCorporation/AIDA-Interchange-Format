@@ -1539,8 +1539,8 @@ public class ExamplesAndValidationTest {
                 markJustification(addType(newEntity, SeedlingOntology.Person), justification);
                 makeValidHypothesis(entity, newEntity, event, eventEdge);
 
-                testInvalid("NISTHypothesis.invalid: Each entity cluster in the hypothesis graph must have " +
-                        "exactly one handle");
+                testInvalid("NISTHypothesis.invalid (no handle exists): Each entity cluster in the hypothesis " +
+                        "graph must have exactly one handle");
             }
 
             @Test
@@ -1554,8 +1554,8 @@ public class ExamplesAndValidationTest {
                 markJustification(addType(newEntity, SeedlingOntology.Person), justification);
                 makeValidHypothesis(entity, newEntity, event, eventEdge);
 
-                testInvalid("NISTHypothesis.invalid: Each entity cluster in the hypothesis graph must have " +
-                            "exactly one handle");
+                testInvalid("NISTHypothesis.invalid (multiple handles exist): Each entity cluster in the " +
+                        "hypothesis graph must have exactly one handle");
             }
 
             @Test
@@ -1575,8 +1575,8 @@ public class ExamplesAndValidationTest {
             void invalid() {
                 //invalid hypothesis, no importance value
                 makeHypothesis(model, getUri("hypothesis-1"), ImmutableSet.of(entity, event, eventEdge), system);
-                testInvalid("NISTHypothesis.invalid: Each hypothesis graph must have exactly one" +
-                        " hypothesis importance value");
+                testInvalid("NISTHypothesis.invalid (hypothesis has no importance value): Each hypothesis " +
+                        "graph must have exactly one hypothesis importance value");
             }
             @Test
             void valid() {
@@ -1618,16 +1618,16 @@ public class ExamplesAndValidationTest {
             void invalidEvent() {
                 //invalid event cluster, no importance value
                 markImportance(relationCluster, 99);
-                testInvalid("NISTHypothesis.invalid: Each event or relation (cluster) in the hypothesis must " +
-                        "have exactly one importance value");
+                testInvalid("NISTHypothesis.invalid (event cluster has no importance value): Each event or " +
+                        "relation (cluster) in the hypothesis must have exactly one importance value");
             }
 
             @Test
             void invalidRelation() {
                 //invalid relation cluster, no importance value
                 markImportance(eventCluster, 88);
-                testInvalid("NISTHypothesis.invalid: Each event or relation (cluster) in the hypothesis must " +
-                        "have exactly one importance value");
+                testInvalid("NISTHypothesis.invalid (relation cluster has no importance value): Each event or " +
+                        "relation (cluster) in the hypothesis must have exactly one importance value");
             }
 
             @Test
@@ -1665,8 +1665,8 @@ public class ExamplesAndValidationTest {
 
                 makeValidHypothesis(entity, event, eventEdge, relation, invalidEventEdge);
 
-                testInvalid("NISTHypothesis.invalid: Each edge KE in the hypothesis graph must have exactly one " +
-                        "edge importance value");
+                testInvalid("NISTHypothesis.invalid (event edge has no importance value): Each edge KE in the " +
+                        "hypothesis graph must have exactly one edge importance value");
             }
 
             @Test
@@ -1678,8 +1678,8 @@ public class ExamplesAndValidationTest {
 
                 makeValidHypothesis(entity, event, eventEdge, relation, invalidRelationEdge);
 
-                testInvalid("NISTHypothesis.invalid: Each edge KE in the hypothesis graph must have exactly one " +
-                        "edge importance value");
+                testInvalid("NISTHypothesis.invalid (relation edge has no importance value): Each edge KE in the " +
+                        "hypothesis graph must have exactly one edge importance value");
             }
 
             @Test
@@ -1687,8 +1687,8 @@ public class ExamplesAndValidationTest {
 
                 makeValidHypothesis(entity, event, eventEdge, relation);
 
-                testValid("NISTHypothesis.valid: Each edge KE in the hypothesis graph must have exactly one " +
-                        "edge importance value");
+                testValid("NISTHypothesis.valid (event edge has importance value): Each edge KE in the " +
+                        "hypothesis graph must have exactly one edge importance value");
             }
 
             @Test
@@ -1701,8 +1701,8 @@ public class ExamplesAndValidationTest {
 
                 makeValidHypothesis(entity, event, eventEdge, relation, relationEdge);
 
-                testValid("NISTHypothesis.valid: Each edge KE in the hypothesis graph must have exactly one " +
-                        "edge importance value");
+                testValid("NISTHypothesis.valid (relation edge has importance value): Each edge KE in the " +
+                        "hypothesis graph must have exactly one edge importance value");
             }
         }
 
@@ -1713,7 +1713,8 @@ public class ExamplesAndValidationTest {
             void invalid() {
                 Resource fakeEntity = model.createResource(getEntityUri());
                 makeValidHypothesis(fakeEntity, entity, event, eventEdge);
-                testInvalid("NISTHypothesis.invalid: All KEs referenced by hypothesis must be defined in model");
+                testInvalid("NISTHypothesis.invalid (entity is not defined): All KEs referenced by hypothesis " +
+                        "must be defined in model");
             }
 
             @Test
@@ -1742,7 +1743,8 @@ public class ExamplesAndValidationTest {
             @Test
             void invalid() {
                 makeValidHypothesis(entity, relation, relationEdge);
-                testInvalid("NISTHypothesis.invalid: All KEs in model must be referenced by hypothesis");
+                testInvalid("NISTHypothesis.invalid (event and event edge does not referenced in hypothesis): " +
+                        "All KEs in model must be referenced by hypothesis");
             }
 
             @Test
@@ -1766,8 +1768,8 @@ public class ExamplesAndValidationTest {
                 entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, "handle", system);
                 markJustification(addType(entity, SeedlingOntology.Person), justification);
                 makeValidHypothesis(entity);
-                testInvalid("NISTHypothesis.invalid: Each hypothesis graph must have at least one " +
-                        "event or relation with at least one edge.");
+                testInvalid("NISTHypothesis.invalid (no event or relation exists): Each hypothesis graph must " +
+                        "have at least one event or relation with at least one edge.");
             }
 
             @Test
@@ -1782,8 +1784,8 @@ public class ExamplesAndValidationTest {
                 markImportance(invalidRelationEdge, 102);
 
                 makeValidHypothesis(entity, event, eventEdge, relation, invalidRelationEdge);
-                testInvalid("NISTHypothesis.invalid: Each hypothesis graph must have at least one event " +
-                        "or relation with at least one edge.");
+                testInvalid("NISTHypothesis.invalid (event has invalid relation edge): Each hypothesis graph " +
+                        "must have at least one event or relation with at least one edge.");
             }
 
             // TODO This test case needs to be updated and @Test needs to be added back in  once we decide on the
@@ -1798,16 +1800,16 @@ public class ExamplesAndValidationTest {
                 markImportance(relationEdge, 102);
 
                 makeValidHypothesis(entity, event, eventEdge, relation, relationEdge);
-                testValid("NISTHypothesis.valid: Each hypothesis graph must have at least one event " +
-                        "or relation with at least one edge.");
+                testValid("NISTHypothesis.valid (relation has relation edge): Each hypothesis graph must have " +
+                        "at least one event or relation with at least one edge.");
             }
 
             @Test
             void validEventAndEventEdge() {
 
                 makeValidHypothesis(entity, event, eventEdge);
-                testValid("NISTHypothesis.valid: Each hypothesis graph must have at least one " +
-                        "event or relation with at least one edge.");
+                testValid("NISTHypothesis.valid (event has event edge): Each hypothesis graph must have " +
+                        "at least one event or relation with at least one edge.");
             }
 
             @Test
@@ -1822,8 +1824,8 @@ public class ExamplesAndValidationTest {
                 markImportance(relationEdge, 102);
 
                 makeValidHypothesis(entity, event, eventEdge, relation, relationEdge);
-                testValid("NISTHypothesis.valid: Each hypothesis graph must have at least one " +
-                        "event or relation with at least one edge.");
+                testValid("NISTHypothesis.valid (event has event edge and relation has relation edge): Each " +
+                        "hypothesis graph must have at least one event or relation with at least one edge.");
             }
         }
 
@@ -1853,8 +1855,8 @@ public class ExamplesAndValidationTest {
                 markAsPossibleClusterMember(model, eventMember, relationCluster, 1d, system);
 
                 makeValidHypothesis(entity, event, eventEdge, eventMember, relation, relationEdge);
-                testInvalid("NISTHypothesis.invalid: Clusters must be homogeneous by base class " +
-                        "(Entity, Event, or Relation).");
+                testInvalid("NISTHypothesis.invalid (event exists in relation cluster): Clusters must be " +
+                        "homogeneous by base class (Entity, Event, or Relation).");
             }
 
             @Test
