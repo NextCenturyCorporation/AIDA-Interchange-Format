@@ -335,7 +335,7 @@ public final class ValidateAIF {
 
         // Collect the file(s) to be validated.
         final List<File> filesToValidate = new ArrayList<>();
-        short nonTTLcount = 0;
+        int nonTTLcount = 0;
         if (!validationFiles.isEmpty()) {
             for (String file : validationFiles) {
                 if (file.endsWith(".ttl")) {
@@ -387,16 +387,16 @@ public final class ValidateAIF {
         // Validate all files, noting I/O and other errors, but continue to validate even if one fails.
         final DateFormat format = new SimpleDateFormat("EEE, MMM d HH:mm:ss");
         int invalidCount = 0;
-        short skipCount = 0;
+        int skipCount = 0;
         int fileNum = 0;
         for (File fileToValidate : filesToValidate) {
             Date date = Calendar.getInstance().getTime();
             logger.info("-> Validating " + fileToValidate + " at " + format.format(date) +
                     " (" + ++fileNum + " of " + filesToValidate.size() + ").");
             final OntModel dataToBeValidated = ModelFactory.createOntologyModel();
-            boolean skipped = ((restriction == Restriction.NIST_HYPOTHESIS) && checkHypothesisSize(fileToValidate))
-                    || loadFile(dataToBeValidated, fileToValidate);
-            if (!skipped) {
+            boolean notSkipped = ((restriction == Restriction.NIST_HYPOTHESIS) && checkHypothesisSize(fileToValidate))
+                    && loadFile(dataToBeValidated, fileToValidate);
+            if (notSkipped) {
                 if (!validator.validateKB(dataToBeValidated)) {
                     logger.warn("---> Validation of " + fileToValidate + " failed.");
                     invalidCount++;
@@ -413,24 +413,24 @@ public final class ValidateAIF {
         System.exit(returnCode.ordinal());
     }
 
-    // Check for hypotheses > 5MB
+    // Return false if file is > 5MB or size couldn't be determined, otherwise true
     private static boolean checkHypothesisSize(File fileToValidate) {
         try {
             final Path path = Paths.get(fileToValidate.toURI());
             final long fileSize = java.nio.file.Files.size(path);
             if (fileSize > 1024 * 1024 * 5) { // 5MB
                 logger.warn("---> Hypothesis KB " + fileToValidate + " is more than 5MB (" + fileSize + " bytes); skipping.");
-                return true;
-            } else {
                 return false;
+            } else {
+                return true;
             }
         } catch (IOException ioe) {
             logger.warn("---> Could not determine size for hypothesis KB " + fileToValidate + "; skipping.");
-            return true;
+            return false;
         }
     }
 
-    // Load the model, or fail trying
+    // Load the model, or fail trying.  Returns true if it's loaded, otherwise false.
     private static boolean loadFile(OntModel dataToBeValidated, File fileToValidate) {
         dataToBeValidated.addLoadedImport(INTERCHANGE_URI);
         dataToBeValidated.addLoadedImport(AIDA_DOMAIN_COMMON_URI);
@@ -438,9 +438,9 @@ public final class ValidateAIF {
             loadModel(dataToBeValidated, Files.asCharSource(fileToValidate, Charsets.UTF_8));
         } catch (RuntimeException rte) {
             logger.warn("---> Could not read " + fileToValidate + "; skipping.");
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     // Display a summary to the user
