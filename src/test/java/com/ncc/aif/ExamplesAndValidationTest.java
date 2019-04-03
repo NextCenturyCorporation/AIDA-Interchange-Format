@@ -1743,7 +1743,7 @@ public class ExamplesAndValidationTest {
             @Test
             void invalid() {
                 makeValidHypothesis(entity, relation, relationEdge);
-                testInvalid("NISTHypothesis.invalid (event and event edge does not referenced in hypothesis): " +
+                testInvalid("NISTHypothesis.invalid (event and event edge is not referenced in hypothesis): " +
                         "All KEs in model must be referenced by hypothesis");
             }
 
