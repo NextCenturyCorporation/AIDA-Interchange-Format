@@ -52,7 +52,7 @@ public final class ValidateAIF {
     private static Model nistModel;
     private static Model nistHypoModel;
     private static boolean initialized = false;
-    private static Logger logger;
+    private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
 
     private static void initializeSHACLModels() {
         if (!initialized) {
@@ -296,7 +296,6 @@ public final class ValidateAIF {
         final Set<String> validationDirs = new LinkedHashSet<>();
 
         // Prevent too much logging from obscuring the actual problems.
-        logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
         logger.setLevel(Level.INFO);
         logger.info("AIF Validator");
 
@@ -336,12 +335,14 @@ public final class ValidateAIF {
 
         // Collect the file(s) to be validated.
         final List<File> filesToValidate = new ArrayList<>();
+        short nonTTLcount = 0;
         if (!validationFiles.isEmpty()) {
             for (String file : validationFiles) {
                 if (file.endsWith(".ttl")) {
                     filesToValidate.add(new File(file));
                 } else {
                     logger.warn("Skipping file without .ttl suffix: " + file);
+                    nonTTLcount++;
                 }
             }
         } else { // -d option
@@ -390,16 +391,11 @@ public final class ValidateAIF {
         int fileNum = 0;
         for (File fileToValidate : filesToValidate) {
             Date date = Calendar.getInstance().getTime();
-            boolean skipped = false;
             logger.info("-> Validating " + fileToValidate + " at " + format.format(date) +
                     " (" + ++fileNum + " of " + filesToValidate.size() + ").");
-            if (restriction == Restriction.NIST_HYPOTHESIS) {
-                skipped = checkHypothesisSize(fileToValidate);
-            }
             final OntModel dataToBeValidated = ModelFactory.createOntologyModel();
-            if (!skipped) {
-                skipped = loadFile(dataToBeValidated, fileToValidate);
-            }
+            boolean skipped = ((restriction == Restriction.NIST_HYPOTHESIS) && checkHypothesisSize(fileToValidate))
+                    || loadFile(dataToBeValidated, fileToValidate);
             if (!skipped) {
                 if (!validator.validateKB(dataToBeValidated)) {
                     logger.warn("---> Validation of " + fileToValidate + " failed.");
@@ -413,7 +409,7 @@ public final class ValidateAIF {
             dataToBeValidated.close();
         }
 
-        final ReturnCode returnCode = displaySummary(fileNum, invalidCount, skipCount);
+        final ReturnCode returnCode = displaySummary(fileNum+nonTTLcount, invalidCount, skipCount+nonTTLcount);
         System.exit(returnCode.ordinal());
     }
 
@@ -448,19 +444,19 @@ public final class ValidateAIF {
     }
 
     // Display a summary to the user
-    private static ReturnCode displaySummary(int fileCount, int invalidCount, short skipCount) {
-        if (fileCount == 1) { // Tune output to single-file validation
-            if (skipCount == 1) {
-                logger.info("No validation was performed.");
-            } else {
-                logger.info("The submitted KB was " + (invalidCount == 1 ? "invalid." : "valid."));
-            }
-        } else if (invalidCount > 0) { // Multiple file validation
-            final int validCount = fileCount - invalidCount - skipCount;
-            logger.info("Summary: " + validCount + " valid KB(s), " + invalidCount + " invalid KB(s)" +
-                    (skipCount > 0 ? ", " + skipCount + " skipped." : "."));
-        } else {
-            logger.info("All tested KBs were valid" + (skipCount > 0 ? " (" + skipCount + " skipped)." : "."));
+    private static ReturnCode displaySummary(int fileCount, int invalidCount, int skipCount) {
+        final int validCount = fileCount - invalidCount - skipCount;
+        logger.info("Summary:");
+        logger.info("\tFiles submitted: " + fileCount);
+        logger.info("\tSkipped files: " + skipCount);
+        logger.info("\tKB(s) sent to validator: " + (fileCount - skipCount));
+        logger.info("\tValid KB(s): " + (fileCount - invalidCount - skipCount));
+        logger.info("\tInvalid KB(s): " + invalidCount);
+        if (fileCount == validCount) {
+            logger.info("*** All submitted KBs were valid. ***");
+        }
+        else if (fileCount == skipCount) {
+            logger.info("*** No validation was performed. ***");
         }
 
         if (invalidCount > 0) { // Return a failure code if anything fails to validate.

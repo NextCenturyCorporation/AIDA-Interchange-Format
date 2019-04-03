@@ -92,7 +92,7 @@ Ontology files can be found in `src/main/resources/com/ncc/aif/ontologies`:
 ### Validator return values
 Return values from the command-line validator are as follows:
 * `0 (Success)`.  There were no validation (or any other) errors.
-* `1 (Validation Error)`.	All specified files were validated but at least one failed validation.
+* `1 (Validation Error)`.	All specified files were validated but at least one failed validation.  Supersedes a File Error.
 * `2 (Usage Error)`.  There was a problem interpreting command-line arguments.  No validation was performed.
 * `3 (File Error)`.  A file was rejected, either due to an I/O error or because it didn't meet certain criteria.
   Logging indicates the nature of the problem(s).  Validation may have been performed on a subset of specified KBs.
