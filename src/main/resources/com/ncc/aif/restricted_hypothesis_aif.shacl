@@ -132,7 +132,7 @@ aida:HypothesisClusterMembersSameAsBaseClass
     sh:select """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
-        SELECT $this ?cluster ?prototype  (COUNT(?cluster) AS ?value)
+        SELECT $this ?cluster ?prototype
         WHERE {
       	    $this aida:cluster ?cluster .
             $this aida:clusterMember/rdf:type ?memberType .
@@ -141,8 +141,6 @@ aida:HypothesisClusterMembersSameAsBaseClass
             ?prototype rdf:type ?prototypeType .
             FILTER ( ?memberType != ?prototypeType )
         }
-        GROUP BY $this ?cluster ?prototype
-        HAVING (COUNT(?cluster) != 0)
     """
     .
 
