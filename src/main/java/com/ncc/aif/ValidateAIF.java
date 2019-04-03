@@ -394,7 +394,7 @@ public final class ValidateAIF {
             logger.info("-> Validating " + fileToValidate + " at " + format.format(date) +
                     " (" + ++fileNum + " of " + filesToValidate.size() + ").");
             final OntModel dataToBeValidated = ModelFactory.createOntologyModel();
-            boolean notSkipped = ((restriction == Restriction.NIST_HYPOTHESIS) && checkHypothesisSize(fileToValidate))
+            boolean notSkipped = ((restriction != Restriction.NIST_HYPOTHESIS) || checkHypothesisSize(fileToValidate))
                     && loadFile(dataToBeValidated, fileToValidate);
             if (notSkipped) {
                 if (!validator.validateKB(dataToBeValidated)) {
