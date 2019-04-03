@@ -128,19 +128,20 @@ aida:HypothesisEntityClusterRequireHandle
 #------------------------
 aida:HypothesisClusterMembersSameAsBaseClass
     a sh:SPARQLConstraint ;
-    sh:message "All Clusters must be homogeneous by base class (Entity, Event, or Relation). Found {?value}" ;
+    sh:message "All Clusters must be homogeneous by base class (Entity, Event, or Relation). Found {?prototype} in cluster {?cluster}" ;
     sh:select """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
-        SELECT $this (COUNT(?cluster) AS ?value)
+        SELECT $this ?cluster ?prototype  (COUNT(?cluster) AS ?value)
         WHERE {
       	    $this aida:cluster ?cluster .
             $this aida:clusterMember/rdf:type ?memberType .
             ?cluster a aida:SameAsCluster .
-            ?cluster aida:prototype/rdf:type ?prototypeType .
+            ?cluster aida:prototype ?prototype .
+            ?prototype rdf:type ?prototypeType .
             FILTER ( ?memberType != ?prototypeType )
         }
-        GROUP BY $this
+        GROUP BY $this ?cluster ?prototype
         HAVING (COUNT(?cluster) != 0)
     """
     .

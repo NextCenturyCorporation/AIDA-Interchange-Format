@@ -1832,20 +1832,27 @@ public class ExamplesAndValidationTest {
         // Clusters must be homogeneous by base class (Entity, Event, or Relation)
         @Nested
         class HypothesisClustersMustBeHomogeneous {
+            Resource relation;
+            Resource relationEdge;
+            Resource relationCluster;
 
-            @Test
-            void invalid() {
+            @BeforeEach
+            void setup() {
+                relation = makeRelation(model, getUri("relation-1"), system);
 
-                final Resource relation = makeRelation(model, getUri("relation-1"), system);
-                final Resource relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation,
+                relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation,
                         "Relation", system);
 
                 markImportance(relationCluster, 103);
                 markJustification(addType(relation, SeedlingOntology.GeneralAffiliation_APORA), justification);
 
-                final Resource relationEdge = markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate,
+                relationEdge = markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate,
                         entity, system, 1d, getAssertionUri());
                 markImportance(relationEdge, 102);
+            }
+
+            @Test
+            void invalid() {
 
                 // create event cluster member to add to relation cluster
                 final Resource eventMember = makeEvent(model, getUri("event-member-1"), system);
@@ -1861,17 +1868,6 @@ public class ExamplesAndValidationTest {
 
             @Test
             void valid() {
-
-                final Resource relation = makeRelation(model, getUri("relation-1"), system);
-                final Resource relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation,
-                        "Relation", system);
-
-                markImportance(relationCluster, 103);
-                markJustification(addType(relation, SeedlingOntology.GeneralAffiliation_APORA), justification);
-
-                final Resource relationEdge = markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate,
-                        entity, system, 1d, getAssertionUri());
-                markImportance(relationEdge, 102);
 
                 // create relation cluster member to add to relation cluster
                 final Resource relationMember = makeRelation(model, getUri("relation-member-1"), system);
