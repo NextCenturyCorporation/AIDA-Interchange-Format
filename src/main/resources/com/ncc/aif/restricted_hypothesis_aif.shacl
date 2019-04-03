@@ -132,7 +132,6 @@ aida:HypothesisClusterMembersSameAsBaseClass
     sh:select """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
-
         SELECT $this (COUNT(?cluster) AS ?value)
         WHERE {
       	    $this aida:cluster ?cluster .
