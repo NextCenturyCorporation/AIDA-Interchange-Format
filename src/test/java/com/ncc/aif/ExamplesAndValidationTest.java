@@ -1825,6 +1825,63 @@ public class ExamplesAndValidationTest {
                         "event or relation with at least one edge.");
             }
         }
+
+        // Clusters must be homogeneous by base class (Entity, Event, or Relation)
+        @Nested
+        class HypothesisClustersMustBeHomogeneous {
+
+            @Test
+            void invalid() {
+
+                final Resource relation = makeRelation(model, getUri("relation-1"), system);
+                final Resource relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation,
+                        "Relation", system);
+
+                markImportance(relationCluster, 103);
+                markJustification(addType(relation, SeedlingOntology.GeneralAffiliation_APORA), justification);
+
+                final Resource relationEdge = markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate,
+                        entity, system, 1d, getAssertionUri());
+                markImportance(relationEdge, 102);
+
+                // create event cluster member to add to relation cluster
+                final Resource eventMember = makeEvent(model, getUri("event-member-1"), system);
+                markJustification(addType(eventMember, SeedlingOntology.Conflict_Attack), justification);
+
+                //add invalid event cluster member to relation cluster
+                markAsPossibleClusterMember(model, eventMember, relationCluster, 1d, system);
+
+                makeValidHypothesis(entity, event, eventEdge, eventMember, relation, relationEdge);
+                testInvalid("NISTHypothesis.invalid: Clusters must be homogeneous by base class " +
+                        "(Entity, Event, or Relation).");
+            }
+
+            @Test
+            void valid() {
+
+                final Resource relation = makeRelation(model, getUri("relation-1"), system);
+                final Resource relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation,
+                        "Relation", system);
+
+                markImportance(relationCluster, 103);
+                markJustification(addType(relation, SeedlingOntology.GeneralAffiliation_APORA), justification);
+
+                final Resource relationEdge = markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate,
+                        entity, system, 1d, getAssertionUri());
+                markImportance(relationEdge, 102);
+
+                // create relation cluster member to add to relation cluster
+                final Resource relationMember = makeRelation(model, getUri("relation-member-1"), system);
+                markJustification(addType(relationMember, SeedlingOntology.GeneralAffiliation_APORA), justification);
+
+                //add valid relation cluster member to relation cluster
+                markAsPossibleClusterMember(model, relationMember, relationCluster, 1d, system);
+
+                makeValidHypothesis(entity, event, eventEdge, relation, relationEdge, relationMember);
+                testValid("NISTHypothesis.valid: Clusters must be homogeneous by base class " +
+                        "(Entity, Event, or Relation)");
+            }
+        }
     }
 
     /**
