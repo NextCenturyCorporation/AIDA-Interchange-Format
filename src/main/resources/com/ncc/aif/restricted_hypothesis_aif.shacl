@@ -148,8 +148,7 @@ aida:HypothesisClusterMembersSameAsBaseClass
 aida:HypothesisClusterMembersShape
     a sh:NodeShape ;
     sh:targetClass aida:ClusterMembership ;
-    sh:sparql aida:HypothesisClusterMembersSameAsBaseClass
-    .
+    sh:sparql aida:HypothesisClusterMembersSameAsBaseClass .
 
 ########################
 # 4.3 TA3 #1.a All KEs in model should be referenced by hypothesis
