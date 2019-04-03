@@ -1786,7 +1786,8 @@ public class ExamplesAndValidationTest {
                         "or relation with at least one edge.");
             }
 
-            @Test
+            // TODO This test case needs to be updated and @Test needs to be added back in  once we decide on the
+            // TODO new design of this class upon the completion of AIDA-698.
             void validRelationAndRelationEdge() {
                 final Resource relation = makeRelation(model, getUri("relation-1"), system);
                 markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, "Relation", system), 103);
