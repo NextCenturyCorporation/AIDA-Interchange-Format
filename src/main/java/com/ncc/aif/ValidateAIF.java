@@ -36,7 +36,7 @@ public final class ValidateAIF {
     private static final String NIST_HYPOTHESIS_SHACL_RESNAME = "com/ncc/aif/restricted_hypothesis_aif.shacl";
     private static final String INTERCHANGE_RESNAME = "com/ncc/aif/ontologies/InterchangeOntology";
     private static final String AIDA_DOMAIN_COMMON_RESNAME = "com/ncc/aif/ontologies/AidaDomainOntologiesCommon";
-    private static final String LDC_RESNAME = "com/ncc/aif/ontologies/SeedlingOntology";
+    private static final String LDC_RESNAME = "com/ncc/aif/ontologies/LDCOntology";
     private static final String AO_ENTITIES_RESNAME = "com/ncc/aif/ontologies/EntityOntology";
     private static final String AO_EVENTS_RESNAME = "com/ncc/aif/ontologies/EventOntology";
     private static final String AO_RELATIONS_RESNAME = "com/ncc/aif/ontologies/RelationOntology";
@@ -168,7 +168,7 @@ public final class ValidateAIF {
                 "Either a file (-f) or a directory (-d) must be specified (but not both).\n" +
                 "Exactly one of --ldc, --program, or --ont must be specified.\n" +
                 "Ontology files can be found in src/main/resources/com/ncc/aif/ontologies:\n" +
-                "- LDC: SeedlingOntology\n" +
+                "- LDC: LDCOntology\n" +
                 "- Program: EntityOntology, EventOntology, RelationOntology\n" +
                 "\n" +
                 "For more information, see the AIF README.");

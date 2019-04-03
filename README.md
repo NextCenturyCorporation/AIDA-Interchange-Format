@@ -86,7 +86,7 @@ Options:  <br>
 Either a file (-f) or a directory (-d) must be specified (but not both).  <br>
 Exactly one of --ldc, --program, or --ont must be specified.  <br>
 Ontology files can be found in `src/main/resources/com/ncc/aif/ontologies`:
-- LDC (LO): `SeedlingOntology`
+- LDC (LO): `LDCOntology`
 - Program (AO): `EntityOntology`, `EventOntology`, `RelationOntology`
 
 ### Validator return values

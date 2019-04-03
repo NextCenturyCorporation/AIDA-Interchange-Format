@@ -2,7 +2,6 @@
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
-@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
 @prefix aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#> .
 @prefix aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#> .
 
@@ -28,8 +27,8 @@
 # There are two RDF ontologies to be concerned with. What is described and validated here is the
 # "interchange ontology".  The domain working group is also specifying a "domain ontology" (e.g.
 # entity types, event types, etc.).  The AIDA program domain ontology has not yet been specified.
-# We currently have two available domain ontologies, but for ColdStart and LDC Seedling, both of
-# which have OWL files in the src/main/resources/edu/gaia directory of this repository.
+# We currently have two available domain ontologies, but for LDC and LDC Seedling, both of
+# which have OWL files in the src/main/resources/com/ncc/aif/ontologies directory of this repository.
 # We assume all domain ontologies
 # derive their entity, event, and relation types from aidaDomainCommon:EntityType, etc.
 #
@@ -73,6 +72,9 @@ aida:EntityShape
 
     # entities must have unique identifiers
     sh:nodeKind sh:IRI ;
+
+    # may provide an informative justification
+    sh:property aida:InformativeJustificationPropertyShape ;
 
     # may be linked to one or more things in an external KB
     sh:property aida:LinkPropertyShape ;
@@ -133,10 +135,8 @@ aida:EventShape
     # events must have unique identifiers
     sh:nodeKind sh:IRI ;
 
-    # may have zero or more string labels for user consumption
-    sh:property [
-     sh:path skos:prefLabel ;
-     sh:datatype xsd:string ];
+    # may provide an informative justification
+    sh:property aida:InformativeJustificationPropertyShape ;
 
     # may provide a confidence
     sh:property aida:ConfidencePropertyShape ;
@@ -308,10 +308,8 @@ aida:RelationShape
     # must have unique identifiers
     sh:nodeKind sh:IRI ;
 
-    # may have zero or more string labels for user consumption
-    sh:property [
-    sh:path skos:prefLabel ;
-    sh:datatype xsd:string ];
+    # may provide an informative justification
+    sh:property aida:InformativeJustificationPropertyShape ;
 
     # may provide a confidence
     sh:property aida:ConfidencePropertyShape ;
@@ -362,11 +360,6 @@ aida:SentimentShape
     sh:xone ( [sh:class aida:Entity ]
               [sh:class aida:Event ] ) ] ;
    # TODO: handle temporal or string values
-
-   # may have zero or more string labels for user consumption
-  sh:property [
-    sh:path skos:prefLabel ;
-    sh:datatype xsd:string ];
 
   # may provide a confidence
   sh:property aida:ConfidencePropertyShape ;
@@ -839,13 +832,24 @@ aida:CompoundJustificationMinimum
 aida:CompoundJustificationTypes
    a sh:PropertyShape ;
    sh:path aida:containedJustification ;
-   sh:xone (
-     [sh:class aida:TextJustification]
-     [sh:class aida:ImageJustification]
-     [sh:class aida:AudioJustification]
-     [sh:class aida:KeyFrameVideoJustification]
-     [sh:class aida:ShotVideoJustification] ) ;
+   sh:xone aida:JustificationTypeList ;
    sh:message "Unsupported compound justification type" .
+
+aida:JustificationTypeList
+    a rdf:List ;
+    rdf:rest (
+        [ sh:class aida:TextJustification ]
+        [ sh:class aida:AudioJustification ]
+        [ sh:class aida:ImageJustification ]
+        [ sh:class aida:KeyFrameVideoJustification ]
+        [ sh:class aida:ShotVideoJustification ]
+    ) .
+
+aida:InformativeJustificationPropertyShape
+    a sh:PropertyShape ;
+    sh:path aida:informativeJustification ;
+    sh:xone aida:JustificationTypeList
+    .
 
 aida:JustificationPropertyShape
    a sh:PropertyShape ;
@@ -1050,6 +1054,9 @@ aida:ClusterShape
 
    # may provide an importance
    sh:property aida:ImportancePropertyShape ;
+
+   # may provide an informative justification
+   sh:property aida:InformativeJustificationPropertyShape ;
 
    # may provide an one or more source systems
    sh:property aida:SystemPropertyShape ;

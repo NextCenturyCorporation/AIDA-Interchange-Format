@@ -25,6 +25,35 @@ aida:SystemShape
         """ ;
     ] .
 
+#########################
+# 4.3 TA3 #3: Each hypothesis graph must have at least one event or relation with at least one edge.
+# This restriction builds on the TA3 #1.a restriction that enforces all KEs in the model should be referenced in
+# the hypothesis sub-graph and the aida_ontology rule that the subject of an event or relation argument must be an event
+# or relation respectively.
+#------------------------
+aida:SystemShape
+    sh:sparql[
+        sh:message "Each hypothesis graph must have at least one event or relation with at least one edge. Found {$this}" ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#>
+            SELECT (COUNT(?pred) AS $this)
+            WHERE {
+                ?argumentAssertion a rdf:Statement .
+                ?argumentAssertion rdf:predicate ?pred .
+                {
+                    ?pred rdfs:subClassOf+ aidaDomainCommon:RelationArgumentType
+                }
+                UNION
+                {
+                    ?pred rdfs:subClassOf+ aidaDomainCommon:EventArgumentType
+                }
+            }
+            HAVING (COUNT(?pred) < 1)
+        """ ;
+    ] .
+
 #########################.;
 # 4.3 TA3 #4 Each hypothesis graph must have exactly one hypothesis importance value
 #------------------------
