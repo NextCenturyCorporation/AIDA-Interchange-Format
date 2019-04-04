@@ -124,6 +124,31 @@ aida:HypothesisEntityClusterRequireHandle
     ] .
 
 ########################
+# 4.3 TA3 #7  Clusters must be homogeneous by base class (Entity, Event, or Relation)
+#------------------------
+aida:HypothesisClusterMembersSameAsBaseClass
+    a sh:SPARQLConstraint ;
+    sh:message "All Clusters must have homogeneous members by base class (Entity, Event, or Relation)" ;
+    sh:select """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+        SELECT $this (?member AS $value)
+        WHERE {
+      	    ?membership aida:cluster $this .
+            ?membership aida:clusterMember ?member .
+            ?member rdf:type ?memberType .
+            $this aida:prototype/rdf:type ?prototypeType .
+            FILTER ( ?memberType != ?prototypeType )
+        }
+    """
+    .
+
+aida:HypothesisClusterMembersShape
+    a sh:NodeShape ;
+    sh:targetClass aida:SameAsCluster;
+    sh:sparql aida:HypothesisClusterMembersSameAsBaseClass .
+
+########################
 # 4.3 TA3 #1.a All KEs in model should be referenced by hypothesis
 #------------------------
 aida:KEsMustBeReferenced
