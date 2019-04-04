@@ -15,6 +15,9 @@ import org.apache.jena.util.FileUtils;
 import org.topbraid.shacl.validation.ValidationUtil;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -29,7 +32,9 @@ import java.util.*;
 public final class ValidateAIF {
 
     // Enum to track restrictions
-    public enum Restriction {NONE, NIST, NIST_HYPOTHESIS}
+    public enum Restriction {
+        NONE, NIST, NIST_HYPOTHESIS
+    }
 
     private static final String AIDA_SHACL_RESNAME = "com/ncc/aif/aida_ontology.shacl";
     private static final String NIST_SHACL_RESNAME = "com/ncc/aif/restricted_aif.shacl";
@@ -47,6 +52,7 @@ public final class ValidateAIF {
     private static Model nistModel;
     private static Model nistHypoModel;
     private static boolean initialized = false;
+    private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
 
     private static void initializeSHACLModels() {
         if (!initialized) {
@@ -68,6 +74,7 @@ public final class ValidateAIF {
 
     private Model domainModel;
     private Restriction restriction;
+
     private ValidateAIF(Model domainModel, Restriction restriction) {
         initializeSHACLModels();
         this.domainModel = domainModel;
@@ -289,7 +296,6 @@ public final class ValidateAIF {
         final Set<String> validationDirs = new LinkedHashSet<>();
 
         // Prevent too much logging from obscuring the actual problems.
-        final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
         logger.setLevel(Level.INFO);
         logger.info("AIF Validator");
 
@@ -329,12 +335,14 @@ public final class ValidateAIF {
 
         // Collect the file(s) to be validated.
         final List<File> filesToValidate = new ArrayList<>();
+        int nonTTLcount = 0;
         if (!validationFiles.isEmpty()) {
             for (String file : validationFiles) {
                 if (file.endsWith(".ttl")) {
                     filesToValidate.add(new File(file));
                 } else {
                     logger.warn("Skipping file without .ttl suffix: " + file);
+                    nonTTLcount++;
                 }
             }
         } else { // -d option
@@ -378,44 +386,84 @@ public final class ValidateAIF {
 
         // Validate all files, noting I/O and other errors, but continue to validate even if one fails.
         final DateFormat format = new SimpleDateFormat("EEE, MMM d HH:mm:ss");
-        boolean allValid = true;
-        short skipCount = 0;
-        int fileNum = 1;
+        int invalidCount = 0;
+        int skipCount = 0;
+        int fileNum = 0;
         for (File fileToValidate : filesToValidate) {
             Date date = Calendar.getInstance().getTime();
-            boolean skipped = false;
             logger.info("-> Validating " + fileToValidate + " at " + format.format(date) +
-                    " (" + fileNum++ + " of " + filesToValidate.size() + ").");
-
+                    " (" + ++fileNum + " of " + filesToValidate.size() + ").");
             final OntModel dataToBeValidated = ModelFactory.createOntologyModel();
-            dataToBeValidated.addLoadedImport(INTERCHANGE_URI);
-            dataToBeValidated.addLoadedImport(AIDA_DOMAIN_COMMON_URI);
-            try {
-                loadModel(dataToBeValidated, Files.asCharSource(fileToValidate, Charsets.UTF_8));
-            } catch (RuntimeException rte) {
-                logger.warn("---> Could not read " + fileToValidate + "; skipping.");
-                skipped = true;
-                skipCount++;
-            }
-            if (!skipped) {
+            boolean notSkipped = ((restriction != Restriction.NIST_HYPOTHESIS) || checkHypothesisSize(fileToValidate))
+                    && loadFile(dataToBeValidated, fileToValidate);
+            if (notSkipped) {
                 if (!validator.validateKB(dataToBeValidated)) {
                     logger.warn("---> Validation of " + fileToValidate + " failed.");
-                    allValid = false;
+                    invalidCount++;
                 }
                 date = Calendar.getInstance().getTime();
                 logger.info("---> completed " + format.format(date) + ".");
-            }
+            } else
+                skipCount++;
+
             dataToBeValidated.close();
         }
 
-        if (!allValid) {
-            logger.info("At least one KB was invalid" + (skipCount > 0 ? " (" + skipCount + " skipped)." : "."));
-            // Return a failure code if anything fails to validate.
-            System.exit(ReturnCode.VALIDATION_ERROR.ordinal());
-        } else {
-            logger.info("All KBs were valid" + (skipCount > 0 ? " (" + skipCount + " skipped)." : "."));
+        final ReturnCode returnCode = displaySummary(fileNum+nonTTLcount, invalidCount, skipCount+nonTTLcount);
+        System.exit(returnCode.ordinal());
+    }
+
+    // Return false if file is > 5MB or size couldn't be determined, otherwise true
+    private static boolean checkHypothesisSize(File fileToValidate) {
+        try {
+            final Path path = Paths.get(fileToValidate.toURI());
+            final long fileSize = java.nio.file.Files.size(path);
+            if (fileSize > 1024 * 1024 * 5) { // 5MB
+                logger.warn("---> Hypothesis KB " + fileToValidate + " is more than 5MB (" + fileSize + " bytes); skipping.");
+                return false;
+            } else {
+                return true;
+            }
+        } catch (IOException ioe) {
+            logger.warn("---> Could not determine size for hypothesis KB " + fileToValidate + "; skipping.");
+            return false;
         }
-        System.exit(skipCount == 0 ? ReturnCode.SUCCESS.ordinal() : ReturnCode.FILE_ERROR.ordinal());
+    }
+
+    // Load the model, or fail trying.  Returns true if it's loaded, otherwise false.
+    private static boolean loadFile(OntModel dataToBeValidated, File fileToValidate) {
+        dataToBeValidated.addLoadedImport(INTERCHANGE_URI);
+        dataToBeValidated.addLoadedImport(AIDA_DOMAIN_COMMON_URI);
+        try {
+            loadModel(dataToBeValidated, Files.asCharSource(fileToValidate, Charsets.UTF_8));
+        } catch (RuntimeException rte) {
+            logger.warn("---> Could not read " + fileToValidate + "; skipping.");
+            return false;
+        }
+        return true;
+    }
+
+    // Display a summary to the user
+    private static ReturnCode displaySummary(int fileCount, int invalidCount, int skipCount) {
+        final int validCount = fileCount - invalidCount - skipCount;
+        logger.info("Summary:");
+        logger.info("\tFiles submitted: " + fileCount);
+        logger.info("\tSkipped files: " + skipCount);
+        logger.info("\tKB(s) sent to validator: " + (fileCount - skipCount));
+        logger.info("\tValid KB(s): " + (fileCount - invalidCount - skipCount));
+        logger.info("\tInvalid KB(s): " + invalidCount);
+        if (fileCount == validCount) {
+            logger.info("*** All submitted KBs were valid. ***");
+        }
+        else if (fileCount == skipCount) {
+            logger.info("*** No validation was performed. ***");
+        }
+
+        if (invalidCount > 0) { // Return a failure code if anything fails to validate.
+            return ReturnCode.VALIDATION_ERROR;
+        } else {
+            return skipCount == 0 ? ReturnCode.SUCCESS : ReturnCode.FILE_ERROR;
+        }
     }
 
     /**
