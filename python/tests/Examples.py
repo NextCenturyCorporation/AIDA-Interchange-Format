@@ -3,6 +3,7 @@
 import unittest
 import sys
 sys.path.append('../')
+import os
 from io import BytesIO
 from rdflib import URIRef, Graph, RDF
 from aida_interchange.Bounding_Box import Bounding_Box
@@ -12,6 +13,14 @@ from aida_interchange import aifutils
 
 # Running these tests will output the examples to the console
 class Examples(unittest.TestCase):
+
+    test_dir_path = "test_files"
+    def new_file(self, g, test_name):
+        if not os.path.exists(self.test_dir_path):
+            os.makedirs(self.test_dir_path)
+        f = open(self.test_dir_path + "/" + test_name, "wb+")
+        f.write(g.serialize(format='turtle'))
+        f.close
 
     def test_create_an_entity_with_all_justification_types_and_confidence(self):
         g = aifutils.make_graph()
@@ -58,6 +67,7 @@ class Examples(unittest.TestCase):
         # let's mark our entity with some arbitrary system-private data. You can attach such data
         # to nearly anything
         aifutils.mark_private_data(g, entity, "{ 'hello' : 'world' }", system)
+        self.new_file(g, "test_create_an_entity_with_all_justification_types_and_confidence.ttl")
 
         self.dump_graph(g, "Example of entity with all justifications")
 
@@ -90,7 +100,7 @@ class Examples(unittest.TestCase):
         aifutils.mark_as_argument(g, event, arg, electee, system, 0.785)
         arg2 = URIRef(SEEDLING_TYPES_NIST['Personnel.Elect'] + "_Place")
         aifutils.mark_as_argument(g, event, arg2, election_country, system, 0.589)
-
+        self.new_file(g, "test_create_an_event.ttl")
         self.dump_graph(g, "Example of creating an event")
 
 
@@ -113,7 +123,7 @@ class Examples(unittest.TestCase):
                                          "NYT_ENG_201181231", 343, 367, system, 0.3)
 
         aifutils.mark_as_mutually_exclusive(g, { tuple([entity_is_a_person]):0.5, tuple([entity_is_an_organization]):0.2}, system, None)
-
+        self.new_file(g, "test_create_an_entity_with_uncertainty_about_its_type.ttl")
         self.dump_graph(g, "Example of entity with uncertainty about type")
 
 
@@ -162,7 +172,7 @@ class Examples(unittest.TestCase):
         # but not both
         aifutils.mark_as_mutually_exclusive(g, { tuple([place_of_birth_in_cambridge_cluster]):0.4,
                                                  tuple([place_of_birth_in_louisville_cluster]):0.6}, system, None)
-
+        self.new_file(g, "test_create_a_relation_between_two_entities_where_there_is_uncertainty_about_identity_of_one_argument.ttl")
         self.dump_graph(g, "Relation between two entities with uncertainty about id of one")
 
 
@@ -231,7 +241,7 @@ class Examples(unittest.TestCase):
                                                                     google,
                                                                     "http://www/test.org/assertions/9", system, 1.0)
         aifutils.mark_depends_on_hypothesis(g, bob_works_for_google, bob_lives_in_california_hypothesis)
-
+        self.new_file(g, "test_two_hypotheses.ttl")
         self.dump_graph(g, "Example of two hypotheses")
 
 
@@ -265,7 +275,7 @@ class Examples(unittest.TestCase):
         # then we mark these as mutually exclusive
         # we also mark confidence 0.2 that neither of these are true
         aifutils.mark_as_mutually_exclusive(g, { tuple(bob_hit_fred_assertions):0.6, tuple(fred_hit_bob_assertions):0.2}, system, 0.2)
-
+        self.new_file(g, "test_use_subgraph_confidences_to_show_mutually_exclusive_linked_event_argument_options.ttl")
         self.dump_graph(g, "Example of subgraph confidences to show mutually exclusive linked event argument options")
 
 
@@ -296,7 +306,7 @@ class Examples(unittest.TestCase):
                                   .785)
         aifutils.mark_as_argument(g, event, SEEDLING_TYPES_NIST[event_type_string] + "_Place", election_country, system,
                                   .589)
-
+        self.new_file(g, "test_create_seedling_event.ttl")
         self.dump_graph(g, "Example of seedling event")
 
 
@@ -327,7 +337,7 @@ class Examples(unittest.TestCase):
                                   .785, "http://www.test.edu/eventArgument/1")
         aifutils.mark_as_argument(g, event, SEEDLING_TYPES_NIST[event_type_string] + "_Place", election_country, system,
                                   .589, "http://www.test.edu/eventArgument/2")
-
+        self.new_file(g, "test_create_seedling_event_with_event_argument_uri.ttl")
         self.dump_graph(g, "Example of seedling event with event assertion URI")
 
 
@@ -364,7 +374,7 @@ class Examples(unittest.TestCase):
         # let's mark our entity with some arbitrary system-private data. You can attach such data
         # to nearly anything
         aifutils.mark_private_data_with_vector(g, entity, system, vec)
-
+        self.new_file(g, "test_create_an_entity_with_image_justification_and_vector.ttl")
         self.dump_graph(g, "Example of entity with image justification and vector")
 
     def test_make_entity(self):
@@ -377,6 +387,7 @@ class Examples(unittest.TestCase):
         aifutils.mark_text_justification(g, [entity, type_assertion], "NYT_ENG_20181231",
                                          42, 143, system, 0.973)
 
+        self.new_file(g, "test_make_an_entity.ttl")
         self.dump_graph(g, "Example of creating an entity")
         self.assertEqual([type_assertion], aifutils.get_type_assertions(g, entity))
 
@@ -406,6 +417,7 @@ class Examples(unittest.TestCase):
         aifutils.mark_numeric_value_as_long(g, entity, 100)
         aifutils.mark_numeric_value_as_string(g, entity, "100")
 
+        self.new_file(g, "test_create_a_seedling_entity_with_alternate_names.ttl")
         self.dump_graph(g, "Example of seedling entity with alternate names")
 
 
@@ -458,6 +470,7 @@ class Examples(unittest.TestCase):
 
         aifutils.mark_compound_justification(g, [place_argument], [text_justification, image_justification], system, 0.543)
 
+        self.new_file(g, "test_create_compound_justification.ttl")
         self.dump_graph(g, "Example of compound justification")
 
 
@@ -509,6 +522,7 @@ class Examples(unittest.TestCase):
 
         aifutils.mark_as_possible_cluster_member(g, president_cluster, trump_cluster, .6, system)
 
+        self.new_file(g, "test_create_hierarchical_cluster.ttl")
         self.dump_graph(g, "Seedling hierarchical cluster")
 
     def test_simple_hypothesis_with_cluster(self):
@@ -663,9 +677,7 @@ class Examples(unittest.TestCase):
         aifutils.mark_as_possible_cluster_member(g, president_cluster, trump_cluster, .6, system)
 
         # write graph to file
-        file = open("../test_read_and_write.ttl", "wb")
-        file.write(g.serialize(format='turtle'))
-        file.close()
+        self.new_file(g, "../test_read_and_write.ttl")
 
         # create new graph and read in file
         graph = Graph()
