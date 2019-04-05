@@ -626,7 +626,8 @@ class Examples(unittest.TestCase):
         type_assertion = aifutils.mark_type(g, "http://www.test.org/assertions/1", vladimir_putin,
             SEEDLING_TYPES_NIST.Person, system, 1.0)
 
-        aifutils.mark_informative_justification(g, vladimir_putin, aifutils.mark_text_justification(g, [vladimir_putin, type_assertion], "HC00002Z0", 0, 10, system, 1.0))
+        text_justification_1 = aifutils.mark_text_justification(g, [vladimir_putin, type_assertion], "HC00002Z0", 0, 10, system, 1.0)
+        aifutils.mark_informative_justification(g, vladimir_putin, text_justification_1)
 
         putin = aifutils.make_entity(g, "http://www.test.edu/entities/2", system)
         aifutils.mark_type(g, "http://www.test.edu/assertions/2", putin, SEEDLING_TYPES_NIST.Person,
@@ -636,7 +637,8 @@ class Examples(unittest.TestCase):
 
         # create a cluster with prototype
         putin_cluster = aifutils.make_cluster_with_prototype(g, "http://www.test.edu/clusters/1", vladimir_putin, system, "Vladimir Putin")
-        aifutils.mark_informative_justification(g, putin_cluster, aifutils.mark_text_justification(g, [putin_cluster, type_assertion], "HC00002Z0", 0, 10, system, 1.0))
+        text_justification_2 = aifutils.mark_text_justification(g, [putin, type_assertion], "HC00002Z0", 0, 10, system, 1.0)
+        aifutils.mark_informative_justification(g, putin_cluster, text_justification_2)
 
         # person 1 is definitely in the cluster, person 2 is probably in the cluster
         aifutils.mark_as_possible_cluster_member(g, putin, putin_cluster, 0.71, system)
