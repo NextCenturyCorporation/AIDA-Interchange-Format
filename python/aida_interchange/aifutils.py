@@ -407,6 +407,9 @@ def mark_importance(g, resource, importance):
 def mark_informative_justification(g, resource, informative_justification):
     """
     Mark resource as having an informativeJustification value
+
+    :param resource: the resource to mark with the specified imporatance
+    :param informative_justification: the justification which will be considered informative
     """
     g.add((resource, AIDA_ANNOTATION.informativeJustification , informative_justification))
 
