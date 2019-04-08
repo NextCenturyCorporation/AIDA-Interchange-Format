@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @TestInstance(Lifecycle.PER_CLASS)
 public class ExamplesAndValidationTest {
     // Set this flag to true if attempting to get examples
-    private static final boolean FORCE_DUMP = false;
+    private static final boolean FORCE_DUMP = true;
 
     private static final String LDC_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#";
     private static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#";
@@ -1040,17 +1040,27 @@ public class ExamplesAndValidationTest {
          */
         @Test
         void createClusterWithLinkAndConfidence() {
-            // create a valid entity and cluster
-            Resource typeAssertionJustification = makeTextJustification(model, "NYT_ENG_20181231",
-                    42, 143, system, 0.973);
-            Resource newEntity = makeEntity(model, getEntityUri(), system);
-            markJustification(addType(newEntity, SeedlingOntology.Person), typeAssertionJustification);
-            Resource cluster = makeClusterWithPrototype(model, getClusterUri(), newEntity, "handle", system);
 
-            // link cluster to a KB
-            linkToExternalKB(model, cluster, "freebase:FOO", system, .398);
+            // Two people, probably the same person
+            final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
+            markType(model, getAssertionUri(), putin, SeedlingOntology.Person, system, 1.0);
+            markName(putin, "Путин");
 
-            testValid("Cluster with Link and confidence is valid.");
+            final Resource vladimirPutin = makeEntity(model, getUri("E780885.00311"), system);
+            markType(model, getAssertionUri(), vladimirPutin, SeedlingOntology.Person, system, 1.0);
+            markName(vladimirPutin, "Vladimir Putin");
+
+            // create a cluster with prototype
+            final Resource putinCluster = makeClusterWithPrototype(model, getClusterUri(), putin, "handle", system);
+
+            // person 1 is definitely in the cluster, person 2 is probably in the cluster
+            markAsPossibleClusterMember(model, putin, putinCluster, 1d, system);
+            markAsPossibleClusterMember(model, vladimirPutin, putinCluster, 0.71, system);
+
+            // Link a cluster to a KB
+            linkToExternalKB(model, putinCluster, "freebase:FOO", system, .398);
+
+            testValid("Create a cluster with link and confidence.");
         }
     }
 
