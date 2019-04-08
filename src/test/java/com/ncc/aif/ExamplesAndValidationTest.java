@@ -1040,12 +1040,14 @@ public class ExamplesAndValidationTest {
          */
         @Test
         void createClusterWithLinkAndConfidence() {
+            // create a valid entity and cluster
             Resource typeAssertionJustification = makeTextJustification(model, "NYT_ENG_20181231",
                     42, 143, system, 0.973);
-
             Resource newEntity = makeEntity(model, getEntityUri(), system);
             markJustification(addType(newEntity, SeedlingOntology.Person), typeAssertionJustification);
             Resource cluster = makeClusterWithPrototype(model, getClusterUri(), newEntity, "handle", system);
+
+            // link cluster to a KB
             linkToExternalKB(model, cluster, "freebase:FOO", system, .398);
 
             testValid("Cluster with Link and confidence is valid.");
