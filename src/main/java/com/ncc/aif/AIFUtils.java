@@ -956,6 +956,16 @@ public class AIFUtils {
     }
 
     /**
+     * Mark [resource] as having the specified [informativeJustification] value.
+     *
+     * @param resource                 The Resource to mark with the specified importance
+     * @param informativeJustification The justification which will be considered informative
+     */
+    public static void markInformativeJustification(Resource resource, Resource informativeJustification) {
+        resource.addProperty(AidaAnnotationOntology.INFORMATIVE_JUSTIFICATION, informativeJustification);
+    }
+
+    /**
      * Mark an argument as depending on a hypothesis.
      *
      * @param depender   the argument that depends on the specified hypothesis
@@ -975,7 +985,7 @@ public class AIFUtils {
      * <li>the number of documents that justify the KE;</li>
      * <li>time stamps of justification documents; or</li>
      * <li>fringe type(s) for each image or shot, to describe features that are not represented explicitly in the
-     * seedling ontology.  For example: Physical.LocatedNear.Inside(Arg1_Type=Person.Soldier, Arg2_Type=Facility.Hospital)</li>
+     * ontology.  For example: Physical.LocatedNear.Inside(Arg1_Type=Person.Soldier, Arg2_Type=Facility.Hospital)</li>
      * </ul>
      * <p>
      * The KE is not allowed to contain any strings from document text except for the strings in the HasName,
@@ -1007,7 +1017,7 @@ public class AIFUtils {
      * <li>the number of documents that justify the KE;</li>
      * <li>time stamps of justification documents; or</li>
      * <li>fringe type(s) for each image or shot, to describe features that are not represented explicitly in the
-     * seedling ontology.  For example: Physical.LocatedNear.Inside(Arg1_Type=Person.Soldier, Arg2_Type=Facility.Hospital)</li>
+     * ontology.  For example: Physical.LocatedNear.Inside(Arg1_Type=Person.Soldier, Arg2_Type=Facility.Hospital)</li>
      * </ul>
      * <p>
      * The KE is not allowed to contain any strings from document text except for the strings in the HasName,
