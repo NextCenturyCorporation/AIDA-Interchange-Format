@@ -408,6 +408,7 @@ def mark_informative_justification(g, resource, informative_justification):
     """
     Mark resource as having an informativeJustification value
 
+    :param g: The underlying RDF model for the operation
     :param resource: the resource to mark with the specified imporatance
     :param informative_justification: the justification which will be considered informative
     """
