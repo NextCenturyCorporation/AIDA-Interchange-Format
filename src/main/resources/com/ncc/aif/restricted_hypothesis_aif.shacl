@@ -1,4 +1,4 @@
-@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
 @prefix aida: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#> .
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -25,6 +25,78 @@ aida:SystemShape
         """ ;
     ] .
 
+#########################
+# 4.3 TA3 #3: Each hypothesis graph must have at least one event or relation with at least one edge.
+# This restriction builds on the TA3 #1.a restriction that enforces all KEs in the model should be referenced in
+# the hypothesis sub-graph and the aida_ontology rule that the subject of an event or relation argument must be an event
+# or relation respectively.
+#------------------------
+aida:SystemShape
+    sh:sparql[
+        sh:message "Each hypothesis graph must have at least one event or relation with at least one edge. Found {$this}" ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#>
+            SELECT (COUNT(?pred) AS $this)
+            WHERE {
+                ?argumentAssertion a rdf:Statement .
+                ?argumentAssertion rdf:predicate ?pred .
+                {
+                    ?pred rdfs:subClassOf+ aidaDomainCommon:RelationArgumentType
+                }
+                UNION
+                {
+                    ?pred rdfs:subClassOf+ aidaDomainCommon:EventArgumentType
+                }
+            }
+            HAVING (COUNT(?pred) < 1)
+        """ ;
+    ] .
+
+#########################.;
+# 4.3 TA3 #4 Each hypothesis graph must have exactly one hypothesis importance value
+#------------------------
+aida:ImportanceRequiredShape
+    a sh:PropertyShape ;
+    sh:path aida:importance ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+aida:HypothesisShape
+    sh:property aida:ImportanceRequiredShape .
+
+#########################
+# 4.3 TA3 #5 Each event or relation (cluster) in the hypothesis must have exactly one event/relation importance value
+#------------------------
+aida:HypothesisEventRelationClusterImportanceRequiredShape
+    a sh:NodeShape ;
+
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            SELECT ?prototype
+            WHERE {
+                ?prototype a aida:SameAsCluster .
+                ?prototype aida:prototype/a ?type .
+                FILTER( ?type = aida:Event || ?type = aida:Relation )
+            }
+        """ ;
+    ];
+
+    # sh:maxCount 1 is inherited from aida_ontology.shacl
+    sh:property aida:ImportanceRequiredShape .
+
+#########################
+# 4.3 TA3 #6 Each edge KE in the hypothesis graph must have exactly one edge importance value
+#------------------------
+aida:EventArgumentShape
+    sh:property aida:ImportanceRequiredShape .
+
+aida:RelationArgumentShape
+    sh:property aida:ImportanceRequiredShape .
+
 ########################
 # 4.3 TA3 #7 Each entity (cluster) in the hypothesis graph must
 # have exactly one text description (called a "handle")
@@ -33,8 +105,8 @@ aida:HypothesisEntityClusterRequireHandle
     a sh:NodeShape ;
 
     sh:target [
-      a sh:SPARQLTarget ;
-      sh:select """
+        a sh:SPARQLTarget ;
+        sh:select """
             PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
             SELECT ?entityCluster
             WHERE {
@@ -42,7 +114,7 @@ aida:HypothesisEntityClusterRequireHandle
                 ?entityCluster aida:prototype/a aida:Entity .
             }
         """ ;
-     ];
+    ];
 
     # sh:maxCount 1 is inherited from aida_ontology.shacl
     sh:property [
@@ -51,3 +123,66 @@ aida:HypothesisEntityClusterRequireHandle
         sh:minCount 1 ;
     ] .
 
+########################
+# 4.3 TA3 #7  Clusters must be homogeneous by base class (Entity, Event, or Relation)
+#------------------------
+aida:HypothesisClusterMembersSameAsBaseClass
+    a sh:SPARQLConstraint ;
+    sh:message "All Clusters must have homogeneous members by base class (Entity, Event, or Relation)" ;
+    sh:select """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+        SELECT $this (?member AS $value)
+        WHERE {
+      	    ?membership aida:cluster $this .
+            ?membership aida:clusterMember ?member .
+            ?member rdf:type ?memberType .
+            $this aida:prototype/rdf:type ?prototypeType .
+            FILTER ( ?memberType != ?prototypeType )
+        }
+    """
+    .
+
+aida:HypothesisClusterMembersShape
+    a sh:NodeShape ;
+    sh:targetClass aida:SameAsCluster;
+    sh:sparql aida:HypothesisClusterMembersSameAsBaseClass .
+
+########################
+# 4.3 TA3 #1.a All KEs in model should be referenced by hypothesis
+#------------------------
+aida:KEsMustBeReferenced
+    a sh:SPARQLConstraint ;
+    sh:message "This KE is unreferenced by the hypothesis" ;
+    sh:select """
+        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+        SELECT $this
+        WHERE {
+            ?hypothesis a aida:Hypothesis .
+            FILTER NOT EXISTS { ?hypothesis aida:hypothesisContent/aida:subgraphContains $this }
+        }
+    """
+    .
+
+aida:AllKEsReferencedShape
+    a sh:NodeShape ;
+    sh:targetClass aida:Entity, aida:Event, aida:Relation ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#>
+            SELECT ?argumentAssertion
+            WHERE {
+                ?argumentAssertion a rdf:Statement .
+                ?argumentAssertion rdf:predicate ?pred .
+                { ?pred rdfs:subClassOf+ aidaDomainCommon:RelationArgumentType }
+                UNION
+                { ?pred rdfs:subClassOf+ aidaDomainCommon:EventArgumentType }
+            }
+        """ ;
+    ] ;
+
+    sh:sparql aida:KEsMustBeReferenced
+    .

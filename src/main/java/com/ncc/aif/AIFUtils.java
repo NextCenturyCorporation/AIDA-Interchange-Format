@@ -164,7 +164,10 @@ public class AIFUtils {
      * @param system           The system object for the system which created the specified relation
      * @param confidence       If non-null, the confidence with which to mark the specified relation
      * @return The created relation resource
+     * @deprecated This method doesn't allow the user access to the blank nodes created for type and argument assertions.
+     * Use {@link #makeRelation(Model, String, Resource)} instead
      */
+    @Deprecated
     public static Resource makeRelationInEventForm(Model model, String relationUri, Resource relationType, Resource subjectRole,
                                                    Resource subjectResource, Resource objectRole, Resource objectResource,
                                                    String typeAssertionUri, Resource system, Double confidence) {
@@ -265,7 +268,7 @@ public class AIFUtils {
 
     // Helper function to create a justification (text, image, audio, etc.) in the system.
     private static Resource makeAIFJustification(Model model, String docId, Resource classType,
-                                                Resource system, Double confidence) {
+                                                 Resource system, Double confidence) {
         final Resource justification = makeAIFResource(model, null, classType, system);
         justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral(docId));
         markConfidence(model, justification, confidence, system);
@@ -365,8 +368,8 @@ public class AIFUtils {
     /**
      * Add a sourceDocument to a pre-existing justification
      *
-     * @param justification      A pre-existing justification resource
-     * @param sourceDocument     A string containing the source document (parent) ID
+     * @param justification  A pre-existing justification resource
+     * @param sourceDocument A string containing the source document (parent) ID
      * @return The modified justification resource
      */
     public static Resource addSourceDocumentToJustification(Resource justification, String sourceDocument) {
@@ -832,12 +835,12 @@ public class AIFUtils {
      * A same-as cluster is used to represent multiple entities which might be the same, but we
      * aren't sure. (If we were sure, they would just be a single node).
      * <p>
-     * Every cluster requires a [prototype] - an entity or event that we are <b>certain</b> is in the
+     * Every cluster requires a [prototype] - an entity, event, or relation that we are <b>certain</b> is in the
      * cluster. This also automatically adds a membership relation with the prototype with confidence 1.0.
      *
      * @param model      The underlying RDF model for the operation
      * @param clusterUri A unique String URI for the cluster
-     * @param prototype  an entity or event that we are certain is in the cluster
+     * @param prototype  an entity, event, or relation that we are certain is in the cluster
      * @param system     The system object for the system which created the specified cluster
      * @return The created cluster resource
      */
@@ -852,12 +855,12 @@ public class AIFUtils {
      * A same-as cluster is used to represent multiple entities which might be the same, but we
      * aren't sure. (If we were sure, they would just be a single node).
      * <p>
-     * Every cluster requires a [prototype] - an entity or event that we are <b>certain</b> is in the
+     * Every cluster requires a [prototype] - an entity, event, or relation that we are <b>certain</b> is in the
      * cluster. This also automatically adds a membership relation with the prototype with confidence 1.0.
      *
      * @param model      The underlying RDF model for the operation
      * @param clusterUri A unique String URI for the cluster
-     * @param prototype  an entity or event that we are certain is in the cluster
+     * @param prototype  an entity, event, or relation that we are certain is in the cluster
      * @param handle     a string describing the cluster
      * @param system     The system object for the system which created the specified cluster
      * @return The created cluster resource
@@ -947,13 +950,23 @@ public class AIFUtils {
     }
 
     /**
-     *  Mark [resource] as having the specified [importance] value.
+     * Mark [resource] as having the specified [importance] value.
      *
-     * @param resource     The Resource to mark with the specified importance
+     * @param resource   The Resource to mark with the specified importance
      * @param importance The importance value with which to mark the specified Resource
      */
     public static void markImportance(Resource resource, Integer importance) {
         resource.addLiteral(AidaAnnotationOntology.IMPORTANCE_PROPERTY, importance);
+    }
+
+    /**
+     * Mark [resource] as having the specified [informativeJustification] value.
+     *
+     * @param resource                 The Resource to mark with the specified importance
+     * @param informativeJustification The justification which will be considered informative
+     */
+    public static void markInformativeJustification(Resource resource, Resource informativeJustification) {
+        resource.addProperty(AidaAnnotationOntology.INFORMATIVE_JUSTIFICATION, informativeJustification);
     }
 
     /**
@@ -976,7 +989,7 @@ public class AIFUtils {
      * <li>the number of documents that justify the KE;</li>
      * <li>time stamps of justification documents; or</li>
      * <li>fringe type(s) for each image or shot, to describe features that are not represented explicitly in the
-     * seedling ontology.  For example: Physical.LocatedNear.Inside(Arg1_Type=Person.Soldier, Arg2_Type=Facility.Hospital)</li>
+     * ontology.  For example: Physical.LocatedNear.Inside(Arg1_Type=Person.Soldier, Arg2_Type=Facility.Hospital)</li>
      * </ul>
      * <p>
      * The KE is not allowed to contain any strings from document text except for the strings in the HasName,
@@ -1008,7 +1021,7 @@ public class AIFUtils {
      * <li>the number of documents that justify the KE;</li>
      * <li>time stamps of justification documents; or</li>
      * <li>fringe type(s) for each image or shot, to describe features that are not represented explicitly in the
-     * seedling ontology.  For example: Physical.LocatedNear.Inside(Arg1_Type=Person.Soldier, Arg2_Type=Facility.Hospital)</li>
+     * ontology.  For example: Physical.LocatedNear.Inside(Arg1_Type=Person.Soldier, Arg2_Type=Facility.Hospital)</li>
      * </ul>
      * <p>
      * The KE is not allowed to contain any strings from document text except for the strings in the HasName,

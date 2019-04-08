@@ -38,13 +38,23 @@ class ColdStart2AidaInterchangeConverter(
         val entityIriGenerator: IriGenerator = UuidIriGenerator(),
         val eventIriGenerator: IriGenerator = UuidIriGenerator(),
         val assertionIriGenerator: IriGenerator = UuidIriGenerator(),
+        val relationIriGenerator: IriGenerator = UuidIriGenerator(),
         val stringIriGenerator: IriGenerator = UuidIriGenerator(),
         val clusterIriGenerator: IriGenerator = UuidIriGenerator(),
         val useClustersForCoref: Boolean = false,
         val restrictConfidencesToJustifications: Boolean = false,
         val defaultMentionConfidence: Double? = null,
-        val ontologyMapping: OntologyMapping = ColdStartOntologyMapper()) {
+        val ontologyMapping: OntologyMapping,
+        // this is not allowed in the real eval and should be done only for debugging
+        val includePrefLabelsOnJustifications: Boolean = false) {
     companion object : KLogging()
+
+    init {
+        if (includePrefLabelsOnJustifications) {
+            logger.warn { "Including prefLabels. This should be done for debugging only and" +
+                    " should be turned off for the evaluation" }
+        }
+    }
 
     /**
      * Concert a ColdStart KB to an RDFLib graph in the proposed AIDA interchange format.
@@ -93,19 +103,14 @@ class ColdStart2AidaInterchangeConverter(
                             entityIriGenerator.nextIri(), systemNode)
                     is EventNode -> AIFUtils.makeEvent(model,
                             eventIriGenerator.nextIri(), systemNode)
+                    is RelationNode -> AIFUtils.makeRelation(model,
+                            relationIriGenerator.nextIri(), systemNode)
                     is StringNode -> model.createResource(stringIriGenerator.nextIri())
                 }
 
                 objectToUri.put(node, rdfNode)
             }
             return objectToUri.getValue(node)
-        }
-
-        // converts a ColdStart ontology type to a corresponding RDF identifier
-        fun toRealisType(realis: Realis) = when (realis) {
-            Realis.actual -> ColdStartOntologyMapper.ACTUAL
-            Realis.generic -> ColdStartOntologyMapper.GENERIC
-            Realis.other -> ColdStartOntologyMapper.OTHER
         }
 
         // below are the functions for translating each individual type of ColdStart assertion
@@ -117,13 +122,14 @@ class ColdStart2AidaInterchangeConverter(
             val ontologyType = when (cs_assertion.subject) {
                 is EntityNode -> ontologyMapping.entityType(cs_assertion.type)
                 is EventNode -> ontologyMapping.eventType(cs_assertion.type)
+                is RelationNode -> ontologyMapping.relationType(cs_assertion.type)
                 is StringNode -> ontologyMapping.entityType(cs_assertion.type)
             }
 
             if (ontologyType != null) {
-                val entityOrEvent = toResource(cs_assertion.subject)
+                val entityEventOrRelation = toResource(cs_assertion.subject)
 
-                val typeAssertion = AIFUtils.markType(model, assertionIriGenerator.nextIri(), entityOrEvent,
+                val typeAssertion = AIFUtils.markType(model, assertionIriGenerator.nextIri(), entityEventOrRelation,
                         ontologyType, systemNode, confidence)
 
                 // when requested to use clusters, we need to generate a cluster for each entity
@@ -134,7 +140,7 @@ class ColdStart2AidaInterchangeConverter(
                         || cs_assertion.subject is EventNode
                 if (useClustersForCoref && isCoreffableObject) {
                     AIFUtils.makeClusterWithPrototype(model, clusterIriGenerator.nextIri(),
-                            entityOrEvent, systemNode)
+                            entityEventOrRelation, systemNode)
                 }
 
                 return TypeAndTypeAssertion(type=ontologyType, typeAssertion = typeAssertion)
@@ -165,7 +171,7 @@ class ColdStart2AidaInterchangeConverter(
                     // we deliberately don't translate for things which can have names because
                     // the canonical string is not necessarily a name (e.g. if a name for the entity
                     // is never mentioned in a document. Instead, we gather the names from
-                    // ColdStart "mention" mentions (which are in fact namem mentions) below
+                    // ColdStart "mention" mentions (which are in fact name mentions) below
                     ontologyMapping.typeAllowedToHaveTextValue(entityType) -> AidaAnnotationOntology.TEXT_VALUE_PROPERTY
                     ontologyMapping.typeAllowedToHaveNumericValue(entityType) -> AidaAnnotationOntology.NUMERIC_VALUE_PROPERTY
                     else -> null
@@ -191,16 +197,6 @@ class ColdStart2AidaInterchangeConverter(
                 }
             }
             AIFUtils.markSystem(entityResource, systemNode)
-
-            // for the moment, we don't do anything with realis because it is unclear how it
-            // fits into AIDA
-//            if (cs_assertion is EventMentionAssertion) {
-//                val realisNode = model.createResource()
-//                entityResource.addProperty(AidaAnnotationOntology.REALIS, realisNode)
-//                realisNode.addProperty(AidaAnnotationOntology.REALIS_VALUE,
-//                        toRealisType(cs_assertion.realis))
-//                associate_with_system(realisNode)
-//            }
 
             // it is possible that we have seen the same span of text assigned multiple
             // mention types (in particular, for all canonical mentions, there will be another
@@ -242,7 +238,7 @@ class ColdStart2AidaInterchangeConverter(
                     markJustification(ImmutableList.of(typeAssertion), justification)
                 }
 
-                if (string != null) {
+                if (includePrefLabelsOnJustifications && string != null) {
                     justification.addProperty(SKOS.prefLabel,
                             model.createTypedLiteral(string))
                 }
@@ -267,77 +263,41 @@ class ColdStart2AidaInterchangeConverter(
             return true
         }
 
-        fun translateRelation(csAssertion: RelationAssertion, confidence: Double): Boolean {
-            val relationTypeIri = ontologyMapping.relationType(csAssertion.relationType)
-            return if (relationTypeIri != null) {
-                val (subjectRole, objectRole) = ontologyMapping.relationArgumentTypes(relationTypeIri)
-
-                val relation = AIFUtils.makeRelation(model,
-                        assertionIriGenerator.nextIri(), systemNode)
-                val typeAssertion = AIFUtils.markType(model,
-                        assertionIriGenerator.nextIri(), relation, relationTypeIri,
-                        systemNode, confidence)
-                val subjectAssertion = AIFUtils.markAsArgument(model, relation, subjectRole,
-                        toResource(csAssertion.subject), systemNode, confidence)
-                val objectAssertion = AIFUtils.markAsArgument(model, relation, objectRole,
-                        toResource(csAssertion.obj), systemNode, confidence)
-                registerJustifications(relation, csAssertion.justifications, null,
-                        null, confidence, null)
-                registerJustifications(typeAssertion, csAssertion.justifications, null,
-                        null, confidence, null)
-                registerJustifications(subjectAssertion, csAssertion.justifications, null,
-                        null, confidence, null)
-                registerJustifications(objectAssertion, csAssertion.justifications, null,
-                        null, confidence, null)
-                true
-            } else {
-                false
-            }
-        }
-
-        fun translateSentiment(csAssertion: SentimentAssertion, confidence: Double): Boolean {
-
-
-            fun toSentimentType(sentiment: String) = when (sentiment.toLowerCase()) {
-                "likes" -> ColdStartOntologyMapper.LIKES
-                "dislikes" -> ColdStartOntologyMapper.DISLIKES
-                else -> throw RuntimeException("Unknown sentiment $sentiment")
-            }
-
-            val sentimentHolder = toResource(csAssertion.subject)
-            val thingSentimentIsAbout = toResource(csAssertion.obj)
-
-            val relation = AIFUtils.makeRelation(model, assertionIriGenerator.nextIri(), systemNode)
-            AIFUtils.markType(model, assertionIriGenerator.nextIri(), relation, toSentimentType(csAssertion.sentiment),
-                    systemNode, confidence)
-
-            val subjectRole = ontologyMapping.eventArgumentType(csAssertion.sentiment + "_holder") ?: RDF.subject
-            val subjectArg = AIFUtils.markAsArgument(model, relation, subjectRole, sentimentHolder, systemNode, confidence)
-            registerJustifications(subjectArg, csAssertion.justifications, null,
-                    confidence = confidence)
-
-            val objectRole = ontologyMapping.eventArgumentType(csAssertion.sentiment + "_isAbout") ?: RDF.subject
-            val objectArg = AIFUtils.markAsArgument(model, relation, objectRole, thingSentimentIsAbout, systemNode, confidence)
-            registerJustifications(objectArg, csAssertion.justifications, null,
-                    confidence = confidence)
-            return true
-        }
-
         fun translateEventArgument(csAssertion: EventArgumentAssertion, confidence: Double)
                 : Boolean {
             val event = toResource(csAssertion.subject)
             val filler = toResource(csAssertion.argument)
 
             val argTypeIri = ontologyMapping.eventArgumentType(csAssertion.argument_role)
-            if (argTypeIri != null) {
+            return if (argTypeIri != null) {
                 val argAssertion = AIFUtils.markAsArgument(model, event,
                         argTypeIri, filler, systemNode, confidence)
 
                 registerJustifications(argAssertion, csAssertion.justifications, null,
                         confidence = confidence)
-                return true
+                true
             } else {
-                return false
+                errorLogger.observeOutOfDomainType(csAssertion.argument_role)
+                false
+            }
+        }
+
+        fun translateRelationArgument(csAssertion: RelationArgumentAssertion, confidence: Double)
+                : Boolean {
+            val relation = toResource(csAssertion.subject)
+            val filler = toResource(csAssertion.argument)
+
+            val argTypeIri = ontologyMapping.relationArgumentType(csAssertion.argument_role)
+            return if (argTypeIri != null) {
+                val argAssertion = AIFUtils.markAsArgument(model, relation,
+                        argTypeIri, filler, systemNode, confidence)
+
+                registerJustifications(argAssertion, csAssertion.justifications, null,
+                        confidence = confidence)
+                true
+            } else {
+                errorLogger.observeOutOfDomainType(csAssertion.argument_role)
+                false
             }
         }
 
@@ -394,7 +354,9 @@ class ColdStart2AidaInterchangeConverter(
             val objectToType = mutableMapOf<Node, TypeAndTypeAssertion>()
 
             translateAssertions(typeAssertions, "type",
-                    untranslatedFunction = { errorLogger.observeOutOfDomainType((it as TypeAssertion).type) })
+                    untranslatedFunction = {
+                        errorLogger.observeOutOfDomainType((it as TypeAssertion).type)
+                    })
             { assertion: Assertion, confidence: Double? ->
                 if (assertion is TypeAssertion) {
                     val typeAndAssertion = translateTypeAssertion(assertion, confidence)
@@ -425,9 +387,8 @@ class ColdStart2AidaInterchangeConverter(
                             objectToCanonicalMentions, objectToType, nameableEntitiesToNames,
                             provenanceToMentionType)
                     is LinkAssertion -> translateLink(assertion, confidence!!)
-                    is SentimentAssertion -> translateSentiment(assertion, confidence!!)
-                    is RelationAssertion -> translateRelation(assertion, confidence!!)
                     is EventArgumentAssertion -> translateEventArgument(assertion, confidence!!)
+                    is RelationArgumentAssertion -> translateRelationArgument(assertion, confidence!!)
                     else -> false
                 }
             }
@@ -443,7 +404,10 @@ class ColdStart2AidaInterchangeConverter(
 
             // make Turtle output prettier by setting some namespace prefixes
             AIFUtils.addStandardNamespaces(model)
-            model.setNsPrefix("domainOntology", ontologyMapping.NAMESPACE)
+
+            ontologyMapping.prefixes().forEach { ontologyIri, prefix ->
+                model.setNsPrefix(prefix, ontologyIri.uri)
+            }
         }
     }
 }
@@ -483,16 +447,18 @@ fun main(args: Array<String>) {
     // don't log too much Jena-internal stuff
     (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.INFO
 
-    val ontologyFile = params.getExistingFile("ontology")
-    val relationArgsFile = params.getExistingFile("relationArgsFile")
-    val ontologyMapping = PassThroughOntologyMapper.fromFile(ontologyFile,
-            relationArgsFile)
+    val ontologyMapping = M18OntologyMapping.fromOntologyFiles(
+            entityOntologyFile = params.getExistingFile("entityOntology"),
+            eventOntologyFile = params.getExistingFile("eventOntology"),
+            relationOntologyFile = params.getExistingFile("relationOntology"))
 
     // this will track which assertions could not be converted. This is useful for debugging.
     // we pull this out into its own object instead of doing it inside the conversion method
     // so that it will aggregate results across doc-level KB conversions when running in shatter
     // mode
-    val errorLogger = DefaultErrorLogger()
+    val errorLogger = DefaultErrorLogger(
+            allowedOutOfDomainTypes = params.getOptionalExistingFile("out_of_domain_type_whitelist").orNull()
+                    ?.readLines()?.toSet() ?: setOf())
 
     // the ColdStart format already includes cross-document coref information. If this is true,
     // we throw this information away during conversion
@@ -505,8 +471,7 @@ fun main(args: Array<String>) {
             // we need to let the ColdStart KB loader itself know we are shattering by document so it
             // knows to eliminate the cross-document coreference links which have already been added by
             // the ColdStart system
-            breakCrossDocCoref = breakCrossDocCoref,
-            ontologyMapping = ontologyMapping).load(inputKBFile)
+            breakCrossDocCoref = breakCrossDocCoref).load(inputKBFile)
 
     when(mode) {
         // converting entire ColdStart KB at once
@@ -535,12 +500,18 @@ fun main(args: Array<String>) {
 
     ColdStart2AidaInterchangeConverter.logger.info { "Writing output to $outputPath" }
     ColdStart2AidaInterchangeConverter.logger.info(errorLogger.errorsMessage())
+    if (!errorLogger.runWasSuccess()) {
+        ColdStart2AidaInterchangeConverter.logger.error { "Run failed with errors" }
+        System.exit(1)
+    }
 }
 
 fun convertColdStartAsSingleKB(converter: ColdStart2AidaInterchangeConverter,
                                systemUri: String,
-                               coldstartKB: ColdStartKB, outputPath: Path,
+                               coldstartLoadingResult: ColdStartKBLoader.LoadingResult,
+                               outputPath: Path,
                                errorLogger: ErrorLogger) {
+    val coldstartKB = coldstartLoadingResult.kb
     AIFUtils.workWithBigModel {
         val model = it
         converter.coldstartToAidaInterchange(systemUri, coldstartKB, model, errorLogger = errorLogger)
@@ -553,8 +524,10 @@ fun convertColdStartAsSingleKB(converter: ColdStart2AidaInterchangeConverter,
 }
 
 fun convertColdStartShatteringByDocument(
-        converter: ColdStart2AidaInterchangeConverter, systemUri: String, coldstartKB: ColdStartKB,
+        converter: ColdStart2AidaInterchangeConverter, systemUri: String,
+        coldstartLoadingResult: ColdStartKBLoader.LoadingResult,
         outputPath: Path, errorLogger: ErrorLogger) {
+
     outputPath.toFile().mkdirs()
     // for the convenience of programs processing the output, we provide
     // a list of all doc-level turtle files generated and a file mapping from doc IDs
@@ -563,12 +536,12 @@ fun convertColdStartShatteringByDocument(
     val outputFileMap = ImmutableMap.builder<Symbol, File>()
 
     var docsProcessed = 0
-    val kbsByDocument = coldstartKB.shatterByDocument()
+    val kbsByDocument = coldstartLoadingResult.shatterByDocument()
     for ((docId, perDocKB) in kbsByDocument) {
         docsProcessed += 1
         val outputFile = outputPath.resolve("$docId.turtle")
         val model = ModelFactory.createDefaultModel()
-        converter.coldstartToAidaInterchange(systemUri, perDocKB, model, errorLogger = errorLogger)
+        converter.coldstartToAidaInterchange(systemUri, perDocKB.kb, model, errorLogger = errorLogger)
         outputFile.toFile().bufferedWriter(UTF_8).use {
             // deprecation is OK because Guava guarantees the writer handles the charset properly
             @Suppress("DEPRECATION")
@@ -611,6 +584,7 @@ private fun configureConverterFromParams(
             assertionIriGenerator = UuidIriGenerator("$baseUri/assertions"),
             stringIriGenerator = UuidIriGenerator("$baseUri/strings"),
             clusterIriGenerator = UuidIriGenerator("$baseUri/clusters"),
+            relationIriGenerator = UuidIriGenerator("$baseUri/relations"),
             ontologyMapping = ontologyMapping,
             // In AIDA, there can be uncertainty about coreference, so the AIDA interchange format
             // provides a means of representing coreference uncertainty.  In ColdStart, however,
@@ -622,7 +596,9 @@ private fun configureConverterFromParams(
             restrictConfidencesToJustifications = restrictConfidencesToJustifications,
             // support TA1s which erroneously leave confidences off some of their mentions
             defaultMentionConfidence = params.getOptionalPositiveDouble(
-                    "defaultMentionConfidence").orNull())
+                    "defaultMentionConfidence").orNull(),
+            includePrefLabelsOnJustifications = params.getOptionalBoolean("includeDebugPrefLabels").orNull() ?: false
+    )
 }
 
 interface ErrorLogger {
@@ -630,12 +606,16 @@ interface ErrorLogger {
     fun observeUntranslatableForOtherReason(assertion: Assertion)
     fun observeOutOfDomainType(type: String)
     fun errorsMessage(): String
+    fun runWasSuccess(): Boolean
 }
 
 /**
  * Allows logging of the types of all ColdStart assertions which could not be translated
  */
-class DefaultErrorLogger : ErrorLogger {
+class DefaultErrorLogger(
+        // if we encounter an out-of-domain type we usually crash, but user can explicitly
+        // white-list certain types
+        private val allowedOutOfDomainTypes: Set<String> = setOf()) : ErrorLogger {
     // we use ImmutableMultiSet.builders to maintain determinism
     private val untranslatableAssertionTypesB = ImmutableMultiset.builder<Class<Assertion>>()
     private val untranslatableObjectTypesB = ImmutableMultiset.builder<String>()
@@ -644,11 +624,6 @@ class DefaultErrorLogger : ErrorLogger {
 
     override fun observeUntranslatableForOtherReason(assertion: Assertion) {
         untranslatableAssertionTypesB.add(assertion.javaClass)
-        when (assertion) {
-            is TypeAssertion -> untranslatableObjectTypesB.add(assertion.type)
-            is EventArgumentAssertion -> outOfDomainTypes.add(assertion.argument_role)
-            is RelationAssertion -> outOfDomainTypes.add(assertion.relationType)
-        }
     }
 
     override fun observeUntranslatableBecauseNodeOutsideOntology(assertion: Assertion) {
@@ -656,17 +631,25 @@ class DefaultErrorLogger : ErrorLogger {
     }
 
     override fun observeOutOfDomainType(type: String) {
-        outOfDomainTypes.add(type)
+        if (!allowedOutOfDomainTypes.contains(type)) {
+            outOfDomainTypes.add(type)
+        }
     }
 
     override fun errorsMessage(): String {
         return "The following types were not found in the target ontology: ${outOfDomainTypes.build()}\n" +
                 "The following assertions were omitted because they involved out-of-ontology nodes:" +
                 " ${hasOutOfDomainNode.build()}\n" +
-                "The following ColdStart assertions could not be translated for other " +
-                "reasons: ${untranslatableAssertionTypesB.build()}\n" +
-                "The following object types could not be translated for other reasons:" +
-                " ${untranslatableObjectTypesB.build()}\n"
+                "The following ColdStart assertions could not be translated: ${untranslatableAssertionTypesB.build()}\n" +
+                "The following object types could not be translated: ${untranslatableObjectTypesB.build()}\n"
+    }
+
+    override fun runWasSuccess(): Boolean {
+        if (outOfDomainTypes.build().isNotEmpty()) {
+            ColdStart2AidaInterchangeConverter.logger.error { "Treating out-of-domain types as fatal errors" }
+        }
+
+        return outOfDomainTypes.build().isEmpty()
     }
 }
 

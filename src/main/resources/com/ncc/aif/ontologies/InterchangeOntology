@@ -60,22 +60,27 @@
    rdfs:comment "The evidence in a document/image/video/etc. for some KB assertion" .
 
 :TextJustification a owl:Class ;
+   rdfs:subClassOf :Justification ;
    rdfs:label "Text Justification" ;
    rdfs:comment "The evidence in a text document for some KB assertion" .
 
 :AudioJustification a owl:Class ;
+   rdfs:subClassOf :Justification ;
    rdfs:label "Audio Justification" ;
    rdfs:comment "The evidence in a speech or other audio for some KB assertion" .
 
 :ImageJustification a owl:Class ;
+   rdfs:subClassOf :Justification ;
    rdfs:label "Image Justification" ;
    rdfs:comment "The evidence in an image for some KB assertion" .
 
 :KeyFrameVideoJustification a owl:Class ;
+   rdfs:subClassOf :Justification ;
    rdfs:label "Video Key Frame Justification" ;
    rdfs:comment "The evidence from a key frame of a video for some KB assertion" .
 
 :ShotVideoJustification a owl:Class ;
+   rdfs:subClassOf :Justification ;
    rdfs:label "Video Non-Key-Frame Justification" ;
    rdfs:comment "The evidence in a video outside a key frame for some KB assertion" .
 
@@ -163,6 +168,7 @@
         owl:unionOf (
             :Entity
             :Event
+            :Relation
             :SameAsCluster ) ] ;
   rdfs:subPropertyOf owl:topObjectProperty ; .
 

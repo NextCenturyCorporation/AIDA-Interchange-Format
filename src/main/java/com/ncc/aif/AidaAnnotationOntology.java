@@ -61,6 +61,8 @@ public final class AidaAnnotationOntology {
             ResourceFactory.createProperty(NAMESPACE + "privateData");
     public static final Property JSON_CONTENT_PROPERTY =
             ResourceFactory.createProperty(NAMESPACE + "jsonContent");
+    public static final Property INFORMATIVE_JUSTIFICATION =
+            ResourceFactory.createProperty(NAMESPACE + "informativeJustification");
     public static final Property LDC_TIME_PROPERTY =
             ResourceFactory.createProperty(NAMESPACE + "ldcTime");
     public static final Property LDC_TIME_START =

@@ -112,8 +112,7 @@ class Examples(unittest.TestCase):
         aifutils.mark_text_justification(g, [entity, entity_is_an_organization],
                                          "NYT_ENG_201181231", 343, 367, system, 0.3)
 
-        aifutils.mark_as_mutually_exclusive(g, [([entity_is_a_person], 0.5),
-                                                ([entity_is_an_organization], 0.2)], system, None)
+        aifutils.mark_as_mutually_exclusive(g, { tuple([entity_is_a_person]):0.5, tuple([entity_is_an_organization]):0.2}, system, None)
 
         self.dump_graph(g, "Example of entity with uncertainty about type")
 
@@ -161,8 +160,8 @@ class Examples(unittest.TestCase):
                                                                                        cambridge_cluster, 0.6, system)
 
         # but not both
-        aifutils.mark_as_mutually_exclusive(g, [([place_of_birth_in_cambridge_cluster], 0.4),
-                                                ([place_of_birth_in_louisville_cluster], 0.6)], system, None)
+        aifutils.mark_as_mutually_exclusive(g, { tuple([place_of_birth_in_cambridge_cluster]):0.4,
+                                                 tuple([place_of_birth_in_louisville_cluster]):0.6}, system, None)
 
         self.dump_graph(g, "Relation between two entities with uncertainty about id of one")
 
@@ -265,7 +264,7 @@ class Examples(unittest.TestCase):
 
         # then we mark these as mutually exclusive
         # we also mark confidence 0.2 that neither of these are true
-        aifutils.mark_as_mutually_exclusive(g, [(bob_hit_fred_assertions, 0.6), (fred_hit_bob_assertions, 0.2)], system, 0.2)
+        aifutils.mark_as_mutually_exclusive(g, { tuple(bob_hit_fred_assertions):0.6, tuple(fred_hit_bob_assertions):0.2}, system, 0.2)
 
         self.dump_graph(g, "Example of subgraph confidences to show mutually exclusive linked event argument options")
 
@@ -606,12 +605,46 @@ class Examples(unittest.TestCase):
         aifutils.mark_name(g, putin, "Путин")
 
         # create a cluster with prototype
-        put_in_cluster = aifutils.make_cluster_with_prototype(g, "http://www.test.edu/clusters/1", vladimir_putin, system, "Vladimir Putin")
+        putin_cluster = aifutils.make_cluster_with_prototype(g, "http://www.test.edu/clusters/1", vladimir_putin, system, "Vladimir Putin")
 
         # person 1 is definitely in the cluster, person 2 is probably in the cluster
-        aifutils.mark_as_possible_cluster_member(g, putin, put_in_cluster, 0.71, system)
+        aifutils.mark_as_possible_cluster_member(g, putin, putin_cluster, 0.71, system)
 
         self.dump_graph(g, "create a simple cluster with handle")
+
+    def test_create_an_entity_with_information_justification(self):
+        g = aifutils.make_graph();
+        g.bind('ldcOnt', SEEDLING_TYPES_NIST.uri)
+
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, 'http://www.test.edu/testSystem')
+
+        # Two people, probably the same person
+        vladimir_putin = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
+        aifutils.mark_name(g, vladimir_putin, "Vladimir Putin")
+
+        type_assertion = aifutils.mark_type(g, "http://www.test.org/assertions/1", vladimir_putin,
+            SEEDLING_TYPES_NIST.Person, system, 1.0)
+
+        text_justification_1 = aifutils.mark_text_justification(g, [vladimir_putin, type_assertion], "HC00002Z0", 0, 10, system, 1.0)
+        aifutils.mark_informative_justification(g, vladimir_putin, text_justification_1)
+
+        putin = aifutils.make_entity(g, "http://www.test.edu/entities/2", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/2", putin, SEEDLING_TYPES_NIST.Person,
+                           system, 1.0)
+
+        aifutils.mark_name(g, putin, "Путин")
+
+        # create a cluster with prototype
+        putin_cluster = aifutils.make_cluster_with_prototype(g, "http://www.test.edu/clusters/1", vladimir_putin, system, "Vladimir Putin")
+        text_justification_2 = aifutils.mark_text_justification(g, [putin, type_assertion], "HC00002Z0", 0, 10, system, 1.0)
+        aifutils.mark_informative_justification(g, putin_cluster, text_justification_2)
+
+        # person 1 is definitely in the cluster, person 2 is probably in the cluster
+        aifutils.mark_as_possible_cluster_member(g, putin, putin_cluster, 0.71, system)
+
+        self.dump_graph(g, "create an entity and cluster with informative mention")
+
 
     def test_read_and_write_turtle(self):
         print("test read and write turtle")
@@ -664,7 +697,7 @@ class Examples(unittest.TestCase):
         aifutils.mark_as_possible_cluster_member(g, president_cluster, trump_cluster, .6, system)
 
         # write graph to file
-        file = open("../test_read_and_write.ttl", "w")
+        file = open("../test_read_and_write.ttl", "wb")
         file.write(g.serialize(format='turtle'))
         file.close()
 

@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod
 
 from rdflib import URIRef, RDF, Graph, BNode, Literal, XSD
 
-from aida_rdf_ontologies import AIDA_ANNOTATION
+from aida_interchange.aida_rdf_ontologies import AIDA_ANNOTATION
 from rdflib.plugins.sparql import prepareQuery
 
 """
@@ -404,6 +404,17 @@ def mark_importance(g, resource, importance):
     g.add((resource, AIDA_ANNOTATION.importance, Literal(importance, datatype=XSD.int)))
 
 
+def mark_informative_justification(g, resource, informative_justification):
+    """
+    Mark resource as having an informativeJustification value
+
+    :param g: The underlying RDF model for the operation
+    :param resource: the resource to mark with the specified imporatance
+    :param informative_justification: the justification which will be considered informative
+    """
+    g.add((resource, AIDA_ANNOTATION.informativeJustification , informative_justification))
+
+
 def mark_depends_on_hypothesis(g, depender, hypothesis):
     g.add((depender, AIDA_ANNOTATION.dependsOnHypothesis, hypothesis))
 
@@ -424,17 +435,17 @@ def mark_as_mutually_exclusive(g, alternatives, system, none_of_the_above_prob):
 
     mutual_exclusion_assertion = _make_aif_resource(g, None, AIDA_ANNOTATION.MutualExclusion, system)
 
-    for alts in alternatives:
+    for (edges_for_alternative, confidence) in alternatives.items():
         alternative = BNode()
         g.add((alternative, RDF.type, AIDA_ANNOTATION.MutualExclusionAlternative))
 
         alternative_graph = BNode()
         g.add((alternative_graph, RDF.type, AIDA_ANNOTATION.Subgraph))
-        for alt in alts[0]:
+        for alt in edges_for_alternative:
             g.add((alternative_graph, AIDA_ANNOTATION.subgraphContains, alt))
 
         g.add((alternative, AIDA_ANNOTATION.alternativeGraph, alternative_graph))
-        mark_confidence(g, alternative, alts[1], system)
+        mark_confidence(g, alternative, confidence, system)
 
         g.add((mutual_exclusion_assertion, AIDA_ANNOTATION.alternative, alternative))
 
