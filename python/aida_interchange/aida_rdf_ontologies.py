@@ -202,6 +202,7 @@ AIDA_ANNOTATION = ClosedNamespace(
       'hasName',
       'hypothesisContent',
       'importance',
+      'informativeJustification',
       'jsonContent',
       'justifiedBy',
       'keyFrame',

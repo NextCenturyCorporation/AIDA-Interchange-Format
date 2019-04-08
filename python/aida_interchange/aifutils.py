@@ -404,6 +404,17 @@ def mark_importance(g, resource, importance):
     g.add((resource, AIDA_ANNOTATION.importance, Literal(importance, datatype=XSD.int)))
 
 
+def mark_informative_justification(g, resource, informative_justification):
+    """
+    Mark resource as having an informativeJustification value
+
+    :param g: The underlying RDF model for the operation
+    :param resource: the resource to mark with the specified imporatance
+    :param informative_justification: the justification which will be considered informative
+    """
+    g.add((resource, AIDA_ANNOTATION.informativeJustification , informative_justification))
+
+
 def mark_depends_on_hypothesis(g, depender, hypothesis):
     g.add((depender, AIDA_ANNOTATION.dependsOnHypothesis, hypothesis))
 

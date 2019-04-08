@@ -605,12 +605,46 @@ class Examples(unittest.TestCase):
         aifutils.mark_name(g, putin, "Путин")
 
         # create a cluster with prototype
-        put_in_cluster = aifutils.make_cluster_with_prototype(g, "http://www.test.edu/clusters/1", vladimir_putin, system, "Vladimir Putin")
+        putin_cluster = aifutils.make_cluster_with_prototype(g, "http://www.test.edu/clusters/1", vladimir_putin, system, "Vladimir Putin")
 
         # person 1 is definitely in the cluster, person 2 is probably in the cluster
-        aifutils.mark_as_possible_cluster_member(g, putin, put_in_cluster, 0.71, system)
+        aifutils.mark_as_possible_cluster_member(g, putin, putin_cluster, 0.71, system)
 
         self.dump_graph(g, "create a simple cluster with handle")
+
+    def test_create_an_entity_with_information_justification(self):
+        g = aifutils.make_graph();
+        g.bind('ldcOnt', SEEDLING_TYPES_NIST.uri)
+
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, 'http://www.test.edu/testSystem')
+
+        # Two people, probably the same person
+        vladimir_putin = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
+        aifutils.mark_name(g, vladimir_putin, "Vladimir Putin")
+
+        type_assertion = aifutils.mark_type(g, "http://www.test.org/assertions/1", vladimir_putin,
+            SEEDLING_TYPES_NIST.Person, system, 1.0)
+
+        text_justification_1 = aifutils.mark_text_justification(g, [vladimir_putin, type_assertion], "HC00002Z0", 0, 10, system, 1.0)
+        aifutils.mark_informative_justification(g, vladimir_putin, text_justification_1)
+
+        putin = aifutils.make_entity(g, "http://www.test.edu/entities/2", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/2", putin, SEEDLING_TYPES_NIST.Person,
+                           system, 1.0)
+
+        aifutils.mark_name(g, putin, "Путин")
+
+        # create a cluster with prototype
+        putin_cluster = aifutils.make_cluster_with_prototype(g, "http://www.test.edu/clusters/1", vladimir_putin, system, "Vladimir Putin")
+        text_justification_2 = aifutils.mark_text_justification(g, [putin, type_assertion], "HC00002Z0", 0, 10, system, 1.0)
+        aifutils.mark_informative_justification(g, putin_cluster, text_justification_2)
+
+        # person 1 is definitely in the cluster, person 2 is probably in the cluster
+        aifutils.mark_as_possible_cluster_member(g, putin, putin_cluster, 0.71, system)
+
+        self.dump_graph(g, "create an entity and cluster with informative mention")
+
 
     def test_read_and_write_turtle(self):
         print("test read and write turtle")
