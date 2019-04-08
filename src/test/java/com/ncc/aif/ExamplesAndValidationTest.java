@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @TestInstance(Lifecycle.PER_CLASS)
 public class ExamplesAndValidationTest {
     // Set this flag to true if attempting to get examples
-    private static final boolean FORCE_DUMP = true;
+    private static final boolean FORCE_DUMP = false;
 
     private static final String LDC_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#";
     private static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#";
