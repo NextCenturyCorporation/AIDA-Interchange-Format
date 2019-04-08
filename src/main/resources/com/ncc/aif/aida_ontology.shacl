@@ -1067,6 +1067,9 @@ aida:ClusterShape
    # may bear system-private data
    sh:property aida:PrivateDataPropertyShape ;
 
+   # may be linked to one or more things in an external KB
+   sh:property aida:LinkPropertyShape ;
+
    sh:closed true ;
    sh:ignoredProperties (rdf:type).
 
