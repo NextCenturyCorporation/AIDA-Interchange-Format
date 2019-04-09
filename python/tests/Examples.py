@@ -14,13 +14,14 @@ from aida_interchange import aifutils
 # Running these tests will output the examples to the console
 class Examples(unittest.TestCase):
 
-    test_dir_path = "test_files"
+    test_dir_path = os.environ.get("DIR_PATH", None)
     def new_file(self, g, test_name):
-        if not os.path.exists(self.test_dir_path):
-            os.makedirs(self.test_dir_path)
-        f = open(self.test_dir_path + "/" + test_name, "wb+")
-        f.write(g.serialize(format='turtle'))
-        f.close
+        if self.test_dir_path is not None:
+            if not os.path.exists(self.test_dir_path):
+                os.makedirs(self.test_dir_path)
+            f = open(self.test_dir_path + "/" + test_name, "wb+")
+            f.write(g.serialize(format='turtle'))
+            f.close
 
     def test_create_an_entity_with_all_justification_types_and_confidence(self):
         g = aifutils.make_graph()
