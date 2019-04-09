@@ -63,6 +63,20 @@ public final class AidaAnnotationOntology {
             ResourceFactory.createProperty(NAMESPACE + "jsonContent");
     public static final Property INFORMATIVE_JUSTIFICATION =
             ResourceFactory.createProperty(NAMESPACE + "informativeJustification");
+    public static final Property LDC_TIME_PROPERTY =
+            ResourceFactory.createProperty(NAMESPACE + "ldcTime");
+    public static final Property LDC_TIME_START =
+            ResourceFactory.createProperty(NAMESPACE + "start");
+    public static final Property LDC_TIME_END =
+            ResourceFactory.createProperty(NAMESPACE + "end");
+    public static final Property LDC_TIME_TYPE =
+            ResourceFactory.createProperty(NAMESPACE + "timeType");
+    public static final Property LDC_TIME_YEAR =
+            ResourceFactory.createProperty(NAMESPACE + "year");
+    public static final Property LDC_TIME_MONTH =
+            ResourceFactory.createProperty(NAMESPACE + "month");
+    public static final Property LDC_TIME_DAY =
+            ResourceFactory.createProperty(NAMESPACE + "day");
 
     // classes
     public static final Resource SUBGRAPH_CLASS = ResourceFactory.createResource(NAMESPACE + "Subgraph");
@@ -97,4 +111,8 @@ public final class AidaAnnotationOntology {
             ResourceFactory.createResource(NAMESPACE + "Hypothesis");
     public static final Resource PRIVATE_DATA_CLASS =
             ResourceFactory.createResource(NAMESPACE + "PrivateData");
+    public static final Property LDC_TIME_CLASS =
+            ResourceFactory.createProperty(NAMESPACE + "LDCTime");
+    public static final Property LDC_TIME_COMPONENT =
+            ResourceFactory.createProperty(NAMESPACE + "LDCTimeComponent");
 }
