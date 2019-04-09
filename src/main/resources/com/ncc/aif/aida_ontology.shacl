@@ -109,13 +109,13 @@ aida:EntityShape
 # (e.g. an attack, a marriage, a business acquisition)
 # Each event must have at least one assertion giving it a type which is a sub-class of
 # aidaDomainCommon:eventType
-aida:EventShape
+aida:EventRelationShape
     a sh:NodeShape ;
-    sh:targetClass aida:Event ;
+    sh:targetClass aida:Event, aida:Relation ;
 
-    # Ensure that event has type
+    # Ensure that event/relation has type
     sh:sparql [
-        sh:message "Event must have type assertion or be non-prototype member of cluster" ;
+        sh:message "Events and Relations must have type assertion or be non-prototype member of cluster" ;
         sh:select """
             PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
@@ -132,7 +132,7 @@ aida:EventShape
         """ ;
     ] ;
 
-    # events must have unique identifiers
+    # must have unique identifiers
     sh:nodeKind sh:IRI ;
 
     # may provide an informative justification
@@ -152,6 +152,9 @@ aida:EventShape
 
     # may bear system-private data
     sh:property aida:PrivateDataPropertyShape ;
+
+    # may have ldc time representation
+    sh:property aida:LDCTimePropertyShape ;
 
     # no other properties are allowed
     sh:closed true ;
@@ -280,57 +283,6 @@ aida:RelationArgumentShape
   # except rdf:type
   sh:ignoredProperties (rdf:type rdf:predicate)
   .
-
-# the fourth type of content node is a relation assertion.
-aida:RelationShape
-    a sh:NodeShape ;
-    sh:targetClass aida:Relation ;
-
-    # Ensure that relation has type
-    sh:sparql [
-       sh:message "Relation must have type assertion or be non-prototype member of cluster" ;
-       sh:select """
-           PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
-            SELECT $this
-            WHERE {
-                FILTER ( NOT EXISTS {
-                        ?typeAssertion a rdf:Statement .
-                        ?typeAssertion rdf:predicate rdf:type .
-                        ?typeAssertion rdf:subject $this .
-                    } && ( NOT EXISTS { ?membership aida:clusterMember $this . } ||
-                            EXISTS { ?cluster aida:prototype $this . } )
-                )
-           }
-       """ ;
-    ] ;
-
-    # must have unique identifiers
-    sh:nodeKind sh:IRI ;
-
-    # may provide an informative justification
-    sh:property aida:InformativeJustificationPropertyShape ;
-
-    # may provide a confidence
-    sh:property aida:ConfidencePropertyShape ;
-
-    # may provide an one or more source systems
-    sh:property aida:SystemPropertyShape ;
-
-    # may provide one or more justifications for its existence
-    sh:property aida:JustificationPropertyShape ;
-
-    # may depend on a hypothesis
-    sh:property aida:DependsOnHypothesisPropertyShape ;
-
-    # may bear system-private data
-    sh:property aida:PrivateDataPropertyShape ;
-
-    # no other properties are allowed
-    sh:closed true ;
-    # except rdf:type
-    sh:ignoredProperties (rdf:type)
-    .
 
 # the fifth type of content node is a sentiment assertion.
 aida:SentimentShape
@@ -863,6 +815,69 @@ aida:JustificationPropertyShape
      [sh:class aida:CompoundJustification] ) ;
    sh:message "Unsupported justification type" .
 
+#########################
+# LDC Time Representation
+#------------------------
+# LDC Time Property definition
+aida:LDCTimePropertyShape
+    a sh:PropertyShape ;
+    sh:path aida:ldcTime ;
+    sh:class aida:LDCTime .
+
+# LDC Time Node definition
+aida:LDCTimeShape
+    a sh:NodeShape ;
+    sh:targetClass aida:LDCTime ;
+    sh:property [
+        sh:path aida:start ;
+        sh:class aida:LDCTimeComponent
+    ] ;
+    sh:property [
+        sh:path aida:end ;
+        sh:class aida:LDCTimeComponent
+    ] ;
+
+    sh:property sh:JustificationPropertyShape ;
+
+    # may provide an optional source system
+    sh:property aida:SystemPropertyShape ;
+
+    # no other properties are allowed
+    sh:closed true ;
+
+    # except rdf:type
+    sh:ignoredProperties (rdf:type) .
+
+# LDC Time Component Node definition
+aida:LDCTimeComponentShape
+    a sh:NodeShape ;
+    sh:targetClass aida:LDCTimeComponent ;
+    sh:property [
+        sh:path aida:year ;
+        sh:datatype xsd:gYear
+    ] ;
+    sh:property [
+        sh:path aida:month ;
+        sh:datatype xsd:gMonth
+    ] ;
+    sh:property [
+        sh:path aida:day ;
+        sh:datatype xsd:gDay
+    ] ;
+    sh:property [
+        sh:path aida:timeType ;
+        sh:dataType xsd:string
+    ] ;
+
+    # no other properties are allowed
+    sh:closed true ;
+
+    # except rdf:type
+    sh:ignoredProperties (rdf:type) .
+
+#########################
+# Link to external KB
+#------------------------
 # use to express that an AIDA Entity is the same thing as something in an external knowledge base
 aida:LinkAssertionShape
   a sh:NodeShape ;
@@ -1227,7 +1242,7 @@ aida:MutualExclusionAlternativeShape
 aida:ImportancePropertyShape
   a sh:PropertyShape ;
   sh:path aida:importance ;
-  sh:datatype xsd:int .
+  sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] ) .
 
 aida:HypothesisShape
     a sh:NodeShape ;
