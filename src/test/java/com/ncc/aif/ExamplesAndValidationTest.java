@@ -1035,6 +1035,34 @@ public class ExamplesAndValidationTest {
             assertNotNull(rtest, "Entity does not exist");
         }
 
+        /**
+         * A cluster should be able to contain a link to one or more external KBs
+         */
+        @Test
+        void createClusterWithLinkAndConfidence() {
+
+            // Two people, probably the same person
+            final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
+            markType(model, getAssertionUri(), putin, SeedlingOntology.Person, system, 1.0);
+            markName(putin, "Путин");
+
+            final Resource vladimirPutin = makeEntity(model, getUri("E780885.00311"), system);
+            markType(model, getAssertionUri(), vladimirPutin, SeedlingOntology.Person, system, 1.0);
+            markName(vladimirPutin, "Vladimir Putin");
+
+            // create a cluster with prototype
+            final Resource putinCluster = makeClusterWithPrototype(model, getClusterUri(), putin, "handle", system);
+
+            // person 1 is definitely in the cluster, person 2 is probably in the cluster
+            markAsPossibleClusterMember(model, putin, putinCluster, 1d, system);
+            markAsPossibleClusterMember(model, vladimirPutin, putinCluster, 0.71, system);
+
+            // Link a cluster to a KB
+            linkToExternalKB(model, putinCluster, "freebase:FOO", system, .398);
+
+            testValid("Create a cluster with link and confidence.");
+        }
+
         @Test
         void createEventWithLDCTime() {
             // Create a start position event with unknown start and end time
