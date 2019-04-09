@@ -1130,13 +1130,13 @@ public class AIFUtils {
         private final LDCTimeType type;
         private final String year;
         private final String month;
-        private final String date;
+        private final String day;
 
-        public LDCTimeComponent(LDCTimeType type, String year, String month, String date) {
+        public LDCTimeComponent(LDCTimeType type, String year, String month, String day) {
             this.type = type;
             this.year = year;
             this.month = month;
-            this.date = date;
+            this.day = day;
         }
 
         private Resource makeAIFTimeComponent(Model model) {
@@ -1144,7 +1144,7 @@ public class AIFUtils {
             timeComponent.addProperty(AidaAnnotationOntology.LDC_TIME_TYPE, type.toString());
             addInteger(model, timeComponent, AidaAnnotationOntology.LDC_TIME_YEAR, year, XSD.gYear);
             addInteger(model, timeComponent, AidaAnnotationOntology.LDC_TIME_MONTH, month, XSD.gMonth);
-            addInteger(model, timeComponent, AidaAnnotationOntology.LDC_TIME_DATE, date, XSD.gDay);
+            addInteger(model, timeComponent, AidaAnnotationOntology.LDC_TIME_DAY, day, XSD.gDay);
             return timeComponent;
         }
 

@@ -75,8 +75,8 @@ public final class AidaAnnotationOntology {
             ResourceFactory.createProperty(NAMESPACE + "year");
     public static final Property LDC_TIME_MONTH =
             ResourceFactory.createProperty(NAMESPACE + "month");
-    public static final Property LDC_TIME_DATE =
-            ResourceFactory.createProperty(NAMESPACE + "date");
+    public static final Property LDC_TIME_DAY =
+            ResourceFactory.createProperty(NAMESPACE + "day");
 
     // classes
     public static final Resource SUBGRAPH_CLASS = ResourceFactory.createResource(NAMESPACE + "Subgraph");

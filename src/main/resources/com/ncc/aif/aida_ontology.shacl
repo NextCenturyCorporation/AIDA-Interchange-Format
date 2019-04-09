@@ -861,7 +861,7 @@ aida:LDCTimeComponentShape
         sh:datatype xsd:gMonth
     ] ;
     sh:property [
-        sh:path aida:date ;
+        sh:path aida:day ;
         sh:datatype xsd:gDay
     ] ;
     sh:property [
