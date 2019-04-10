@@ -107,7 +107,8 @@ public class ScalingTest {
         NameMaxLength                   // Each entity/filler name string is limited to 256 UTF-8 characters
     }
 
-    // Tweak these values to introduce more/fewer invalid content in the generated KB.
+    // Increase/decrease these values (scaled from 0 to 1) to introduce more/less invalid content in the generated KB.
+    // These will only have an effect if generateValidModel is false, as set via -the -i program argument.
     private static final double FREQ_RestrictJustification_Edges = 0.3;
     private static final double FREQ_RestrictJustification_Compound = 0.3;
     private static final double FREQ_EdgeJustificationLimit = 0.3;
@@ -282,7 +283,7 @@ public class ScalingTest {
         entityResourceList.add(entityResource);
 
         // sometimes add hasName, textValue, or numericValue
-        boolean createLongString = checkChaos(NIST_RESTRICTION.NameMaxLength);
+        boolean createLongString = introduceChaos(NIST_RESTRICTION.NameMaxLength);
         double rand = r.nextDouble();
         Resource typeToUse;
         if (rand < 0.15 || createLongString) {
@@ -330,7 +331,7 @@ public class ScalingTest {
         Resource eventResource = makeEvent(model, getEventUri(), system);
         Resource eventCluster = makeClusterWithPrototype(model, getClusterUri(), eventResource, system);
 
-        if (checkChaos(NIST_RESTRICTION.FlatClusters)) {
+        if (introduceChaos(NIST_RESTRICTION.FlatClusters)) {
             Resource entityCluster = makeClusterWithPrototype(model, getClusterUri(), getRandomEntity(), "handle", system);
             markAsPossibleClusterMember(model, eventCluster, entityCluster, .5, system);
         }
@@ -407,7 +408,7 @@ public class ScalingTest {
                 makeTextJustification(model, docId, 1029, 1033, system, 0.973) :
                 markShotVideoJustification(model, getRandomEntity(), "source1", "shotId", system, 1.0);
         Resource compound;
-        if (checkChaos(NIST_RESTRICTION.EdgeJustificationLimit)) {
+        if (introduceChaos(NIST_RESTRICTION.EdgeJustificationLimit)) {
             final Resource justification2 = makeTextJustification(model, docId, 1055, 1071, system, 0.677);
             final Resource justification3 = makeTextJustification(model, docId, 1102, 1159, system, 0.881);
             compound = markCompoundJustification(model,
@@ -424,11 +425,11 @@ public class ScalingTest {
     }
 
     // Returns true when invalid content should be generated
-    private boolean checkChaos(NIST_RESTRICTION restriction) {
+    private boolean introduceChaos(NIST_RESTRICTION restriction) {
         return !preserveValidity(restriction);
     }
 
-    // Returns true when invalid content should be generated
+    // Returns true when valid content should be generated
     private boolean preserveValidity(NIST_RESTRICTION restriction) {
         return (generateValidModel || r.nextDouble() > CHAOS_MAP.get(restriction));
     }
