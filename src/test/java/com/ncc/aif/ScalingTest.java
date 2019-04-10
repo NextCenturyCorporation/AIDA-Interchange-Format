@@ -2,7 +2,6 @@ package com.ncc.aif;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.apache.jena.ext.com.google.common.collect.ImmutableList;
 import org.apache.jena.query.Dataset;
@@ -79,7 +78,7 @@ public class ScalingTest {
     private int assertionIndex = 1;
     private int clusterCount = 0;
 
-    private static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/LDCOntology";
+    private static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/LDCOntology#";
     private static final boolean ALLOW_NUMERIC_TYPES = false;
 
     private final Random r = new Random();
@@ -94,46 +93,40 @@ public class ScalingTest {
     }
 
     // These NIST restrictions correspond to (and should be updated from) com/ncc/aif/ExamplesAndValidationTest.java.
-    private enum NIST_RESTRICTION {
-        RestrictJustification_Edges,    // Edge justification must be aida:CompoundJustification
-        RestrictJustification_Compound, // CompoundJustification must be used only for justifications of argument assertions
-        EdgeJustificationLimit,         // Each edge justification is limited to either one or two spans
-        PreventShotVideo,               // Video must use aida:KeyFrameVideoJustification. Remove ShotVideoJustification
-        FlatClusters,                   // Members of clusters are entity objects, relation objects, and event objects (not clusters)
-        EverythingClustered,            // Entity, Relation, and Event object is required to be part of at least one cluster.
-        ConfidenceValueRange,           // Each confidence value must be between 0 and 1
-        ClusterHasIRI,                  // Entity, Relation, and Event clusters must have IRI
-        JustifyTypeAssertions,          // Each entity/relation/event type statement must have at least one justification
-        NameMaxLength                   // Each entity/filler name string is limited to 256 UTF-8 characters
-    }
-
     // Increase/decrease these values (scaled from 0 to 1) to introduce more/less invalid content in the generated KB.
     // These will only have an effect if generateValidModel is false, as set via -the -i program argument.
-    private static final double FREQ_RestrictJustification_Edges = 0.3;
-    private static final double FREQ_RestrictJustification_Compound = 0.3;
-    private static final double FREQ_EdgeJustificationLimit = 0.3;
-    private static final double FREQ_PreventShotVideo = 0.3;
-    private static final double FREQ_FlatClusters = 0.3;
-    private static final double FREQ_EverythingClustered = 0.3;
-    private static final double FREQ_ConfidenceValueRange = 0.3;
-    private static final double FREQ_ClusterHasIRI = 0.3;
-    private static final double FREQ_JustifyTypeAssertions = 0.3;
-    private static final double FREQ_NameMaxLength = 0.3;
+    private enum NIST_RESTRICTION {
+        // Edge justification must be aida:CompoundJustification
+        RestrictJustification_Edges     (0.3),
+        // CompoundJustification must be used only for justifications of argument assertions
+        RestrictJustification_Compound  (0.3),
+        // Each edge justification is limited to either one or two spans
+        EdgeJustificationLimit          (0.3),
+        // Video must use aida:KeyFrameVideoJustification. Remove ShotVideoJustification
+        PreventShotVideo                (0.3),
+        // Members of clusters are entity objects, relation objects, and event objects (not clusters)
+        FlatClusters                    (0.3),
+        // Entity, Relation, and Event object is required to be part of at least one cluster.
+        EverythingClustered             (0.3),
+        // Each confidence value must be between 0 and 1
+        ConfidenceValueRange            (0.3),
+        // Entity, Relation, and Event clusters must have IRI
+        ClusterHasIRI                   (0.3),
+        // Each entity/relation/event type statement must have at least one justification
+        JustifyTypeAssertions           (0.3),
+        // Each entity/filler name string is limited to 256 UTF-8 characters
+        NameMaxLength                   (0.3);
 
-    // Maps each restriction to the frequency that that restriction will cause an invalidity in the KB.
-    private static final ImmutableMap<NIST_RESTRICTION, Double> CHAOS_MAP =
-            ImmutableMap.<NIST_RESTRICTION, Double>builder()
-                    .put(NIST_RESTRICTION.RestrictJustification_Edges, FREQ_RestrictJustification_Edges)
-                    .put(NIST_RESTRICTION.RestrictJustification_Compound, FREQ_RestrictJustification_Compound)
-                    .put(NIST_RESTRICTION.EdgeJustificationLimit, FREQ_EdgeJustificationLimit)
-                    .put(NIST_RESTRICTION.PreventShotVideo, FREQ_PreventShotVideo)
-                    .put(NIST_RESTRICTION.FlatClusters, FREQ_FlatClusters)
-                    .put(NIST_RESTRICTION.EverythingClustered, FREQ_EverythingClustered)
-                    .put(NIST_RESTRICTION.ConfidenceValueRange, FREQ_ConfidenceValueRange)
-                    .put(NIST_RESTRICTION.ClusterHasIRI, FREQ_ClusterHasIRI)
-                    .put(NIST_RESTRICTION.JustifyTypeAssertions, FREQ_JustifyTypeAssertions)
-                    .put(NIST_RESTRICTION.NameMaxLength, FREQ_NameMaxLength)
-                    .build();
+        private final double frequency;
+
+        NIST_RESTRICTION(double frequency) {
+            this.frequency = frequency;
+        }
+
+        private double frequency() {
+            return frequency;
+        }
+    }
 
     // What output format to use, whether turtle pretty, or flat, or ntriple, or blocks
     // See RDFFormat for a definition of these.
@@ -344,7 +337,7 @@ public class ScalingTest {
 
         // Make two arguments
         Resource argument = markAsArgument(model, eventResource,
-                LDCOntology.Conflict_Attack_AirstrikeMissileStrike_Place,
+                LDCOntology.Conflict_Attack_AirstrikeMissileStrike_Target,
                 getRandomEntity(), system, 0.785, getAssertionUri());
         if (preserveValidity(NIST_RESTRICTION.RestrictJustification_Edges)) {
             addEdgeJustificationAndPrivateData(argument);
@@ -366,14 +359,14 @@ public class ScalingTest {
                 relationResource, system);
 
         // Set the type
-        Resource typeResource = LDCOntology.Physical_Resident_Resident;
+        Resource typeResource = LDCOntology.Evaluate_Sentiment_Positive;
         Resource typeAssertion = markType(model, getAssertionUri(), relationResource, typeResource, system, 1.0);
 
         addJustificationAndPrivateData(typeAssertion);
 
         // Make two arguments
         Resource argument = markAsArgument(model, relationResource,
-                LDCOntology.Physical_Resident_Resident_Place,
+                LDCOntology.Evaluate_Sentiment_Positive_Holder,
                 getRandomEntity(), system, 0.785, getAssertionUri());
         if (preserveValidity(NIST_RESTRICTION.RestrictJustification_Edges)) {
             addEdgeJustificationAndPrivateData(argument);
@@ -382,7 +375,7 @@ public class ScalingTest {
         }
 
         Resource argumentTwo = markAsArgument(model, relationResource,
-                LDCOntology.Physical_Resident_Resident_Resident,
+                LDCOntology.Evaluate_Sentiment_Positive_SentimentTarget,
                 getRandomEntity(), system, 0.785, getAssertionUri());
         addEdgeJustificationAndPrivateData(argumentTwo);
     }
@@ -431,7 +424,7 @@ public class ScalingTest {
 
     // Returns true when valid content should be generated
     private boolean preserveValidity(NIST_RESTRICTION restriction) {
-        return (generateValidModel || r.nextDouble() > CHAOS_MAP.get(restriction));
+        return (generateValidModel || r.nextDouble() > restriction.frequency());
     }
 
     private final ValidateAIF ldcValidator = ValidateAIF.createForLDCOntology(ValidateAIF.Restriction.NIST);
