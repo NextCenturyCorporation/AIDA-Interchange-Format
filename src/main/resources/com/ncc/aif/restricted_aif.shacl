@@ -214,6 +214,20 @@ aida:RequiredJustificationPropertyShape
    sh:message "Type assertions must have at least one justification" .
 
 #########################
+# Justifications require source and a source document
+# The source restriction is defined on the aida:SharedJustificationShape in the aida_ontology.shacl
+#------------------------
+aida:JustificationSourceShape
+    a sh:NodeShape ;
+    sh:targetObjectsOf aida:justifiedBy ;
+    sh:property [
+        sh:path aida:sourceDocument ;
+        sh:minCount 1 ;
+        sh:message "Justifications require source and a sourceDocument" ;
+    ]
+    .
+
+#########################
 # Each entity/filler name string is limited to 256 UTF-8 characters
 #------------------------
 aida:NamePropertyShape

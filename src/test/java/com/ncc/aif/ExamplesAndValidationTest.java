@@ -1507,6 +1507,52 @@ public class ExamplesAndValidationTest {
                 testValid("NIST.valid: Each entity name string is limited to 256 UTF-8 characters");
             }
         }
+
+        // Justifications require sourceDocument and a source for a span
+        @Nested
+        class JustificationSourceAndSourceDocument {
+            Resource newJustification;
+
+            @BeforeEach
+            void setup() {
+                // create justification from scratch
+                newJustification = model.createResource();
+                newJustification.addProperty(RDF.type, AidaAnnotationOntology.TEXT_JUSTIFICATION_CLASS);
+                if (system != null) {
+                    markSystem(newJustification, system);
+                }
+
+                markConfidence(model, newJustification, 0.973, system);
+                newJustification.addProperty(AidaAnnotationOntology.START_OFFSET,
+                        model.createTypedLiteral(41));
+                newJustification.addProperty(AidaAnnotationOntology.END_OFFSET_INCLUSIVE,
+                        model.createTypedLiteral(143));
+            }
+
+            @Test
+            void invalidNoSource() {
+                // include the source document but not the source
+                addSourceDocumentToJustification(newJustification, "HC00002ZO");
+                testInvalid("NIST.invalid (missing justification source and source document): justifications require source document and a source");
+
+            }
+
+            @Test
+            void invalidNoSourceDocument() {
+                // include the source but not the source document
+                newJustification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral("XP043002ZO"));
+                testInvalid("NIST.invalid (missing justification source document): justifications require source document and a source");
+            }
+
+            @Test
+            void valid() {
+                // include the source and source document
+                newJustification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral("XP043002ZO"));
+                addSourceDocumentToJustification(newJustification, "HC00002ZO");
+                testValid("NIST.valid: type assertions must be justified");
+            }
+        }
+
     }
 
     /**
