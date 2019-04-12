@@ -214,7 +214,7 @@ aida:RequiredJustificationPropertyShape
    sh:message "Type assertions must have at least one justification" .
 
 #########################
-# Justifications require source and a source document
+# Justifications require a source document and a source
 # The source restriction is defined on the aida:SharedJustificationShape in the aida_ontology.shacl
 #------------------------
 aida:JustificationSourceShape

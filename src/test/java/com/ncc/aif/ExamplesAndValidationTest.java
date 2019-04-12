@@ -1523,7 +1523,7 @@ public class ExamplesAndValidationTest {
             }
         }
 
-        // Justifications require sourceDocument and a source for a span
+        // Justifications require a source document and a source
         @Nested
         class JustificationSourceAndSourceDocument {
             Resource newJustification;
@@ -1552,7 +1552,7 @@ public class ExamplesAndValidationTest {
             void invalidNoSource() {
                 // include the source document but not the source
                 addSourceDocumentToJustification(newJustification, "HC00002ZO");
-                testInvalid("NIST.invalid (missing justification source): justifications require source document and a source");
+                testInvalid("NIST.invalid (missing justification source): justifications require a source document and source");
 
             }
 
@@ -1560,7 +1560,7 @@ public class ExamplesAndValidationTest {
             void invalidNoSourceDocument() {
                 // include the source but not the source document
                 newJustification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral("XP043002ZO"));
-                testInvalid("NIST.invalid (missing justification source document): justifications require source document and a source");
+                testInvalid("NIST.invalid (missing justification source document): justifications require a source document and source");
             }
 
             @Test
@@ -1568,7 +1568,7 @@ public class ExamplesAndValidationTest {
                 // include the source and source document
                 newJustification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral("XP043002ZO"));
                 addSourceDocumentToJustification(newJustification, "HC00002ZO");
-                testValid("NIST.valid: justifications require source document and a source");
+                testValid("NIST.valid: justifications require a source document and a source");
             }
         }
 
