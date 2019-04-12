@@ -219,7 +219,7 @@ aida:RequiredJustificationPropertyShape
 #------------------------
 aida:JustificationSourceShape
     a sh:NodeShape ;
-    sh:targetClass aida:TextJustification, aida:ImageJustification, aida:AudioJustification, aida:KeyFrameVideoJustification, aida:ShotVideoJustification;
+    sh:targetClass aida:Justification ;
     sh:property [
         sh:path aida:sourceDocument ;
         sh:minCount 1 ;
