@@ -74,6 +74,7 @@ public final class ValidateAIF {
 
     private Model domainModel;
     private Restriction restriction;
+    private Resource validationReport = null;
 
     private ValidateAIF(Model domainModel, Restriction restriction) {
         initializeSHACLModels();
@@ -400,6 +401,7 @@ public final class ValidateAIF {
                 if (!validator.validateKB(dataToBeValidated)) {
                     logger.warn("---> Validation of " + fileToValidate + " failed.");
                     invalidCount++;
+                    dumpReport(validator.getValidationReport(), fileToValidate, validationDirs);
                 }
                 date = Calendar.getInstance().getTime();
                 logger.info("---> completed " + format.format(date) + ".");
@@ -411,6 +413,10 @@ public final class ValidateAIF {
 
         final ReturnCode returnCode = displaySummary(fileNum+nonTTLcount, invalidCount, skipCount+nonTTLcount);
         System.exit(returnCode.ordinal());
+    }
+
+    private static void dumpReport(Resource validationReport, File fileToValidate, Set<String> validationDirs) {
+        validationReport.getModel().write(System.err, FileUtils.langTurtle);
     }
 
     // Return false if file is > 5MB or size couldn't be determined, otherwise true
@@ -507,18 +513,23 @@ public final class ValidateAIF {
     }
 
     /**
+     * Returns the validation report from the last call to validateKB.
+     *
+     * @return the last validation report, or null if validateKB has not yet been called
+     */
+    public Resource getValidationReport() {
+        return validationReport;
+    }
+
+    /**
      * Validates against the SHACL file to ensure that resources have the required properties
      * (and in some cases, only the required properties) of the proper types.  Returns true if
      * validation passes.
      */
     private boolean validateAgainstShacl(Model dataToBeValidated, Model shacl) {
         // Do SHACL validation.
-        final Resource report = ValidationUtil.validateModel(dataToBeValidated, shacl, true);
-        final boolean valid = report.getRequiredProperty(
+        validationReport = ValidationUtil.validateModel(dataToBeValidated, shacl, true);
+        return validationReport.getRequiredProperty(
                 shacl.createProperty("http://www.w3.org/ns/shacl#conforms")).getBoolean();
-        if (!valid) {
-            report.getModel().write(System.err, FileUtils.langTurtle);
-        }
-        return valid;
     }
 }
