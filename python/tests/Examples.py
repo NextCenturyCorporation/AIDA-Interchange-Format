@@ -17,8 +17,6 @@ class Examples(unittest.TestCase):
     test_dir_path = os.environ.get("DIR_PATH", None)
     def new_file(self, g, test_name):
         if self.test_dir_path is not None:
-            if not os.path.exists(self.test_dir_path):
-                os.makedirs(self.test_dir_path)
             f = open(self.test_dir_path + "/" + test_name, "wb+")
             f.write(g.serialize(format='turtle'))
             f.close
@@ -678,11 +676,11 @@ class Examples(unittest.TestCase):
         aifutils.mark_as_possible_cluster_member(g, president_cluster, trump_cluster, .6, system)
 
         # write graph to file
-        self.new_file(g, "../test_read_and_write.ttl")
+        self.new_file(g, "test_read_and_write.ttl")
 
         # create new graph and read in file
         graph = Graph()
-        graph.parse("../test_read_and_write.ttl", format='turtle')
+        graph.parse("test_read_and_write.ttl", format='turtle')
 
         # verify that one of the trump entities exists in new graph object
         dtrump = URIRef("http://www.test.edu/entities/4")
