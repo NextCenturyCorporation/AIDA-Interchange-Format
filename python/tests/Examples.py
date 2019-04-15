@@ -646,6 +646,36 @@ class Examples(unittest.TestCase):
         self.dump_graph(g, "create an entity and cluster with informative mention")
 
 
+    def test_create_a_cluster_with_link_and_confidence(self):
+        g = aifutils.make_graph()
+        g.bind('ldcOnt', SEEDLING_TYPES_NIST.uri)
+
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
+
+        putin = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/1", putin, SEEDLING_TYPES_NIST.Person, 
+                system, 1.0)
+        aifutils.mark_name(g, putin, "Путин")
+        
+        vladimir_putin = aifutils.make_entity(g, "http://www.test.edu/entities/2", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/2", vladimir_putin, SEEDLING_TYPES_NIST.Person, 
+                system, 1.0)
+        aifutils.mark_name(g, vladimir_putin, "Vladimir Putin")
+
+        # create a cluster with prototype
+        putin_cluster = aifutils.make_cluster_with_prototype(g, "http://www.test.edu/clusters/1", vladimir_putin, system, "Vladimir Putin")
+
+        # person 1 is definitely in the cluster, person 2 is probably in the cluster
+        aifutils.mark_as_possible_cluster_member(g, putin, putin_cluster, 1.0, system)
+        aifutils.mark_as_possible_cluster_member(g, vladimir_putin, putin_cluster, 0.71, system)
+
+        # also we can link this entity to something in an external KB
+        aifutils.link_to_external_kb(g, putin_cluster, "freebase.FOO", system, .398)
+
+        self.dump_graph(g, "create a cluster with link and confidence")
+
+
     def test_read_and_write_turtle(self):
         print("test read and write turtle")
 
