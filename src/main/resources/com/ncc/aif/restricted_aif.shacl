@@ -223,7 +223,7 @@ aida:JustificationSourceDocumentShape
     sh:property [
         sh:path aida:sourceDocument ;
         sh:minCount 1 ;
-        sh:message "Justifications require source and a sourceDocument" ;
+        sh:message "Justifications require a sourceDocument" ;
     ]
     .
 

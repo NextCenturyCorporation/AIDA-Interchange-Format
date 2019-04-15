@@ -1279,9 +1279,9 @@ public class ExamplesAndValidationTest {
                 final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
                 addSourceDocumentToJustification(justification1, "source1sourceDocument");
                 final Resource justification2 = makeTextJustification(model, "source1", 10, 14, system, 1d);
-                addSourceDocumentToJustification(justification1, "source1sourceDocument");
+                addSourceDocumentToJustification(justification2, "source1sourceDocument");
                 final Resource justification3 = makeTextJustification(model, "source1", 20, 24, system, 1d);
-                addSourceDocumentToJustification(justification1, "source1sourceDocument");
+                addSourceDocumentToJustification(justification3, "source1sourceDocument");
                 final Resource compound = markCompoundJustification(model,
                         ImmutableSet.of(relationEdge),
                         ImmutableSet.of(justification1, justification2, justification3),
@@ -1877,6 +1877,9 @@ public class ExamplesAndValidationTest {
                 ExamplesAndValidationTest.this.setup();
                 justification = makeTextJustification(model, "NYT_ENG_20181231",
                         42, 143, system, 0.973);
+                addSourceDocumentToJustification(justification, "NYT_PARENT_ENG_20181231_03");
+
+
                 entity = makeEntity(model, getEntityUri(), system);
                 entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, "handle", system);
                 markJustification(addType(entity, SeedlingOntology.Person), justification);
