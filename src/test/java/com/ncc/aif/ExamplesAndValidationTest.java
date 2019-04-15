@@ -1189,6 +1189,7 @@ public class ExamplesAndValidationTest {
         void setup() {
             typeAssertionJustification = makeTextJustification(model, "NYT_ENG_20181231",
                     42, 143, system, 0.973);
+            addSourceDocumentToJustification(typeAssertionJustification,"20181231");
 
             entity = makeEntity(model, getEntityUri(), system);
             markJustification(addType(entity, SeedlingOntology.Person), typeAssertionJustification);
@@ -1218,6 +1219,7 @@ public class ExamplesAndValidationTest {
                         SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d, getAssertionUri());
                 final Resource justification = markTextJustification(model, relationEdge,
                         "source1", 0, 4, system, 1d);
+                addSourceDocumentToJustification(justification, "source1sourceDocument");
 
                 // test event edge argument must have a compound justification
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target,
@@ -1225,6 +1227,7 @@ public class ExamplesAndValidationTest {
                 markJustification(eventEdge, justification);
 
                 final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                addSourceDocumentToJustification(justification1, "source1sourceDocument");
                 final Resource compound1 = markCompoundJustification(model,
                         ImmutableSet.of(entity, relation, event),
                         ImmutableSet.of(justification1),
@@ -1246,6 +1249,8 @@ public class ExamplesAndValidationTest {
                 final Resource relationEdge = markAsArgument(model, relation,
                         SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
                 final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                addSourceDocumentToJustification(justification1, "source1sourceDocument");
+
                 final Resource compound = markCompoundJustification(model,
                         ImmutableSet.of(relationEdge),
                         ImmutableSet.of(justification1),
@@ -1272,8 +1277,11 @@ public class ExamplesAndValidationTest {
                 final Resource relationEdge = markAsArgument(model, relation,
                         SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d, getAssertionUri());
                 final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                addSourceDocumentToJustification(justification1, "source1sourceDocument");
                 final Resource justification2 = makeTextJustification(model, "source1", 10, 14, system, 1d);
+                addSourceDocumentToJustification(justification2, "source1sourceDocument");
                 final Resource justification3 = makeTextJustification(model, "source1", 20, 24, system, 1d);
+                addSourceDocumentToJustification(justification3, "source1sourceDocument");
                 final Resource compound = markCompoundJustification(model,
                         ImmutableSet.of(relationEdge),
                         ImmutableSet.of(justification1, justification2, justification3),
@@ -1313,7 +1321,9 @@ public class ExamplesAndValidationTest {
                 final Resource relationEdge = markAsArgument(model, relation,
                         SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
                 final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                addSourceDocumentToJustification(justification1, "source1sourceDocument");
                 final Resource justification2 = makeTextJustification(model, "source1", 10, 14, system, 1d);
+                addSourceDocumentToJustification(justification2, "source1sourceDocument");
                 final Resource compound = markCompoundJustification(model,
                         ImmutableSet.of(relationEdge),
                         ImmutableSet.of(justification1, justification2),
@@ -1333,6 +1343,7 @@ public class ExamplesAndValidationTest {
                 final Resource relationEdge = markAsArgument(model, relation,
                         SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
                 final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                addSourceDocumentToJustification(justification1, "source1sourceDocument");
                 final Resource compound = markCompoundJustification(model,
                         ImmutableSet.of(relationEdge),
                         ImmutableSet.of(justification1),
@@ -1352,14 +1363,18 @@ public class ExamplesAndValidationTest {
         class PreventShotVideo {
             @Test
             void invalid() {
-                markShotVideoJustification(model, entity, "source1", "shotId", system, 1d);
+                final Resource markShotVideoJustification = markShotVideoJustification(model, entity, "source1",
+                        "shotId", system, 1d);
+                addSourceDocumentToJustification(markShotVideoJustification, "source1SourceDocument");
                 testInvalid("NIST.invalid: No shot video");
             }
 
             @Test
             void valid() {
-                markKeyFrameVideoJustification(model, entity, "source1", "keyframe",
+                final Resource markKeyFrameVideoJustification = markKeyFrameVideoJustification(model, entity,
+                        "source1","keyframe",
                         new BoundingBox(new Point(0, 0), new Point(100, 100)), system, 1d);
+                addSourceDocumentToJustification(markKeyFrameVideoJustification, "source1SourceDocument");
                 testValid("NIST.valid: No shot video");
             }
         }
@@ -1507,6 +1522,56 @@ public class ExamplesAndValidationTest {
                 testValid("NIST.valid: Each entity name string is limited to 256 UTF-8 characters");
             }
         }
+
+        // Justifications require a source document and a source
+        @Nested
+        class JustificationSourceAndSourceDocument {
+            Resource newJustification;
+
+            @BeforeEach
+            void setup() {
+                // create justification from scratch
+                newJustification = model.createResource();
+                newJustification.addProperty(RDF.type, AidaAnnotationOntology.TEXT_JUSTIFICATION_CLASS);
+                if (system != null) {
+                    markSystem(newJustification, system);
+                }
+
+                markConfidence(model, newJustification, 0.973, system);
+                newJustification.addProperty(AidaAnnotationOntology.START_OFFSET,
+                        model.createTypedLiteral(41));
+                newJustification.addProperty(AidaAnnotationOntology.END_OFFSET_INCLUSIVE,
+                        model.createTypedLiteral(143));
+
+                final Resource newEvent = makeEvent(model, getUri("event-2"), system);
+                markJustification(addType(newEvent, SeedlingOntology.Conflict_Attack), newJustification);
+                makeClusterWithPrototype(model, getClusterUri(), newEvent, system);
+            }
+
+            @Test
+            void invalidNoSource() {
+                // include the source document but not the source
+                addSourceDocumentToJustification(newJustification, "HC00002ZO");
+                testInvalid("NIST.invalid (missing justification source): justifications require a source document and source");
+
+            }
+
+            @Test
+            void invalidNoSourceDocument() {
+                // include the source but not the source document
+                newJustification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral("XP043002ZO"));
+                testInvalid("NIST.invalid (missing justification source document): justifications require a source document and source");
+            }
+
+            @Test
+            void valid() {
+                // include the source and source document
+                newJustification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral("XP043002ZO"));
+                addSourceDocumentToJustification(newJustification, "HC00002ZO");
+                testValid("NIST.valid: justifications require a source document and a source");
+            }
+        }
+
     }
 
     /**
@@ -1528,6 +1593,8 @@ public class ExamplesAndValidationTest {
         void setup() {
             justification = makeTextJustification(model, "NYT_ENG_20181231",
                     42, 143, system, 0.973);
+            addSourceDocumentToJustification(justification, "20181231");
+
             entity = makeEntity(model, getEntityUri(), system);
             entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, "handle", system);
             markJustification(addType(entity, SeedlingOntology.Person), justification);
@@ -1810,6 +1877,9 @@ public class ExamplesAndValidationTest {
                 ExamplesAndValidationTest.this.setup();
                 justification = makeTextJustification(model, "NYT_ENG_20181231",
                         42, 143, system, 0.973);
+                addSourceDocumentToJustification(justification, "NYT_PARENT_ENG_20181231_03");
+
+
                 entity = makeEntity(model, getEntityUri(), system);
                 entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, "handle", system);
                 markJustification(addType(entity, SeedlingOntology.Person), justification);
