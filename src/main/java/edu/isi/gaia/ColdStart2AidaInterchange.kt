@@ -539,7 +539,7 @@ fun convertColdStartShatteringByDocument(
     val kbsByDocument = coldstartLoadingResult.shatterByDocument()
     for ((docId, perDocKB) in kbsByDocument) {
         docsProcessed += 1
-        val outputFile = outputPath.resolve("$docId.turtle")
+        val outputFile = outputPath.resolve("$docId.ttl")
         val model = ModelFactory.createDefaultModel()
         converter.coldstartToAidaInterchange(systemUri, perDocKB.kb, model, errorLogger = errorLogger)
         outputFile.toFile().bufferedWriter(UTF_8).use {
