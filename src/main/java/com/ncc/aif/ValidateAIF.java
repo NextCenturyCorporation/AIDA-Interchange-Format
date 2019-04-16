@@ -11,6 +11,8 @@ import org.apache.jena.ontology.OntModel;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.util.FileUtils;
 import org.topbraid.shacl.validation.ValidationUtil;
 
@@ -162,16 +164,18 @@ public final class ValidateAIF {
     // Show usage information.
     private static void showUsage() {
         System.out.println("Usage:\n" +
-                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-h | --help] {-f FILE ... | -d DIRNAME}\n" +
+                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] {-f FILE ... | -d DIRNAME}\n" +
                 "Options:\n" +
-                "--ldc\t\tValidate against the LDC ontology\n" +
-                "--program\t\tValidate against the program ontology\n" +
-                "--ont FILE ...\tValidate against the OWL-formatted ontolog(ies) at the specified filename(s)\n" +
-                "--nist\t\tValidate against the NIST restrictions\n" +
-                "--nist-ta3\t\tValidate against the NIST hypothesis restrictions (implies --nist)\n" +
-                "-h, --help\tShow this help and usage text\n" +
-                "-f FILE ...\tvalidate the specified file(s) with a .ttl suffix\n" +
-                "-d DIRNAME\tValidate all .ttl files in the specified directory\n" +
+                "--ldc           Validate against the LDC ontology\n" +
+                "--program       Validate against the program ontology\n" +
+                "--ont FILE ...  Validate against the OWL-formatted ontolog(ies) at the specified filename(s)\n" +
+                "--nist          Validate against the NIST restrictions\n" +
+                "--nist-ta3      Validate against the NIST hypothesis restrictions (implies --nist)\n" +
+                "-o              Save validation report model to a file.  KB.ttl would result in KB-report.txt.\n" +
+                "                Output defaults to stderr.\n" +
+                "-h, --help      Show this help and usage text\n" +
+                "-f FILE ...     Validate the specified file(s) with a .ttl suffix\n" +
+                "-d DIRNAME      Validate all .ttl files in the specified directory\n" +
                 "\n" +
                 "Either a file (-f) or a directory (-d) must be specified (but not both).\n" +
                 "Exactly one of --ldc, --program, or --ont must be specified.\n" +
@@ -221,17 +225,20 @@ public final class ValidateAIF {
                     flags.add(ArgumentFlags.NIST);
                     flags.add(ArgumentFlags.HYPO);
                     break;
+                case "-o":
+                    flags.add(ArgumentFlags.FILE_OUTPUT);
+                    break;
                 case "--ont":
                     int numFiles = processFiles(args, i, domainOntologies);
                     if (numFiles == 0) {
-                        System.err.println("ERROR: --ont requires at least one ontology file to be specified.");
+                        logger.error("--ont requires at least one ontology file to be specified.");
                         return false;
                     }
                     i += numFiles;
                     break;
                 case "-f":
                     if (flags.contains(ArgumentFlags.DIRECTORY)) {
-                        System.err.println("ERROR: Please specify either -d or -f, but not both.");
+                        logger.error("Please specify either -d or -f, but not both.");
                         return false;
                     }
                     i += processFiles(args, i, validationFiles);
@@ -239,7 +246,7 @@ public final class ValidateAIF {
                     break;
                 case "-d":
                     if (flags.contains(ArgumentFlags.FILES)) {
-                        System.err.println("ERROR: Please specify either -d or -f, but not both.");
+                        logger.error("Please specify either -d or -f, but not both.");
                         return false;
                     }
                     if (!args[i + 1].startsWith("-")) {
@@ -251,7 +258,7 @@ public final class ValidateAIF {
                     flags.add(ArgumentFlags.DIRECTORY);
                     break;
                 default:
-                    System.err.println("Ignoring unknown argument: " + arg);
+                    logger.warn("Ignoring unknown argument: " + arg);
             }
         }
 
@@ -261,13 +268,13 @@ public final class ValidateAIF {
                         (domainOntologies.isEmpty() ? 0 : 1)
         );
         if (ontologyFlags != 1) {
-            System.err.println("ERROR: Please specify exactly one of --ldc, --program, and --ont.");
+            logger.error("Please specify exactly one of --ldc, --program, and --ont.");
             return false;
         }
         if ((validationFiles.isEmpty() && validationDirs.isEmpty()) ||
                 (!validationFiles.isEmpty() && !validationDirs.isEmpty())) // this can happen if -d or -f had no argument
         {
-            System.err.println("ERROR: Please specify either file(s) or a directory of files to validate.");
+            logger.error("Please specify either file(s) or a directory of files to validate.");
             return false;
         }
 
@@ -281,7 +288,7 @@ public final class ValidateAIF {
 
     // Command-line argument flags
     private enum ArgumentFlags {
-        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY
+        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY, FILE_OUTPUT
     }
 
     /**
@@ -401,7 +408,7 @@ public final class ValidateAIF {
                 if (!validator.validateKB(dataToBeValidated)) {
                     logger.warn("---> Validation of " + fileToValidate + " failed.");
                     invalidCount++;
-                    dumpReport(validator.getValidationReport(), fileToValidate, validationDirs);
+                    dumpReport(validator.getValidationReport(), fileToValidate, flags.contains(ArgumentFlags.FILE_OUTPUT));
                 }
                 date = Calendar.getInstance().getTime();
                 logger.info("---> completed " + format.format(date) + ".");
@@ -415,8 +422,21 @@ public final class ValidateAIF {
         System.exit(returnCode.ordinal());
     }
 
-    private static void dumpReport(Resource validationReport, File fileToValidate, Set<String> validationDirs) {
-        validationReport.getModel().write(System.err, FileUtils.langTurtle);
+    // Dump the validation report model either to stderr or a file
+    private static void dumpReport(Resource validationReport, File fileToValidate, boolean fileOutput) {
+        if (!fileOutput) {
+            validationReport.getModel().write(System.err, FileUtils.langTurtle);
+            return;
+        }
+
+        String outputFilename = fileToValidate.toString().replace(".ttl", "-report.txt");
+        try {
+            RDFDataMgr.write(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)), validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
+        }
+        catch (IOException ioe) {
+            logger.warn("---> Could not write validation report for " + fileToValidate + ".");
+        }
+        logger.info("--> Saved validation report to " + outputFilename);
     }
 
     // Return false if file is > 5MB or size couldn't be determined, otherwise true
