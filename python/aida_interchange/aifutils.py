@@ -401,7 +401,7 @@ def mark_importance(g, resource, importance):
     """
     Mark resource as having an importance value
     """
-    g.add((resource, AIDA_ANNOTATION.importance, Literal(importance, datatype=XSD.int)))
+    g.add((resource, AIDA_ANNOTATION.importance, Literal(importance, datatype=XSD.double)))
 
 
 def mark_informative_justification(g, resource, informative_justification):

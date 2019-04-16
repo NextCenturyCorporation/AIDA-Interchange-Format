@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @TestInstance(Lifecycle.PER_CLASS)
 public class ExamplesAndValidationTest {
     // Set this flag to true if attempting to get examples
-    private static final boolean FORCE_DUMP = false;
+    private static final boolean FORCE_DUMP = true;
 
     private static final String LDC_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#";
     private static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#";
@@ -440,6 +440,12 @@ public class ExamplesAndValidationTest {
         // Create simple hypothesis with an importance value where the BUK weapon system was owned by Russia
         @Test
         void simpleHypothesisWithImportanceWithCluster() {
+            // TODO CRAIG
+            Double dbl_exp6 = 9.999999e6;
+            Double dbl_exp7 = 1.000001e7;
+            System.out.println ("dbl_exp6 = " + dbl_exp6);
+            System.out.println ("dbl_exp7 = " + dbl_exp7);
+
             // buk document entity
             final Resource buk = makeEntity(model, bukDocumentEntityUri, system);
             final Resource bukIsWeapon = markType(model, getAssertionUri(), buk, SeedlingOntology.Weapon,
@@ -459,7 +465,7 @@ public class ExamplesAndValidationTest {
             final Resource bukCluster = makeClusterWithPrototype(model, getClusterUri(), bukKBEntity, system);
             final Resource bukIsClustered = markAsPossibleClusterMember(model, buk, bukCluster, .9, system);
             // add importance of 90
-            markImportance(bukCluster, 90);
+            markImportance(bukCluster, -9.9);
 
             // Russia owns buk relation
             final Resource bukIsRussian = makeRelation(model, russiaOwnsBukDocumentRelationUri, system);
@@ -470,8 +476,12 @@ public class ExamplesAndValidationTest {
             final Resource russiaArgument = markAsArgument(model, bukIsRussian,
                     SeedlingOntology.GeneralAffiliation_APORA_Affiliation, russia, system, 1.0);
             // add importance to the statements
-            markImportance(bukArgument, 100);
-            markImportance(russiaArgument, 125);
+            // markImportance(bukArgument, 100.0);
+            // model prints as: aida:importance  "9999999.0"^^xsd:double
+	    markImportance(bukArgument, dbl_exp6);
+            // markImportance(russiaArgument, 125.5);
+            // model prints as: aida:importance  1.000001E7
+	    markImportance(russiaArgument, dbl_exp7);
 
             // Russia owns buk hypothesis
             final Resource bukIsRussianHypothesis = makeHypothesis(model, getUri("hypothesis-1"),
@@ -481,7 +491,11 @@ public class ExamplesAndValidationTest {
                             bukIsRussian, bukArgument, russiaArgument
                     ), system);
 
-            markImportance(bukIsRussianHypothesis, 102); //add importance of 102
+            // outputs as aida:importance         "1234000.0"^^xsd:double
+            markImportance(bukIsRussianHypothesis, 1.234e6); //add importance of double value
+            // outputs as aida:importance         1.234E7 ;
+            // markImportance(bukIsRussianHypothesis, 1.234e7); //add importance of double value
+//            markImportance(bukIsRussianHypothesis, Double.MAX_VALUE); //add importance of max double value
 
             testValid("simple hypothesis with importance with cluster");
         }
@@ -1600,19 +1614,19 @@ public class ExamplesAndValidationTest {
             markJustification(addType(entity, SeedlingOntology.Person), justification);
 
             event = makeEvent(model, getUri("event-1"), system);
-            markImportance(makeClusterWithPrototype(model, getClusterUri(), event, "Event", system), 104);
+            markImportance(makeClusterWithPrototype(model, getClusterUri(), event, "Event", system), 104.0);
             markJustification(addType(event, SeedlingOntology.Conflict_Attack), justification);
 
             eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Attacker,
                     entity, system, 1d, getAssertionUri());
-            markImportance(eventEdge, 101);
+            markImportance(eventEdge, 101.0);
         }
 
         private Resource makeValidHypothesis(Resource... resources) {
             Set<Resource> set = new HashSet<>();
             Collections.addAll(set, resources);
             final Resource hypothesis = makeHypothesis(model, getUri("hypothesis-1"), set, system);
-            markImportance(hypothesis, 100);
+            markImportance(hypothesis, 100.0);
             return hypothesis;
         }
 
@@ -1624,7 +1638,7 @@ public class ExamplesAndValidationTest {
             void invalidTooMany() {
                 makeValidHypothesis(entity, event, eventEdge);
                 markImportance(makeHypothesis(model, getUri("hypothesis-2"),
-                        ImmutableSet.of(entity, event, eventEdge), system), 101);
+                        ImmutableSet.of(entity, event, eventEdge), system), 101.0);
                 testInvalid("NISTHypothesis.invalid (too many): there should be exactly 1 hypothesis");
             }
 
@@ -1720,7 +1734,7 @@ public class ExamplesAndValidationTest {
 
                 relationEdge = markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate,
                         entity, system, 1d, getAssertionUri());
-                markImportance(relationEdge, 102);
+                markImportance(relationEdge, 102.0);
 
                 relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation, system);
 
@@ -1730,7 +1744,7 @@ public class ExamplesAndValidationTest {
             @Test
             void invalidEvent() {
                 //invalid event cluster, no importance value
-                markImportance(relationCluster, 99);
+                markImportance(relationCluster, 99.0);
                 testInvalid("NISTHypothesis.invalid (event cluster has no importance value): Each event or " +
                         "relation (cluster) in the hypothesis must have exactly one importance value");
             }
@@ -1738,15 +1752,15 @@ public class ExamplesAndValidationTest {
             @Test
             void invalidRelation() {
                 //invalid relation cluster, no importance value
-                markImportance(eventCluster, 88);
+                markImportance(eventCluster, 88.0);
                 testInvalid("NISTHypothesis.invalid (relation cluster has no importance value): Each event or " +
                         "relation (cluster) in the hypothesis must have exactly one importance value");
             }
 
             @Test
             void valid() {
-                markImportance(eventCluster, 88);
-                markImportance(relationCluster, 99);
+                markImportance(eventCluster, 88.0);
+                markImportance(relationCluster, 99.0);
                 testValid("NISTHypothesis.valid: Each event or relation (cluster) in the hypothesis must " +
                         "have exactly one importance value");
             }
@@ -1765,8 +1779,8 @@ public class ExamplesAndValidationTest {
                 markJustification(markType(model, getAssertionUri(), relation,
                         SeedlingOntology.GeneralAffiliation_APORA, system, 1.0), justification);
 
-                //markImportance(makeClusterWithPrototype(model, getClusterUri(), event, system), 88);
-                markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, system), 88);
+                //markImportance(makeClusterWithPrototype(model, getClusterUri(), event, system), 88.0);
+                markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, system), 88.0);
             }
 
             @Test
@@ -1810,7 +1824,7 @@ public class ExamplesAndValidationTest {
                 // link entity to the relation
                 Resource relationEdge = markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliation,
                         entity, system, 0.785, "relation-argument-1");
-                markImportance(relationEdge, 120);
+                markImportance(relationEdge, 120.0);
 
                 makeValidHypothesis(entity, event, eventEdge, relation, relationEdge);
 
@@ -1845,12 +1859,12 @@ public class ExamplesAndValidationTest {
             @BeforeEach
             void setup() {
                 relation = makeRelation(model, getUri("relation-1"), system);
-                markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, "Relation", system), 103);
+                markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, "Relation", system), 103.0);
                 markJustification(addType(relation, SeedlingOntology.GeneralAffiliation_APORA), justification);
 
                 relationEdge = markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate,
                         entity, system, 1d, getAssertionUri());
-                markImportance(relationEdge, 102);
+                markImportance(relationEdge, 102.0);
             }
 
             @Test
@@ -1891,13 +1905,13 @@ public class ExamplesAndValidationTest {
             @Test
             void invalidRelationAndEventEdge() {
                 final Resource relation = makeRelation(model, getUri("relation-1"), system);
-                markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, "Relation", system), 103);
+                markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, "Relation", system), 103.0);
                 markJustification(addType(relation, SeedlingOntology.GeneralAffiliation_APORA), justification);
 
                 //create invalid relation edge with event argument type
                 final Resource invalidRelationEdge = markAsArgument(model, relation, SeedlingOntology.Conflict_Attack_Attacker,
                         entity, system, 1d, getAssertionUri());
-                markImportance(invalidRelationEdge, 102);
+                markImportance(invalidRelationEdge, 102.0);
 
                 makeValidHypothesis(entity, event, eventEdge, relation, invalidRelationEdge);
                 testInvalid("NISTHypothesis.invalid (event has invalid relation edge): Each hypothesis graph " +
@@ -1908,12 +1922,12 @@ public class ExamplesAndValidationTest {
             // TODO new design of this class upon the completion of AIDA-698.
             void validRelationAndRelationEdge() {
                 final Resource relation = makeRelation(model, getUri("relation-1"), system);
-                markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, "Relation", system), 103);
+                markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, "Relation", system), 103.0);
                 markJustification(addType(relation, SeedlingOntology.GeneralAffiliation_APORA), justification);
 
                 final Resource relationEdge = markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate,
                         entity, system, 1d, getAssertionUri());
-                markImportance(relationEdge, 102);
+                markImportance(relationEdge, 102.0);
 
                 makeValidHypothesis(entity, event, eventEdge, relation, relationEdge);
                 testValid("NISTHypothesis.valid (relation has relation edge): Each hypothesis graph must have " +
@@ -1932,12 +1946,12 @@ public class ExamplesAndValidationTest {
             void validEventRelationAndEventRelationEdge() {
 
                 final Resource relation = makeRelation(model, getUri("relation-1"), system);
-                markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, "Relation", system), 103);
+                markImportance(makeClusterWithPrototype(model, getClusterUri(), relation, "Relation", system), 103.0);
                 markJustification(addType(relation, SeedlingOntology.GeneralAffiliation_APORA), justification);
 
                 final Resource relationEdge = markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate,
                         entity, system, 1d, getAssertionUri());
-                markImportance(relationEdge, 102);
+                markImportance(relationEdge, 102.0);
 
                 makeValidHypothesis(entity, event, eventEdge, relation, relationEdge);
                 testValid("NISTHypothesis.valid (event has event edge and relation has relation edge): Each " +
@@ -1959,12 +1973,12 @@ public class ExamplesAndValidationTest {
                 relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation,
                         "Relation", system);
 
-                markImportance(relationCluster, 103);
+                markImportance(relationCluster, 103.0);
                 markJustification(addType(relation, SeedlingOntology.GeneralAffiliation_APORA), justification);
 
                 relationEdge = markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate,
                         entity, system, 1d, getAssertionUri());
-                markImportance(relationEdge, 102);
+                markImportance(relationEdge, 102.0);
             }
 
             @Test
@@ -2019,8 +2033,8 @@ public class ExamplesAndValidationTest {
 
         // print model if result unexpected or if forcing (for examples)
         // Swap comments following 2 lines if FORCE_DUMP should ALWAYS dump output
-        // if (valid != expected || FORCE_DUMP) {
-        if (valid != expected || (FORCE_DUMP && expected)) {
+        if (valid != expected || FORCE_DUMP) {
+        // if (valid != expected || (FORCE_DUMP && expected)) {
             System.out.println("\n----------------------------------------------\n" + testName + "\n\nAIF Model:");
             RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
         }

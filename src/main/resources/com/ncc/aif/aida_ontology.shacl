@@ -1242,7 +1242,7 @@ aida:MutualExclusionAlternativeShape
 aida:ImportancePropertyShape
   a sh:PropertyShape ;
   sh:path aida:importance ;
-  sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] ) .
+  sh:datatype xsd:double .
 
 aida:HypothesisShape
     a sh:NodeShape ;
