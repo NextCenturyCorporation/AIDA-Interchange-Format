@@ -390,6 +390,11 @@ public final class ValidateAIF {
         } else if (restriction == Restriction.NIST_HYPOTHESIS) {
             logger.info("-> Validating against NIST Hypothesis SHACL.");
         }
+        if (flags.contains(ArgumentFlags.FILE_OUTPUT)) {
+            logger.info("-> Validation report for invalid KBs will be saved to <kbname>-report.txt.");
+        } else {
+            logger.info("-> Validation report for invalid KBs will be printed to stderr.");
+        }
         logger.info("*** Beginning validation of " + filesToValidate.size() + " file(s). ***");
 
         // Validate all files, noting I/O and other errors, but continue to validate even if one fails.
@@ -425,7 +430,8 @@ public final class ValidateAIF {
     // Dump the validation report model either to stderr or a file
     private static void dumpReport(Resource validationReport, File fileToValidate, boolean fileOutput) {
         if (!fileOutput) {
-            validationReport.getModel().write(System.err, FileUtils.langTurtle);
+            logger.info("---> Validation report:");
+            RDFDataMgr.write(System.err, validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
             return;
         }
 
