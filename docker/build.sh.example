@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# CREDS follows the format username:password. Replace the XXXX:XXXX with your username:password. If you have an @ symbol in your CREDS password you will need to escape it by replacing it with %40
+docker build \
+        --build-arg CREDS=XXXX:XXXXX \
+	--build-arg GIT_REPO=github.com \
+	--build-arg SPARQL_EVAL_REPO=NextCenturyCorporation/AIDA-Interchange-Format.git \
+	--build-arg SPARQL_EVAL_BRANCH=master \
+        --squash \
+        -t aif-validator .
