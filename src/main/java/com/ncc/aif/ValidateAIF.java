@@ -8,9 +8,7 @@ import com.google.common.io.CharSource;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import org.apache.jena.ontology.OntModel;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.util.FileUtils;
@@ -29,7 +27,7 @@ import java.util.*;
  * specifying a domain ontology, and make calls to the returned validator.
  *
  * @author Ryan Gabbard (USC ISI)
- * @author Converted to Java by Next Century Corporation
+ * @author Converted to Java developed further by Next Century Corporation
  */
 public final class ValidateAIF {
 
@@ -55,6 +53,7 @@ public final class ValidateAIF {
     private static Model nistHypoModel;
     private static boolean initialized = false;
     private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
+    private static final Property CONFORMS = ResourceFactory.createProperty("http://www.w3.org/ns/shacl#conforms");
 
     private static void initializeSHACLModels() {
         if (!initialized) {
@@ -76,7 +75,6 @@ public final class ValidateAIF {
 
     private Model domainModel;
     private Restriction restriction;
-    private Resource validationReport = null;
 
     private ValidateAIF(Model domainModel, Restriction restriction) {
         initializeSHACLModels();
@@ -410,10 +408,11 @@ public final class ValidateAIF {
             boolean notSkipped = ((restriction != Restriction.NIST_HYPOTHESIS) || checkHypothesisSize(fileToValidate))
                     && loadFile(dataToBeValidated, fileToValidate);
             if (notSkipped) {
-                if (!validator.validateKB(dataToBeValidated)) {
+                final Resource report = validator.validateKBAndReturnReport(dataToBeValidated);
+                if (!ValidateAIF.isValidReport(report)) {
                     logger.warn("---> Validation of " + fileToValidate + " failed.");
                     invalidCount++;
-                    dumpReport(validator.getValidationReport(), fileToValidate, flags.contains(ArgumentFlags.FILE_OUTPUT));
+                    dumpReport(report, fileToValidate, flags.contains(ArgumentFlags.FILE_OUTPUT));
                 }
                 date = Calendar.getInstance().getTime();
                 logger.info("---> completed " + format.format(date) + ".");
@@ -437,7 +436,8 @@ public final class ValidateAIF {
 
         String outputFilename = fileToValidate.toString().replace(".ttl", "-report.txt");
         try {
-            RDFDataMgr.write(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)), validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
+            RDFDataMgr.write(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)),
+                    validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
         }
         catch (IOException ioe) {
             logger.warn("---> Could not write validation report for " + fileToValidate + ".");
@@ -500,6 +500,7 @@ public final class ValidateAIF {
 
     /**
      * Returns whether or not the KB is valid.
+     * If you want any information about why the KB was invalid, use {@link #validateKBAndReturnReport(Model)}
      *
      * @param dataToBeValidated The model to validate
      * @return True if the KB is valid
@@ -510,19 +511,41 @@ public final class ValidateAIF {
 
     /**
      * Returns whether or not the KB is valid.
+     * If you want any information about why the KB was invalid, use {@link #validateKBAndReturnReport(Model, Model)}
      *
      * @param dataToBeValidated KB to be validated
      * @param union             unified KB if not null
      * @return True if the KB is valid
      */
     public boolean validateKB(Model dataToBeValidated, Model union) {
+        return isValidReport(validateKBAndReturnReport(dataToBeValidated, union));
+    }
+
+    /**
+     * Validate the specified KB and return a validation report.
+     *
+     * @param dataToBeValidated KB to be validated
+     * @return a validation report from which more information can be derived
+     */
+    public Resource validateKBAndReturnReport(Model dataToBeValidated) {
+        return validateKBAndReturnReport(dataToBeValidated, null);
+    }
+
+    /**
+     * Validate the specified KB and return a validation report.
+     *
+     * @param dataToBeValidated KB to be validated
+     * @param union             unified KB if not null
+     * @return a validation report from which more information can be derived
+     */
+    public Resource validateKBAndReturnReport(Model dataToBeValidated, Model union) {
         // We unify the given KB with the background and domain KBs before validation.
         // This is required so that constraints like "the object of a type must be an
         // entity type" will know what types are in fact entity types.
         final Model unionModel = (union == null) ? ModelFactory.createUnion(domainModel, dataToBeValidated) : union;
         unionModel.setNsPrefix("sh", "http://www.w3.org/ns/shacl#");
 
-        // Apply appropriate shacl restrictions
+        // Apply appropriate SHACL restrictions
         Model shacl;
         switch (restriction) {
             case NIST:
@@ -535,27 +558,20 @@ public final class ValidateAIF {
             default:
                 shacl = shaclModel;
         }
-        return validateAgainstShacl(unionModel, shacl);
+
+        // Validates against the SHACL file to ensure that resources have the required properties
+        // (and in some cases, only the required properties) of the proper types.  Returns true if
+        // validation passes.
+        return ValidationUtil.validateModel(unionModel, shacl, true);
     }
 
     /**
-     * Returns the validation report from the last call to validateKB.
+     * Returns whether or not [validationReport] is that of a valid KB.
      *
-     * @return the last validation report, or null if validateKB has not yet been called
+     * @param validationReport a validation report model, such as returned by {@link #validateKB(Model)}
+     * @return True if the KB that generated the specified report is valid
      */
-    public Resource getValidationReport() {
-        return validationReport;
-    }
-
-    /**
-     * Validates against the SHACL file to ensure that resources have the required properties
-     * (and in some cases, only the required properties) of the proper types.  Returns true if
-     * validation passes.
-     */
-    private boolean validateAgainstShacl(Model dataToBeValidated, Model shacl) {
-        // Do SHACL validation.
-        validationReport = ValidationUtil.validateModel(dataToBeValidated, shacl, true);
-        return validationReport.getRequiredProperty(
-                shacl.createProperty("http://www.w3.org/ns/shacl#conforms")).getBoolean();
+    public static boolean isValidReport(Resource validationReport) {
+        return validationReport.getRequiredProperty(CONFORMS).getBoolean();
     }
 }

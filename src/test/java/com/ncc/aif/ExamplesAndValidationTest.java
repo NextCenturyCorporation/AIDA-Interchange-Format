@@ -2013,7 +2013,8 @@ public class ExamplesAndValidationTest {
      * @param expected  true if validation is expected to pass, false o/w
      */
     private void assertAndDump(Model model, String testName, ValidateAIF validator, boolean expected) {
-        boolean valid = validator.validateKB(model);
+        final Resource report = validator.validateKBAndReturnReport(model);
+        final boolean valid = ValidateAIF.isValidReport(report);
 
         // print model if result unexpected or if forcing (for examples)
         // Swap comments following 2 lines if FORCE_DUMP should ALWAYS dump output
@@ -2028,7 +2029,7 @@ public class ExamplesAndValidationTest {
             // only print output if there is any
             if (!valid) {
                 System.out.println("\nFailure:");
-                RDFDataMgr.write(System.out, validator.getValidationReport().getModel(), RDFFormat.TURTLE_PRETTY);
+                RDFDataMgr.write(System.out, report.getModel(), RDFFormat.TURTLE_PRETTY);
             }
             fail("Validation was expected to " + (expected ? "pass" : "fail") + " but did not");
         }

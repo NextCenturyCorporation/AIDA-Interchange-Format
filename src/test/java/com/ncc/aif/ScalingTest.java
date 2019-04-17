@@ -18,7 +18,7 @@ import java.nio.file.*;
 import java.util.*;
 
 import static com.ncc.aif.AIFUtils.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Test to see how large we can scale AIF with the LDC ontology (LO).  AIF uses a Jena-based model,
@@ -436,9 +436,11 @@ public class ScalingTest {
             RDFDataMgr.write(Files.newOutputStream(Paths.get(filename)), model, RDFFormat.TURTLE_PRETTY);
             if (performValidation) {
                 System.out.println("\nDoing validation.  Validation errors (if any) follow:");
-                final boolean valid = ldcValidator.validateKB(model);
-                RDFDataMgr.write(System.err, ldcValidator.getValidationReport().getModel(), RDFFormat.TURTLE_PRETTY);
-                assertTrue(valid);
+                final Resource report = ldcValidator.validateKBAndReturnReport(model);
+                if (!ValidateAIF.isValidReport(report)) {
+                    RDFDataMgr.write(System.err, report.getModel(), RDFFormat.TURTLE_PRETTY);
+                    fail("Generated model was invalid.");
+                }
             }
         } catch (Exception e) {
             System.err.println("Unable to write to file " + filename + " " + e.getMessage());
