@@ -73,16 +73,20 @@ validate N files or all files in a specified directory.
 To run the validator from the command line, run `target/appassembler/bin/validateAIF`
 with a series of command-line arguments (in any order) honoring the following usage:  <br>
 Usage:  <br>
-`validateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-h | --help] {-f FILE ... | -d DIRNAME}`  <br>
-Options:  <br>
-`--ldc` validate against the LDC ontology  <br>
-`--program` validate against the program ontology  <br>
-`--ont FILE ...` validate against the OWL-formatted ontolog(ies) at the specified filename(s)  <br>
-`--nist` validate against the NIST restrictions  <br>
-`--nist-ta3` validate against the NIST hypothesis restrictions (implies --nist) <br>
-`-h, --help` This help and usage text  <br>
-`-f FILE ...` validate the specified file(s) with a .ttl suffix  <br>
-`-d DIRNAME` validate all .ttl files in the specified directory  <br>
+`validateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] {-f FILE ... | -d DIRNAME}`  <br>
+
+| Switch | Description |
+| ----------- | ----------- |
+|`--ldc`    | validate against the LDC ontology |
+|`--program`| validate against the program ontology |
+|`--ont FILE ...` | validate against the OWL-formatted ontolog(ies) at the specified filename(s) |
+|`--nist` | validate against the NIST restrictions |
+|`--nist-ta3` | validate against the NIST hypothesis restrictions (implies `--nist`) |
+|`-o` | Save validation report model to a file.  `KB.ttl` would result in `KB-report.txt`. Output defaults to stderr. |
+|`-h, --help` | This help and usage text |
+|`-f FILE ...` | validate the specified file(s) with a `.ttl` suffix |
+|`-d DIRNAME` | validate all `.ttl` files in the specified directory |
+
 Either a file (-f) or a directory (-d) must be specified (but not both).  <br>
 Exactly one of --ldc, --program, or --ont must be specified.  <br>
 Ontology files can be found in `src/main/resources/com/ncc/aif/ontologies`:

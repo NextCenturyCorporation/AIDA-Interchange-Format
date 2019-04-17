@@ -21,8 +21,6 @@ import org.apache.jena.vocabulary.RDF;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -2015,12 +2013,8 @@ public class ExamplesAndValidationTest {
      * @param expected  true if validation is expected to pass, false o/w
      */
     private void assertAndDump(Model model, String testName, ValidateAIF validator, boolean expected) {
-        // capture System.err. Required as validator automatically writes error reports to System.err
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream oldErr = System.err;
-        System.setErr(new PrintStream(baos));
-        boolean valid = validator.validateKB(model);
-        System.setErr(oldErr);
+        final Resource report = validator.validateKBAndReturnReport(model);
+        final boolean valid = ValidateAIF.isValidReport(report);
 
         // print model if result unexpected or if forcing (for examples)
         // Swap comments following 2 lines if FORCE_DUMP should ALWAYS dump output
@@ -2035,7 +2029,7 @@ public class ExamplesAndValidationTest {
             // only print output if there is any
             if (!valid) {
                 System.out.println("\nFailure:");
-                System.out.println(baos);
+                RDFDataMgr.write(System.out, report.getModel(), RDFFormat.TURTLE_PRETTY);
             }
             fail("Validation was expected to " + (expected ? "pass" : "fail") + " but did not");
         }
