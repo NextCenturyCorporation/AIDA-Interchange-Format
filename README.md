@@ -74,6 +74,7 @@ To run the validator from the command line, run `target/appassembler/bin/validat
 with a series of command-line arguments (in any order) honoring the following usage:  <br>
 Usage:  <br>
 `validateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] {-f FILE ... | -d DIRNAME}`  <br>
+
 | Switch | Description |
 | ----------- | ----------- |
 |`--ldc`    | validate against the LDC ontology |
