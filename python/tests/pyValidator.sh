@@ -17,6 +17,7 @@ popd
 DIR_PATH=$test_directory python3 Examples.py
 
 # validate test file directory
+# if return value is non zero, this script will exit
 ../../target/appassembler/bin/validateAIF --ont $ontology_dir -d $test_directory
 
 # if all files are valid, delete the test file directory
