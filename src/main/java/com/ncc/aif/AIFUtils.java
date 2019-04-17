@@ -962,7 +962,7 @@ public class AIFUtils {
     /**
      * Mark [resource] as having the specified [informativeJustification] value.
      *
-     * @param resource                 The Resource to mark with the specified importance
+     * @param resource                 The Resource to mark with the specified informative justification
      * @param informativeJustification The justification which will be considered informative
      */
     public static void markInformativeJustification(Resource resource, Resource informativeJustification) {
