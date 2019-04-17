@@ -955,14 +955,14 @@ public class AIFUtils {
      * @param resource   The Resource to mark with the specified importance
      * @param importance The importance value with which to mark the specified Resource
      */
-    public static void markImportance(Resource resource, Integer importance) {
+    public static void markImportance(Resource resource, Double importance) {
         resource.addLiteral(AidaAnnotationOntology.IMPORTANCE_PROPERTY, importance);
     }
 
     /**
      * Mark [resource] as having the specified [informativeJustification] value.
      *
-     * @param resource                 The Resource to mark with the specified importance
+     * @param resource                 The Resource to mark with the specified informative justification
      * @param informativeJustification The justification which will be considered informative
      */
     public static void markInformativeJustification(Resource resource, Resource informativeJustification) {
