@@ -18,7 +18,7 @@ class Examples(unittest.TestCase):
         if self.test_dir_path is not None:
             f = open(self.test_dir_path + "/" + test_name, "wb+")
             f.write(g.serialize(format='turtle'))
-            f.close
+            f.close()
 
     def test_create_an_entity_with_all_justification_types_and_confidence(self):
         g = aifutils.make_graph()
@@ -555,6 +555,7 @@ class Examples(unittest.TestCase):
         buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#hypothesis-1", 
                                                             [buk, buk_is_weapon, buk_is_clustered, buk_is_russian, buk_argument, russia_argument], system)
 
+        self.new_file(g, "test_simple_hypothesis_with_cluster.ttl")
         self.dump_graph(g, "Simple hypothesis with cluster")
 
     def test_simple_hypothesis_with_importance_with_cluster(self):
@@ -595,6 +596,7 @@ class Examples(unittest.TestCase):
                                                             [buk, buk_is_weapon, buk_is_clustered, buk_is_russian, buk_argument, russia_argument], system)
         aifutils.mark_importance(g, buk_is_russian_hypothesis, 120)
 
+        self.new_file(g, "test_simple_hypothesis_with_importance_cluster.ttl")
         self.dump_graph(g, "Simple hypothesis with importance with cluster")
 
     def test_create_a_simple_cluster_with_handle(self):
@@ -622,6 +624,7 @@ class Examples(unittest.TestCase):
         # person 1 is definitely in the cluster, person 2 is probably in the cluster
         aifutils.mark_as_possible_cluster_member(g, putin, putin_cluster, 0.71, system)
 
+        self.new_file(g, "test_create_a_simple_cluster_with_handle.ttl")
         self.dump_graph(g, "create a simple cluster with handle")
 
     def test_create_an_entity_with_information_justification(self):
@@ -655,6 +658,7 @@ class Examples(unittest.TestCase):
         # person 1 is definitely in the cluster, person 2 is probably in the cluster
         aifutils.mark_as_possible_cluster_member(g, putin, putin_cluster, 0.71, system)
 
+        self.new_file(g, "test_create_an_entity_and_cluster_with_informative_mention.ttl")
         self.dump_graph(g, "create an entity and cluster with informative mention")
 
 
@@ -685,7 +689,7 @@ class Examples(unittest.TestCase):
         # also we can link this entity to something in an external KB
         aifutils.link_to_external_kb(g, putin_cluster, "freebase.FOO", system, .398)
 
-        self.new_file(g, "create_")
+        self.new_file(g, "test_create_a_cluster_with_link_and_confidence.ttl")
         self.dump_graph(g, "create a cluster with link and confidence")
 
 
@@ -705,8 +709,8 @@ if __name__ == '__main__':
     if Examples.test_dir_path is not None:
         if not os.path.exists(Examples.test_dir_path):
             Examples.test_dir_path = None
-            print("Directory does not exist")
+            print("Test output directory does not exist. Example turtle files will not be saved")
     else:
-        print("Directory was not provided")
+        print("Test output directory was not provided. Example turtle files will not be saved")
 
     unittest.main()
