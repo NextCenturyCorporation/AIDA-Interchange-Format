@@ -566,8 +566,8 @@ class Examples(unittest.TestCase):
         # cluster buk
         buk_cluster = aifutils.make_cluster_with_prototype(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#cluster-1", buk_kb_entity, system)
         buk_is_clustered = aifutils.mark_as_possible_cluster_member(g, buk, buk_cluster, .9, system)
-        # add importance to the cluster
-        aifutils.mark_importance(g, buk_cluster, 70)
+        # add importance to the cluster - test negative importance
+        aifutils.mark_importance(g, buk_cluster, -70.234)
 
         # Russia owns buk relation
         buk_is_russian = aifutils.make_relation(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#R779959.00004", system)
@@ -575,13 +575,15 @@ class Examples(unittest.TestCase):
         buk_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA_Affiliate'], buk, system, 1.0)
         russia_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA_Affiliation'], russia, system, 1.0)
         # add importance to the statements
-        aifutils.mark_importance(g, buk_argument, 94)
-        aifutils.mark_importance(g, russia_argument, 100)
+        aifutils.mark_importance(g, buk_argument, 100.0)
+        # add large importance
+        aifutils.mark_importance(g, russia_argument, 9.999999e6)
 
         # Russia owns buk hypothesis
         buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#hypothesis-1", 
                                                             [buk, buk_is_weapon, buk_is_clustered, buk_is_russian, buk_argument, russia_argument], system)
-        aifutils.mark_importance(g, buk_is_russian_hypothesis, 120)
+        # test highest possible importance value
+        aifutils.mark_importance(g, buk_is_russian_hypothesis, sys.float_info.max)
 
         self.dump_graph(g, "Simple hypothesis with importance with cluster")
 
