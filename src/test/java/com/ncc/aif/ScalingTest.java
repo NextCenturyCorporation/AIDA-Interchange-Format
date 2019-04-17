@@ -436,7 +436,9 @@ public class ScalingTest {
             RDFDataMgr.write(Files.newOutputStream(Paths.get(filename)), model, RDFFormat.TURTLE_PRETTY);
             if (performValidation) {
                 System.out.println("\nDoing validation.  Validation errors (if any) follow:");
-                assertTrue(ldcValidator.validateKB(model));
+                final boolean valid = ldcValidator.validateKB(model);
+                RDFDataMgr.write(System.err, ldcValidator.getValidationReport().getModel(), RDFFormat.TURTLE_PRETTY);
+                assertTrue(valid);
             }
         } catch (Exception e) {
             System.err.println("Unable to write to file " + filename + " " + e.getMessage());
