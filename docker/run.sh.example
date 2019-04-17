@@ -1,5 +1,5 @@
 #!/bin/bash
 
-docker run --rm \
+docker run --rm -d \
 	--name aif-validator \
     	-it aif-validator
