@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @TestInstance(Lifecycle.PER_CLASS)
 public class ExamplesAndValidationTest {
     // Set this flag to true if attempting to get examples
-    private static final boolean FORCE_DUMP = true;
+    private static final boolean FORCE_DUMP = false;
 
     private static final String LDC_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#";
     private static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#";
@@ -440,12 +440,6 @@ public class ExamplesAndValidationTest {
         // Create simple hypothesis with an importance value where the BUK weapon system was owned by Russia
         @Test
         void simpleHypothesisWithImportanceWithCluster() {
-            // TODO CRAIG
-            Double dbl_exp6 = 9.999999e6;
-            Double dbl_exp7 = 1.000001e7;
-            System.out.println ("dbl_exp6 = " + dbl_exp6);
-            System.out.println ("dbl_exp7 = " + dbl_exp7);
-
             // buk document entity
             final Resource buk = makeEntity(model, bukDocumentEntityUri, system);
             final Resource bukIsWeapon = markType(model, getAssertionUri(), buk, SeedlingOntology.Weapon,
@@ -464,8 +458,9 @@ public class ExamplesAndValidationTest {
             // cluster buk
             final Resource bukCluster = makeClusterWithPrototype(model, getClusterUri(), bukKBEntity, system);
             final Resource bukIsClustered = markAsPossibleClusterMember(model, buk, bukCluster, .9, system);
-            // add importance of 90
-            markImportance(bukCluster, -9.9);
+
+            // add importance to the cluster - test negative importance
+            markImportance(bukCluster, -70.234);
 
             // Russia owns buk relation
             final Resource bukIsRussian = makeRelation(model, russiaOwnsBukDocumentRelationUri, system);
@@ -475,13 +470,12 @@ public class ExamplesAndValidationTest {
                     SeedlingOntology.GeneralAffiliation_APORA_Affiliate, buk, system, 1.0);
             final Resource russiaArgument = markAsArgument(model, bukIsRussian,
                     SeedlingOntology.GeneralAffiliation_APORA_Affiliation, russia, system, 1.0);
+
             // add importance to the statements
-            // markImportance(bukArgument, 100.0);
-            // model prints as: aida:importance  "9999999.0"^^xsd:double
-	    markImportance(bukArgument, dbl_exp6);
-            // markImportance(russiaArgument, 125.5);
-            // model prints as: aida:importance  1.000001E7
-	    markImportance(russiaArgument, dbl_exp7);
+            markImportance(bukArgument, 100.0);
+
+            // add large importance
+            markImportance(russiaArgument, 9.999999e6);
 
             // Russia owns buk hypothesis
             final Resource bukIsRussianHypothesis = makeHypothesis(model, getUri("hypothesis-1"),
@@ -491,11 +485,8 @@ public class ExamplesAndValidationTest {
                             bukIsRussian, bukArgument, russiaArgument
                     ), system);
 
-            // outputs as aida:importance         "1234000.0"^^xsd:double
-            markImportance(bukIsRussianHypothesis, 1.234e6); //add importance of double value
-            // outputs as aida:importance         1.234E7 ;
-            // markImportance(bukIsRussianHypothesis, 1.234e7); //add importance of double value
-//            markImportance(bukIsRussianHypothesis, Double.MAX_VALUE); //add importance of max double value
+            // test highest possible importance value
+            markImportance(bukIsRussianHypothesis, Double.MAX_VALUE);
 
             testValid("simple hypothesis with importance with cluster");
         }
@@ -1329,7 +1320,7 @@ public class ExamplesAndValidationTest {
                 testInvalid("NIST.invalid: edge justification contains one or two mentions (zero is not enough)");
             }
 
-	    @Test
+            @Test
             void valid() {
                 // test relation
                 final Resource relationEdge = markAsArgument(model, relation,
@@ -2033,8 +2024,8 @@ public class ExamplesAndValidationTest {
 
         // print model if result unexpected or if forcing (for examples)
         // Swap comments following 2 lines if FORCE_DUMP should ALWAYS dump output
-        if (valid != expected || FORCE_DUMP) {
-        // if (valid != expected || (FORCE_DUMP && expected)) {
+        // if (valid != expected || FORCE_DUMP) {
+        if (valid != expected || (FORCE_DUMP && expected)) {
             System.out.println("\n----------------------------------------------\n" + testName + "\n\nAIF Model:");
             RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
         }
