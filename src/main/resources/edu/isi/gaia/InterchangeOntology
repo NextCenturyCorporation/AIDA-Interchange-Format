@@ -156,7 +156,7 @@
   rdfs:subPropertyOf owl:topDataProperty ; .
 
 :importance rdf:type owl:DatatypeProperty ;
-  rdfs:comment "Value for importance represented as an integer." ;
+  rdfs:comment "Value for importance represented as a double." ;
   rdfs:domain [
         rdf:type owl:Class ;
         owl:unionOf (
@@ -164,7 +164,7 @@
             :Hypothesis
             :SameAsCluster ) ] ;
   rdfs:label "importance" ;
-  rdfs:range xsd:int ;
+  rdfs:range xsd:double ;
   rdfs:subPropertyOf owl:topDataProperty ; .
 
 :clusterMember rdf:type owl:ObjectProperty ;
