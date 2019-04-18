@@ -615,6 +615,54 @@ public class ExamplesAndValidationTest {
         }
 
         @Test
+        void createCompoundJustificationWithSingleJustification() {
+            // we make a resource for the event itself
+            // mark the event as a Personnel.Elect event; type is encoded separately so we can express
+            // uncertainty about type
+            final Resource event = makeEvent(model, putinElectedDocumentEventUri, system);
+            final Resource eventTypeAssertion = markType(model, getAssertionUri(), event,
+                    SeedlingOntology.Personnel_Elect, system, 1.0);
+
+            // create the two entities involved in the event
+            final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
+            final Resource personTypeAssertion = markType(model, getAssertionUri(), putin,
+                    SeedlingOntology.Person, system, 1.0);
+
+            final Resource russia = makeEntity(model, russiaDocumentEntityUri, system);
+            final Resource gpeTypeAssertion = markType(model, getAssertionUri(), russia,
+                    SeedlingOntology.GeopoliticalEntity, system, 1.0);
+
+            // link those entities to the event
+            final Resource electeeArgument = markAsArgument(model, event,
+                    SeedlingOntology.Personnel_Elect_Elect,
+                    putin, system, 0.785, getAssertionUri());
+            final Resource placeArgument = markAsArgument(model, event,
+                    SeedlingOntology.Personnel_Elect_Place,
+                    russia, system, 0.589, getAssertionUri());
+
+
+            // the justification provides the evidence for our claim about the entity's type
+            // we attach this justification to both the type assertion and the entity object
+            // itself, since it provides evidence both for the entity's existence and its type.
+            // in TA1 -> TA2 communications, we attach confidences at the level of justifications
+            final Resource textJustification = makeTextJustification(model, "NYT_ENG_20181231",
+                    42, 143, system, 0.973);
+
+            markJustification(personTypeAssertion, textJustification);
+            markJustification(putin, textJustification);
+            addSourceDocumentToJustification(textJustification, "NYT_PARENT_ENG_20181231_03");
+
+            // combine single justifications into single justifiedBy triple with new confidence
+            markCompoundJustification(model, ImmutableSet.of(electeeArgument),
+                    ImmutableSet.of(textJustification), system, 0.321);
+
+            markCompoundJustification(model, ImmutableSet.of(placeArgument), ImmutableSet.of(textJustification),
+                    system, 0.543);
+
+            testValid("create a compound justification with single justification");
+        }
+
+        @Test
         void createHierarchicalCluster() {
             // we want to say that the cluster of Trump entities might be the same as the cluster of the president entities
             // create president entities
