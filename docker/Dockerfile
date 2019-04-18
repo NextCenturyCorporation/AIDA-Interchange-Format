@@ -31,7 +31,7 @@ RUN \
   apt-get install -y maven
 
 #-------------------------------------------------------------
-# Install SPARQL Evaluation Tool
+# Install AIF Interchange Format
 #------------------------------------------------------------- 
 # Create directory structure
 ENV VALIDATION_HOME /opt/aif-validator
