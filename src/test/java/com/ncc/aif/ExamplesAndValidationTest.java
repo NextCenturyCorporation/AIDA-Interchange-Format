@@ -629,14 +629,14 @@ public class ExamplesAndValidationTest {
             final Resource electeeArgument = markAsArgument(model, event,
                     SeedlingOntology.Personnel_Elect_Elect,
                     putin, system, 0.785, getAssertionUri());
-            
+
             final Resource textJustification = makeTextJustification(model, "NYT_ENG_20181231",
                     42, 143, system, 0.973);
 
             markJustification(putin, textJustification);
             addSourceDocumentToJustification(textJustification, "NYT_PARENT_ENG_20181231_03");
 
-            // combine single justifications into single justifiedBy triple with new confidence
+            // combine single justification into single justifiedBy triple with new confidence
             markCompoundJustification(model, ImmutableSet.of(electeeArgument),
                     ImmutableSet.of(textJustification), system, 0.321);
 
