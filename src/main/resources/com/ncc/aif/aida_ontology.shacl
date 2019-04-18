@@ -779,7 +779,7 @@ aida:CompoundJustificationMinimum
    a sh:PropertyShape ;
    sh:path aida:containedJustification ;
    sh:minCount 1 ;
-   sh:message "aida:CompoundJustification requires at least 1 justifications" .
+   sh:message "aida:CompoundJustification requires at least 1 justification" .
 
 aida:CompoundJustificationTypes
    a sh:PropertyShape ;
