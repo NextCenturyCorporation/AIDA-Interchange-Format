@@ -842,9 +842,6 @@ public class ExamplesAndValidationTest {
             testInvalid("create an entity and cluster with informative mention");
         }
 
-
-
-
         /**
          * Shows how to create a relation with uncertain endpoints using the version of coreference expected for
          * output NIST will execute SPARQL queries on.
@@ -1663,6 +1660,42 @@ public class ExamplesAndValidationTest {
                 addSourceDocumentToJustification(newJustification, "HC00002ZO");
                 testValid("NIST.valid: justifications require a source document and a source");
             }
+        }
+
+        @Nested
+        class InformativeJustification {
+
+            @Test
+            void validEntityInformativeJustification() {
+                testValid("NIST.valid: Each entity name string is limited to 256 UTF-8 characters");
+            }
+
+            @Test
+            void validEventInformativeJustification() {
+                testValid("NIST.valid: Each entity name string is limited to 256 UTF-8 characters");
+
+            }
+
+            @Test
+            void validRelationInformativeJustification() {
+                testValid("NIST.valid: Each entity name string is limited to 256 UTF-8 characters");
+            }
+
+            @Test
+            void validClusterInformativeJustification() {
+                testValid("NIST.valid: Each entity name string is limited to 256 UTF-8 characters");
+            }
+
+            @Test
+            void invalidArgumentInformativeJustification() {
+                testValid("NIST.valid: Each entity name string is limited to 256 UTF-8 characters");
+            }
+
+        }
+
+        @Nested
+        class InformativeJustificationParentDocs {
+
         }
 
     }
