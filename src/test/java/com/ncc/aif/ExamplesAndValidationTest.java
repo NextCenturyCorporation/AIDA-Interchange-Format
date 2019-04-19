@@ -783,7 +783,7 @@ public class ExamplesAndValidationTest {
 
             testValid("create an entity and cluster with informative mention");
         }
-        
+
         /**
          * Shows how to create a relation with uncertain endpoints using the version of coreference expected for
          * output NIST will execute SPARQL queries on.
@@ -1616,7 +1616,8 @@ public class ExamplesAndValidationTest {
                 markInformativeJustification(relationEdge, typeAssertionJustification);
 
                 testInvalid("NIST.invalid: (informative justification specified on argument) Each Cluster, " +
-                        "Entity, Event, or Relation can specify up to one informative mention per document");
+                        "Entity, Event, or Relation can specify up to one informative mention per document as each" +
+                        " informative mention points to a different sourceDocument");
             }
 
             @Test
@@ -1640,14 +1641,16 @@ public class ExamplesAndValidationTest {
 
                 markInformativeJustification(entity, typeAssertionJustification);
                 testValid("NIST.valid: (entity) Each Cluster, Entity, Event, or Relation can specify up to one " +
-                        "informative mention per document");
+                        "informative mention per document as each informative mention points to a " +
+                        "different sourceDocument");
             }
 
             @Test
             void validEventInformativeJustification() {
                 markInformativeJustification(event, typeAssertionJustification);
                 testValid("NIST.valid: (event) Each Cluster, Entity, Event, or Relation can specify up to one " +
-                        "informative mention per document");
+                        "informative mention per document as each informative mention points to a different " +
+                        "sourceDocument");
 
             }
 
@@ -1655,14 +1658,16 @@ public class ExamplesAndValidationTest {
             void validRelationInformativeJustification() {
                 markInformativeJustification(relation, typeAssertionJustification);
                 testValid("NIST.valid: (relation) Each Cluster, Entity, Event, or Relation can specify up to one " +
-                        "informative mention per document");
+                        "informative mention per document as each informative mention points to a different " +
+                        "sourceDocument");
             }
 
             @Test
             void validClusterInformativeJustification() {
                 markInformativeJustification(entityCluster, typeAssertionJustification);
                 testValid("NIST.valid: (cluster) Each Cluster, Entity, Event, or Relation can specify up to one " +
-                        "informative mention per document");
+                        "informative mention per document as each informative mention points to a different " +
+                        "sourceDocument");
             }
 
             @Test
