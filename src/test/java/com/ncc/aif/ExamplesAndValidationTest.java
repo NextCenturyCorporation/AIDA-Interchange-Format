@@ -1271,7 +1271,7 @@ public class ExamplesAndValidationTest {
                 markJustification(relation, compound1);
                 markJustification(event, compound1);
 
-                testValid("NIST.invalid: CompoundJustification must be used only for justifications of argument assertions");
+                testInvalid("NIST.invalid: CompoundJustification must be used only for justifications of argument assertions");
             }
 
             @Test
@@ -1308,7 +1308,7 @@ public class ExamplesAndValidationTest {
                         system,
                         1d);
 
-                testValid("NIST.invalid: (More than two justifications in CompoundJustification) " +
+                testInvalid("NIST.invalid: (More than two justifications in CompoundJustification) " +
                         "Exactly 1 or 2 contained justifications in a CompoundJustification required for an edge");
             }
 
