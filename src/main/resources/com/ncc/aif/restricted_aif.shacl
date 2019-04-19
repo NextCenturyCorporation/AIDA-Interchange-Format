@@ -28,9 +28,6 @@ aida:EdgeJustificationCount
     """
     .
 
-# Turn off CompoundJustificationMinimum globally
-aida:CompoundJustificationMinimum sh:deactivated true .
-
 #########################
 # Each edge justification must be represented uniformly in AIF by
 # aida:CompoundJustification, even if only one span is provided
