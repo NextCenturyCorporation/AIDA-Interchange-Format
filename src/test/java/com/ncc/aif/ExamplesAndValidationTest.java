@@ -784,6 +784,67 @@ public class ExamplesAndValidationTest {
             testValid("create an entity and cluster with informative mention");
         }
 
+        @Test
+        void createInformativeJustificationExamples1() {
+            // Two people, probably the same person
+            final String vladName = "Vladimir Putin";
+            final Resource vladimirPutin = makeEntity(model, getUri("E780885.00311"), system);
+            markName(vladimirPutin, vladName);
+
+            final Resource typeAssertion = markType(model, getAssertionUri(), vladimirPutin, SeedlingOntology.Person, system, 1.0);
+            final Resource justification = markTextJustification(model, typeAssertion, "HC00002Z0", 0, 10, system, 1d);
+            addSourceDocumentToJustification(justification, "HC00002Z0_PARENTDOC");
+            markInformativeJustification(vladimirPutin, justification);
+
+            testInvalid("create an entity and cluster with informative mention");
+        }
+
+        @Test
+        void createInformativeJustificationExamples2() {
+            // Two people, probably the same person
+            final String vladName = "Vladimir Putin";
+            final Resource vladimirPutin = makeEntity(model, getUri("E780885.00311"), system);
+            markName(vladimirPutin, vladName);
+
+            final Resource typeAssertion = markType(model, getAssertionUri(), vladimirPutin, SeedlingOntology.Person, system, 1.0);
+            final Resource justification = markTextJustification(model, typeAssertion, "HC00002Z0", 0, 10, system, 1d);
+            addSourceDocumentToJustification(justification, "MC038302Z0_PARENTDOC");
+
+            final Resource typeAssertion2 = markType(model, getAssertionUri(), vladimirPutin, SeedlingOntology.Person, system, 1.0);
+            final Resource justification2 = markTextJustification(model, typeAssertion2, "MC038302Z0", 0, 10, system, 1d);
+            addSourceDocumentToJustification(justification2, "MC038302Z0_PARENTDOC");
+
+            markInformativeJustification(vladimirPutin, justification);
+            markInformativeJustification(vladimirPutin, justification2);
+
+            testInvalid("create an entity and cluster with informative mention");
+        }
+
+
+        @Test
+        void createInformativeJustificationExamples3() {
+            // Two people, probably the same person
+            final String vladName = "Vladimir Putin";
+            final Resource vladimirPutin = makeEntity(model, getUri("E780885.00311"), system);
+            markName(vladimirPutin, vladName);
+
+            final Resource typeAssertion = markType(model, getAssertionUri(), vladimirPutin, SeedlingOntology.Person, system, 1.0);
+            final Resource justification = markTextJustification(model, typeAssertion, "HC00002Z0", 0, 10, system, 1d);
+            addSourceDocumentToJustification(justification, "HC00002Z0_PARENTDOC");
+
+            final Resource typeAssertion2 = markType(model, getAssertionUri(), vladimirPutin, SeedlingOntology.Person, system, 1.0);
+            final Resource justification2 = markTextJustification(model, typeAssertion2, "MC038302Z0", 0, 10, system, 1d);
+            addSourceDocumentToJustification(justification2, "MC038302Z0_PARENTDOC");
+
+            markInformativeJustification(vladimirPutin, justification);
+            markInformativeJustification(vladimirPutin, justification2);
+
+            testInvalid("create an entity and cluster with informative mention");
+        }
+
+
+
+
         /**
          * Shows how to create a relation with uncertain endpoints using the version of coreference expected for
          * output NIST will execute SPARQL queries on.
