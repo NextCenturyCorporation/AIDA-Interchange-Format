@@ -1271,7 +1271,45 @@ public class ExamplesAndValidationTest {
                 markJustification(relation, compound1);
                 markJustification(event, compound1);
 
-                testInvalid("NIST.invalid: CompoundJustification must be used only for justifications of argument assertions");
+                testValid("NIST.invalid: CompoundJustification must be used only for justifications of argument assertions");
+            }
+
+            @Test
+            void invalidCompoundJustificationWithNoJustification() {
+
+                Resource compoundJustification = model.createResource();
+                compoundJustification.addProperty(RDF.type,  AidaAnnotationOntology.COMPOUND_JUSTIFICATION_CLASS);
+                markSystem(compoundJustification, system);
+
+                markConfidence(model, compoundJustification, 1.0, system);
+                testInvalid("NIST.invalid: (No justification in CompoundJustification) Exactly 1 or 2 contained" +
+                        " justifications in a CompoundJustification required for an edge");
+            }
+
+            @Test
+            void invalidCompoundJustificationWithThreeJustifications() {
+
+                // test relation argument
+                final Resource relationEdge = markAsArgument(model, relation,
+                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
+                final Resource justification1 = makeTextJustification(model, "source1", 0,
+                        4, system, 1d);
+                addSourceDocumentToJustification(justification1, "source1sourceDocument");
+                final Resource justification2 = makeTextJustification(model, "source2", 0,
+                        4, system, 1d);
+                addSourceDocumentToJustification(justification2, "source2sourceDocument");
+                final Resource justification3 = makeTextJustification(model, "source3", 0,
+                        4, system, 1d);
+                addSourceDocumentToJustification(justification3, "source3sourceDocument");
+
+                markCompoundJustification(model,
+                        ImmutableSet.of(relationEdge),
+                        ImmutableSet.of(justification1, justification2, justification3),
+                        system,
+                        1d);
+
+                testValid("NIST.invalid: (More than two justifications in CompoundJustification) " +
+                        "Exactly 1 or 2 contained justifications in a CompoundJustification required for an edge");
             }
 
             @Test
