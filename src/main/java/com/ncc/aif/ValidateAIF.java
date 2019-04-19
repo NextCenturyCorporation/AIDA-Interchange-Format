@@ -12,10 +12,12 @@ import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.util.FileUtils;
+import org.topbraid.jenax.statistics.*;
 import org.topbraid.shacl.validation.ValidationUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -54,6 +56,7 @@ public final class ValidateAIF {
     private static boolean initialized = false;
     private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
     private static final Property CONFORMS = ResourceFactory.createProperty("http://www.w3.org/ns/shacl#conforms");
+    private static final int LONG_QUERY_THRESH = 2000;
 
     private static void initializeSHACLModels() {
         if (!initialized) {
@@ -234,6 +237,9 @@ public final class ValidateAIF {
                     }
                     i += numFiles;
                     break;
+                case "-p":
+                    flags.add(ArgumentFlags.PROFILING);
+                    break;
                 case "-f":
                     if (flags.contains(ArgumentFlags.DIRECTORY)) {
                         logger.error("Please specify either -d or -f, but not both.");
@@ -286,7 +292,7 @@ public final class ValidateAIF {
 
     // Command-line argument flags
     private enum ArgumentFlags {
-        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY, FILE_OUTPUT
+        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY, FILE_OUTPUT, PROFILING
     }
 
     /**
@@ -300,6 +306,7 @@ public final class ValidateAIF {
         final Set<String> domainOntologies = new HashSet<>();
         final Set<String> validationFiles = new LinkedHashSet<>();
         final Set<String> validationDirs = new LinkedHashSet<>();
+        StatsCollector stats = new StatsCollector(LONG_QUERY_THRESH);
 
         // Prevent too much logging from obscuring the actual problems.
         logger.setLevel(Level.INFO);
@@ -316,6 +323,7 @@ public final class ValidateAIF {
                 flags.contains(ArgumentFlags.HYPO) ? Restriction.NIST_HYPOTHESIS : Restriction.NIST;
         final boolean ldcFlag = flags.contains(ArgumentFlags.LDC);
         final boolean programFlag = flags.contains(ArgumentFlags.PROGRAM);
+        final boolean profiling = flags.contains(ArgumentFlags.PROFILING);
 
         // Finally, try to create the validator, but fail if required elements can't be loaded/parsed.
         ValidateAIF validator = null;
@@ -393,6 +401,9 @@ public final class ValidateAIF {
         } else {
             logger.info("-> Validation report for invalid KBs will be printed to stderr.");
         }
+        if (profiling) {
+            logger.info("-> Saving slow queries to <kbname>-stats.txt.");
+        }
         logger.info("*** Beginning validation of " + filesToValidate.size() + " file(s). ***");
 
         // Validate all files, noting I/O and other errors, but continue to validate even if one fails.
@@ -408,7 +419,14 @@ public final class ValidateAIF {
             boolean notSkipped = ((restriction != Restriction.NIST_HYPOTHESIS) || checkHypothesisSize(fileToValidate))
                     && loadFile(dataToBeValidated, fileToValidate);
             if (notSkipped) {
+                if (profiling) {
+                    stats.startCollection();
+                }
                 final Resource report = validator.validateKBAndReturnReport(dataToBeValidated);
+                if (profiling) {
+                    stats.endCollection();
+                    stats.dump(fileToValidate);
+                }
                 if (!ValidateAIF.isValidReport(report)) {
                     logger.warn("---> Validation of " + fileToValidate + " failed.");
                     invalidCount++;
@@ -573,5 +591,128 @@ public final class ValidateAIF {
      */
     public static boolean isValidReport(Resource validationReport) {
         return validationReport.getRequiredProperty(CONFORMS).getBoolean();
+    }
+
+    static class StatsCollector {
+
+        private final int durationThreshold;
+
+        StatsCollector(int threshold) {
+            this.durationThreshold = threshold;
+        }
+
+        public void startCollection() {
+            ExecStatisticsManager.get().reset();
+            ExecStatisticsManager.get().setRecording(true);
+        }
+
+        public void endCollection() {
+            ExecStatisticsManager.get().setRecording(false);
+        }
+
+        public void dump(File fileToValidate) {
+            final String outputFilename = fileToValidate.toString().replace(".ttl", "-stats.txt");
+            try {
+                final PrintStream out = new PrintStream(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)));
+                dumpStats(out);
+                out.close();
+            }
+            catch (IOException ioe) {
+                logger.warn("---> Could not write statistics for " + fileToValidate + ".");
+            }
+        }
+
+        private void dumpStats(PrintStream out) {
+            final SortedMap<Integer, ExecStatistics> savedStats = new TreeMap<>();
+            final SortedSet<Map.Entry<Integer, ExecStatistics>> sortedStats = new TreeSet<>(
+                    (e1, e2) -> e1.getValue().getDuration() < e2.getValue().getDuration() ? 1 :
+                            e1.getValue().getDuration() > e2.getValue().getDuration() ? -1 : 0);
+            List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
+            stats.forEach(n -> {
+                if (n.getDuration() > durationThreshold) {
+                    savedStats.put(stats.indexOf(n), n);
+                }
+            });
+            if (savedStats.isEmpty()) {
+                out.println("There were no queries that took longer than " + durationThreshold + "ms.");
+            }
+            else {
+                out.println("Displaying " + savedStats.size() + " slow queries.");
+                sortedStats.addAll(savedStats.entrySet());
+                sortedStats.forEach(n -> dumpStat(n.getKey(), n.getValue(), out));
+            }
+        }
+
+        private void dumpStat(Integer statNum, ExecStatistics stats, PrintStream out) {
+            out.println("\n\nQuery #" + statNum+1);
+            out.println("Label: " + stats.getLabel());
+            out.println("Duration: " + stats.getDuration() + "ms");
+            out.println("StartTime: " + new Date(stats.getStartTime()));
+            out.println("Context node: " + stats.getContext().toString());
+            out.println("Query Text: " + stats.getQueryText().replaceAll("PREFIX.+\n", ""));
+        }
+    }
+
+    static class ProgressiveStatsCollector implements ExecStatisticsListener {
+
+        private final int durationThreshold;
+        private final SortedMap<Integer, ExecStatistics> savedStats = new TreeMap<>();
+
+        public ProgressiveStatsCollector(int threshold) {
+            this.durationThreshold = threshold;
+        }
+
+        public void startCollection() {
+            savedStats.clear();
+            ExecStatisticsManager.get().reset();
+            ExecStatisticsManager.get().addListener(this);
+            ExecStatisticsManager.get().setRecording(true);
+        }
+
+        public void endCollection() {
+            ExecStatisticsManager.get().setRecording(false);
+            ExecStatisticsManager.get().removeListener(this);
+        }
+
+        public void statisticsUpdated() {
+            List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
+            ExecStatistics statistic = stats.get(stats.size() -1);
+            if (statistic.getDuration() > durationThreshold) {
+                savedStats.put(stats.size(), statistic);
+                System.out.println("Dumping slow query #" + stats.size() + "; " + statistic.getDuration() + "ms.");
+                //dumpStat(stats.size(), statistic, System.out);
+            }
+        }
+
+        public void dump(File fileToValidate) {
+            final String outputFilename = fileToValidate.toString().replace(".ttl", "-stats.txt");
+            try {
+                final PrintStream out = new PrintStream(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)));
+                if (savedStats.isEmpty()) {
+                    out.println("There were no queries that took longer than " + durationThreshold + "ms.");
+                }
+                else {
+                    out.println("Displaying " + savedStats.size() + " slow queries.");
+                    final SortedSet<Map.Entry<Integer, ExecStatistics>> sortedStats = new TreeSet<>(
+                            (e1, e2) -> e1.getValue().getDuration() < e2.getValue().getDuration() ? 1 :
+                                    e1.getValue().getDuration() > e2.getValue().getDuration() ? -1 : 0);
+                    sortedStats.addAll(savedStats.entrySet());
+                    sortedStats.forEach(n -> dumpStat(n.getKey(), n.getValue(), out));
+                }
+                out.close();
+            }
+            catch (IOException ioe) {
+                logger.warn("---> Could not write statistics for " + fileToValidate + ".");
+            }
+        }
+
+        private void dumpStat(Integer statNum, ExecStatistics stats, PrintStream out) {
+            out.println("\n\nQuery #" + statNum);
+            out.println("Label: " + stats.getLabel());
+            out.println("Duration: " + stats.getDuration() + "ms");
+            out.println("StartTime: " + new Date(stats.getStartTime()));
+            out.println("Context node: " + stats.getContext().toString());
+            out.println("Query Text: " + stats.getQueryText().replaceAll("PREFIX.+\n", ""));
+        }
     }
 }
