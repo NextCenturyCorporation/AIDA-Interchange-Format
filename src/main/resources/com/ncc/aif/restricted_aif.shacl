@@ -248,7 +248,7 @@ aida:InformativeJustificationMembersUniqueParentDoc
       	    {
       	        SELECT $this (COUNT(DISTINCT ?parentDoc) as ?pdCount) (COUNT(DISTINCT ?mentions) as ?mCount)
       	        WHERE {
-      	            ?statement aida:informativeJustification ?mentions .
+      	            $this aida:informativeJustification ?mentions .
       	            ?mentions aida:sourceDocument ?parentDoc
       	        }
       	        GROUP BY $this
@@ -260,7 +260,7 @@ aida:InformativeJustificationMembersUniqueParentDoc
 
 aida:InformativeJustificationMembersShape
     a sh:NodeShape ;
-    sh:targetClass aida:SameAsCluster, aida:Entity, aida:Event, aida:Relation;
+    sh:targetSubjectsOf aida:informativeJustification ;
     sh:sparql aida:InformativeJustificationMembersUniqueParentDoc .
 
 
