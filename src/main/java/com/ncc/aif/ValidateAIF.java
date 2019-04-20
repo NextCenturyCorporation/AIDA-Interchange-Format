@@ -402,7 +402,7 @@ public final class ValidateAIF {
             logger.info("-> Validation report for invalid KBs will be printed to stderr.");
         }
         if (profiling) {
-            logger.info("-> Saving slow queries to <kbname>-stats.txt.");
+            logger.info("-> Saving slow queries (> " + LONG_QUERY_THRESH + " ms) to <kbname>-stats.txt.");
         }
         logger.info("*** Beginning validation of " + filesToValidate.size() + " file(s). ***");
 
@@ -634,22 +634,24 @@ public final class ValidateAIF {
                 }
             });
             if (savedStats.isEmpty()) {
-                out.println("There were no queries that took longer than " + durationThreshold + "ms.");
+                out.println("There were no queries that took longer than " + durationThreshold + "ms (of "
+                        + stats.size() + " queries overall).");
             }
             else {
-                out.println("Displaying " + savedStats.size() + " slow queries.");
+                out.println("Displaying " + savedStats.size() + " slow queries (of "
+                        + stats.size() + " queries overall).");
                 sortedStats.addAll(savedStats.entrySet());
                 sortedStats.forEach(n -> dumpStat(n.getKey(), n.getValue(), out));
             }
         }
 
-        private void dumpStat(Integer statNum, ExecStatistics stats, PrintStream out) {
-            out.println("\n\nQuery #" + statNum+1);
-            out.println("Label: " + stats.getLabel());
-            out.println("Duration: " + stats.getDuration() + "ms");
-            out.println("StartTime: " + new Date(stats.getStartTime()));
-            out.println("Context node: " + stats.getContext().toString());
-            out.println("Query Text: " + stats.getQueryText().replaceAll("PREFIX.+\n", ""));
+        private void dumpStat(Integer queryNum, ExecStatistics queryStats, PrintStream out) {
+            out.println("\n\nQuery #" + queryNum+1);
+            out.println("Label: " + queryStats.getLabel());
+            out.println("Duration: " + queryStats.getDuration() + "ms");
+            out.println("StartTime: " + new Date(queryStats.getStartTime()));
+            out.println("Context node: " + queryStats.getContext().toString());
+            out.println("Query Text: " + queryStats.getQueryText().replaceAll("PREFIX.+\n", ""));
         }
     }
 
@@ -675,8 +677,8 @@ public final class ValidateAIF {
         }
 
         public void statisticsUpdated() {
-            List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
-            ExecStatistics statistic = stats.get(stats.size() -1);
+            final List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
+            final ExecStatistics statistic = stats.get(stats.size() -1);
             if (statistic.getDuration() > durationThreshold) {
                 savedStats.put(stats.size(), statistic);
                 System.out.println("Dumping slow query #" + stats.size() + "; " + statistic.getDuration() + "ms.");
@@ -687,12 +689,15 @@ public final class ValidateAIF {
         public void dump(File fileToValidate) {
             final String outputFilename = fileToValidate.toString().replace(".ttl", "-stats.txt");
             try {
+                final List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
                 final PrintStream out = new PrintStream(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)));
                 if (savedStats.isEmpty()) {
-                    out.println("There were no queries that took longer than " + durationThreshold + "ms.");
+                    out.println("There were no queries that took longer than " + durationThreshold + "ms (of "
+                            + stats.size() + " queries overall).");
                 }
                 else {
-                    out.println("Displaying " + savedStats.size() + " slow queries.");
+                    out.println("Displaying " + savedStats.size() + " slow queries (of "
+                            + stats.size() + " queries overall).");
                     final SortedSet<Map.Entry<Integer, ExecStatistics>> sortedStats = new TreeSet<>(
                             (e1, e2) -> e1.getValue().getDuration() < e2.getValue().getDuration() ? 1 :
                                     e1.getValue().getDuration() > e2.getValue().getDuration() ? -1 : 0);
@@ -706,13 +711,13 @@ public final class ValidateAIF {
             }
         }
 
-        private void dumpStat(Integer statNum, ExecStatistics stats, PrintStream out) {
-            out.println("\n\nQuery #" + statNum);
-            out.println("Label: " + stats.getLabel());
-            out.println("Duration: " + stats.getDuration() + "ms");
-            out.println("StartTime: " + new Date(stats.getStartTime()));
-            out.println("Context node: " + stats.getContext().toString());
-            out.println("Query Text: " + stats.getQueryText().replaceAll("PREFIX.+\n", ""));
+        private void dumpStat(Integer queryNum, ExecStatistics queryStats, PrintStream out) {
+            out.println("\n\nQuery #" + queryNum);
+            out.println("Label: " + queryStats.getLabel());
+            out.println("Duration: " + queryStats.getDuration() + "ms");
+            out.println("StartTime: " + new Date(queryStats.getStartTime()));
+            out.println("Context node: " + queryStats.getContext().toString());
+            out.println("Query Text: " + queryStats.getQueryText().replaceAll("PREFIX.+\n", ""));
         }
     }
 }
