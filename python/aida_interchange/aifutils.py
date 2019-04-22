@@ -5,6 +5,7 @@ from abc import ABCMeta, abstractmethod
 from rdflib import URIRef, RDF, Graph, BNode, Literal, XSD
 
 from aida_interchange.aida_rdf_ontologies import AIDA_ANNOTATION
+#from aida_interchange.LDCTimeComponent import LDCTimeComponent
 from rdflib.plugins.sparql import prepareQuery
 
 """
@@ -499,7 +500,8 @@ def _make_aif_resource(g, uri, class_type, system):
     else:
         resource = URIRef(uri)
     g.add((resource, RDF.type, class_type))
-    mark_system(g, resource, system)
+    if system is not None:
+        mark_system(g, resource, system)
     return resource
 
 
@@ -538,3 +540,25 @@ def get_confidences(g, confidenced_object):
     :return: A list of confidence assertions describing this object.
   """
     return list(g.objects(confidenced_object, AIDA_ANNOTATION.confidence))
+
+
+def mark_ldc_time(g, to_mark, start, end, system):
+    """
+    Add LDC start and end time representation to an Event or Relation
+
+    :param g: The underlying RDF model for the operation
+    :param toMark: The Event or Realtion to add the LDC time data to
+    :param start: containing the start time information
+    :param end: containing the end time information
+    :param system: The system object for the system which marks the time
+    :return:
+    """
+    ldc_Time = _make_aif_resource(g, None, AIDA_ANNOTATION.LDCTime, system)
+    print("start object", start)
+    start.make_aif_time_component(g)
+    g.add(ldc_Time, AIDA_ANNOTATION.ldcTimeStart, temp)
+    g.add(ldc_Time, AIDA_ANNOTATION.ldcTimeEnd, end.make_aif_time_component(g))
+
+    g.add(to_mark, AIDA_ANNOTATION.ldcTime, ldc_Time)
+
+    return ldc_Time
