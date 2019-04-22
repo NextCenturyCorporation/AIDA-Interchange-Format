@@ -17,7 +17,10 @@ def make_graph():
     """
     Creates an RDF triple store
 
-    :return: The created graph
+    Returns
+    -------
+    rdflib.graph.Graph
+        The created graph
     """
     g = Graph()
     g.bind('aida', AIDA_ANNOTATION.uri)
@@ -33,7 +36,17 @@ def make_system_with_uri(graph, system_uri):
     only create the system resource once; reuse the returned objects for all calls
     to [markSystem].
 
-    :return: The created system resource.
+    Parameters
+    ----------
+    graph : rdflib.graph.Graph
+        The underlying RDF model to create the resource
+    system_uri : str
+        A String URI representation of the system
+
+    Returns
+    -------
+    rdflib.term.URIRef
+        The created system resource.
     """
     system = URIRef(system_uri)
     graph.add((system, RDF.type, AIDA_ANNOTATION.System))
@@ -43,31 +56,99 @@ def make_system_with_uri(graph, system_uri):
 def mark_system(g, to_mark_on, system):
     """
     Mark a resource as coming from the specified [system]
+
+    Parameters
+    ----------
+    g : rdflib.graph.Graph
+        The underlying RDF model
+    to_mark_on : <what is this?>
+        The resource to mark as coming from the specified system
+    system : Resource?
+        The system with which to mark the specified resource
     """
     g.add((to_mark_on, AIDA_ANNOTATION.system, system))
 
 
 def mark_name(g, entity, name):
+    """
+    #TODO enter description here
+
+    Parameters
+    ----------
+    g : rdflib.graph.Graph
+        The graph
+    entity : #TODO what is this
+        The resource to mark on?
+    name : Resource?
+        the name ?
+    """
     g.add((entity, AIDA_ANNOTATION.hasName,
            Literal(name, datatype=XSD.string)))
 
 
 def mark_text_value(g, entity, text_value):
+    """
+    #TODO enter description here
+
+    Parameters
+    ----------
+    g : rdflib.graph.Graph
+        The graph
+    entity : #TODO what is this
+        The resource to mark on?
+    text_value : Resource?
+        the text value?
+    """
     g.add((entity, AIDA_ANNOTATION.textValue,
            Literal(text_value, datatype=XSD.string)))
 
-
 def mark_numeric_value_as_string(g, entity, numeric_value):
+    """
+    #TODO enter description here
+
+    Parameters
+    ----------
+    g : rdflib.graph.Graph
+        The graph
+    entity : #TODO what is this
+        The resource to mark on?
+    numeric_value : Resource?
+        the text value?
+    """
     g.add((entity, AIDA_ANNOTATION.numericValue,
            Literal(numeric_value, datatype=XSD.string)))
 
 
 def mark_numeric_value_as_double(g, entity, numeric_value):
+    """
+    #TODO enter description here
+
+    Parameters
+    ----------
+    g : rdflib.graph.Graph
+        The graph
+    entity : #TODO what is this
+        The resource to mark on?
+    numeric_value : Resource?
+        the text value?
+    """
     g.add((entity, AIDA_ANNOTATION.numericValue,
            Literal(numeric_value, datatype=XSD.double)))
 
 
 def mark_numeric_value_as_long(g, entity, numeric_value):
+    """
+    #TODO enter description here
+
+    Parameters
+    ----------
+    g : rdflib.graph.Graph
+        The graph
+    entity : #TODO what is this
+        The resource to mark on?
+    numeric_value : Resource?
+        the text value?
+    """
     g.add((entity, AIDA_ANNOTATION.numericValue,
            Literal(numeric_value, datatype=XSD.long)))
 
@@ -76,9 +157,19 @@ def make_entity(g, entity_uri, system):
     """
     Create an entity.
 
-    :param entity_uri: can be any unique string.
-    :param system: The system object for the system which created this entity.
-    :return: The created entity resource
+    Parameters
+    ----------
+    g : rdflib.graph.Graph
+        The graph
+    entity_uri : <what is this>
+        A unique string representing the uri. This can be any unique string.
+    system : System object???
+        The system object for the system which created this entity.
+
+    Returns
+    -------
+    Resource <what is this type>
+        The created entity resource
     """
     return _make_aif_resource(g, entity_uri, AIDA_ANNOTATION.Entity, system)
 
@@ -87,6 +178,26 @@ def mark_type(g, type_assertion_uri, entity_or_event,
               _type, system, confidence):
     """
     Mark an entity or event as having a specified type.
+
+    Parameters
+    ----------
+    g : rdflib.graph.Graph
+        The graph
+    type_assertion_uri : <what is this>
+        The uri <??>
+    entity_or_event : <waht is this?>
+        <Fill this out
+    _type : <what is this>
+        <Fill this out>
+    system : fill this out
+        Fill this out
+    confidence : fill this out
+        fill this out
+
+    Returns
+    -------
+    resource <what si this>
+        The assertion resource
 
     :return: The assertion resource
     """
@@ -99,6 +210,10 @@ def mark_type(g, type_assertion_uri, entity_or_event,
 
 
 def mark_justification(g, things_to_justify, justification):
+    """
+    Fill out description
+
+    """
     if isinstance(things_to_justify, URIRef):
         things_to_justify = [things_to_justify]
 
