@@ -1142,13 +1142,13 @@ public class AIFUtils {
         private Resource makeAIFTimeComponent(Model model) {
             final Resource timeComponent = makeAIFResource(model, null, AidaAnnotationOntology.LDC_TIME_COMPONENT, null);
             timeComponent.addProperty(AidaAnnotationOntology.LDC_TIME_TYPE, type.toString());
-            addInteger(model, timeComponent, AidaAnnotationOntology.LDC_TIME_YEAR, year, XSD.gYear);
-            addInteger(model, timeComponent, AidaAnnotationOntology.LDC_TIME_MONTH, month, XSD.gMonth);
-            addInteger(model, timeComponent, AidaAnnotationOntology.LDC_TIME_DAY, day, XSD.gDay);
+            addLiteral(model, timeComponent, AidaAnnotationOntology.LDC_TIME_YEAR, year, XSD.gYear);
+            addLiteral(model, timeComponent, AidaAnnotationOntology.LDC_TIME_MONTH, month, XSD.gMonth);
+            addLiteral(model, timeComponent, AidaAnnotationOntology.LDC_TIME_DAY, day, XSD.gDay);
             return timeComponent;
         }
 
-        private static void addInteger(Model model, Resource timeComponent, Property property, String value, Resource type) {
+        private static void addLiteral(Model model, Resource timeComponent, Property property, String value, Resource type) {
             if (value != null) {
                 RDFDatatype literalType = NodeFactory.getType(type.getURI());
                 timeComponent.addLiteral(property, model.createTypedLiteral(value, literalType));

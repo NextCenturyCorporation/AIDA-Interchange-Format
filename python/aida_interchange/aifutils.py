@@ -554,11 +554,9 @@ def mark_ldc_time(g, to_mark, start, end, system):
     :return:
     """
     ldc_Time = _make_aif_resource(g, None, AIDA_ANNOTATION.LDCTime, system)
-    print("start object", start)
-    start.make_aif_time_component(g)
-    g.add(ldc_Time, AIDA_ANNOTATION.ldcTimeStart, temp)
-    g.add(ldc_Time, AIDA_ANNOTATION.ldcTimeEnd, end.make_aif_time_component(g))
+    g.add((ldc_Time, AIDA_ANNOTATION.start, start.make_aif_time_component(g)))
+    g.add((ldc_Time, AIDA_ANNOTATION.end, end.make_aif_time_component(g)))
 
-    g.add(to_mark, AIDA_ANNOTATION.ldcTime, ldc_Time)
+    g.add((to_mark, AIDA_ANNOTATION.ldcTime, ldc_Time))
 
     return ldc_Time

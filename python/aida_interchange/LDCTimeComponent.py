@@ -1,5 +1,5 @@
 from enum import Enum
-from rdflib import Literal, XSD
+from rdflib import Graph, Literal, XSD, URIRef
 from aida_interchange.aida_rdf_ontologies import AIDA_ANNOTATION
 from aida_interchange import aifutils
 
@@ -21,15 +21,33 @@ class LDCTimeComponent:
         self.day = day
 
 
-    def make_aif_time_component(g):
-        time_component = aifutils._make_aif_resource(g, None, AIDA_ANNOTATION.LDCTimeComponent, None)
-        g.add(time_component, AIDA_ANNOTATION.ldcTimeType, time_type.__str__())
-        addInteger(g, time_component, AIDA_ANNOTATION.ldcTimeYear, year, datatype=XSD.gYear)
-        addInteger(g, time_component, AIDA_ANNOTATION.ldcTimeMonth, month, datatype=XSD.gMonth)
-        addInteger(g, time_component, AIDA_ANNOTATION.ldcTimeDay, day, datatype=XSD.gDay)
-        return time_component
+    def add_literal(self, g, time_component, time_property, value, literal_type):
+        """
+        creates and adds a Literal to the model if a value exists
 
-
-    def addInteger(g, time_component, time_property, value, literal_type):
+        param self: contains the time component information when LDCTimeComponent is istantiated
+        param g: The underlying RDF model for the operation
+        param time_component: The resource created to contain time information
+        param value: the string value of month, day, or year
+        param literal_type: the datatype that corrisponds to the given value
+        """
         if value is not None:
-            g.add(time_component, time_property, Literal(value, literal_type))
+            temp_literal = Literal(value)
+            temp_literal._datatype = URIRef(literal_type)
+            g.add((time_component, time_property, temp_literal))
+
+
+    def make_aif_time_component(self, g):
+        """
+        creates a time component containing a Year, Month, and Day as well as a Type to clarify relative time
+        
+        param self: contains the time component information when LDCTimeComponent is istantiated
+        param g: The underlying RDF model for the operation
+        return: time_component node
+        """
+        time_component = aifutils._make_aif_resource(g, None, AIDA_ANNOTATION.LDCTimeComponent, None)
+        g.add((time_component, AIDA_ANNOTATION.timeType, Literal(self.time_type.name, datatype=XSD.string)))
+        self.add_literal(g, time_component, AIDA_ANNOTATION.year, self.year, XSD.gYear)
+        self.add_literal(g, time_component, AIDA_ANNOTATION.month, self.month, XSD.gMonth)
+        self.add_literal(g, time_component, AIDA_ANNOTATION.day, self.day, XSD.gDay)
+        return time_component
