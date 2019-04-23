@@ -243,18 +243,13 @@ aida:InformativeJustificationMembersUniqueParentDoc
     sh:select """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
-        SELECT $this ?pdCount
-        WHERE {
-      	    {
-      	        SELECT $this (COUNT(DISTINCT ?parentDoc) as ?pdCount) (COUNT(DISTINCT ?mentions) as ?mCount)
-      	        WHERE {
-      	            $this aida:informativeJustification ?mentions .
-      	            ?mentions aida:sourceDocument ?parentDoc
-      	        }
-      	        GROUP BY $this
-      	    }
-      	    FILTER(?pdCount < ?mCount)
-        }
+      	SELECT $this
+      	WHERE {
+      	    $this aida:informativeJustification ?mentions .
+      	    ?mentions aida:sourceDocument ?parentDoc
+      	}
+      	GROUP BY $this
+      	HAVING (COUNT(DISTINCT ?parentDoc) < COUNT(DISTINCT ?mentions))
     """
     .
 
