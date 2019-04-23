@@ -5,7 +5,6 @@ from abc import ABCMeta, abstractmethod
 from rdflib import URIRef, RDF, Graph, BNode, Literal, XSD
 
 from aida_interchange.aida_rdf_ontologies import AIDA_ANNOTATION
-#from aida_interchange.LDCTimeComponent import LDCTimeComponent
 from rdflib.plugins.sparql import prepareQuery
 
 """
