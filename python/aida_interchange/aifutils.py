@@ -131,8 +131,7 @@ def make_entity(g, entity_uri, system):
     return _make_aif_resource(g, entity_uri, AIDA_ANNOTATION.Entity, system)
 
 
-def mark_type(g, type_assertion_uri, entity_or_event,
-              _type, system, confidence):
+def mark_type(g, type_assertion_uri, entity_or_event, _type, system, confidence):
     """
     Mark an entity, event, or relation as having a specified type.
     
@@ -148,7 +147,7 @@ def mark_type(g, type_assertion_uri, entity_or_event,
     :param rdflib.term.URIRef _type: The type of the entity, event, or relation being asserted
     :param rdflib.term.URIRef system: The system object for the system which created this entity
     :param float confidence: If not None, the confidence with which to mark the specified type
-    :returns The created type assertion resource
+    :returns: The created type assertion resource
     :rtype: rdflib.term.URIRef 
     """
     type_assertion = _make_aif_resource(g, type_assertion_uri, RDF.Statement, system)

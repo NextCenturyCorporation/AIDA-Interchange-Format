@@ -102,3 +102,6 @@ ENV/
 *.iml
 target/
 .idea/
+
+# Python documentation
+python/docs/build/
