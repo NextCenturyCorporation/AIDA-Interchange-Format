@@ -1642,6 +1642,110 @@ public class ExamplesAndValidationTest {
             }
         }
 
+        @Nested
+        class InformativeJustification {
+
+
+            @Test
+            void invalidInformativeJustificationDuplicateParentDoc() {
+
+                final Resource duplicateParentDocJustification = makeTextJustification(model, "ZM39482011",
+                        42, 143, system, 0.973);
+                addSourceDocumentToJustification(duplicateParentDocJustification,"20181231");
+
+                markInformativeJustification(entity, typeAssertionJustification);
+                markInformativeJustification(entity, duplicateParentDocJustification);
+
+                testInvalid("NIST.invalid: (informative justifications have same parent document) Each Cluster, " +
+                        "Entity, Event, or Relation can specify up to one informative mention per document as long " +
+                        "as each informative mention points to a different sourceDocument");
+            }
+
+            @Test
+            void validEntityInformativeJustification() {
+
+                markInformativeJustification(entity, typeAssertionJustification);
+                testValid("NIST.valid: (entity) Each Cluster, Entity, Event, or Relation can specify up to one " +
+                        "informative mention per document as each informative mention points to a " +
+                        "different sourceDocument");
+            }
+
+            @Test
+            void validEventInformativeJustification() {
+                markInformativeJustification(event, typeAssertionJustification);
+                testValid("NIST.valid: (event) Each Cluster, Entity, Event, or Relation can specify up to one " +
+                        "informative mention per document as each informative mention points to a different " +
+                        "sourceDocument");
+
+            }
+
+            @Test
+            void validRelationInformativeJustification() {
+                markInformativeJustification(relation, typeAssertionJustification);
+                testValid("NIST.valid: (relation) Each Cluster, Entity, Event, or Relation can specify up to one " +
+                        "informative mention per document as each informative mention points to a different " +
+                        "sourceDocument");
+            }
+
+            @Test
+            void validClusterInformativeJustification() {
+                markInformativeJustification(entityCluster, typeAssertionJustification);
+                testValid("NIST.valid: (cluster) Each Cluster, Entity, Event, or Relation can specify up to one " +
+                        "informative mention per document as each informative mention points to a different " +
+                        "sourceDocument");
+            }
+
+            @Test
+            void validRelationWithMultipleInformativeJustifications() {
+
+                final Resource secondJustification = makeTextJustification(model, "EJ39281",
+                        42, 143, system, 0.973);
+                addSourceDocumentToJustification(secondJustification,"3822029");
+
+                final Resource thirdJustification = makeTextJustification(model, "CL33838",
+                        42, 143, system, 0.973);
+                addSourceDocumentToJustification(thirdJustification,"3948290");
+
+                //add three informative justifications to same relation KE
+                markInformativeJustification(relation, typeAssertionJustification);
+                markInformativeJustification(relation, secondJustification);
+                markInformativeJustification(relation, thirdJustification);
+
+                testValid("NIST.valid: (multiple informative justifications on relation) Each Cluster," +
+                        "Entity, Event, or Relation can specify up to one informative mention per document as long " +
+                        "as each informative mention points to a different sourceDocument");
+
+            }
+
+            @Test
+            void validEntityClusterSeparateInformativeJustificationsWithSameParentDoc() {
+
+                final Resource duplicateParentDocJustification = makeTextJustification(model, "ZM39482011",
+                        42, 143, system, 0.973);
+                addSourceDocumentToJustification(duplicateParentDocJustification,"20181231");
+
+                final Resource secondEntityJustification = makeTextJustification(model, "EJ39281",
+                        42, 143, system, 0.973);
+                addSourceDocumentToJustification(secondEntityJustification,"3822029");
+
+                final Resource secondClusterJustification = makeTextJustification(model, "CL33838",
+                        42, 143, system, 0.973);
+                addSourceDocumentToJustification(secondClusterJustification,"3298329");
+
+                //add informative justification in separate KE's with same parent doc
+                markInformativeJustification(entity, typeAssertionJustification);
+                markInformativeJustification(entity, secondEntityJustification);
+
+                //add more than on informative justification to the KE's
+                markInformativeJustification(entityCluster, duplicateParentDocJustification);
+                markInformativeJustification(entityCluster, secondClusterJustification);
+
+                testValid("NIST.valid: (Two KE's with informative justifications with same parent doc) Each " +
+                        "Cluster, Entity, Event, or Relation can specify up to one informative mention per document " +
+                        "as long as each informative mention points to a different sourceDocument");
+
+            }
+        }
     }
 
     /**
