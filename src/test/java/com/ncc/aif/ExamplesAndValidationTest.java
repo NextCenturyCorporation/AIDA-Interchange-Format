@@ -615,6 +615,35 @@ public class ExamplesAndValidationTest {
         }
 
         @Test
+        void createCompoundJustificationWithSingleJustification() {
+
+            final Resource event = makeEvent(model, putinElectedDocumentEventUri, system);
+            markType(model, getAssertionUri(), event,
+                    SeedlingOntology.Personnel_Elect, system, 1.0);
+
+            final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
+            markType(model, getAssertionUri(), putin,
+                    SeedlingOntology.Person, system, 1.0);
+
+            // link those entities to the event
+            final Resource electeeArgument = markAsArgument(model, event,
+                    SeedlingOntology.Personnel_Elect_Elect,
+                    putin, system, 0.785, getAssertionUri());
+
+            final Resource textJustification = makeTextJustification(model, "NYT_ENG_20181231",
+                    42, 143, system, 0.973);
+
+            markJustification(putin, textJustification);
+            addSourceDocumentToJustification(textJustification, "NYT_PARENT_ENG_20181231_03");
+
+            // combine single justification into single justifiedBy triple with new confidence
+            markCompoundJustification(model, ImmutableSet.of(electeeArgument),
+                    ImmutableSet.of(textJustification), system, 0.321);
+
+            testValid("create a compound justification with single justification");
+        }
+
+        @Test
         void createHierarchicalCluster() {
             // we want to say that the cluster of Trump entities might be the same as the cluster of the president entities
             // create president entities
@@ -1243,6 +1272,44 @@ public class ExamplesAndValidationTest {
                 markJustification(event, compound1);
 
                 testInvalid("NIST.invalid: CompoundJustification must be used only for justifications of argument assertions");
+            }
+
+            @Test
+            void invalidCompoundJustificationWithNoJustification() {
+
+                Resource compoundJustification = model.createResource();
+                compoundJustification.addProperty(RDF.type,  AidaAnnotationOntology.COMPOUND_JUSTIFICATION_CLASS);
+                markSystem(compoundJustification, system);
+
+                markConfidence(model, compoundJustification, 1.0, system);
+                testInvalid("NIST.invalid: (No justification in CompoundJustification) Exactly 1 or 2 contained" +
+                        " justifications in a CompoundJustification required for an edge");
+            }
+
+            @Test
+            void invalidCompoundJustificationWithThreeJustifications() {
+
+                // test relation argument
+                final Resource relationEdge = markAsArgument(model, relation,
+                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
+                final Resource justification1 = makeTextJustification(model, "source1", 0,
+                        4, system, 1d);
+                addSourceDocumentToJustification(justification1, "source1sourceDocument");
+                final Resource justification2 = makeTextJustification(model, "source2", 0,
+                        4, system, 1d);
+                addSourceDocumentToJustification(justification2, "source2sourceDocument");
+                final Resource justification3 = makeTextJustification(model, "source3", 0,
+                        4, system, 1d);
+                addSourceDocumentToJustification(justification3, "source3sourceDocument");
+
+                markCompoundJustification(model,
+                        ImmutableSet.of(relationEdge),
+                        ImmutableSet.of(justification1, justification2, justification3),
+                        system,
+                        1d);
+
+                testInvalid("NIST.invalid: (More than two justifications in CompoundJustification) " +
+                        "Exactly 1 or 2 contained justifications in a CompoundJustification required for an edge");
             }
 
             @Test
