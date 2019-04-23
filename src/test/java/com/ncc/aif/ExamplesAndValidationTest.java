@@ -1607,18 +1607,6 @@ public class ExamplesAndValidationTest {
         @Nested
         class InformativeJustification {
 
-            @Test
-            void invalidArgumentInformativeJustification() {
-
-                // create relation argument and mark it as an informative justification
-                final Resource relationEdge = markAsArgument(model, relation,
-                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
-                markInformativeJustification(relationEdge, typeAssertionJustification);
-
-                testInvalid("NIST.invalid: (informative justification specified on argument) Each Cluster, " +
-                        "Entity, Event, or Relation can specify up to one informative mention per document as each" +
-                        " informative mention points to a different sourceDocument");
-            }
 
             @Test
             void invalidInformativeJustificationDuplicateParentDoc() {
@@ -1633,7 +1621,6 @@ public class ExamplesAndValidationTest {
                 testInvalid("NIST.invalid: (informative justifications have same parent document) Each Cluster, " +
                         "Entity, Event, or Relation can specify up to one informative mention per document as long " +
                         "as each informative mention points to a different sourceDocument");
-
             }
 
             @Test
