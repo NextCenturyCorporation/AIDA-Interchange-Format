@@ -116,13 +116,12 @@ public class OntologyGeneration {
     // Writes the static variables for each ontology class
     private static List<String> owgMapperInfo(String variableClassName) {
 
-        List<String> owgMapping = new ArrayList<>();
-
-        owgMapping.addAll(owgMapperHeader());
+        List<String> owgMapping = new ArrayList<>(owgMapperHeader());
 
         String className = "public final class " + variableClassName + " {";
         owgMapping.add(className);
 
+        SortedSet<String> members = new TreeSet<>();
         for (OWGClass owgClass : owgClassList) {
 
             String name = owgClass.getName();
@@ -132,9 +131,9 @@ public class OntologyGeneration {
                 name = name.replace("-", "_");
             }
 
-            String resource = "    public static final Resource " + name + " = ResourceFactory.createResource(\"" + owgClass.getUri() + "\");";
-            owgMapping.add(resource);
+            members.add("    public static final Resource " + name + " = ResourceFactory.createResource(\"" + owgClass.getUri() + "\");");
         }
+        owgMapping.addAll(members);
 
         String ending = "}";
         owgMapping.add(ending);
