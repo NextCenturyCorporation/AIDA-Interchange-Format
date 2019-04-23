@@ -208,6 +208,26 @@ If you need to edit either the Java or Kotlin code:
 
 You should now be ready to go.
 
+# Documentation
+
+### Java
+
+To generate the javadoc documenation, navigate to the top level directory in the AIDA-Interchange-Format project. Run the following command:
+
+```bash
+$ javadoc -d build/docs/javadoc/ src/main/java/com/ncc/aif/*.java
+```
+This script will generate documentation in the form of HTML and place it within the `build/docs/javadoc` folder.
+
+### Python
+
+The python project uses [Sphinx](http://www.sphinx-doc.org/en/master/) for generating documentation. To generate the documentation, navigate to the `python/docs` directory and run the `update_documentation.sh` script.
+
+```bash
+$ ./update_documentation.sh
+```
+This script will generate documentation in the form of HTML and place it within the `python/docs/build/html` folder. 
+
 # FAQ
 
 Please see `FAQ.md` for frequently asked questions.
