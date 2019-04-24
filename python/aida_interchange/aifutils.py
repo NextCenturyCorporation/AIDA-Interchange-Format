@@ -722,7 +722,7 @@ def mark_as_mutually_exclusive(g, alternatives, system, none_of_the_above_prob):
     """
     Mark the given resources as mutually exclusive.
 
-    This is a special case of [markAsMutuallyExclusive] where the alternatives are 
+    This is a special case of [mark_as_mutually_exclusive] where the alternatives are 
     each single edges, so we simply wrap each edge in a collection and pass to 
     mark_as_mutually_exclusive.
 
@@ -918,7 +918,7 @@ def get_confidences(g, confidenced_object):
     This does not get confidences attached to sub-graphs containing the object.
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param rdflib.term.URIRef confidenced_object: he entity from which to retrieve 
+    :param rdflib.term.URIRef confidenced_object: The entity from which to retrieve 
         confidence assertions
     :returns: A list of confidence assertions describing this object.
     :rtype: list
