@@ -240,6 +240,9 @@ public final class ValidateAIF {
                 case "-p": // NOTE: this flag is not documented in the README nor the Usage info
                     flags.add(ArgumentFlags.PROFILING);
                     break;
+                case "--p2": // NOTE: this flag is not documented in the README nor the Usage info
+                    flags.add(ArgumentFlags.PROGRESSIVE_PROFILING);
+                    break;
                 case "-f":
                     if (flags.contains(ArgumentFlags.DIRECTORY)) {
                         logger.error("Please specify either -d or -f, but not both.");
@@ -292,7 +295,7 @@ public final class ValidateAIF {
 
     // Command-line argument flags
     private enum ArgumentFlags {
-        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY, FILE_OUTPUT, PROFILING
+        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY, FILE_OUTPUT, PROFILING, PROGRESSIVE_PROFILING
     }
 
     /**
@@ -306,7 +309,6 @@ public final class ValidateAIF {
         final Set<String> domainOntologies = new HashSet<>();
         final Set<String> validationFiles = new LinkedHashSet<>();
         final Set<String> validationDirs = new LinkedHashSet<>();
-        StatsCollector stats = new StatsCollector(LONG_QUERY_THRESH);
 
         // Prevent too much logging from obscuring the actual problems.
         logger.setLevel(Level.INFO);
@@ -323,7 +325,7 @@ public final class ValidateAIF {
                 flags.contains(ArgumentFlags.HYPO) ? Restriction.NIST_HYPOTHESIS : Restriction.NIST;
         final boolean ldcFlag = flags.contains(ArgumentFlags.LDC);
         final boolean programFlag = flags.contains(ArgumentFlags.PROGRAM);
-        final boolean profiling = flags.contains(ArgumentFlags.PROFILING);
+        final boolean profiling = flags.contains(ArgumentFlags.PROFILING) || flags.contains(ArgumentFlags.PROGRESSIVE_PROFILING);
 
         // Finally, try to create the validator, but fail if required elements can't be loaded/parsed.
         ValidateAIF validator = null;
@@ -411,6 +413,8 @@ public final class ValidateAIF {
         int invalidCount = 0;
         int skipCount = 0;
         int fileNum = 0;
+        final StatsCollector stats = flags.contains(ArgumentFlags.PROGRESSIVE_PROFILING) ?
+                new ProgressiveStatsCollector(LONG_QUERY_THRESH) : new StatsCollector(LONG_QUERY_THRESH);
         for (File fileToValidate : filesToValidate) {
             Date date = Calendar.getInstance().getTime();
             logger.info("-> Validating " + fileToValidate + " at " + format.format(date) +
@@ -604,7 +608,7 @@ public final class ValidateAIF {
      */
     private static class StatsCollector {
 
-        private final int durationThreshold;
+        final int durationThreshold;
 
         /**
          * Creates a statistics collector that saves queries slower than [threshold] ms to a file.
@@ -664,18 +668,25 @@ public final class ValidateAIF {
                 out.println("Displaying " + savedStats.size() + " slow queries (of "
                         + stats.size() + " queries overall).");
                 sortedStats.addAll(savedStats.entrySet());
-                sortedStats.forEach(n -> dumpStat(n.getKey(), n.getValue(), out));
+                sortedStats.forEach(n -> dumpStat(n.getKey(), n.getValue(), out, true));
             }
         }
 
         // Dump a single query's statistics to the specified PrintStream
-        private void dumpStat(Integer queryNum, ExecStatistics queryStats, PrintStream out) {
-            out.println("\n\nQuery #" + queryNum+1);
+        void dumpStat(Integer queryNum, ExecStatistics queryStats, PrintStream out,
+                              boolean leadingSpaces) {
+            if (leadingSpaces) {
+                out.println("\n");
+            }
+            out.println("Query #" + queryNum+1);
             out.println("Label: " + queryStats.getLabel());
             out.println("Duration: " + queryStats.getDuration() + "ms");
             out.println("StartTime: " + new Date(queryStats.getStartTime()));
             out.println("Context node: " + queryStats.getContext().toString());
             out.println("Query Text: " + queryStats.getQueryText().replaceAll("PREFIX.+\n", ""));
+            if (!leadingSpaces) {
+                out.println("\n");
+            }
         }
     }
 
@@ -687,9 +698,8 @@ public final class ValidateAIF {
      * This statistics collector progressively dumps slow queries to stdout, which is useful if you suspect
      * the validation will not complete due to out of memory or other error conditions.
      */
-    private static class ProgressiveStatsCollector implements ExecStatisticsListener {
+    private static class ProgressiveStatsCollector extends StatsCollector implements ExecStatisticsListener {
 
-        private final int durationThreshold;
         private final SortedMap<Integer, ExecStatistics> savedStats = new TreeMap<>();
 
         /**
@@ -697,24 +707,25 @@ public final class ValidateAIF {
          * @param threshold the threshold definition of a slow query for this statistics collector
          */
         ProgressiveStatsCollector(int threshold) {
-            this.durationThreshold = threshold;
+            super(threshold);
         }
 
         /**
          * Start statistics collection.  Clears any previous statistics gathered by TopBraid statistics manager.
          */
+        @Override
         void startCollection() {
             savedStats.clear();
-            ExecStatisticsManager.get().reset();
+            super.startCollection();
             ExecStatisticsManager.get().addListener(this);
-            ExecStatisticsManager.get().setRecording(true);
         }
 
         /**
          * End statistics collection.
          */
+        @Override
         void endCollection() {
-            ExecStatisticsManager.get().setRecording(false);
+            super.endCollection();
             ExecStatisticsManager.get().removeListener(this);
         }
 
@@ -727,7 +738,7 @@ public final class ValidateAIF {
             if (statistic.getDuration() > durationThreshold) {
                 savedStats.put(stats.size(), statistic);
                 System.out.println("Dumping slow query #" + stats.size() + "; " + statistic.getDuration() + "ms.");
-                dumpStat(stats.size(), statistic, System.out);
+                dumpStat(stats.size(), statistic, System.out, false);
                 System.out.flush(); // Make sure stdout gets displayed even if we eventually run out of memory
             }
         }
@@ -736,6 +747,7 @@ public final class ValidateAIF {
          * Dump all gathered slow query statistics to <basename>-stats.txt, starting with the slowest queries.
          * @param basename a file basename to determine the profiling output filename
          */
+        @Override
         void dump(String basename) {
             final String outputFilename = basename.replace(".ttl", "-stats.txt");
             try {
@@ -751,24 +763,13 @@ public final class ValidateAIF {
                     final SortedSet<Map.Entry<Integer, ExecStatistics>> sortedStats = new TreeSet<>(
                             (e1, e2) -> Long.compare(e2.getValue().getDuration(), e1.getValue().getDuration()));
                     sortedStats.addAll(savedStats.entrySet());
-                    sortedStats.forEach(n -> dumpStat(n.getKey(), n.getValue(), out));
+                    sortedStats.forEach(n -> dumpStat(n.getKey(), n.getValue(), out, true));
                 }
                 out.close();
             }
             catch (IOException ioe) {
                 logger.warn("---> Could not write statistics for " + basename + ".");
             }
-        }
-
-        // Dump a single query's statistics to the specified PrintStream
-        private void dumpStat(Integer queryNum, ExecStatistics queryStats, PrintStream out) {
-            out.println("Query #" + queryNum);
-            out.println("Label: " + queryStats.getLabel());
-            out.println("Duration: " + queryStats.getDuration() + "ms");
-            out.println("StartTime: " + new Date(queryStats.getStartTime()));
-            out.println("Context node: " + queryStats.getContext().toString());
-            out.println("Query Text: " + queryStats.getQueryText().replaceAll("PREFIX.+\n", ""));
-            out.println("\n\n");
         }
     }
 }
