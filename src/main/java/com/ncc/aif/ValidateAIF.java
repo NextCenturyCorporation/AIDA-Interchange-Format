@@ -12,7 +12,9 @@ import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.util.FileUtils;
-import org.topbraid.jenax.statistics.*;
+import org.topbraid.jenax.statistics.ExecStatistics;
+import org.topbraid.jenax.statistics.ExecStatisticsListener;
+import org.topbraid.jenax.statistics.ExecStatisticsManager;
 import org.topbraid.shacl.validation.ValidationUtil;
 
 import java.io.File;
@@ -444,7 +446,7 @@ public final class ValidateAIF {
             dataToBeValidated.close();
         }
 
-        final ReturnCode returnCode = displaySummary(fileNum+nonTTLcount, invalidCount, skipCount+nonTTLcount);
+        final ReturnCode returnCode = displaySummary(fileNum + nonTTLcount, invalidCount, skipCount + nonTTLcount);
         System.exit(returnCode.ordinal());
     }
 
@@ -460,8 +462,7 @@ public final class ValidateAIF {
         try {
             RDFDataMgr.write(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)),
                     validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             logger.warn("---> Could not write validation report for " + fileToValidate + ".");
         }
         logger.info("--> Saved validation report to " + outputFilename);
@@ -508,8 +509,7 @@ public final class ValidateAIF {
         logger.info("\tInvalid KB(s): " + invalidCount);
         if (fileCount == validCount) {
             logger.info("*** All submitted KBs were valid. ***");
-        }
-        else if (fileCount == skipCount) {
+        } else if (fileCount == skipCount) {
             logger.info("*** No validation was performed. ***");
         }
 
@@ -602,7 +602,7 @@ public final class ValidateAIF {
      * A statistics collector for use in profiling TopBraid-based SHACL validation.  Typical usage is to call
      * {@link #startCollection()} and {@link #endCollection()} to bound statistics collection,
      * then call {@link #dump(String)} to dump slow query statistics to <filename>-stats.txt.
-     *
+     * <p>
      * This statistics collector only outputs slow queries via the {@link #dump(String)} method.  If you suspect
      * validation will not complete due to out of memory or other error conditions, consider using {@link ProgressiveStatsCollector}.
      */
@@ -612,6 +612,7 @@ public final class ValidateAIF {
 
         /**
          * Creates a statistics collector that saves queries slower than [threshold] ms to a file.
+         *
          * @param threshold the threshold definition of a slow query for this statistics collector
          */
         StatsCollector(int threshold) {
@@ -635,6 +636,7 @@ public final class ValidateAIF {
 
         /**
          * Dump all gathered slow query statistics to <basename>-stats.txt, starting with the slowest queries.
+         *
          * @param basename a file basename to determine the profiling output filename
          */
         void dump(String basename) {
@@ -643,8 +645,7 @@ public final class ValidateAIF {
                 final PrintStream out = new PrintStream(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)));
                 dumpStats(out);
                 out.close();
-            }
-            catch (IOException ioe) {
+            } catch (IOException ioe) {
                 logger.warn("---> Could not write statistics for " + basename + ".");
             }
         }
@@ -655,7 +656,7 @@ public final class ValidateAIF {
             final SortedSet<Map.Entry<Integer, ExecStatistics>> sortedStats = new TreeSet<>(
                     (e1, e2) -> Long.compare(e2.getValue().getDuration(), e1.getValue().getDuration()));
             List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
-            for (int i=0; i < stats.size(); i++) {
+            for (int i = 0; i < stats.size(); i++) {
                 if (stats.get(i).getDuration() > durationThreshold) {
                     savedStats.put(i, stats.get(i));
                 }
@@ -663,8 +664,7 @@ public final class ValidateAIF {
             if (savedStats.isEmpty()) {
                 out.println("There were no queries that took longer than " + durationThreshold + "ms (of "
                         + stats.size() + " queries overall).");
-            }
-            else {
+            } else {
                 out.println("Displaying " + savedStats.size() + " slow queries (of "
                         + stats.size() + " queries overall).");
                 sortedStats.addAll(savedStats.entrySet());
@@ -674,11 +674,11 @@ public final class ValidateAIF {
 
         // Dump a single query's statistics to the specified PrintStream
         void dumpStat(Integer queryNum, ExecStatistics queryStats, PrintStream out,
-                              boolean leadingSpaces) {
+                      boolean leadingSpaces) {
             if (leadingSpaces) {
                 out.println("\n");
             }
-            out.println("Query #" + queryNum+1);
+            out.println("Query #" + queryNum + 1);
             out.println("Label: " + queryStats.getLabel());
             out.println("Duration: " + queryStats.getDuration() + "ms");
             out.println("StartTime: " + new Date(queryStats.getStartTime()));
@@ -694,7 +694,7 @@ public final class ValidateAIF {
      * A statistics collector for use in profiling TopBraid-based SHACL validation.  Typical usage is to call
      * {@link #startCollection()} and {@link #endCollection()} to bound statistics collection,
      * then call {@link #dump(String)} to dump slow query statistics to <filename>-stats.txt.
-     *
+     * <p>
      * This statistics collector progressively dumps slow queries to stdout, which is useful if you suspect
      * the validation will not complete due to out of memory or other error conditions.
      */
@@ -704,6 +704,7 @@ public final class ValidateAIF {
 
         /**
          * Creates a statistics collector that progressively dumps queries slower than [threshold] ms to stdout.
+         *
          * @param threshold the threshold definition of a slow query for this statistics collector
          */
         ProgressiveStatsCollector(int threshold) {
@@ -734,7 +735,7 @@ public final class ValidateAIF {
          */
         public void statisticsUpdated() {
             final List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
-            final ExecStatistics statistic = stats.get(stats.size() -1);
+            final ExecStatistics statistic = stats.get(stats.size() - 1);
             if (statistic.getDuration() > durationThreshold) {
                 savedStats.put(stats.size(), statistic);
                 System.out.println("Dumping slow query #" + stats.size() + "; " + statistic.getDuration() + "ms.");
@@ -745,6 +746,7 @@ public final class ValidateAIF {
 
         /**
          * Dump all gathered slow query statistics to <basename>-stats.txt, starting with the slowest queries.
+         *
          * @param basename a file basename to determine the profiling output filename
          */
         @Override
@@ -756,8 +758,7 @@ public final class ValidateAIF {
                 if (savedStats.isEmpty()) {
                     out.println("There were no queries that took longer than " + durationThreshold + "ms (of "
                             + stats.size() + " queries overall).");
-                }
-                else {
+                } else {
                     out.println("Displaying " + savedStats.size() + " slow queries (of "
                             + stats.size() + " queries overall).");
                     final SortedSet<Map.Entry<Integer, ExecStatistics>> sortedStats = new TreeSet<>(
@@ -766,8 +767,7 @@ public final class ValidateAIF {
                     sortedStats.forEach(n -> dumpStat(n.getKey(), n.getValue(), out, true));
                 }
                 out.close();
-            }
-            catch (IOException ioe) {
+            } catch (IOException ioe) {
                 logger.warn("---> Could not write statistics for " + basename + ".");
             }
         }
