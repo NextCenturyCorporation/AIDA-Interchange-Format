@@ -943,9 +943,5 @@ def mark_ldc_time(g, to_mark, start, end, system):
     g.add((ldc_time, AIDA_ANNOTATION.end, end.make_aif_time_component(g)))
 
     g.add((to_mark, AIDA_ANNOTATION.ldcTime, ldc_time))
-
-    print("to_mark", type(to_mark))
-    print("start", type(start))
-    print("end", type(end))
-    print("returns", type(ldc_time))
+    
     return ldc_time
