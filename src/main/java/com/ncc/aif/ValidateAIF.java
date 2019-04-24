@@ -12,10 +12,14 @@ import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.util.FileUtils;
+import org.topbraid.jenax.statistics.ExecStatistics;
+import org.topbraid.jenax.statistics.ExecStatisticsListener;
+import org.topbraid.jenax.statistics.ExecStatisticsManager;
 import org.topbraid.shacl.validation.ValidationUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -54,6 +58,7 @@ public final class ValidateAIF {
     private static boolean initialized = false;
     private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
     private static final Property CONFORMS = ResourceFactory.createProperty("http://www.w3.org/ns/shacl#conforms");
+    private static final int LONG_QUERY_THRESH = 2000;
 
     private static void initializeSHACLModels() {
         if (!initialized) {
@@ -234,6 +239,12 @@ public final class ValidateAIF {
                     }
                     i += numFiles;
                     break;
+                case "-p": // NOTE: this flag is not documented in the README nor the Usage info
+                    flags.add(ArgumentFlags.PROFILING);
+                    break;
+                case "--p2": // NOTE: this flag is not documented in the README nor the Usage info
+                    flags.add(ArgumentFlags.PROGRESSIVE_PROFILING);
+                    break;
                 case "-f":
                     if (flags.contains(ArgumentFlags.DIRECTORY)) {
                         logger.error("Please specify either -d or -f, but not both.");
@@ -286,7 +297,7 @@ public final class ValidateAIF {
 
     // Command-line argument flags
     private enum ArgumentFlags {
-        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY, FILE_OUTPUT
+        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY, FILE_OUTPUT, PROFILING, PROGRESSIVE_PROFILING
     }
 
     /**
@@ -316,6 +327,7 @@ public final class ValidateAIF {
                 flags.contains(ArgumentFlags.HYPO) ? Restriction.NIST_HYPOTHESIS : Restriction.NIST;
         final boolean ldcFlag = flags.contains(ArgumentFlags.LDC);
         final boolean programFlag = flags.contains(ArgumentFlags.PROGRAM);
+        final boolean profiling = flags.contains(ArgumentFlags.PROFILING) || flags.contains(ArgumentFlags.PROGRESSIVE_PROFILING);
 
         // Finally, try to create the validator, but fail if required elements can't be loaded/parsed.
         ValidateAIF validator = null;
@@ -393,6 +405,9 @@ public final class ValidateAIF {
         } else {
             logger.info("-> Validation report for invalid KBs will be printed to stderr.");
         }
+        if (profiling) {
+            logger.info("-> Saving slow queries (> " + LONG_QUERY_THRESH + " ms) to <kbname>-stats.txt.");
+        }
         logger.info("*** Beginning validation of " + filesToValidate.size() + " file(s). ***");
 
         // Validate all files, noting I/O and other errors, but continue to validate even if one fails.
@@ -400,6 +415,8 @@ public final class ValidateAIF {
         int invalidCount = 0;
         int skipCount = 0;
         int fileNum = 0;
+        final StatsCollector stats = flags.contains(ArgumentFlags.PROGRESSIVE_PROFILING) ?
+                new ProgressiveStatsCollector(LONG_QUERY_THRESH) : new StatsCollector(LONG_QUERY_THRESH);
         for (File fileToValidate : filesToValidate) {
             Date date = Calendar.getInstance().getTime();
             logger.info("-> Validating " + fileToValidate + " at " + format.format(date) +
@@ -408,7 +425,14 @@ public final class ValidateAIF {
             boolean notSkipped = ((restriction != Restriction.NIST_HYPOTHESIS) || checkHypothesisSize(fileToValidate))
                     && loadFile(dataToBeValidated, fileToValidate);
             if (notSkipped) {
+                if (profiling) {
+                    stats.startCollection();
+                }
                 final Resource report = validator.validateKBAndReturnReport(dataToBeValidated);
+                if (profiling) {
+                    stats.endCollection();
+                    stats.dump(fileToValidate.toString());
+                }
                 if (!ValidateAIF.isValidReport(report)) {
                     logger.warn("---> Validation of " + fileToValidate + " failed.");
                     invalidCount++;
@@ -422,7 +446,7 @@ public final class ValidateAIF {
             dataToBeValidated.close();
         }
 
-        final ReturnCode returnCode = displaySummary(fileNum+nonTTLcount, invalidCount, skipCount+nonTTLcount);
+        final ReturnCode returnCode = displaySummary(fileNum + nonTTLcount, invalidCount, skipCount + nonTTLcount);
         System.exit(returnCode.ordinal());
     }
 
@@ -438,8 +462,7 @@ public final class ValidateAIF {
         try {
             RDFDataMgr.write(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)),
                     validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             logger.warn("---> Could not write validation report for " + fileToValidate + ".");
         }
         logger.info("--> Saved validation report to " + outputFilename);
@@ -486,8 +509,7 @@ public final class ValidateAIF {
         logger.info("\tInvalid KB(s): " + invalidCount);
         if (fileCount == validCount) {
             logger.info("*** All submitted KBs were valid. ***");
-        }
-        else if (fileCount == skipCount) {
+        } else if (fileCount == skipCount) {
             logger.info("*** No validation was performed. ***");
         }
 
@@ -573,5 +595,187 @@ public final class ValidateAIF {
      */
     public static boolean isValidReport(Resource validationReport) {
         return validationReport.getRequiredProperty(CONFORMS).getBoolean();
+    }
+
+
+    /**
+     * A statistics collector for use in profiling TopBraid-based SHACL validation.  Typical usage is to call
+     * {@link #startCollection()} and {@link #endCollection()} to bound statistics collection,
+     * then call {@link #dump(String)} to dump slow query statistics to <filename>-stats.txt.
+     * <p>
+     * This statistics collector only outputs slow queries via the {@link #dump(String)} method.  If you suspect
+     * validation will not complete due to out of memory or other error conditions, consider using {@link ProgressiveStatsCollector}.
+     */
+    private static class StatsCollector {
+
+        final int durationThreshold;
+
+        /**
+         * Creates a statistics collector that saves queries slower than [threshold] ms to a file.
+         *
+         * @param threshold the threshold definition of a slow query for this statistics collector
+         */
+        StatsCollector(int threshold) {
+            this.durationThreshold = threshold;
+        }
+
+        /**
+         * Start statistics collection.  Clears any previous statistics gathered by TopBraid statistics manager.
+         */
+        void startCollection() {
+            ExecStatisticsManager.get().reset();
+            ExecStatisticsManager.get().setRecording(true);
+        }
+
+        /**
+         * End statistics collection.
+         */
+        void endCollection() {
+            ExecStatisticsManager.get().setRecording(false);
+        }
+
+        /**
+         * Dump all gathered slow query statistics to <basename>-stats.txt, starting with the slowest queries.
+         *
+         * @param basename a file basename to determine the profiling output filename
+         */
+        void dump(String basename) {
+            final String outputFilename = basename.replace(".ttl", "-stats.txt");
+            try {
+                final PrintStream out = new PrintStream(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)));
+                dumpStats(out);
+                out.close();
+            } catch (IOException ioe) {
+                logger.warn("---> Could not write statistics for " + basename + ".");
+            }
+        }
+
+        // Dump stats to the specified PrintStream
+        private void dumpStats(PrintStream out) {
+            final SortedMap<Integer, ExecStatistics> savedStats = new TreeMap<>();
+            final SortedSet<Map.Entry<Integer, ExecStatistics>> sortedStats = new TreeSet<>(
+                    Collections.reverseOrder(Comparator.comparing(entry -> entry.getValue().getDuration())));
+            List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
+            for (int i = 0; i < stats.size(); i++) {
+                if (stats.get(i).getDuration() > durationThreshold) {
+                    savedStats.put(i, stats.get(i));
+                }
+            }
+            if (savedStats.isEmpty()) {
+                out.println("There were no queries that took longer than " + durationThreshold + "ms (of "
+                        + stats.size() + " queries overall).");
+            } else {
+                out.println("Displaying " + savedStats.size() + " slow queries (of "
+                        + stats.size() + " queries overall).");
+                sortedStats.addAll(savedStats.entrySet());
+                sortedStats.forEach(n -> dumpStat(n.getKey(), n.getValue(), out, true));
+            }
+        }
+
+        /**
+         * Dump a single query's statistics to the specified PrintStream
+         * @param queryNum the query number showing where it occurred chronologically in validation
+         * @param queryStats statistics about the query returned by TopBraid
+         * @param out a PrintStream to dump the query statistics
+         * @param leadingSpaces whether to print leading or trailing spaces
+         */
+        void dumpStat(Integer queryNum, ExecStatistics queryStats, PrintStream out,
+                      boolean leadingSpaces) {
+            if (leadingSpaces) {
+                out.println("\n");
+            }
+            out.println("Query #" + (queryNum + 1));
+            out.println("Label: " + queryStats.getLabel());
+            out.println("Duration: " + queryStats.getDuration() + "ms");
+            out.println("StartTime: " + new Date(queryStats.getStartTime()));
+            out.println("Context node: " + queryStats.getContext().toString());
+            out.println("Query Text: " + queryStats.getQueryText().replaceAll("PREFIX.+\n", ""));
+            if (!leadingSpaces) {
+                out.println("\n");
+            }
+        }
+    }
+
+    /**
+     * A statistics collector for use in profiling TopBraid-based SHACL validation.  Typical usage is to call
+     * {@link #startCollection()} and {@link #endCollection()} to bound statistics collection,
+     * then call {@link #dump(String)} to dump slow query statistics to <filename>-stats.txt.
+     * <p>
+     * This statistics collector progressively dumps slow queries to stdout, which is useful if you suspect
+     * the validation will not complete due to out of memory or other error conditions.
+     */
+    private static class ProgressiveStatsCollector extends StatsCollector implements ExecStatisticsListener {
+
+        private final SortedMap<Integer, ExecStatistics> savedStats = new TreeMap<>();
+
+        /**
+         * Creates a statistics collector that progressively dumps queries slower than [threshold] ms to stdout.
+         *
+         * @param threshold the threshold definition of a slow query for this statistics collector
+         */
+        ProgressiveStatsCollector(int threshold) {
+            super(threshold);
+        }
+
+        /**
+         * Start statistics collection.  Clears any previous statistics gathered by TopBraid statistics manager.
+         */
+        @Override
+        void startCollection() {
+            savedStats.clear();
+            super.startCollection();
+            ExecStatisticsManager.get().addListener(this);
+        }
+
+        /**
+         * End statistics collection.
+         */
+        @Override
+        void endCollection() {
+            super.endCollection();
+            ExecStatisticsManager.get().removeListener(this);
+        }
+
+        /**
+         * Receives notification that a TopBraid query statistic has been generated.
+         */
+        public void statisticsUpdated() {
+            final List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
+            final ExecStatistics statistic = stats.get(stats.size() - 1);
+            if (statistic.getDuration() > durationThreshold) {
+                savedStats.put(stats.size(), statistic);
+                System.out.println("Dumping slow query #" + stats.size() + "; " + statistic.getDuration() + "ms.");
+                dumpStat(stats.size(), statistic, System.out, false);
+                System.out.flush(); // Make sure stdout gets displayed even if we eventually run out of memory
+            }
+        }
+
+        /**
+         * Dump all gathered slow query statistics to <basename>-stats.txt, starting with the slowest queries.
+         *
+         * @param basename a file basename to determine the profiling output filename
+         */
+        @Override
+        void dump(String basename) {
+            final String outputFilename = basename.replace(".ttl", "-stats.txt");
+            try {
+                final List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
+                final PrintStream out = new PrintStream(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)));
+                if (savedStats.isEmpty()) {
+                    out.println("There were no queries that took longer than " + durationThreshold + "ms (of "
+                            + stats.size() + " queries overall).");
+                } else {
+                    out.println("Displaying " + savedStats.size() + " slow queries (of "
+                            + stats.size() + " queries overall).");
+                    final SortedSet<Map.Entry<Integer, ExecStatistics>> sortedStats = new TreeSet<>(
+                            Collections.reverseOrder(Comparator.comparing(entry -> entry.getValue().getDuration())));
+                    sortedStats.addAll(savedStats.entrySet());
+                    sortedStats.forEach(n -> dumpStat(n.getKey(), n.getValue(), out, true));
+                }
+                out.close();
+            } catch (IOException ioe) {
+                logger.warn("---> Could not write statistics for " + basename + ".");
+            }
+        }
     }
 }
