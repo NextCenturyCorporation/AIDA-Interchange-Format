@@ -654,7 +654,7 @@ public final class ValidateAIF {
         private void dumpStats(PrintStream out) {
             final SortedMap<Integer, ExecStatistics> savedStats = new TreeMap<>();
             final SortedSet<Map.Entry<Integer, ExecStatistics>> sortedStats = new TreeSet<>(
-                    (e1, e2) -> Long.compare(e2.getValue().getDuration(), e1.getValue().getDuration()));
+                    Collections.reverseOrder(Comparator.comparing(entry -> entry.getValue().getDuration())));
             List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
             for (int i = 0; i < stats.size(); i++) {
                 if (stats.get(i).getDuration() > durationThreshold) {
@@ -672,7 +672,13 @@ public final class ValidateAIF {
             }
         }
 
-        // Dump a single query's statistics to the specified PrintStream
+        /**
+         * Dump a single query's statistics to the specified PrintStream
+         * @param queryNum the query number showing where it occurred chronologically in validation
+         * @param queryStats statistics about the query returned by TopBraid
+         * @param out a PrintStream to dump the query statistics
+         * @param leadingSpaces whether to print leading or trailing spaces
+         */
         void dumpStat(Integer queryNum, ExecStatistics queryStats, PrintStream out,
                       boolean leadingSpaces) {
             if (leadingSpaces) {
@@ -762,7 +768,7 @@ public final class ValidateAIF {
                     out.println("Displaying " + savedStats.size() + " slow queries (of "
                             + stats.size() + " queries overall).");
                     final SortedSet<Map.Entry<Integer, ExecStatistics>> sortedStats = new TreeSet<>(
-                            (e1, e2) -> Long.compare(e2.getValue().getDuration(), e1.getValue().getDuration()));
+                            Collections.reverseOrder(Comparator.comparing(entry -> entry.getValue().getDuration())));
                     sortedStats.addAll(savedStats.entrySet());
                     sortedStats.forEach(n -> dumpStat(n.getKey(), n.getValue(), out, true));
                 }
