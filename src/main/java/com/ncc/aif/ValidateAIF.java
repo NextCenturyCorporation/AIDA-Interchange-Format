@@ -684,7 +684,7 @@ public final class ValidateAIF {
             if (leadingSpaces) {
                 out.println("\n");
             }
-            out.println("Query #" + queryNum + 1);
+            out.println("Query #" + (queryNum + 1));
             out.println("Label: " + queryStats.getLabel());
             out.println("Duration: " + queryStats.getDuration() + "ms");
             out.println("StartTime: " + new Date(queryStats.getStartTime()));
