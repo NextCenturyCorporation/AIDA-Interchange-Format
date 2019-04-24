@@ -8,6 +8,7 @@ from io import BytesIO
 from rdflib import URIRef, Graph, RDF
 from aida_interchange.Bounding_Box import Bounding_Box
 from aida_interchange.aida_rdf_ontologies import SEEDLING_TYPES_NIST
+from aida_interchange.LDCTimeComponent import LDCTimeComponent, LDCTimeType
 from aida_interchange import aifutils
 
 
@@ -693,6 +694,31 @@ class Examples(unittest.TestCase):
 
         self.new_file(g, "test_create_a_cluster_with_link_and_confidence.ttl")
         self.dump_graph(g, "create a cluster with link and confidence")
+
+
+    def test_create_an_event_with_ldc_time(self):
+        g = aifutils.make_graph()
+        g.bind('ldcOnt', SEEDLING_TYPES_NIST.uri)
+
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
+
+        # create a start position event with unknown start and end time
+        event_start_position = aifutils.make_event(g, "http://www.test.edu/event/1", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/1", event_start_position, SEEDLING_TYPES_NIST['Personnel.StartPosition'], system, 1.0)
+        unkown = LDCTimeComponent(LDCTimeType.UNKONWN, None, None, None)
+        endBefore = LDCTimeComponent(LDCTimeType.BEFORE, "2016", None, None)
+        aifutils.mark_ldc_time(g, event_start_position, unkown, endBefore, system)
+
+        # create an attack event with an unkown start date, but definite end date
+        event_attack_unknown = aifutils.make_event(g, "http://www.test.edu/event/2", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/2", event_attack_unknown, SEEDLING_TYPES_NIST['Conflict.Attack'], system, 1.0)
+        start = LDCTimeComponent(LDCTimeType.AFTER, "2014", "--02", None)
+        end = LDCTimeComponent(LDCTimeType.ON, "2014", "--02", "---21")
+        aifutils.mark_ldc_time(g, event_attack_unknown, start, end, system)
+
+        self.new_file(g, "test_create_an_event_with_ldc_time.ttl")
+        self.dump_graph(g, "create an event with LDCTime")
 
 
     def dump_graph(self, g, description):

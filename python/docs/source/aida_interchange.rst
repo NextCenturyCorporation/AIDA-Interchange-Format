@@ -12,6 +12,14 @@ aida\_interchange.Bounding\_Box module
     :undoc-members:
     :show-inheritance:
 
+aida\_interchange.LDCTimeComponent module
+-----------------------------------------
+
+.. automodule:: aida_interchange.LDCTimeComponent
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 aida\_interchange.aida\_rdf\_ontologies module
 ----------------------------------------------
 

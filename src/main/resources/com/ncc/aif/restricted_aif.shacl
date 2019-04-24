@@ -228,4 +228,31 @@ aida:JustificationSourceDocumentShape
 # Each entity/filler name string is limited to 256 UTF-8 characters
 #------------------------
 aida:NamePropertyShape
-  sh:maxLength 256;
+  sh:maxLength 256 .
+
+#########################
+# Each Cluster, Entity, Event, or Relation can specify up to one informative mention per document as long as each
+# informative mention points to a different sourceDocument
+#------------------------
+aida:InformativeJustificationMembersUniqueParentDoc
+    a sh:SPARQLConstraint ;
+    sh:message "Each Cluster, Entity, Event, or Relation can specify up to one informative mention per document as long as each informative mention points to a different sourceDocument" ;
+    sh:select """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+      	SELECT $this
+      	WHERE {
+      	    $this aida:informativeJustification ?mentions .
+      	    ?mentions aida:sourceDocument ?parentDoc
+      	}
+      	GROUP BY $this
+      	HAVING (COUNT(DISTINCT ?parentDoc) < COUNT(DISTINCT ?mentions))
+    """
+    .
+
+aida:InformativeJustificationMembersShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf aida:informativeJustification ;
+    sh:sparql aida:InformativeJustificationMembersUniqueParentDoc .
+
+

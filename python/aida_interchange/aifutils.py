@@ -375,7 +375,7 @@ def make_image_justification(g, doc_id, boundingbox, system, confidence,
     :param rdflib.graph.Graph g: The underlying RDF model
     :param str doc_id: A string containing the document element (child) ID of 
         the source of the justification
-    :param aida_interchange.Bounding_Box.Bounding_Box boundingbox: A rectangular box 
+    :param Bounding_Box boundingbox: A rectangular box 
         within the image that bounds the justification
     :param rdflib.term.URIRef system: The system object for the system which made 
         this justification
@@ -402,7 +402,7 @@ def mark_image_justification(g, things_to_justify, doc_id, boundingbox, system,
         specified image document
     :param str doc_id: A string containing the document element (child) ID of 
         the source of the justification
-    :param aida_interchange.Bounding_Box.Bounding_Box boundingbox: A rectangular box 
+    :param Bounding_Box boundingbox: A rectangular box 
         within the image that bounds the justification
     :param rdflib.term.URIRef system: The system object for the system which marked
         this justification
@@ -488,7 +488,7 @@ def make_keyframe_video_justification(g, doc_id, key_frame, boundingbox, system,
     :param str doc_id: A string containing the document element (child) ID of 
         the source of the justification
     :param str key_frame: The string Id of the key frame of the specified video document
-    :param aida_interchange.Bounding_Box.Bounding_Box boundingbox: A rectangular box within 
+    :param Bounding_Box boundingbox: A rectangular box within 
         the key frame that bounds the justification
     :param rdflib.term.URIRef system: The system object for the system which marked
         this justification
@@ -517,7 +517,7 @@ def mark_keyframe_video_justification(g, things_to_justify, doc_id, key_frame, b
     :param str doc_id: A string containing the document element (child) ID of 
         the source of the justification
     :param str key_frame: The string Id of the key frame of the specified video document
-    :param aida_interchange.Bounding_Box.Bounding_Box boundingbox: A rectangular box within 
+    :param Bounding_Box boundingbox: A rectangular box within 
         the key frame that bounds the justification
     :param rdflib.term.URIRef system: The system object for the system which marked
         this justification
@@ -862,8 +862,8 @@ def _make_aif_resource(g, uri, class_type, system):
     else:
         resource = URIRef(uri)
     g.add((resource, RDF.type, class_type))
-    mark_system(g, resource, system)
-
+    if system is not None:
+        mark_system(g, resource, system)
     return resource
 
 
@@ -922,5 +922,30 @@ def get_confidences(g, confidenced_object):
         confidence assertions
     :returns: A list of confidence assertions describing this object.
     :rtype: list
-  """
+    """
     return list(g.objects(confidenced_object, AIDA_ANNOTATION.confidence))
+
+
+def mark_ldc_time(g, to_mark, start, end, system):
+    """
+    Add LDC start and end time representation to an Event or Relation
+
+    :param rdflib.graph.Graph g: The underlying RDF model
+    :param rdflib.term.URIRef to_mark: The Event or Realtion to add the LDC time data to
+    :param LDCTimeComponent start: containing the start time information
+    :param LDCTimeComponent end: containing the end time information
+    :param rdflib.term.URIRef  system: The system object for the system which marks the time
+    :returns: The LDCTimeComponent resource
+    :rtype: rdflib.term.BNode
+    """
+    ldc_time = _make_aif_resource(g, None, AIDA_ANNOTATION.LDCTime, system)
+    g.add((ldc_time, AIDA_ANNOTATION.start, start.make_aif_time_component(g)))
+    g.add((ldc_time, AIDA_ANNOTATION.end, end.make_aif_time_component(g)))
+
+    g.add((to_mark, AIDA_ANNOTATION.ldcTime, ldc_time))
+
+    print("to_mark", type(to_mark))
+    print("start", type(start))
+    print("end", type(end))
+    print("returns", type(ldc_time))
+    return ldc_time
