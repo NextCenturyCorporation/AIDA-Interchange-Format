@@ -651,11 +651,11 @@ public final class ValidateAIF {
             final SortedSet<Map.Entry<Integer, ExecStatistics>> sortedStats = new TreeSet<>(
                     (e1, e2) -> Long.compare(e2.getValue().getDuration(), e1.getValue().getDuration()));
             List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
-            stats.forEach(n -> {
-                if (n.getDuration() > durationThreshold) {
-                    savedStats.put(stats.indexOf(n), n);
+            for (int i=0; i < stats.size(); i++) {
+                if (stats.get(i).getDuration() > durationThreshold) {
+                    savedStats.put(i, stats.get(i));
                 }
-            });
+            }
             if (savedStats.isEmpty()) {
                 out.println("There were no queries that took longer than " + durationThreshold + "ms (of "
                         + stats.size() + " queries overall).");
