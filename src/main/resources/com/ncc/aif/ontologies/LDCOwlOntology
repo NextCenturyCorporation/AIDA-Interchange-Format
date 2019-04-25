@@ -1,5 +1,5 @@
 ######################################################
-# Created by com.ncc.verdi.ldc.LDCOntology on 2019-04-22T20:08:01.574Z
+# Created by com.ncc.verdi.ldc.LDCOntology on 2019-04-24T19:36:31.790Z
 # For more information about this file, refer to:
 # https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/tree/master/src/main/resources/com/ncc/aif/ontologies/README.md
 ######################################################
@@ -23,518 +23,518 @@ ldcOnt:BAL  a            owl:Class ;
 
 ldcOnt:BAL.BallotSlate.BallotSlate
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:BAL .
 
 ldcOnt:BAL.PaperBallot.PaperBallot
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:BAL .
 
 ldcOnt:COM  a            owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
 
 ldcOnt:COM.Document  a   owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:COM .
 
 ldcOnt:COM.Document.Map
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:COM.Document .
 
 ldcOnt:COM.Document.PersonalIdentification
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:COM.Document .
 
 ldcOnt:COM.Equipment  a  owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:COM .
 
 ldcOnt:COM.Equipment.HumanitarianAid
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:COM.Equipment .
 
 ldcOnt:COM.Equipment.MedicalEquipment
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:COM.Equipment .
 
 ldcOnt:COM.Equipment.MilitaryEquipment
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:COM.Equipment .
 
 ldcOnt:COM.Equipment.Satellite
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:COM.Equipment .
 
 ldcOnt:COM.Flag.Flag  a  owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:COM .
 
 ldcOnt:COM.Wreckage.Wreckage
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:COM .
 
 ldcOnt:CRM  a            owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
 
 ldcOnt:CRM.BehaviorCrime
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:CRM .
 
 ldcOnt:CRM.BehaviorCrime.FailToAssist
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:CRM.BehaviorCrime .
 
 ldcOnt:CRM.BehaviorCrime.OrganizedCrime
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:CRM.BehaviorCrime .
 
 ldcOnt:CRM.FinancialCrime
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:CRM .
 
 ldcOnt:CRM.FinancialCrime.Extortion
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:CRM.FinancialCrime .
 
 ldcOnt:CRM.FinancialCrime.Forgery
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:CRM.FinancialCrime .
 
 ldcOnt:CRM.FinancialCrime.Fraud
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:CRM.FinancialCrime .
 
 ldcOnt:CRM.PoliticalCrime
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:CRM .
 
 ldcOnt:CRM.PoliticalCrime.AbuseOfOffice
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:CRM.PoliticalCrime .
 
 ldcOnt:CRM.PoliticalCrime.PoliceMisconduct
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:CRM.PoliticalCrime .
 
 ldcOnt:CRM.ViolentCrime
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:CRM .
 
 ldcOnt:CRM.ViolentCrime.Terrorism
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:CRM.ViolentCrime .
 
 ldcOnt:FAC  a            owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
 
 ldcOnt:FAC.Building  a   owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC .
 
 ldcOnt:FAC.Building.ApartmentBuilding
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC.Building .
 
 ldcOnt:FAC.Building.GovernmentBuilding
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC.Building .
 
 ldcOnt:FAC.Building.House
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC.Building .
 
 ldcOnt:FAC.Building.OfficeBuilding
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC.Building .
 
 ldcOnt:FAC.Building.School
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC.Building .
 
 ldcOnt:FAC.Building.StoreShop
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC.Building .
 
 ldcOnt:FAC.Building.VotingFacility
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC.Building .
 
 ldcOnt:FAC.GeographicalArea
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC .
 
 ldcOnt:FAC.GeographicalArea.Border
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC.GeographicalArea .
 
 ldcOnt:FAC.GeographicalArea.Checkpoint
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC.GeographicalArea .
 
 ldcOnt:FAC.Installation
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC .
 
 ldcOnt:FAC.Installation.Airport
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC.Installation .
 
 ldcOnt:FAC.Installation.MilitaryInstallation
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC.Installation .
 
 ldcOnt:FAC.Installation.TrainStation
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC.Installation .
 
 ldcOnt:FAC.Structure  a  owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC .
 
 ldcOnt:FAC.Structure.Barricade
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC.Structure .
 
 ldcOnt:FAC.Structure.Bridge
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC.Structure .
 
 ldcOnt:FAC.Structure.Plaza
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC.Structure .
 
 ldcOnt:FAC.Structure.Tower
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC.Structure .
 
 ldcOnt:FAC.Way  a        owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC .
 
 ldcOnt:FAC.Way.Highway
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC.Way .
 
 ldcOnt:FAC.Way.Street
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:FAC.Way .
 
 ldcOnt:GPE  a            owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
 
 ldcOnt:GPE.Country.Country
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:GPE .
 
 ldcOnt:GPE.OrganizationOfCountries.OrganizationOfCountries
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:GPE .
 
 ldcOnt:GPE.ProvinceState.ProvinceState
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:GPE .
 
 ldcOnt:GPE.UrbanArea  a  owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:GPE .
 
 ldcOnt:GPE.UrbanArea.City
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:GPE.UrbanArea .
 
 ldcOnt:GPE.UrbanArea.Village
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:GPE.UrbanArea .
 
 ldcOnt:LAW  a            owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
 
 ldcOnt:LAW.Referendum.Referendum
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:LAW .
 
 ldcOnt:LOC  a            owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
 
 ldcOnt:LOC.GeographicPoint
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:LOC .
 
 ldcOnt:LOC.GeographicPoint.Address
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:LOC.GeographicPoint .
 
 ldcOnt:LOC.Land  a       owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:LOC .
 
 ldcOnt:LOC.Land.Continent
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:LOC.Land .
 
 ldcOnt:LOC.Position  a   owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:LOC .
 
 ldcOnt:LOC.Position.AirSpace
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:LOC.Position .
 
 ldcOnt:LOC.Position.CrimeScene
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:LOC.Position .
 
 ldcOnt:LOC.Position.Field
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:LOC.Position .
 
 ldcOnt:LOC.Position.Neighborhood
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:LOC.Position .
 
 ldcOnt:LOC.Position.Region
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:LOC.Position .
 
 ldcOnt:MON  a            owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , aidaDomainCommon:EntityType .
 
 ldcOnt:MON.Assets.Assets
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , ldcOnt:MON .
 
 ldcOnt:MON.Cash.Cash  a  owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , ldcOnt:MON .
 
 ldcOnt:ORG  a            owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
 
 ldcOnt:ORG.Association
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG .
 
 ldcOnt:ORG.Association.Club
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.Association .
 
 ldcOnt:ORG.Association.Team
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.Association .
 
 ldcOnt:ORG.CommercialOrganization
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG .
 
 ldcOnt:ORG.CommercialOrganization.BroadcastingCompany
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.CommercialOrganization .
 
 ldcOnt:ORG.CommercialOrganization.Corporation
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.CommercialOrganization .
 
 ldcOnt:ORG.CommercialOrganization.Manufacturer
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.CommercialOrganization .
 
 ldcOnt:ORG.CommercialOrganization.NewsAgency
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.CommercialOrganization .
 
 ldcOnt:ORG.CriminalOrganization.CriminalOrganization
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG .
 
 ldcOnt:ORG.Government
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG .
 
 ldcOnt:ORG.Government.Agency
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.Government .
 
 ldcOnt:ORG.Government.Council
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.Government .
 
 ldcOnt:ORG.Government.FireDepartment
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.Government .
 
 ldcOnt:ORG.Government.LawEnforcementAgency
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.Government .
 
 ldcOnt:ORG.Government.LegislativeBody
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.Government .
 
 ldcOnt:ORG.Government.ProsecutorOffice
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.Government .
 
 ldcOnt:ORG.Government.Railway
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.Government .
 
 ldcOnt:ORG.International
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG .
 
 ldcOnt:ORG.International.Commission
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.International .
 
 ldcOnt:ORG.International.MonitoringGroup
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.International .
 
 ldcOnt:ORG.MilitaryOrganization
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG .
 
 ldcOnt:ORG.MilitaryOrganization.GovernmentArmedForces
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.MilitaryOrganization .
 
 ldcOnt:ORG.MilitaryOrganization.Intelligence
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.MilitaryOrganization .
 
 ldcOnt:ORG.MilitaryOrganization.NonGovernmentMilitia
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.MilitaryOrganization .
 
 ldcOnt:ORG.PoliticalOrganization
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG .
 
 ldcOnt:ORG.PoliticalOrganization.Court
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.PoliticalOrganization .
 
 ldcOnt:ORG.PoliticalOrganization.Party
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:ORG.PoliticalOrganization .
 
 ldcOnt:PER  a            owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
 
 ldcOnt:PER.Combatant  a  owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER .
 
 ldcOnt:PER.Combatant.Mercenary
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER.Combatant .
 
 ldcOnt:PER.Combatant.Sniper
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER.Combatant .
 
 ldcOnt:PER.Fan  a        owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER .
 
 ldcOnt:PER.Fan.SportsFan
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER.Fan .
 
 ldcOnt:PER.MilitaryPersonnel
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER .
 
 ldcOnt:PER.MilitaryPersonnel.MilitaryOfficer
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER.MilitaryPersonnel .
 
 ldcOnt:PER.Police  a     owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER .
 
 ldcOnt:PER.Police.ChiefOfPolice
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER.Police .
 
 ldcOnt:PER.Politician
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER .
 
 ldcOnt:PER.Politician.Governor
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER.Politician .
 
 ldcOnt:PER.Politician.HeadOfGovernment
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER.Politician .
 
 ldcOnt:PER.Politician.Mayor
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER.Politician .
 
 ldcOnt:PER.ProfessionalPosition
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER .
 
 ldcOnt:PER.ProfessionalPosition.Ambassador
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER.ProfessionalPosition .
 
 ldcOnt:PER.ProfessionalPosition.Firefighter
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER.ProfessionalPosition .
 
 ldcOnt:PER.ProfessionalPosition.Journalist
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER.ProfessionalPosition .
 
 ldcOnt:PER.ProfessionalPosition.Minister
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER.ProfessionalPosition .
 
 ldcOnt:PER.ProfessionalPosition.Paramedic
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER.ProfessionalPosition .
 
 ldcOnt:PER.ProfessionalPosition.Scientist
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER.ProfessionalPosition .
 
 ldcOnt:PER.ProfessionalPosition.Spokesperson
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER.ProfessionalPosition .
 
 ldcOnt:PER.ProfessionalPosition.Spy
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER.ProfessionalPosition .
 
 ldcOnt:PER.Protester  a  owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER .
 
 ldcOnt:PER.Protester.ProtestLeader
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:PER.Protester .
 
 ldcOnt:RES  a            owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , aidaDomainCommon:EntityType .
 
 ldcOnt:RES.NumberPercentageVotes.NumberPercentageVotes
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , ldcOnt:RES .
 
 ldcOnt:RES.TurnoutVoters.TurnoutVoters
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , ldcOnt:RES .
 
 ldcOnt:SID  a            owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
 
 ldcOnt:SID.Cultural.Cultural
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:SID .
 
 ldcOnt:SID.Ideological.Ideological
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:SID .
 
 ldcOnt:SID.Political.Opposition
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:SID .
 
 ldcOnt:SID.Religious.Religious
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:SID .
 
 ldcOnt:SID.Sports.Sports
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:SID .
 
 ldcOnt:TTL  a            owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
@@ -544,197 +544,196 @@ ldcOnt:VAL  a            owl:Class ;
 
 ldcOnt:VAL.Number.Number
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , ldcOnt:VAL .
 
 ldcOnt:VEH  a            owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
 
 ldcOnt:VEH.Aircraft  a   owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH .
 
 ldcOnt:VEH.Aircraft.Airplane
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH.Aircraft .
 
 ldcOnt:VEH.Aircraft.CargoAircraft
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH.Aircraft .
 
 ldcOnt:VEH.Aircraft.Helicopter
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH.Aircraft .
 
 ldcOnt:VEH.MilitaryVehicle
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH .
 
 ldcOnt:VEH.MilitaryVehicle.FighterAircraft
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH.MilitaryVehicle .
 
 ldcOnt:VEH.MilitaryVehicle.MilitaryBoat
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH.MilitaryVehicle .
 
 ldcOnt:VEH.MilitaryVehicle.MilitaryTransportAircraft
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH.MilitaryVehicle .
 
 ldcOnt:VEH.MilitaryVehicle.Tank
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH.MilitaryVehicle .
 
 ldcOnt:VEH.Rocket.Rocket
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH .
 
 ldcOnt:VEH.Watercraft
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH .
 
 ldcOnt:VEH.Watercraft.Boat
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH.Watercraft .
 
 ldcOnt:VEH.Watercraft.Yacht
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH.Watercraft .
 
 ldcOnt:VEH.WheeledVehicle
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH .
 
 ldcOnt:VEH.WheeledVehicle.Bus
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH.WheeledVehicle .
 
 ldcOnt:VEH.WheeledVehicle.Car
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH.WheeledVehicle .
 
 ldcOnt:VEH.WheeledVehicle.FireApparatus
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH.WheeledVehicle .
 
 ldcOnt:VEH.WheeledVehicle.Train
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH.WheeledVehicle .
 
 ldcOnt:VEH.WheeledVehicle.Truck
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:VEH.WheeledVehicle .
 
 ldcOnt:WEA  a            owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
 
 ldcOnt:WEA.Bomb  a       owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA .
 
 ldcOnt:WEA.Bomb.Grenade
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA.Bomb .
 
 ldcOnt:WEA.Bomb.MolotovCocktail
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA.Bomb .
 
 ldcOnt:WEA.Bullets  a    owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA .
 
 ldcOnt:WEA.Bullets.Ammunition
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA.Bullets .
 
 ldcOnt:WEA.Bullets.LiveRounds
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA.Bullets .
 
 ldcOnt:WEA.Bullets.RubberBullets
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA.Bullets .
 
 ldcOnt:WEA.Cannon.Cannon
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA .
 
 ldcOnt:WEA.Club  a       owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA .
 
 ldcOnt:WEA.Club.Bat  a   owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA.Club .
 
 ldcOnt:WEA.DaggerKnifeSword
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA .
 
 ldcOnt:WEA.DaggerKnifeSword.Hatchet
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA.DaggerKnifeSword .
 
 ldcOnt:WEA.Gas  a        owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA .
 
 ldcOnt:WEA.Gas.PoisonGas
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA.Gas .
 
 ldcOnt:WEA.Gas.TearGas
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA.Gas .
 
 ldcOnt:WEA.GrenadeLauncher.GrenadeLauncher
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA .
 
 ldcOnt:WEA.Gun  a        owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA .
 
 ldcOnt:WEA.Gun.Artillery
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA.Gun .
 
 ldcOnt:WEA.Gun.Firearm
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA.Gun .
 
 ldcOnt:WEA.MissileSystem
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA .
 
 ldcOnt:WEA.MissileSystem.AirToAirMissile
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA.MissileSystem .
 
 ldcOnt:WEA.MissileSystem.AntiAircraftMissle
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA.MissileSystem .
 
 ldcOnt:WEA.MissileSystem.Missile
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA.MissileSystem .
 
 ldcOnt:WEA.MissileSystem.MissileLauncher
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA.MissileSystem .
 
 ldcOnt:WEA.MissileSystem.SurfaceToAirMissile
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA.MissileSystem .
 
 ldcOnt:WEA.ThrownProjectile
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA .
 
 ldcOnt:WEA.ThrownProjectile.Rock
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:WEA.ThrownProjectile .
 
 ######################################################
 # Relation types
 ######################################################
 ldcOnt:Evaluate.Deliberateness.Accidental
         a                owl:Class ;
-        rdfs:label       "Evaluate.Deliberateness.Accidental" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -753,7 +752,6 @@ ldcOnt:Evaluate.Deliberateness.Accidental
 
 ldcOnt:Evaluate.Deliberateness.Deliberate
         a                owl:Class ;
-        rdfs:label       "Evaluate.Deliberateness.Deliberate" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -772,7 +770,6 @@ ldcOnt:Evaluate.Deliberateness.Deliberate
 
 ldcOnt:Evaluate.Legitimacy.Illegitimate
         a                owl:Class ;
-        rdfs:label       "Evaluate.Legitimacy.Illegitimate" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -791,7 +788,6 @@ ldcOnt:Evaluate.Legitimacy.Illegitimate
 
 ldcOnt:Evaluate.Legitimacy.Legitimate
         a                owl:Class ;
-        rdfs:label       "Evaluate.Legitimacy.Legitimate" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -810,7 +806,6 @@ ldcOnt:Evaluate.Legitimacy.Legitimate
 
 ldcOnt:Evaluate.Sentiment.Negative
         a                owl:Class ;
-        rdfs:label       "Evaluate.Sentiment.Negative" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -829,7 +824,6 @@ ldcOnt:Evaluate.Sentiment.Negative
 
 ldcOnt:Evaluate.Sentiment.Positive
         a                owl:Class ;
-        rdfs:label       "Evaluate.Sentiment.Positive" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -848,7 +842,6 @@ ldcOnt:Evaluate.Sentiment.Positive
 
 ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation
         a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -867,8 +860,7 @@ ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation
 
 ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.ControlTerritory
         a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.ControlTerritory" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Controller" ;
@@ -886,8 +878,7 @@ ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.Cont
 
 ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.NationalityCitizen
         a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.NationalityCitizen" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Nationality" ;
@@ -905,8 +896,7 @@ ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.Nati
 
 ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.OwnershipPossession
         a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.OwnershipPossession" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Owner" ;
@@ -924,7 +914,6 @@ ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.Owne
 
 ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity
         a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.MemberOriginReligionEthnicity" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -943,8 +932,7 @@ ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity
 
 ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.Ethnicity
         a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.MemberOriginReligionEthnicity.Ethnicity" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Ethnicity" ;
@@ -962,8 +950,7 @@ ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.Ethnicity
 
 ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.NationalityCitizen
         a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.MemberOriginReligionEthnicity.NationalityCitizen" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Citizen" ;
@@ -981,7 +968,6 @@ ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.NationalityCitizen
 
 ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation
         a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.OrganizationPoliticalReligiousAffiliation" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -1000,8 +986,7 @@ ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation
 
 ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation.NationalityCitizen
         a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.OrganizationPoliticalReligiousAffiliation.NationalityCitizen" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Organization" ;
@@ -1019,7 +1004,6 @@ ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation.NationalityC
 
 ldcOnt:GeneralAffiliation.OrganizationWebsite.OrganizationWebsite
         a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.OrganizationWebsite.OrganizationWebsite" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -1038,7 +1022,6 @@ ldcOnt:GeneralAffiliation.OrganizationWebsite.OrganizationWebsite
 
 ldcOnt:GeneralAffiliation.Sponsorship
         a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.Sponsorship" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -1057,8 +1040,7 @@ ldcOnt:GeneralAffiliation.Sponsorship
 
 ldcOnt:GeneralAffiliation.Sponsorship.AdvisePlanOrganize
         a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.Sponsorship.AdvisePlanOrganize" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:GeneralAffiliation.Sponsorship ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "ActorOrEvent" ;
@@ -1076,8 +1058,7 @@ ldcOnt:GeneralAffiliation.Sponsorship.AdvisePlanOrganize
 
 ldcOnt:GeneralAffiliation.Sponsorship.Affiliated
         a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.Sponsorship.Affiliated" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:GeneralAffiliation.Sponsorship ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Sponsor" ;
@@ -1095,8 +1076,7 @@ ldcOnt:GeneralAffiliation.Sponsorship.Affiliated
 
 ldcOnt:GeneralAffiliation.Sponsorship.HelpSupport
         a                owl:Class ;
-        rdfs:label       "GeneralAffiliation.Sponsorship.HelpSupport" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:GeneralAffiliation.Sponsorship ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Sponsor" ;
@@ -1114,7 +1094,6 @@ ldcOnt:GeneralAffiliation.Sponsorship.HelpSupport
 
 ldcOnt:Information.Color.Color
         a                owl:Class ;
-        rdfs:label       "Information.Color.Color" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -1133,7 +1112,6 @@ ldcOnt:Information.Color.Color
 
 ldcOnt:Information.Make.Make
         a                owl:Class ;
-        rdfs:label       "Information.Make.Make" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -1152,7 +1130,6 @@ ldcOnt:Information.Make.Make
 
 ldcOnt:Measurement.Size
         a                owl:Class ;
-        rdfs:label       "Measurement.Size" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -1171,8 +1148,7 @@ ldcOnt:Measurement.Size
 
 ldcOnt:Measurement.Size.Count
         a                owl:Class ;
-        rdfs:label       "Measurement.Size.Count" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:Measurement.Size ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Measurement" ;
@@ -1190,8 +1166,7 @@ ldcOnt:Measurement.Size.Count
 
 ldcOnt:Measurement.Size.HeightLengthWidth
         a                owl:Class ;
-        rdfs:label       "Measurement.Size.HeightLengthWidth" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:Measurement.Size ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Measurement" ;
@@ -1209,8 +1184,7 @@ ldcOnt:Measurement.Size.HeightLengthWidth
 
 ldcOnt:Measurement.Size.Percentage
         a                owl:Class ;
-        rdfs:label       "Measurement.Size.Percentage" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:Measurement.Size ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Measurement" ;
@@ -1228,8 +1202,7 @@ ldcOnt:Measurement.Size.Percentage
 
 ldcOnt:Measurement.Size.Weight
         a                owl:Class ;
-        rdfs:label       "Measurement.Size.Weight" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:Measurement.Size ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Measurement" ;
@@ -1247,7 +1220,6 @@ ldcOnt:Measurement.Size.Weight
 
 ldcOnt:OrganizationAffiliation.EmploymentMembership
         a                owl:Class ;
-        rdfs:label       "OrganizationAffiliation.EmploymentMembership" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -1266,8 +1238,7 @@ ldcOnt:OrganizationAffiliation.EmploymentMembership
 
 ldcOnt:OrganizationAffiliation.EmploymentMembership.Employment
         a                owl:Class ;
-        rdfs:label       "OrganizationAffiliation.EmploymentMembership.Employment" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:OrganizationAffiliation.EmploymentMembership ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Employee" ;
@@ -1285,8 +1256,7 @@ ldcOnt:OrganizationAffiliation.EmploymentMembership.Employment
 
 ldcOnt:OrganizationAffiliation.EmploymentMembership.Membership
         a                owl:Class ;
-        rdfs:label       "OrganizationAffiliation.EmploymentMembership.Membership" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:OrganizationAffiliation.EmploymentMembership ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Member" ;
@@ -1304,7 +1274,6 @@ ldcOnt:OrganizationAffiliation.EmploymentMembership.Membership
 
 ldcOnt:OrganizationAffiliation.Founder.Founder
         a                owl:Class ;
-        rdfs:label       "OrganizationAffiliation.Founder.Founder" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -1323,7 +1292,6 @@ ldcOnt:OrganizationAffiliation.Founder.Founder
 
 ldcOnt:OrganizationAffiliation.Leadership
         a                owl:Class ;
-        rdfs:label       "OrganizationAffiliation.Leadership" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -1342,8 +1310,7 @@ ldcOnt:OrganizationAffiliation.Leadership
 
 ldcOnt:OrganizationAffiliation.Leadership.Government
         a                owl:Class ;
-        rdfs:label       "OrganizationAffiliation.Leadership.Government" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:OrganizationAffiliation.Leadership ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "GovernmentBodyOrGPE" ;
@@ -1361,8 +1328,7 @@ ldcOnt:OrganizationAffiliation.Leadership.Government
 
 ldcOnt:OrganizationAffiliation.Leadership.HeadOfState
         a                owl:Class ;
-        rdfs:label       "OrganizationAffiliation.Leadership.HeadOfState" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:OrganizationAffiliation.Leadership ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Country" ;
@@ -1380,8 +1346,7 @@ ldcOnt:OrganizationAffiliation.Leadership.HeadOfState
 
 ldcOnt:OrganizationAffiliation.Leadership.MilitaryPolice
         a                owl:Class ;
-        rdfs:label       "OrganizationAffiliation.Leadership.MilitaryPolice" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:OrganizationAffiliation.Leadership ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Leader" ;
@@ -1399,7 +1364,6 @@ ldcOnt:OrganizationAffiliation.Leadership.MilitaryPolice
 
 ldcOnt:PartWhole.Subsidiary
         a                owl:Class ;
-        rdfs:label       "PartWhole.Subsidiary" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -1418,8 +1382,7 @@ ldcOnt:PartWhole.Subsidiary
 
 ldcOnt:PartWhole.Subsidiary.NationalityCitizen
         a                owl:Class ;
-        rdfs:label       "PartWhole.Subsidiary.NationalityCitizen" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:PartWhole.Subsidiary ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Parent" ;
@@ -1437,8 +1400,7 @@ ldcOnt:PartWhole.Subsidiary.NationalityCitizen
 
 ldcOnt:PartWhole.Subsidiary.OrganizationSubsidiary
         a                owl:Class ;
-        rdfs:label       "PartWhole.Subsidiary.OrganizationSubsidiary" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:PartWhole.Subsidiary ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Parent" ;
@@ -1456,7 +1418,6 @@ ldcOnt:PartWhole.Subsidiary.OrganizationSubsidiary
 
 ldcOnt:PersonalSocial.Role
         a                owl:Class ;
-        rdfs:label       "PersonalSocial.Role" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -1475,8 +1436,7 @@ ldcOnt:PersonalSocial.Role
 
 ldcOnt:PersonalSocial.Role.ProfessionalRole
         a                owl:Class ;
-        rdfs:label       "PersonalSocial.Role.ProfessionalRole" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:PersonalSocial.Role ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "JobRole" ;
@@ -1494,8 +1454,7 @@ ldcOnt:PersonalSocial.Role.ProfessionalRole
 
 ldcOnt:PersonalSocial.Role.TitleFormOfAddress
         a                owl:Class ;
-        rdfs:label       "PersonalSocial.Role.TitleFormOfAddress" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:PersonalSocial.Role ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Title" ;
@@ -1513,7 +1472,6 @@ ldcOnt:PersonalSocial.Role.TitleFormOfAddress
 
 ldcOnt:PersonalSocial.Unspecified
         a                owl:Class ;
-        rdfs:label       "PersonalSocial.Unspecified" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -1532,8 +1490,7 @@ ldcOnt:PersonalSocial.Unspecified
 
 ldcOnt:PersonalSocial.Unspecified.Political
         a                owl:Class ;
-        rdfs:label       "PersonalSocial.Unspecified.Political" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:PersonalSocial.Unspecified ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Person" ;
@@ -1551,7 +1508,6 @@ ldcOnt:PersonalSocial.Unspecified.Political
 
 ldcOnt:Physical.LocatedNear
         a                owl:Class ;
-        rdfs:label       "Physical.LocatedNear" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -1570,8 +1526,7 @@ ldcOnt:Physical.LocatedNear
 
 ldcOnt:Physical.LocatedNear.Surround
         a                owl:Class ;
-        rdfs:label       "Physical.LocatedNear.Surround" ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType ;
+        rdfs:subClassOf  ldcOnt:Physical.LocatedNear ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -1589,7 +1544,6 @@ ldcOnt:Physical.LocatedNear.Surround
 
 ldcOnt:Physical.OrganizationHeadquarters.OrganizationHeadquarters
         a                owl:Class ;
-        rdfs:label       "Physical.OrganizationHeadquarters.OrganizationHeadquarters" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -1608,7 +1562,6 @@ ldcOnt:Physical.OrganizationHeadquarters.OrganizationHeadquarters
 
 ldcOnt:Physical.Resident.Resident
         a                owl:Class ;
-        rdfs:label       "Physical.Resident.Resident" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -1627,7 +1580,6 @@ ldcOnt:Physical.Resident.Resident
 
 ldcOnt:ResponsibilityBlame.AssignBlame.AssignBlame
         a                owl:Class ;
-        rdfs:label       "ResponsibilityBlame.AssignBlame.AssignBlame" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -1646,7 +1598,6 @@ ldcOnt:ResponsibilityBlame.AssignBlame.AssignBlame
 
 ldcOnt:ResponsibilityBlame.ClaimResponsibility.ClaimResponsibility
         a                owl:Class ;
-        rdfs:label       "ResponsibilityBlame.ClaimResponsibility.ClaimResponsibility" ;
         rdfs:subClassOf  aidaDomainCommon:RelationType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
@@ -1700,7 +1651,7 @@ ldcOnt:ArtifactExistence.DamageDestroy
 
 ldcOnt:ArtifactExistence.DamageDestroy.Damage
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:ArtifactExistence.DamageDestroy ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -1732,7 +1683,7 @@ ldcOnt:ArtifactExistence.DamageDestroy.Damage
 
 ldcOnt:ArtifactExistence.DamageDestroy.Destroy
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:ArtifactExistence.DamageDestroy ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Destroyer" ;
@@ -1796,7 +1747,7 @@ ldcOnt:Conflict.Attack
 
 ldcOnt:Conflict.Attack.AirstrikeMissileStrike
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Conflict.Attack ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -1828,7 +1779,7 @@ ldcOnt:Conflict.Attack.AirstrikeMissileStrike
 
 ldcOnt:Conflict.Attack.BiologicalChemicalPoisonAttack
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Conflict.Attack ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Attacker" ;
@@ -1860,7 +1811,7 @@ ldcOnt:Conflict.Attack.BiologicalChemicalPoisonAttack
 
 ldcOnt:Conflict.Attack.Bombing
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Conflict.Attack ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Attacker" ;
@@ -1892,7 +1843,7 @@ ldcOnt:Conflict.Attack.Bombing
 
 ldcOnt:Conflict.Attack.FirearmAttack
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Conflict.Attack ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Target" ;
@@ -1924,7 +1875,7 @@ ldcOnt:Conflict.Attack.FirearmAttack
 
 ldcOnt:Conflict.Attack.Hanging
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Conflict.Attack ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Attacker" ;
@@ -1956,7 +1907,7 @@ ldcOnt:Conflict.Attack.Hanging
 
 ldcOnt:Conflict.Attack.Invade
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Conflict.Attack ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Attacker" ;
@@ -1988,7 +1939,7 @@ ldcOnt:Conflict.Attack.Invade
 
 ldcOnt:Conflict.Attack.SelfDirectedBattle
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Conflict.Attack ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -2020,7 +1971,7 @@ ldcOnt:Conflict.Attack.SelfDirectedBattle
 
 ldcOnt:Conflict.Attack.SetFire
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Conflict.Attack ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -2052,7 +2003,7 @@ ldcOnt:Conflict.Attack.SetFire
 
 ldcOnt:Conflict.Attack.Stabbing
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Conflict.Attack ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Instrument" ;
@@ -2084,7 +2035,7 @@ ldcOnt:Conflict.Attack.Stabbing
 
 ldcOnt:Conflict.Attack.StealRobHijack
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Conflict.Attack ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Instrument" ;
@@ -2123,7 +2074,7 @@ ldcOnt:Conflict.Attack.StealRobHijack
 
 ldcOnt:Conflict.Attack.Strangling
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Conflict.Attack ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Instrument" ;
@@ -2173,7 +2124,7 @@ ldcOnt:Conflict.Demonstrate
 
 ldcOnt:Conflict.Demonstrate.MarchProtestPoliticalGathering
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Conflict.Demonstrate ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Demonstrator" ;
@@ -2216,7 +2167,7 @@ ldcOnt:Conflict.Yield
 
 ldcOnt:Conflict.Yield.Retreat
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Conflict.Yield ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Retreater" ;
@@ -2241,7 +2192,7 @@ ldcOnt:Conflict.Yield.Retreat
 
 ldcOnt:Conflict.Yield.Surrender
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Conflict.Yield ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Surrenderer" ;
@@ -2291,7 +2242,7 @@ ldcOnt:Contact.Collaborate
 
 ldcOnt:Contact.Collaborate.Correspondence
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.Collaborate ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -2316,7 +2267,7 @@ ldcOnt:Contact.Collaborate.Correspondence
 
 ldcOnt:Contact.Collaborate.Meet
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.Collaborate ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Participant" ;
@@ -2366,7 +2317,7 @@ ldcOnt:Contact.CommandOrder
 
 ldcOnt:Contact.CommandOrder.Broadcast
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.CommandOrder ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -2391,7 +2342,7 @@ ldcOnt:Contact.CommandOrder.Broadcast
 
 ldcOnt:Contact.CommandOrder.Correspondence
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.CommandOrder ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Communicator" ;
@@ -2416,7 +2367,7 @@ ldcOnt:Contact.CommandOrder.Correspondence
 
 ldcOnt:Contact.CommandOrder.Meet
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.CommandOrder ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Recipient" ;
@@ -2466,7 +2417,7 @@ ldcOnt:Contact.CommitmentPromiseExpressIntent
 
 ldcOnt:Contact.CommitmentPromiseExpressIntent.Broadcast
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.CommitmentPromiseExpressIntent ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Communicator" ;
@@ -2491,7 +2442,7 @@ ldcOnt:Contact.CommitmentPromiseExpressIntent.Broadcast
 
 ldcOnt:Contact.CommitmentPromiseExpressIntent.Correspondence
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.CommitmentPromiseExpressIntent ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Recipient" ;
@@ -2516,7 +2467,7 @@ ldcOnt:Contact.CommitmentPromiseExpressIntent.Correspondence
 
 ldcOnt:Contact.CommitmentPromiseExpressIntent.Meet
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.CommitmentPromiseExpressIntent ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Communicator" ;
@@ -2566,7 +2517,7 @@ ldcOnt:Contact.Discussion
 
 ldcOnt:Contact.Discussion.Correspondence
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.Discussion ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -2591,7 +2542,7 @@ ldcOnt:Contact.Discussion.Correspondence
 
 ldcOnt:Contact.Discussion.Meet
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.Discussion ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Participant" ;
@@ -2648,7 +2599,7 @@ ldcOnt:Contact.FuneralVigil
 
 ldcOnt:Contact.FuneralVigil.Meet
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.FuneralVigil ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Participant" ;
@@ -2705,7 +2656,7 @@ ldcOnt:Contact.MediaStatement
 
 ldcOnt:Contact.MediaStatement.Broadcast
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.MediaStatement ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Recipient" ;
@@ -2755,7 +2706,7 @@ ldcOnt:Contact.Negotiate
 
 ldcOnt:Contact.Negotiate.Correspondence
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.Negotiate ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -2780,7 +2731,7 @@ ldcOnt:Contact.Negotiate.Correspondence
 
 ldcOnt:Contact.Negotiate.Meet
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.Negotiate ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Participant" ;
@@ -2830,7 +2781,7 @@ ldcOnt:Contact.Prevarication
 
 ldcOnt:Contact.Prevarication.Broadcast
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.Prevarication ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Recipient" ;
@@ -2855,7 +2806,7 @@ ldcOnt:Contact.Prevarication.Broadcast
 
 ldcOnt:Contact.Prevarication.Correspondence
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.Prevarication ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Recipient" ;
@@ -2880,7 +2831,7 @@ ldcOnt:Contact.Prevarication.Correspondence
 
 ldcOnt:Contact.Prevarication.Meet
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.Prevarication ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -2930,7 +2881,7 @@ ldcOnt:Contact.PublicStatementInPerson
 
 ldcOnt:Contact.PublicStatementInPerson.Broadcast
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.PublicStatementInPerson ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -2980,7 +2931,7 @@ ldcOnt:Contact.RequestAdvise
 
 ldcOnt:Contact.RequestAdvise.Broadcast
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.RequestAdvise ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Communicator" ;
@@ -3005,7 +2956,7 @@ ldcOnt:Contact.RequestAdvise.Broadcast
 
 ldcOnt:Contact.RequestAdvise.Correspondence
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.RequestAdvise ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Communicator" ;
@@ -3030,7 +2981,7 @@ ldcOnt:Contact.RequestAdvise.Correspondence
 
 ldcOnt:Contact.RequestAdvise.Meet
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.RequestAdvise ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Communicator" ;
@@ -3080,7 +3031,7 @@ ldcOnt:Contact.ThreatenCoerce
 
 ldcOnt:Contact.ThreatenCoerce.Broadcast
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.ThreatenCoerce ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Recipient" ;
@@ -3105,7 +3056,7 @@ ldcOnt:Contact.ThreatenCoerce.Broadcast
 
 ldcOnt:Contact.ThreatenCoerce.Correspondence
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.ThreatenCoerce ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Recipient" ;
@@ -3130,7 +3081,7 @@ ldcOnt:Contact.ThreatenCoerce.Correspondence
 
 ldcOnt:Contact.ThreatenCoerce.Meet
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Contact.ThreatenCoerce ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -3237,7 +3188,7 @@ ldcOnt:Government.Agreements
 
 ldcOnt:Government.Agreements.AcceptAgreementContractCeasefire
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Government.Agreements ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Participant" ;
@@ -3262,7 +3213,7 @@ ldcOnt:Government.Agreements.AcceptAgreementContractCeasefire
 
 ldcOnt:Government.Agreements.RejectNullifyAgreementContractCeasefire
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Government.Agreements ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -3287,7 +3238,7 @@ ldcOnt:Government.Agreements.RejectNullifyAgreementContractCeasefire
 
 ldcOnt:Government.Agreements.ViolateAgreement
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Government.Agreements ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "OtherParticipant" ;
@@ -3337,7 +3288,7 @@ ldcOnt:Government.Formation
 
 ldcOnt:Government.Formation.MergeGPE
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Government.Formation ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -3362,7 +3313,7 @@ ldcOnt:Government.Formation.MergeGPE
 
 ldcOnt:Government.Formation.StartGPE
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Government.Formation ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "GPE" ;
@@ -3483,7 +3434,7 @@ ldcOnt:Government.Vote
 
 ldcOnt:Government.Vote.CastVote
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Government.Vote ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Ballot" ;
@@ -3522,7 +3473,7 @@ ldcOnt:Government.Vote.CastVote
 
 ldcOnt:Government.Vote.ViolationsPreventVote
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Government.Vote ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Preventer" ;
@@ -3586,7 +3537,7 @@ ldcOnt:Inspection.SensoryObserve
 
 ldcOnt:Inspection.SensoryObserve.InspectPeopleOrganization
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Inspection.SensoryObserve ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Inspector" ;
@@ -3611,7 +3562,7 @@ ldcOnt:Inspection.SensoryObserve.InspectPeopleOrganization
 
 ldcOnt:Inspection.SensoryObserve.MonitorElection
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Inspection.SensoryObserve ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Monitor" ;
@@ -3636,7 +3587,7 @@ ldcOnt:Inspection.SensoryObserve.MonitorElection
 
 ldcOnt:Inspection.SensoryObserve.PhysicalInvestigateInspect
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Inspection.SensoryObserve ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -3732,7 +3683,7 @@ ldcOnt:Justice.InitiateJudicialProcess
 
 ldcOnt:Justice.InitiateJudicialProcess.ChargeIndict
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Justice.InitiateJudicialProcess ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "JudgeCourt" ;
@@ -3771,7 +3722,7 @@ ldcOnt:Justice.InitiateJudicialProcess.ChargeIndict
 
 ldcOnt:Justice.InitiateJudicialProcess.TrialHearing
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Justice.InitiateJudicialProcess ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "JudgeCourt" ;
@@ -3835,7 +3786,7 @@ ldcOnt:Justice.Investigate
 
 ldcOnt:Justice.Investigate.InvestigateCrime
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Justice.Investigate ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -3899,7 +3850,7 @@ ldcOnt:Justice.JudicialConsequences
 
 ldcOnt:Justice.JudicialConsequences.Convict
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Justice.JudicialConsequences ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Crime" ;
@@ -3931,7 +3882,7 @@ ldcOnt:Justice.JudicialConsequences.Convict
 
 ldcOnt:Justice.JudicialConsequences.Execute
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Justice.JudicialConsequences ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Crime" ;
@@ -3963,7 +3914,7 @@ ldcOnt:Justice.JudicialConsequences.Execute
 
 ldcOnt:Justice.JudicialConsequences.Extradite
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Justice.JudicialConsequences ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Defendant" ;
@@ -4019,7 +3970,7 @@ ldcOnt:Life.Die  a       owl:Class ;
 
 ldcOnt:Life.Die.DeathCausedByViolentEvents
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Life.Die ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Instrument" ;
@@ -4051,7 +4002,7 @@ ldcOnt:Life.Die.DeathCausedByViolentEvents
 
 ldcOnt:Life.Die.NonviolentDeath
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Life.Die ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Victim" ;
@@ -4093,7 +4044,7 @@ ldcOnt:Life.Injure  a    owl:Class ;
 
 ldcOnt:Life.Injure.IllnessDegradationHungerThirst
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Life.Injure ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Victim" ;
@@ -4111,7 +4062,7 @@ ldcOnt:Life.Injure.IllnessDegradationHungerThirst
 
 ldcOnt:Life.Injure.IllnessDegradationPhysical
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Life.Injure ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Victim" ;
@@ -4122,7 +4073,7 @@ ldcOnt:Life.Injure.IllnessDegradationPhysical
 
 ldcOnt:Life.Injure.InjuryCausedByViolentEvents
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Life.Injure ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Victim" ;
@@ -4186,7 +4137,7 @@ ldcOnt:Manufacture.Artifact
 
 ldcOnt:Manufacture.Artifact.Build
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Manufacture.Artifact ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Artifact" ;
@@ -4218,7 +4169,7 @@ ldcOnt:Manufacture.Artifact.Build
 
 ldcOnt:Manufacture.Artifact.CreateIntellectualProperty
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Manufacture.Artifact ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Artifact" ;
@@ -4250,7 +4201,7 @@ ldcOnt:Manufacture.Artifact.CreateIntellectualProperty
 
 ldcOnt:Manufacture.Artifact.CreateManufacture
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Manufacture.Artifact ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -4321,7 +4272,7 @@ ldcOnt:Movement.TransportArtifact
 
 ldcOnt:Movement.TransportArtifact.BringCarryUnload
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportArtifact ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Destination" ;
@@ -4360,7 +4311,7 @@ ldcOnt:Movement.TransportArtifact.BringCarryUnload
 
 ldcOnt:Movement.TransportArtifact.DisperseSeparate
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportArtifact ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Transporter" ;
@@ -4399,7 +4350,7 @@ ldcOnt:Movement.TransportArtifact.DisperseSeparate
 
 ldcOnt:Movement.TransportArtifact.Fall
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportArtifact ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Destination" ;
@@ -4424,7 +4375,7 @@ ldcOnt:Movement.TransportArtifact.Fall
 
 ldcOnt:Movement.TransportArtifact.GrantEntry
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportArtifact ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Artifact" ;
@@ -4456,7 +4407,7 @@ ldcOnt:Movement.TransportArtifact.GrantEntry
 
 ldcOnt:Movement.TransportArtifact.Hide
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportArtifact ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Origin" ;
@@ -4495,7 +4446,7 @@ ldcOnt:Movement.TransportArtifact.Hide
 
 ldcOnt:Movement.TransportArtifact.NonviolentThrowLaunch
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportArtifact ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Destination" ;
@@ -4534,7 +4485,7 @@ ldcOnt:Movement.TransportArtifact.NonviolentThrowLaunch
 
 ldcOnt:Movement.TransportArtifact.PreventEntry
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportArtifact ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Destination" ;
@@ -4573,7 +4524,7 @@ ldcOnt:Movement.TransportArtifact.PreventEntry
 
 ldcOnt:Movement.TransportArtifact.PreventExit
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportArtifact ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Origin" ;
@@ -4612,7 +4563,7 @@ ldcOnt:Movement.TransportArtifact.PreventExit
 
 ldcOnt:Movement.TransportArtifact.ReceiveImport
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportArtifact ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Destination" ;
@@ -4651,7 +4602,7 @@ ldcOnt:Movement.TransportArtifact.ReceiveImport
 
 ldcOnt:Movement.TransportArtifact.SendSupplyExport
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportArtifact ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Vehicle" ;
@@ -4690,7 +4641,7 @@ ldcOnt:Movement.TransportArtifact.SendSupplyExport
 
 ldcOnt:Movement.TransportArtifact.SmuggleExtract
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportArtifact ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Destination" ;
@@ -4768,7 +4719,7 @@ ldcOnt:Movement.TransportPerson
 
 ldcOnt:Movement.TransportPerson.BringCarryUnload
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportPerson ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Destination" ;
@@ -4807,7 +4758,7 @@ ldcOnt:Movement.TransportPerson.BringCarryUnload
 
 ldcOnt:Movement.TransportPerson.DisperseSeparate
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportPerson ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Vehicle" ;
@@ -4846,7 +4797,7 @@ ldcOnt:Movement.TransportPerson.DisperseSeparate
 
 ldcOnt:Movement.TransportPerson.EvacuationRescue
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportPerson ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Vehicle" ;
@@ -4885,7 +4836,7 @@ ldcOnt:Movement.TransportPerson.EvacuationRescue
 
 ldcOnt:Movement.TransportPerson.Fall
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportPerson ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Origin" ;
@@ -4910,7 +4861,7 @@ ldcOnt:Movement.TransportPerson.Fall
 
 ldcOnt:Movement.TransportPerson.GrantEntryAsylum
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportPerson ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Origin" ;
@@ -4949,7 +4900,7 @@ ldcOnt:Movement.TransportPerson.GrantEntryAsylum
 
 ldcOnt:Movement.TransportPerson.Hide
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportPerson ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Vehicle" ;
@@ -4988,7 +4939,7 @@ ldcOnt:Movement.TransportPerson.Hide
 
 ldcOnt:Movement.TransportPerson.PreventEntry
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportPerson ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Origin" ;
@@ -5027,7 +4978,7 @@ ldcOnt:Movement.TransportPerson.PreventEntry
 
 ldcOnt:Movement.TransportPerson.PreventExit
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportPerson ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Destination" ;
@@ -5066,7 +5017,7 @@ ldcOnt:Movement.TransportPerson.PreventExit
 
 ldcOnt:Movement.TransportPerson.SelfMotion
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportPerson ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Vehicle" ;
@@ -5098,7 +5049,7 @@ ldcOnt:Movement.TransportPerson.SelfMotion
 
 ldcOnt:Movement.TransportPerson.SmuggleExtract
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Movement.TransportPerson ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Origin" ;
@@ -5162,7 +5113,7 @@ ldcOnt:Personnel.Elect
 
 ldcOnt:Personnel.Elect.WinElection
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Personnel.Elect ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Candidate" ;
@@ -5212,7 +5163,7 @@ ldcOnt:Personnel.EndPosition
 
 ldcOnt:Personnel.EndPosition.FiringLayoff
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Personnel.EndPosition ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "PlaceOfEmployment" ;
@@ -5237,7 +5188,7 @@ ldcOnt:Personnel.EndPosition.FiringLayoff
 
 ldcOnt:Personnel.EndPosition.QuitRetire
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Personnel.EndPosition ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -5287,7 +5238,7 @@ ldcOnt:Personnel.StartPosition
 
 ldcOnt:Personnel.StartPosition.Hiring
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Personnel.StartPosition ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Employee" ;
@@ -5344,7 +5295,7 @@ ldcOnt:Transaction.Transaction
 
 ldcOnt:Transaction.Transaction.EmbargoSanction
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Transaction.Transaction ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Preventer" ;
@@ -5383,7 +5334,7 @@ ldcOnt:Transaction.Transaction.EmbargoSanction
 
 ldcOnt:Transaction.Transaction.GiftGrantProvideAid
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Transaction.Transaction ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Recipient" ;
@@ -5415,7 +5366,7 @@ ldcOnt:Transaction.Transaction.GiftGrantProvideAid
 
 ldcOnt:Transaction.Transaction.TransferControl
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Transaction.Transaction ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Beneficiary" ;
@@ -5493,7 +5444,7 @@ ldcOnt:Transaction.TransferMoney
 
 ldcOnt:Transaction.TransferMoney.BorrowLend
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Transaction.TransferMoney ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Giver" ;
@@ -5532,7 +5483,7 @@ ldcOnt:Transaction.TransferMoney.BorrowLend
 
 ldcOnt:Transaction.TransferMoney.EmbargoSanction
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Transaction.TransferMoney ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Recipient" ;
@@ -5571,7 +5522,7 @@ ldcOnt:Transaction.TransferMoney.EmbargoSanction
 
 ldcOnt:Transaction.TransferMoney.GiftGrantProvideAid
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Transaction.TransferMoney ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -5610,7 +5561,7 @@ ldcOnt:Transaction.TransferMoney.GiftGrantProvideAid
 
 ldcOnt:Transaction.TransferMoney.PayForService
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Transaction.TransferMoney ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Beneficiary" ;
@@ -5649,7 +5600,7 @@ ldcOnt:Transaction.TransferMoney.PayForService
 
 ldcOnt:Transaction.TransferMoney.Purchase
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Transaction.TransferMoney ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Giver" ;
@@ -5727,7 +5678,7 @@ ldcOnt:Transaction.TransferOwnership
 
 ldcOnt:Transaction.TransferOwnership.BorrowLend
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Transaction.TransferOwnership ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
@@ -5766,7 +5717,7 @@ ldcOnt:Transaction.TransferOwnership.BorrowLend
 
 ldcOnt:Transaction.TransferOwnership.EmbargoSanction
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Transaction.TransferOwnership ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Preventer" ;
@@ -5805,7 +5756,7 @@ ldcOnt:Transaction.TransferOwnership.EmbargoSanction
 
 ldcOnt:Transaction.TransferOwnership.GiftGrantProvideAid
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Transaction.TransferOwnership ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Recipient" ;
@@ -5844,7 +5795,7 @@ ldcOnt:Transaction.TransferOwnership.GiftGrantProvideAid
 
 ldcOnt:Transaction.TransferOwnership.Purchase
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:EventType ;
+        rdfs:subClassOf  ldcOnt:Transaction.TransferOwnership ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
                                                 rdfs:label   "Place" ;
