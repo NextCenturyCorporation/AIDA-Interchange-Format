@@ -1802,7 +1802,7 @@ public class ExamplesAndValidationTest {
             void invalidNoConfidence() {
                 link(entity);
                 target("SomeExternalKBId-1");
-                testInvalid("LinkAssertion.invalid: No Confidence");
+                testInvalid("LinkAssertion.invalid: No confidence");
             }
             @Test
             void invalidTooManyConfidences() {
@@ -1810,7 +1810,7 @@ public class ExamplesAndValidationTest {
                 markConfidence(model, linkAssertion, 1d, system);
                 markConfidence(model, linkAssertion, .5, system);
                 target("SomeExternalKBId-1");
-                testInvalid("LinkAssertion.invalid: Link to non-LinkAssertion");
+                testInvalid("LinkAssertion.invalid: Too many confidences");
             }
             @Test
             void valid() {
