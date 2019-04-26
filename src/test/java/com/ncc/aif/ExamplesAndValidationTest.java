@@ -1221,7 +1221,7 @@ public class ExamplesAndValidationTest {
         void setup() {
             typeAssertionJustification = makeTextJustification(model, "NYT_ENG_20181231",
                     42, 143, system, 0.973);
-            addSourceDocumentToJustification(typeAssertionJustification,"20181231");
+            addSourceDocumentToJustification(typeAssertionJustification, "20181231");
 
             entity = makeEntity(model, getEntityUri(), system);
             markJustification(addType(entity, SeedlingOntology.Person), typeAssertionJustification);
@@ -1278,7 +1278,7 @@ public class ExamplesAndValidationTest {
             void invalidCompoundJustificationWithNoJustification() {
 
                 Resource compoundJustification = model.createResource();
-                compoundJustification.addProperty(RDF.type,  AidaAnnotationOntology.COMPOUND_JUSTIFICATION_CLASS);
+                compoundJustification.addProperty(RDF.type, AidaAnnotationOntology.COMPOUND_JUSTIFICATION_CLASS);
                 markSystem(compoundJustification, system);
 
                 markConfidence(model, compoundJustification, 1.0, system);
@@ -1442,7 +1442,7 @@ public class ExamplesAndValidationTest {
             @Test
             void valid() {
                 final Resource markKeyFrameVideoJustification = markKeyFrameVideoJustification(model, entity,
-                        "source1","keyframe",
+                        "source1", "keyframe",
                         new BoundingBox(new Point(0, 0), new Point(100, 100)), system, 1d);
                 addSourceDocumentToJustification(markKeyFrameVideoJustification, "source1SourceDocument");
                 testValid("NIST.valid: No shot video");
@@ -1651,7 +1651,7 @@ public class ExamplesAndValidationTest {
 
                 final Resource duplicateParentDocJustification = makeTextJustification(model, "ZM39482011",
                         42, 143, system, 0.973);
-                addSourceDocumentToJustification(duplicateParentDocJustification,"20181231");
+                addSourceDocumentToJustification(duplicateParentDocJustification, "20181231");
 
                 markInformativeJustification(entity, typeAssertionJustification);
                 markInformativeJustification(entity, duplicateParentDocJustification);
@@ -1700,11 +1700,11 @@ public class ExamplesAndValidationTest {
 
                 final Resource secondJustification = makeTextJustification(model, "EJ39281",
                         42, 143, system, 0.973);
-                addSourceDocumentToJustification(secondJustification,"3822029");
+                addSourceDocumentToJustification(secondJustification, "3822029");
 
                 final Resource thirdJustification = makeTextJustification(model, "CL33838",
                         42, 143, system, 0.973);
-                addSourceDocumentToJustification(thirdJustification,"3948290");
+                addSourceDocumentToJustification(thirdJustification, "3948290");
 
                 //add three informative justifications to same relation KE
                 markInformativeJustification(relation, typeAssertionJustification);
@@ -1722,15 +1722,15 @@ public class ExamplesAndValidationTest {
 
                 final Resource duplicateParentDocJustification = makeTextJustification(model, "ZM39482011",
                         42, 143, system, 0.973);
-                addSourceDocumentToJustification(duplicateParentDocJustification,"20181231");
+                addSourceDocumentToJustification(duplicateParentDocJustification, "20181231");
 
                 final Resource secondEntityJustification = makeTextJustification(model, "EJ39281",
                         42, 143, system, 0.973);
-                addSourceDocumentToJustification(secondEntityJustification,"3822029");
+                addSourceDocumentToJustification(secondEntityJustification, "3822029");
 
                 final Resource secondClusterJustification = makeTextJustification(model, "CL33838",
                         42, 143, system, 0.973);
-                addSourceDocumentToJustification(secondClusterJustification,"3298329");
+                addSourceDocumentToJustification(secondClusterJustification, "3298329");
 
                 //add informative justification in separate KE's with same parent doc
                 markInformativeJustification(entity, typeAssertionJustification);
@@ -1744,6 +1744,80 @@ public class ExamplesAndValidationTest {
                         "Cluster, Entity, Event, or Relation can specify up to one informative mention per document " +
                         "as long as each informative mention points to a different sourceDocument");
 
+            }
+        }
+
+        @Nested
+        class LinkAssertion {
+            Resource linkAssertion;
+
+            void link(Resource toLink) {
+                toLink.addProperty(AidaAnnotationOntology.LINK, linkAssertion);
+            }
+
+            void target(String externalKbId) {
+                linkAssertion.addProperty(AidaAnnotationOntology.LINK_TARGET, model.createTypedLiteral(externalKbId));
+            }
+
+            @BeforeEach
+            void setup() {
+                model.removeAll();
+                system = makeSystemWithURI(model, getTestSystemUri());
+
+                linkAssertion = model.createResource();
+                linkAssertion.addProperty(RDF.type, AidaAnnotationOntology.LINK_ASSERTION_CLASS);
+                markSystem(linkAssertion, system);
+
+                typeAssertionJustification = makeTextJustification(model, "NYT_ENG_20181231",
+                        42, 143, system, 0.973);
+                addSourceDocumentToJustification(typeAssertionJustification, "20181231");
+
+                entity = makeEntity(model, getEntityUri(), system);
+                markJustification(addType(entity, SeedlingOntology.Person), typeAssertionJustification);
+
+                entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, system);
+            }
+
+            @Test
+            void invalidLinkToNonAssertion() {
+                linkAssertion.listProperties().toList().forEach(model::remove);
+                entity.addProperty(AidaAnnotationOntology.LINK, typeAssertionJustification);
+                testInvalid("LinkAssertion.invalid: Link to non-LinkAssertion");
+            }
+            @Test
+            void invalidNoTarget() {
+                link(entity);
+                markConfidence(model, linkAssertion, 1d, system);
+                testInvalid("LinkAssertion.invalid: No link target");
+            }
+            @Test
+            void invalidTooManyTargets() {
+                link(entity);
+                markConfidence(model, linkAssertion, 1d, system);
+                target("SomeExternalKBId-1");
+                target("SomeExternalKBId-2");
+                testInvalid("LinkAssertion.invalid: Too many link targets");
+            }
+            @Test
+            void invalidNoConfidence() {
+                link(entity);
+                target("SomeExternalKBId-1");
+                testInvalid("LinkAssertion.invalid: No confidence");
+            }
+            @Test
+            void invalidTooManyConfidences() {
+                link(entity);
+                markConfidence(model, linkAssertion, 1d, system);
+                markConfidence(model, linkAssertion, .5, system);
+                target("SomeExternalKBId-1");
+                testInvalid("LinkAssertion.invalid: Too many confidences");
+            }
+            @Test
+            void valid() {
+                link(entity);
+                markConfidence(model, linkAssertion, 1d, system);
+                target("SomeExternalKBId-1");
+                testValid("LinkAssertion.valid");
             }
         }
     }

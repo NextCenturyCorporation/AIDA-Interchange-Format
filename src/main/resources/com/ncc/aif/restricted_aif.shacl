@@ -255,4 +255,13 @@ aida:InformativeJustificationMembersShape
     sh:targetSubjectsOf aida:informativeJustification ;
     sh:sparql aida:InformativeJustificationMembersUniqueParentDoc .
 
-
+#########################
+# 4.3 #10: Each aida:linkAssertion must have exactly one aida:confidence
+#------------------------
+# Add to pre-existing LinkAssertionShape
+aida:LinkAssertionShape
+    sh:property [
+        sh:path aida:confidence ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] .
