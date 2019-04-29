@@ -11,7 +11,6 @@ import com.google.common.io.Resources;
 import com.ncc.aif.AIFUtils.*;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
@@ -31,12 +30,11 @@ import java.util.Set;
 
 import static com.ncc.aif.AIFUtils.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class ExamplesAndValidationTest {
-    // Set this flag to true if attempting to get examples
-    private static final boolean FORCE_DUMP = false;
+
+    private static TestUtils utils;
 
     private static final String LDC_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#";
     private static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#";
@@ -49,73 +47,59 @@ public class ExamplesAndValidationTest {
     static void declutterLogging() {
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
+        seedlingValidator =
+                ValidateAIF.createForDomainOntologySource(SEEDLING_ONTOLOGY);
+        utils = new TestUtils(NAMESPACE, seedlingValidator);
     }
 
-    private static final ValidateAIF seedlingValidator =
-            ValidateAIF.createForDomainOntologySource(SEEDLING_ONTOLOGY);
+    private static ValidateAIF seedlingValidator;
 
-    private static final ValidateAIF nistSeedlingValidator =
-            ValidateAIF.create(ImmutableSet.of(SEEDLING_ONTOLOGY), ValidateAIF.Restriction.NIST);
-
-    private static final ValidateAIF nistSeedlingHypothesisValidator =
-            ValidateAIF.create(ImmutableSet.of(SEEDLING_ONTOLOGY), ValidateAIF.Restriction.NIST_HYPOTHESIS);
-
-    private int assertionCount;
-    private int entityCount;
-    private int clusterCount;
     private Model model;
     private Resource system;
-    private ValidateAIF validator;
 
-    private static String getUri(String localName) {
-        return LDC_NS + localName;
+    private String getUri(String localName) {
+        return utils.getUri(localName);
     }
 
     private String getAssertionUri() {
-        return getUri("assertion-" + assertionCount++);
+        return utils.getAssertionUri();
     }
 
     private String getEntityUri() {
-        return getUri("entity-" + entityCount++);
+        return utils.getEntityUri();
     }
 
     private String getClusterUri() {
-        return getUri("cluster-" + clusterCount++);
+        return utils.getClusterUri();
     }
 
     private String getTestSystemUri() {
-        return getUri("testSystem");
+        return utils.getTestSystemUri();
     }
 
     private Resource addType(Resource resource, Resource type) {
-        return markType(model, getAssertionUri(), resource, type, system, 1d);
+        return utils.addType(resource, type);
     }
 
     private void testInvalid(String name) {
-        assertAndDump(model, name, validator, false);
+        utils.testInvalid(name);
     }
 
     private void testValid(String name) {
-        assertAndDump(model, name, validator, true);
+        utils.testValid(name);
     }
 
     @BeforeEach
     void setup() {
-        assertionCount = 1;
-        entityCount = 1;
-        clusterCount = 1;
-
-        // create Jena model to house AIF graph
-        model = createModel();
-
-        // every AIF needs an object for the system responsible for creating it
-        system = makeSystemWithURI(model, getTestSystemUri());
+        model = utils.startNewTest();
+        addNamespacesToModel(model);
+        system = utils.getSystem();
     }
 
     @Nested
     class ValidExamples {
         ValidExamples() {
-            validator = seedlingValidator;
+            utils.setValidator(seedlingValidator);
         }
 
         private final String putinDocumentEntityUri = getUri("E781167.00398");
@@ -1124,7 +1108,7 @@ public class ExamplesAndValidationTest {
     @Nested
     class InvalidExamples {
         InvalidExamples() {
-            validator = seedlingValidator;
+            utils.setValidator(seedlingValidator);
         }
 
         @Test
@@ -1214,7 +1198,8 @@ public class ExamplesAndValidationTest {
         Resource typeAssertionJustification; // For use when tests create their own entities, events, and relations
 
         NISTExamples() {
-            validator = nistSeedlingValidator;
+            utils.setValidator(ValidateAIF.create(ImmutableSet.of(SEEDLING_ONTOLOGY),
+                    ValidateAIF.Restriction.NIST));
         }
 
         @BeforeEach
@@ -1834,7 +1819,8 @@ public class ExamplesAndValidationTest {
         Resource justification;
 
         NISTHypothesisExamples() {
-            validator = nistSeedlingHypothesisValidator;
+            utils.setValidator(ValidateAIF.create(ImmutableSet.of(SEEDLING_ONTOLOGY),
+                    ValidateAIF.Restriction.NIST_HYPOTHESIS));
         }
 
         @BeforeEach
@@ -2247,39 +2233,6 @@ public class ExamplesAndValidationTest {
         }
     }
 
-    /**
-     * This method will validate the model using the provided validator and will dump the model as TURTLE if
-     * either the validation result is unexpected or if the model is valid and FORCE_DUMP is true. Thus, FORCE_DUMP
-     * can be used to write all the valid examples to console.
-     *
-     * @param model     {@link Model} containing the triples to be validated
-     * @param testName  {@link String} containing the name of the test
-     * @param validator {@link ValidateAIF} object used to validate {@code model}
-     * @param expected  true if validation is expected to pass, false o/w
-     */
-    private void assertAndDump(Model model, String testName, ValidateAIF validator, boolean expected) {
-        final Resource report = validator.validateKBAndReturnReport(model);
-        final boolean valid = ValidateAIF.isValidReport(report);
-
-        // print model if result unexpected or if forcing (for examples)
-        // Swap comments following 2 lines if FORCE_DUMP should ALWAYS dump output
-        // if (valid != expected || FORCE_DUMP) {
-        if (valid != expected || (FORCE_DUMP && expected)) {
-            System.out.println("\n----------------------------------------------\n" + testName + "\n\nAIF Model:");
-            RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
-        }
-
-        // fail if result is unexpected
-        if (valid != expected) {
-            // only print output if there is any
-            if (!valid) {
-                System.out.println("\nFailure:");
-                RDFDataMgr.write(System.out, report.getModel(), RDFFormat.TURTLE_PRETTY);
-            }
-            fail("Validation was expected to " + (expected ? "pass" : "fail") + " but did not");
-        }
-    }
-
     private Path writeModelToDisk(Model model) {
 
         Path outputPath = null;
@@ -2306,11 +2259,6 @@ public class ExamplesAndValidationTest {
         return null;
     }
 
-    private Model createModel() {
-        final Model model = ModelFactory.createDefaultModel();
-        return addNamespacesToModel(model);
-    }
-
     private Model createDiskBasedModel() {
         try {
             final Path outputPath = Files.createTempDirectory("diskbased-model-");
@@ -2327,7 +2275,6 @@ public class ExamplesAndValidationTest {
 
     private Model addNamespacesToModel(Model model) {
         // adding namespace prefixes makes the Turtle output more readable
-        AIFUtils.addStandardNamespaces(model);
         model.setNsPrefix("ldcOnt", NAMESPACE);
         model.setNsPrefix("ldc", LDC_NS);
         return model;
