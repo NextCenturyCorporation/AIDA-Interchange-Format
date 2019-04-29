@@ -14,9 +14,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 class TestUtils {
 
-    // Set this flag to true if attempting to get examples
-    private static final boolean FORCE_DUMP = false;
-
+    private final boolean forceDump;
+    private final ValidateAIF validator;
     private final String ontologyNamespace;
 
     private int assertionCount;
@@ -25,13 +24,15 @@ class TestUtils {
     private int relationCount;
     private int hypothesisCount;
     private int clusterCount;
+    private int documentCount;
     protected Model model;
     protected Resource system;
-    private ValidateAIF validator;
+    protected Resource typeAssertionJustification = null;
 
-    TestUtils(String ontologyNamespace, ValidateAIF validator) {
+    TestUtils(String ontologyNamespace, ValidateAIF validator, boolean forceDump) {
         this.ontologyNamespace = ontologyNamespace;
         this.validator = validator;
+        this.forceDump = forceDump;
     }
 
     /**
@@ -40,6 +41,7 @@ class TestUtils {
      */
     Model startNewTest() {
         if (model != null) {
+            typeAssertionJustification = null;
             model.close();
         }
         model = ModelFactory.createDefaultModel();
@@ -47,8 +49,7 @@ class TestUtils {
         addStandardNamespaces(model);
         // every AIF needs an object for the system responsible for creating it
         system = makeSystemWithURI(model, getTestSystemUri());
-        assertionCount = entityCount = eventCount = relationCount = hypothesisCount = clusterCount = 1;
-        entityResourceList.clear();
+        assertionCount = entityCount = eventCount = relationCount = hypothesisCount = clusterCount = documentCount = 1;
 
         return model;
     }
@@ -89,6 +90,18 @@ class TestUtils {
         return system;
     }
 
+    String getDocumentName() {
+        return "document-" + documentCount++;
+    }
+
+    Resource getTypeAssertionJustification() {
+        if (typeAssertionJustification == null) {
+            typeAssertionJustification = makeTextJustification(model, getDocumentName(),
+                    42, 143, system, 0.973);
+        }
+        return typeAssertionJustification;
+    }
+
     Resource addType(Resource resource, Resource type) {
         return addType(resource, type, 1.0);
     }
@@ -102,9 +115,7 @@ class TestUtils {
     }
 
     Resource getValidEntity(String uri) {
-        Resource entity = makeEntity(model, uri == null ? getEntityUri() : uri, system);
-        entityResourceList.add(entity);
-        return entity;
+        return makeEntity(model, uri == null ? getEntityUri() : uri, system);
     }
 
     Resource getValidEvent() {
@@ -133,25 +144,12 @@ class TestUtils {
         return makeHypothesis(model, uri == null ? getHypothesisUri() : uri, set, system);
     }
 
-/*
-    Resource makeValidNISTEntity(Resource type) {
-        final Resource entity = getValidEntity();
-        markJustification(addType(entity, type), typeAssertionJustification);
-        final Resource entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, system);
-        return entity;
-    }
-*/
-
     void testInvalid(String name) {
         assertAndDump(name, false);
     }
 
     void testValid(String name) {
         assertAndDump(name, true);
-    }
-
-    void setValidator(ValidateAIF validator) {
-        this.validator = validator;
     }
 
     /**
@@ -168,8 +166,8 @@ class TestUtils {
 
         // print model if result unexpected or if forcing (for examples)
         // Swap comments following 2 lines if FORCE_DUMP should ALWAYS dump output
-        // if (valid != expected || FORCE_DUMP) {
-        if (valid != expected || (FORCE_DUMP && expected)) {
+        // if (valid != expected || forceDump) {
+        if (valid != expected || (forceDump && expected)) {
             System.out.println("\n----------------------------------------------\n" + testName + "\n\nAIF Model:");
             RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
         }
@@ -184,68 +182,20 @@ class TestUtils {
             fail("Validation was expected to " + (expected ? "pass" : "fail") + " but did not");
         }
     }
-
-    // ----------------------------------------------------------------------------------------------
-    // Random Values Code.  Code below this allows us to create random values for
-    // entities and events, including random ids, names, and suffixes.
-    // ----------------------------------------------------------------------------------------------
-    private final Random r = new Random();
-    private List<Resource> entityResourceList = new ArrayList<>();
-
-    String getRandomDocId() {
-        String s = "";
-        if (r.nextBoolean()) {
-            s += "IC";
-        } else {
-            s += "HC";
-        }
-        s += "00";
-        s += "" + (r.nextInt(1000));
-        s += randomChar();
-        s += randomChar();
-        s += randomChar();
-        return s;
-    }
-
-    private String getRandomString(int length) {
-        StringBuilder s = new StringBuilder();
-        for (int ii = 0; ii < length; ii++) {
-            s.append(randomChar());
-        }
-        return s.toString();
-    }
-
-    Resource getRandomEntity() {
-        return entityResourceList.get(r.nextInt(entityResourceList.size()));
-    }
-
-    private char randomChar() {
-        return abc.charAt(r.nextInt(abc.length()));
-    }
-
-    // Utility values, so that we can easily create random things
-    private final static String abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 }
 
 
 class NistTestUtils extends TestUtils {
 
-    NistTestUtils(String ontologyNamespace, ValidateAIF validator) {
-        super(ontologyNamespace, validator);
+    NistTestUtils(String ontologyNamespace, ValidateAIF validator, boolean forceDump) {
+        super(ontologyNamespace, validator, forceDump);
     }
-
-    private Resource typeAssertionJustification;
 
     Model startNewTest() {
         Model model = super.startNewTest();
-        typeAssertionJustification = makeTextJustification(model, getRandomDocId(),
-                42, 143, system, 0.973);
-        addSourceDocumentToJustification(typeAssertionJustification, getRandomDocId());
+        // NIST tests always need type assertions
+        addSourceDocumentToJustification(super.getTypeAssertionJustification(), getDocumentName());
         return model;
-    }
-
-    Resource getTypeAssertionJustification() {
-        return typeAssertionJustification;
     }
 
     /**
@@ -278,7 +228,7 @@ class NistTestUtils extends TestUtils {
      * @return
      */
     Pair<Resource, Resource> makeValidRelation(Resource type) {
-        Resource relation = super.getValidEvent();
+        Resource relation = super.getValidRelation();
         markJustification(addType(relation, type), typeAssertionJustification);
         Resource relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation, system);
         return new Pair<>(relation, relationCluster);
