@@ -16,10 +16,10 @@ def download_and_extract_submission_from_S3(s3_submission, dirpath):
     """ Downloads submission from s3 and extracts its contents to the working directory.
     Submssions must be an archive of .zip, .tar.gz, or .tgz.
 
-    //TODO document this better 
-    :param boto s3_client
-    :param str s3_submission: The bucket path where the submission lives on s3
-    :param str dirpath
+    :param str s3_submission: The s3 object path for the submission
+    :param str dirpath: The local directory path to place extracted s3_submission files
+    :raises ClientError: SQS client exception
+    :raises Exception: No turtle (TTL) files extracted from s3 submission
     """
     s3_bucket, s3_object, file_name, file_ext = extract_s3_submission_paths(s3_submission)
 
@@ -30,25 +30,19 @@ def download_and_extract_submission_from_S3(s3_submission, dirpath):
     s3_client = boto3.client('s3')
 
     try:
-        logging.info("downloading %s from bucket %s", s3_object, s3_bucket)
+        logging.info("Downloading %s from bucket %s", s3_object, s3_bucket)
         s3_client.download_file(s3_bucket, s3_object, file_name)
+        logging.info("Extracting %s", file_name)
 
-        logging.info("extracting %s", file_name)
-        # extract if it is a tar gz
+        # extract files
         if(file_ext == '.tgz' or file_ext == '.tar.gz'):
             # extract the contents of the .tar.gz
             with tarfile.open(file_name) as tar:
-                # add output directory
                 tar.extractall(dirpath)
-
-        # extract if it is a zip
-        if(file_ext == '.zip'):
+        elif(file_ext == '.zip'):
             zip_ref = zipfile.ZipFile(file_name, 'r')
-            #add output directory
             zip_ref.extractall(dirpath)
             zip_ref.close()
-
-        files = os.listdir(dirpath)
 
         # if no ttl files extracted raise an exception
         if ( len(glob.glob(dirpath + '/**/*.ttl', recursive=True)) <= 0 ):
@@ -60,10 +54,11 @@ def download_and_extract_submission_from_S3(s3_submission, dirpath):
     except Exception as e:
         logging.error(e)
 
+
 def check_valid_extension(s3_submission):
-    """Helper function to check if the s3_submission has valid extension before
-    downloading archive from S3. Valid submissions can archived as .tar.gz, .tgz, 
-    or .zip. 
+    """Helper function that checks the s3_submission extension is valid before
+    downloading archive from S3. Valid submissions can be archived as .tar.gz, 
+    .tgz, or .zip. 
 
     :param str s3_submission: The s3 submission download path
     :returns: True if submission has valid extension, False otherwise
@@ -78,13 +73,18 @@ def check_valid_extension(s3_submission):
         return True
     return False
 
+
 def extract_s3_submission_paths(s3_submission):
-    """ Helper method to extract the s3 bucket and s3 object and output directory
-    from s3 submission path
+    """ Helper method to extract s3 and file path information from s3 submission 
+    path.
 
-    //TODO Document
-
-    :returns: tuple(s3_bucket, )
+    :param str s3_submission: The s3 object path of the submission
+    :returns: 
+        - s3_bucket - the extracted S3 bucket
+        - s3_object - the extracted s3 object
+        - file_name - the extracted file name including extension
+        - file_ext - the extracted file extension
+    :rtype: (str, str, str, str)
     """
     path = Path(s3_submission)
     s3_bucket = path.parts[0]          
@@ -96,15 +96,14 @@ def extract_s3_submission_paths(s3_submission):
 
 
 def upload_submission_files_to_s3(s3_bucket_name, dirpath):
-    """ Create output directories for a validation in s3
+    """Uploads all turtle (ttl) files in directory to the provided S3 bucket.
 
-    //TODO document this better
-
-    :param boto s3_client
-    :param str bucket_name: Unique string name of the bucket where the 
+    :param str s3_bucket_name: Unique string name of the bucket where the 
         directories will be created
+    :param str dirpath: The local directory that contains turtle (ttl) files
     :returns: The list of s3 file paths for all the files that were uploaded
     :rtype: list
+    :raises ClientError: S3 client exception
     """
     
     sqs_list = []
@@ -114,7 +113,7 @@ def upload_submission_files_to_s3(s3_bucket_name, dirpath):
         for filepath in Path(dirpath).glob('**/*.ttl'):
             s3_object = '/'.join([dirpath, 'unprocessed', filepath.name])
 
-            logging.info("uploading %s to bucket %s", s3_object, s3_bucket_name)
+            logging.info("Uploading %s to bucket %s", s3_object, s3_bucket_name)
             s3_client.upload_file(str(filepath), s3_bucket_name, s3_object)
 
             #add the file to the SQS path list
@@ -125,9 +124,13 @@ def upload_submission_files_to_s3(s3_bucket_name, dirpath):
     except ClientError as e:
         logging.error(e)
 
+
 def delete_s3_objects(s3_bucket, s3_prefix):
-    """
-    //TODO document
+    """Deletes all S3 objects from S3 bucket with specified prefix
+
+    :param str s3_bucket:
+    :param str s3_prefix: 
+    :raises ClientError: S3 resrouce exception
     """
     s3 = boto3.resource('s3')
     try:
@@ -136,7 +139,7 @@ def delete_s3_objects(s3_bucket, s3_prefix):
         for obj in bucket.objects.filter(Prefix=s3_prefix+'/'):
             objects_to_delete.append({'Key': obj.key})
 
-        logging.info("deleting %s from s3 bucket %s", objects_to_delete, bucket.name)
+        logging.info("Deleting %s from s3 bucket %s", objects_to_delete, bucket.name)
         bucket.delete_objects(
             Delete={
                 'Objects': objects_to_delete
@@ -147,18 +150,14 @@ def delete_s3_objects(s3_bucket, s3_prefix):
 
 
 def create_sqs_queue(queue_name, queue_attrs):
-    """ Creates an SQS queue with the given [queue_name] and attributes 
-    [queue_attrs]. 
+    """ Creates SQS queue with specified name and attributes.
 
-    //TODO document this better
-
-    :parma sqs_client
     :param str queue_name: The unique name of the queue to be created
     :param dict queue_attrs: The attributes for the queue
-    :return: The SQS queue that was created
-    :rtype:
-    :raises ClientError: SQS Client exception  
-    :raises: SQS queue was unable to be created
+    :return: The SQS queue url
+    :rtype: str
+    :raises ClientError: SQS client exception  
+    :raises Exception: SQS queue was unable to be created
     """
     sqs_client = boto3.client('sqs')
 
@@ -177,8 +176,11 @@ def create_sqs_queue(queue_name, queue_attrs):
 
 
 def populate_sqs_queue(queue_list, queue_url):
-    """
-    //TODO document
+    """Iterates over s3 object path list and populates SQS queue S3Object messages.
+
+    :param list queue_list: List of S3 object paths
+    :param str queue_url: The SQS queue url
+    :raises ClientError: SQS client exception
     """
     sqs_client = boto3.client('sqs')
 
@@ -194,13 +196,16 @@ def populate_sqs_queue(queue_list, queue_url):
                 },
                 MessageBody=('S3 Object {0} to be validated'.format(s3_object))
             )
-            logging.info("added file %s to queue %s", s3_object, queue_url)
+            logging.info("Added file %s to queue %s", s3_object, queue_url)
     except ClientError as e:
         logging.error(e)
 
 
 def delete_sqs_queue(queue_url):
-    """
+    """Deletes SQS queue at specified queue url.
+
+    :param str queue_url: The SQS queue url of queue to be deleted
+    :raises ClientError: SQS client exception
     """
     sqs_client = boto3.client('sqs')
 
@@ -212,8 +217,18 @@ def delete_sqs_queue(queue_url):
     except ClientError as e:
         logging.error(e)
 
-def wait_for_processing(node_index, job_id, sleep_interval):
-    """
+
+def wait_for_processing(node_index, job_id, interval):
+    """Waits in an indefinate loop while all AWS batch jobs are processed. Function will 
+    query AWS batch for all current jobs with the specified job id. If the returned job 
+    list has any jobs with the status of RUNNING (other than itself), it will sleep for 
+    the specified interval and then execute the check again. 
+
+    :param int node_index: The current AWS batch node index of this process
+    :param str job_id: The AWS batch job id
+    :param int interval: The interval to sleep before checking job list again 
+        in seconds
+    :raises ClientError: AWS batch client exception
     """
     batch_client = boto3.client('batch')
 
@@ -222,22 +237,25 @@ def wait_for_processing(node_index, job_id, sleep_interval):
             jobQueue=job_id
         )
 
-        job_list = response["jobSummaryList"]
+        job_list = response['jobSummaryList']
         #job_list = [{"status": "RUNNING","container": {},"jobName": "boto3-test","nodeProperties": {"nodeIndex": 0,"isMainNode": True},"startedAt": 1556308664720,"jobId": "23bd1bdf-54bb-4431-9413-c31dd6dd73d7#0","createdAt": 1556308598877}]
         running_jobs = list(filter(lambda job: job['status'] == 'RUNNING', job_list))
         
-        # check if no jobs are running, throw an error becasue master should still be running
-        if(len(running_jobs) == 0 ):
-            logging.error("no more batch jobs with RUNNING status, but master is still running")
-        # check if one job is running and if it is the master job node
-        elif(len(running_jobs) == 1 and running_jobs[0]['jobId'] == job_id + '#' + str(node_index)):
-            logging.info("there are no more batch jobs currently running")
-        # check if more than on job is still running, sleep
-        else:
-            running_job_ids = [d['jobId'] for d in running_jobs]
-            logging.info("%s batch jobs still running %s", len(running_jobs), running_job_ids)
-            time.sleep(sleep_interval)
-            wait_for_processing(check_interval, job_id)
+        while True:
+            # check if no jobs are running, throw an error becasue master should still be running
+            if(len(running_jobs) == 0 ):
+                logging.error("No batch jobs with RUNNING status")
+                return False
+            # check if only the master job is running
+            elif(len(running_jobs) == 1 and running_jobs[0]['jobId'] == ''.join([job_id, '#', str(node_index)])):
+                logging.info("No child batch jobs with RUNNING status")
+                return True
+            # check if more than on job is still running, sleep
+            else:
+                running_job_ids = [d['jobId'] for d in running_jobs]
+                logging.info('There are %s batch jobs with RUNNING status %s,' 
+                    ' going back to sleep for %s seconds', len(running_jobs), running_job_ids, str(interval))
+                time.sleep(interval)
 
     except ClientError as e:
         logging.error(e)
@@ -246,15 +264,15 @@ def wait_for_processing(node_index, job_id, sleep_interval):
 def main():
     
     # get enviornment variables
-    LOG_LEVEL = 'INFO'
-    S3_SUBMISSION_ARCHIVE = 'aida-validation/test.tar.gz'
-    S3_STAGING_BUCKET = 'aida-validation'
-    AWS_BATCH_JOB_ID = str(uuid.uuid4())
-    AWS_BATCH_JOB_NODE_INDEX = 0
-    CHECK_INTERVAL = 5
+    S3_SUBMISSION_ARCHIVE = os.environ['S3_SUBMISSION_ARCHIVE']
+    S3_STAGING_BUCKET = os.environ['S3_STAGING_BUCKET']
+    AWS_BATCH_JOB_ID = os.environ['AWS_BATCH_JOB_ID']
+    AWS_BATCH_JOB_NODE_INDEX = os.environ['AWS_BATCH_JOB_NODE_INDEX']
+    MASTER_LOG_LEVEL = os.environ['MASTER_LOG_LEVEL']
+    MASTER_SLEEP_INTERVAL = os.environ['MASTER_SLEEP_INTERVAL']
 
     # set logging to log to stdout
-    logging.basicConfig(level=os.environ.get('LOGLEVEL', LOG_LEVEL))
+    logging.basicConfig(level=os.environ.get('LOGLEVEL', MASTER_LOG_LEVEL))
 
     # verify the submission has a valid extension
     if(check_valid_extension(S3_SUBMISSION_ARCHIVE)):
@@ -278,15 +296,13 @@ def main():
         queue_url = create_sqs_queue(AWS_BATCH_JOB_ID, queue_attrs)
         populate_sqs_queue(queue_list, queue_url)
 
-        wait_for_processing(AWS_BATCH_JOB_NODE_INDEX, AWS_BATCH_JOB_ID, 5)
+        # wait for all AWS batch jobs to complete processing
+        wait_for_processing(AWS_BATCH_JOB_NODE_INDEX, AWS_BATCH_JOB_ID, SLEEP_INTERVAL)
 
         # clean up
         delete_s3_objects(S3_STAGING_BUCKET, AWS_BATCH_JOB_ID)
         delete_sqs_queue(queue_url)
     
-        # delete local directory remove this before final and remove import
-        shutil.rmtree(AWS_BATCH_JOB_ID)
-
     else:
         logging.error("s3 submission %s is not a valid archive type", S3_SUBMISSION_ARCHIVE)
 

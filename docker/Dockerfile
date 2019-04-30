@@ -13,7 +13,10 @@ RUN \
 # Install system packages
 RUN apt-get -qqy install \
     git \
-    vim 
+    vim \
+    python3-pip
+
+RUN pip3 install boto3 
 
 #-------------------------------------------------------------
 #  Install Java OpenJDK 8
@@ -57,7 +60,8 @@ RUN mv /tmp/AIDA-Interchange-Format/* $VALIDATION_HOME
 # Clean up SPARQL evaluation git directory and downloaded dependencies
 WORKDIR $VALIDATION_HOME
 
-COPY ["scripts/entrypoint.sh", "/usr/local/"]
-RUN chmod +x /usr/local/entrypoint.sh
+COPY ["scripts/initializer.py", "/usr/local/"]
+ENTRYPOINT ["python3", "/usr/local/initializer.py"]
 
-ENTRYPOINT ["/usr/local/entrypoint.sh"]
+#RUN chmod +x /usr/local/entrypoint.sh
+#ENTRYPOINT ["/usr/local/entrypoint.sh"]
