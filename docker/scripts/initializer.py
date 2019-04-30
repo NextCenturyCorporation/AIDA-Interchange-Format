@@ -132,6 +132,7 @@ def upload_file_to_s3(s3_bucket_name, s3_prefix, filepath):
     :param str s3_bucket_name: Name of the S3 bucket where the file will be uploaded
     :param str s3_prefix: The prefix to prepend to the filename
     :param str filepath: The local path of the file to be uploaded
+    :raises ClientError: S3 client exception
     """
     s3_client = boto3.client('s3')
 
@@ -141,6 +142,24 @@ def upload_file_to_s3(s3_bucket_name, s3_prefix, filepath):
         logging.info("Uploading %s to bucket %s", s3_object, s3_bucket_name)
         s3_client.upload_file(str(filepath), s3_bucket_name, s3_object)
 
+    except ClientError as e:
+        logging.error(e)
+
+def bucket_exists(s3_bucket_name):
+    """Helper method that will check if a S3 bucket exists
+
+    :param str s3_bucket_name: The S3 bucket that is being checked
+    :returns: True if bucket exists, False otherwise
+    :rtype: bool
+    :raises ClientError: S3 resource exception
+    """
+    s3 = boto3.resource('s3')
+
+    try:
+        bucket = s3.Bucket(s3_bucket_name)
+        if bucket.creation_date is not None:
+            return True
+        return False
     except ClientError as e:
         logging.error(e)
 
@@ -170,7 +189,7 @@ def delete_s3_objects(s3_bucket, s3_prefix):
 
 
 def create_sqs_queue(queue_name, queue_attrs):
-    """ Creates SQS queue with specified name and attributes.
+    """ Creates SQS FIFO queue with specified name and attributes.
 
     :param str queue_name: The unique name of the queue to be created
     :param dict queue_attrs: The attributes for the queue
@@ -180,6 +199,7 @@ def create_sqs_queue(queue_name, queue_attrs):
     :raises Exception: SQS queue was unable to be created
     """
     sqs_client = boto3.client('sqs')
+    queue_name += '.fifo'
 
     try:
         logging.info("creating sqs queue %s", queue_name)
@@ -195,11 +215,12 @@ def create_sqs_queue(queue_name, queue_attrs):
         logging.error("Unable to create SQS queue with given name %s", queue_name)
 
 
-def populate_sqs_queue(queue_list, queue_url):
+def populate_sqs_queue(queue_list, queue_url, message_group_id):
     """Iterates over s3 object path list and populates SQS queue S3Object messages.
 
     :param list queue_list: List of S3 object paths
     :param str queue_url: The SQS queue url
+    :param str message_group_id: The message group id for the FIFO queue
     :raises ClientError: SQS client exception
     """
     sqs_client = boto3.client('sqs')
@@ -214,7 +235,8 @@ def populate_sqs_queue(queue_list, queue_url):
                         'StringValue': s3_object
                     } 
                 },
-                MessageBody=('S3 Object {0} to be validated'.format(s3_object))
+                MessageBody=('S3 Object {0} to be validated'.format(s3_object)),
+                MessageGroupId=message_group_id
             )
             logging.info("Added file %s to queue %s", s3_object, queue_url)
     except ClientError as e:
@@ -289,9 +311,14 @@ def wait_for_processing(node_index, job_id, interval):
 
 def main():
     
+    #update staging bucket to validation bucket
+    #check if validation bucket doesn't exist
+    #move queue_attrs into sqs create queue metod
+    #consider moving the sourcelist creation into the populate queue method
+
     # get enviornment variables
     S3_SUBMISSION_ARCHIVE = os.environ['S3_SUBMISSION_ARCHIVE']
-    S3_STAGING_BUCKET = os.environ['S3_STAGING_BUCKET']
+    S3_VALIDATION_BUCKET = os.environ['S3_VALIDATION_BUCKET']
     AWS_BATCH_JOB_ID = os.environ['AWS_BATCH_JOB_ID']
     AWS_BATCH_JOB_NODE_INDEX = os.environ['AWS_BATCH_JOB_NODE_INDEX']
     MASTER_LOG_LEVEL = os.environ['MASTER_LOG_LEVEL']
@@ -299,6 +326,10 @@ def main():
 
     # set logging to log to stdout
     logging.basicConfig(level=os.environ.get('LOGLEVEL', MASTER_LOG_LEVEL))
+
+    # verify that the validation bucket exists
+    if not bucket_exists(S3_VALIDATION_BUCKET):
+        logging.error("S3 validation bucket %s does not exist", S3_VALIDATION_BUCKET) 
 
     # verify the submission has a valid extension
     if(check_valid_extension(S3_SUBMISSION_ARCHIVE)):
@@ -309,28 +340,30 @@ def main():
 
         # create sqs connection
         sqs_client = boto3.resource('sqs')
-        queue_list = upload_submission_files_to_s3(S3_STAGING_BUCKET, AWS_BATCH_JOB_ID)
+        queue_list = upload_submission_files_to_s3(S3_VALIDATION_BUCKET, AWS_BATCH_JOB_ID)
         queue_attrs =  {
                     'MaximumMessageSize': '262144',
                     'VisibilityTimeout': '3600',
-                    'MessageRetentionPeriod':'3600'
-        }
+                    'MessageRetentionPeriod':'3600',
+                    'FifoQueue': 'true',
+                    'ContentBasedDeduplication': 'true'
+        }        
 
         #create queues and populate queue to be processed
         queue_url = create_sqs_queue(AWS_BATCH_JOB_ID, queue_attrs)
-        populate_sqs_queue(queue_list, queue_url)
+        populate_sqs_queue(queue_list, queue_url, AWS_BATCH_JOB_ID)
 
         # serialize sqs messages to local sourcefiles
         logging.info("writing queue list %s to sourcefiles",  ' '.join([str(s) for s in queue_list]))
         with open('sourcefiles', 'wb') as f:
             pickle.dump(queue_list, f)
-        upload_file_to_s3(S3_STAGING_BUCKET, '/'.join([AWS_BATCH_JOB_ID, 'output', 'log']), 'sourcefiles')
+        upload_file_to_s3(S3_VALIDATION_BUCKET, '/'.join([AWS_BATCH_JOB_ID, 'output', 'log']), 'sourcefiles')
 
         # wait for all AWS batch jobs to complete processing
         wait_for_processing(AWS_BATCH_JOB_NODE_INDEX, AWS_BATCH_JOB_ID, MASTER_SLEEP_INTERVAL)
 
         # clean up
-        delete_s3_objects(S3_STAGING_BUCKET, AWS_BATCH_JOB_ID)
+        delete_s3_objects(S3_VALIDATION_BUCKET, AWS_BATCH_JOB_ID)
         delete_sqs_queue(queue_url)
     
     else:
