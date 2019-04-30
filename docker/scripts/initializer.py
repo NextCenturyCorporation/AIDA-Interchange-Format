@@ -254,10 +254,12 @@ def wait_for_processing(node_index, job_id, interval):
 
     try:
         response = batch_client.list_jobs(
-            jobQueue=job_id
+            multiNodeJobId=job_id
         )
 
         job_list = response['jobSummaryList']
+        logging.info("job list %s", job_list)
+
         #job_list = [{"status": "RUNNING","container": {},"jobName": "boto3-test","nodeProperties": {"nodeIndex": 0,"isMainNode": True},"startedAt": 1556308664720,"jobId": "23bd1bdf-54bb-4431-9413-c31dd6dd73d7#0","createdAt": 1556308598877}]
         running_jobs = list(filter(lambda job: job['status'] == 'RUNNING', job_list))
 
@@ -293,7 +295,7 @@ def main():
     AWS_BATCH_JOB_ID = os.environ['AWS_BATCH_JOB_ID']
     AWS_BATCH_JOB_NODE_INDEX = os.environ['AWS_BATCH_JOB_NODE_INDEX']
     MASTER_LOG_LEVEL = os.environ['MASTER_LOG_LEVEL']
-    MASTER_SLEEP_INTERVAL = os.environ['MASTER_SLEEP_INTERVAL']
+    MASTER_SLEEP_INTERVAL = int(os.environ['MASTER_SLEEP_INTERVAL'])
 
     # set logging to log to stdout
     logging.basicConfig(level=os.environ.get('LOGLEVEL', MASTER_LOG_LEVEL))
