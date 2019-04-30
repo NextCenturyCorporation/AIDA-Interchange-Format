@@ -1,5 +1,14 @@
 #!/bin/bash
 
-docker run --rm -d \
-	--name aif-validator \
-    	-it aif-validator
+docker run --rm -it \
+        -e S3_SUBMISSION_ARCHIVE='' \
+        -e S3_STAGING_BUCKET='' \
+        -e AWS_BATCH_JOB_ID='' \
+        -e AWS_BATCH_JOB_NODE_INDEX= \
+        -e MASTER_LOG_LEVEL='' \
+        -e MASTER_SLEEP_INTERVAL= \
+        -e AWS_ACCESS_KEY_ID='' \
+        -e AWS_SECRET_ACCESS_KEY='' \
+        -e AWS_DEFAULT_REGION='' \
+        --name batch-initailizer \
+        batch-initializer

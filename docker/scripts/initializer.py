@@ -8,6 +8,7 @@ import glob
 import json
 import shutil
 import time
+import pickle
 from pathlib import Path
 from botocore.exceptions import ClientError
 
@@ -120,6 +121,25 @@ def upload_submission_files_to_s3(s3_bucket_name, dirpath):
             sqs_list.append(s3_object)
 
         return sqs_list
+
+    except ClientError as e:
+        logging.error(e)
+
+
+def upload_file_to_s3(s3_bucket_name, s3_prefix, filepath):
+    """ Helper method to upload single file to S3 bucket with specified prefix
+
+    :param str s3_bucket_name: Name of the S3 bucket where the file will be uploaded
+    :param str s3_prefix: The prefix to prepend to the filename
+    :param str filepath: The local path of the file to be uploaded
+    """
+    s3_client = boto3.client('s3')
+
+    try:
+        s3_object = '/'.join([s3_prefix, Path(filepath).name])
+
+        logging.info("Uploading %s to bucket %s", s3_object, s3_bucket_name)
+        s3_client.upload_file(str(filepath), s3_bucket_name, s3_object)
 
     except ClientError as e:
         logging.error(e)
@@ -240,17 +260,21 @@ def wait_for_processing(node_index, job_id, interval):
         job_list = response['jobSummaryList']
         #job_list = [{"status": "RUNNING","container": {},"jobName": "boto3-test","nodeProperties": {"nodeIndex": 0,"isMainNode": True},"startedAt": 1556308664720,"jobId": "23bd1bdf-54bb-4431-9413-c31dd6dd73d7#0","createdAt": 1556308598877}]
         running_jobs = list(filter(lambda job: job['status'] == 'RUNNING', job_list))
-        
+
         while True:
             # check if no jobs are running, throw an error becasue master should still be running
             if(len(running_jobs) == 0 ):
                 logging.error("No batch jobs with RUNNING status")
                 return False
+            # ensure master node is always in RUNNING status if multiple jobs are running
+            elif(len(running_jobs) > 0 and 
+                not any(d['jobId'] == ''.join([job_id, '#', str(node_index)]) for d in running_jobs)):
+                logging.error("Master batch job %s no longer has RUNNING status", ''.join([job_id, '#', str(node_index)]))
+                return False
             # check if only the master job is running
             elif(len(running_jobs) == 1 and running_jobs[0]['jobId'] == ''.join([job_id, '#', str(node_index)])):
-                logging.info("No child batch jobs with RUNNING status")
+                logging.info("No slave batch jobs with RUNNING status")
                 return True
-            # check if more than on job is still running, sleep
             else:
                 running_job_ids = [d['jobId'] for d in running_jobs]
                 logging.info('There are %s batch jobs with RUNNING status %s,' 
@@ -284,8 +308,6 @@ def main():
         # create sqs connection
         sqs_client = boto3.resource('sqs')
         queue_list = upload_submission_files_to_s3(S3_STAGING_BUCKET, AWS_BATCH_JOB_ID)
-        logging.info("queue list %s",  ' '.join([str(s) for s in queue_list]))
-
         queue_attrs =  {
                     'MaximumMessageSize': '262144',
                     'VisibilityTimeout': '3600',
@@ -296,14 +318,21 @@ def main():
         queue_url = create_sqs_queue(AWS_BATCH_JOB_ID, queue_attrs)
         populate_sqs_queue(queue_list, queue_url)
 
+        logging.info("writing queue list %s to sourcefiles",  ' '.join([str(s) for s in queue_list]))
+
+        # serialize sqs messages to local sourcefiles
+        with open('sourcefiles', 'wb') as f:
+            pickle.dump(queue_list, f)
+        upload_file_to_s3(S3_STAGING_BUCKET, '/'.join([AWS_BATCH_JOB_ID, 'output', 'log']), 'sourcefiles')
+
         # wait for all AWS batch jobs to complete processing
-        wait_for_processing(AWS_BATCH_JOB_NODE_INDEX, AWS_BATCH_JOB_ID, SLEEP_INTERVAL)
+        wait_for_processing(AWS_BATCH_JOB_NODE_INDEX, AWS_BATCH_JOB_ID, MASTER_SLEEP_INTERVAL)
 
         # clean up
         delete_s3_objects(S3_STAGING_BUCKET, AWS_BATCH_JOB_ID)
         delete_sqs_queue(queue_url)
     
     else:
-        logging.error("s3 submission %s is not a valid archive type", S3_SUBMISSION_ARCHIVE)
+        logging.error("S3 submission %s is not a valid archive type", S3_SUBMISSION_ARCHIVE)
 
 if __name__ == "__main__": main()

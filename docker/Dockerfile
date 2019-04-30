@@ -16,7 +16,10 @@ RUN apt-get -qqy install \
     vim \
     python3-pip
 
-RUN pip3 install boto3 
+#-------------------------------------------------------------
+#  Install Python Dependencies
+#-------------------------------------------------------------
+RUN pip3 install boto3 awscli
 
 #-------------------------------------------------------------
 #  Install Java OpenJDK 8
