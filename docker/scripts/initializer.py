@@ -320,9 +320,8 @@ def main():
         queue_url = create_sqs_queue(AWS_BATCH_JOB_ID, queue_attrs)
         populate_sqs_queue(queue_list, queue_url)
 
-        logging.info("writing queue list %s to sourcefiles",  ' '.join([str(s) for s in queue_list]))
-
         # serialize sqs messages to local sourcefiles
+        logging.info("writing queue list %s to sourcefiles",  ' '.join([str(s) for s in queue_list]))
         with open('sourcefiles', 'wb') as f:
             pickle.dump(queue_list, f)
         upload_file_to_s3(S3_STAGING_BUCKET, '/'.join([AWS_BATCH_JOB_ID, 'output', 'log']), 'sourcefiles')
