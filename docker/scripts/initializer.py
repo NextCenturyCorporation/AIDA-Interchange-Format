@@ -36,7 +36,7 @@ def download_and_extract_submission_from_S3(s3_submission, dirpath):
         logging.info("Extracting %s", file_name)
 
         # extract files
-        if(file_ext == '.tgz' or file_ext == '.tar.gz'):
+        if file_ext == '.tgz' or file_ext == '.tar.gz':
             # extract the contents of the .tar.gz
             with tarfile.open(file_name) as tar:
                 tar.extractall(dirpath)
@@ -46,7 +46,7 @@ def download_and_extract_submission_from_S3(s3_submission, dirpath):
             zip_ref.close()
 
         # if no ttl files extracted raise an exception
-        if ( len(glob.glob(dirpath + '/**/*.ttl', recursive=True)) <= 0 ):
+        if len(glob.glob(dirpath + '/**/*.ttl', recursive=True)) <= 0 :
             raise Exception ("No ttl files extracted to directory {0} for S3 submission {1}"
                 .format(dirpath, file_name))
             
@@ -70,7 +70,7 @@ def check_valid_extension(s3_submission):
 
     valid_ext = [".tar.gz", ".tgz", ".zip"]
 
-    if(file_ext in valid_ext):
+    if file_ext in valid_ext:
         return True
     return False
 
@@ -188,11 +188,10 @@ def delete_s3_objects(s3_bucket, s3_prefix):
         logging.error(e)
 
 
-def create_sqs_queue(queue_name, queue_attrs):
-    """ Creates SQS FIFO queue with specified name and attributes.
+def create_sqs_queue(queue_name):
+    """ Creates SQS FIFO queue with specified name.
 
     :param str queue_name: The unique name of the queue to be created
-    :param dict queue_attrs: The attributes for the queue
     :return: The SQS queue url
     :rtype: str
     :raises ClientError: SQS client exception  
@@ -205,7 +204,13 @@ def create_sqs_queue(queue_name, queue_attrs):
         logging.info("creating sqs queue %s", queue_name)
         queue = sqs_client.create_queue(
             QueueName = queue_name,
-            Attributes = queue_attrs
+            Attributes =  {
+                'MaximumMessageSize': '262144',
+                'VisibilityTimeout': '3600',
+                'MessageRetentionPeriod':'3600',
+                'FifoQueue': 'true',
+                'ContentBasedDeduplication': 'true'
+            }   
         )
         return queue['QueueUrl']
         raise
@@ -215,12 +220,15 @@ def create_sqs_queue(queue_name, queue_attrs):
         logging.error("Unable to create SQS queue with given name %s", queue_name)
 
 
-def populate_sqs_queue(queue_list, queue_url, message_group_id):
-    """Iterates over s3 object path list and populates SQS queue S3Object messages.
+def populate_sqs_queue(queue_list, queue_url, message_group_id, sourcefiles_path):
+    """Iterates over s3 object path list and populates SQS queue S3Object messages. A 
+    serialized file will be generated with all of the S3 objects that were added to SQS.
 
     :param list queue_list: List of S3 object paths
     :param str queue_url: The SQS queue url
     :param str message_group_id: The message group id for the FIFO queue
+    :param str sourcefiles_path: The path of the serialized file to be created with added
+        S3 objects
     :raises ClientError: SQS client exception
     """
     sqs_client = boto3.client('sqs')
@@ -239,6 +247,12 @@ def populate_sqs_queue(queue_list, queue_url, message_group_id):
                 MessageGroupId=message_group_id
             )
             logging.info("Added file %s to queue %s", s3_object, queue_url)
+
+        # serialize sqs messages to local sourcefiles
+        logging.info("Writing queue list to %s", sourcefiles_path)
+        with open(sourcefiles_path, 'wb') as f:
+            pickle.dump(queue_list, f)
+
     except ClientError as e:
         logging.error(e)
 
@@ -287,16 +301,16 @@ def wait_for_processing(node_index, job_id, interval):
 
         while True:
             # check if no jobs are running, throw an error becasue master should still be running
-            if(len(running_jobs) == 0 ):
+            if len(running_jobs) == 0:
                 logging.error("No batch jobs with RUNNING status")
                 return False
             # ensure master node is always in RUNNING status if multiple jobs are running
-            elif(len(running_jobs) > 0 and 
-                not any(d['jobId'] == ''.join([job_id, '#', str(node_index)]) for d in running_jobs)):
+            elif ( len(running_jobs) > 0 and 
+                not any(d['jobId'] == ''.join([job_id, '#', str(node_index)]) for d in running_jobs) ):
                 logging.error("Master batch job %s no longer has RUNNING status", ''.join([job_id, '#', str(node_index)]))
                 return False
             # check if only the master job is running
-            elif(len(running_jobs) == 1 and running_jobs[0]['jobId'] == ''.join([job_id, '#', str(node_index)])):
+            elif len(running_jobs) == 1 and running_jobs[0]['jobId'] == ''.join([job_id, '#', str(node_index)]):
                 logging.info("No slave batch jobs with RUNNING status")
                 return True
             else:
@@ -309,64 +323,82 @@ def wait_for_processing(node_index, job_id, interval):
         logging.error(e)
 
 
+def is_env_set(env, value):
+    """ Helper method to check if a specific enviornment variable is not None
+
+    :param str env: The name of the enviornment variable
+    :param value: The value of the enviornment variable
+    :returns: True if environment variable is set, False otherwise
+    :rtype: bool
+    """
+    if not value:
+        logging.error("Environment variable %s is not set", env)
+        return False
+    logging.info("Environment variable %s is set to %s", env, value)
+    return True
+
+
+def validate_envs(envs):
+    """ Helper method to validate all of the enviroment variables exist and are valid before
+    processing starts.
+
+    :param dict envs: Dictionary of all environment varaibles
+    :returns: True if all environment variables are valid, False otherwise
+    :rtype: bool
+    """
+    for k, v in envs.items():
+        if not is_env_set(k, v):
+            return False
+
+    # check the extension of the S3 submission
+    if not check_valid_extension(envs['S3_SUBMISSION_ARCHIVE']):
+        logging.error("S3 submission %s is not a valid archive type", envs['S3_SUBMISSION_ARCHIVE'])
+        return False
+
+    # check that the validation bucket exists
+    if not bucket_exists(envs['S3_VALIDATION_BUCKET']):
+        logging.error("S3 validation bucket %s does not exist", envs['S3_VALIDATION_BUCKET'])
+        return False
+
+    return True
+
+
 def main():
     
-    #update staging bucket to validation bucket
-    #check if validation bucket doesn't exist
-    #move queue_attrs into sqs create queue metod
-    #consider moving the sourcelist creation into the populate queue method
-
-    # get enviornment variables
-    S3_SUBMISSION_ARCHIVE = os.environ['S3_SUBMISSION_ARCHIVE']
-    S3_VALIDATION_BUCKET = os.environ['S3_VALIDATION_BUCKET']
-    AWS_BATCH_JOB_ID = os.environ['AWS_BATCH_JOB_ID']
-    AWS_BATCH_JOB_NODE_INDEX = os.environ['AWS_BATCH_JOB_NODE_INDEX']
-    MASTER_LOG_LEVEL = os.environ['MASTER_LOG_LEVEL']
-    MASTER_SLEEP_INTERVAL = int(os.environ['MASTER_SLEEP_INTERVAL'])
-
+    # read in all evnironment variables into dict
+    envs = {}
+    envs['S3_SUBMISSION_ARCHIVE'] = os.environ['S3_SUBMISSION_ARCHIVE']
+    envs['S3_VALIDATION_BUCKET'] = os.environ['S3_VALIDATION_BUCKET']
+    envs['AWS_BATCH_JOB_ID'] = os.environ['AWS_BATCH_JOB_ID']
+    envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ['AWS_BATCH_JOB_NODE_INDEX']
+    envs['MASTER_LOG_LEVEL'] = os.environ['MASTER_LOG_LEVEL']
+    envs['MASTER_SLEEP_INTERVAL'] = int(os.environ['MASTER_SLEEP_INTERVAL'])
+    
     # set logging to log to stdout
-    logging.basicConfig(level=os.environ.get('LOGLEVEL', MASTER_LOG_LEVEL))
+    logging.basicConfig(level=os.environ.get('LOGLEVEL', envs['MASTER_LOG_LEVEL']))
 
-    # verify that the validation bucket exists
-    if not bucket_exists(S3_VALIDATION_BUCKET):
-        logging.error("S3 validation bucket %s does not exist", S3_VALIDATION_BUCKET) 
-
-    # verify the submission has a valid extension
-    if(check_valid_extension(S3_SUBMISSION_ARCHIVE)):
+    # verify enviorment variables
+    if validate_envs(envs):
 
         # create s3 connection
         s3_client = boto3.client('s3')
-        download_and_extract_submission_from_S3(S3_SUBMISSION_ARCHIVE, AWS_BATCH_JOB_ID)
+        download_and_extract_submission_from_S3(envs['S3_SUBMISSION_ARCHIVE'], envs['AWS_BATCH_JOB_ID'])
 
         # create sqs connection
         sqs_client = boto3.resource('sqs')
-        queue_list = upload_submission_files_to_s3(S3_VALIDATION_BUCKET, AWS_BATCH_JOB_ID)
-        queue_attrs =  {
-                    'MaximumMessageSize': '262144',
-                    'VisibilityTimeout': '3600',
-                    'MessageRetentionPeriod':'3600',
-                    'FifoQueue': 'true',
-                    'ContentBasedDeduplication': 'true'
-        }        
-
+        queue_list = upload_submission_files_to_s3(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
+     
         #create queues and populate queue to be processed
-        queue_url = create_sqs_queue(AWS_BATCH_JOB_ID, queue_attrs)
-        populate_sqs_queue(queue_list, queue_url, AWS_BATCH_JOB_ID)
-
-        # serialize sqs messages to local sourcefiles
-        logging.info("writing queue list %s to sourcefiles",  ' '.join([str(s) for s in queue_list]))
-        with open('sourcefiles', 'wb') as f:
-            pickle.dump(queue_list, f)
-        upload_file_to_s3(S3_VALIDATION_BUCKET, '/'.join([AWS_BATCH_JOB_ID, 'output', 'log']), 'sourcefiles')
+        queue_url = create_sqs_queue(envs['AWS_BATCH_JOB_ID'])
+        populate_sqs_queue(queue_list, queue_url, envs['AWS_BATCH_JOB_ID'], 'sourcefiles')
+        upload_file_to_s3(envs['S3_VALIDATION_BUCKET'], 
+            '/'.join([envs['AWS_BATCH_JOB_ID'], 'output', 'log']), 'sourcefiles')
 
         # wait for all AWS batch jobs to complete processing
-        wait_for_processing(AWS_BATCH_JOB_NODE_INDEX, AWS_BATCH_JOB_ID, MASTER_SLEEP_INTERVAL)
+        wait_for_processing(envs['AWS_BATCH_JOB_NODE_INDEX'], envs['AWS_BATCH_JOB_ID'], envs['MASTER_SLEEP_INTERVAL'])
 
         # clean up
-        delete_s3_objects(S3_VALIDATION_BUCKET, AWS_BATCH_JOB_ID)
+        delete_s3_objects(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
         delete_sqs_queue(queue_url)
     
-    else:
-        logging.error("S3 submission %s is not a valid archive type", S3_SUBMISSION_ARCHIVE)
-
 if __name__ == "__main__": main()
