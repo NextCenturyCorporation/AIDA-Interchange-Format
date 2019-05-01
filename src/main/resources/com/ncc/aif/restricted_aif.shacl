@@ -225,9 +225,15 @@ aida:JustificationSourceDocumentShape
     .
 
 #########################
-# Each entity/filler name string is limited to 256 UTF-8 characters
+# Each entity/filler name, text value, and numeric value is limited to 256 UTF-8 characters
 #------------------------
 aida:NamePropertyShape
+  sh:maxLength 256 .
+
+aida:TextPropertyShape
+  sh:maxLength 256 .
+
+aida:NumericPropertyShape
   sh:maxLength 256 .
 
 #########################
