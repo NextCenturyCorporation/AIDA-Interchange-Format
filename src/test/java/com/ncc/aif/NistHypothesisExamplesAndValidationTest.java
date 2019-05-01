@@ -138,6 +138,7 @@ public class NistHypothesisExamplesAndValidationTest {
                 utils.testInvalid("NISTHypothesis.invalid (hypothesis has no importance value): Each hypothesis " +
                         "graph must have exactly one hypothesis importance value");
             }
+
             @Test
             void valid() {
                 utils.makeNistHypothesis(entity, event, eventEdge);
@@ -152,6 +153,7 @@ public class NistHypothesisExamplesAndValidationTest {
             Resource relation;
             Resource eventCluster;
             Resource relationCluster;
+            Resource relationEdge;
 
             @BeforeEach
             void setup() {
@@ -159,7 +161,12 @@ public class NistHypothesisExamplesAndValidationTest {
                 relation = relationPair.getKey();
                 relationCluster = relationPair.getValue();
                 eventCluster = makeClusterWithPrototype(model, utils.getClusterUri(), event, system);
-                utils.makeNistHypothesis(entity, event, eventEdge, relation);
+
+                relationEdge = markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate,
+                        entity, system, 1d, utils.getAssertionUri());
+                markImportance(relationEdge, 102.0);
+
+                utils.makeNistHypothesis(entity, event, eventEdge, relation, relationEdge);
             }
 
             @Test
@@ -264,7 +271,7 @@ public class NistHypothesisExamplesAndValidationTest {
         }
 
         @Nested
-        class KEsInModelMustBeReferencedByHypothesis{
+        class KEsInModelMustBeReferencedByHypothesis {
             Resource relation;
             Resource relationEdge;
 

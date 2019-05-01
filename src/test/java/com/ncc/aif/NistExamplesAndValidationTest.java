@@ -39,10 +39,6 @@ public class NistExamplesAndValidationTest {
     private Model model;
     private Resource system;
 
-    private String getTestSystemUri() {
-        return utils.getTestSystemUri();
-    }
-
     @BeforeEach
     void setup() {
         model = utils.startNewTest();
@@ -604,7 +600,7 @@ public class NistExamplesAndValidationTest {
             @BeforeEach
             void setup() {
                 model.removeAll();
-                system = makeSystemWithURI(model, getTestSystemUri());
+                system = makeSystemWithURI(model, utils.getTestSystemUri());
 
                 linkAssertion = model.createResource();
                 linkAssertion.addProperty(RDF.type, AidaAnnotationOntology.LINK_ASSERTION_CLASS);
@@ -626,12 +622,14 @@ public class NistExamplesAndValidationTest {
                 entity.addProperty(AidaAnnotationOntology.LINK, typeAssertionJustification);
                 utils.testInvalid("LinkAssertion.invalid: Link to non-LinkAssertion");
             }
+
             @Test
             void invalidNoTarget() {
                 link(entity);
                 markConfidence(model, linkAssertion, 1.0, system);
                 utils.testInvalid("LinkAssertion.invalid: No link target");
             }
+
             @Test
             void invalidTooManyTargets() {
                 link(entity);
@@ -640,12 +638,14 @@ public class NistExamplesAndValidationTest {
                 target("SomeExternalKBId-2");
                 utils.testInvalid("LinkAssertion.invalid: Too many link targets");
             }
+
             @Test
             void invalidNoConfidence() {
                 link(entity);
                 target("SomeExternalKBId-1");
                 utils.testInvalid("LinkAssertion.invalid: No confidence");
             }
+
             @Test
             void invalidTooManyConfidences() {
                 link(entity);
@@ -654,6 +654,7 @@ public class NistExamplesAndValidationTest {
                 target("SomeExternalKBId-1");
                 utils.testInvalid("LinkAssertion.invalid: Too many confidences");
             }
+
             @Test
             void valid() {
                 link(entity);
