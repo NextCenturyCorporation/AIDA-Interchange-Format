@@ -295,8 +295,6 @@ def wait_for_processing(node_index, job_id, interval):
 
         job_list = response['jobSummaryList']
         logging.info("AWS Batch job summary list %s", job_list)
-
-        #job_list = [{"status": "RUNNING","container": {},"jobName": "boto3-test","nodeProperties": {"nodeIndex": 0,"isMainNode": True},"startedAt": 1556308664720,"jobId": "23bd1bdf-54bb-4431-9413-c31dd6dd73d7#0","createdAt": 1556308598877}]
         running_jobs = list(filter(lambda job: job['status'] == 'RUNNING', job_list))
 
         while True:
