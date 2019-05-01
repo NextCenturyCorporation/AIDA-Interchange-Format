@@ -331,22 +331,9 @@ class NistTestUtils extends TestUtils {
      * @return a key-value Pair of the entity Resource (key) and its associated cluster Resource (value)
      */
     Pair<Resource, Resource> makeNistEntity(Resource type) {
-        return makeNistEntity(type, null);
-    }
-
-    /**
-     * Makes and returns a valid NIST-restricted entity of the specified type and its cluster with the specified cluster handle.
-     *
-     * @param type          entity type
-     * @param clusterHandle cluster handle for the entity cluster
-     * @return a key-value Pair of the entity Resource (key) and its associated cluster Resource (value)
-     */
-    Pair<Resource, Resource> makeNistEntity(Resource type, String clusterHandle) {
         Resource entity = AIFUtils.makeEntity(model, getEntityUri(), system);
         markJustification(addType(entity, type), getTypeAssertionJustification());
-        Resource entityCluster = clusterHandle == null ?
-                makeClusterWithPrototype(model, getClusterUri(), entity, system) :
-                makeClusterWithPrototype(model, getClusterUri(), entity, clusterHandle, system);
+        Resource entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, system);
         return new Pair<>(entity, entityCluster);
     }
 
@@ -399,4 +386,81 @@ class NistTestUtils extends TestUtils {
         return hypothesis;
     }
 
+}
+
+
+/**
+ * An extension of the NistTestUtils that supports testing TA3 restricted AIF.
+ * Usage and features are the same as NistTestUtils.
+ */
+class NistHypothesisTestUtils extends NistTestUtils {
+
+    /**
+     * Constructor for utilities for testing restricted AIF functionality.
+     *
+     * @param annotationNamespace namespace to use with URIs
+     * @param validator           an AIF validator instantiated based on the caller's ontology and desired NIST restrictions
+     * @param forceDump           whether or not to force dumping of models prior to validation
+     */
+    NistHypothesisTestUtils(String annotationNamespace, ValidateAIF validator, boolean forceDump) {
+        super(annotationNamespace, validator, forceDump);
+    }
+
+    /**
+     * Makes and returns a valid NIST-restricted entity of the specified type and its cluster with the specified
+     * cluster handle.
+     *
+     * @param type          entity type
+     * @param clusterHandle cluster handle for the entity cluster
+     * @return a key-value Pair of the entity Resource (key) and its associated cluster Resource (value)
+     */
+    Pair<Resource, Resource> makeNistEntity(Resource type, String clusterHandle) {
+        Pair<Resource, Resource> pair = makeNistEntity(type);
+        pair.getValue().addProperty(AidaAnnotationOntology.HANDLE, clusterHandle);
+        return pair;
+    }
+
+    /**
+     * Makes and returns a valid NIST-restricted event of the specified type and its cluster marked with the
+     * specified importance.
+     *
+     * @param type       event type
+     * @param importance the importance to mark the event cluster
+     * @return a key-value Pair of the event Resource (key) and its associated cluster Resource (value)
+     */
+    Pair<Resource, Resource> makeNistEvent(Resource type, double importance) {
+        Pair<Resource, Resource> pair = makeNistEvent(type);
+        markImportance(pair.getValue(), importance);
+        return pair;
+    }
+
+    /**
+     * Makes and returns a valid NIST-restricted relation of the specified type and its cluster marked with the
+     * specified importance.
+     *
+     * @param type       relation type
+     * @param importance the importance to mark the relation cluster
+     * @return a key-value Pair of the event Resource (key) and its associated cluster Resource (value)
+     */
+    Pair<Resource, Resource> makeNistRelation(Resource type, double importance) {
+        Pair<Resource, Resource> pair = makeNistRelation(type);
+        markImportance(pair.getValue(), importance);
+        return pair;
+    }
+
+    /**
+     * Makes and returns an edge relationship between the specified event or relation and an argument filler entity.
+     *
+     * @param eventOrRelation The event or relation for which to mark the specified argument role
+     * @param type            the type of the argument
+     * @param argumentFiller  the filler (object) of the argument
+     * @param importance      the importance to mark the edge
+     * @return the created event or relation argument assertion
+     */
+    Resource makeEdge(Resource eventOrRelation, Resource type, Resource argumentFiller, double importance) {
+        Resource edge = markAsArgument(model, eventOrRelation, type, argumentFiller, system,
+                1.0, getAssertionUri());
+        markImportance(edge, importance);
+        return edge;
+    }
 }
