@@ -18,6 +18,7 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.vocabulary.RDF;
+import org.apache.jena.vocabulary.RDFS;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
@@ -1569,18 +1570,42 @@ public class ExamplesAndValidationTest {
         @Nested
         class NameMaxLength {
             @Test
-            void invalid() {
+            void invalidName() {
                 // assign alternate names to the entity that are longer that 256 characters.
                 markName(entity, "This is a test string that will be used to validate " +
                         "that entity names and fillers are limited to 256 characters. This string should " +
                         "fail because this string is exactly 257 characters long. This is filler text to " +
                         "get to the two hundred and fifty-seven limit.");
 
-                testInvalid("NIST.invalid: Each entity name string is limited to 256 UTF-8 characters");
+                testInvalid("NIST.invalid (has name): Each entity name string is limited to 256 UTF-8 characters");
             }
 
             @Test
-            void valid() {
+            void invalidTextValue() {
+
+                final Resource textValueEntity = makeEntity(model, getEntityUri(), system);
+                markJustification(addType(textValueEntity, SeedlingOntology.Money), typeAssertionJustification);
+                makeClusterWithPrototype(model, getClusterUri(), textValueEntity, system);
+                markTextValue(textValueEntity, "This is a test string that will be used to validate " +
+                        "that entity names and fillers are limited to 256 characters. This string should " +
+                        "fail because this string is exactly 257 characters long. This is filler text to " +
+                        "get to the two hundred and fifty-seven limit.");
+
+                testInvalid("NIST.invalid (text value): Each entity text value string is limited to 256 UTF-8 characters");
+            }
+
+            @Test
+            void invalidNumericValueAsString() {
+                final Resource numericValueEntity = makeEntity(model, getEntityUri(), system);
+                markJustification(addType(numericValueEntity, SeedlingOntology.Age), typeAssertionJustification);
+                makeClusterWithPrototype(model, getClusterUri(), numericValueEntity, system);
+                markNumericValueAsString(numericValueEntity , "3.866257319028419151956807870102338944632653034263131666724882672874792347265146689923498812818121807146499569966401451211686727219627969935361183863143994146880217969397076000433349740006299102731565965237056997838014700127614676980451633032526526557734348");
+
+                testInvalid("NIST.invalid (numeric string value): Each entity numeric value string is limited to 256 UTF-8 characters");
+            }
+
+            @Test
+            void validName() {
                 // assign alternate names to the entity that are equal and less than 256 characters.
                 markName(entity, "This is a test string that will be used to validate that entity " +
                         "names and fillers are limited to 256 characters. This string should pass because " +
@@ -1589,7 +1614,33 @@ public class ExamplesAndValidationTest {
 
                 markName(entity, "Small string size");
 
-                testValid("NIST.valid: Each entity name string is limited to 256 UTF-8 characters");
+                testValid("NIST.valid (has name): Each entity name string is limited to 256 UTF-8 characters");
+            }
+            @Test
+            void validTextvalue() {
+                // assign text value to the entity that are equal and less than 256 characters.
+                final Resource textValueEntity = makeEntity(model, getEntityUri(), system);
+                markJustification(addType(textValueEntity, SeedlingOntology.Money), typeAssertionJustification);
+                makeClusterWithPrototype(model, getClusterUri(), textValueEntity, system);
+                markTextValue(textValueEntity, "This is a test string that will be used to validate that entity " +
+                        "names and fillers are limited to 256 characters. This string should pass because " +
+                        "this string is exactly 256 characters long. Characters to get to the two hundred " +
+                        "and fifty-six character limit.");
+
+                markTextValue(textValueEntity, "Small string size");
+
+                testValid("NIST.valid (text value): Each entity text value string is limited to 256 UTF-8 characters");
+            }
+
+            @Test
+            void validNumericValueAsString() {
+                final Resource numericValueEntity = makeEntity(model, getEntityUri(), system);
+                markJustification(addType(numericValueEntity, SeedlingOntology.Age), typeAssertionJustification);
+                makeClusterWithPrototype(model, getClusterUri(), numericValueEntity, system);
+                markNumericValueAsString(numericValueEntity , "3.86625731902841915195680787010233894463265303426313166672488267287479234726514668992349881281812180714649956996640145121168672721962796993536118386314399414688021796939707600043334974000629910273156596523705699783801470012761467698045163303252652655773434");
+
+                markNumericValueAsString(numericValueEntity, "1");
+                testValid("NIST.valid (numeric string value): Each entity numeric value string is limited to 256 UTF-8 characters");
             }
         }
 
