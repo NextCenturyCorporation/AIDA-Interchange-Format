@@ -16,7 +16,7 @@ class TestUtils {
 
     private final boolean forceDump;
     private final ValidateAIF validator;
-    private final String ontologyNamespace;
+    private final String annotationNamespace;
 
     private int assertionCount;
     private int entityCount;
@@ -27,10 +27,10 @@ class TestUtils {
     private int documentCount;
     protected Model model;
     protected Resource system;
-    protected Resource typeAssertionJustification = null;
+    private Resource typeAssertionJustification = null;
 
-    TestUtils(String ontologyNamespace, ValidateAIF validator, boolean forceDump) {
-        this.ontologyNamespace = ontologyNamespace;
+    TestUtils(String annotationNamespace, ValidateAIF validator, boolean forceDump) {
+        this.annotationNamespace = annotationNamespace;
         this.validator = validator;
         this.forceDump = forceDump;
     }
@@ -59,7 +59,7 @@ class TestUtils {
     }
 
     String getUri(String localName) {
-        return ontologyNamespace + localName;
+        return annotationNamespace + localName;
     }
 
     String getAssertionUri() {
@@ -110,38 +110,44 @@ class TestUtils {
         return markType(model, getAssertionUri(), resource, type, system, confidence);
     }
 
-    Resource getValidEntity() {
-        return getValidEntity(null);
+    Resource makeEntity(Resource type) {
+        return makeEntity(type, null);
     }
 
-    Resource getValidEntity(String uri) {
-        return makeEntity(model, uri == null ? getEntityUri() : uri, system);
+    Resource makeEntity(Resource type, String uri) {
+        final Resource entity = AIFUtils.makeEntity(model, uri == null ? getEntityUri() : uri, system);
+        addType(entity, type);
+        return entity;
     }
 
-    Resource getValidEvent() {
-        return getValidEvent(null);
+    Resource makeEvent(Resource type) {
+        return makeEvent(type, null);
     }
 
-    Resource getValidEvent(String uri) {
-        return makeEvent(model, uri == null ? getEventUri() : uri, system);
+    Resource makeEvent(Resource type, String uri) {
+        final Resource event = AIFUtils.makeEvent(model, uri == null ? getEventUri() : uri, system);
+        addType(event, type);
+        return event;
     }
 
-    Resource getValidRelation() {
-        return getValidRelation(null);
+    Resource makeRelation(Resource type) {
+        return makeRelation(type, null);
     }
 
-    Resource getValidRelation(String uri) {
-        return makeRelation(model, uri == null ? getRelationUri() : uri, system);
+    Resource makeRelation(Resource type, String uri) {
+        final Resource relation = AIFUtils.makeRelation(model, uri == null ? getRelationUri() : uri, system);
+        addType(relation, type);
+        return relation;
     }
 
-    Resource getValidHypothesis(Resource... resources) {
-        return getValidHypothesis(null, resources);
+    Resource makeHypothesis(Resource... resources) {
+        return makeHypothesis(null, resources);
     }
 
-    Resource getValidHypothesis(String uri, Resource... resources) {
+    Resource makeHypothesis(String uri, Resource... resources) {
         Set<Resource> set = new HashSet<>();
         Collections.addAll(set, resources);
-        return makeHypothesis(model, uri == null ? getHypothesisUri() : uri, set, system);
+        return AIFUtils.makeHypothesis(model, uri == null ? getHypothesisUri() : uri, set, system);
     }
 
     void testInvalid(String name) {
@@ -187,13 +193,13 @@ class TestUtils {
 
 class NistTestUtils extends TestUtils {
 
-    NistTestUtils(String ontologyNamespace, ValidateAIF validator, boolean forceDump) {
-        super(ontologyNamespace, validator, forceDump);
+    NistTestUtils(String annotationNamespace, ValidateAIF validator, boolean forceDump) {
+        super(annotationNamespace, validator, forceDump);
     }
 
     Model startNewTest() {
         Model model = super.startNewTest();
-        // NIST tests always need type assertions
+        // NIST tests always need type assertion justifications
         addSourceDocumentToJustification(super.getTypeAssertionJustification(), getDocumentName());
         return model;
     }
@@ -203,10 +209,22 @@ class NistTestUtils extends TestUtils {
      * @param type entity type
      * @return
      */
-    Pair<Resource, Resource> makeValidEntity(Resource type) {
-        Resource entity = super.getValidEntity();
-        markJustification(addType(entity, type), typeAssertionJustification);
-        Resource entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, system);
+    Pair<Resource, Resource> makeNistEntity(Resource type) {
+        return makeNistEntity(type, null);
+    }
+
+    /**
+     * For entity clusters in hypotheses
+     * @param type
+     * @param clusterHandle
+     * @return
+     */
+    Pair<Resource, Resource> makeNistEntity(Resource type, String clusterHandle) {
+        Resource entity = AIFUtils.makeEntity(model, getEntityUri(), system);
+        markJustification(addType(entity, type), getTypeAssertionJustification());
+        Resource entityCluster = clusterHandle == null ?
+                makeClusterWithPrototype(model, getClusterUri(), entity, system) :
+                makeClusterWithPrototype(model, getClusterUri(), entity, clusterHandle, system);
         return new Pair<>(entity, entityCluster);
     }
 
@@ -215,11 +233,11 @@ class NistTestUtils extends TestUtils {
      * @param type event type
      * @return
      */
-    Pair<Resource, Resource> makeValidEvent(Resource type) {
-        Resource event = super.getValidEvent();
-        markJustification(addType(event, type), typeAssertionJustification);
-        Resource eventCluster = makeClusterWithPrototype(model, getClusterUri(), event, system);
-        return new Pair<>(event, eventCluster);
+    Pair<Resource, Resource> makeNistEvent(Resource type) {
+        Resource event = AIFUtils.makeEvent(model, getEventUri(), system);
+        markJustification(addType(event, type), getTypeAssertionJustification());
+        Resource entityCluster = makeClusterWithPrototype(model, getClusterUri(), event, system);
+        return new Pair<>(event, entityCluster);
     }
 
     /**
@@ -227,22 +245,21 @@ class NistTestUtils extends TestUtils {
      * @param type event type
      * @return
      */
-    Pair<Resource, Resource> makeValidRelation(Resource type) {
-        Resource relation = super.getValidRelation();
-        markJustification(addType(relation, type), typeAssertionJustification);
+    Pair<Resource, Resource> makeNistRelation(Resource type) {
+        Resource relation = AIFUtils.makeRelation(model, getEventUri(), system);
+        markJustification(addType(relation, type), getTypeAssertionJustification());
         Resource relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation, system);
         return new Pair<>(relation, relationCluster);
     }
 
-    @Override
-    Resource getValidHypothesis(Resource... resources) {
-        Resource hypothesis = super.getValidHypothesis(resources);
+    Resource makeNistHypothesis(Resource... resources) {
+        Resource hypothesis = makeHypothesis(resources);
         markImportance(hypothesis, 100.0);
         return hypothesis;
     }
 
-    Resource getValidHypothesis(double importance, Resource... resources) {
-        Resource hypothesis = super.getValidHypothesis(resources);
+    Resource makeNistHypothesis(double importance, Resource... resources) {
+        Resource hypothesis = makeHypothesis(resources);
         markImportance(hypothesis, importance);
         return hypothesis;
     }

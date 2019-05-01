@@ -33,7 +33,7 @@ public class ExamplesAndValidationTest {
     private static final boolean FORCE_DUMP = false;
 
     private static final String LDC_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#";
-    private static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#";
+    private static final String ONTOLOGY_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#";
     private static final CharSource SEEDLING_ONTOLOGY = Resources.asCharSource(
             Resources.getResource("com/ncc/aif/ontologies/SeedlingOntology"),
             StandardCharsets.UTF_8);
@@ -43,7 +43,7 @@ public class ExamplesAndValidationTest {
     static void declutterLogging() {
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
-        utils = new TestUtils(NAMESPACE, ValidateAIF.createForDomainOntologySource(SEEDLING_ONTOLOGY), FORCE_DUMP);
+        utils = new TestUtils(LDC_NS, ValidateAIF.createForDomainOntologySource(SEEDLING_ONTOLOGY), FORCE_DUMP);
     }
 
     private Model model;
@@ -1038,15 +1038,13 @@ public class ExamplesAndValidationTest {
         @Test
         void createEventWithLDCTime() {
             // Create a start position event with unknown start and end time
-            final Resource eventStartPosition = makeEvent(model, utils.getEventUri(), system);
-            markType(model, utils.getAssertionUri(), eventStartPosition, SeedlingOntology.Personnel_StartPosition, system, 1.0);
+            final Resource eventStartPosition = utils.makeEvent(SeedlingOntology.Personnel_StartPosition);
             LDCTimeComponent unknown = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.UNKNOWN, null, null, null);
             LDCTimeComponent endBefore = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2016", null, null);
             markLDCTime(model, eventStartPosition, unknown, endBefore, system);
 
             // Create an attack event with an unknown start date, but definite end date
-            final Resource eventAttackUnknown = makeEvent(model, utils.getEventUri(), system);
-            markType(model, utils.getAssertionUri(), eventAttackUnknown, SeedlingOntology.Conflict_Attack, system, 1.0);
+            final Resource eventAttackUnknown = utils.makeEvent(SeedlingOntology.Conflict_Attack);
             LDCTimeComponent start = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2014", "--02", null);
             LDCTimeComponent end = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.ON, "2014", "--02", "---21");
             markLDCTime(model, eventAttackUnknown, start, end, system);
@@ -1068,7 +1066,7 @@ public class ExamplesAndValidationTest {
         void entityMissingType() {
             // having multiple type assertions in case of uncertainty is ok, but there must always
             // be at least one type assertion
-            makeEntity(model, "http://www.test.edu/entities/1", system);
+            makeEntity(model, utils.getEntityUri(), system);
             utils.testInvalid("Invalid: entity with missing type");
         }
 
@@ -1076,28 +1074,24 @@ public class ExamplesAndValidationTest {
         void eventMissingType() {
             // having multiple type assertions in case of uncertainty is ok, but there must always
             // be at least one type assertion
-            makeEvent(model, "http://www.test.edu/events/1", system);
+            makeEvent(model, utils.getEventUri(), system);
             utils.testInvalid("Invalid: event missing type");
         }
 
         @Test
         void nonTypeUsedAsType() {
-            final Resource entity = makeEntity(model, "http://www.test.edu/entities/1", system);
             // use a blank node as the bogus entity type
-            utils.addType(entity, model.createResource());
+            utils.makeEntity(model.createResource());
             utils.testInvalid("Invalid: non-type used as type");
         }
 
         @Test
         void relationOfUnknownType() {
-            final Resource personEntity = makeEntity(model, utils.getEntityUri(), system);
-            markType(model, utils.getAssertionUri(), personEntity, SeedlingOntology.Person, system, 1.0);
+            final Resource personEntity = utils.makeEntity(SeedlingOntology.Person);
+            final Resource louisvilleEntity = utils.makeEntity(SeedlingOntology.GeopoliticalEntity);
 
-            final Resource louisvilleEntity = makeEntity(model, utils.getEntityUri(), system);
-            markType(model, utils.getAssertionUri(), louisvilleEntity, SeedlingOntology.GeopoliticalEntity, system, 1.0);
-
-            final Resource relation = makeRelation(model, "http://www.test.edu/relations/1", system);
-            markType(model, utils.getAssertionUri(), relation, model.createResource(NAMESPACE + "unknown_type"), system, 1.0);
+            final Resource relation = makeRelation(model, utils.getRelationUri(), system);
+            markType(model, utils.getAssertionUri(), relation, model.createResource(ONTOLOGY_NS + "unknown_type"), system, 1.0);
             markAsArgument(model, relation, SeedlingOntology.Physical_Resident_Resident, personEntity, system, 1.0);
             markAsArgument(model, relation, SeedlingOntology.Physical_Resident_Place, louisvilleEntity, system, 1.0);
 
@@ -1106,9 +1100,7 @@ public class ExamplesAndValidationTest {
 
         @Test
         void justificationMissingConfidence() {
-            final Resource entity = makeEntity(model, "http://www.test.edu/events/1",
-                    system);
-            markType(model, utils.getAssertionUri(), entity, SeedlingOntology.Person, system, 1d);
+            final Resource entity = utils.makeEntity(SeedlingOntology.Person);
 
             // below is just the content of AIFUtils.markTextJustification, except without the required
             // confidence
@@ -1179,7 +1171,7 @@ public class ExamplesAndValidationTest {
 
     private Model addNamespacesToModel(Model model) {
         // adding namespace prefixes makes the Turtle output more readable
-        model.setNsPrefix("ldcOnt", NAMESPACE);
+        model.setNsPrefix("ldcOnt", ONTOLOGY_NS);
         model.setNsPrefix("ldc", LDC_NS);
         return model;
     }

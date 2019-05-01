@@ -22,7 +22,7 @@ public class NistExamplesAndValidationTest {
     private static final boolean FORCE_DUMP = false;
 
     private static final String LDC_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#";
-    private static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#";
+    private static final String ONTOLOGY_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#";
     private static final CharSource SEEDLING_ONTOLOGY = Resources.asCharSource(
             Resources.getResource("com/ncc/aif/ontologies/SeedlingOntology"),
             StandardCharsets.UTF_8);
@@ -32,7 +32,7 @@ public class NistExamplesAndValidationTest {
     static void declutterLogging() {
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
-        utils = new NistTestUtils(NAMESPACE, ValidateAIF.create(ImmutableSet.of(SEEDLING_ONTOLOGY),
+        utils = new NistTestUtils(LDC_NS, ValidateAIF.create(ImmutableSet.of(SEEDLING_ONTOLOGY),
                 ValidateAIF.Restriction.NIST), FORCE_DUMP);
     }
 
@@ -66,14 +66,13 @@ public class NistExamplesAndValidationTest {
         @BeforeEach
         void setup() {
             typeAssertionJustification = utils.getTypeAssertionJustification();
-            Pair<Resource, Resource> aPair = utils.makeValidEntity(SeedlingOntology.Person);
+            Pair<Resource, Resource> aPair = utils.makeNistEntity(SeedlingOntology.Person);
             entity = aPair.getKey();
             entityCluster = aPair.getValue();
-
-            aPair = utils.makeValidEvent(SeedlingOntology.Conflict_Attack);
+            aPair = utils.makeNistEvent(SeedlingOntology.Conflict_Attack);
             event = aPair.getKey();
             eventCluster = aPair.getValue();
-            aPair = utils.makeValidRelation(SeedlingOntology.GeneralAffiliation_APORA);
+            aPair = utils.makeNistRelation(SeedlingOntology.GeneralAffiliation_APORA);
             relation = aPair.getKey();
             relationCluster = aPair.getValue();
         }
@@ -91,9 +90,9 @@ public class NistExamplesAndValidationTest {
 
                 // test relation edge argument must have a compound justification
                 final Resource relationEdge = markAsArgument(model, relation,
-                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d, utils.getAssertionUri());
+                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1.0, utils.getAssertionUri());
                 final Resource justification = markTextJustification(model, relationEdge,
-                        "source1", 0, 4, system, 1d);
+                        "source1", 0, 4, system, 1.0);
                 addSourceDocumentToJustification(justification, "source1sourceDocument");
 
                 // test event edge argument must have a compound justification
@@ -101,13 +100,13 @@ public class NistExamplesAndValidationTest {
                         entity, system, 1.0, utils.getAssertionUri());
                 markJustification(eventEdge, justification);
 
-                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1.0);
                 addSourceDocumentToJustification(justification1, "source1sourceDocument");
                 final Resource compound1 = markCompoundJustification(model,
                         ImmutableSet.of(entity, relation, event),
                         ImmutableSet.of(justification1),
                         system,
-                        1d);
+                        1.0);
 
                 // test that compound justification can only be used for argument assertions
                 markJustification(entity, compound1);
@@ -134,22 +133,22 @@ public class NistExamplesAndValidationTest {
 
                 // test relation argument
                 final Resource relationEdge = markAsArgument(model, relation,
-                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
+                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1.0);
                 final Resource justification1 = makeTextJustification(model, "source1", 0,
-                        4, system, 1d);
+                        4, system, 1.0);
                 addSourceDocumentToJustification(justification1, "source1sourceDocument");
                 final Resource justification2 = makeTextJustification(model, "source2", 0,
-                        4, system, 1d);
+                        4, system, 1.0);
                 addSourceDocumentToJustification(justification2, "source2sourceDocument");
                 final Resource justification3 = makeTextJustification(model, "source3", 0,
-                        4, system, 1d);
+                        4, system, 1.0);
                 addSourceDocumentToJustification(justification3, "source3sourceDocument");
 
                 markCompoundJustification(model,
                         ImmutableSet.of(relationEdge),
                         ImmutableSet.of(justification1, justification2, justification3),
                         system,
-                        1d);
+                        1.0);
 
                 utils.testInvalid("NIST.invalid: (More than two justifications in CompoundJustification) " +
                         "Exactly 1 or 2 contained justifications in a CompoundJustification required for an edge");
@@ -160,15 +159,15 @@ public class NistExamplesAndValidationTest {
 
                 // test relation argument
                 final Resource relationEdge = markAsArgument(model, relation,
-                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
-                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1.0);
+                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1.0);
                 addSourceDocumentToJustification(justification1, "source1sourceDocument");
 
                 final Resource compound = markCompoundJustification(model,
                         ImmutableSet.of(relationEdge),
                         ImmutableSet.of(justification1),
                         system,
-                        1d);
+                        1.0);
 
                 markJustification(relationEdge, compound);
 
@@ -188,18 +187,18 @@ public class NistExamplesAndValidationTest {
             void invalid() {
                 // test relation
                 final Resource relationEdge = markAsArgument(model, relation,
-                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d, utils.getAssertionUri());
-                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1.0, utils.getAssertionUri());
+                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1.0);
                 addSourceDocumentToJustification(justification1, "source1sourceDocument");
-                final Resource justification2 = makeTextJustification(model, "source1", 10, 14, system, 1d);
+                final Resource justification2 = makeTextJustification(model, "source1", 10, 14, system, 1.0);
                 addSourceDocumentToJustification(justification2, "source1sourceDocument");
-                final Resource justification3 = makeTextJustification(model, "source1", 20, 24, system, 1d);
+                final Resource justification3 = makeTextJustification(model, "source1", 20, 24, system, 1.0);
                 addSourceDocumentToJustification(justification3, "source1sourceDocument");
                 final Resource compound = markCompoundJustification(model,
                         ImmutableSet.of(relationEdge),
                         ImmutableSet.of(justification1, justification2, justification3),
                         system,
-                        1d);
+                        1.0);
 
                 // test event
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity,
@@ -214,12 +213,12 @@ public class NistExamplesAndValidationTest {
             void invalidZeroSpans() {
                 // test relation
                 final Resource relationEdge = markAsArgument(model, relation,
-                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
+                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1.0);
                 final Resource compound = markCompoundJustification(model,
                         ImmutableSet.of(relationEdge),
                         ImmutableSet.of(), // no justification
                         system,
-                        1d);
+                        1.0);
 
                 // test event
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
@@ -232,16 +231,16 @@ public class NistExamplesAndValidationTest {
             void valid() {
                 // test relation
                 final Resource relationEdge = markAsArgument(model, relation,
-                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
-                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1.0);
+                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1.0);
                 addSourceDocumentToJustification(justification1, "source1sourceDocument");
-                final Resource justification2 = makeTextJustification(model, "source1", 10, 14, system, 1d);
+                final Resource justification2 = makeTextJustification(model, "source1", 10, 14, system, 1.0);
                 addSourceDocumentToJustification(justification2, "source1sourceDocument");
                 final Resource compound = markCompoundJustification(model,
                         ImmutableSet.of(relationEdge),
                         ImmutableSet.of(justification1, justification2),
                         system,
-                        1d);
+                        1.0);
 
                 // test event
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
@@ -254,14 +253,14 @@ public class NistExamplesAndValidationTest {
             void validOneSpan() {
                 // test relation
                 final Resource relationEdge = markAsArgument(model, relation,
-                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1d);
-                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1d);
+                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, system, 1.0);
+                final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1.0);
                 addSourceDocumentToJustification(justification1, "source1sourceDocument");
                 final Resource compound = markCompoundJustification(model,
                         ImmutableSet.of(relationEdge),
                         ImmutableSet.of(justification1),
                         system,
-                        1d);
+                        1.0);
 
                 // test event
                 final Resource eventEdge = markAsArgument(model, event, SeedlingOntology.Conflict_Attack_Target, entity, system, 1.0);
@@ -277,7 +276,7 @@ public class NistExamplesAndValidationTest {
             @Test
             void invalid() {
                 final Resource markShotVideoJustification = markShotVideoJustification(model, entity, "source1",
-                        "shotId", system, 1d);
+                        "shotId", system, 1.0);
                 addSourceDocumentToJustification(markShotVideoJustification, "source1SourceDocument");
                 utils.testInvalid("NIST.invalid: No shot video");
             }
@@ -286,7 +285,7 @@ public class NistExamplesAndValidationTest {
             void valid() {
                 final Resource markKeyFrameVideoJustification = markKeyFrameVideoJustification(model, entity,
                         "source1", "keyframe",
-                        new BoundingBox(new Point(0, 0), new Point(100, 100)), system, 1d);
+                        new BoundingBox(new Point(0, 0), new Point(100, 100)), system, 1.0);
                 addSourceDocumentToJustification(markKeyFrameVideoJustification, "source1SourceDocument");
                 utils.testValid("NIST.valid: No shot video");
             }
@@ -382,18 +381,15 @@ public class NistExamplesAndValidationTest {
             @Test
             void invalid() {
                 // Create an entity, but do not mark its type assertion with a justification.
-                final Resource newEntity = makeEntity(model, utils.getEntityUri(), system);
-                utils.addType(newEntity, SeedlingOntology.Person);
+                final Resource newEntity = utils.makeEntity(SeedlingOntology.Person);
                 makeClusterWithPrototype(model, utils.getClusterUri(), newEntity, system);
 
                 // Create an event, but do not mark its type assertion with a justification.
-                final Resource newEvent = makeEvent(model, utils.getEventUri(), system);
-                utils.addType(newEvent, SeedlingOntology.Conflict_Attack);
+                final Resource newEvent = utils.makeEvent(SeedlingOntology.Conflict_Attack);
                 makeClusterWithPrototype(model, utils.getClusterUri(), newEvent, system);
 
                 // Create a relation, but do not mark its type assertion with a justification.
-                final Resource newRelation = makeRelation(model, utils.getRelationUri(), system);
-                utils.addType(newRelation, SeedlingOntology.GeneralAffiliation_APORA);
+                final Resource newRelation = utils.makeRelation(SeedlingOntology.GeneralAffiliation_APORA);
                 makeClusterWithPrototype(model, utils.getClusterUri(), newRelation, system);
 
                 utils.testInvalid("NIST.invalid: type assertions must be justified");
@@ -582,7 +578,7 @@ public class NistExamplesAndValidationTest {
                 markInformativeJustification(entity, typeAssertionJustification);
                 markInformativeJustification(entity, secondEntityJustification);
 
-                //add more than on informative justification to the KE's
+                //add more than one informative justification to the KE's
                 markInformativeJustification(entityCluster, duplicateParentDocJustification);
                 markInformativeJustification(entityCluster, secondClusterJustification);
 
@@ -633,13 +629,13 @@ public class NistExamplesAndValidationTest {
             @Test
             void invalidNoTarget() {
                 link(entity);
-                markConfidence(model, linkAssertion, 1d, system);
+                markConfidence(model, linkAssertion, 1.0, system);
                 utils.testInvalid("LinkAssertion.invalid: No link target");
             }
             @Test
             void invalidTooManyTargets() {
                 link(entity);
-                markConfidence(model, linkAssertion, 1d, system);
+                markConfidence(model, linkAssertion, 1.0, system);
                 target("SomeExternalKBId-1");
                 target("SomeExternalKBId-2");
                 utils.testInvalid("LinkAssertion.invalid: Too many link targets");
@@ -653,7 +649,7 @@ public class NistExamplesAndValidationTest {
             @Test
             void invalidTooManyConfidences() {
                 link(entity);
-                markConfidence(model, linkAssertion, 1d, system);
+                markConfidence(model, linkAssertion, 1.0, system);
                 markConfidence(model, linkAssertion, .5, system);
                 target("SomeExternalKBId-1");
                 utils.testInvalid("LinkAssertion.invalid: Too many confidences");
@@ -661,17 +657,16 @@ public class NistExamplesAndValidationTest {
             @Test
             void valid() {
                 link(entity);
-                markConfidence(model, linkAssertion, 1d, system);
+                markConfidence(model, linkAssertion, 1.0, system);
                 target("SomeExternalKBId-1");
                 utils.testValid("LinkAssertion.valid");
             }
         }
     }
 
-    private Model addNamespacesToModel(Model model) {
+    private void addNamespacesToModel(Model model) {
         // adding namespace prefixes makes the Turtle output more readable
-        model.setNsPrefix("ldcOnt", NAMESPACE);
+        model.setNsPrefix("ldcOnt", ONTOLOGY_NS);
         model.setNsPrefix("ldc", LDC_NS);
-        return model;
     }
 }
