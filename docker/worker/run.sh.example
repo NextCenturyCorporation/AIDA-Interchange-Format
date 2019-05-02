@@ -1,0 +1,13 @@
+#!/bin/bash
+
+docker run --rm -it \
+        -e QUEUE_INIT_TIMEOUT='' \
+        -e S3_VALIDATION_BUCKET='' \
+        -e AWS_BATCH_JOB_ID='' \
+        -e AWS_BATCH_JOB_NODE_INDEX= \
+        -e WORKER_LOG_LEVEL='' \
+        -e AWS_ACCESS_KEY_ID='' \
+        -e AWS_SECRET_ACCESS_KEY='' \
+        -e AWS_DEFAULT_REGION='' \
+        --name batch-worker \
+        batch-worker

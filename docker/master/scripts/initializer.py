@@ -3,7 +3,6 @@ import logging
 import boto3
 import tarfile
 import zipfile
-import uuid
 import glob
 import json
 import shutil
@@ -14,7 +13,7 @@ from botocore.exceptions import ClientError
 
 
 def download_and_extract_submission_from_S3(s3_submission, dirpath):
-    """ Downloads submission from s3 and extracts its contents to the working directory.
+    """Downloads submission from s3 and extracts its contents to the working directory.
     Submssions must be an archive of .zip, .tar.gz, or .tgz.
 
     :param str s3_submission: The s3 object path for the submission
@@ -76,7 +75,7 @@ def check_valid_extension(s3_submission):
 
 
 def extract_s3_submission_paths(s3_submission):
-    """ Helper method to extract s3 and file path information from s3 submission 
+    """Helper function to extract s3 and file path information from s3 submission 
     path.
 
     :param str s3_submission: The s3 object path of the submission
@@ -127,7 +126,7 @@ def upload_submission_files_to_s3(s3_bucket_name, dirpath):
 
 
 def upload_file_to_s3(s3_bucket_name, s3_prefix, filepath):
-    """ Helper method to upload single file to S3 bucket with specified prefix
+    """Helper function to upload single file to S3 bucket with specified prefix
 
     :param str s3_bucket_name: Name of the S3 bucket where the file will be uploaded
     :param str s3_prefix: The prefix to prepend to the filename
@@ -146,7 +145,7 @@ def upload_file_to_s3(s3_bucket_name, s3_prefix, filepath):
         logging.error(e)
 
 def bucket_exists(s3_bucket_name):
-    """Helper method that will check if a S3 bucket exists
+    """Helper function that will check if a S3 bucket exists
 
     :param str s3_bucket_name: The S3 bucket that is being checked
     :returns: True if bucket exists, False otherwise
@@ -189,7 +188,7 @@ def delete_s3_objects(s3_bucket, s3_prefix):
 
 
 def create_sqs_queue(queue_name):
-    """ Creates SQS FIFO queue with specified name.
+    """Creates SQS FIFO queue with specified name.
 
     :param str queue_name: The unique name of the queue to be created
     :return: The SQS queue url
@@ -207,7 +206,7 @@ def create_sqs_queue(queue_name):
             Attributes =  {
                 'MaximumMessageSize': '262144',
                 'VisibilityTimeout': '3600',
-                'MessageRetentionPeriod':'3600',
+                'MessageRetentionPeriod':'1209600',
                 'FifoQueue': 'true',
                 'ContentBasedDeduplication': 'true'
             }   
@@ -235,18 +234,12 @@ def populate_sqs_queue(queue_list, queue_url, message_group_id, sourcefiles_path
 
     try:
         for s3_object in queue_list:
-            sqs_client.send_message(
+            msg = sqs_client.send_message(
                 QueueUrl=queue_url,
-                MessageAttributes={
-                    'S3Object': {
-                        'DataType': 'String',
-                        'StringValue': s3_object
-                    } 
-                },
-                MessageBody=('S3 Object {0} to be validated'.format(s3_object)),
+                MessageBody=(s3_object),
                 MessageGroupId=message_group_id
             )
-            logging.info("Added file %s to queue %s", s3_object, queue_url)
+            logging.info("Added message %s with payload %s to queue %s", msg['MessageId'], s3_object, queue_url)
 
         # serialize sqs messages to local sourcefiles
         logging.info("Writing queue list to %s", sourcefiles_path)
@@ -322,7 +315,7 @@ def wait_for_processing(node_index, job_id, interval):
 
 
 def is_env_set(env, value):
-    """ Helper method to check if a specific enviornment variable is not None
+    """Helper function to check if a specific enviornment variable is not None
 
     :param str env: The name of the enviornment variable
     :param value: The value of the enviornment variable
@@ -337,7 +330,7 @@ def is_env_set(env, value):
 
 
 def validate_envs(envs):
-    """ Helper method to validate all of the enviroment variables exist and are valid before
+    """Helper function to validate all of the enviroment variables exist and are valid before
     processing starts.
 
     :param dict envs: Dictionary of all environment varaibles
@@ -369,13 +362,13 @@ def main():
     envs['S3_VALIDATION_BUCKET'] = os.environ['S3_VALIDATION_BUCKET']
     envs['AWS_BATCH_JOB_ID'] = os.environ['AWS_BATCH_JOB_ID']
     envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ['AWS_BATCH_JOB_NODE_INDEX']
-    envs['MASTER_LOG_LEVEL'] = os.environ['MASTER_LOG_LEVEL']
+    envs['MASTER_LOG_LEVEL'] = os.environ.get('MASTER_LOG_LEVEL', 'INFO') # default info logging
     envs['MASTER_SLEEP_INTERVAL'] = int(os.environ['MASTER_SLEEP_INTERVAL'])
     
     # set logging to log to stdout
     logging.basicConfig(level=os.environ.get('LOGLEVEL', envs['MASTER_LOG_LEVEL']))
 
-    # verify enviorment variables
+    # verify enviornment variables
     if validate_envs(envs):
 
         # create s3 connection
@@ -396,7 +389,7 @@ def main():
         wait_for_processing(envs['AWS_BATCH_JOB_NODE_INDEX'], envs['AWS_BATCH_JOB_ID'], envs['MASTER_SLEEP_INTERVAL'])
 
         # clean up
-        delete_s3_objects(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
-        delete_sqs_queue(queue_url)
+        #delete_s3_objects(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
+        #delete_sqs_queue(queue_url)
     
 if __name__ == "__main__": main()

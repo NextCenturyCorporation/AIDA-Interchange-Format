@@ -2,7 +2,7 @@
 
 docker run --rm -it \
         -e S3_SUBMISSION_ARCHIVE='' \
-        -e S3_STAGING_BUCKET='' \
+        -e S3_VALIDATION_BUCKET='' \
         -e AWS_BATCH_JOB_ID='' \
         -e AWS_BATCH_JOB_NODE_INDEX= \
         -e MASTER_LOG_LEVEL='' \
