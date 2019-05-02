@@ -1089,9 +1089,7 @@ public class ExamplesAndValidationTest {
         void relationOfUnknownType() {
             final Resource personEntity = utils.makeValidEntity(SeedlingOntology.Person);
             final Resource louisvilleEntity = utils.makeValidEntity(SeedlingOntology.GeopoliticalEntity);
-
-            final Resource relation = makeRelation(model, utils.getRelationUri(), system);
-            markType(model, utils.getAssertionUri(), relation, model.createResource(ONTOLOGY_NS + "unknown_type"), system, 1.0);
+            final Resource relation = utils.makeValidRelation(model.createResource(ONTOLOGY_NS + "unknown_type"));
             markAsArgument(model, relation, SeedlingOntology.Physical_Resident_Resident, personEntity, system, 1.0);
             markAsArgument(model, relation, SeedlingOntology.Physical_Resident_Place, louisvilleEntity, system, 1.0);
 

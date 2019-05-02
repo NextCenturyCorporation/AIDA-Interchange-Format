@@ -161,6 +161,11 @@ class TestUtils {
         return typeAssertionJustification;
     }
 
+    Resource makeValidJustification() {
+        return makeTextJustification(model, getDocumentName(),
+                documentCount*2, documentCount*4, system, 1.0);
+    }
+
     /**
      * Add the specified type to the specified resource.
      *
@@ -230,6 +235,19 @@ class TestUtils {
         final Resource relation = makeRelation(model, uri == null ? getRelationUri() : uri, system);
         addType(relation, type);
         return relation;
+    }
+
+    /**
+     * Makes and returns a valid argument assertion between the specified event or relation and an argument filler entity.
+     *
+     * @param eventOrRelation The event or relation for which to mark the specified argument role
+     * @param type            the type of the argument
+     * @param argumentFiller  the filler (object) of the argument
+     * @return the created event or relation argument assertion
+     */
+    Resource makeValidEdge(Resource eventOrRelation, Resource type, Resource argumentFiller) {
+        return markAsArgument(model, eventOrRelation, type, argumentFiller, system,
+                1.0, getAssertionUri());
     }
 
     /**
@@ -324,6 +342,16 @@ class NistTestUtils extends TestUtils {
         return model;
     }
 
+    Resource makeValidJustification() {
+        return makeValidJustification("sourceDocument");
+    }
+
+    Resource makeValidJustification(String sourceDocument) {
+        Resource justification = super.makeValidJustification();
+        addSourceDocumentToJustification(justification, sourceDocument);
+        return justification;
+    }
+
     /**
      * Makes and returns a valid NIST-restricted entity of the specified type and its cluster.
      *
@@ -362,6 +390,7 @@ class NistTestUtils extends TestUtils {
         Resource relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation, system);
         return new Pair<>(relation, relationCluster);
     }
+
 }
 
 
@@ -434,8 +463,7 @@ class NistHypothesisTestUtils extends NistTestUtils {
      * @return the created event or relation argument assertion
      */
     Resource makeValidEdge(Resource eventOrRelation, Resource type, Resource argumentFiller, double importance) {
-        Resource edge = markAsArgument(model, eventOrRelation, type, argumentFiller, system,
-                1.0, getAssertionUri());
+        Resource edge = super.makeValidEdge(eventOrRelation, type, argumentFiller);
         markImportance(edge, importance);
         return edge;
     }
