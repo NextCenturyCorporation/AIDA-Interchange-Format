@@ -195,7 +195,7 @@ class TestUtils {
      * Makes and returns a valid entity object of the specified type and URI.
      */
     Resource makeValidEntity(Resource type, String uri) {
-        final Resource entity = AIFUtils.makeEntity(model, uri == null ? getEntityUri() : uri, system);
+        final Resource entity = makeEntity(model, uri == null ? getEntityUri() : uri, system);
         addType(entity, type);
         return entity;
     }
@@ -211,7 +211,7 @@ class TestUtils {
      * Makes and returns a valid event object of the specified type and URI.
      */
     Resource makeValidEvent(Resource type, String uri) {
-        final Resource event = AIFUtils.makeEvent(model, uri == null ? getEventUri() : uri, system);
+        final Resource event = makeEvent(model, uri == null ? getEventUri() : uri, system);
         addType(event, type);
         return event;
     }
@@ -227,7 +227,7 @@ class TestUtils {
      * Makes and returns a valid relation object of the specified type and URI.
      */
     Resource makeValidRelation(Resource type, String uri) {
-        final Resource relation = AIFUtils.makeRelation(model, uri == null ? getRelationUri() : uri, system);
+        final Resource relation = makeRelation(model, uri == null ? getRelationUri() : uri, system);
         addType(relation, type);
         return relation;
     }
@@ -247,7 +247,7 @@ class TestUtils {
     Resource makeValidHypothesis(String uri, Resource... resources) {
         Set<Resource> set = new HashSet<>();
         Collections.addAll(set, resources);
-        return AIFUtils.makeHypothesis(model, uri == null ? getHypothesisUri() : uri, set, system);
+        return makeHypothesis(model, uri == null ? getHypothesisUri() : uri, set, system);
     }
 
     /**
@@ -331,7 +331,7 @@ class NistTestUtils extends TestUtils {
      * @return a key-value Pair of the entity Resource (key) and its associated cluster Resource (value)
      */
     Pair<Resource, Resource> makeValidNistEntity(Resource type) {
-        Resource entity = AIFUtils.makeEntity(model, getEntityUri(), system);
+        Resource entity = makeEntity(model, getEntityUri(), system);
         markJustification(addType(entity, type), getTypeAssertionJustification());
         Resource entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, system);
         return new Pair<>(entity, entityCluster);
@@ -344,7 +344,7 @@ class NistTestUtils extends TestUtils {
      * @return a key-value Pair of the event Resource (key) and its associated cluster Resource (value)
      */
     Pair<Resource, Resource> makeValidNistEvent(Resource type) {
-        Resource event = AIFUtils.makeEvent(model, getEventUri(), system);
+        Resource event = makeEvent(model, getEventUri(), system);
         markJustification(addType(event, type), getTypeAssertionJustification());
         Resource entityCluster = makeClusterWithPrototype(model, getClusterUri(), event, system);
         return new Pair<>(event, entityCluster);
@@ -357,7 +357,7 @@ class NistTestUtils extends TestUtils {
      * @return a key-value Pair of the relation Resource (key) and its associated cluster Resource (value)
      */
     Pair<Resource, Resource> makeValidNistRelation(Resource type) {
-        Resource relation = AIFUtils.makeRelation(model, getEventUri(), system);
+        Resource relation = makeRelation(model, getEventUri(), system);
         markJustification(addType(relation, type), getTypeAssertionJustification());
         Resource relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation, system);
         return new Pair<>(relation, relationCluster);
