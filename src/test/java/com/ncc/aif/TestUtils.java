@@ -187,14 +187,14 @@ class TestUtils {
     /**
      * Makes and returns a valid AIF entity object of the specified type.
      */
-    Resource makeEntity(Resource type) {
-        return makeEntity(type, null);
+    Resource makeValidEntity(Resource type) {
+        return makeValidEntity(type, null);
     }
 
     /**
      * Makes and returns a valid entity object of the specified type and URI.
      */
-    Resource makeEntity(Resource type, String uri) {
+    Resource makeValidEntity(Resource type, String uri) {
         final Resource entity = AIFUtils.makeEntity(model, uri == null ? getEntityUri() : uri, system);
         addType(entity, type);
         return entity;
@@ -203,14 +203,14 @@ class TestUtils {
     /**
      * Makes and returns a valid event object of the specified type.
      */
-    Resource makeEvent(Resource type) {
-        return makeEvent(type, null);
+    Resource makeValidEvent(Resource type) {
+        return makeValidEvent(type, null);
     }
 
     /**
      * Makes and returns a valid event object of the specified type and URI.
      */
-    Resource makeEvent(Resource type, String uri) {
+    Resource makeValidEvent(Resource type, String uri) {
         final Resource event = AIFUtils.makeEvent(model, uri == null ? getEventUri() : uri, system);
         addType(event, type);
         return event;
@@ -219,14 +219,14 @@ class TestUtils {
     /**
      * Makes and returns a valid relation object of the specified type.
      */
-    Resource makeRelation(Resource type) {
-        return makeRelation(type, null);
+    Resource makeValidRelation(Resource type) {
+        return makeValidRelation(type, null);
     }
 
     /**
      * Makes and returns a valid relation object of the specified type and URI.
      */
-    Resource makeRelation(Resource type, String uri) {
+    Resource makeValidRelation(Resource type, String uri) {
         final Resource relation = AIFUtils.makeRelation(model, uri == null ? getRelationUri() : uri, system);
         addType(relation, type);
         return relation;
@@ -235,8 +235,8 @@ class TestUtils {
     /**
      * Makes and returns a valid hypothesis object involving the specified resource(s).
      */
-    Resource makeHypothesis(Resource... resources) {
-        return makeHypothesis(null, resources);
+    Resource makeValidHypothesis(Resource... resources) {
+        return makeValidHypothesis(null, resources);
     }
 
     /**
@@ -244,7 +244,7 @@ class TestUtils {
      *
      * @param resources A set of entities, relations, and arguments that contribute to the hypothesis
      */
-    Resource makeHypothesis(String uri, Resource... resources) {
+    Resource makeValidHypothesis(String uri, Resource... resources) {
         Set<Resource> set = new HashSet<>();
         Collections.addAll(set, resources);
         return AIFUtils.makeHypothesis(model, uri == null ? getHypothesisUri() : uri, set, system);
@@ -330,7 +330,7 @@ class NistTestUtils extends TestUtils {
      * @param type entity type
      * @return a key-value Pair of the entity Resource (key) and its associated cluster Resource (value)
      */
-    Pair<Resource, Resource> makeNistEntity(Resource type) {
+    Pair<Resource, Resource> makeValidNistEntity(Resource type) {
         Resource entity = AIFUtils.makeEntity(model, getEntityUri(), system);
         markJustification(addType(entity, type), getTypeAssertionJustification());
         Resource entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, system);
@@ -343,7 +343,7 @@ class NistTestUtils extends TestUtils {
      * @param type event type
      * @return a key-value Pair of the event Resource (key) and its associated cluster Resource (value)
      */
-    Pair<Resource, Resource> makeNistEvent(Resource type) {
+    Pair<Resource, Resource> makeValidNistEvent(Resource type) {
         Resource event = AIFUtils.makeEvent(model, getEventUri(), system);
         markJustification(addType(event, type), getTypeAssertionJustification());
         Resource entityCluster = makeClusterWithPrototype(model, getClusterUri(), event, system);
@@ -356,36 +356,12 @@ class NistTestUtils extends TestUtils {
      * @param type relation type
      * @return a key-value Pair of the relation Resource (key) and its associated cluster Resource (value)
      */
-    Pair<Resource, Resource> makeNistRelation(Resource type) {
+    Pair<Resource, Resource> makeValidNistRelation(Resource type) {
         Resource relation = AIFUtils.makeRelation(model, getEventUri(), system);
         markJustification(addType(relation, type), getTypeAssertionJustification());
         Resource relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation, system);
         return new Pair<>(relation, relationCluster);
     }
-
-    /**
-     * Makes and returns a valid NIST-restricted hypothesis involving the specified resource(s).
-     *
-     * @param resources A set of entities, relations, and arguments that contribute to the hypothesis
-     */
-    Resource makeNistHypothesis(Resource... resources) {
-        Resource hypothesis = makeHypothesis(resources);
-        markImportance(hypothesis, 100.0);
-        return hypothesis;
-    }
-
-    /**
-     * Makes and returns a valid NIST-restricted hypothesis involving the specified resource(s) and importance.
-     *
-     * @param importance the importance with which to make the hypothesis
-     * @param resources  A set of entities, relations, and arguments that contribute to the hypothesis
-     */
-    Resource makeNistHypothesis(double importance, Resource... resources) {
-        Resource hypothesis = makeHypothesis(resources);
-        markImportance(hypothesis, importance);
-        return hypothesis;
-    }
-
 }
 
 
@@ -414,8 +390,8 @@ class NistHypothesisTestUtils extends NistTestUtils {
      * @param clusterHandle cluster handle for the entity cluster
      * @return a key-value Pair of the entity Resource (key) and its associated cluster Resource (value)
      */
-    Pair<Resource, Resource> makeNistEntity(Resource type, String clusterHandle) {
-        Pair<Resource, Resource> pair = makeNistEntity(type);
+    Pair<Resource, Resource> makeValidNistEntity(Resource type, String clusterHandle) {
+        Pair<Resource, Resource> pair = makeValidNistEntity(type);
         pair.getValue().addProperty(AidaAnnotationOntology.HANDLE, clusterHandle);
         return pair;
     }
@@ -428,8 +404,8 @@ class NistHypothesisTestUtils extends NistTestUtils {
      * @param importance the importance to mark the event cluster
      * @return a key-value Pair of the event Resource (key) and its associated cluster Resource (value)
      */
-    Pair<Resource, Resource> makeNistEvent(Resource type, double importance) {
-        Pair<Resource, Resource> pair = makeNistEvent(type);
+    Pair<Resource, Resource> makeValidNistEvent(Resource type, double importance) {
+        Pair<Resource, Resource> pair = makeValidNistEvent(type);
         markImportance(pair.getValue(), importance);
         return pair;
     }
@@ -442,14 +418,14 @@ class NistHypothesisTestUtils extends NistTestUtils {
      * @param importance the importance to mark the relation cluster
      * @return a key-value Pair of the event Resource (key) and its associated cluster Resource (value)
      */
-    Pair<Resource, Resource> makeNistRelation(Resource type, double importance) {
-        Pair<Resource, Resource> pair = makeNistRelation(type);
+    Pair<Resource, Resource> makeValidNistRelation(Resource type, double importance) {
+        Pair<Resource, Resource> pair = makeValidNistRelation(type);
         markImportance(pair.getValue(), importance);
         return pair;
     }
 
     /**
-     * Makes and returns an edge relationship between the specified event or relation and an argument filler entity.
+     * Makes and returns a valid argument assertion between the specified event or relation and an argument filler entity.
      *
      * @param eventOrRelation The event or relation for which to mark the specified argument role
      * @param type            the type of the argument
@@ -457,10 +433,35 @@ class NistHypothesisTestUtils extends NistTestUtils {
      * @param importance      the importance to mark the edge
      * @return the created event or relation argument assertion
      */
-    Resource makeEdge(Resource eventOrRelation, Resource type, Resource argumentFiller, double importance) {
+    Resource makeValidEdge(Resource eventOrRelation, Resource type, Resource argumentFiller, double importance) {
         Resource edge = markAsArgument(model, eventOrRelation, type, argumentFiller, system,
                 1.0, getAssertionUri());
         markImportance(edge, importance);
         return edge;
     }
+
+    /**
+     * Makes and returns a valid NIST-restricted hypothesis involving the specified resource(s).
+     *
+     * @param resources A set of entities, relations, and arguments that contribute to the hypothesis
+     */
+    Resource makeValidHypothesis(Resource... resources) {
+        Resource hypothesis = super.makeValidHypothesis(resources);
+        markImportance(hypothesis, 100.0);
+        return hypothesis;
+    }
+
+    /**
+     * Makes and returns a valid NIST-restricted hypothesis involving the specified resource(s) and importance.
+     *
+     * @param importance the importance with which to make the hypothesis
+     * @param resources  A set of entities, relations, and arguments that contribute to the hypothesis
+     */
+    Resource makeValidHypothesis(double importance, Resource... resources) {
+        Resource hypothesis = super.makeValidHypothesis(resources);
+        markImportance(hypothesis, importance);
+        return hypothesis;
+    }
+
+
 }

@@ -57,12 +57,12 @@ public class NistHypothesisExamplesAndValidationTest {
 
         @BeforeEach
         void setup() {
-            Pair<Resource, Resource> aPair = utils.makeNistEntity(SeedlingOntology.Person, "entityHandle");
+            Pair<Resource, Resource> aPair = utils.makeValidNistEntity(SeedlingOntology.Person, "entityHandle");
             entity = aPair.getKey();
             entityCluster = aPair.getValue();
-            aPair = utils.makeNistEvent(SeedlingOntology.Conflict_Attack, 104.0);
+            aPair = utils.makeValidNistEvent(SeedlingOntology.Conflict_Attack, 104.0);
             event = aPair.getKey();
-            eventEdge = utils.makeEdge(event, SeedlingOntology.Conflict_Attack_Attacker, entity, 101.0);
+            eventEdge = utils.makeValidEdge(event, SeedlingOntology.Conflict_Attack_Attacker, entity, 101.0);
         }
 
         // Exactly 1 hypothesis should exist in model
@@ -71,8 +71,8 @@ public class NistHypothesisExamplesAndValidationTest {
 
             @Test
             void invalidTooMany() {
-                utils.makeNistHypothesis(entity, event, eventEdge);
-                utils.makeNistHypothesis(101.0, entity, event, eventEdge);
+                utils.makeValidHypothesis(entity, event, eventEdge);
+                utils.makeValidHypothesis(101.0, entity, event, eventEdge);
                 utils.testInvalid("NISTHypothesis.invalid (too many): there should be exactly 1 hypothesis");
             }
 
@@ -83,7 +83,7 @@ public class NistHypothesisExamplesAndValidationTest {
 
             @Test
             void valid() {
-                utils.makeNistHypothesis(entity, event, eventEdge);
+                utils.makeValidHypothesis(entity, event, eventEdge);
                 utils.testValid("NISTHypothesis.valid: there should be exactly 1 hypothesis");
             }
         }
@@ -95,8 +95,8 @@ public class NistHypothesisExamplesAndValidationTest {
             @Test
             // No handle property on entity cluster in hypothesis
             void invalidNoHandle() {
-                final Resource newEntity = utils.makeNistEntity(SeedlingOntology.Person).getKey();
-                utils.makeNistHypothesis(entity, newEntity, event, eventEdge);
+                final Resource newEntity = utils.makeValidNistEntity(SeedlingOntology.Person).getKey();
+                utils.makeValidHypothesis(entity, newEntity, event, eventEdge);
 
                 utils.testInvalid("NISTHypothesis.invalid (no handle exists): Each entity cluster in the hypothesis " +
                         "graph must have exactly one handle");
@@ -105,11 +105,11 @@ public class NistHypothesisExamplesAndValidationTest {
             @Test
             // Two handle properties on entity cluster in hypothesis
             void invalidMultipleHandles() {
-                final Pair<Resource, Resource> entityPair = utils.makeNistEntity(SeedlingOntology.Person, "handle2");
+                final Pair<Resource, Resource> entityPair = utils.makeValidNistEntity(SeedlingOntology.Person, "handle2");
                 final Resource newEntity = entityPair.getKey();
                 final Resource cluster = entityPair.getValue();
                 cluster.addProperty(AidaAnnotationOntology.HANDLE, "handle3");
-                utils.makeNistHypothesis(entity, newEntity, event, eventEdge);
+                utils.makeValidHypothesis(entity, newEntity, event, eventEdge);
 
                 utils.testInvalid("NISTHypothesis.invalid (multiple handles exist): Each entity cluster in the " +
                         "hypothesis graph must have exactly one handle");
@@ -118,7 +118,7 @@ public class NistHypothesisExamplesAndValidationTest {
             @Test
             // One handle on entity cluster in hypothesis
             void valid() {
-                utils.makeNistHypothesis(entity, event, eventEdge);
+                utils.makeValidHypothesis(entity, event, eventEdge);
                 utils.testValid("NISTHypothesis.valid: Each entity cluster in the hypothesis graph must have " +
                         "exactly one handle");
             }
@@ -138,7 +138,7 @@ public class NistHypothesisExamplesAndValidationTest {
 
             @Test
             void valid() {
-                utils.makeNistHypothesis(entity, event, eventEdge);
+                utils.makeValidHypothesis(entity, event, eventEdge);
                 utils.testValid("NISTHypothesis.valid: Each hypothesis graph must have exactly one" +
                         " hypothesis importance value");
             }
@@ -154,16 +154,16 @@ public class NistHypothesisExamplesAndValidationTest {
 
             @BeforeEach
             void setup() {
-                Pair<Resource, Resource> relationPair = utils.makeNistRelation(SeedlingOntology.GeneralAffiliation_APORA);
+                Pair<Resource, Resource> relationPair = utils.makeValidNistRelation(SeedlingOntology.GeneralAffiliation_APORA);
                 relation = relationPair.getKey();
                 relationCluster = relationPair.getValue();
                 eventCluster = makeClusterWithPrototype(model, utils.getClusterUri(), event, system);
 
                 // This isn't strictly needed to be valid, but it's here because the example looks incomplete if an
                 // entity has a relationship without a relation edge defining that relationship.
-                relationEdge = utils.makeEdge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, 102.0);
+                relationEdge = utils.makeValidEdge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, 102.0);
 
-                utils.makeNistHypothesis(entity, event, eventEdge, relation, relationEdge);
+                utils.makeValidHypothesis(entity, event, eventEdge, relation, relationEdge);
             }
 
             @Test
@@ -198,7 +198,7 @@ public class NistHypothesisExamplesAndValidationTest {
 
             @BeforeEach
             void setup() {
-                Pair<Resource, Resource> relationPair = utils.makeNistRelation(SeedlingOntology.GeneralAffiliation_APORA, 88);
+                Pair<Resource, Resource> relationPair = utils.makeValidNistRelation(SeedlingOntology.GeneralAffiliation_APORA, 88);
                 relation = relationPair.getKey();
             }
 
@@ -208,7 +208,7 @@ public class NistHypothesisExamplesAndValidationTest {
                 Resource invalidEventEdge = markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Elect,
                         entity, system, 0.785, "event-argument-1");
 
-                utils.makeNistHypothesis(entity, event, eventEdge, relation, invalidEventEdge);
+                utils.makeValidHypothesis(entity, event, eventEdge, relation, invalidEventEdge);
 
                 utils.testInvalid("NISTHypothesis.invalid (event edge has no importance value): Each edge KE in the " +
                         "hypothesis graph must have exactly one edge importance value");
@@ -220,7 +220,7 @@ public class NistHypothesisExamplesAndValidationTest {
                 Resource invalidRelationEdge = markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliation,
                         entity, system, 0.785, "relation-argument-1");
 
-                utils.makeNistHypothesis(entity, event, eventEdge, relation, invalidRelationEdge);
+                utils.makeValidHypothesis(entity, event, eventEdge, relation, invalidRelationEdge);
 
                 utils.testInvalid("NISTHypothesis.invalid (relation edge has no importance value): Each edge KE in the " +
                         "hypothesis graph must have exactly one edge importance value");
@@ -228,7 +228,7 @@ public class NistHypothesisExamplesAndValidationTest {
 
             @Test
             void validEventEdge() {
-                utils.makeNistHypothesis(entity, event, eventEdge, relation);
+                utils.makeValidHypothesis(entity, event, eventEdge, relation);
 
                 utils.testValid("NISTHypothesis.valid (event edge has importance value): Each edge KE in the " +
                         "hypothesis graph must have exactly one edge importance value");
@@ -237,8 +237,8 @@ public class NistHypothesisExamplesAndValidationTest {
             @Test
             void validRelationEdge() {
                 // link entity to the relation
-                Resource relationEdge = utils.makeEdge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliation, entity, 120.0);
-                utils.makeNistHypothesis(entity, event, eventEdge, relation, relationEdge);
+                Resource relationEdge = utils.makeValidEdge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliation, entity, 120.0);
+                utils.makeValidHypothesis(entity, event, eventEdge, relation, relationEdge);
 
                 utils.testValid("NISTHypothesis.valid (relation edge has importance value): Each edge KE in the " +
                         "hypothesis graph must have exactly one edge importance value");
@@ -251,14 +251,14 @@ public class NistHypothesisExamplesAndValidationTest {
             @Test
             void invalid() {
                 Resource fakeEntity = model.createResource(utils.getEntityUri());
-                utils.makeNistHypothesis(fakeEntity, entity, event, eventEdge);
+                utils.makeValidHypothesis(fakeEntity, entity, event, eventEdge);
                 utils.testInvalid("NISTHypothesis.invalid (entity is not defined): All KEs referenced by hypothesis " +
                         "must be defined in model");
             }
 
             @Test
             void valid() {
-                utils.makeNistHypothesis(entity, event, eventEdge);
+                utils.makeValidHypothesis(entity, event, eventEdge);
                 utils.testValid("NISTHypothesis.valid: All KEs referenced by hypothesis must be defined in model");
             }
         }
@@ -270,21 +270,21 @@ public class NistHypothesisExamplesAndValidationTest {
 
             @BeforeEach
             void setup() {
-                Pair<Resource, Resource> relationPair = utils.makeNistRelation(SeedlingOntology.GeneralAffiliation_APORA, 103.0);
+                Pair<Resource, Resource> relationPair = utils.makeValidNistRelation(SeedlingOntology.GeneralAffiliation_APORA, 103.0);
                 relation = relationPair.getKey();
-                relationEdge = utils.makeEdge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, 102.0);
+                relationEdge = utils.makeValidEdge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, 102.0);
             }
 
             @Test
             void invalid() {
-                utils.makeNistHypothesis(entity, relation, relationEdge);
+                utils.makeValidHypothesis(entity, relation, relationEdge);
                 utils.testInvalid("NISTHypothesis.invalid (event and event edge is not referenced in hypothesis): " +
                         "All KEs in model must be referenced by hypothesis");
             }
 
             @Test
             void valid() {
-                utils.makeNistHypothesis(entity, relation, relationEdge, event, eventEdge);
+                utils.makeValidHypothesis(entity, relation, relationEdge, event, eventEdge);
                 utils.testValid("NISTHypothesis.valid: All KEs in model must be referenced by hypothesis");
             }
         }
@@ -297,22 +297,22 @@ public class NistHypothesisExamplesAndValidationTest {
             void invalid() {
                 //remove everything in the model to ensure no edge KE's exist
                 NistHypothesisExamplesAndValidationTest.this.setup();
-                Pair<Resource, Resource> pair = utils.makeNistEntity(SeedlingOntology.Person, "entityHandle");
+                Pair<Resource, Resource> pair = utils.makeValidNistEntity(SeedlingOntology.Person, "entityHandle");
                 entity = pair.getKey();
                 entityCluster = pair.getValue();
-                utils.makeNistHypothesis(entity);
+                utils.makeValidHypothesis(entity);
                 utils.testInvalid("NISTHypothesis.invalid (no event or relation exists): Each hypothesis graph must " +
                         "have at least one event or relation with at least one edge.");
             }
 
             @Test
             void invalidRelationAndEventEdge() {
-                final Resource relation = utils.makeNistRelation(SeedlingOntology.GeneralAffiliation_APORA, 103.0).getKey();
+                final Resource relation = utils.makeValidNistRelation(SeedlingOntology.GeneralAffiliation_APORA, 103.0).getKey();
 
                 //create invalid relation edge with event argument type
-                final Resource invalidRelationEdge = utils.makeEdge(relation, SeedlingOntology.Conflict_Attack_Attacker, entity, 102.0);
+                final Resource invalidRelationEdge = utils.makeValidEdge(relation, SeedlingOntology.Conflict_Attack_Attacker, entity, 102.0);
 
-                utils.makeNistHypothesis(entity, event, eventEdge, relation, invalidRelationEdge);
+                utils.makeValidHypothesis(entity, event, eventEdge, relation, invalidRelationEdge);
                 utils.testInvalid("NISTHypothesis.invalid (event has invalid relation edge): Each hypothesis graph " +
                         "must have at least one event or relation with at least one edge.");
             }
@@ -320,27 +320,27 @@ public class NistHypothesisExamplesAndValidationTest {
             // TODO This test case needs to be updated and @Test needs to be added back in  once we decide on the
             // TODO new design of this class upon the completion of AIDA-698.
             void validRelationAndRelationEdge() {
-                final Resource relation = utils.makeNistRelation(SeedlingOntology.GeneralAffiliation_APORA, 103.0).getKey();
-                final Resource relationEdge = utils.makeEdge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, 102.0);
+                final Resource relation = utils.makeValidNistRelation(SeedlingOntology.GeneralAffiliation_APORA, 103.0).getKey();
+                final Resource relationEdge = utils.makeValidEdge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, 102.0);
 
-                utils.makeNistHypothesis(entity, event, eventEdge, relation, relationEdge);
+                utils.makeValidHypothesis(entity, event, eventEdge, relation, relationEdge);
                 utils.testValid("NISTHypothesis.valid (relation has relation edge): Each hypothesis graph must have " +
                         "at least one event or relation with at least one edge.");
             }
 
             @Test
             void validEventAndEventEdge() {
-                utils.makeNistHypothesis(entity, event, eventEdge);
+                utils.makeValidHypothesis(entity, event, eventEdge);
                 utils.testValid("NISTHypothesis.valid (event has event edge): Each hypothesis graph must have " +
                         "at least one event or relation with at least one edge.");
             }
 
             @Test
             void validEventRelationAndEventRelationEdge() {
-                final Resource relation = utils.makeNistRelation(SeedlingOntology.GeneralAffiliation_APORA, 103.0).getKey();
-                final Resource relationEdge = utils.makeEdge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, 102.0);
+                final Resource relation = utils.makeValidNistRelation(SeedlingOntology.GeneralAffiliation_APORA, 103.0).getKey();
+                final Resource relationEdge = utils.makeValidEdge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, 102.0);
 
-                utils.makeNistHypothesis(entity, event, eventEdge, relation, relationEdge);
+                utils.makeValidHypothesis(entity, event, eventEdge, relation, relationEdge);
                 utils.testValid("NISTHypothesis.valid (event has event edge and relation has relation edge): Each " +
                         "hypothesis graph must have at least one event or relation with at least one edge.");
             }
@@ -355,21 +355,21 @@ public class NistHypothesisExamplesAndValidationTest {
 
             @BeforeEach
             void setup() {
-                Pair<Resource, Resource> relationPair = utils.makeNistRelation(SeedlingOntology.GeneralAffiliation_APORA, 103.0);
+                Pair<Resource, Resource> relationPair = utils.makeValidNistRelation(SeedlingOntology.GeneralAffiliation_APORA, 103.0);
                 relation = relationPair.getKey();
                 relationCluster = relationPair.getValue();
-                relationEdge = utils.makeEdge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, 102.0);
+                relationEdge = utils.makeValidEdge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, 102.0);
             }
 
             @Test
             void invalid() {
                 // create event cluster member to add to relation cluster
-                final Resource eventMember = utils.makeNistEvent(SeedlingOntology.Conflict_Attack, 103.0).getKey();
+                final Resource eventMember = utils.makeValidNistEvent(SeedlingOntology.Conflict_Attack, 103.0).getKey();
 
                 //add invalid event cluster member to relation cluster
                 markAsPossibleClusterMember(model, eventMember, relationCluster, 1.0, system);
 
-                utils.makeNistHypothesis(entity, event, eventEdge, eventMember, relation, relationEdge);
+                utils.makeValidHypothesis(entity, event, eventEdge, eventMember, relation, relationEdge);
                 utils.testInvalid("NISTHypothesis.invalid (event exists in relation cluster): Clusters must be " +
                         "homogeneous by base class (Entity, Event, or Relation).");
             }
@@ -383,7 +383,7 @@ public class NistHypothesisExamplesAndValidationTest {
                 //add valid relation cluster member to relation cluster
                 markAsPossibleClusterMember(model, relationMember, relationCluster, 1.0, system);
 
-                utils.makeNistHypothesis(entity, event, eventEdge, relation, relationEdge, relationMember);
+                utils.makeValidHypothesis(entity, event, eventEdge, relation, relationEdge, relationMember);
                 utils.testValid("NISTHypothesis.valid: Clusters must be homogeneous by base class " +
                         "(Entity, Event, or Relation)");
             }
