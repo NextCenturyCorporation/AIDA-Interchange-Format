@@ -27,7 +27,7 @@ def download_and_extract_submission_from_S3(s3_submission, dirpath):
     if not os.path.exists(dirpath):
         os.makedirs(dirpath)
 
-    s3_client = boto3.client('s3', region_name='us-east-1')
+    s3_client = boto3.client('s3')
 
     try:
         logging.info("Downloading %s from bucket %s", s3_object, s3_bucket)
@@ -107,7 +107,7 @@ def upload_submission_files_to_s3(s3_bucket_name, dirpath):
     """
     
     sqs_list = []
-    s3_client = boto3.client('s3', region_name='us-east-1')
+    s3_client = boto3.client('s3')
 
     try:
         for filepath in Path(dirpath).glob('**/*.ttl'):
@@ -133,7 +133,7 @@ def upload_file_to_s3(s3_bucket_name, s3_prefix, filepath):
     :param str filepath: The local path of the file to be uploaded
     :raises ClientError: S3 client exception
     """
-    s3_client = boto3.client('s3', region_name='us-east-1')
+    s3_client = boto3.client('s3')
 
     try:
         s3_object = '/'.join([s3_prefix, Path(filepath).name])
@@ -152,7 +152,7 @@ def bucket_exists(s3_bucket_name):
     :rtype: bool
     :raises ClientError: S3 resource exception
     """
-    s3 = boto3.resource('s3', region_name='us-east-1')
+    s3 = boto3.resource('s3')
 
     try:
         bucket = s3.Bucket(s3_bucket_name)
@@ -170,7 +170,7 @@ def delete_s3_objects(s3_bucket, s3_prefix):
     :param str s3_prefix: 
     :raises ClientError: S3 resrouce exception
     """
-    s3 = boto3.resource('s3', region_name='us-east-1')
+    s3 = boto3.resource('s3')
     try:
         bucket = s3.Bucket(s3_bucket)
         objects_to_delete = []
@@ -196,7 +196,7 @@ def create_sqs_queue(queue_name):
     :raises ClientError: SQS client exception  
     :raises Exception: SQS queue was unable to be created
     """
-    sqs_client = boto3.client('sqs', region_name='us-east-1')
+    sqs_client = boto3.client('sqs')
     queue_name += '.fifo'
 
     try:
@@ -230,7 +230,7 @@ def populate_sqs_queue(queue_list, queue_url, message_group_id, sourcefiles_path
         S3 objects
     :raises ClientError: SQS client exception
     """
-    sqs_client = boto3.client('sqs', region_name='us-east-1')
+    sqs_client = boto3.client('sqs')
 
     try:
         for s3_object in queue_list:
@@ -256,7 +256,7 @@ def delete_sqs_queue(queue_url):
     :param str queue_url: The SQS queue url of queue to be deleted
     :raises ClientError: SQS client exception
     """
-    sqs_client = boto3.client('sqs', region_name='us-east-1')
+    sqs_client = boto3.client('sqs')
 
     try:
         logging.info("deleting sqs queue %s", queue_url)
@@ -279,7 +279,7 @@ def wait_for_processing(node_index, job_id, interval):
         in seconds
     :raises ClientError: AWS batch client exception
     """
-    batch_client = boto3.client('batch', region_name='us-east-1')
+    batch_client = boto3.client('batch')
 
     try:
         response = batch_client.list_jobs(
@@ -371,11 +371,12 @@ def main():
     envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX')
     envs['MASTER_LOG_LEVEL'] = os.environ.get('MASTER_LOG_LEVEL', 'INFO') # default info logging
     envs['MASTER_SLEEP_INTERVAL'] = os.environ.get('MASTER_SLEEP_INTERVAL')
+    envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION')
     
     # set logging to log to stdout
     logging.basicConfig(level=os.environ.get('LOGLEVEL', envs['MASTER_LOG_LEVEL']))
 
-    # verify enviornment variables
+    # validate enviornment variables
     if validate_envs(envs):
 
         # create s3 connection
