@@ -163,11 +163,26 @@ def bucket_exists(s3_bucket_name):
         logging.error(e)
 
 
+def delete_s3_object(s3_bucket, s3_object):
+    """Deletes an S3 object from S3
+
+    :param str s3_object: The S3 object to delete
+    :raises ClientError: S3 resrouce exception
+    """
+    s3 = boto3.resource('s3')
+    try:
+        s3.Object(s3_bucket, s3_object).delete()
+        logging.info("Deleted %s from s3 bucket %s", s3_object, s3_bucket)
+    except ClientError as e:
+        logging.error(e)
+
+
 def delete_s3_objects(s3_bucket, s3_prefix):
     """Deletes all S3 objects from S3 bucket with specified prefix
 
-    :param str s3_bucket:
-    :param str s3_prefix: 
+    :param str s3_bucket: The S3 bucket where the objects will be deleted from
+    :param str s3_prefix: The prefix that all the S3_objects must have in order to be
+        deleted
     :raises ClientError: S3 resrouce exception
     """
     s3 = boto3.resource('s3')
@@ -219,9 +234,12 @@ def create_sqs_queue(queue_name):
         logging.error("Unable to create SQS queue with given name %s", queue_name)
 
 
-def populate_sqs_queue(queue_list, queue_url, message_group_id, sourcefiles_path):
-    """Iterates over s3 object path list and populates SQS queue S3Object messages. A 
-    serialized file will be generated with all of the S3 objects that were added to SQS.
+def populate_sqs_queue(queue_list, queue_url, message_group_id, sourcefiles_path, validation_bucket, batch_job_id):
+    """Iterates over s3 object path list and populates SQS queue S3Object messages. After each message is
+    successfully added to the queue, the s3 object path will be appended to a source file and uploaded
+    to s3. It will overwrite any existing source file that already exists on s3. After all messages have
+    been added to the queue a final source file will be uploaded with a suffix of '.done' and the old 
+    source file will be removed from S3.
 
     :param list queue_list: List of S3 object paths
     :param str queue_url: The SQS queue url
@@ -239,12 +257,28 @@ def populate_sqs_queue(queue_list, queue_url, message_group_id, sourcefiles_path
                 MessageBody=(s3_object),
                 MessageGroupId=message_group_id
             )
+
             logging.info("Added message %s with payload %s to queue %s", msg['MessageId'], s3_object, queue_url)
 
-        # serialize sqs messages to local sourcefiles
-        logging.info("Writing queue list to %s", sourcefiles_path)
-        with open(sourcefiles_path, 'wb') as f:
-            pickle.dump(queue_list, f)
+            with open(sourcefiles_path, 'ab') as f:
+                pickle.dump(s3_object, f)
+
+            # upload file to S3
+            upload_file_to_s3(validation_bucket, 
+            '/'.join([batch_job_id, 'output', 'log']), sourcefiles_path)
+            
+        # append .done to the sourceifles path
+        if os.path.exists(sourcefiles_path):
+            os.rename(sourcefiles_path, sourcefiles_path+'.done')
+
+            # upload file to S3
+            upload_file_to_s3(validation_bucket, 
+                '/'.join([batch_job_id, 'output', 'log']), sourcefiles_path+'.done')
+
+            #delete the old file
+            delete_s3_object(validation_bucket, 
+                '/'.join([batch_job_id, 'output', 'log', sourcefiles_path]))
+
 
     except ClientError as e:
         logging.error(e)
@@ -391,10 +425,9 @@ def main():
      
         #create queues and populate queue to be processed
         queue_url = create_sqs_queue(envs['AWS_BATCH_JOB_ID'])
-        populate_sqs_queue(queue_list, queue_url, envs['AWS_BATCH_JOB_ID'], 'sourcefiles')
-        upload_file_to_s3(envs['S3_VALIDATION_BUCKET'], 
-            '/'.join([envs['AWS_BATCH_JOB_ID'], 'output', 'log']), 'sourcefiles')
-
+        populate_sqs_queue(queue_list, queue_url, envs['AWS_BATCH_JOB_ID'], 
+            'sourcefiles', envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
+        
         # wait for all AWS batch jobs to complete processing
         wait_for_processing(envs['AWS_BATCH_JOB_NODE_INDEX'], envs['AWS_BATCH_JOB_ID'], int(envs['MASTER_SLEEP_INTERVAL']))
 
