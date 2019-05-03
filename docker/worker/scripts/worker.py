@@ -151,22 +151,31 @@ def validate_envs(envs):
     for k, v in envs.items():
         if not is_env_set(k, v):
             return False
+
+    # check if QUEUE_INIT_TIMEOUT can be converted to int
+    try:
+        int(envs['QUEUE_INIT_TIMEOUT'])
+    except ValueError:
+        logging.error("Master sleep interval [%s] must be an integer", envs['QUEUE_INIT_TIMEOUT'])
+        return False
+
     return True
 
 
 def main():
 
 	envs = {}
-	envs['QUEUE_INIT_TIMEOUT'] = int(os.environ['QUEUE_INIT_TIMEOUT'])
-	envs['AWS_BATCH_JOB_ID'] = os.environ['AWS_BATCH_JOB_ID']
-	envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ['AWS_BATCH_JOB_NODE_INDEX']
-	envs['WORKER_LOG_LEVEL'] = 'INFO'
+	envs['QUEUE_INIT_TIMEOUT'] = os.environ.get('QUEUE_INIT_TIMEOUT')
+	envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID')
+	envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX')
+	envs['WORKER_LOG_LEVEL'] = os.environ.get('WORKER_LOG_LEVEL', 'INFO') # default log level
+	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION')
 
     # set logging to log to stdout
 	logging.basicConfig(level=os.environ.get('LOGLEVEL', envs['WORKER_LOG_LEVEL']))
 
     # verify environment variables and wait for SQS queue to become available
-	if validate_envs(envs) and wait_for_sqs_queue(envs['AWS_BATCH_JOB_ID'], envs['QUEUE_INIT_TIMEOUT']):
+	if validate_envs(envs) and wait_for_sqs_queue(envs['AWS_BATCH_JOB_ID'], int(envs['QUEUE_INIT_TIMEOUT'])):
 
 		# process messages
 		process_sqs_queue(envs['AWS_BATCH_JOB_ID'])
