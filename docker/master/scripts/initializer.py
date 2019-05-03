@@ -379,6 +379,10 @@ def main():
     # validate enviornment variables
     if validate_envs(envs):
 
+        # extract job id from AWS_BATCH_JOB_ID and reset
+        envs['AWS_BATCH_JOB_ID'] = (envs['AWS_BATCH_JOB_ID']).split("#")[0]
+        logging.info("Extracted AWS_BATCH_JOB_ID as %s", envs['AWS_BATCH_JOB_ID'])
+
         # create s3 connection
         download_and_extract_submission_from_S3(envs['S3_SUBMISSION_ARCHIVE'], envs['AWS_BATCH_JOB_ID'])
 
