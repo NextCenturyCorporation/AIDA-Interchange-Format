@@ -34,7 +34,8 @@ def check_sqs_has_messages(s3_bucket, batch_job_id, complete=False):
 
 	:param str s3_bucket: The s3 bucket that contains the sourcefiles object
 	:param str sourcefiles_s3_object: The s3 sourcefiles object to check
-	:param bool complete: If True, it will check if the sourcefile has the .done suffix
+	:param bool complete: True if the sourcefile has the .done suffix, False 
+		otherwise
 	:returns: True if file exists, False otherwise
 	:rtype: bool
 	"""
@@ -142,7 +143,7 @@ def get_sqs_message(queue_url):
 			logging.info("Recieved message with receipt handle %s", msg['ReceiptHandle'])
 			return msg
 		else:
-			logging.info("SQS queue %s has no more messages", queue_url)
+			logging.info("SQS queue %s did not return a messages", queue_url)
 			return None
 	except ClientError as e:
 		logging.error(e)
@@ -168,30 +169,41 @@ def delete_sqs_message(queue_url, msg_receipt_handle):
     	logging.error(e)
 
 
-def process_sqs_queue(queue_name):
-	"""Function will 
+def process_sqs_queue(batch_job_id, validation_bucket):
+	"""Function process messages until no more messages can be read from SQS 
+	queue and sourcefiles.done file has been populated in S3. 
+
+	:param str batch_job_id: The id of the batch job as well as the name of 
+		the SQS queue.
+	:param str validation_bucket: The S3 bucket that stores batch job output
 	"""
 	sqs_client = boto3.client('sqs')
-	queue_name += '.fifo'
+	queue_name = batch_job_id+'.fifo'
 
 	try:
 		response = sqs_client.get_queue_url(
-			QueueName=queue_name
+				QueueName=queue_name
 		)
 
-		msg = get_sqs_message(response['QueueUrl'])
+		while True:
 
-		# loop process all the messages in the queue
-		while msg is not None:
-			logging.info("Processing message %s", msg['Body'])		
-			delete_sqs_message(response['QueueUrl'], msg['ReceiptHandle'])
-
-			sleep = random.randint(1,6)
-			logging.info("Sleeping for %s seconds to simulate processing", sleep)
-			time.sleep(sleep)
-
-			# get the next message
 			msg = get_sqs_message(response['QueueUrl'])
+
+			#check if queue has finished populating and message is None
+			if msg is None and check_sqs_has_messages(validation_bucket, batch_job_id, True):
+				logging.info("All SQS messages have been processed")		
+				break
+
+			# process message
+			if msg is not None:
+				logging.info("Processing message %s", msg['Body'])		
+				delete_sqs_message(response['QueueUrl'], msg['ReceiptHandle'])
+
+				sleep = random.randint(1,6)
+				logging.info("Sleeping for %s seconds to simulate processing", sleep)
+				time.sleep(sleep)
+			else:
+				logging.info("Message was empty and SQS queue is still being populated")
 
 	except ClientError as e:
 		logging.error(e)
@@ -242,7 +254,7 @@ def validate_envs(envs):
 def main():
 
 	envs = {}
-	envs['QUEUE_INIT_TIMEOUT'] = os.environ.get('QUEUE_INIT_TIMEOUT')
+	envs['QUEUE_INIT_TIMEOUT'] = os.environ.get('QUEUE_INIT_TIMEOUT', '28800') # default to 8 hours
 	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET')
 	envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID')
 	envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX')
@@ -262,7 +274,7 @@ def main():
 		if wait_for_sqs_queue(envs['AWS_BATCH_JOB_ID'], envs['S3_VALIDATION_BUCKET'], int(envs['QUEUE_INIT_TIMEOUT'])):
 
 			# process messages
-			process_sqs_queue(envs['AWS_BATCH_JOB_ID'])
+			process_sqs_queue(envs['AWS_BATCH_JOB_ID'], envs['S3_VALIDATION_BUCKET'])
 
 
 if __name__ == "__main__": main()
