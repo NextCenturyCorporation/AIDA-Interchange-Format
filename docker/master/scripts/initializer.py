@@ -27,7 +27,7 @@ def download_and_extract_submission_from_S3(s3_submission, dirpath):
     if not os.path.exists(dirpath):
         os.makedirs(dirpath)
 
-    s3_client = boto3.client('s3')
+    s3_client = boto3.client('s3', region_name='us-east-1')
 
     try:
         logging.info("Downloading %s from bucket %s", s3_object, s3_bucket)
@@ -107,7 +107,7 @@ def upload_submission_files_to_s3(s3_bucket_name, dirpath):
     """
     
     sqs_list = []
-    s3_client = boto3.client('s3')
+    s3_client = boto3.client('s3', region_name='us-east-1')
 
     try:
         for filepath in Path(dirpath).glob('**/*.ttl'):
@@ -133,7 +133,7 @@ def upload_file_to_s3(s3_bucket_name, s3_prefix, filepath):
     :param str filepath: The local path of the file to be uploaded
     :raises ClientError: S3 client exception
     """
-    s3_client = boto3.client('s3')
+    s3_client = boto3.client('s3', region_name='us-east-1')
 
     try:
         s3_object = '/'.join([s3_prefix, Path(filepath).name])
@@ -152,7 +152,7 @@ def bucket_exists(s3_bucket_name):
     :rtype: bool
     :raises ClientError: S3 resource exception
     """
-    s3 = boto3.resource('s3')
+    s3 = boto3.resource('s3', region_name='us-east-1')
 
     try:
         bucket = s3.Bucket(s3_bucket_name)
@@ -170,7 +170,7 @@ def delete_s3_objects(s3_bucket, s3_prefix):
     :param str s3_prefix: 
     :raises ClientError: S3 resrouce exception
     """
-    s3 = boto3.resource('s3')
+    s3 = boto3.resource('s3', region_name='us-east-1')
     try:
         bucket = s3.Bucket(s3_bucket)
         objects_to_delete = []
@@ -196,7 +196,7 @@ def create_sqs_queue(queue_name):
     :raises ClientError: SQS client exception  
     :raises Exception: SQS queue was unable to be created
     """
-    sqs_client = boto3.client('sqs')
+    sqs_client = boto3.client('sqs', region_name='us-east-1')
     queue_name += '.fifo'
 
     try:
@@ -230,7 +230,7 @@ def populate_sqs_queue(queue_list, queue_url, message_group_id, sourcefiles_path
         S3 objects
     :raises ClientError: SQS client exception
     """
-    sqs_client = boto3.client('sqs')
+    sqs_client = boto3.client('sqs', region_name='us-east-1')
 
     try:
         for s3_object in queue_list:
@@ -256,7 +256,7 @@ def delete_sqs_queue(queue_url):
     :param str queue_url: The SQS queue url of queue to be deleted
     :raises ClientError: SQS client exception
     """
-    sqs_client = boto3.client('sqs')
+    sqs_client = boto3.client('sqs', region_name='us-east-1')
 
     try:
         logging.info("deleting sqs queue %s", queue_url)
@@ -279,7 +279,7 @@ def wait_for_processing(node_index, job_id, interval):
         in seconds
     :raises ClientError: AWS batch client exception
     """
-    batch_client = boto3.client('batch')
+    batch_client = boto3.client('batch', region_name='us-east-1')
 
     try:
         response = batch_client.list_jobs(
@@ -341,6 +341,13 @@ def validate_envs(envs):
         if not is_env_set(k, v):
             return False
 
+    #check if master sleep interval can be converted to int
+    try:
+        int(envs['MASTER_SLEEP_INTERVAL'])
+    except ValueError:
+        logging.error("Master sleep interval [%s] must be an integer", envs['MASTER_SLEEP_INTERVAL'])
+        return False
+
     # check the extension of the S3 submission
     if not check_valid_extension(envs['S3_SUBMISSION_ARCHIVE']):
         logging.error("S3 submission %s is not a valid archive type", envs['S3_SUBMISSION_ARCHIVE'])
@@ -358,12 +365,12 @@ def main():
     
     # read in all evnironment variables into dict
     envs = {}
-    envs['S3_SUBMISSION_ARCHIVE'] = os.environ['S3_SUBMISSION_ARCHIVE']
-    envs['S3_VALIDATION_BUCKET'] = os.environ['S3_VALIDATION_BUCKET']
-    envs['AWS_BATCH_JOB_ID'] = os.environ['AWS_BATCH_JOB_ID']
-    envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ['AWS_BATCH_JOB_NODE_INDEX']
+    envs['S3_SUBMISSION_ARCHIVE'] = os.environ.get('S3_SUBMISSION_ARCHIVE')
+    envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET')
+    envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID')
+    envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX')
     envs['MASTER_LOG_LEVEL'] = os.environ.get('MASTER_LOG_LEVEL', 'INFO') # default info logging
-    envs['MASTER_SLEEP_INTERVAL'] = int(os.environ['MASTER_SLEEP_INTERVAL'])
+    envs['MASTER_SLEEP_INTERVAL'] = os.environ.get('MASTER_SLEEP_INTERVAL')
     
     # set logging to log to stdout
     logging.basicConfig(level=os.environ.get('LOGLEVEL', envs['MASTER_LOG_LEVEL']))
@@ -372,11 +379,9 @@ def main():
     if validate_envs(envs):
 
         # create s3 connection
-        s3_client = boto3.client('s3')
         download_and_extract_submission_from_S3(envs['S3_SUBMISSION_ARCHIVE'], envs['AWS_BATCH_JOB_ID'])
 
         # create sqs connection
-        sqs_client = boto3.resource('sqs')
         queue_list = upload_submission_files_to_s3(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
      
         #create queues and populate queue to be processed
@@ -386,7 +391,7 @@ def main():
             '/'.join([envs['AWS_BATCH_JOB_ID'], 'output', 'log']), 'sourcefiles')
 
         # wait for all AWS batch jobs to complete processing
-        wait_for_processing(envs['AWS_BATCH_JOB_NODE_INDEX'], envs['AWS_BATCH_JOB_ID'], envs['MASTER_SLEEP_INTERVAL'])
+        wait_for_processing(envs['AWS_BATCH_JOB_NODE_INDEX'], envs['AWS_BATCH_JOB_ID'], int(envs['MASTER_SLEEP_INTERVAL']))
 
         # clean up
         #delete_s3_objects(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
