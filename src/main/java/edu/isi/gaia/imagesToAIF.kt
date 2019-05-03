@@ -5,6 +5,7 @@ import ch.qos.logback.classic.Logger
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.collect.ImmutableMap
 import com.google.common.io.Files
+import com.ncc.aif.AIFUtils
 import edu.isi.nlp.files.FileUtils
 import edu.isi.nlp.parameters.Parameters
 import edu.isi.nlp.symbols.Symbol
@@ -15,7 +16,6 @@ import org.apache.jena.rdf.model.Resource
 import org.apache.jena.riot.RDFDataMgr
 import org.apache.jena.riot.RDFFormat
 import java.io.File
-import kotlin.coroutines.experimental.buildSequence
 
 /**
  * Convert simple entity & event mentions from images to AIF format.
@@ -297,7 +297,7 @@ class ImagesToAIF(private val entityUriGenerator: IriGenerator,
 fun <T> Sequence<T>.split(predicate: (T) -> Boolean, keepBoundary: Boolean = false,
                           omitEmpty: Boolean = true): Sequence<List<T>> {
     val itemSequence = this
-    return buildSequence {
+    return sequence {
         var accumulator = mutableListOf<T>()
 
         for (item in itemSequence) {
@@ -339,7 +339,7 @@ fun <T> Sequence<T>.split(predicate: (T) -> Boolean, keepBoundary: Boolean = fal
  */
 fun <T, K> Sequence<T>.chunkedBy(keyFunction: (T) -> K): Sequence<List<T>> {
     val itemSequence = this
-    return buildSequence {
+    return sequence {
         var accumulator = mutableListOf<T>()
         var lastKey: K? = null
 

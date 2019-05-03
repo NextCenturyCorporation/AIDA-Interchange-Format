@@ -1,6 +1,7 @@
 package edu.isi.gaia
 
 import com.google.common.io.Files
+import com.ncc.aif.AIFUtils
 import edu.isi.gaia.AidaAnnotationOntology.CONFIDENCE
 import edu.isi.gaia.AidaAnnotationOntology.CONFIDENCE_VALUE
 import edu.isi.gaia.AidaAnnotationOntology.JUSTIFIED_BY
@@ -61,7 +62,7 @@ class MaxConfidenceEstimator : ConfidenceRestimator {
             val inputKBFile = params.getExistingFile("inputKBFile")
             val outputKBFile = params.getCreatableFile("outputKBFile")
 
-            AIFUtils.workWithBigModel {
+            ISIAIFUtils.workWithBigModel {
                 val model = it
                 logger.info { "Loading KB from $inputKBFile" }
                 Files.asCharSource(inputKBFile, Charsets.UTF_8).openBufferedStream().use {

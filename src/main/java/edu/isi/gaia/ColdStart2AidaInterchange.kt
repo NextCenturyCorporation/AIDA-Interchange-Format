@@ -5,8 +5,8 @@ import ch.qos.logback.classic.Logger
 import com.google.common.base.Charsets
 import com.google.common.collect.*
 import com.google.common.io.Files
-import edu.isi.gaia.AIFUtils.markJustification
-import edu.isi.gaia.AIFUtils.markSystem
+import com.ncc.aif.AIFUtils
+import com.ncc.aif.AIFUtils.markSystem
 import edu.isi.nlp.files.FileUtils
 import edu.isi.nlp.parameters.Parameters
 import edu.isi.nlp.parameters.Parameters.loadSerifStyle
@@ -235,7 +235,7 @@ class ColdStart2AidaInterchangeConverter(
                         start, end_inclusive, systemNode, confidence)
                 // NIST wants justifications on type assertions
                 if (typeAssertion != null) {
-                    markJustification(ImmutableList.of(typeAssertion), justification)
+                    AIFUtils.markJustification(ImmutableList.of(typeAssertion), justification)
                 }
 
                 if (includePrefLabelsOnJustifications && string != null) {
@@ -512,7 +512,7 @@ fun convertColdStartAsSingleKB(converter: ColdStart2AidaInterchangeConverter,
                                outputPath: Path,
                                errorLogger: ErrorLogger) {
     val coldstartKB = coldstartLoadingResult.kb
-    AIFUtils.workWithBigModel {
+    ISIAIFUtils.workWithBigModel {
         val model = it
         converter.coldstartToAidaInterchange(systemUri, coldstartKB, model, errorLogger = errorLogger)
         outputPath.toFile().bufferedWriter(UTF_8).use {

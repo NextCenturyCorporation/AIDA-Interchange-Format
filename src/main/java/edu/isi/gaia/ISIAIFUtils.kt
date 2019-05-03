@@ -2,7 +2,8 @@ package edu.isi.gaia
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.collect.ImmutableList
-import edu.isi.gaia.AIFUtils.SparqlQueries.TYPE_QUERY
+import com.ncc.aif.AIFUtils
+import edu.isi.gaia.ISIAIFUtils.SparqlQueries.TYPE_QUERY
 import org.apache.jena.query.QueryExecutionFactory
 import org.apache.jena.query.QueryFactory
 import org.apache.jena.query.QuerySolutionMap
@@ -22,7 +23,7 @@ import java.util.*
  *
  * @author Ryan Gabbard (USC ISI)
  */
-object AIFUtils {
+object ISIAIFUtils {
     /**
      * Adds common non-ontology-specific namespaces to make AIF files more readable
      */
@@ -134,10 +135,10 @@ object AIFUtils {
     fun makeRelationInEventForm(model: Model, relationUri: String, relationType: Resource, subjectRole: Resource,
                                 subjectResource: Resource, objectRole: Resource, objectResource: Resource,
                                 typeAssertionUri: String, system: Resource, confidence: Double?): Resource {
-        val relation = AIFUtils.makeRelation(model, relationUri, system)
-        AIFUtils.markType(model, typeAssertionUri, relation, relationType, system, confidence)
-        AIFUtils.markAsArgument(model, relation, subjectRole, subjectResource, system, confidence)
-        AIFUtils.markAsArgument(model, relation, objectRole, objectResource, system, confidence)
+        val relation = makeRelation(model, relationUri, system)
+        markType(model, typeAssertionUri, relation, relationType, system, confidence)
+        markAsArgument(model, relation, subjectRole, subjectResource, system, confidence)
+        markAsArgument(model, relation, objectRole, objectResource, system, confidence)
         return relation
     }
 
@@ -640,7 +641,7 @@ object AIFUtils {
             Resource {
         val mapper = ObjectMapper()
         val jsonMap = mapOf<Any, Any>("vector_type" to vectorType, "vector_data" to vectorData)
-        return AIFUtils.markPrivateData(model, resource, mapper.writeValueAsString(jsonMap), system)
+        return markPrivateData(model, resource, mapper.writeValueAsString(jsonMap), system)
     }
 
     @JvmStatic
