@@ -5,7 +5,7 @@ import ch.qos.logback.classic.Logger;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDF;
@@ -62,7 +62,7 @@ public class NistExamplesAndValidationTest {
         @BeforeEach
         void setup() {
             typeAssertionJustification = utils.getTypeAssertionJustification();
-            Pair<Resource, Resource> aPair = utils.makeValidNistEntity(SeedlingOntology.Person);
+            ImmutablePair<Resource, Resource> aPair = utils.makeValidNistEntity(SeedlingOntology.Person);
             entity = aPair.getKey();
             entityCluster = aPair.getValue();
             aPair = utils.makeValidNistEvent(SeedlingOntology.Conflict_Attack);
@@ -428,7 +428,7 @@ public class NistExamplesAndValidationTest {
             @Test
             void invalidNumericValueAsString() {
                 final Resource numericValueEntity = utils.makeValidNistEntity(SeedlingOntology.Age).getKey();
-                markNumericValueAsString(numericValueEntity , "3.866257319028419151956807870102338944632653034263131666724882672874792347265146689923498812818121807146499569966401451211686727219627969935361183863143994146880217969397076000433349740006299102731565965237056997838014700127614676980451633032526526557734348");
+                markNumericValueAsString(numericValueEntity, "3.866257319028419151956807870102338944632653034263131666724882672874792347265146689923498812818121807146499569966401451211686727219627969935361183863143994146880217969397076000433349740006299102731565965237056997838014700127614676980451633032526526557734348");
 
                 utils.testInvalid("NIST.invalid (numeric string value): Each entity numeric value string is limited to 256 UTF-8 characters");
             }
@@ -463,7 +463,7 @@ public class NistExamplesAndValidationTest {
             @Test
             void validNumericValueAsString() {
                 final Resource numericValueEntity = utils.makeValidNistEntity(SeedlingOntology.Age).getKey();
-                markNumericValueAsString(numericValueEntity , "3.86625731902841915195680787010233894463265303426313166672488267287479234726514668992349881281812180714649956996640145121168672721962796993536118386314399414688021796939707600043334974000629910273156596523705699783801470012761467698045163303252652655773434");
+                markNumericValueAsString(numericValueEntity, "3.86625731902841915195680787010233894463265303426313166672488267287479234726514668992349881281812180714649956996640145121168672721962796993536118386314399414688021796939707600043334974000629910273156596523705699783801470012761467698045163303252652655773434");
 
                 markNumericValueAsString(numericValueEntity, "1");
                 utils.testValid("NIST.valid (numeric string value): Each entity numeric value string is limited to 256 UTF-8 characters");

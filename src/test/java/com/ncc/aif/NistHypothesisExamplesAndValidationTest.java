@@ -5,7 +5,7 @@ import ch.qos.logback.classic.Logger;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.junit.jupiter.api.*;
@@ -57,7 +57,7 @@ public class NistHypothesisExamplesAndValidationTest {
 
         @BeforeEach
         void setup() {
-            Pair<Resource, Resource> aPair = utils.makeValidNistEntity(SeedlingOntology.Person, "entityHandle");
+            ImmutablePair<Resource, Resource> aPair = utils.makeValidNistEntity(SeedlingOntology.Person, "entityHandle");
             entity = aPair.getKey();
             entityCluster = aPair.getValue();
             aPair = utils.makeValidNistEvent(SeedlingOntology.Conflict_Attack, 104.0);
@@ -105,7 +105,7 @@ public class NistHypothesisExamplesAndValidationTest {
             @Test
             // Two handle properties on entity cluster in hypothesis
             void invalidMultipleHandles() {
-                final Pair<Resource, Resource> entityPair = utils.makeValidNistEntity(SeedlingOntology.Person, "handle2");
+                final ImmutablePair<Resource, Resource> entityPair = utils.makeValidNistEntity(SeedlingOntology.Person, "handle2");
                 final Resource newEntity = entityPair.getKey();
                 final Resource cluster = entityPair.getValue();
                 cluster.addProperty(AidaAnnotationOntology.HANDLE, "handle3");
@@ -154,7 +154,7 @@ public class NistHypothesisExamplesAndValidationTest {
 
             @BeforeEach
             void setup() {
-                Pair<Resource, Resource> relationPair = utils.makeValidNistRelation(SeedlingOntology.GeneralAffiliation_APORA);
+                ImmutablePair<Resource, Resource> relationPair = utils.makeValidNistRelation(SeedlingOntology.GeneralAffiliation_APORA);
                 relation = relationPair.getKey();
                 relationCluster = relationPair.getValue();
                 eventCluster = makeClusterWithPrototype(model, utils.getClusterUri(), event, system);
@@ -198,7 +198,7 @@ public class NistHypothesisExamplesAndValidationTest {
 
             @BeforeEach
             void setup() {
-                Pair<Resource, Resource> relationPair = utils.makeValidNistRelation(SeedlingOntology.GeneralAffiliation_APORA, 88);
+                ImmutablePair<Resource, Resource> relationPair = utils.makeValidNistRelation(SeedlingOntology.GeneralAffiliation_APORA, 88);
                 relation = relationPair.getKey();
             }
 
@@ -270,7 +270,7 @@ public class NistHypothesisExamplesAndValidationTest {
 
             @BeforeEach
             void setup() {
-                Pair<Resource, Resource> relationPair = utils.makeValidNistRelation(SeedlingOntology.GeneralAffiliation_APORA, 103.0);
+                ImmutablePair<Resource, Resource> relationPair = utils.makeValidNistRelation(SeedlingOntology.GeneralAffiliation_APORA, 103.0);
                 relation = relationPair.getKey();
                 relationEdge = utils.makeValidEdge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, 102.0);
             }
@@ -297,7 +297,7 @@ public class NistHypothesisExamplesAndValidationTest {
             void invalid() {
                 //remove everything in the model to ensure no edge KE's exist
                 NistHypothesisExamplesAndValidationTest.this.setup();
-                Pair<Resource, Resource> pair = utils.makeValidNistEntity(SeedlingOntology.Person, "entityHandle");
+                ImmutablePair<Resource, Resource> pair = utils.makeValidNistEntity(SeedlingOntology.Person, "entityHandle");
                 entity = pair.getKey();
                 entityCluster = pair.getValue();
                 utils.makeValidHypothesis(entity);
@@ -355,7 +355,7 @@ public class NistHypothesisExamplesAndValidationTest {
 
             @BeforeEach
             void setup() {
-                Pair<Resource, Resource> relationPair = utils.makeValidNistRelation(SeedlingOntology.GeneralAffiliation_APORA, 103.0);
+                ImmutablePair<Resource, Resource> relationPair = utils.makeValidNistRelation(SeedlingOntology.GeneralAffiliation_APORA, 103.0);
                 relation = relationPair.getKey();
                 relationCluster = relationPair.getValue();
                 relationEdge = utils.makeValidEdge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, 102.0);

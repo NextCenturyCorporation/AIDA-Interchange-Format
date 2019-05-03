@@ -1,6 +1,6 @@
 package com.ncc.aif;
 
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
@@ -163,7 +163,7 @@ class TestUtils {
 
     Resource makeValidJustification() {
         return makeTextJustification(model, getDocumentName(),
-                documentCount*2, documentCount*4, system, 1.0);
+                documentCount * 2, documentCount * 4, system, 1.0);
     }
 
     /**
@@ -358,11 +358,11 @@ class NistTestUtils extends TestUtils {
      * @param type entity type
      * @return a key-value Pair of the entity Resource (key) and its associated cluster Resource (value)
      */
-    Pair<Resource, Resource> makeValidNistEntity(Resource type) {
+    ImmutablePair<Resource, Resource> makeValidNistEntity(Resource type) {
         Resource entity = makeEntity(model, getEntityUri(), system);
         markJustification(addType(entity, type), getTypeAssertionJustification());
         Resource entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, system);
-        return new Pair<>(entity, entityCluster);
+        return new ImmutablePair<>(entity, entityCluster);
     }
 
     /**
@@ -371,11 +371,11 @@ class NistTestUtils extends TestUtils {
      * @param type event type
      * @return a key-value Pair of the event Resource (key) and its associated cluster Resource (value)
      */
-    Pair<Resource, Resource> makeValidNistEvent(Resource type) {
+    ImmutablePair<Resource, Resource> makeValidNistEvent(Resource type) {
         Resource event = makeEvent(model, getEventUri(), system);
         markJustification(addType(event, type), getTypeAssertionJustification());
         Resource entityCluster = makeClusterWithPrototype(model, getClusterUri(), event, system);
-        return new Pair<>(event, entityCluster);
+        return new ImmutablePair<>(event, entityCluster);
     }
 
     /**
@@ -384,11 +384,11 @@ class NistTestUtils extends TestUtils {
      * @param type relation type
      * @return a key-value Pair of the relation Resource (key) and its associated cluster Resource (value)
      */
-    Pair<Resource, Resource> makeValidNistRelation(Resource type) {
+    ImmutablePair<Resource, Resource> makeValidNistRelation(Resource type) {
         Resource relation = makeRelation(model, getEventUri(), system);
         markJustification(addType(relation, type), getTypeAssertionJustification());
         Resource relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation, system);
-        return new Pair<>(relation, relationCluster);
+        return new ImmutablePair<>(relation, relationCluster);
     }
 
 }
@@ -419,8 +419,8 @@ class NistHypothesisTestUtils extends NistTestUtils {
      * @param clusterHandle cluster handle for the entity cluster
      * @return a key-value Pair of the entity Resource (key) and its associated cluster Resource (value)
      */
-    Pair<Resource, Resource> makeValidNistEntity(Resource type, String clusterHandle) {
-        Pair<Resource, Resource> pair = makeValidNistEntity(type);
+    ImmutablePair<Resource, Resource> makeValidNistEntity(Resource type, String clusterHandle) {
+        ImmutablePair<Resource, Resource> pair = makeValidNistEntity(type);
         pair.getValue().addProperty(AidaAnnotationOntology.HANDLE, clusterHandle);
         return pair;
     }
@@ -433,8 +433,8 @@ class NistHypothesisTestUtils extends NistTestUtils {
      * @param importance the importance to mark the event cluster
      * @return a key-value Pair of the event Resource (key) and its associated cluster Resource (value)
      */
-    Pair<Resource, Resource> makeValidNistEvent(Resource type, double importance) {
-        Pair<Resource, Resource> pair = makeValidNistEvent(type);
+    ImmutablePair<Resource, Resource> makeValidNistEvent(Resource type, double importance) {
+        ImmutablePair<Resource, Resource> pair = makeValidNistEvent(type);
         markImportance(pair.getValue(), importance);
         return pair;
     }
@@ -447,8 +447,8 @@ class NistHypothesisTestUtils extends NistTestUtils {
      * @param importance the importance to mark the relation cluster
      * @return a key-value Pair of the event Resource (key) and its associated cluster Resource (value)
      */
-    Pair<Resource, Resource> makeValidNistRelation(Resource type, double importance) {
-        Pair<Resource, Resource> pair = makeValidNistRelation(type);
+    ImmutablePair<Resource, Resource> makeValidNistRelation(Resource type, double importance) {
+        ImmutablePair<Resource, Resource> pair = makeValidNistRelation(type);
         markImportance(pair.getValue(), importance);
         return pair;
     }
