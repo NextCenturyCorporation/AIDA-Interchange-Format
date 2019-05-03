@@ -73,7 +73,7 @@ validate N files or all files in a specified directory.
 To run the validator from the command line, run `target/appassembler/bin/validateAIF`
 with a series of command-line arguments (in any order) honoring the following usage:  <br>
 Usage:  <br>
-`validateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] {-f FILE ... | -d DIRNAME}`  <br>
+`validateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--abort [num]] {-f FILE ... | -d DIRNAME}`  <br>
 
 | Switch | Description |
 | ----------- | ----------- |
@@ -84,6 +84,7 @@ Usage:  <br>
 |`--nist-ta3` | validate against the NIST hypothesis restrictions (implies `--nist`) |
 |`-o` | Save validation report model to a file.  `KB.ttl` would result in `KB-report.txt`. Output defaults to stderr. |
 |`-h, --help` | This help and usage text |
+|`--abort [num]`| Abort validation after [num] validation errors, or first validation error if [num] is omitted. |
 |`-f FILE ...` | validate the specified file(s) with a `.ttl` suffix |
 |`-d DIRNAME` | validate all `.ttl` files in the specified directory |
 
@@ -98,9 +99,10 @@ Return values from the command-line validator are as follows:
 * `0 (Success)`.  There were no validation (or any other) errors.
 * `1 (Validation Error)`.	All specified files were validated but at least one failed validation.  Supersedes a File Error.
 * `2 (Usage Error)`.  There was a problem interpreting command-line arguments.  No validation was performed.
-* `3 (File Error)`.  A file was rejected, either due to an I/O error or because it didn't meet certain criteria.
-  Logging indicates the nature of the problem(s).  Validation may have been performed on a subset of specified KBs.
-  If there is an error loading any ontologies or SHACL files, then no validation is performed.
+* `3 (File Error)`.  A file was rejected or couldn't be validated, either due to an I/O error, a validation engine error,
+  or because it didn't meet certain criteria.  Logging indicates the nature of the problem(s).  Validation may
+  have been performed on a subset of specified KBs.  If there is an error loading any ontologies or SHACL files,
+  then no validation is performed.
 
 ### Running the validator in code
 To run the validator programmatically in Java code, first use one of the public `ValidateAIF.createXXX()`
@@ -110,6 +112,10 @@ is flexible enough to take a Set of ontologies.  All creation methods accept a f
 against restricted AIF.  See the JavaDocs.
 
 Note: the original `ValidateAIF.createForDomainOntologySource()` method remains for backward compatibility.
+
+#### Failing fast
+
+My text here.
 
 ### Differences from the legacy validator
 The AIF Validator bears certain important differences from the previous version of

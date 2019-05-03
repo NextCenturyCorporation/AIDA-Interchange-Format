@@ -15,6 +15,8 @@ import org.apache.jena.util.FileUtils;
 import org.topbraid.jenax.statistics.ExecStatistics;
 import org.topbraid.jenax.statistics.ExecStatisticsListener;
 import org.topbraid.jenax.statistics.ExecStatisticsManager;
+import org.topbraid.shacl.validation.ValidationEngine;
+import org.topbraid.shacl.validation.ValidationEngineConfiguration;
 import org.topbraid.shacl.validation.ValidationUtil;
 
 import java.io.File;
@@ -56,6 +58,7 @@ public final class ValidateAIF {
     private static Model nistModel;
     private static Model nistHypoModel;
     private static boolean initialized = false;
+    private static int abortParam = -1; // TODO: separate command-line validator from validator class
     private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
     private static final Property CONFORMS = ResourceFactory.createProperty("http://www.w3.org/ns/shacl#conforms");
     private static final int LONG_QUERY_THRESH = 2000;
@@ -80,6 +83,7 @@ public final class ValidateAIF {
 
     private Model domainModel;
     private Restriction restriction;
+    private int abortThreshold = -1; // by default, do not abort on error
 
     private ValidateAIF(Model domainModel, Restriction restriction) {
         initializeSHACLModels();
@@ -167,7 +171,7 @@ public final class ValidateAIF {
     // Show usage information.
     private static void showUsage() {
         System.out.println("Usage:\n" +
-                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] {-f FILE ... | -d DIRNAME}\n" +
+                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--abort [num]] {-f FILE ... | -d DIRNAME}\n" +
                 "Options:\n" +
                 "--ldc           Validate against the LDC ontology\n" +
                 "--program       Validate against the program ontology\n" +
@@ -177,6 +181,7 @@ public final class ValidateAIF {
                 "-o              Save validation report model to a file.  KB.ttl would result in KB-report.txt.\n" +
                 "                Output defaults to stderr.\n" +
                 "-h, --help      Show this help and usage text\n" +
+                "--abort [num]   Abort validation after [num] validation errors, or first validation error if [num] is omitted.\n" +
                 "-f FILE ...     Validate the specified file(s) with a .ttl suffix\n" +
                 "-d DIRNAME      Validate all .ttl files in the specified directory\n" +
                 "\n" +
@@ -202,12 +207,13 @@ public final class ValidateAIF {
                 numArgs++;
             }
         }
-        return numArgs; // Can't use fileList.size() just in case use specified same file twice
+        return numArgs; // Can't use fileList.size() just in case user specified same file twice
     }
 
     // Process command-line arguments, returning whether or not there were any errors.
     private static boolean processArgs(String[] args, Set<ArgumentFlags> flags, Set<String> domainOntologies,
                                        Set<String> validationFiles, Set<String> validationDirs) {
+        String abortStr = null;
         for (int i = 0; i < args.length; i++) {
             final String arg = args[i];
             final String strippedArg = arg.trim();
@@ -244,6 +250,14 @@ public final class ValidateAIF {
                     break;
                 case "--p2": // NOTE: this flag is not documented in the README nor the Usage info
                     flags.add(ArgumentFlags.PROGRESSIVE_PROFILING);
+                    break;
+                case "--abort":
+                    flags.add(ArgumentFlags.ABORT);
+                    if (!args[i + 1].startsWith("-")) {
+                        abortStr = args[++i];
+                    } else {
+                        abortParam = 1;
+                    }
                     break;
                 case "-f":
                     if (flags.contains(ArgumentFlags.DIRECTORY)) {
@@ -286,6 +300,18 @@ public final class ValidateAIF {
             logger.error("Please specify either file(s) or a directory of files to validate.");
             return false;
         }
+        if (abortStr != null) {
+            try {
+                // TODO: separate command-line validator from validator class
+                abortParam = Integer.parseUnsignedInt(abortStr);
+            } catch (NumberFormatException nfe) {
+                abortParam = -1;
+            }
+            if (abortParam < 1) {
+                logger.error("Invalid abort parameter: " + abortStr);
+                return false;
+            }
+        }
 
         return true;
     }
@@ -297,7 +323,7 @@ public final class ValidateAIF {
 
     // Command-line argument flags
     private enum ArgumentFlags {
-        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY, FILE_OUTPUT, PROFILING, PROGRESSIVE_PROFILING
+        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY, FILE_OUTPUT, PROFILING, PROGRESSIVE_PROFILING, ABORT
     }
 
     /**
@@ -384,6 +410,10 @@ public final class ValidateAIF {
             System.exit(ReturnCode.FILE_ERROR.ordinal());
         }
 
+        if (flags.contains(ArgumentFlags.ABORT)) {
+            validator.setAbortThreshold(abortParam); // aboutParam was set and validated in processArgs()
+        }
+
         // Display a summary of what we're going to do.
         if (!validationFiles.isEmpty()) {
             logger.info("-> Validating KB(s): " +
@@ -399,6 +429,9 @@ public final class ValidateAIF {
             logger.info("-> Validating against NIST SHACL.");
         } else if (restriction == Restriction.NIST_HYPOTHESIS) {
             logger.info("-> Validating against NIST Hypothesis SHACL.");
+        }
+        if (flags.contains(ArgumentFlags.ABORT)) {
+            logger.info("-> Validation will abort after " + abortParam + " validation error(s).");
         }
         if (flags.contains(ArgumentFlags.FILE_OUTPUT)) {
             logger.info("-> Validation report for invalid KBs will be saved to <kbname>-report.txt.");
@@ -433,7 +466,10 @@ public final class ValidateAIF {
                     stats.endCollection();
                     stats.dump(fileToValidate.toString());
                 }
-                if (!ValidateAIF.isValidReport(report)) {
+                if (report == null) {
+                    logger.warn("---> Could not validate " + fileToValidate + " (engine error).  Skipping.");
+                    skipCount++;
+                } else if (!ValidateAIF.isValidReport(report)) {
                     logger.warn("---> Validation of " + fileToValidate + " failed.");
                     invalidCount++;
                     dumpReport(report, fileToValidate, flags.contains(ArgumentFlags.FILE_OUTPUT));
@@ -521,6 +557,19 @@ public final class ValidateAIF {
     }
 
     /**
+     * Tells the validator to "fail fast" if validation errors are detected.  Validation will terminate after
+     * [abortThreshold] validation errors are detected.  Use zero to disable failing fast.
+     *
+     * @param abortThreshold the error threshold to abort validation
+     */
+    public void setAbortThreshold(int abortThreshold) {
+        if (abortThreshold < 0) {
+            throw new IllegalArgumentException("Abort threshold must be greater than 0, or 0 to disable.");
+        }
+        this.abortThreshold = abortThreshold == 0 ? -1 : abortThreshold;
+    }
+
+    /**
      * Returns whether or not the KB is valid.
      * If you want any information about why the KB was invalid, use {@link #validateKBAndReturnReport(Model)}
      *
@@ -547,7 +596,7 @@ public final class ValidateAIF {
      * Validate the specified KB and return a validation report.
      *
      * @param dataToBeValidated KB to be validated
-     * @return a validation report from which more information can be derived
+     * @return a validation report from which more information can be derived, or null if validation didn't complete
      */
     public Resource validateKBAndReturnReport(Model dataToBeValidated) {
         return validateKBAndReturnReport(dataToBeValidated, null);
@@ -558,7 +607,7 @@ public final class ValidateAIF {
      *
      * @param dataToBeValidated KB to be validated
      * @param union             unified KB if not null
-     * @return a validation report from which more information can be derived
+     * @return a validation report from which more information can be derived, or null if validation didn't complete
      */
     public Resource validateKBAndReturnReport(Model dataToBeValidated, Model union) {
         // We unify the given KB with the background and domain KBs before validation.
@@ -584,7 +633,16 @@ public final class ValidateAIF {
         // Validates against the SHACL file to ensure that resources have the required properties
         // (and in some cases, only the required properties) of the proper types.  Returns true if
         // validation passes.
-        return ValidationUtil.validateModel(unionModel, shacl, true);
+        ValidationEngine engine = ValidationUtil.createValidationEngine(
+                unionModel, shacl, new ValidationEngineConfiguration().
+                        setValidationErrorBatch(1).setValidateShapes(true));
+
+        try {
+            engine.applyEntailments();
+            return engine.validateAll();
+        } catch (InterruptedException ex) {
+            return null;
+        }
     }
 
     /**
@@ -674,9 +732,10 @@ public final class ValidateAIF {
 
         /**
          * Dump a single query's statistics to the specified PrintStream
-         * @param queryNum the query number showing where it occurred chronologically in validation
-         * @param queryStats statistics about the query returned by TopBraid
-         * @param out a PrintStream to dump the query statistics
+         *
+         * @param queryNum      the query number showing where it occurred chronologically in validation
+         * @param queryStats    statistics about the query returned by TopBraid
+         * @param out           a PrintStream to dump the query statistics
          * @param leadingSpaces whether to print leading or trailing spaces
          */
         void dumpStat(Integer queryNum, ExecStatistics queryStats, PrintStream out,
