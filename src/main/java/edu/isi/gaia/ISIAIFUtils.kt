@@ -1,18 +1,7 @@
 package edu.isi.gaia
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.common.collect.ImmutableList
-import com.ncc.aif.AIFUtils
-import edu.isi.gaia.ISIAIFUtils.SparqlQueries.TYPE_QUERY
-import org.apache.jena.query.QueryExecutionFactory
-import org.apache.jena.query.QueryFactory
-import org.apache.jena.query.QuerySolutionMap
 import org.apache.jena.rdf.model.Model
-import org.apache.jena.rdf.model.Resource
 import org.apache.jena.tdb.TDBFactory
-import org.apache.jena.vocabulary.RDF
-import org.apache.jena.vocabulary.SKOS
-import org.apache.jena.vocabulary.XSD
 import org.slf4j.LoggerFactory
 import java.util.*
 

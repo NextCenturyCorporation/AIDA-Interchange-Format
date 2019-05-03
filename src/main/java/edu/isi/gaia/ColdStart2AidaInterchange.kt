@@ -6,7 +6,6 @@ import com.google.common.base.Charsets
 import com.google.common.collect.*
 import com.google.common.io.Files
 import com.ncc.aif.AIFUtils
-import com.ncc.aif.AIFUtils.markSystem
 import edu.isi.nlp.files.FileUtils
 import edu.isi.nlp.parameters.Parameters
 import edu.isi.nlp.parameters.Parameters.loadSerifStyle
@@ -250,7 +249,7 @@ class ColdStart2AidaInterchangeConverter(
                     privateData.addProperty(RDF.type, AidaAnnotationOntology.PRIVATE_DATA_CLASS)
                     justification.addProperty(AidaAnnotationOntology.PRIVATE_DATA_PROPERTY,
                             privateData)
-                    markSystem(privateData, systemNode)
+                    AIFUtils.markSystem(privateData, systemNode)
                     privateData.addProperty(AidaAnnotationOntology.JSON_CONTENT_PROPERTY,
                             "{ \"justificationType\" : \"$justificationType\"}")
                 }
