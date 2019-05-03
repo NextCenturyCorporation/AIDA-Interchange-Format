@@ -239,11 +239,14 @@ def populate_sqs_queue(queue_list, queue_url, message_group_id, sourcefiles_path
     successfully added to the queue, the s3 object path will be appended to a source file and uploaded
     to s3. It will overwrite any existing source file that already exists on s3. After all messages have
     been added to the queue a final source file will be uploaded with a suffix of '.done' and the old 
-    source file will be removed from S3.
+    source file will be removed from
 
     :param list queue_list: List of S3 object paths
     :param str queue_url: The SQS queue url
     :param str message_group_id: The message group id for the FIFO queue
+    :param str sourcefiles_path: The path on the local machine to sourcefiles
+    :param str validation_bucket: The S3 bucket used to store validation output
+    :param str batch_job_id: The unique string identifier for this batch job
     :param str sourcefiles_path: The path of the serialized file to be created with added
         S3 objects
     :raises ClientError: SQS client exception
