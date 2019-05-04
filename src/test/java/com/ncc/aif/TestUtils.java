@@ -44,8 +44,6 @@ class TestUtils {
     // Data created by each test
     protected Model model;
     protected Resource system;
-    // Due to lazy initialization, keep this private so subclass access is via the accessor.
-    private Resource typeAssertionJustification = null;
 
     /**
      * Constructor for utilities for testing AIF functionality.
@@ -67,7 +65,6 @@ class TestUtils {
      */
     Model startNewTest() {
         if (model != null) {
-            typeAssertionJustification = null;
             model.close();
         }
         model = ModelFactory.createDefaultModel();
@@ -148,17 +145,6 @@ class TestUtils {
      */
     String getDocumentName() {
         return "document-" + documentCount++;
-    }
-
-    /**
-     * Returns a type assertion justification.
-     */
-    Resource getTypeAssertionJustification() {
-        if (typeAssertionJustification == null) {
-            typeAssertionJustification = makeTextJustification(model, getDocumentName(),
-                    42, 143, system, 0.973);
-        }
-        return typeAssertionJustification;
     }
 
     Resource makeValidJustification() {
@@ -338,12 +324,12 @@ class NistTestUtils extends TestUtils {
     Model startNewTest() {
         Model model = super.startNewTest();
         // NIST tests always need type assertion justifications
-        addSourceDocumentToJustification(super.getTypeAssertionJustification(), getDocumentName());
         return model;
     }
 
+    @Override
     Resource makeValidJustification() {
-        return makeValidJustification("sourceDocument");
+        return makeValidJustification(getDocumentName());
     }
 
     Resource makeValidJustification(String sourceDocument) {
@@ -360,7 +346,7 @@ class NistTestUtils extends TestUtils {
      */
     ImmutablePair<Resource, Resource> makeValidNistEntity(Resource type) {
         Resource entity = makeEntity(model, getEntityUri(), system);
-        markJustification(addType(entity, type), getTypeAssertionJustification());
+        markJustification(addType(entity, type), makeValidJustification());
         Resource entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, system);
         return new ImmutablePair<>(entity, entityCluster);
     }
@@ -373,7 +359,7 @@ class NistTestUtils extends TestUtils {
      */
     ImmutablePair<Resource, Resource> makeValidNistEvent(Resource type) {
         Resource event = makeEvent(model, getEventUri(), system);
-        markJustification(addType(event, type), getTypeAssertionJustification());
+        markJustification(addType(event, type), makeValidJustification());
         Resource entityCluster = makeClusterWithPrototype(model, getClusterUri(), event, system);
         return new ImmutablePair<>(event, entityCluster);
     }
@@ -386,7 +372,7 @@ class NistTestUtils extends TestUtils {
      */
     ImmutablePair<Resource, Resource> makeValidNistRelation(Resource type) {
         Resource relation = makeRelation(model, getEventUri(), system);
-        markJustification(addType(relation, type), getTypeAssertionJustification());
+        markJustification(addType(relation, type), makeValidJustification());
         Resource relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation, system);
         return new ImmutablePair<>(relation, relationCluster);
     }

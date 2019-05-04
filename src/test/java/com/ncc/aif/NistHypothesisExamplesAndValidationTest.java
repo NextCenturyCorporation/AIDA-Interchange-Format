@@ -378,7 +378,7 @@ public class NistHypothesisExamplesAndValidationTest {
             void valid() {
                 // create relation cluster member to add to relation cluster
                 final Resource relationMember = makeRelation(model, utils.getRelationUri(), system);
-                markJustification(utils.addType(relationMember, SeedlingOntology.GeneralAffiliation_APORA), utils.getTypeAssertionJustification());
+                markJustification(utils.addType(relationMember, SeedlingOntology.GeneralAffiliation_APORA), utils.makeValidJustification());
 
                 //add valid relation cluster member to relation cluster
                 markAsPossibleClusterMember(model, relationMember, relationCluster, 1.0, system);

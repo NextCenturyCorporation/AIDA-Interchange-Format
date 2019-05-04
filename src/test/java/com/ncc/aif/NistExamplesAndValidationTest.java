@@ -57,11 +57,9 @@ public class NistExamplesAndValidationTest {
         Resource entityCluster;
         Resource eventCluster;
         Resource relationCluster;
-        Resource typeAssertionJustification; // For use when tests create their own entities, events, and relations
 
         @BeforeEach
         void setup() {
-            typeAssertionJustification = utils.getTypeAssertionJustification();
             ImmutablePair<Resource, Resource> aPair = utils.makeValidNistEntity(SeedlingOntology.Person);
             entity = aPair.getKey();
             entityCluster = aPair.getValue();
@@ -299,7 +297,7 @@ public class NistExamplesAndValidationTest {
             @Test
             void valid() {
                 final Resource newEntity = makeEntity(model, utils.getEntityUri(), system);
-                markJustification(utils.addType(newEntity, SeedlingOntology.Person), typeAssertionJustification);
+                markJustification(utils.addType(newEntity, SeedlingOntology.Person), utils.makeValidJustification());
                 markAsPossibleClusterMember(model, newEntity, entityCluster, .75, system);
                 utils.testValid("NIST.valid: Flat clusters");
             }
@@ -313,11 +311,11 @@ public class NistExamplesAndValidationTest {
             void invalid() {
                 // Test entity, relation, and event. Correct other than being clustered
                 final Resource newEntity = makeEntity(model, utils.getEntityUri(), system);
-                markJustification(utils.addType(newEntity, SeedlingOntology.Weapon), typeAssertionJustification);
+                markJustification(utils.addType(newEntity, SeedlingOntology.Weapon), utils.makeValidJustification());
                 final Resource newRelation = makeRelation(model, utils.getRelationUri(), system);
-                markJustification(utils.addType(newRelation, SeedlingOntology.GeneralAffiliation_APORA), typeAssertionJustification);
+                markJustification(utils.addType(newRelation, SeedlingOntology.GeneralAffiliation_APORA), utils.makeValidJustification());
                 final Resource newEvent = makeEvent(model, utils.getEventUri(), system);
-                markJustification(utils.addType(newEvent, SeedlingOntology.Life_BeBorn), typeAssertionJustification);
+                markJustification(utils.addType(newEvent, SeedlingOntology.Life_BeBorn), utils.makeValidJustification());
 
                 utils.testInvalid("NIST.invalid: Everything has cluster");
             }
@@ -337,7 +335,7 @@ public class NistExamplesAndValidationTest {
             @Test
             void invalid() {
                 final Resource newEntity = makeEntity(model, utils.getEntityUri(), system);
-                markJustification(utils.addType(newEntity, SeedlingOntology.Person), typeAssertionJustification);
+                markJustification(utils.addType(newEntity, SeedlingOntology.Person), utils.makeValidJustification());
                 markAsPossibleClusterMember(model, newEntity, entityCluster, 1.2, system);
                 utils.testInvalid("NIST.invalid: confidence must be between 0 and 1");
             }
@@ -345,7 +343,7 @@ public class NistExamplesAndValidationTest {
             @Test
             void valid() {
                 final Resource newEntity = makeEntity(model, utils.getEntityUri(), system);
-                markJustification(utils.addType(newEntity, SeedlingOntology.Person), typeAssertionJustification);
+                markJustification(utils.addType(newEntity, SeedlingOntology.Person), utils.makeValidJustification());
                 markAsPossibleClusterMember(model, newEntity, entityCluster, .7, system);
                 utils.testValid("NIST.valid: confidence must be between 0 and 1");
             }
@@ -525,25 +523,17 @@ public class NistExamplesAndValidationTest {
             @Test
             void invalidInformativeJustificationDuplicateParentDoc() {
                 final String sourceDocument = "20181231";
-                final Resource parentDocJustification = makeTextJustification(model, "ZM39482011",
-                        42, 143, system, 0.973);
-                addSourceDocumentToJustification(parentDocJustification, sourceDocument);
-                final Resource duplicateParentDocJustification = makeTextJustification(model, "ZM39482011",
-                        42, 143, system, 0.973);
-                addSourceDocumentToJustification(duplicateParentDocJustification, sourceDocument);
+                markInformativeJustification(entity, utils.makeValidJustification(sourceDocument));
+                markInformativeJustification(entity, utils.makeValidJustification(sourceDocument));
 
-                markInformativeJustification(entity, parentDocJustification);
-                markInformativeJustification(entity, duplicateParentDocJustification);
-
-                utils.testInvalid("NIST.invalid: (informative justifications have same parent document) Each Cluster, " +
+                utils.testValid("NIST.invalid: (informative justifications have same parent document) Each Cluster, " +
                         "Entity, Event, or Relation can specify up to one informative mention per document as long " +
                         "as each informative mention points to a different sourceDocument");
             }
 
             @Test
             void validEntityInformativeJustification() {
-
-                markInformativeJustification(entity, typeAssertionJustification);
+                markInformativeJustification(entity, utils.makeValidJustification());
                 utils.testValid("NIST.valid: (entity) Each Cluster, Entity, Event, or Relation can specify up to one " +
                         "informative mention per document as each informative mention points to a " +
                         "different sourceDocument");
@@ -551,7 +541,7 @@ public class NistExamplesAndValidationTest {
 
             @Test
             void validEventInformativeJustification() {
-                markInformativeJustification(event, typeAssertionJustification);
+                markInformativeJustification(event, utils.makeValidJustification());
                 utils.testValid("NIST.valid: (event) Each Cluster, Entity, Event, or Relation can specify up to one " +
                         "informative mention per document as each informative mention points to a different " +
                         "sourceDocument");
@@ -560,7 +550,7 @@ public class NistExamplesAndValidationTest {
 
             @Test
             void validRelationInformativeJustification() {
-                markInformativeJustification(relation, typeAssertionJustification);
+                markInformativeJustification(relation, utils.makeValidJustification());
                 utils.testValid("NIST.valid: (relation) Each Cluster, Entity, Event, or Relation can specify up to one " +
                         "informative mention per document as each informative mention points to a different " +
                         "sourceDocument");
@@ -568,7 +558,7 @@ public class NistExamplesAndValidationTest {
 
             @Test
             void validClusterInformativeJustification() {
-                markInformativeJustification(entityCluster, typeAssertionJustification);
+                markInformativeJustification(entityCluster, utils.makeValidJustification());
                 utils.testValid("NIST.valid: (cluster) Each Cluster, Entity, Event, or Relation can specify up to one " +
                         "informative mention per document as each informative mention points to a different " +
                         "sourceDocument");
@@ -576,19 +566,10 @@ public class NistExamplesAndValidationTest {
 
             @Test
             void validRelationWithMultipleInformativeJustifications() {
-
-                final Resource secondJustification = makeTextJustification(model, "EJ39281",
-                        42, 143, system, 0.973);
-                addSourceDocumentToJustification(secondJustification, "3822029");
-
-                final Resource thirdJustification = makeTextJustification(model, "CL33838",
-                        42, 143, system, 0.973);
-                addSourceDocumentToJustification(thirdJustification, "3948290");
-
                 //add three informative justifications to same relation KE
-                markInformativeJustification(relation, typeAssertionJustification);
-                markInformativeJustification(relation, secondJustification);
-                markInformativeJustification(relation, thirdJustification);
+                markInformativeJustification(relation, utils.makeValidJustification("sourceDocument1"));
+                markInformativeJustification(relation, utils.makeValidJustification("sourceDocument2"));
+                markInformativeJustification(relation, utils.makeValidJustification("sourceDocument3"));
 
                 utils.testValid("NIST.valid: (multiple informative justifications on relation) Each Cluster," +
                         "Entity, Event, or Relation can specify up to one informative mention per document as long " +
@@ -598,18 +579,11 @@ public class NistExamplesAndValidationTest {
 
             @Test
             void validEntityClusterSeparateInformativeJustificationsWithSameParentDoc() {
-
-                final Resource duplicateParentDocJustification = makeTextJustification(model, "ZM39482011",
-                        42, 143, system, 0.973);
-                addSourceDocumentToJustification(duplicateParentDocJustification, "20181231");
-
-                final Resource secondEntityJustification = makeTextJustification(model, "EJ39281",
-                        42, 143, system, 0.973);
-                addSourceDocumentToJustification(secondEntityJustification, "3822029");
-
-                final Resource secondClusterJustification = makeTextJustification(model, "CL33838",
-                        42, 143, system, 0.973);
-                addSourceDocumentToJustification(secondClusterJustification, "3298329");
+                // TODO: Verify this example is doing what it's supposed to do.
+                final Resource typeAssertionJustification = utils.makeValidJustification("20181231");
+                final Resource duplicateParentDocJustification = utils.makeValidJustification("20181231");
+                final Resource secondEntityJustification = utils.makeValidJustification("3822029");
+                final Resource secondClusterJustification = utils.makeValidJustification("3298329");
 
                 //add informative justification in separate KE's with same parent doc
                 markInformativeJustification(entity, typeAssertionJustification);
@@ -647,12 +621,8 @@ public class NistExamplesAndValidationTest {
                 linkAssertion.addProperty(RDF.type, AidaAnnotationOntology.LINK_ASSERTION_CLASS);
                 markSystem(linkAssertion, system);
 
-                typeAssertionJustification = makeTextJustification(model, "NYT_ENG_20181231",
-                        42, 143, system, 0.973);
-                addSourceDocumentToJustification(typeAssertionJustification, "20181231");
-
                 entity = makeEntity(model, utils.getEntityUri(), system);
-                markJustification(utils.addType(entity, SeedlingOntology.Person), typeAssertionJustification);
+                markJustification(utils.addType(entity, SeedlingOntology.Person), utils.makeValidJustification());
 
                 entityCluster = makeClusterWithPrototype(model, utils.getClusterUri(), entity, system);
             }
@@ -660,7 +630,7 @@ public class NistExamplesAndValidationTest {
             @Test
             void invalidLinkToNonAssertion() {
                 linkAssertion.listProperties().toList().forEach(model::remove);
-                entity.addProperty(AidaAnnotationOntology.LINK, typeAssertionJustification);
+                entity.addProperty(AidaAnnotationOntology.LINK, utils.makeValidJustification());
                 utils.testInvalid("LinkAssertion.invalid: Link to non-LinkAssertion");
             }
 
