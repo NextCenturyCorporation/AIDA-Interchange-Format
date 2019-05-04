@@ -138,7 +138,7 @@ aida:ClusterMembershipShape
 #------------------------
 aida:EntityShape
     sh:sparql [
-        sh:message "Entity is not clustered" ;
+        sh:message "Entities must be clustered" ;
         sh:select """
             PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
             SELECT $this
@@ -151,26 +151,9 @@ aida:EntityShape
         """ ;
     ] .
 
-aida:EventShape
+aida:EventRelationShape
     sh:sparql [
-        sh:message "Event is not clustered" ;
-        sh:select """
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
-            SELECT $this
-            WHERE {
-                FILTER NOT EXISTS {
-                    ?membership a aida:ClusterMembership .
-                    ?membership aida:clusterMember $this .
-                }
-            }
-        """ ;
-    ] .
-
-aida:RelationMustBeClustered
-    a sh:NodeShape ;
-    sh:targetClass aida:Relation ;
-    sh:sparql [
-        sh:message "Relation is not clustered" ;
+        sh:message "Events and Relations must be clustered" ;
         sh:select """
             PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
             SELECT $this
