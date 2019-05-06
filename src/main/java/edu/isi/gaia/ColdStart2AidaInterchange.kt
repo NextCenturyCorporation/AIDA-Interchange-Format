@@ -238,27 +238,7 @@ class ColdStart2AidaInterchangeConverter(
                     AIFUtils.markJustification(ImmutableList.of(typeAssertion), justification)
                 }
 
-                // Eval plan v1.1, section 4.3.11: each Entity, Event, and Relation
-                // must have a single informative justification.
-                if (resource.getPropertyResourceValue(RDF.type) in setOf(
-                                AidaAnnotationOntology.ENTITY_CLASS,
-                                AidaAnnotationOntology.EVENT_CLASS,
-                                AidaAnnotationOntology.RELATION_CLASS
-                        )
-                ) {
-                    // If the informative justification doesn't already exist, attach it. Otherwise,
-                    // potentially swap it with a justification of higher confidence.
-                    if (!resource.hasProperty(AidaAnnotationOntology.INFORMATIVE_JUSTIFICATION)) {
-                        AIFUtils.markInformativeJustification(resource, justification)
-                    } else if (
-                            confidence > getConfidenceValueFromResource(
-                                    resource.getPropertyResourceValue(AidaAnnotationOntology.INFORMATIVE_JUSTIFICATION)
-                            )
-                    ) {
-                        resource.removeAll(AidaAnnotationOntology.INFORMATIVE_JUSTIFICATION)
-                        AIFUtils.markInformativeJustification(resource, justification)
-                    }
-                }
+                possiblyRegisterJustificationAsInformative(resource, justification, confidence)
 
                 if (includePrefLabelsOnJustifications && string != null) {
                     justification.addProperty(SKOS.prefLabel,
@@ -275,6 +255,29 @@ class ColdStart2AidaInterchangeConverter(
                     AIFUtils.markSystem(privateData, systemNode)
                     privateData.addProperty(AidaAnnotationOntology.JSON_CONTENT_PROPERTY,
                             "{ \"justificationType\" : \"$justificationType\"}")
+                }
+            }
+        }
+
+        fun possiblyRegisterJustificationAsInformative(resource: Resource, justification: Resource, confidence: Double) {
+            // Eval plan v1.1, section 4.3.11: each Entity, Event, and Relation
+            // must have a single informative justification.
+            if (resource.getPropertyResourceValue(RDF.type) in setOf(
+                            AidaAnnotationOntology.ENTITY_CLASS,
+                            AidaAnnotationOntology.EVENT_CLASS,
+                            AidaAnnotationOntology.RELATION_CLASS)
+            ) {
+                // If the informative justification doesn't already exist, attach it. Otherwise,
+                // potentially swap it with a justification of higher confidence.
+                if (!resource.hasProperty(AidaAnnotationOntology.INFORMATIVE_JUSTIFICATION)) {
+                    AIFUtils.markInformativeJustification(resource, justification)
+                } else if (
+                        confidence > getConfidenceValueFromResource(
+                                resource.getPropertyResourceValue(AidaAnnotationOntology.INFORMATIVE_JUSTIFICATION)
+                        )
+                ) {
+                    resource.removeAll(AidaAnnotationOntology.INFORMATIVE_JUSTIFICATION)
+                    AIFUtils.markInformativeJustification(resource, justification)
                 }
             }
         }
