@@ -403,6 +403,7 @@ class ColdStart2AidaInterchangeConverter(
 
             // make Turtle output prettier by setting some namespace prefixes
             AIFUtils.addStandardNamespaces(model)
+            addNamespacesForColdStart(model)
 
             ontologyMapping.prefixes().forEach { ontologyIri, prefix ->
                 model.setNsPrefix(prefix, ontologyIri.uri)
@@ -650,6 +651,11 @@ class DefaultErrorLogger(
 
         return outOfDomainTypes.build().isEmpty()
     }
+}
+
+private fun addNamespacesForColdStart(model: Model) {
+    model.setNsPrefix("skos", SKOS.uri)
+    model.setNsPrefix("ldc", "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/LDCOntology#")
 }
 
 fun <K, V> Sequence<Pair<K, V>>.toImmutableSetMultimap(): ImmutableSetMultimap<K, V> {
