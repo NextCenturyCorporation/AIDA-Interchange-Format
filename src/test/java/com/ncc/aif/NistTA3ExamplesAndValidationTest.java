@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import static com.ncc.aif.AIFUtils.*;
 
 @TestInstance(Lifecycle.PER_CLASS)
-public class NistHypothesisExamplesAndValidationTest {
+public class NistTA3ExamplesAndValidationTest {
     // Set this flag to true if attempting to get examples
     private static final boolean FORCE_DUMP = false;
 
@@ -296,7 +296,7 @@ public class NistHypothesisExamplesAndValidationTest {
             @Test
             void invalid() {
                 //remove everything in the model to ensure no edge KE's exist
-                NistHypothesisExamplesAndValidationTest.this.setup();
+                NistTA3ExamplesAndValidationTest.this.setup();
                 ImmutablePair<Resource, Resource> pair = utils.makeValidNistTA3Entity(SeedlingOntology.Person, "entityHandle");
                 entity = pair.getKey();
                 entityCluster = pair.getValue();
