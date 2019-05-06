@@ -11,7 +11,7 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
 	 `src/main/java/edu/isi/gaia/AIFUtils.kt`.  Either of these can be used by adding a Maven dependency on
      `com.ncc:aida-interchange:1.0.0-SNAPSHOT`.  A Python translation of these utilities
      is in `python/aida_interchange/aifutils.py`.
-	 
+
 	 * The Java version remains in active development.  The Kotlin version will be deprecated at a later date.
 	 Specific instructions for migrating from the Kotlin to the Java version is provided in the FAQ (`FAQ.md`).
 
@@ -19,7 +19,7 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
      `src/test/java/com/ncc/aif/ExamplesAndValidationTests`.  A Python
      translation of these examples is in `python/tests/Examples.py`.  If you run either set of
      examples, the corresponding Turtle output will be dumped.
-	 
+
 	 * Validation tests that use the Kotlin implementation of AIF are located at
 	 `src/test/java/edu/isi/gaia/ExamplesAndValidationTests`.
 	 * Validation tools for the Python output is currently in progress.
@@ -132,7 +132,7 @@ a sample of a validator param file in `sample_params/validate.common_corpus.sing
 
 # Running the Ontology Resource Generator
 
-To generate the resource variables from a particular ontology file, please refer to 
+To generate the resource variables from a particular ontology file, please refer to
 the README located at `src/main/java/com/ncc/aif/ont2javagen/README.md`.
 
 # Running the ColdStart -> AIF Converter (Kotlin only)
@@ -146,14 +146,8 @@ are four parameters which are always required:
 * `systemUri`: a URI path to identify the system which generated the ColdStart output. For
     example `http://www.rpi.edu/tinkerbell`
 * `mode`: must be `FULL` or `SHATTER`, as explained below.
-* `ontology`: path of the file describing the ontology to use in AIF. For the M9 Seedling
-    point to `src/main/resources/edu/isi/gaia/SeedlingOntology`.
-* `relationArgsFile`: In ColdStart, you assert a relation between two entities, with the one
-    on the left being the subject and the one on the right being the object.  In AIF relations
-    are represented more like events and the relation arguments have relation-specific names
-    instead of generic names like "subject" and "object". Because of this, you need a file 
-    which specifies these names for each relation. For the M9 Seedling ontology, you can use
-    `src/main/resources/edu/isi/gaia/seedling_relation_args.csv`
+* `entityOntology`, `eventOntology` and `relationOntology`: For M18, the ontology will be split
+    into three separate files. Right now, point each to `com/ncc/aif/ontologies/LDCOntology`.
 
 If `mode` is `FULL`, then the entire ColdStartKB is converted into a single AIF RDF file in
 n-triples format (n-triples is used for greater I/O speed).  The following parameters then
@@ -226,7 +220,7 @@ The python project uses [Sphinx](http://www.sphinx-doc.org/en/master/) for gener
 ```bash
 $ ./update_documentation.sh
 ```
-This script will generate documentation in the form of HTML and place it within the `python/docs/build/html` folder. 
+This script will generate documentation in the form of HTML and place it within the `python/docs/build/html` folder.
 
 # FAQ
 
