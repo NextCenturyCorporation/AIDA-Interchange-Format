@@ -12,20 +12,20 @@ from pathlib import Path
 from botocore.exceptions import ClientError
 
 
-def download_and_extract_submission_from_S3(s3_submission, dirpath):
+def download_and_extract_submission_from_S3(s3_submission, source_dir):
     """Downloads submission from s3 and extracts its contents to the working directory.
     Submssions must be an archive of .zip, .tar.gz, or .tgz.
 
     :param str s3_submission: The s3 object path for the submission
-    :param str dirpath: The local directory path to place extracted s3_submission files
+    :param str source_dir: The local directory path to place extracted s3_submission files
     :raises ClientError: SQS client exception
     :raises Exception: No turtle (TTL) files extracted from s3 submission
     """
     s3_bucket, s3_object, file_name, file_ext = extract_s3_submission_paths(s3_submission)
 
     # create directory for output
-    if not os.path.exists(dirpath):
-        os.makedirs(dirpath)
+    if not os.path.exists(source_dir):
+        os.makedirs(source_dir)
 
     s3_client = boto3.client('s3')
 
@@ -38,16 +38,16 @@ def download_and_extract_submission_from_S3(s3_submission, dirpath):
         if file_ext == '.tgz' or file_ext == '.tar.gz':
             # extract the contents of the .tar.gz
             with tarfile.open(file_name) as tar:
-                tar.extractall(dirpath)
+                tar.extractall(source_dir)
         elif(file_ext == '.zip'):
             zip_ref = zipfile.ZipFile(file_name, 'r')
-            zip_ref.extractall(dirpath)
+            zip_ref.extractall(source_dir)
             zip_ref.close()
 
         # if no ttl files extracted raise an exception
-        if len(glob.glob(dirpath + '/**/*.ttl', recursive=True)) <= 0 :
+        if len(glob.glob(source_dir + '/**/*.ttl', recursive=True)) <= 0 :
             raise Exception ("No ttl files extracted to directory {0} for S3 submission {1}"
-                .format(dirpath, file_name))
+                .format(source_dir, file_name))
             
     except ClientError as e:
         logging.error(e)
@@ -95,31 +95,54 @@ def extract_s3_submission_paths(s3_submission):
     return s3_bucket, s3_object, file_name, file_ext
 
 
-def upload_submission_files_to_s3(s3_bucket_name, dirpath):
-    """Uploads all turtle (ttl) files in directory to the provided S3 bucket.
+def enqueue_files(queue_url, job_id, s3_bucket_name, source_log_path):
+    """Uploads all turtle (ttl) files in directory to the provided S3 bucket,
+    adds each S3 object path as a message on SQS and updates sourcefiles on
+    S3.After all messages have processed and added to the queue, a final source file 
+    will be uploaded with a suffix of '.done' and the old source file will be removed 
+    from
 
     :param str s3_bucket_name: Unique string name of the bucket where the 
         directories will be created
-    :param str dirpath: The local directory that contains turtle (ttl) files
-    :returns: The list of s3 file paths for all the files that were uploaded
-    :rtype: list
+    :param str queue_url: The SQS queue url
+    :param str job_id: Serves as the message group id for the SQS queue, the local directory
+        where extracted turtle (ttl) source files are placed, and the S3 object prefix where 
+        source files are uploaded.
+    :param str source_log_path: The path of the serialized file to be created with added
+        S3 objects
+    :param str source_dir: The local directory that contains turtle (ttl) files
     :raises ClientError: S3 client exception
     """
-    
-    sqs_list = []
     s3_client = boto3.client('s3')
 
     try:
-        for filepath in Path(dirpath).glob('**/*.ttl'):
-            s3_object = '/'.join([dirpath, 'unprocessed', filepath.name])
+        for filepath in Path(job_id).glob('**/*.ttl'):
+            s3_object = '/'.join([job_id, 'unprocessed', filepath.name])
 
             logging.info("Uploading %s to bucket %s", s3_object, s3_bucket_name)
             s3_client.upload_file(str(filepath), s3_bucket_name, s3_object)
 
-            #add the file to the SQS path list
-            sqs_list.append(s3_object)
+            # add the mssage to SQS
+            add_sqs_message(queue_url, s3_object, job_id)
 
-        return sqs_list
+            with open(source_log_path, 'ab') as f:
+                pickle.dump(s3_object, f)
+
+            # upload file to S3
+            upload_file_to_s3(s3_bucket_name, 
+            '/'.join([job_id, 'output', 'log']), source_log_path)
+        
+        # append .done to the sourceifles path
+        if os.path.exists(source_log_path):
+            os.rename(source_log_path, source_log_path+'.done')
+
+            # upload file to S3
+            upload_file_to_s3(s3_bucket_name, 
+                '/'.join([job_id, 'output', 'log']), source_log_path+'.done')
+
+            #delete the old file
+            delete_s3_object(s3_bucket_name, 
+                '/'.join([job_id, 'output', 'log', source_log_path]))
 
     except ClientError as e:
         logging.error(e)
@@ -226,6 +249,8 @@ def create_sqs_queue(queue_name):
                 'ContentBasedDeduplication': 'true'
             }   
         )
+
+        logging.error("queue response %s", queue)
         return queue['QueueUrl']
         raise
     except ClientError as e:
@@ -234,55 +259,25 @@ def create_sqs_queue(queue_name):
         logging.error("Unable to create SQS queue with given name %s", queue_name)
 
 
-def populate_sqs_queue(queue_list, queue_url, message_group_id, sourcefiles_path, validation_bucket, batch_job_id):
-    """Iterates over s3 object path list and populates SQS queue S3Object messages. After each message is
-    successfully added to the queue, the s3 object path will be appended to a source file and uploaded
-    to s3. It will overwrite any existing source file that already exists on s3. After all messages have
-    been added to the queue a final source file will be uploaded with a suffix of '.done' and the old 
-    source file will be removed from
+def add_sqs_message(queue_url, s3_object, message_group_id):
+    """Adds new message on SQS queue with the S3 object path.
 
-    :param list queue_list: List of S3 object paths
     :param str queue_url: The SQS queue url
+    :param str s3_object: Te s
     :param str message_group_id: The message group id for the FIFO queue
-    :param str sourcefiles_path: The path on the local machine to sourcefiles
-    :param str validation_bucket: The S3 bucket used to store validation output
-    :param str batch_job_id: The unique string identifier for this batch job
-    :param str sourcefiles_path: The path of the serialized file to be created with added
-        S3 objects
     :raises ClientError: SQS client exception
     """
     sqs_client = boto3.client('sqs')
 
     try:
-        for s3_object in queue_list:
-            msg = sqs_client.send_message(
-                QueueUrl=queue_url,
-                MessageBody=(s3_object),
-                MessageGroupId=message_group_id
-            )
+        msg = sqs_client.send_message(
+            QueueUrl=queue_url,
+            MessageBody=s3_object,
+            MessageGroupId=message_group_id
+        )
 
-            logging.info("Added message %s with payload %s to queue %s", msg['MessageId'], s3_object, queue_url)
-
-            with open(sourcefiles_path, 'ab') as f:
-                pickle.dump(s3_object, f)
-
-            # upload file to S3
-            upload_file_to_s3(validation_bucket, 
-            '/'.join([batch_job_id, 'output', 'log']), sourcefiles_path)
+        logging.info("Added message %s with payload %s to queue %s", msg['MessageId'], s3_object, queue_url)
             
-        # append .done to the sourceifles path
-        if os.path.exists(sourcefiles_path):
-            os.rename(sourcefiles_path, sourcefiles_path+'.done')
-
-            # upload file to S3
-            upload_file_to_s3(validation_bucket, 
-                '/'.join([batch_job_id, 'output', 'log']), sourcefiles_path+'.done')
-
-            #delete the old file
-            delete_s3_object(validation_bucket, 
-                '/'.join([batch_job_id, 'output', 'log', sourcefiles_path]))
-
-
     except ClientError as e:
         logging.error(e)
 
@@ -423,14 +418,12 @@ def main():
         # create s3 connection
         download_and_extract_submission_from_S3(envs['S3_SUBMISSION_ARCHIVE'], envs['AWS_BATCH_JOB_ID'])
 
-        # create sqs connection
-        queue_list = upload_submission_files_to_s3(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
-     
-        #create queues and populate queue to be processed
+        #create SQS queue
         queue_url = create_sqs_queue(envs['AWS_BATCH_JOB_ID'])
-        populate_sqs_queue(queue_list, queue_url, envs['AWS_BATCH_JOB_ID'], 
-            'sourcefiles', envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
-        
+
+        # create sqs connection
+        enqueue_files(queue_url, envs['AWS_BATCH_JOB_ID'], envs['S3_VALIDATION_BUCKET'], 'sourcefiles')
+     
         # wait for all AWS batch jobs to complete processing
         wait_for_processing(envs['AWS_BATCH_JOB_NODE_INDEX'], envs['AWS_BATCH_JOB_ID'], int(envs['MASTER_SLEEP_INTERVAL']))
 
