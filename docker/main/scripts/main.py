@@ -123,14 +123,17 @@ def enqueue_files(queue_url, job_id, s3_bucket_name, source_log_path):
             s3_client.upload_file(str(filepath), s3_bucket_name, s3_object)
 
             # add the mssage to SQS
-            add_sqs_message(queue_url, s3_object, job_id)
+            response = add_sqs_message(queue_url, s3_object, job_id)
 
-            with open(source_log_path, 'ab') as f:
-                pickle.dump(s3_object, f)
+            if response:
+                with open(source_log_path, 'ab') as f:
+                    pickle.dump(s3_object, f)
 
-            # upload file to S3
-            upload_file_to_s3(s3_bucket_name, 
-            '/'.join([job_id, 'output', 'log']), source_log_path)
+                # upload file to S3
+                upload_file_to_s3(s3_bucket_name, 
+                '/'.join([job_id, 'output', 'log']), source_log_path)
+            else:
+                logging.error("Unable to add %s as SQS message", s3_object)
         
         # append .done to the sourceifles path
         if os.path.exists(source_log_path):
@@ -276,8 +279,11 @@ def add_sqs_message(queue_url, s3_object, message_group_id):
             MessageGroupId=message_group_id
         )
 
-        logging.info("Added message %s with payload %s to queue %s", msg['MessageId'], s3_object, queue_url)
-            
+        if msg['MessageId']:
+            logging.info("Added message %s with payload %s to queue %s", msg['MessageId'], s3_object, queue_url)
+            return msg['MessageId']
+        return None
+
     except ClientError as e:
         logging.error(e)
 
