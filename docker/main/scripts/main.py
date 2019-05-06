@@ -96,11 +96,11 @@ def extract_s3_submission_paths(s3_submission):
 
 
 def enqueue_files(queue_url, job_id, s3_bucket_name, source_log_path):
-    """Uploads all turtle (ttl) files in directory to the provided S3 bucket,
-    adds each S3 object path as a message on SQS and updates sourcefiles on
-    S3.After all messages have processed and added to the queue, a final source file 
-    will be uploaded with a suffix of '.done' and the old source file will be removed 
-    from
+    """Uploads all turtle (ttl) files in source diretory to the provided S3 bucket,
+    adds each S3 object path as a message on SQS and updates sourcefiles on S3. After 
+    all messages have processed and added to the queue, a final source file will be 
+    uploaded with a suffix of '.done' and the old source file will be removed 
+    from S3.
 
     :param str s3_bucket_name: Unique string name of the bucket where the 
         directories will be created
