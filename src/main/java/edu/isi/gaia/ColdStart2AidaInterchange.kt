@@ -238,13 +238,24 @@ class ColdStart2AidaInterchangeConverter(
                     AIFUtils.markJustification(ImmutableList.of(typeAssertion), justification)
                 }
 
+                // Eval plan v1.1, section 4.3.11: each Entity, Event, and Relation
+                // must have a single informative justification.
                 if (resource.getPropertyResourceValue(RDF.type) in setOf(
                                 AidaAnnotationOntology.ENTITY_CLASS,
                                 AidaAnnotationOntology.EVENT_CLASS,
                                 AidaAnnotationOntology.RELATION_CLASS
                         )
                 ) {
+                    // If the informative justification doesn't already exist, attach it. Otherwise,
+                    // potentially swap it with a justification of higher confidence.
                     if (!resource.hasProperty(AidaAnnotationOntology.INFORMATIVE_JUSTIFICATION)) {
+                        AIFUtils.markInformativeJustification(resource, justification)
+                    } else if (
+                            confidence > getConfidenceValueFromResource(
+                                    resource.getPropertyResourceValue(AidaAnnotationOntology.INFORMATIVE_JUSTIFICATION)
+                            )
+                    ) {
+                        resource.removeAll(AidaAnnotationOntology.INFORMATIVE_JUSTIFICATION)
                         AIFUtils.markInformativeJustification(resource, justification)
                     }
                 }
@@ -668,6 +679,22 @@ class DefaultErrorLogger(
 private fun addNamespacesForColdStart(model: Model) {
     model.setNsPrefix("skos", SKOS.uri)
     model.setNsPrefix("ldc", "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/LDCOntology#")
+}
+
+private fun getConfidenceValueFromResource(resource: Resource): Double {
+    val confidence = resource.getPropertyResourceValue(AidaAnnotationOntology.CONFIDENCE)
+    requireNotNull(confidence) {
+        "The aida:confidence is null. Resource statements: ${resource.listProperties().toSet()}"
+    }
+    // For some reason, using getPropertyResourceValue on the confidence gives null
+    // even though it exists.
+    val confidenceValueStmt = confidence.getProperty(AidaAnnotationOntology.CONFIDENCE_VALUE)
+    requireNotNull(confidenceValueStmt) {
+        "The statement `?confidence aida:confidenceValue ?confidenceValue` didn't match. " +
+                "Resource statements: ${resource.listProperties().toSet()} " +
+                "Confidence statements: ${confidence.listProperties().toSet()}"
+    }
+    return confidenceValueStmt.double
 }
 
 fun <K, V> Sequence<Pair<K, V>>.toImmutableSetMultimap(): ImmutableSetMultimap<K, V> {
