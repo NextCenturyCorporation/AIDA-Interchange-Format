@@ -5,6 +5,7 @@ import ch.qos.logback.classic.Logger
 import com.google.common.base.Charsets
 import com.google.common.collect.*
 import com.google.common.io.Files
+import com.ncc.aif.AidaAnnotationOntology
 import com.ncc.aif.AIFUtils
 import edu.isi.nlp.files.FileUtils
 import edu.isi.nlp.parameters.Parameters
@@ -155,13 +156,13 @@ class ColdStart2AidaInterchangeConverter(
                 /**
                  * Accumulates all names associated with entities of a type capable of bearing a
                  * `hasName` property. At the end of translation this will be used to add the
-                 * `hasName` properties. We accumualte this way instead of adding the properties
+                 * `hasName` properties. We accumulate this way instead of adding the properties
                  * immediately to avoid duplication.
                  */
                 nameableEntitiesToNames: ImmutableSetMultimap.Builder<Resource, String>,
                 provenanceToMentionType: ImmutableSetMultimap<Provenance, MentionType>): Boolean {
             val entityResource = toResource(cs_assertion.subject)
-            // if this is a canonical mention, then we need to make a skos:preferredLabel triple
+            // if this is a canonical mention, then we need to make a skos:prefLabel triple
             val (entityType, typeAssertion) = (objectToType[cs_assertion.subject]
                     ?: throw RuntimeException("Entity $entityResource lacks a type"))
 
@@ -235,6 +236,17 @@ class ColdStart2AidaInterchangeConverter(
                 // NIST wants justifications on type assertions
                 if (typeAssertion != null) {
                     AIFUtils.markJustification(ImmutableList.of(typeAssertion), justification)
+                }
+
+                if (resource.getPropertyResourceValue(RDF.type) in setOf(
+                                AidaAnnotationOntology.ENTITY_CLASS,
+                                AidaAnnotationOntology.EVENT_CLASS,
+                                AidaAnnotationOntology.RELATION_CLASS
+                        )
+                ) {
+                    if (!resource.hasProperty(AidaAnnotationOntology.INFORMATIVE_JUSTIFICATION)) {
+                        AIFUtils.markInformativeJustification(resource, justification)
+                    }
                 }
 
                 if (includePrefLabelsOnJustifications && string != null) {
