@@ -1038,13 +1038,13 @@ public class ExamplesAndValidationTest {
         @Test
         void createEventWithLDCTime() {
             // Create a start position event with unknown start and end time
-            final Resource eventStartPosition = utils.makeValidEvent(SeedlingOntology.Personnel_StartPosition);
+            final Resource eventStartPosition = utils.makeValidAIFEvent(SeedlingOntology.Personnel_StartPosition);
             LDCTimeComponent unknown = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.UNKNOWN, null, null, null);
             LDCTimeComponent endBefore = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2016", null, null);
             markLDCTime(model, eventStartPosition, unknown, endBefore, system);
 
             // Create an attack event with an unknown start date, but definite end date
-            final Resource eventAttackUnknown = utils.makeValidEvent(SeedlingOntology.Conflict_Attack);
+            final Resource eventAttackUnknown = utils.makeValidAIFEvent(SeedlingOntology.Conflict_Attack);
             LDCTimeComponent start = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2014", "--02", null);
             LDCTimeComponent end = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.ON, "2014", "--02", "---21");
             markLDCTime(model, eventAttackUnknown, start, end, system);
@@ -1081,15 +1081,15 @@ public class ExamplesAndValidationTest {
         @Test
         void nonTypeUsedAsType() {
             // use a blank node as the bogus entity type
-            utils.makeValidEntity(model.createResource());
+            utils.makeValidAIFEntity(model.createResource());
             utils.testInvalid("Invalid: non-type used as type");
         }
 
         @Test
         void relationOfUnknownType() {
-            final Resource personEntity = utils.makeValidEntity(SeedlingOntology.Person);
-            final Resource louisvilleEntity = utils.makeValidEntity(SeedlingOntology.GeopoliticalEntity);
-            final Resource relation = utils.makeValidRelation(model.createResource(ONTOLOGY_NS + "unknown_type"));
+            final Resource personEntity = utils.makeValidAIFEntity(SeedlingOntology.Person);
+            final Resource louisvilleEntity = utils.makeValidAIFEntity(SeedlingOntology.GeopoliticalEntity);
+            final Resource relation = utils.makeValidAIFRelation(model.createResource(ONTOLOGY_NS + "unknown_type"));
             markAsArgument(model, relation, SeedlingOntology.Physical_Resident_Resident, personEntity, system, 1.0);
             markAsArgument(model, relation, SeedlingOntology.Physical_Resident_Place, louisvilleEntity, system, 1.0);
 
@@ -1098,7 +1098,7 @@ public class ExamplesAndValidationTest {
 
         @Test
         void justificationMissingConfidence() {
-            final Resource entity = utils.makeValidEntity(SeedlingOntology.Person);
+            final Resource entity = utils.makeValidAIFEntity(SeedlingOntology.Person);
 
             // below is just the content of AIFUtils.markTextJustification, except without the required
             // confidence

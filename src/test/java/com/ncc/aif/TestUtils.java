@@ -178,14 +178,14 @@ class TestUtils {
     /**
      * Makes and returns a valid AIF entity object of the specified type.
      */
-    Resource makeValidEntity(Resource type) {
-        return makeValidEntity(type, null);
+    Resource makeValidAIFEntity(Resource type) {
+        return makeValidAIFEntity(type, null);
     }
 
     /**
      * Makes and returns a valid entity object of the specified type and URI.
      */
-    Resource makeValidEntity(Resource type, String uri) {
+    Resource makeValidAIFEntity(Resource type, String uri) {
         final Resource entity = makeEntity(model, uri == null ? getEntityUri() : uri, system);
         addType(entity, type);
         return entity;
@@ -194,14 +194,14 @@ class TestUtils {
     /**
      * Makes and returns a valid event object of the specified type.
      */
-    Resource makeValidEvent(Resource type) {
-        return makeValidEvent(type, null);
+    Resource makeValidAIFEvent(Resource type) {
+        return makeValidAIFEvent(type, null);
     }
 
     /**
      * Makes and returns a valid event object of the specified type and URI.
      */
-    Resource makeValidEvent(Resource type, String uri) {
+    Resource makeValidAIFEvent(Resource type, String uri) {
         final Resource event = makeEvent(model, uri == null ? getEventUri() : uri, system);
         addType(event, type);
         return event;
@@ -210,14 +210,14 @@ class TestUtils {
     /**
      * Makes and returns a valid relation object of the specified type.
      */
-    Resource makeValidRelation(Resource type) {
-        return makeValidRelation(type, null);
+    Resource makeValidAIFRelation(Resource type) {
+        return makeValidAIFRelation(type, null);
     }
 
     /**
      * Makes and returns a valid relation object of the specified type and URI.
      */
-    Resource makeValidRelation(Resource type, String uri) {
+    Resource makeValidAIFRelation(Resource type, String uri) {
         final Resource relation = makeRelation(model, uri == null ? getRelationUri() : uri, system);
         addType(relation, type);
         return relation;
@@ -231,7 +231,7 @@ class TestUtils {
      * @param argumentFiller  the filler (object) of the argument
      * @return the created event or relation argument assertion
      */
-    Resource makeValidEdge(Resource eventOrRelation, Resource type, Resource argumentFiller) {
+    Resource makeValidAIFEdge(Resource eventOrRelation, Resource type, Resource argumentFiller) {
         return markAsArgument(model, eventOrRelation, type, argumentFiller, system,
                 1.0, getAssertionUri());
     }
@@ -239,8 +239,8 @@ class TestUtils {
     /**
      * Makes and returns a valid hypothesis object involving the specified resource(s).
      */
-    Resource makeValidHypothesis(Resource... resources) {
-        return makeValidHypothesis(null, resources);
+    Resource makeValidAIFHypothesis(Resource... resources) {
+        return makeValidAIFHypothesis(null, resources);
     }
 
     /**
@@ -248,7 +248,7 @@ class TestUtils {
      *
      * @param resources A set of entities, relations, and arguments that contribute to the hypothesis
      */
-    Resource makeValidHypothesis(String uri, Resource... resources) {
+    Resource makeValidAIFHypothesis(String uri, Resource... resources) {
         Set<Resource> set = new HashSet<>();
         Collections.addAll(set, resources);
         return makeHypothesis(model, uri == null ? getHypothesisUri() : uri, set, system);
@@ -301,7 +301,11 @@ class TestUtils {
 }
 
 /**
- * An extension of the TestUtils that supports testing restricted AIF.  Usage and features are the same as TestUtils.
+ * An extension of the TestUtils that supports testing TA1 and TA2 restricted AIF.
+ * Usage and features are the same as TestUtils.
+ * <p>
+ * Note that in many cases, you can call makeValidAIFXXX() to make a valid <i>unrestricted</i> AIF object
+ * for use in invalid tests, whereas makeValidNistXXX() always returns a valid restricted AIF object.
  */
 class NistTestUtils extends TestUtils {
 
@@ -345,10 +349,7 @@ class NistTestUtils extends TestUtils {
      * @return a key-value Pair of the entity Resource (key) and its associated cluster Resource (value)
      */
     ImmutablePair<Resource, Resource> makeValidNistEntity(Resource type) {
-        Resource entity = makeEntity(model, getEntityUri(), system);
-        markJustification(addType(entity, type), makeValidJustification());
-        Resource entityCluster = makeClusterWithPrototype(model, getClusterUri(), entity, system);
-        return new ImmutablePair<>(entity, entityCluster);
+        return makeValidNistObject(type, makeEntity(model, getEntityUri(), system));
     }
 
     /**
@@ -358,10 +359,7 @@ class NistTestUtils extends TestUtils {
      * @return a key-value Pair of the event Resource (key) and its associated cluster Resource (value)
      */
     ImmutablePair<Resource, Resource> makeValidNistEvent(Resource type) {
-        Resource event = makeEvent(model, getEventUri(), system);
-        markJustification(addType(event, type), makeValidJustification());
-        Resource entityCluster = makeClusterWithPrototype(model, getClusterUri(), event, system);
-        return new ImmutablePair<>(event, entityCluster);
+        return makeValidNistObject(type, makeEvent(model, getEventUri(), system));
     }
 
     /**
@@ -371,76 +369,83 @@ class NistTestUtils extends TestUtils {
      * @return a key-value Pair of the relation Resource (key) and its associated cluster Resource (value)
      */
     ImmutablePair<Resource, Resource> makeValidNistRelation(Resource type) {
-        Resource relation = makeRelation(model, getEventUri(), system);
-        markJustification(addType(relation, type), makeValidJustification());
-        Resource relationCluster = makeClusterWithPrototype(model, getClusterUri(), relation, system);
-        return new ImmutablePair<>(relation, relationCluster);
+        return makeValidNistObject(type, makeRelation(model, getEventUri(), system));
     }
 
+    // Helper function for makeValidNistXXX
+    private ImmutablePair<Resource, Resource> makeValidNistObject(Resource type, Resource object) {
+        markJustification(addType(object, type), makeValidJustification());
+        Resource cluster = makeClusterWithPrototype(model, getClusterUri(), object, system);
+        return new ImmutablePair<>(object, cluster);
+    }
 }
 
 
 /**
  * An extension of the NistTestUtils that supports testing TA3 restricted AIF.
  * Usage and features are the same as NistTestUtils.
+ * <p>
+ * Note that in many cases, you can call makeValidAIFXXX() to make a valid <i>unrestricted</i> AIF object
+ * or makeValidNistXXX() to make a valid TA1/TA2 restricted AIF object for use in invalid tests,
+ * whereas makeValidNistTA3XXX() always returns a valid restricted AIF object for use in TA3.
  */
-class NistHypothesisTestUtils extends NistTestUtils {
+class NistTA3TestUtils extends NistTestUtils {
 
     /**
-     * Constructor for utilities for testing restricted AIF functionality.
+     * Constructor for utilities for testing TA3 restricted AIF functionality.
      *
      * @param annotationNamespace namespace to use with URIs
      * @param validator           an AIF validator instantiated based on the caller's ontology and desired NIST restrictions
      * @param forceDump           whether or not to force dumping of models prior to validation
      */
-    NistHypothesisTestUtils(String annotationNamespace, ValidateAIF validator, boolean forceDump) {
+    NistTA3TestUtils(String annotationNamespace, ValidateAIF validator, boolean forceDump) {
         super(annotationNamespace, validator, forceDump);
     }
 
     /**
-     * Makes and returns a valid NIST-restricted entity of the specified type and its cluster with the specified
+     * Makes and returns a valid TA3 NIST-restricted entity of the specified type and its cluster with the specified
      * cluster handle.
      *
      * @param type          entity type
      * @param clusterHandle cluster handle for the entity cluster
      * @return a key-value Pair of the entity Resource (key) and its associated cluster Resource (value)
      */
-    ImmutablePair<Resource, Resource> makeValidNistEntity(Resource type, String clusterHandle) {
+    ImmutablePair<Resource, Resource> makeValidNistTA3Entity(Resource type, String clusterHandle) {
         ImmutablePair<Resource, Resource> pair = makeValidNistEntity(type);
         pair.getValue().addProperty(AidaAnnotationOntology.HANDLE, clusterHandle);
         return pair;
     }
 
     /**
-     * Makes and returns a valid NIST-restricted event of the specified type and its cluster marked with the
+     * Makes and returns a valid TA3 NIST-restricted event of the specified type and its cluster marked with the
      * specified importance.
      *
      * @param type       event type
      * @param importance the importance to mark the event cluster
      * @return a key-value Pair of the event Resource (key) and its associated cluster Resource (value)
      */
-    ImmutablePair<Resource, Resource> makeValidNistEvent(Resource type, double importance) {
+    ImmutablePair<Resource, Resource> makeValidNistTA3Event(Resource type, double importance) {
         ImmutablePair<Resource, Resource> pair = makeValidNistEvent(type);
         markImportance(pair.getValue(), importance);
         return pair;
     }
 
     /**
-     * Makes and returns a valid NIST-restricted relation of the specified type and its cluster marked with the
+     * Makes and returns a valid TA3 NIST-restricted relation of the specified type and its cluster marked with the
      * specified importance.
      *
      * @param type       relation type
      * @param importance the importance to mark the relation cluster
      * @return a key-value Pair of the event Resource (key) and its associated cluster Resource (value)
      */
-    ImmutablePair<Resource, Resource> makeValidNistRelation(Resource type, double importance) {
+    ImmutablePair<Resource, Resource> makeValidNistTA3Relation(Resource type, double importance) {
         ImmutablePair<Resource, Resource> pair = makeValidNistRelation(type);
         markImportance(pair.getValue(), importance);
         return pair;
     }
 
     /**
-     * Makes and returns a valid argument assertion between the specified event or relation and an argument filler entity.
+     * Makes and returns a valid TA3 argument assertion between the specified event or relation and an argument filler entity.
      *
      * @param eventOrRelation The event or relation for which to mark the specified argument role
      * @param type            the type of the argument
@@ -448,34 +453,32 @@ class NistHypothesisTestUtils extends NistTestUtils {
      * @param importance      the importance to mark the edge
      * @return the created event or relation argument assertion
      */
-    Resource makeValidEdge(Resource eventOrRelation, Resource type, Resource argumentFiller, double importance) {
-        Resource edge = super.makeValidEdge(eventOrRelation, type, argumentFiller);
+    Resource makeValidTA3Edge(Resource eventOrRelation, Resource type, Resource argumentFiller, double importance) {
+        Resource edge = makeValidAIFEdge(eventOrRelation, type, argumentFiller);
         markImportance(edge, importance);
         return edge;
     }
 
     /**
-     * Makes and returns a valid NIST-restricted hypothesis involving the specified resource(s).
+     * Makes and returns a valid TA3 NIST-restricted hypothesis involving the specified resource(s).
      *
      * @param resources A set of entities, relations, and arguments that contribute to the hypothesis
      */
-    Resource makeValidHypothesis(Resource... resources) {
-        Resource hypothesis = super.makeValidHypothesis(resources);
+    Resource makeValidTA3Hypothesis(Resource... resources) {
+        Resource hypothesis = makeValidAIFHypothesis(resources);
         markImportance(hypothesis, 100.0);
         return hypothesis;
     }
 
     /**
-     * Makes and returns a valid NIST-restricted hypothesis involving the specified resource(s) and importance.
+     * Makes and returns a valid TA3 NIST-restricted hypothesis involving the specified resource(s) and importance.
      *
      * @param importance the importance with which to make the hypothesis
      * @param resources  A set of entities, relations, and arguments that contribute to the hypothesis
      */
-    Resource makeValidHypothesis(double importance, Resource... resources) {
-        Resource hypothesis = super.makeValidHypothesis(resources);
+    Resource makeValidTA3Hypothesis(double importance, Resource... resources) {
+        Resource hypothesis = makeValidAIFHypothesis(resources);
         markImportance(hypothesis, importance);
         return hypothesis;
     }
-
-
 }

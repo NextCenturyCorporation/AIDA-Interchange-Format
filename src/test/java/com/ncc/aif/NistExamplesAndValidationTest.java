@@ -374,16 +374,16 @@ public class NistExamplesAndValidationTest {
         class JustifyTypeAssertions {
             @Test
             void invalid() {
-                // Create an entity, but do not mark its type assertion with a justification.
-                final Resource newEntity = utils.makeValidEntity(SeedlingOntology.Person);
+                // Create a base AIF entity, but do not mark its type assertion with a justification.
+                final Resource newEntity = utils.makeValidAIFEntity(SeedlingOntology.Person);
                 makeClusterWithPrototype(model, utils.getClusterUri(), newEntity, system);
 
-                // Create an event, but do not mark its type assertion with a justification.
-                final Resource newEvent = utils.makeValidEvent(SeedlingOntology.Conflict_Attack);
+                // Create a base AIF event, but do not mark its type assertion with a justification.
+                final Resource newEvent = utils.makeValidAIFEvent(SeedlingOntology.Conflict_Attack);
                 makeClusterWithPrototype(model, utils.getClusterUri(), newEvent, system);
 
-                // Create a relation, but do not mark its type assertion with a justification.
-                final Resource newRelation = utils.makeValidRelation(SeedlingOntology.GeneralAffiliation_APORA);
+                // Create a base AIF relation, but do not mark its type assertion with a justification.
+                final Resource newRelation = utils.makeValidAIFRelation(SeedlingOntology.GeneralAffiliation_APORA);
                 makeClusterWithPrototype(model, utils.getClusterUri(), newRelation, system);
 
                 utils.testInvalid("NIST.invalid: type assertions must be justified");
@@ -526,7 +526,7 @@ public class NistExamplesAndValidationTest {
                 markInformativeJustification(entity, utils.makeValidJustification(sourceDocument));
                 markInformativeJustification(entity, utils.makeValidJustification(sourceDocument));
 
-                utils.testValid("NIST.invalid: (informative justifications have same parent document) Each Cluster, " +
+                utils.testInvalid("NIST.invalid: (informative justifications have same parent document) Each Cluster, " +
                         "Entity, Event, or Relation can specify up to one informative mention per document as long " +
                         "as each informative mention points to a different sourceDocument");
             }
@@ -579,19 +579,14 @@ public class NistExamplesAndValidationTest {
 
             @Test
             void validEntityClusterSeparateInformativeJustificationsWithSameParentDoc() {
-                // TODO: Verify this example is doing what it's supposed to do.
-                final Resource typeAssertionJustification = utils.makeValidJustification("20181231");
-                final Resource duplicateParentDocJustification = utils.makeValidJustification("20181231");
-                final Resource secondEntityJustification = utils.makeValidJustification("3822029");
-                final Resource secondClusterJustification = utils.makeValidJustification("3298329");
+                // Add more than one informative justification to entity KE
+                markInformativeJustification(entity, utils.makeValidJustification("20181231"));
+                markInformativeJustification(entity, utils.makeValidJustification("3822029"));
 
-                //add informative justification in separate KE's with same parent doc
-                markInformativeJustification(entity, typeAssertionJustification);
-                markInformativeJustification(entity, secondEntityJustification);
-
-                //add more than one informative justification to the KE's
-                markInformativeJustification(entityCluster, duplicateParentDocJustification);
-                markInformativeJustification(entityCluster, secondClusterJustification);
+                // Add more than one informative justification to entity cluster KE.
+                // One of the informative justifications contains same parent doc as entity KE
+                markInformativeJustification(entityCluster, utils.makeValidJustification("20181231"));
+                markInformativeJustification(entityCluster, utils.makeValidJustification("3298329"));
 
                 utils.testValid("NIST.valid: (Two KE's with informative justifications with same parent doc) Each " +
                         "Cluster, Entity, Event, or Relation can specify up to one informative mention per document " +
