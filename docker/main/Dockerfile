@@ -21,5 +21,5 @@ RUN apt-get -qqy install \
 #-------------------------------------------------------------
 RUN pip3 install boto3 awscli
 
-COPY ["scripts/initializer.py", "/usr/local/"]
-ENTRYPOINT ["python3", "/usr/local/initializer.py"]
+COPY ["scripts/main.py", "/usr/local/"]
+ENTRYPOINT ["python3", "/usr/local/main.py"]

@@ -375,9 +375,9 @@ def validate_envs(envs):
 
     #check if master sleep interval can be converted to int
     try:
-        int(envs['MASTER_SLEEP_INTERVAL'])
+        int(envs['MAIN_SLEEP_INTERVAL'])
     except ValueError:
-        logging.error("Master sleep interval [%s] must be an integer", envs['MASTER_SLEEP_INTERVAL'])
+        logging.error("Master sleep interval [%s] must be an integer", envs['MAIN_SLEEP_INTERVAL'])
         return False
 
     # check the extension of the S3 submission
@@ -401,12 +401,12 @@ def main():
     envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET')
     envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID')
     envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX')
-    envs['MASTER_LOG_LEVEL'] = os.environ.get('MASTER_LOG_LEVEL', 'INFO') # default info logging
-    envs['MASTER_SLEEP_INTERVAL'] = os.environ.get('MASTER_SLEEP_INTERVAL')
+    envs['MAIN_LOG_LEVEL'] = os.environ.get('MAIN_LOG_LEVEL', 'INFO') # default info logging
+    envs['MAIN_SLEEP_INTERVAL'] = os.environ.get('MAIN_SLEEP_INTERVAL')
     envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION')
     
     # set logging to log to stdout
-    logging.basicConfig(level=os.environ.get('LOGLEVEL', envs['MASTER_LOG_LEVEL']))
+    logging.basicConfig(level=os.environ.get('LOGLEVEL', envs['MAIN_LOG_LEVEL']))
 
     # validate enviornment variables
     if validate_envs(envs):
@@ -425,7 +425,7 @@ def main():
         enqueue_files(queue_url, envs['AWS_BATCH_JOB_ID'], envs['S3_VALIDATION_BUCKET'], 'sourcefiles')
      
         # wait for all AWS batch jobs to complete processing
-        wait_for_processing(envs['AWS_BATCH_JOB_NODE_INDEX'], envs['AWS_BATCH_JOB_ID'], int(envs['MASTER_SLEEP_INTERVAL']))
+        wait_for_processing(envs['AWS_BATCH_JOB_NODE_INDEX'], envs['AWS_BATCH_JOB_ID'], int(envs['MAIN_SLEEP_INTERVAL']))
 
         # clean up
         #delete_s3_objects(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
