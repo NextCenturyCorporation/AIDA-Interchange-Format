@@ -15,7 +15,6 @@ import org.apache.jena.util.FileUtils;
 import org.topbraid.jenax.statistics.ExecStatistics;
 import org.topbraid.jenax.statistics.ExecStatisticsListener;
 import org.topbraid.jenax.statistics.ExecStatisticsManager;
-import org.topbraid.shacl.validation.ValidationEngine;
 import org.topbraid.shacl.validation.ValidationEngineConfiguration;
 import org.topbraid.shacl.validation.ValidationUtil;
 
@@ -58,7 +57,7 @@ public final class ValidateAIF {
     private static Model nistModel;
     private static Model nistHypoModel;
     private static boolean initialized = false;
-    private static int abortParam = -1; // TODO: separate command-line validator from validator class
+    private static int abortParam = -1; // TODO: separate command-line validator from its class, so we don't need this
     private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
     private static final Property CONFORMS = ResourceFactory.createProperty("http://www.w3.org/ns/shacl#conforms");
     private static final int LONG_QUERY_THRESH = 2000;
@@ -171,7 +170,7 @@ public final class ValidateAIF {
     // Show usage information.
     private static void showUsage() {
         System.out.println("Usage:\n" +
-                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--abort [num]] {-f FILE ... | -d DIRNAME}\n" +
+                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--abort] {-f FILE ... | -d DIRNAME}\n" +
                 "Options:\n" +
                 "--ldc           Validate against the LDC ontology\n" +
                 "--program       Validate against the program ontology\n" +
@@ -181,7 +180,9 @@ public final class ValidateAIF {
                 "-o              Save validation report model to a file.  KB.ttl would result in KB-report.txt.\n" +
                 "                Output defaults to stderr.\n" +
                 "-h, --help      Show this help and usage text\n" +
-                "--abort [num]   Abort validation after [num] validation errors, or first validation error if [num] is omitted.\n" +
+                // NOTE: restore this when/if TopBraid's fail-fast feature properly supports failing at first violation.
+                // "--abort [num]   Abort validation after [num] validation errors, or first validation error if [num] is omitted.\n" +
+                "--abort         Abort validation after three validation errors.\n" +
                 "-f FILE ...     Validate the specified file(s) with a .ttl suffix\n" +
                 "-d DIRNAME      Validate all .ttl files in the specified directory\n" +
                 "\n" +
@@ -254,9 +255,11 @@ public final class ValidateAIF {
                 case "--abort":
                     flags.add(ArgumentFlags.ABORT);
                     if (!args[i + 1].startsWith("-")) {
+                        // NOTE: this parameter is not documented in the README nor the Usage info
                         abortStr = args[++i];
                     } else {
-                        abortParam = 1;
+                        // NOTE: Set this to 1 when/if TopBraid's fail-fast feature properly supports failing at first violation.
+                        abortParam = 3;
                     }
                     break;
                 case "-f":
@@ -281,7 +284,8 @@ public final class ValidateAIF {
                     flags.add(ArgumentFlags.DIRECTORY);
                     break;
                 default:
-                    logger.warn("Ignoring unknown argument: " + arg);
+                    logger.error("Unknown argument: " + arg);
+                    return false;
             }
         }
 
@@ -308,7 +312,10 @@ public final class ValidateAIF {
                 abortParam = -1;
             }
             if (abortParam < 1) {
-                logger.error("Invalid abort parameter: " + abortStr);
+                // NOTE: restore this when/if TopBraid's fail-fast feature properly supports failing at first violation.
+                //logger.error("Invalid abort parameter: " + abortStr);
+                //return false;
+                logger.error("Unknown argument: " + abortStr);
                 return false;
             }
         }
@@ -633,16 +640,10 @@ public final class ValidateAIF {
         // Validates against the SHACL file to ensure that resources have the required properties
         // (and in some cases, only the required properties) of the proper types.  Returns true if
         // validation passes.
-        ValidationEngine engine = ValidationUtil.createValidationEngine(
-                unionModel, shacl, new ValidationEngineConfiguration().
-                        setValidationErrorBatch(1).setValidateShapes(true));
-
-        try {
-            engine.applyEntailments();
-            return engine.validateAll();
-        } catch (InterruptedException ex) {
-            return null;
-        }
+        return ValidationUtil.validateModel(unionModel, shacl,
+                new ValidationEngineConfiguration()
+                        .setValidateShapes(true)
+                        .setValidationErrorBatch(abortThreshold));
     }
 
     /**
