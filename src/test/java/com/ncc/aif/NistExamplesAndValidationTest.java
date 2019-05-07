@@ -3,16 +3,12 @@ package com.ncc.aif;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.CharSource;
-import com.google.common.io.Resources;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDF;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-
-import java.nio.charset.StandardCharsets;
 
 import static com.ncc.aif.AIFUtils.*;
 
@@ -23,9 +19,6 @@ public class NistExamplesAndValidationTest {
 
     private static final String LDC_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#";
     private static final String ONTOLOGY_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/LDCOntology#";
-    private static final CharSource LDC_ONTOLOGY = Resources.asCharSource(
-            Resources.getResource("com/ncc/aif/ontologies/LDCOntology"),
-            StandardCharsets.UTF_8);
     private static NistTestUtils utils;
 
     @BeforeAll
