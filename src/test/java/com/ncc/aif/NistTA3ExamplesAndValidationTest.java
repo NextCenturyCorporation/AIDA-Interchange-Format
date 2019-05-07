@@ -31,8 +31,7 @@ public class NistTA3ExamplesAndValidationTest {
     static void declutterLogging() {
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
-        utils = new NistTA3TestUtils(LDC_NS, ValidateAIF.create(ImmutableSet.of(LDC_ONTOLOGY),
-                ValidateAIF.Restriction.NIST_HYPOTHESIS), FORCE_DUMP);
+        utils = new NistTA3TestUtils(LDC_NS, ValidateAIF.createForLDCOntology(ValidateAIF.Restriction.NIST), FORCE_DUMP);
     }
 
     private Model model;
@@ -172,7 +171,7 @@ public class NistTA3ExamplesAndValidationTest {
                 // This isn't strictly needed to be valid, but it's here because the example looks incomplete if an
                 // entity has a relationship without a relation edge defining that relationship.
                 relationEdge = utils.makeValidTA3Edge(relation,
-                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_Artifact,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
                         entity, 102.0);
 
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, relationEdge);
@@ -293,7 +292,7 @@ public class NistTA3ExamplesAndValidationTest {
                         103.0);
                 relation = relationPair.getKey();
                 relationEdge = utils.makeValidTA3Edge(relation,
-                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_Artifact,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
                         entity, 102.0);
             }
 
@@ -347,12 +346,14 @@ public class NistTA3ExamplesAndValidationTest {
 
             // TODO This test case needs to be updated and @Test needs to be added back in  once we decide on the
             // TODO new design of this class upon the completion of AIDA-720.
+            @Disabled("TODO test case to be updated")
+            @Test
             void validRelationAndRelationEdge() {
                 final Resource relation = utils.makeValidNistTA3Relation(
                         LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation,
                         103.0).getKey();
                 final Resource relationEdge = utils.makeValidTA3Edge(relation,
-                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_Artifact,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
                         entity, 102.0);
 
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, relationEdge);
@@ -373,7 +374,7 @@ public class NistTA3ExamplesAndValidationTest {
                         LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation,
                         103.0).getKey();
                 final Resource relationEdge = utils.makeValidTA3Edge(relation,
-                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_Artifact,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
                         entity, 102.0);
 
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, relationEdge);
@@ -397,7 +398,7 @@ public class NistTA3ExamplesAndValidationTest {
                 relation = relationPair.getKey();
                 relationCluster = relationPair.getValue();
                 relationEdge = utils.makeValidTA3Edge(relation,
-                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_Artifact,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
                         entity, 102.0);
             }
 

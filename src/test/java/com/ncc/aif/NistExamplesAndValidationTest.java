@@ -32,8 +32,7 @@ public class NistExamplesAndValidationTest {
     static void declutterLogging() {
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
-        utils = new NistTestUtils(LDC_NS, ValidateAIF.create(ImmutableSet.of(LDC_ONTOLOGY),
-                ValidateAIF.Restriction.NIST), FORCE_DUMP);
+        utils = new NistTestUtils(LDC_NS, ValidateAIF.createForLDCOntology(ValidateAIF.Restriction.NIST), FORCE_DUMP);
     }
 
     private Model model;
@@ -69,7 +68,7 @@ public class NistExamplesAndValidationTest {
             event = aPair.getKey();
             eventCluster = aPair.getValue();
             aPair = utils.makeValidNistRelation(
-                    LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_ControlTerritory);
+                    LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation);
             relation = aPair.getKey();
             relationCluster = aPair.getValue();
         }
@@ -87,7 +86,7 @@ public class NistExamplesAndValidationTest {
 
                 // test relation edge argument must have a compound justification
                 final Resource relationEdge = markAsArgument(model, relation,
-                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_ControlTerritory_Controller,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
                         entity, system, 1.0, utils.getAssertionUri());
                 final Resource justification = markTextJustification(model, relationEdge,
                         "source1", 0, 4, system, 1.0);
@@ -132,7 +131,7 @@ public class NistExamplesAndValidationTest {
 
                 // test relation argument
                 final Resource relationEdge = markAsArgument(model, relation,
-                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_ControlTerritory_Controller,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
                         entity, system, 1.0);
                 final Resource justification1 = makeTextJustification(model, "source1", 0,
                         4, system, 1.0);
@@ -159,7 +158,7 @@ public class NistExamplesAndValidationTest {
 
                 // test relation argument
                 final Resource relationEdge = markAsArgument(model, relation,
-                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_ControlTerritory_Controller,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
                         entity, system, 1.0);
                 final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1.0);
                 addSourceDocumentToJustification(justification1, "source1sourceDocument");
@@ -190,7 +189,7 @@ public class NistExamplesAndValidationTest {
             void invalid() {
                 // test relation
                 final Resource relationEdge = markAsArgument(model, relation,
-                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_ControlTerritory_Controller,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
                         entity, system, 1.0, utils.getAssertionUri());
                 final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1.0);
                 addSourceDocumentToJustification(justification1, "source1sourceDocument");
@@ -218,7 +217,7 @@ public class NistExamplesAndValidationTest {
             void invalidZeroSpans() {
                 // test relation
                 final Resource relationEdge = markAsArgument(model, relation,
-                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_ControlTerritory_Controller,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
                         entity, system, 1.0);
                 final Resource compound = markCompoundJustification(model,
                         ImmutableSet.of(relationEdge),
@@ -239,7 +238,7 @@ public class NistExamplesAndValidationTest {
             void valid() {
                 // test relation
                 final Resource relationEdge = markAsArgument(model, relation,
-                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_ControlTerritory_Controller,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
                         entity, system, 1.0);
                 final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1.0);
                 addSourceDocumentToJustification(justification1, "source1sourceDocument");
@@ -264,7 +263,7 @@ public class NistExamplesAndValidationTest {
             void validOneSpan() {
                 // test relation
                 final Resource relationEdge = markAsArgument(model, relation,
-                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_ControlTerritory_Controller,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
                         entity, system, 1.0);
                 final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1.0);
                 addSourceDocumentToJustification(justification1, "source1sourceDocument");
@@ -338,7 +337,7 @@ public class NistExamplesAndValidationTest {
                         utils.makeValidJustification());
                 final Resource newRelation = makeRelation(model, utils.getRelationUri(), system);
                 markJustification(utils.addType(newRelation,
-                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_ControlTerritory),
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation),
                         utils.makeValidJustification());
                 final Resource newEvent = makeEvent(model, utils.getEventUri(), system);
                 markJustification(utils.addType(newEvent,
@@ -418,7 +417,7 @@ public class NistExamplesAndValidationTest {
 
                 // Create a base AIF relation, but do not mark its type assertion with a justification.
                 final Resource newRelation = utils.makeValidAIFRelation(
-                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_ControlTerritory);
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation);
                 makeClusterWithPrototype(model, utils.getClusterUri(), newRelation, system);
 
                 utils.testInvalid("NIST.invalid: type assertions must be justified");
@@ -459,15 +458,14 @@ public class NistExamplesAndValidationTest {
                 utils.testInvalid("NIST.invalid (text value): Each entity text value string is limited to 256 UTF-8 characters");
             }
 
-            // TBD: The LDCOntology currently does not have any entities that can have a numeric value
-            //
-            // @Test
-            // void invalidNumericValueAsString() {
-            //     final Resource numericValueEntity = utils.makeValidNistEntity(SeedlingOntology.Age).getKey();
-            //     markNumericValueAsString(numericValueEntity, "3.866257319028419151956807870102338944632653034263131666724882672874792347265146689923498812818121807146499569966401451211686727219627969935361183863143994146880217969397076000433349740006299102731565965237056997838014700127614676980451633032526526557734348");
+            @Disabled("LDCOntology does not have any Entities with a numeric value")
+            @Test
+            void invalidNumericValueAsString() {
+                final Resource numericValueEntity = utils.makeValidNistEntity(LDCOntology.VAL).getKey();
+                markNumericValueAsString(numericValueEntity, "3.866257319028419151956807870102338944632653034263131666724882672874792347265146689923498812818121807146499569966401451211686727219627969935361183863143994146880217969397076000433349740006299102731565965237056997838014700127614676980451633032526526557734348");
 
-            //     utils.testInvalid("NIST.invalid (numeric string value): Each entity numeric value string is limited to 256 UTF-8 characters");
-            // }
+                utils.testInvalid("NIST.invalid (numeric string value): Each entity numeric value string is limited to 256 UTF-8 characters");
+            }
 
             @Test
             void validName() {
@@ -497,16 +495,15 @@ public class NistExamplesAndValidationTest {
                 utils.testValid("NIST.valid (text value): Each entity text value string is limited to 256 UTF-8 characters");
             }
 
-            // TBD: The LDCOntology currently does not have any entities that can have a numeric value
-            //
-            // @Test
-            // void validNumericValueAsString() {
-            //     final Resource numericValueEntity = utils.makeValidNistEntity(SeedlingOntology.Age).getKey();
-            //     markNumericValueAsString(numericValueEntity, "3.86625731902841915195680787010233894463265303426313166672488267287479234726514668992349881281812180714649956996640145121168672721962796993536118386314399414688021796939707600043334974000629910273156596523705699783801470012761467698045163303252652655773434");
+            @Disabled("LDCOntology does not have any Entities with a numeric value")
+            @Test
+            void validNumericValueAsString() {
+                final Resource numericValueEntity = utils.makeValidNistEntity(LDCOntology.VAL).getKey();
+                markNumericValueAsString(numericValueEntity, "3.86625731902841915195680787010233894463265303426313166672488267287479234726514668992349881281812180714649956996640145121168672721962796993536118386314399414688021796939707600043334974000629910273156596523705699783801470012761467698045163303252652655773434");
 
-            //     markNumericValueAsString(numericValueEntity, "1");
-            //     utils.testValid("NIST.valid (numeric string value): Each entity numeric value string is limited to 256 UTF-8 characters");
-            // }
+                markNumericValueAsString(numericValueEntity, "1");
+                utils.testValid("NIST.valid (numeric string value): Each entity numeric value string is limited to 256 UTF-8 characters");
+            }
         }
 
         // Justifications require a source document and a source

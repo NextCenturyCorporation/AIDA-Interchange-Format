@@ -1117,7 +1117,7 @@ public class ExamplesAndValidationTest {
         }
 
         // this validation constraint is not working yet
-        @Disabled
+        @Disabled("Missing RDF type constraint not implemented")
         @Test
         void missingRdfTypeOnNamedNode() {
             // below we copy the code from AIFUtils.makeEntity but forget to mark it as an entity
