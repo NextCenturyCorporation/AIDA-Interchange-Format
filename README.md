@@ -20,10 +20,6 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
      translation of these examples is in `python/tests/Examples.py`.  If you run either set of
      examples, the corresponding Turtle output will be dumped.
 	 
-	 * Validation tests that use the Kotlin implementation of AIF are located at
-	 `src/test/java/edu/isi/gaia/ExamplesAndValidationTests`.
-	 * Validation tools for the Python output is currently in progress.
-
 *    code to translate from the TAC KBP Coldstart++ KB format into this format.
      `src/main/java/edu/isi/gaia/ColdStart2AidaInterchange.kt`.  ColdStart is only available
 	 in Kotlin and is unsupported.
@@ -59,9 +55,6 @@ The file `src/test/java/com/ncc/aif/ExamplesAndValidationTests.java`
 has a series of examples showing how to add things to the model.  The
 `src/text/java/com/ncc/aif/ScalingTest.java` file has examples of how
 to write the model out.
-
-The file `src/test/java/edu/isi/gaia/ExamplesAndValidationTests.java`
-has similar examples that use the Kotlin version.
 
 # The AIF Validator
 The AIF validator is an extension of the validator written by Ryan Gabbard (USC ISI)

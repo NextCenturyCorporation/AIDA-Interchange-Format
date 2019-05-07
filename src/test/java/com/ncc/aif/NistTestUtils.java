@@ -75,7 +75,7 @@ class NistTestUtils extends TestUtils {
      * @return a key-value Pair of the relation Resource (key) and its associated cluster Resource (value)
      */
     ImmutablePair<Resource, Resource> makeValidNistRelation(Resource type) {
-        return makeValidNistObject(type, makeRelation(model, getEventUri(), system));
+        return makeValidNistObject(type, makeRelation(model, getRelationUri(), system));
     }
 
     // Helper function for makeValidNistXXX
