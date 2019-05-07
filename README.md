@@ -39,7 +39,7 @@ readability) but N-Triples for working with large KBs (for speed).
 * To install the Java and Kotlin/JVM code, first you'll need to install the snapshot version
 of the TopBraid SHACL tools.  From the root of this repository using Apache Maven do:
 
-`mvn install:install-file -Dfile=lib/shacl-1.2.0-SNAPSHOT.jar -DpomFile=lib/pom.shacl.xml`
+`mvn install:install-file -Dfile=shacl/shacl-1.2.0-SNAPSHOT.jar -DpomFile=shacl/pom.shacl.xml`
 
 After that, do `mvn install`.  Repeat this if you pull an updated version of the code. You
 can run the tests by doing `mvn test`.
