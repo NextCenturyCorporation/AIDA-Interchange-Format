@@ -121,7 +121,7 @@ Note: the original `ValidateAIF.createForDomainOntologySource()` method remains 
 
 The AIF Validator can be told to "fail fast," that is, exit as soon as a few SHACL violations are found in
 the specified KB.  On the command-line, use the `--abort` option to have the validator exit after three
-violations.  Without the ``--abort` option, the entire KB will be validated with full output of all violations.
+violations.  Without the `--abort` option, the entire KB will be validated with full output of all violations.
 
 To fail fast when using the validator programmatically, use `ValidateAIF.setAbortThreshold()` to set an error
 threshold.
