@@ -36,7 +36,6 @@ Each of the **test groups** can be separately controlled.  For example, you can 
 ### DUMP_TO_FILE flag
 
 - **false** (default) - If model (and validation report) is being dumped, it will go to `stdout`
-- **true** - If model (and validation report) is being dumped, they are dumped into files placed in the `target\test-dump-output` directory.
-    The files named after the class and unit test method name.  For example, the `entityMissingType()` test in the `InvalidExamples` inner class of the `ExamplesAndValidationTest$ class is dumped to:
+- **true** - If model (and validation report) is being dumped, it is dumped into the `target\test-dump-output` directory.  The files are named after the class and unit test method name.  For example, the `entityMissingType()` test in the `InvalidExamples` inner class of the `ExamplesAndValidationTest` class is dumped to:
     - model - `target\test-dump-output\ExamplesAndValidationTest_InvalidExamples_entityMissingType.ttl`
     - report - `target\test-dump-output\ExamplesAndValidationTest_InvalidExamples_entityMissingType-report.txt`
