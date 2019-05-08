@@ -253,7 +253,6 @@ def create_sqs_queue(queue_name):
             }   
         )
 
-        logging.error("queue response %s", queue)
         return queue['QueueUrl']
         raise
     except ClientError as e:

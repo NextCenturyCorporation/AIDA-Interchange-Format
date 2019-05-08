@@ -1,14 +1,18 @@
 import os
 import logging
 import boto3
-import time
 import json
-import random
+import glob
+import time
+import subprocess
+import shutil
+from pathlib import Path
+from subprocess import PIPE, TimeoutExpired, CalledProcessError
 from botocore.exceptions import ClientError
 
 
 def get_sqs_queue(queue_name):
-	"""Will check if SQS queue exists.
+	"""Checks if SQS queue exists.
 
 	:param str queue_name: Name of the SQS queue to check
 	:returns: True if SQS queue exits, False otherwise. 
@@ -76,6 +80,60 @@ def get_s3_object_list(s3_bucket, prefix):
 		return objs
 	except ClientError as e:
 		logging.error(e)
+
+
+def download_s3_object(s3_bucket, s3_object, file_name):
+	"""Downloads the object from s3 based on s3 object paths extracted from the
+	SQS message payload.
+
+	:param str s3_bucket:
+	:param str s3_object:
+	:param str file_name:
+	"""
+	s3_client = boto3.client('s3')
+
+	try:
+		logging.info("Downloading %s from bucket %s", s3_object, s3_bucket)
+		s3_client.download_file(s3_bucket, s3_object, file_name)
+	except ClientError as e:
+		logging.error(e)
+
+def move_s3_object(s3_bucket, s3_object, s3_object_dest):
+	"""Helper function that will move an S3 object within the s3 bucket.
+
+	:param str s3_bucket: The s3 bucket that contains the s3_object
+	:param str s3_object: The s3 object to be moved
+	:param str s3_object_dest: The new s3 object destination
+	"""
+	s3 = boto3.resource('s3')
+
+	try:
+		logging.info("Moving s3 object %s from %s to %s ", s3_object, s3_bucket, s3_object_dest)
+		s3.Object(s3_bucket, s3_object_dest).copy_from(CopySource=s3_bucket+'/'+s3_object)
+		s3.Object(s3_bucket, s3_object).delete()
+
+	except ClientError as e:
+		logging.error(e)
+
+
+def upload_file_to_s3(s3_bucket, s3_prefix, filepath):
+    """Helper function to upload single file to S3 bucket with specified prefix
+
+    :param str s3_bucket_name: Name of the S3 bucket where the file will be uploaded
+    :param str s3_prefix: The prefix to prepend to the filename
+    :param str filepath: The local path of the file to be uploaded
+    :raises ClientError: S3 client exception
+    """
+    s3_client = boto3.client('s3')
+
+    try:
+        s3_object = '/'.join([s3_prefix, Path(filepath).name])
+
+        logging.info("Uploading %s to bucket %s", s3_object, s3_bucket)
+        s3_client.upload_file(str(filepath), s3_bucket, s3_object)
+
+    except ClientError as e:
+        logging.error(e)
 
 
 def bucket_exists(s3_bucket_name):
@@ -169,7 +227,7 @@ def delete_sqs_message(queue_url, msg_receipt_handle):
     	logging.error(e)
 
 
-def process_sqs_queue(batch_job_id, validation_bucket):
+def process_sqs_queue(batch_job_id, validation_bucket, validation_timeout):
 	"""Function process messages until no more messages can be read from SQS 
 	queue and sourcefiles.done file has been populated in S3. 
 
@@ -187,6 +245,7 @@ def process_sqs_queue(batch_job_id, validation_bucket):
 
 		while True:
 
+			logging.info("Getting next message from SQS queue %s", response['QueueUrl'])
 			msg = get_sqs_message(response['QueueUrl'])
 
 			#check if queue has finished populating and message is None
@@ -196,17 +255,115 @@ def process_sqs_queue(batch_job_id, validation_bucket):
 
 			# process message
 			if msg is not None:
-				logging.info("Processing message %s", msg['Body'])		
+				logging.info("Processing message %s", msg['Body'])	
+
+				payload = msg['Body']
 				delete_sqs_message(response['QueueUrl'], msg['ReceiptHandle'])
 
-				sleep = random.randint(1,6)
-				logging.info("Sleeping for %s seconds to simulate processing", sleep)
-				time.sleep(sleep)
+				# This is where the processing happens
+				validate_message(validation_bucket, batch_job_id, payload, validation_timeout)
+
 			else:
 				logging.info("Message was empty and SQS queue is still being populated")
 
 	except ClientError as e:
 		logging.error(e)
+
+
+def validate_message(s3_bucket, batch_job_id, payload, timeout):
+	"""
+	"""
+	# download the turtle file
+	file_name = Path(payload).name
+	download_s3_object(s3_bucket, payload, file_name)
+	validation_staging = 'validation-staging'
+
+    # verify file exists and move into processing directory
+	exists = os.path.isfile(file_name)
+
+	if exists:
+
+		# create directory to store all validation results and file
+		if not os.path.exists(validation_staging):
+			os.makedirs(validation_staging)
+
+		os.rename(file_name, validation_staging+'/'+file_name)
+		code = execute_validation(validation_staging+'/'+file_name, timeout)
+
+		# upload any log output to s3
+		upload_validation_output(validation_staging, s3_bucket, '/'.join([batch_job_id, 'LOG']), '.log')
+
+		# valid
+		if code == 0:
+			move_s3_object(s3_bucket, payload, '/'.join([batch_job_id, 'VALID', file_name]))
+		# invalid
+		elif code == 1:
+			upload_validation_output(validation_staging, s3_bucket, '/'.join([batch_job_id, 'INVALID']), '.txt')
+			move_s3_object(s3_bucket, payload, '/'.join([batch_job_id, 'INVALID', file_name]))
+		# timeout error
+		elif code == -1:
+			move_s3_object(s3_bucket, payload, '/'.join([batch_job_id, 'TIMEOUT', file_name]))
+		# other error occurred
+		elif code > 1:
+			move_s3_object(s3_bucket, payload, '/'.join([batch_job_id, 'ERROR', file_name]))
+
+		# clean up validation staging
+		logging.info("Cleaning up validation staging directory %s", validation_staging)
+		#shutil.rmtree(validation_staging)
+
+	else:
+		logging.error("Unable to download S3 object %s", payload)
+
+
+def execute_validation(file_path, timeout):
+	"""
+	"""
+	file_name = Path(file_path).name
+
+	try:
+		cmd = '/home/HQ/psharkey/Development/AIDA/AIDA-Interchange-Format/target/appassembler/bin/validateAIF --ldc --nist -o -f '
+		cmd += file_path
+
+		logging.info("Executing AIF Validation for file %s", file_name)
+		#**********************
+		# Requies python 3.7+ *
+		#**********************
+		output = subprocess.run(cmd, stdout=PIPE, timeout=timeout, check=True, shell=True, universal_newlines=True)
+		#output = subprocess.run(cmd, timeout=timeout, shell=True, universal_newlines=True)
+		f = open(file_path+'.log', 'w')
+		f.write(str(output))
+		f.close()
+		logging.info("Validation succeeded for file %s", file_name)
+		return 0
+		
+	except CalledProcessError as e:
+		f = open(file_path+'.log', 'w')
+		f.write(str(e.output))
+		f.close()
+		logging.info("Validation failed for file %s with error code %s", file_name, str(e.returncode))
+		return e.returncode
+	except TimeoutExpired as e:
+		f = open(file_path+'.log', 'w')
+		f.write(str(e.output))
+		f.close()
+		logging.info("Validation timed out for file %s after %s seconds", file_name, str(timeout))
+		return -1
+
+
+def upload_validation_output(validation_dir, s3_bucket, s3_object_prefix, extension):
+	"""Will find all files of a specific extension from the validation output and upload
+	to the specified bucket and location in S3.
+	"""
+	items = glob.glob(validation_dir + '**/*' + extension)
+
+	if len(items) <= 0: 
+		logging.error("No validation ouptut files found in validation folder with extension %s", extension)
+	elif len(items) > 1: 
+		logging.error("Found multiple validation output %s files in validation staging folder", extension)
+	
+	for item in items:
+		logging.info("Uploading %s file %s to S3 with prefix %s", extension, item, s3_bucket+'/'+s3_object_prefix)
+		upload_file_to_s3(s3_bucket, s3_object_prefix, item)
 
 
 def is_env_set(env, value):
@@ -240,7 +397,14 @@ def validate_envs(envs):
     try:
         int(envs['QUEUE_INIT_TIMEOUT'])
     except ValueError:
-        logging.error("Master sleep interval [%s] must be an integer", envs['QUEUE_INIT_TIMEOUT'])
+        logging.error("Queue initialization timeout [%s] must be an integer", envs['QUEUE_INIT_TIMEOUT'])
+        return False
+
+    # check if VALIDATION_TIMEOUT can be converted to int
+    try:
+        int(envs['VALIDATION_TIMEOUT'])
+    except ValueError:
+        logging.error("Validation timeout [%s] must be an integer", envs['VALIDATION_TIMEOUT'])
         return False
 
    	# check that the validation bucket exists
@@ -255,11 +419,12 @@ def main():
 
 	envs = {}
 	envs['QUEUE_INIT_TIMEOUT'] = os.environ.get('QUEUE_INIT_TIMEOUT', '28800') # default to 8 hours
-	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET')
-	envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID')
-	envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX')
+	envs['VALIDATION_TIMEOUT'] = os.environ.get('VALIDATION_TIMEOUT', '120')
+	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
+	envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID', 'c8c90aa7-4f33-4729-9e5c-0068cb9ce75c')
+	envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX', '0')
 	envs['WORKER_LOG_LEVEL'] = os.environ.get('WORKER_LOG_LEVEL', 'INFO') # default log level
-	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION')
+	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
 
     # set logging to log to stdout
 	logging.basicConfig(level=os.environ.get('LOGLEVEL', envs['WORKER_LOG_LEVEL']))
@@ -274,7 +439,7 @@ def main():
 		if wait_for_sqs_queue(envs['AWS_BATCH_JOB_ID'], envs['S3_VALIDATION_BUCKET'], int(envs['QUEUE_INIT_TIMEOUT'])):
 
 			# process messages
-			process_sqs_queue(envs['AWS_BATCH_JOB_ID'], envs['S3_VALIDATION_BUCKET'])
+			process_sqs_queue(envs['AWS_BATCH_JOB_ID'], envs['S3_VALIDATION_BUCKET'], int(envs['VALIDATION_TIMEOUT']))
 
 
 if __name__ == "__main__": main()

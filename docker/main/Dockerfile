@@ -19,7 +19,7 @@ RUN apt-get -qqy install \
 #-------------------------------------------------------------
 #  Install Python Dependencies
 #-------------------------------------------------------------
-RUN pip3 install boto3 awscli
+RUN pip3 install boto3 botocore awscli
 
 COPY ["scripts/main.py", "/usr/local/"]
 ENTRYPOINT ["python3", "/usr/local/main.py"]
