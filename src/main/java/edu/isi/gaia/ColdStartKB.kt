@@ -152,7 +152,9 @@ data class ColdStartKB(val assertionsToConfidence: Map<Assertion, Double>,
 
 typealias MaybeScoredAssertion = Pair<Assertion, Double?>
 
-class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
+class ColdStartKBLoader(
+        val breakCrossDocCoref: Boolean = false,
+        val requireLinkConfidences: Boolean = true) {
     /**
      * Loads a TAC KBP 2017 ColdStart++ knowledge-base into a [ColdStartKB]
      *
@@ -235,6 +237,7 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
         val _OBJ_NODE_ID = 2
         val _JST_STRING = 3
         val _CONF_FLOAT = 4
+        private val LINK_CONFIDENCE_FIELD = 3
 
         val _JUSTIFICATION_PAT = Regex("""^(.+):(\d+)-(\d+)$""")
         val _SPAN_PAT = Regex("""(\d+)-(\d+)""")
@@ -356,7 +359,7 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
         }
 
         private fun parseLinkAssertion(fields: List<String>): Collection<MaybeScoredAssertion> {
-            require(fields.size == _LINK_STRING + 1)
+            require(fields.size -1 in _LINK_STRING..LINK_CONFIDENCE_FIELD)
             { "Wrong number of fields in link assertion" }
 
             val rawCSSubjectID = fields[_SBJ_NODE_ID]
@@ -364,7 +367,18 @@ class ColdStartKBLoader(val breakCrossDocCoref: Boolean = false) {
             val subjectNodes = rawCSIdToNodes!!.get(rawCSSubjectID)
             check(subjectNodes.isNotEmpty())
 
-            return subjectNodes.map { MaybeScoredAssertion(LinkAssertion(it, fields[_LINK_STRING]), 1.0) }
+            val confidence = if (LINK_CONFIDENCE_FIELD < fields.size) {
+                fields[LINK_CONFIDENCE_FIELD].toDouble()
+            } else {
+                if (requireLinkConfidences) {
+                    throw RuntimeException("Link assertion is missing required link confidence.")
+                } else {
+                    null
+                }
+            }
+
+            return subjectNodes.map { MaybeScoredAssertion(LinkAssertion(it, fields[_LINK_STRING]),
+                    confidence) }
         }
 
         private fun parseMention(fields: List<String>): Collection<MaybeScoredAssertion>  {

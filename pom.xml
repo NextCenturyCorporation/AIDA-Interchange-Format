@@ -189,11 +189,6 @@
                                     <id>validateAIF-kotlin</id>
                                 </program>
 
-                                <program>
-                                    <mainClass>edu.isi.gaia.ImagesToAIF</mainClass>
-                                    <id>images2Aif</id>
-                                </program>
-   
                                    <program>
                                     <mainClass>com.ncc.aif.ValidateAIF</mainClass>
                                     <id>validateAIF</id>
