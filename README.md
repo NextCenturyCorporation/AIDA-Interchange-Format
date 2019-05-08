@@ -220,7 +220,7 @@ You should now be ready to go.
 
 ### Java
 
-To generate the javadoc documenation, navigate to the top level directory in the AIDA-Interchange-Format project. Run the following command:
+To generate the javadoc documentation, navigate to the top level directory in the AIDA-Interchange-Format project. Run the following command:
 
 ```bash
 $ javadoc -d build/docs/javadoc/ src/main/java/com/ncc/aif/*.java
@@ -246,7 +246,7 @@ AIF was designed by Ryan Gabbard (gabbard@isi.edu) and Pedro Szekely
 (pszekeley@isi.edu) of USC ISI.  Gabbard also wrote the initial
 implementations of the associated tools.  The tools are now supported
 and extended by Eddie Curley (eddie.curley@nextcentury.com), Bao Pham
-(bao.pham@nextcentury.com), Clark Dorman (clark.dorman@nextcentury.com),
+(bao.pham@nextcentury.com), Craig Warsaw (craig.warsaw@nextcentury.com),
 and Darren Gemoets (darren.gemoets@nextcentury.com) of Next Century.
 
 The open repository will support an open NIST evaluation. For
