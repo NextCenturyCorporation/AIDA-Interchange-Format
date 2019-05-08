@@ -3,15 +3,11 @@ package com.ncc.aif;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.CharSource;
-import com.google.common.io.Resources;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-
-import java.nio.charset.StandardCharsets;
 
 import static com.ncc.aif.AIFUtils.*;
 
@@ -21,18 +17,14 @@ public class NistTA3ExamplesAndValidationTest {
     private static final boolean FORCE_DUMP = false;
 
     private static final String LDC_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#";
-    private static final String ONTOLOGY_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#";
-    private static final CharSource SEEDLING_ONTOLOGY = Resources.asCharSource(
-            Resources.getResource("com/ncc/aif/ontologies/SeedlingOntology"),
-            StandardCharsets.UTF_8);
+    private static final String ONTOLOGY_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/LDCOntology#";
     private static NistTA3TestUtils utils;
 
     @BeforeAll
     static void declutterLogging() {
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
-        utils = new NistTA3TestUtils(LDC_NS, ValidateAIF.create(ImmutableSet.of(SEEDLING_ONTOLOGY),
-                ValidateAIF.Restriction.NIST_HYPOTHESIS), FORCE_DUMP);
+        utils = new NistTA3TestUtils(LDC_NS, ValidateAIF.createForLDCOntology(ValidateAIF.Restriction.NIST_HYPOTHESIS), FORCE_DUMP);
     }
 
     private Model model;
@@ -57,12 +49,18 @@ public class NistTA3ExamplesAndValidationTest {
 
         @BeforeEach
         void setup() {
-            ImmutablePair<Resource, Resource> aPair = utils.makeValidNistTA3Entity(SeedlingOntology.Person, "entityHandle");
+            ImmutablePair<Resource, Resource> aPair = utils.makeValidNistTA3Entity(
+                    LDCOntology.PER,
+                    "entityHandle");
             entity = aPair.getKey();
             entityCluster = aPair.getValue();
-            aPair = utils.makeValidNistTA3Event(SeedlingOntology.Conflict_Attack, 104.0);
+            aPair = utils.makeValidNistTA3Event(
+                    LDCOntology.Conflict_Attack,
+                    104.0);
             event = aPair.getKey();
-            eventEdge = utils.makeValidTA3Edge(event, SeedlingOntology.Conflict_Attack_Attacker, entity, 101.0);
+            eventEdge = utils.makeValidTA3Edge(event,
+                    LDCOntology.Conflict_Attack_Attacker,
+                    entity, 101.0);
         }
 
         // Exactly 1 hypothesis should exist in model
@@ -95,7 +93,8 @@ public class NistTA3ExamplesAndValidationTest {
             @Test
             // No handle property on entity cluster in hypothesis
             void invalidNoHandle() {
-                final Resource newEntity = utils.makeValidNistEntity(SeedlingOntology.Person).getKey();
+                final Resource newEntity = utils.makeValidNistEntity(
+                        LDCOntology.PER).getKey();
                 utils.makeValidTA3Hypothesis(entity, newEntity, event, eventEdge);
 
                 utils.testInvalid("NISTHypothesis.invalid (no handle exists): Each entity cluster in the hypothesis " +
@@ -105,7 +104,9 @@ public class NistTA3ExamplesAndValidationTest {
             @Test
             // Two handle properties on entity cluster in hypothesis
             void invalidMultipleHandles() {
-                final ImmutablePair<Resource, Resource> entityPair = utils.makeValidNistTA3Entity(SeedlingOntology.Person, "handle2");
+                final ImmutablePair<Resource, Resource> entityPair = utils.makeValidNistTA3Entity(
+                        LDCOntology.PER,
+                        "handle2");
                 final Resource newEntity = entityPair.getKey();
                 final Resource cluster = entityPair.getValue();
                 cluster.addProperty(AidaAnnotationOntology.HANDLE, "handle3");
@@ -154,14 +155,17 @@ public class NistTA3ExamplesAndValidationTest {
 
             @BeforeEach
             void setup() {
-                ImmutablePair<Resource, Resource> relationPair = utils.makeValidNistRelation(SeedlingOntology.GeneralAffiliation_APORA);
+                ImmutablePair<Resource, Resource> relationPair = utils.makeValidNistRelation(
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation);
                 relation = relationPair.getKey();
                 relationCluster = relationPair.getValue();
                 eventCluster = makeClusterWithPrototype(model, utils.getClusterUri(), event, system);
 
                 // This isn't strictly needed to be valid, but it's here because the example looks incomplete if an
                 // entity has a relationship without a relation edge defining that relationship.
-                relationEdge = utils.makeValidTA3Edge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, 102.0);
+                relationEdge = utils.makeValidTA3Edge(relation,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
+                        entity, 102.0);
 
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, relationEdge);
             }
@@ -198,14 +202,17 @@ public class NistTA3ExamplesAndValidationTest {
 
             @BeforeEach
             void setup() {
-                ImmutablePair<Resource, Resource> relationPair = utils.makeValidNistTA3Relation(SeedlingOntology.GeneralAffiliation_APORA, 88);
+                ImmutablePair<Resource, Resource> relationPair = utils.makeValidNistTA3Relation(
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation,
+                        88);
                 relation = relationPair.getKey();
             }
 
             @Test
             void invalidEventEdge() {
                 //invalid event argument, needs importance value
-                Resource invalidEventEdge = markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Elect,
+                Resource invalidEventEdge = markAsArgument(model, event,
+                        LDCOntology.Personnel_Elect,
                         entity, system, 0.785, "event-argument-1");
 
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, invalidEventEdge);
@@ -217,7 +224,8 @@ public class NistTA3ExamplesAndValidationTest {
             @Test
             void invalidRelationEdge() {
                 //invalid relation argument, needs importance value
-                Resource invalidRelationEdge = markAsArgument(model, relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliation,
+                Resource invalidRelationEdge = markAsArgument(model, relation,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
                         entity, system, 0.785, "relation-argument-1");
 
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, invalidRelationEdge);
@@ -237,7 +245,9 @@ public class NistTA3ExamplesAndValidationTest {
             @Test
             void validRelationEdge() {
                 // link entity to the relation
-                Resource relationEdge = utils.makeValidTA3Edge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliation, entity, 120.0);
+                Resource relationEdge = utils.makeValidTA3Edge(relation,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
+                        entity, 120.0);
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, relationEdge);
 
                 utils.testValid("NISTHypothesis.valid (relation edge has importance value): Each edge KE in the " +
@@ -270,9 +280,13 @@ public class NistTA3ExamplesAndValidationTest {
 
             @BeforeEach
             void setup() {
-                ImmutablePair<Resource, Resource> relationPair = utils.makeValidNistTA3Relation(SeedlingOntology.GeneralAffiliation_APORA, 103.0);
+                ImmutablePair<Resource, Resource> relationPair = utils.makeValidNistTA3Relation(
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation,
+                        103.0);
                 relation = relationPair.getKey();
-                relationEdge = utils.makeValidTA3Edge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, 102.0);
+                relationEdge = utils.makeValidTA3Edge(relation,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
+                        entity, 102.0);
             }
 
             @Test
@@ -297,7 +311,9 @@ public class NistTA3ExamplesAndValidationTest {
             void invalid() {
                 //remove everything in the model to ensure no edge KE's exist
                 NistTA3ExamplesAndValidationTest.this.setup();
-                ImmutablePair<Resource, Resource> pair = utils.makeValidNistTA3Entity(SeedlingOntology.Person, "entityHandle");
+                ImmutablePair<Resource, Resource> pair = utils.makeValidNistTA3Entity(
+                        LDCOntology.PER,
+                        "entityHandle");
                 entity = pair.getKey();
                 entityCluster = pair.getValue();
                 utils.makeValidTA3Hypothesis(entity);
@@ -307,10 +323,14 @@ public class NistTA3ExamplesAndValidationTest {
 
             @Test
             void invalidRelationAndEventEdge() {
-                final Resource relation = utils.makeValidNistTA3Relation(SeedlingOntology.GeneralAffiliation_APORA, 103.0).getKey();
+                final Resource relation = utils.makeValidNistTA3Relation(
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation,
+                        103.0).getKey();
 
                 //create invalid relation edge with event argument type
-                final Resource invalidRelationEdge = utils.makeValidTA3Edge(relation, SeedlingOntology.Conflict_Attack_Attacker, entity, 102.0);
+                final Resource invalidRelationEdge = utils.makeValidTA3Edge(relation,
+                        LDCOntology.Conflict_Attack_Attacker,
+                        entity, 102.0);
 
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, invalidRelationEdge);
                 utils.testInvalid("NISTHypothesis.invalid (event has invalid relation edge): Each hypothesis graph " +
@@ -319,9 +339,15 @@ public class NistTA3ExamplesAndValidationTest {
 
             // TODO This test case needs to be updated and @Test needs to be added back in  once we decide on the
             // TODO new design of this class upon the completion of AIDA-720.
+            @Disabled("TODO test case to be updated")
+            @Test
             void validRelationAndRelationEdge() {
-                final Resource relation = utils.makeValidNistTA3Relation(SeedlingOntology.GeneralAffiliation_APORA, 103.0).getKey();
-                final Resource relationEdge = utils.makeValidTA3Edge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, 102.0);
+                final Resource relation = utils.makeValidNistTA3Relation(
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation,
+                        103.0).getKey();
+                final Resource relationEdge = utils.makeValidTA3Edge(relation,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
+                        entity, 102.0);
 
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, relationEdge);
                 utils.testValid("NISTHypothesis.valid (relation has relation edge): Each hypothesis graph must have " +
@@ -337,8 +363,12 @@ public class NistTA3ExamplesAndValidationTest {
 
             @Test
             void validEventRelationAndEventRelationEdge() {
-                final Resource relation = utils.makeValidNistTA3Relation(SeedlingOntology.GeneralAffiliation_APORA, 103.0).getKey();
-                final Resource relationEdge = utils.makeValidTA3Edge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, 102.0);
+                final Resource relation = utils.makeValidNistTA3Relation(
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation,
+                        103.0).getKey();
+                final Resource relationEdge = utils.makeValidTA3Edge(relation,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
+                        entity, 102.0);
 
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, relationEdge);
                 utils.testValid("NISTHypothesis.valid (event has event edge and relation has relation edge): Each " +
@@ -355,16 +385,22 @@ public class NistTA3ExamplesAndValidationTest {
 
             @BeforeEach
             void setup() {
-                ImmutablePair<Resource, Resource> relationPair = utils.makeValidNistTA3Relation(SeedlingOntology.GeneralAffiliation_APORA, 103.0);
+                ImmutablePair<Resource, Resource> relationPair = utils.makeValidNistTA3Relation(
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation,
+                        103.0);
                 relation = relationPair.getKey();
                 relationCluster = relationPair.getValue();
-                relationEdge = utils.makeValidTA3Edge(relation, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, entity, 102.0);
+                relationEdge = utils.makeValidTA3Edge(relation,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
+                        entity, 102.0);
             }
 
             @Test
             void invalid() {
                 // create event cluster member to add to relation cluster
-                final Resource eventMember = utils.makeValidNistTA3Event(SeedlingOntology.Conflict_Attack, 103.0).getKey();
+                final Resource eventMember = utils.makeValidNistTA3Event(
+                        LDCOntology.Conflict_Attack,
+                        103.0).getKey();
 
                 //add invalid event cluster member to relation cluster
                 markAsPossibleClusterMember(model, eventMember, relationCluster, 1.0, system);
@@ -378,7 +414,9 @@ public class NistTA3ExamplesAndValidationTest {
             void valid() {
                 // create relation cluster member to add to relation cluster
                 final Resource relationMember = makeRelation(model, utils.getRelationUri(), system);
-                markJustification(utils.addType(relationMember, SeedlingOntology.GeneralAffiliation_APORA), utils.makeValidJustification());
+                markJustification(utils.addType(relationMember,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation),
+                        utils.makeValidJustification());
 
                 //add valid relation cluster member to relation cluster
                 markAsPossibleClusterMember(model, relationMember, relationCluster, 1.0, system);
