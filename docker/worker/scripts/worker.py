@@ -17,6 +17,7 @@ def get_sqs_queue(queue_name):
 	:param str queue_name: Name of the SQS queue to check
 	:returns: True if SQS queue exits, False otherwise. 
 	:rtype: bool
+	:raises ClientError: SQS resource exception
 	"""
 	sqs_resource = boto3.resource('sqs')
 
@@ -37,8 +38,8 @@ def check_sqs_has_messages(s3_bucket, batch_job_id, complete=False):
 	.done in the suffix, indicating the SQS queue has been fully populated.
 
 	:param str s3_bucket: The s3 bucket that contains the sourcefiles object
-	:param str sourcefiles_s3_object: The s3 sourcefiles object to check
-	:param bool complete: True if the sourcefile has the .done suffix, False 
+	:param str batch_job_id: The id of the batch job
+	:param bool complete: True checks if sourcefile has the .done suffix, False 
 		otherwise
 	:returns: True if file exists, False otherwise
 	:rtype: bool
@@ -68,9 +69,11 @@ def get_s3_object_list(s3_bucket, prefix):
 	"""Helper function that will get a list of objects in an S3 bucket
 	with the spefified prefix
 
+	:param str s3_bucket: The S3 bucket
 	:param str prefix: The prefix of the S3 objects to filter on
 	:returns: List of S3 ObjectSummary objects
 	:rtype: ObjectSummary
+	:raises ClientError: S3 resource exception
 	"""
 	s3 = boto3.resource('s3')
 
@@ -86,9 +89,10 @@ def download_s3_object(s3_bucket, s3_object, file_name):
 	"""Downloads the object from s3 based on s3 object paths extracted from the
 	SQS message payload.
 
-	:param str s3_bucket:
-	:param str s3_object:
-	:param str file_name:
+	:param str s3_bucket: The S3 bucket to download from
+	:param str s3_object: The S3 object to download
+	:param str file_name: The file name of the saved object
+	:raises ClientError: S3 client exception
 	"""
 	s3_client = boto3.client('s3')
 
@@ -104,6 +108,7 @@ def move_s3_object(s3_bucket, s3_object, s3_object_dest):
 	:param str s3_bucket: The s3 bucket that contains the s3_object
 	:param str s3_object: The s3 object to be moved
 	:param str s3_object_dest: The new s3 object destination
+	:raises ClientError: S3 resource exception
 	"""
 	s3 = boto3.resource('s3')
 
@@ -185,6 +190,7 @@ def get_sqs_message(queue_url):
 	:param queue_url: String URL of existing SQS queue
 	:returns: Dictionary object of SQS message
 	:rtype: dict
+	:raises ClientError: SQS client exception
 	"""
 	sqs_client = boto3.client('sqs')
 
@@ -213,6 +219,7 @@ def delete_sqs_message(queue_url, msg_receipt_handle):
 
     :param queue_url: String URL of existing SQS queue
     :param msg_receipt_handle: Receipt handle value of retrieved message
+    :raises ClientError: SQS client exception
     """
 
     # Delete the message from the SQS queue
@@ -234,6 +241,8 @@ def process_sqs_queue(batch_job_id, validation_bucket, validation_timeout):
 	:param str batch_job_id: The id of the batch job as well as the name of 
 		the SQS queue.
 	:param str validation_bucket: The S3 bucket that stores batch job output
+	:param int validation_timeout: The the timeout for the AIF validation subprocess
+	:raises ClientError: SQS client exception
 	"""
 	sqs_client = boto3.client('sqs')
 	queue_name = batch_job_id+'.fifo'
@@ -271,7 +280,13 @@ def process_sqs_queue(batch_job_id, validation_bucket, validation_timeout):
 
 
 def validate_message(s3_bucket, batch_job_id, payload, timeout):
-	"""
+	"""Downloads the file to be validated, executes the AIF validation, uploads validation results
+	to S3, and moves file be validated to appropriate place on S3.
+
+	:param str s3_bucket: The S3 validation bucket where files are located
+	:param str batch_job_id: The id of the batch job
+	:param str payload: The S3 object path obtained from the SQS message
+	:param int timeout: The the timeout for the AIF validation subprocess
 	"""
 	# download the turtle file
 	file_name = Path(payload).name
@@ -309,14 +324,20 @@ def validate_message(s3_bucket, batch_job_id, payload, timeout):
 
 		# clean up validation staging
 		logging.info("Cleaning up validation staging directory %s", validation_staging)
-		#shutil.rmtree(validation_staging)
+		shutil.rmtree(validation_staging)
 
 	else:
 		logging.error("Unable to download S3 object %s", payload)
 
 
 def execute_validation(file_path, timeout):
-	"""
+	"""Executes the AIF Validator as a subprocess for the turtle file located at the specified 
+	file path. 
+
+	:param str file_path: The path of the turtle (TTL) file to be validated
+	:param int timeout: The the timeout for the AIF validation subprocess
+	:returns: Return code that specifies the validation execution result 
+	:rtype: int
 	"""
 	file_name = Path(file_path).name
 
@@ -351,8 +372,13 @@ def execute_validation(file_path, timeout):
 
 
 def upload_validation_output(validation_dir, s3_bucket, s3_object_prefix, extension):
-	"""Will find all files of a specific extension from the validation output and upload
-	to the specified bucket and location in S3.
+	"""Will create a list of files with a specific extension from the validation output and upload
+	each to the specified bucket and location in S3.
+
+	:param str validation_dir: The validation directory that contains the output
+	:param str s3_bucket: The S3 bucket where output file(s) will be uploaded to
+	:param str s3_object_prefix: The s3 prefix that will be appended to the uploaded files
+	:param str extension: The extension to search on in the validation directory
 	"""
 	items = glob.glob(validation_dir + '**/*' + extension)
 
