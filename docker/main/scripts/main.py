@@ -95,14 +95,14 @@ def extract_s3_submission_paths(s3_submission):
     return s3_bucket, s3_object, file_name, file_ext
 
 
-def enqueue_files(queue_url, job_id, s3_bucket_name, source_log_path):
+def enqueue_files(queue_url, job_id, s3_bucket, source_log_path):
     """Uploads all turtle (ttl) files in source diretory to the provided S3 bucket,
     adds each S3 object path as a message on SQS and updates sourcefiles on S3. After 
     all messages have processed and added to the queue, a final source file will be 
     uploaded with a suffix of '.done' and the old source file will be removed 
     from S3.
 
-    :param str s3_bucket_name: Unique string name of the bucket where the 
+    :param str s3_bucket: Unique string name of the bucket where the 
         directories will be created
     :param str queue_url: The SQS queue url
     :param str job_id: Serves as the message group id for the SQS queue, the local directory
@@ -117,10 +117,10 @@ def enqueue_files(queue_url, job_id, s3_bucket_name, source_log_path):
 
     try:
         for filepath in Path(job_id).glob('**/*.ttl'):
-            s3_object = '/'.join([job_id, 'unprocessed', filepath.name])
+            s3_object = '/'.join([job_id, 'UNPROCESSED', filepath.name])
 
-            logging.info("Uploading %s to bucket %s", s3_object, s3_bucket_name)
-            s3_client.upload_file(str(filepath), s3_bucket_name, s3_object)
+            logging.info("Uploading %s to bucket %s", s3_object, s3_bucket)
+            s3_client.upload_file(str(filepath), s3_bucket, s3_object)
 
             # add the mssage to SQS
             response = add_sqs_message(queue_url, s3_object, job_id)
@@ -130,8 +130,7 @@ def enqueue_files(queue_url, job_id, s3_bucket_name, source_log_path):
                     pickle.dump(s3_object, f)
 
                 # upload file to S3
-                upload_file_to_s3(s3_bucket_name, 
-                '/'.join([job_id, 'output', 'log']), source_log_path)
+                upload_file_to_s3(s3_bucket, job_id, source_log_path)
             else:
                 logging.error("Unable to add %s as SQS message", s3_object)
         
@@ -140,21 +139,19 @@ def enqueue_files(queue_url, job_id, s3_bucket_name, source_log_path):
             os.rename(source_log_path, source_log_path+'.done')
 
             # upload file to S3
-            upload_file_to_s3(s3_bucket_name, 
-                '/'.join([job_id, 'output', 'log']), source_log_path+'.done')
+            upload_file_to_s3(s3_bucket, job_id, source_log_path+'.done')
 
             #delete the old file
-            delete_s3_object(s3_bucket_name, 
-                '/'.join([job_id, 'output', 'log', source_log_path]))
+            delete_s3_object(s3_bucket, '/'.join([job_id, source_log_path]))
 
     except ClientError as e:
         logging.error(e)
 
 
-def upload_file_to_s3(s3_bucket_name, s3_prefix, filepath):
+def upload_file_to_s3(s3_bucket, s3_prefix, filepath):
     """Helper function to upload single file to S3 bucket with specified prefix
 
-    :param str s3_bucket_name: Name of the S3 bucket where the file will be uploaded
+    :param str s3_bucket: Name of the S3 bucket where the file will be uploaded
     :param str s3_prefix: The prefix to prepend to the filename
     :param str filepath: The local path of the file to be uploaded
     :raises ClientError: S3 client exception
@@ -164,16 +161,16 @@ def upload_file_to_s3(s3_bucket_name, s3_prefix, filepath):
     try:
         s3_object = '/'.join([s3_prefix, Path(filepath).name])
 
-        logging.info("Uploading %s to bucket %s", s3_object, s3_bucket_name)
-        s3_client.upload_file(str(filepath), s3_bucket_name, s3_object)
+        logging.info("Uploading %s to bucket %s", s3_object, s3_bucket)
+        s3_client.upload_file(str(filepath), s3_bucket, s3_object)
 
     except ClientError as e:
         logging.error(e)
 
-def bucket_exists(s3_bucket_name):
+def bucket_exists(s3_bucket):
     """Helper function that will check if a S3 bucket exists
 
-    :param str s3_bucket_name: The S3 bucket that is being checked
+    :param str s3_bucket: The S3 bucket that is being checked
     :returns: True if bucket exists, False otherwise
     :rtype: bool
     :raises ClientError: S3 resource exception
@@ -181,7 +178,7 @@ def bucket_exists(s3_bucket_name):
     s3 = boto3.resource('s3')
 
     try:
-        bucket = s3.Bucket(s3_bucket_name)
+        bucket = s3.Bucket(s3_bucket)
         if bucket.creation_date is not None:
             return True
         return False

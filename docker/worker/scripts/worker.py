@@ -45,7 +45,7 @@ def check_sqs_has_messages(s3_bucket, batch_job_id, complete=False):
 	:rtype: bool
 	"""
 
-	sourcefiles_prefix = '/'.join([batch_job_id, 'output', 'log', 'sourcefiles'])
+	sourcefiles_prefix = '/'.join([batch_job_id, 'sourcefiles'])
 	objs = get_s3_object_list(s3_bucket, sourcefiles_prefix)
 
 	if complete and len(objs) > 0:
@@ -141,7 +141,7 @@ def upload_file_to_s3(s3_bucket, s3_prefix, filepath):
         logging.error(e)
 
 
-def bucket_exists(s3_bucket_name):
+def bucket_exists(s3_bucket):
     """Helper function that will check if a S3 bucket exists
 
     :param str s3_bucket_name: The S3 bucket that is being checked
@@ -152,7 +152,7 @@ def bucket_exists(s3_bucket_name):
     s3 = boto3.resource('s3')
 
     try:
-        bucket = s3.Bucket(s3_bucket_name)
+        bucket = s3.Bucket(s3_bucket)
         if bucket.creation_date is not None:
             return True
         return False
