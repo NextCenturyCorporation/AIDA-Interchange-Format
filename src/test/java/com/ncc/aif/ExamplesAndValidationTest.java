@@ -29,8 +29,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class ExamplesAndValidationTest {
-    // Set this flag to true if attempting to get examples
-    private static final boolean FORCE_DUMP = false;
+    // Modify these flags to control how tests output their models/reports and if so, how they output them
+    // When DUMP_ALWAYS is false, the model is only dumped when the result is unexpected (and if invalid, the report is also dumped)
+    // When DUMP_ALWAYS is true, the model is always dumped, and the report is always dumped if invalid
+    private static final boolean DUMP_ALWAYS = false;
+    // When DUMP_TO_FILE is false, if a model or report is dumped, it goes to stdout
+    // WHen DUMP_TO_FILE is true, if a model or report is dumped, it goes to a file in target/test-dump-output
+    private static final boolean DUMP_TO_FILE = false;
 
     private static final String LDC_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#";
     private static final String ONTOLOGY_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#";
@@ -43,7 +48,7 @@ public class ExamplesAndValidationTest {
     static void declutterLogging() {
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
-        utils = new TestUtils(LDC_NS, ValidateAIF.createForDomainOntologySource(SEEDLING_ONTOLOGY), FORCE_DUMP);
+        utils = new TestUtils(LDC_NS, ValidateAIF.createForDomainOntologySource(SEEDLING_ONTOLOGY), DUMP_ALWAYS, DUMP_TO_FILE);
     }
 
     private Model model;
