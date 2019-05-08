@@ -20,16 +20,22 @@ Note, the mvn `install` target also runs the `test` target.
 
 ## Produce output models and reports
 
-By default, these examples do not output their models or validation reports (flags are set to false)
-You can modify these source files slightly to control which examples output their models/reports and if so, how they output them
-Each of the **test groups** can be separately controlled.  For example, you can output the `NistExamplesAndValidationTest.java` group models while keeping the other test group output suppressed.
+By default, these examples do not output their models or validation reports (flags are set to false).
+You can modify these source files slightly to control which examples output their models/reports, and if so, how they output them.
+Each of the **test groups** can be separately controlled.  For example, you can output the `NistExamplesAndValidationTest.java` group models while keeping the other test groups output suppressed.
 
 ### DUMP_ALWAYS flag
 
-* false (default) - Model is dumped if the result is unexpected.  Validation report is dumped if the result is invalid and unexpected.
-* true - Model is always dumped. Validation report is dumped if the result is invalid
+* **false** (default)
+** Model is dumped if the result is unexpected.
+** Validation report is dumped if the result is invalid and unexpected.
+* **true**
+** Model is always dumped.
+** Validation report is dumped if the result is invalid
 
 ### DUMP_TO_FILE flag
 
-* false (default) - If model (and validation report) is being dumped, it will go to Stdout
-* If model (and validation report) is being dumped, they are dumped into files placed in `target\test-dump-output` named after the class and unit test method name.  For example, `invalidRelationAndEventEdge()` test in `NistTA3ExamplesAndValidationTest$NISTHypothesisExamples$HypothesisRequiredOneEventOrRelationWithOneEdge` class is dumped to `target\test-dump-output\NistTA3ExamplesAndValidationTest_NISTHypothesisExamples_HypothesisRequiredOneEventOrRelationWithOneEdge_invalidRelationAndEventEdge`
+* **false** (default) - If model (and validation report) is being dumped, it will go to `stdout`
+* **true** - If model (and validation report) is being dumped, they are dumped into files placed in the `target\test-dump-output` directory. The files named after the class and unit test method name.  For example, the `entityMissingType()` test in the `InvalidExamples` inner class of the `ExamplesAndValidationTest$ class is dumped to:
+** model - `target\test-dump-output\ExamplesAndValidationTest_InvalidExamples_entityMissingType.ttl`
+** report - `target\test-dump-output\ExamplesAndValidationTest_InvalidExamples_entityMissingType-report.txt`
