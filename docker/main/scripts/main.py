@@ -182,6 +182,7 @@ def bucket_exists(s3_bucket):
         if bucket.creation_date is not None:
             return True
         return False
+
     except ClientError as e:
         logging.error(e)
 
@@ -196,11 +197,12 @@ def delete_s3_object(s3_bucket, s3_object):
     try:
         s3.Object(s3_bucket, s3_object).delete()
         logging.info("Deleted %s from s3 bucket %s", s3_object, s3_bucket)
+
     except ClientError as e:
         logging.error(e)
 
 
-def delete_s3_objects(s3_bucket, s3_prefix):
+def delete_s3_objects_with_prefix(s3_bucket, s3_prefix):
     """Deletes all S3 objects from S3 bucket with specified prefix
 
     :param str s3_bucket: The S3 bucket where the objects will be deleted from
@@ -221,6 +223,7 @@ def delete_s3_objects(s3_bucket, s3_prefix):
                 'Objects': objects_to_delete
             }
         )
+
     except ClientError as e:
         logging.error(e)
 
@@ -250,11 +253,14 @@ def create_sqs_queue(queue_name):
             }   
         )
 
+        if not queue['QueueUrl']:
+            raise
+
         return queue['QueueUrl']
-        raise
+
     except ClientError as e:
         logging.error(e)
-    except:
+    except Exception as e:
         logging.error("Unable to create SQS queue with given name %s", queue_name)
 
 
@@ -297,6 +303,7 @@ def delete_sqs_queue(queue_url):
         queue = sqs_client.delete_queue(
             QueueUrl = queue_url,
         )
+
     except ClientError as e:
         logging.error(e)
 
@@ -402,7 +409,7 @@ def main():
     envs['S3_SUBMISSION_ARCHIVE'] = os.environ.get('S3_SUBMISSION_ARCHIVE')
     envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET')
     envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID')
-    envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX')
+    envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX', '0')
     envs['MAIN_LOG_LEVEL'] = os.environ.get('MAIN_LOG_LEVEL', 'INFO') # default info logging
     envs['MAIN_SLEEP_INTERVAL'] = os.environ.get('MAIN_SLEEP_INTERVAL')
     envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION')
@@ -423,14 +430,16 @@ def main():
         #create SQS queue
         queue_url = create_sqs_queue(envs['AWS_BATCH_JOB_ID'])
 
-        # create sqs connection
-        enqueue_files(queue_url, envs['AWS_BATCH_JOB_ID'], envs['S3_VALIDATION_BUCKET'], 'sourcefiles')
-     
-        # wait for all AWS batch jobs to complete processing
-        wait_for_processing(envs['AWS_BATCH_JOB_NODE_INDEX'], envs['AWS_BATCH_JOB_ID'], int(envs['MAIN_SLEEP_INTERVAL']))
+        if queue_url:
+            # create sqs connection
+            enqueue_files(queue_url, envs['AWS_BATCH_JOB_ID'], envs['S3_VALIDATION_BUCKET'], 'sourcefiles')
+             
+            # wait for all AWS batch jobs to complete processing
+            wait_for_processing(envs['AWS_BATCH_JOB_NODE_INDEX'], envs['AWS_BATCH_JOB_ID'], int(envs['MAIN_SLEEP_INTERVAL']))
 
-        # clean up
-        #delete_s3_objects(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
+        # TODO this will be uncommented and refined in the finalalization development phase in
+        # AIDA-763
+        #delete_s3_objects_with_prefix(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
         #delete_sqs_queue(queue_url)
     
 if __name__ == "__main__": main()

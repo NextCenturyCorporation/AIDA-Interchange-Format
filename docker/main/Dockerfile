@@ -1,25 +1,16 @@
-FROM ubuntu:18.04
+FROM amazonlinux:latest
 MAINTAINER patrick.sharkey@nextcentury.com
 
-# Prevent dialog during apt install
-ENV DEBIAN_FRONTEND noninteractive
-
 # Update system packages and remove any downloaded files
-RUN \
-  rm -rf /var/lib/apt/lists/* \
-  && apt-get clean \
-  && apt-get -y update --fix-missing
-
-# Install system packages
-RUN apt-get -qqy install \
-    git \
-    vim \
-    python3-pip
+RUN yum update --assumeyes --skip-broken && \
+	yum install --assumeyes git vim python37 && \
+    yum clean all && \
+    rm -rf /var/cache/yum
 
 #-------------------------------------------------------------
 #  Install Python Dependencies
 #-------------------------------------------------------------
-RUN pip3 install boto3 botocore awscli
+RUN pip3 install boto3 awscli
 
 COPY ["scripts/main.py", "/usr/local/"]
 ENTRYPOINT ["python3", "/usr/local/main.py"]
