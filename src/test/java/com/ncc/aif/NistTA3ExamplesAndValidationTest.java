@@ -26,7 +26,7 @@ public class NistTA3ExamplesAndValidationTest {
     private static NistTA3TestUtils utils;
 
     @BeforeAll
-    static void declutterLogging() {
+    static void initTest() {
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
         utils = new NistTA3TestUtils(LDC_NS, ValidateAIF.createForLDCOntology(ValidateAIF.Restriction.NIST_HYPOTHESIS), DUMP_ALWAYS, DUMP_TO_FILE);

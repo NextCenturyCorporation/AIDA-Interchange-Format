@@ -22,7 +22,7 @@ Note, the mvn `install` target also runs the `test` target.
 
 By default, these examples do not output their models or validation reports (flags are set to false).
 You can modify these source files slightly to control which examples output their models/reports, and if so, how they output them.
-Each of the **test groups** can be separately controlled.  For example, you can output the `NistExamplesAndValidationTest.java` group models while keeping the other test groups output suppressed.
+Each of the **test groups** can be separately controlled.  For example, you can output the `NistExamplesAndValidationTest.java` group models while keeping the other test groups' output suppressed.
 
 ### DUMP_ALWAYS flag
 
@@ -36,6 +36,6 @@ Each of the **test groups** can be separately controlled.  For example, you can 
 ### DUMP_TO_FILE flag
 
 - **false** (default) - If model (and validation report) is being dumped, it will go to `stdout`
-- **true** - If model (and validation report) is being dumped, it is dumped into the `target\test-dump-output` directory.  The files are named after the class and unit test method name.  For example, the `entityMissingType()` test in the `InvalidExamples` inner class of the `ExamplesAndValidationTest` class is dumped to:
-    - model - `target\test-dump-output\ExamplesAndValidationTest_InvalidExamples_entityMissingType.ttl`
-    - report - `target\test-dump-output\ExamplesAndValidationTest_InvalidExamples_entityMissingType-report.txt`
+- **true** - If model (and validation report) is being dumped, it is dumped into the `target/test-dump-output` directory.  The files are named after the class and unit test method name.  For example, the `entityMissingType()` test in the `InvalidExamples` inner class of the `ExamplesAndValidationTest` class is dumped to:
+    - model - `target/test-dump-output/ExamplesAndValidationTest_InvalidExamples_entityMissingType.ttl`
+    - report - `target/test-dump-output/ExamplesAndValidationTest_InvalidExamples_entityMissingType-report.txt`

@@ -1,12 +1,12 @@
 package com.ncc.aif;
 
+import ch.qos.logback.classic.Logger;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 
-import java.io.OutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,8 +17,6 @@ import java.util.Set;
 
 import static com.ncc.aif.AIFUtils.*;
 import static org.junit.jupiter.api.Assertions.fail;
-
-import ch.qos.logback.classic.Logger;
 
 /**
  * Utilities for testing AIF functionality and/or creating examples.
@@ -39,7 +37,8 @@ class TestUtils {
     private final String annotationNamespace;
     private final boolean dumpAlways;
     private final boolean dumpToFile;
-    private final String dumpDirectory = "test-dump-output";
+
+    private static final String DUMP_DIRECTORY = "test-dump-output";
 
     // Counters for the various elements tracked by the TestUtils
     private int assertionCount;
@@ -67,7 +66,7 @@ class TestUtils {
         this.validator = validator;
         this.dumpAlways = dumpAlways;
         this.dumpToFile = dumpToFile;
-        this.logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
+        this.logger = (Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     }
 
     /**
@@ -284,11 +283,11 @@ class TestUtils {
      * Return calling method name from test class.
      * Looks at the calling stack for the calling test.
      * Converts class/method from something like:
-     *  com.ncc.aif.ExamplesAndValidationTest$ValidExamples / createHierarchicalCluster
-     *  com.ncc.aif.NistTA3ExamplesAndValidationTest$NISTHypothesisExamples$HypothesisRequiredOneEventOrRelationWithOneEdge / invalidRelationAndEventEdge
+     * <code>com.ncc.aif.ExamplesAndValidationTest$ValidExamples</code> / <code>createHierarchicalCluster</code>
+     * <code>com.ncc.aif.NistTA3ExamplesAndValidationTest$NISTHypothesisExamples$HypothesisRequiredOneEventOrRelationWithOneEdge</code> / <code>invalidRelationAndEventEdge</code>
      * to:
-     *  ExamplesAndValidationTest_ValidExamples_createHierarchicalCluster
-     *  NistTA3ExamplesAndValidationTest_NISTHypothesisExamples_HypothesisRequiredOneEventOrRelationWithOneEdge_invalidRelationAndEventEdge
+     * ExamplesAndValidationTest_ValidExamples_createHierarchicalCluster
+     * NistTA3ExamplesAndValidationTest_NISTHypothesisExamples_HypothesisRequiredOneEventOrRelationWithOneEdge_invalidRelationAndEventEdge
      */
     private String getCallingMethodName() {
         int steIndex = 0;
@@ -312,10 +311,10 @@ class TestUtils {
         if (pathList.length > 0) {
             // We don't want any of the package names in the final string, so just take the part of the string after the last "."
             // Inner classes are concatenated by "$", but it's better to use "_" rather than "$" in filenames.
-            String[] nestedClassList = pathList[pathList.length-1].split("\\$");
+            String[] nestedClassList = pathList[pathList.length - 1].split("\\$");
             for (int classIndex = 0; classIndex < nestedClassList.length; classIndex++) {
                 className += nestedClassList[classIndex];
-                if (classIndex < nestedClassList.length-1) {
+                if (classIndex < nestedClassList.length - 1) {
                     className += "_";
                 }
             }
@@ -327,9 +326,9 @@ class TestUtils {
      * Return path to file in dump directory. First check if directory exists, and create it if doesn't
      */
     private Path createDirectoryForPath(String filename) throws IOException {
-        Path directory = Paths.get("target", dumpDirectory);
+        Path directory = Paths.get("target", DUMP_DIRECTORY);
         Files.createDirectories(directory);
-        return Paths.get("target", dumpDirectory, filename);
+        return Paths.get("target", DUMP_DIRECTORY, filename);
     }
 
     /**
@@ -381,7 +380,7 @@ class TestUtils {
      * can be used to write all the valid examples to console.
      *
      * @param testDescription {@link String} containing the description of the test
-     * @param expected true if validation is expected to pass, false o/w
+     * @param expected        true if validation is expected to pass, false o/w
      */
     private void assertAndDump(String testDescription, boolean expected) {
         final Resource report = validator.validateKBAndReturnReport(model);
@@ -401,11 +400,11 @@ class TestUtils {
                 dumpReport(testDescription, report);
             }
         }
-        
+
         // fail if result is unexpected
         if (valid != expected) {
             fail("Validation was expected to " + (expected ? "pass" : "fail") + " but did not");
         }
-        
+
     }
 }

@@ -45,7 +45,7 @@ public class ExamplesAndValidationTest {
     private static TestUtils utils;
 
     @BeforeAll
-    static void declutterLogging() {
+    static void initTest() {
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
         utils = new TestUtils(LDC_NS, ValidateAIF.createForDomainOntologySource(SEEDLING_ONTOLOGY), DUMP_ALWAYS, DUMP_TO_FILE);
