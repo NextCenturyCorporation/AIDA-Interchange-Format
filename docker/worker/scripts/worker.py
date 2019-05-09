@@ -234,12 +234,13 @@ def delete_sqs_message(queue_url, msg_receipt_handle):
     	logging.error(e)
 
 
-def process_sqs_queue(batch_job_id, validation_bucket, validation_timeout):
+def process_sqs_queue(batch_job_id, validation_home, validation_bucket, validation_timeout):
 	"""Function process messages until no more messages can be read from SQS 
 	queue and sourcefiles.done file has been populated in S3. 
 
 	:param str batch_job_id: The id of the batch job as well as the name of 
 		the SQS queue.
+	:param str validation_home: The root directory for the installed AIF validator
 	:param str validation_bucket: The S3 bucket that stores batch job output
 	:param int validation_timeout: The the timeout for the AIF validation subprocess
 	:raises ClientError: SQS client exception
@@ -270,7 +271,7 @@ def process_sqs_queue(batch_job_id, validation_bucket, validation_timeout):
 				delete_sqs_message(response['QueueUrl'], msg['ReceiptHandle'])
 
 				# This is where the processing happens
-				validate_message(validation_bucket, batch_job_id, payload, validation_timeout)
+				validate_message(validation_home, validation_bucket, batch_job_id, payload, validation_timeout)
 
 			else:
 				logging.info("Message was empty and SQS queue is still being populated")
@@ -279,10 +280,11 @@ def process_sqs_queue(batch_job_id, validation_bucket, validation_timeout):
 		logging.error(e)
 
 
-def validate_message(s3_bucket, batch_job_id, payload, timeout):
+def validate_message(validation_home, s3_bucket, batch_job_id, payload, timeout):
 	"""Downloads the file to be validated, executes the AIF validation, uploads validation results
 	to S3, and moves file be validated to appropriate place on S3.
 
+	:param str validation_home: The root directory for the installed AIF validator
 	:param str s3_bucket: The S3 validation bucket where files are located
 	:param str batch_job_id: The id of the batch job
 	:param str payload: The S3 object path obtained from the SQS message
@@ -303,7 +305,7 @@ def validate_message(s3_bucket, batch_job_id, payload, timeout):
 			os.makedirs(validation_staging)
 
 		os.rename(file_name, validation_staging+'/'+file_name)
-		code = execute_validation(validation_staging+'/'+file_name, timeout)
+		code = execute_validation(validation_home, validation_staging+'/'+file_name, timeout)
 
 		# upload any log output to s3
 		upload_validation_output(validation_staging, s3_bucket, '/'.join([batch_job_id, 'LOG']), '.log')
@@ -330,10 +332,11 @@ def validate_message(s3_bucket, batch_job_id, payload, timeout):
 		logging.error("Unable to download S3 object %s", payload)
 
 
-def execute_validation(file_path, timeout):
+def execute_validation(validation_home, file_path, timeout):
 	"""Executes the AIF Validator as a subprocess for the turtle file located at the specified 
 	file path. 
 
+	:param str validation_home: The root directory for the installed AIF validator
 	:param str file_path: The path of the turtle (TTL) file to be validated
 	:param int timeout: The the timeout for the AIF validation subprocess
 	:returns: Return code that specifies the validation execution result 
@@ -342,7 +345,7 @@ def execute_validation(file_path, timeout):
 	file_name = Path(file_path).name
 
 	try:
-		cmd = '/home/HQ/psharkey/Development/AIDA/AIDA-Interchange-Format/target/appassembler/bin/validateAIF --ldc --nist -o -f '
+		cmd = validation_home + '/target/appassembler/bin/validateAIF --ldc --nist -o -f '
 		cmd += file_path
 
 		logging.info("Executing AIF Validation for file %s", file_name)
@@ -446,6 +449,7 @@ def main():
 	envs = {}
 	envs['QUEUE_INIT_TIMEOUT'] = os.environ.get('QUEUE_INIT_TIMEOUT', '28800') # default to 8 hours
 	envs['VALIDATION_TIMEOUT'] = os.environ.get('VALIDATION_TIMEOUT', '120')
+	envs['VALIDATION_HOME'] = os.environ.get('VALIDATION_HOME', '/opt/aif-validator/')
 	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
 	envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID', 'c8c90aa7-4f33-4729-9e5c-0068cb9ce75c')
 	envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX', '0')
@@ -465,7 +469,12 @@ def main():
 		if wait_for_sqs_queue(envs['AWS_BATCH_JOB_ID'], envs['S3_VALIDATION_BUCKET'], int(envs['QUEUE_INIT_TIMEOUT'])):
 
 			# process messages
-			process_sqs_queue(envs['AWS_BATCH_JOB_ID'], envs['S3_VALIDATION_BUCKET'], int(envs['VALIDATION_TIMEOUT']))
+			process_sqs_queue(
+				envs['AWS_BATCH_JOB_ID'],
+				envs['VALIDATION_HOME'],
+				envs['S3_VALIDATION_BUCKET'], 
+				int(envs['VALIDATION_TIMEOUT'])
+			)
 
 
 if __name__ == "__main__": main()
