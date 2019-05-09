@@ -354,11 +354,11 @@ class TestUtils {
     }
 
     /**
-     * This method dumps the model either to stdout or to a file
+     * This method dumps the validation report model either to stdout or to a file
      *
-     * @param testDescription {@link String} containing the description of the test
+     * @param report  validation report
      */
-    private void dumpReport(String testDescription, Resource report) {
+    private void dumpReport(Resource report) {
         if (dumpToFile) {
             String outputReportFilename = getCallingMethodName() + "-report.txt";
             try {
@@ -397,7 +397,7 @@ class TestUtils {
 
             // Dump the report if forced to, or if the result is unexpected
             if (dumpAlways || valid != expected) {
-                dumpReport(testDescription, report);
+                dumpReport(report);
             }
         }
 
