@@ -160,12 +160,12 @@ def bucket_exists(s3_bucket):
         logging.error(e)
 
 
-def wait_for_sqs_queue(batch_job_id, validation_bucket, timeout):
+def wait_for_sqs_queue(batch_job_id, s3_bucket, timeout):
 	"""Waits for SQS FIFO queue to exist within given timeout.
 
 	:param str batch_job_id: The id of the batch job as well as the n
 		ame of the SQS queue.
-	:param str validation_bucket: The S3 bucket that stores batch job output
+	:param str s3_bucket: The S3 bucket that stores batch job output
 	:param int timeout: Seconds to wait for SQS to become available
 	:returns: True if queue exists, False otherwise
 	:rtype: bool
@@ -176,7 +176,7 @@ def wait_for_sqs_queue(batch_job_id, validation_bucket, timeout):
 	try:
 		logging.info("Waiting for SQS queue %s to become available", queue_name)
 		while time.time() < end:
-			if get_sqs_queue(queue_name) and check_sqs_has_messages(validation_bucket, batch_job_id):
+			if get_sqs_queue(queue_name) and check_sqs_has_messages(s3_bucket, batch_job_id):
 				return True
 		logging.error("SQS queue %s was not available after %s seconds", queue_name, timeout)
 		return False
@@ -234,14 +234,14 @@ def delete_sqs_message(queue_url, msg_receipt_handle):
     	logging.error(e)
 
 
-def process_sqs_queue(batch_job_id, validation_home, validation_bucket, validation_timeout):
+def process_sqs_queue(batch_job_id, validation_home, s3_bucket, validation_timeout):
 	"""Function process messages until no more messages can be read from SQS 
 	queue and sourcefiles.done file has been populated in S3. 
 
 	:param str batch_job_id: The id of the batch job as well as the name of 
 		the SQS queue.
 	:param str validation_home: The root directory for the installed AIF validator
-	:param str validation_bucket: The S3 bucket that stores batch job output
+	:param str s3_bucket: The S3 bucket that stores batch job output
 	:param int validation_timeout: The the timeout for the AIF validation subprocess
 	:raises ClientError: SQS client exception
 	"""
@@ -259,7 +259,7 @@ def process_sqs_queue(batch_job_id, validation_home, validation_bucket, validati
 			msg = get_sqs_message(response['QueueUrl'])
 
 			#check if queue has finished populating and message is None
-			if msg is None and check_sqs_has_messages(validation_bucket, batch_job_id, True):
+			if msg is None and check_sqs_has_messages(s3_bucket, batch_job_id, True):
 				logging.info("All SQS messages have been processed")		
 				break
 
@@ -271,7 +271,7 @@ def process_sqs_queue(batch_job_id, validation_home, validation_bucket, validati
 				delete_sqs_message(response['QueueUrl'], msg['ReceiptHandle'])
 
 				# This is where the processing happens
-				validate_message(validation_home, validation_bucket, batch_job_id, payload, validation_timeout)
+				validate_message(validation_home, s3_bucket, batch_job_id, payload, validation_timeout)
 
 			else:
 				logging.info("Message was empty and SQS queue is still being populated")
@@ -353,7 +353,7 @@ def execute_validation(validation_home, file_path, timeout):
 		# Requies python 3.7+ *
 		#**********************
 		output = subprocess.run(cmd, stdout=PIPE, timeout=timeout, check=True, shell=True, universal_newlines=True)
-		#output = subprocess.run(cmd, timeout=timeout, shell=True, universal_newlines=True)
+		
 		f = open(file_path+'.log', 'w')
 		f.write(str(output))
 		f.close()
