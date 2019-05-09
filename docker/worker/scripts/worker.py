@@ -353,7 +353,7 @@ def execute_validation(validation_home, file_path, timeout):
 		# Requies python 3.7+ *
 		#**********************
 		output = subprocess.run(cmd, stdout=PIPE, timeout=timeout, check=True, shell=True, universal_newlines=True)
-		
+
 		f = open(file_path+'.log', 'w')
 		f.write(str(output))
 		f.close()
@@ -447,14 +447,14 @@ def validate_envs(envs):
 def main():
 
 	envs = {}
-	envs['QUEUE_INIT_TIMEOUT'] = os.environ.get('QUEUE_INIT_TIMEOUT', '28800') # default to 8 hours
-	envs['VALIDATION_TIMEOUT'] = os.environ.get('VALIDATION_TIMEOUT', '120')
-	envs['VALIDATION_HOME'] = os.environ.get('VALIDATION_HOME', '/opt/aif-validator/')
-	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
-	envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID', 'c8c90aa7-4f33-4729-9e5c-0068cb9ce75c')
-	envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX', '0')
+	envs['QUEUE_INIT_TIMEOUT'] = os.environ.get('QUEUE_INIT_TIMEOUT') # default to 8 hours
+	envs['VALIDATION_TIMEOUT'] = os.environ.get('VALIDATION_TIMEOUT')
+	envs['VALIDATION_HOME'] = os.environ.get('VALIDATION_HOME')
+	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET')
+	envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID')
+	envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX')
 	envs['WORKER_LOG_LEVEL'] = os.environ.get('WORKER_LOG_LEVEL', 'INFO') # default log level
-	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
+	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION')
 
     # set logging to log to stdout
 	logging.basicConfig(level=os.environ.get('LOGLEVEL', envs['WORKER_LOG_LEVEL']))
