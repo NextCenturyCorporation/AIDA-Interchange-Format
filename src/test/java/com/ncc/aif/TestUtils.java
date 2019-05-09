@@ -1,11 +1,16 @@
 package com.ncc.aif;
 
+import ch.qos.logback.classic.Logger;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,11 +30,15 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Call {@link #startNewTest()} before each test to ensure a clean model.
  */
 class TestUtils {
+    protected Logger logger;
 
     // Constructor parameters
     private final ValidateAIF validator;
     private final String annotationNamespace;
-    private final boolean forceDump;
+    private final boolean dumpAlways;
+    private final boolean dumpToFile;
+
+    private static final String DUMP_DIRECTORY = "test-dump-output";
 
     // Counters for the various elements tracked by the TestUtils
     private int assertionCount;
@@ -49,12 +58,15 @@ class TestUtils {
      *
      * @param annotationNamespace namespace to use with URIs
      * @param validator           an AIF validator instantiated based on the caller's ontology
-     * @param forceDump           whether or not to force dumping of models prior to validation
+     * @param dumpAlways          whether or not to force dumping of models after validation
+     * @param dumpToFile          dump to file or stdout
      */
-    TestUtils(String annotationNamespace, ValidateAIF validator, boolean forceDump) {
+    TestUtils(String annotationNamespace, ValidateAIF validator, boolean dumpAlways, boolean dumpToFile) {
         this.annotationNamespace = annotationNamespace;
         this.validator = validator;
-        this.forceDump = forceDump;
+        this.dumpAlways = dumpAlways;
+        this.dumpToFile = dumpToFile;
+        this.logger = (Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     }
 
     /**
@@ -268,33 +280,131 @@ class TestUtils {
     }
 
     /**
+     * Return calling method name from test class.
+     * Looks at the calling stack for the calling test.
+     * Converts class/method from something like:
+     * <code>com.ncc.aif.ExamplesAndValidationTest$ValidExamples</code> / <code>createHierarchicalCluster</code>
+     * <code>com.ncc.aif.NistTA3ExamplesAndValidationTest$NISTHypothesisExamples$HypothesisRequiredOneEventOrRelationWithOneEdge</code> / <code>invalidRelationAndEventEdge</code>
+     * to:
+     * ExamplesAndValidationTest_ValidExamples_createHierarchicalCluster
+     * NistTA3ExamplesAndValidationTest_NISTHypothesisExamples_HypothesisRequiredOneEventOrRelationWithOneEdge_invalidRelationAndEventEdge
+     */
+    private String getCallingMethodName() {
+        int steIndex = 0;
+        StackTraceElement ste = Thread.currentThread().getStackTrace()[steIndex];
+
+        // Traverse stack from the bottom until we get to methods in this class
+        while (!ste.getClassName().contains("TestUtils")) {
+            steIndex++;
+            ste = Thread.currentThread().getStackTrace()[steIndex];
+        }
+
+        // Traverse stack until we get to the first method external to this class that calls a method in this class
+        // This is done because this has been refactored several times and I don't want to assume which methods from this class call it
+        while (ste.getClassName().contains("TestUtils")) {
+            steIndex++;
+            ste = Thread.currentThread().getStackTrace()[steIndex];
+        }
+
+        String[] pathList = ste.getClassName().split("\\.");
+        String className = "";
+        if (pathList.length > 0) {
+            // We don't want any of the package names in the final string, so just take the part of the string after the last "."
+            // Inner classes are concatenated by "$", but it's better to use "_" rather than "$" in filenames.
+            String[] nestedClassList = pathList[pathList.length - 1].split("\\$");
+            for (int classIndex = 0; classIndex < nestedClassList.length; classIndex++) {
+                className += nestedClassList[classIndex];
+                if (classIndex < nestedClassList.length - 1) {
+                    className += "_";
+                }
+            }
+        }
+        return className + "_" + ste.getMethodName();
+    }
+
+    /**
+     * Return path to file in dump directory. First check if directory exists, and create it if doesn't
+     */
+    private Path createDirectoryForPath(String filename) throws IOException {
+        Path directory = Paths.get("target", DUMP_DIRECTORY);
+        Files.createDirectories(directory);
+        return Paths.get("target", DUMP_DIRECTORY, filename);
+    }
+
+    /**
+     * This method dumps the model either to stdout or to a file
+     *
+     * @param testDescription {@link String} containing the description of the test
+     */
+    private void dumpModel(String testDescription) {
+        if (dumpToFile) {
+            String outputFilename = getCallingMethodName() + ".ttl";
+
+            try {
+                Path path = createDirectoryForPath(outputFilename);
+                logger.info("Dump to " + path);
+                RDFDataMgr.write(java.nio.file.Files.newOutputStream(path), model, RDFFormat.TURTLE_PRETTY);
+            } catch (IOException ioe) {
+                logger.error("---> Could not dump model to " + outputFilename);
+            }
+        } else {
+            System.out.println("\n----------------------------------------------\n" + testDescription + "\n\nAIF Model:");
+            RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
+        }
+    }
+
+    /**
+     * This method dumps the validation report model either to stdout or to a file
+     *
+     * @param report  validation report
+     */
+    private void dumpReport(Resource report) {
+        if (dumpToFile) {
+            String outputReportFilename = getCallingMethodName() + "-report.txt";
+            try {
+                Path path = createDirectoryForPath(outputReportFilename);
+                logger.info("Dump to " + path);
+                RDFDataMgr.write(java.nio.file.Files.newOutputStream(path), report.getModel(), RDFFormat.TURTLE_PRETTY);
+            } catch (IOException ioe) {
+                logger.error("---> Could not dump report to " + outputReportFilename);
+            }
+        } else {
+            System.out.println("\nFailure:");
+            RDFDataMgr.write(System.out, report.getModel(), RDFFormat.TURTLE_PRETTY);
+        }
+    }
+
+    /**
      * This method will validate the model using the provided validator and will dump the model as TURTLE if
      * either the validation result is unexpected or if the model is valid and forceDump is true. Thus, forceDump
      * can be used to write all the valid examples to console.
      *
-     * @param testName {@link String} containing the name of the test
-     * @param expected true if validation is expected to pass, false o/w
+     * @param testDescription {@link String} containing the description of the test
+     * @param expected        true if validation is expected to pass, false o/w
      */
-    private void assertAndDump(String testName, boolean expected) {
+    private void assertAndDump(String testDescription, boolean expected) {
         final Resource report = validator.validateKBAndReturnReport(model);
         final boolean valid = ValidateAIF.isValidReport(report);
 
-        // print model if result unexpected or if forcing (for examples)
-        // Swap comments following 2 lines if forceDump should ALWAYS dump output
-        // if (valid != expected || forceDump) {
-        if (valid != expected || (forceDump && expected)) {
-            System.out.println("\n----------------------------------------------\n" + testName + "\n\nAIF Model:");
-            RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
+        // dump model if result is unexpected or if forced
+        if (dumpAlways || valid != expected) {
+            dumpModel(testDescription);
+        }
+
+
+        // dump report if forced to and model isn't valid OR result is unexpected
+        if (!valid) {   // There is a report that could be dumped.
+
+            // Dump the report if forced to, or if the result is unexpected
+            if (dumpAlways || valid != expected) {
+                dumpReport(report);
+            }
         }
 
         // fail if result is unexpected
         if (valid != expected) {
-            // only print output if there is any
-            if (!valid) {
-                System.out.println("\nFailure:");
-                RDFDataMgr.write(System.out, report.getModel(), RDFFormat.TURTLE_PRETTY);
-            }
             fail("Validation was expected to " + (expected ? "pass" : "fail") + " but did not");
         }
+
     }
 }

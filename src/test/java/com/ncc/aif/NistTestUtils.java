@@ -20,10 +20,11 @@ class NistTestUtils extends TestUtils {
      *
      * @param annotationNamespace namespace to use with URIs
      * @param validator           an AIF validator instantiated based on the caller's ontology and desired NIST restrictions
-     * @param forceDump           whether or not to force dumping of models prior to validation
+     * @param dumpAlways          whether or not to force dumping of models prior to validation
+     * @param dumpToFile          dump to file or stdout
      */
-    NistTestUtils(String annotationNamespace, ValidateAIF validator, boolean forceDump) {
-        super(annotationNamespace, validator, forceDump);
+    NistTestUtils(String annotationNamespace, ValidateAIF validator, boolean dumpAlways, boolean dumpToFile) {
+        super(annotationNamespace, validator, dumpAlways, dumpToFile);
     }
 
     /**
