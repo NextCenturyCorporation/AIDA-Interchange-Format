@@ -34,6 +34,21 @@
             "Description": "Environment Name",
             "Default": "aida-validation"
         },
+        "ComputeEnvironmentMaxVCpus": {
+            "Type": "Integer",
+            "Description": "The maximum number of vcpus for the compute environment.",
+            "Default": 5
+        },
+        "ComputeEnviornmentMinVCpus": {
+            "Type": "Integer",
+            "Description": "The minimum number of vcpus for the compute environment.",
+            "Default": 1
+        },
+        "ComputeEnvironmentDesiredVCpus": {
+            "Type": "Integer",
+            "Description": "The desired number of vcpus for the compute environment.",
+            "Default": 2
+        },
         "ComputeNodes": {
             "Type": "Integer",
             "Description": "The total number for nodes for the validation batch job.",
@@ -44,15 +59,40 @@
             "Description": "The target node range for the main node (i.e. 0:0).",
             "Default": "0:0"
         },
+        "MainNodeMemory": {
+            "Type": "Integer",
+            "Description": "The amount of memory for the main node (i.e. 2048).",
+            "Default": 2048
+        },
+        "MainNodeVpcus": {
+            "Type": "Integer",
+            "Description": "The number of Vpcus for the main node (i.e. 2).",
+            "Default": 2
+        },
         "WorkerNodeRange": {
             "Type": "String",
             "Description": "The target node range for the main node (i.e. 0:0).",
             "Default": "1:3"
         },
-        "QueueName": {
+        "WorkerNodeMemory": {
+            "Type": "Integer",
+            "Description": "The amount of memory for the worker nodes (i.e. 2048).",
+            "Default": 2048
+        },
+        "MainNodeVpcus": {
+            "Type": "Integer",
+            "Description": "The number of Vpcus for the worker nodes (i.e. 2).",
+            "Default": 2
+        },
+        "JobQueueName": {
             "Type": "String",
             "Description": "Name of the Queue to be created",
             "Default": "aida-validation-queue"
+        },
+        "JobQueuePriority": {
+            "Type": "Integer",
+            "Description": "The priority of the job queue.",
+            "Default": 1
         },
         "JobDefinitionName": {
             "Type": "String",
@@ -108,7 +148,9 @@
         "BatchComputeEnvironment": {
             "Properties": {
                 "ComputeResources": {
-                    "DesiredvCpus": 0,
+                    "DesiredvCpus": {
+                        "Ref": "ComputeEnvironmentDesiredVCpus"
+                    },
                     "InstanceRole": {
                         "Ref": "BatchInstanceProfile"
                     },
@@ -118,8 +160,12 @@
                     "LaunchTemplate": {
                         "LaunchTemplateName": "container-volume-encrypt"
                     },
-                    "MaxvCpus": 10,
-                    "MinvCpus": 0,
+                    "MaxvCpus": {
+                        "Ref": "ComputeEnvironmentMaxVCpus"
+                    },
+                    "MinvCpus": {
+                        "Ref": "ComputeEnviornmentMinVCpus"
+                    },
                     "PlacementGroup": "ExampleClusterGroup",
                     "SecurityGroupIds": [
                         {
@@ -205,7 +251,7 @@
                 "Tags": [
                     {
                         "Key": "Name",
-                        "Value": "aida-validation-sg"
+                        "Value": "aida-batch-validation-sg"
                     }
                 ],
                 "VpcId": {
@@ -249,11 +295,12 @@
                         "Order": 1
                     }
                 ],
-
                 "JobQueueName": {
-                    "Ref": "QueueName"
+                    "Ref": "JobQueueName"
                 },
-                "Priority": 1,
+                "Priority": {
+                    "Ref": "JobQueuePriority"
+                },
                 "State": "ENABLED"
             },
             "DependsOn": "BatchComputeEnvironment"
@@ -287,22 +334,27 @@
                               "JobRoleArn" : {
                                 "Ref": "BatchInstanceRole"
                               },
-                              "Memory" : 2048,
+                              "Memory" : {
+                                "Ref": "MainNodeMemory"
+                              },
                               "MountPoints" : [],
                               "Privileged" : "True",
                               "ReadonlyRootFilesystem" : "False",
                               "ResourceRequirements" : [],
                               "Ulimits" : [],
                               "User" : "root",
-                              "Vcpus" : 2,
+                              "Vcpus" : {
+                                "Ref": "MainNodeVpcus"
+                              },
                               "Volumes" : []
                             }
                         }
                     ]
-                }
-                "RetryStrategy" : RetryStrategy,
-                "Timeout" : Timeout,
-                "Type" : String
+                },
+                "Timeout" : {
+                    "AttemptDurationSeconds" : 100
+                },
+                "Type" : "MANAGED"
             }
     }
         }
