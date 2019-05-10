@@ -60,10 +60,11 @@ WORKDIR /tmp/AIDA-Interchange-Format
 RUN mvn clean -Dmaven.test.skip=true package
 
 # Copy repo to aif validation directory
-RUN mv /tmp/AIDA-Interchange-Format/* $VALIDATION_HOME
+RUN cp -R /tmp/AIDA-Interchange-Format/* $VALIDATION_HOME
 
 # clean up set working directory to home
 RUN yum clean all && \
+    rm -rf /tmp/AIDA-Interchange-Format && \
     rm -rf /var/cache/yum
 WORKDIR $HOME
 
