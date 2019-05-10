@@ -170,7 +170,7 @@ public final class ValidateAIF {
     // Show usage information.
     private static void showUsage() {
         System.out.println("Usage:\n" +
-                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--abort] {-f FILE ... | -d DIRNAME}\n" +
+                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--abort [num]] {-f FILE ... | -d DIRNAME}\n" +
                 "Options:\n" +
                 "--ldc           Validate against the LDC ontology\n" +
                 "--program       Validate against the program ontology\n" +
@@ -180,9 +180,7 @@ public final class ValidateAIF {
                 "-o              Save validation report model to a file.  KB.ttl would result in KB-report.txt.\n" +
                 "                Output defaults to stderr.\n" +
                 "-h, --help      Show this help and usage text\n" +
-                // NOTE: restore this when/if TopBraid's fail-fast feature properly supports failing at first violation.
-                // "--abort [num]   Abort validation after [num] validation errors, or first validation error if [num] is omitted.\n" +
-                "--abort         Abort validation after three validation errors.\n" +
+                "--abort [num]   Abort validation after [num] validation errors, or three validation errors if [num] is omitted.\n" +
                 "-f FILE ...     Validate the specified file(s) with a .ttl suffix\n" +
                 "-d DIRNAME      Validate all .ttl files in the specified directory\n" +
                 "\n" +
@@ -254,8 +252,7 @@ public final class ValidateAIF {
                     break;
                 case "--abort":
                     flags.add(ArgumentFlags.ABORT);
-                    if (!args[i + 1].startsWith("-")) {
-                        // NOTE: this parameter is not documented in the README nor the Usage info
+                    if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
                         abortStr = args[++i];
                     } else {
                         // NOTE: Set this to 1 when/if TopBraid's fail-fast feature properly supports failing at first violation.
@@ -275,7 +272,7 @@ public final class ValidateAIF {
                         logger.error("Please specify either -d or -f, but not both.");
                         return false;
                     }
-                    if (!args[i + 1].startsWith("-")) {
+                    if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
                         validationDirs.add(args[++i]);
                         /* NOTE: if we choose to support validating files in N directories, change the above to:
                          *   i += processFiles(args, i, validationDirs);
@@ -312,10 +309,7 @@ public final class ValidateAIF {
                 abortParam = -1;
             }
             if (abortParam < 1) {
-                // NOTE: restore this when/if TopBraid's fail-fast feature properly supports failing at first violation.
-                //logger.error("Invalid abort parameter: " + abortStr);
-                //return false;
-                logger.error("Unknown argument: " + abortStr);
+                logger.error("Invalid abort parameter: " + abortStr);
                 return false;
             }
         }
@@ -565,7 +559,7 @@ public final class ValidateAIF {
 
     /**
      * Tells the validator to "fail fast" if validation errors are detected.  Validation will terminate after
-     * [abortThreshold] validation errors are detected.  Use zero to disable failing fast.
+     * <code>abortThreshold</code> validation errors are detected.  Use zero to disable failing fast.
      *
      * @param abortThreshold the error threshold to abort validation
      */
@@ -647,7 +641,7 @@ public final class ValidateAIF {
     }
 
     /**
-     * Returns whether or not [validationReport] is that of a valid KB.
+     * Returns whether or not <code>validationReport</code> is that of a valid KB.
      *
      * @param validationReport a validation report model, such as returned by {@link #validateKB(Model)}
      * @return True if the KB that generated the specified report is valid
@@ -670,7 +664,7 @@ public final class ValidateAIF {
         final int durationThreshold;
 
         /**
-         * Creates a statistics collector that saves queries slower than [threshold] ms to a file.
+         * Creates a statistics collector that saves queries slower than <code>threshold</code> ms to a file.
          *
          * @param threshold the threshold definition of a slow query for this statistics collector
          */
@@ -769,7 +763,7 @@ public final class ValidateAIF {
         private final SortedMap<Integer, ExecStatistics> savedStats = new TreeMap<>();
 
         /**
-         * Creates a statistics collector that progressively dumps queries slower than [threshold] ms to stdout.
+         * Creates a statistics collector that progressively dumps queries slower than <code>threshold</code> ms to stdout.
          *
          * @param threshold the threshold definition of a slow query for this statistics collector
          */

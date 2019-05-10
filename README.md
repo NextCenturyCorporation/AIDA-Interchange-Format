@@ -32,13 +32,9 @@ readability) but N-Triples for working with large KBs (for speed).
 
 # Installation
 
-* To install the Java and Kotlin/JVM code, first you'll need to install the snapshot version
-of the TopBraid SHACL tools.  From the root of this repository using Apache Maven do:
-
-`mvn install:install-file -Dfile=shacl/shacl-1.2.0-SNAPSHOT.jar -DpomFile=shacl/pom.shacl.xml`
-
-After that, do `mvn install`.  Repeat this if you pull an updated version of the code. You
-can run the tests by doing `mvn test`.
+* To install the Java and Kotlin/JVM code, do `mvn install` from the root of this repository using Apache Maven.
+Repeat this if you pull an updated version of the code. You can run the tests,
+which should output the examples, by doing `mvn test`.
 * The Python code is not currently set up for installation; just add `AIDA-Interchange-Format/python` to your `PYTHONPATH`.
 
 # Using the AIF Library
@@ -70,7 +66,7 @@ validate N files or all files in a specified directory.
 To run the validator from the command line, run `target/appassembler/bin/validateAIF`
 with a series of command-line arguments (in any order) honoring the following usage:  <br>
 Usage:  <br>
-`validateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--abort] {-f FILE ... | -d DIRNAME}`  <br>
+`validateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--abort [num]] {-f FILE ... | -d DIRNAME}`  <br>
 
 | Switch | Description |
 | ----------- | ----------- |
@@ -81,7 +77,7 @@ Usage:  <br>
 |`--nist-ta3` | validate against the NIST hypothesis restrictions (implies `--nist`) |
 |`-o` | Save validation report model to a file.  `KB.ttl` would result in `KB-report.txt`. Output defaults to stderr. |
 |`-h, --help` | This help and usage text |
-|`--abort`| Abort validation after three validation errors |
+|`--abort [num]` | Abort validation after `[num]` validation errors, or three validation errors if `[num]` is omitted. |
 |`-f FILE ...` | validate the specified file(s) with a `.ttl` suffix |
 |`-d DIRNAME` | validate all `.ttl` files in the specified directory |
 
@@ -110,11 +106,16 @@ against restricted AIF.  See the JavaDocs.
 
 Note: the original `ValidateAIF.createForDomainOntologySource()` method remains for backward compatibility.
 
-#### Failing fast
+### Failing fast
 
 The AIF Validator can be told to "fail fast," that is, exit as soon as a few SHACL violations are found in
 the specified KB.  On the command-line, use the `--abort` option to have the validator exit after three
-violations.  Without the `--abort` option, the entire KB will be validated with full output of all violations.
+violations.  Specify a number after the `--abort` flag to exit after that number of violations.
+
+**NOTE**: As of this writing, if you set the threshold to 1 violation, the validator will erroneously return that your
+KB is *valid*.  This appears to be a current bug or limitation in the TopBraid shacl library snapshot.
+
+Without the `--abort` option, the entire KB will be validated with full output of all violations.
 
 To fail fast when using the validator programmatically, use `ValidateAIF.setAbortThreshold()` to set an error
 threshold.
