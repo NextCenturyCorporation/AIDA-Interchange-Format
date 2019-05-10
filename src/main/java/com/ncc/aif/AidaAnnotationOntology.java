@@ -111,8 +111,8 @@ public final class AidaAnnotationOntology {
             ResourceFactory.createResource(NAMESPACE + "Hypothesis");
     public static final Resource PRIVATE_DATA_CLASS =
             ResourceFactory.createResource(NAMESPACE + "PrivateData");
-    public static final Property LDC_TIME_CLASS =
+    public static final Resource LDC_TIME_CLASS =
             ResourceFactory.createProperty(NAMESPACE + "LDCTime");
-    public static final Property LDC_TIME_COMPONENT =
+    public static final Resource LDC_TIME_COMPONENT =
             ResourceFactory.createProperty(NAMESPACE + "LDCTimeComponent");
 }

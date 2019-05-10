@@ -122,6 +122,14 @@
         :KeyFrameVideoJustification
         :ShotVideoJustification ) .
 
+:LDCTime a owl:Class ;
+    rdfs:label "LDC Time" ;
+    rdfs:comment "AIF time representation for LDC format" .
+
+:LDCTimeComponent a owl:Class ;
+    rdfs:label "LDC Time Component" ;
+    rdfs:comment "Components that make up a single LDC Time" .
+
 #################################################################
 #        Properties
 #################################################################
@@ -403,4 +411,68 @@
   rdfs:comment "Json formatted string within private data" ;
   rdfs:domain :PrivateData ;
   rdfs:range xsd:string ;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:informativeJustification rdf:type owl:ObjectProperty ;
+  rdfs:label "informative justification" ;
+  rdfs:comment "Definitive justification for an entity or entity cluster" ;
+  rdfs:domain [
+        rdf:type owl:Class ;
+        owl:unionOf (
+          :Entity
+          :SameAsCluster ) ] ;
+  rdfs:range :JustificationTypes ;
+  rdfs:subPropertyOf owl:topObjectProperty .
+
+:ldcTime rdf:type owl:ObjectProperty ;
+  rdfs:label "ldc time property" ;
+  rdfs:comment "Property describing the time during which an Event or Relation occurs" ;
+  rdfs:domain [
+        rdf:type owl:Class ;
+        owl:unionOf (
+          :Event
+          :Relation ) ] ;
+  rdfs:range :LDCTime ;
+  rdfs:subPropertyOf owl:topObjectProperty .
+
+:start rdf:type owl:ObjectProperty ;
+  rdfs:label "ldc time start" ;
+  rdfs:comment "Property describing the beginning of an LDCTime object" ;
+  rdfs:domain :LDCTime ;
+  rdfs:range :LDCTimeComponent ;
+  rdfs:subPropertyOf owl:topObjectProperty .
+
+:end rdf:type owl:ObjectProperty ;
+  rdfs:label "ldc time end" ;
+  rdfs:comment "Property describing the end of an LDCTime object" ;
+  rdfs:domain :LDCTime ;
+  rdfs:range :LDCTimeComponent ;
+  rdfs:subPropertyOf owl:topObjectProperty .
+
+:timeType rdf:type owl:DatatypeProperty ;
+  rdfs:label "ldc time type" ;
+  rdfs:comment "String containing one of the LDC time types: ON, BEFORE, AFTER, UNKNOWN" ;
+  rdfs:domain :LDCTimeComponent ;
+  rdfs:range xsd:string ;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:year rdf:type owl:DatatypeProperty ;
+  rdfs:label "ldc time year" ;
+  rdfs:comment "Property indicating the year of an LDCTimeComponent" ;
+  rdfs:domain :LDCTimeComponent ;
+  rdfs:range xsd:gYear ;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:month rdf:type owl:DatatypeProperty ;
+  rdfs:label "ldc time month" ;
+  rdfs:comment "Property indicating the month of an LDCTimeComponent" ;
+  rdfs:domain :LDCTimeComponent ;
+  rdfs:range xsd:gMonth ;
+  rdfs:subPropertyOf owl:topDataProperty .
+
+:day rdf:type owl:DatatypeProperty ;
+  rdfs:label "ldc time day" ;
+  rdfs:comment "Property indicating the day of an LDCTimeComponent" ;
+  rdfs:domain :LDCTimeComponent ;
+  rdfs:range xsd:gDay ;
   rdfs:subPropertyOf owl:topDataProperty .
