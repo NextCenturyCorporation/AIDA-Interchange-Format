@@ -121,7 +121,7 @@
         "Ec2KeyPair": {
             "Type": "AWS::EC2::KeyPair::KeyName",
             "Description": "Ec2KeyPair to use for Compute Environment",
-            "Default": "AIDA-All.pem"
+            "Default": "AIDA-All"
         },
         "MainEc2InstanceType": {
             "Type": "String",
