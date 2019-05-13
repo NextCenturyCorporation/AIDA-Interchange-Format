@@ -17,6 +17,7 @@ import org.topbraid.jenax.statistics.ExecStatisticsListener;
 import org.topbraid.jenax.statistics.ExecStatisticsManager;
 import org.topbraid.shacl.validation.ValidationEngineConfiguration;
 import org.topbraid.shacl.validation.ValidationUtil;
+import org.topbraid.shacl.vocabulary.SH;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,7 +83,7 @@ public final class ValidateAIF {
 
     private Model domainModel;
     private Restriction restriction;
-    private int abortThreshold = -1; // by default, do not abort on error
+    private int abortThreshold = -1; // by default, do not abort on SHACL violation
 
     private ValidateAIF(Model domainModel, Restriction restriction) {
         initializeSHACLModels();
@@ -180,7 +181,7 @@ public final class ValidateAIF {
                 "-o              Save validation report model to a file.  KB.ttl would result in KB-report.txt.\n" +
                 "                Output defaults to stderr.\n" +
                 "-h, --help      Show this help and usage text\n" +
-                "--abort [num]   Abort validation after [num] validation errors, or three validation errors if [num] is omitted.\n" +
+                "--abort [num]   Abort validation after [num] SHACL violations, or three violations if [num] is omitted.\n" +
                 "-f FILE ...     Validate the specified file(s) with a .ttl suffix\n" +
                 "-d DIRNAME      Validate all .ttl files in the specified directory\n" +
                 "\n" +
@@ -412,7 +413,7 @@ public final class ValidateAIF {
         }
 
         if (flags.contains(ArgumentFlags.ABORT)) {
-            validator.setAbortThreshold(abortParam); // aboutParam was set and validated in processArgs()
+            validator.setAbortThreshold(abortParam); // abortParam was set and validated in processArgs()
         }
 
         // Display a summary of what we're going to do.
@@ -432,7 +433,7 @@ public final class ValidateAIF {
             logger.info("-> Validating against NIST Hypothesis SHACL.");
         }
         if (flags.contains(ArgumentFlags.ABORT)) {
-            logger.info("-> Validation will abort after " + abortParam + " validation error(s).");
+            logger.info("-> Validation will abort after " + abortParam + " SHACL violation(s).");
         }
         if (flags.contains(ArgumentFlags.FILE_OUTPUT)) {
             logger.info("-> Validation report for invalid KBs will be saved to <kbname>-report.txt.");
@@ -448,6 +449,7 @@ public final class ValidateAIF {
         final DateFormat format = new SimpleDateFormat("EEE, MMM d HH:mm:ss");
         int invalidCount = 0;
         int skipCount = 0;
+        int abortCount = 0;
         int fileNum = 0;
         final StatsCollector stats = flags.contains(ArgumentFlags.PROGRESSIVE_PROFILING) ?
                 new ProgressiveStatsCollector(LONG_QUERY_THRESH) : new StatsCollector(LONG_QUERY_THRESH);
@@ -471,9 +473,16 @@ public final class ValidateAIF {
                     logger.warn("---> Could not validate " + fileToValidate + " (engine error).  Skipping.");
                     skipCount++;
                 } else if (!ValidateAIF.isValidReport(report)) {
-                    logger.warn("---> Validation of " + fileToValidate + " failed.");
                     invalidCount++;
-                    dumpReport(report, fileToValidate, flags.contains(ArgumentFlags.FILE_OUTPUT));
+                    final int numViolations = processReport(report, fileToValidate, flags.contains(ArgumentFlags.FILE_OUTPUT));
+                    if (numViolations == abortParam) {
+                        logger.warn("---> Validation of " + fileToValidate +
+                                " was aborted after " + abortParam + " SHACL violations.");
+                        abortCount++;
+                    }
+                    else {
+                        logger.warn("---> Validation of " + fileToValidate + " failed.");
+                    }
                 }
                 date = Calendar.getInstance().getTime();
                 logger.info("---> completed " + format.format(date) + ".");
@@ -483,26 +492,28 @@ public final class ValidateAIF {
             dataToBeValidated.close();
         }
 
-        final ReturnCode returnCode = displaySummary(fileNum + nonTTLcount, invalidCount, skipCount + nonTTLcount);
+        final ReturnCode returnCode = displaySummary(fileNum + nonTTLcount, invalidCount, skipCount + nonTTLcount, abortCount);
         System.exit(returnCode.ordinal());
     }
 
-    // Dump the validation report model either to stderr or a file
-    private static void dumpReport(Resource validationReport, File fileToValidate, boolean fileOutput) {
+    // Dump the validation report model either to stderr or a file, and return the number of violations.
+    private static int processReport(Resource validationReport, File fileToValidate, boolean fileOutput) {
         if (!fileOutput) {
             logger.info("---> Validation report:");
             RDFDataMgr.write(System.err, validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
-            return;
+        }
+        else {
+            String outputFilename = fileToValidate.toString().replace(".ttl", "-report.txt");
+            try {
+                RDFDataMgr.write(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)),
+                        validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
+            } catch (IOException ioe) {
+                logger.warn("---> Could not write validation report for " + fileToValidate + ".");
+            }
+            logger.info("--> Saved validation report to " + outputFilename);
         }
 
-        String outputFilename = fileToValidate.toString().replace(".ttl", "-report.txt");
-        try {
-            RDFDataMgr.write(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)),
-                    validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
-        } catch (IOException ioe) {
-            logger.warn("---> Could not write validation report for " + fileToValidate + ".");
-        }
-        logger.info("--> Saved validation report to " + outputFilename);
+        return validationReport.getModel().listStatements(null, SH.resultSeverity, SH.Violation).toList().size();
     }
 
     // Return false if file is > 5MB or size couldn't be determined, otherwise true
@@ -536,14 +547,17 @@ public final class ValidateAIF {
     }
 
     // Display a summary to the user
-    private static ReturnCode displaySummary(int fileCount, int invalidCount, int skipCount) {
+    private static ReturnCode displaySummary(int fileCount, int invalidCount, int skipCount, int abortCount) {
         final int validCount = fileCount - invalidCount - skipCount;
         logger.info("Summary:");
         logger.info("\tFiles submitted: " + fileCount);
         logger.info("\tSkipped files: " + skipCount);
-        logger.info("\tKB(s) sent to validator: " + (fileCount - skipCount));
-        logger.info("\tValid KB(s): " + (fileCount - invalidCount - skipCount));
-        logger.info("\tInvalid KB(s): " + invalidCount);
+        logger.info("\tKBs sent to validator: " + (fileCount - skipCount));
+        logger.info("\tValid KBs: " + (fileCount - invalidCount - skipCount));
+        logger.info("\tInvalid KBs: " + invalidCount);
+        if (abortCount > 0) {
+            logger.info("\t  Aborted validations: " + abortCount);
+        }
         if (fileCount == validCount) {
             logger.info("*** All submitted KBs were valid. ***");
         } else if (fileCount == skipCount) {
@@ -558,10 +572,10 @@ public final class ValidateAIF {
     }
 
     /**
-     * Tells the validator to "fail fast" if validation errors are detected.  Validation will terminate after
-     * <code>abortThreshold</code> validation errors are detected.  Use zero to disable failing fast.
+     * Tells the validator to "fail fast" if SHACL violations are detected.  Validation will terminate after
+     * <code>abortThreshold</code> SHACL violations are detected.  Use zero to disable failing fast.
      *
-     * @param abortThreshold the error threshold to abort validation
+     * @param abortThreshold the violation threshold to abort validation
      */
     public void setAbortThreshold(int abortThreshold) {
         if (abortThreshold < 0) {

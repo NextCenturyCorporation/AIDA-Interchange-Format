@@ -77,7 +77,7 @@ Usage:  <br>
 |`--nist-ta3` | validate against the NIST hypothesis restrictions (implies `--nist`) |
 |`-o` | Save validation report model to a file.  `KB.ttl` would result in `KB-report.txt`. Output defaults to stderr. |
 |`-h, --help` | This help and usage text |
-|`--abort [num]` | Abort validation after `[num]` validation errors, or three validation errors if `[num]` is omitted. |
+|`--abort [num]` | Abort validation after `[num]` SHACL violations, or three violations if `[num]` is omitted. |
 |`-f FILE ...` | validate the specified file(s) with a `.ttl` suffix |
 |`-d DIRNAME` | validate all `.ttl` files in the specified directory |
 
@@ -110,7 +110,9 @@ Note: the original `ValidateAIF.createForDomainOntologySource()` method remains 
 
 The AIF Validator can be told to "fail fast," that is, exit as soon as a few SHACL violations are found in
 the specified KB.  On the command-line, use the `--abort` option to have the validator exit after three
-violations.  Specify a number after the `--abort` flag to exit after that number of violations.
+violations.  Specify a number after the `--abort` flag to exit after that number of violations.  The validation
+summary will display the number of aborted validations-- but if your file has the exact number of violations as
+the threshold, it will still be counted as an aborted validation.
 
 **NOTE**: As of this writing, if you set the threshold to 1 violation, the validator will erroneously return that your
 KB is *valid*.  This appears to be a current bug or limitation in the TopBraid shacl library snapshot.
