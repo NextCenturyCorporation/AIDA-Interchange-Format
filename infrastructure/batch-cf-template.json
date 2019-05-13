@@ -159,9 +159,9 @@
             "Default": "INFO"
         },
         "EnvMainSleepInterval": {
-            "Type": "Number",
-            "Description": "The number of seconds to wait before checking  if all worker jobs have completed",
-            "Default": 60
+            "Type": "String",
+            "Description": "The number of seconds to wait before checking if all worker jobs have completed",
+            "Default": "60"
         },
         "EnvAwsDefaultRegion": {
             "Type": "String",
@@ -358,16 +358,16 @@
                                         "Value": { "Ref": "EnvS3ValidationBucket" }
                                     },
                                     {
-                                        "name": "MAIN_LOG_LEVEL",
-                                        "value": { "Ref": "EnvMainLogLevel" }
+                                        "Name": "MAIN_LOG_LEVEL",
+                                        "Value": { "Ref": "EnvMainLogLevel" }
                                     },
                                     {
-                                        "name": "AWS_DEFAULT_REGION",
-                                        "value": { "Ref": "EnvAwsDefaultRegion" }
+                                        "Name": "AWS_DEFAULT_REGION",
+                                        "Value": { "Ref": "EnvAwsDefaultRegion" }
                                     },
                                     {
-                                        "name": "MAIN_SLEEP_INTERVAL",
-                                        "value": { "Ref": "EnvMainSleepInterval" }
+                                        "Name": "MAIN_SLEEP_INTERVAL",
+                                        "Value": { "Ref": "EnvMainSleepInterval" }
                                     }
                                 ],
                                 "Image" : {
