@@ -52,7 +52,7 @@
         "ComputeNodes": {
             "Type": "Number",
             "Description": "The total number for nodes for the validation batch job.",
-            "Default": 4
+            "Default": 1
         },
         "MainNodeRange": {
             "Type": "String",
@@ -81,7 +81,7 @@
         },
         "MainNodeVpcus": {
             "Type": "Number",
-            "Description": "The number of Vpcus for the worker nodes (i.e. 2).",
+            "Description": "The number of Vpcus for the main nodes (i.e. 2).",
             "Default": 2
         },
         "JobQueueName": {
@@ -181,7 +181,7 @@
                         "Ref": "ComputeEnvironmentDesiredVCpus"
                     },
                     "InstanceRole": {
-                        "Ref": "BatchInstanceProfile"
+                        "Ref": "BatchInstanceRole"
                     },
                     "InstanceTypes": [
                         "m4.large"
@@ -216,20 +216,10 @@
                 "Type": "MANAGED"
             }
         },
-        "BatchInstanceProfile": {
-            "Type": "AWS::IAM::InstanceProfile",
-            "Properties": {
-                "Path": "/",
-                "Roles": [
-                    {
-                        "Ref": "BatchInstanceRole"
-                    }
-                ]
-            }
-        },
         "BatchInstanceRole": {
             "Properties": {
                 "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
                     "Statement": [
                         {
                             "Action": [
@@ -253,6 +243,58 @@
                 "Path": "/",
                 "Policies": [
                 ]
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "BatchTaskRole": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Action": [
+                                "sts:AssumeRole"
+                            ],
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "ecs-tasks.amazonaws.com"
+                            }
+                        }
+                    ]
+                },
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+                    "arn:aws:iam::aws:policy/AmazonSQSFullAccess",
+                    "arn:aws:iam::aws:policy/AWSBatchFullAccess"
+                ],
+                "Path": "/",
+                "Policies": [
+                ]
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "BatchServiceRole": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "sts:AssumeRole"
+                            ],
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "batch.amazonaws.com"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/service-role/AWSBatchServiceRole"
+                ],
+                "Path": "/",
+                "Policies": []
             },
             "Type": "AWS::IAM::Role"
         },
@@ -283,31 +325,6 @@
                 }
             }
         },
-        "BatchServiceRole": {
-            "Properties": {
-                "AssumeRolePolicyDocument": {
-                    "Statement": [
-                        {
-                            "Action": [
-                                "sts:AssumeRole"
-                            ],
-                            "Effect": "Allow",
-                            "Principal": {
-                                "Service": [
-                                    "batch.amazonaws.com"
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "ManagedPolicyArns": [
-                    "arn:aws:iam::aws:policy/service-role/AWSBatchServiceRole"
-                ],
-                "Path": "/",
-                "Policies": []
-            },
-            "Type": "AWS::IAM::Role"
-        },
         "BatchJobQueue": {
             "Type": "AWS::Batch::JobQueue",
             "Properties": {
@@ -336,6 +353,9 @@
                     "Ref": "JobDefinitionName"
                 },
                 "Parameters": {},
+                "RetryStrategy": {
+                    "Attempts": 0
+                },
                 "NodeProperties": {
                     "MainNode": 0,
                     "NumNodes": {
@@ -377,7 +397,7 @@
                                     "Ref": "MainEc2InstanceType"
                                 },
                                 "JobRoleArn" : {
-                                    "Ref": "BatchInstanceRole"
+                                    "Ref": "BatchTaskRole"
                                 },
                                 "Memory" : {
                                     "Ref": "MainNodeMemory"
@@ -387,7 +407,6 @@
                                 "ReadonlyRootFilesystem" : "False",
                                 "ResourceRequirements" : [],
                                 "Ulimits" : [],
-                                "User" : "root",
                                 "Vcpus" : {
                                     "Ref": "MainNodeVpcus"
                                 },
