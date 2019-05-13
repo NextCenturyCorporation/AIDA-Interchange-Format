@@ -24,7 +24,7 @@ public class NistExamplesAndValidationTest {
 
     private static final String NIST_ROOT = "https://tac.nist.gov/tracks/SM-KBP/2019/";
     private static final String LDC_NS = NIST_ROOT + "LdcAnnotations#";
-    private static final String ONTOLOGY_NS = NIST_ROOT + "LDCOntology#";
+    private static final String ONTOLOGY_NS = NIST_ROOT + "ontologies/LDCOntology#";
     private static NistTestUtils utils;
 
     @BeforeAll

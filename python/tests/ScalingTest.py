@@ -9,7 +9,7 @@ import time
 
 class ScalingTest():
     filename = "scalingdata.ttl"
-    LDC_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#"
+    LDC_NS = "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#"
     g = aifutils.make_graph()
     system = aifutils.make_system_with_uri(g, 'http://www.test.edu/testSystem')
 
