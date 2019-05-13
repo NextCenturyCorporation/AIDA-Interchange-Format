@@ -142,6 +142,31 @@
             "Type": "String",
             "Description": "The location of the main container image",
             "Default": "606941321404.dkr.ecr.us-east-1.amazonaws.com/batch-worker:latest"
+        },
+        "EnvS3SubmissionArchive": {
+            "Type": "String",
+            "Description": "The S3 tar.gz, .tgz, .zip object to validate",
+            "Default": "aida-validation/test.zip"
+        },
+        "EnvS3ValidationBucket": {
+            "Type": "String",
+            "Description": "The S3 bucket that will contain all validation output",
+            "Default": "aida-validation"
+        },
+        "EnvMainLogLevel": {
+            "Type": "String",
+            "Description": "The log level for the main node",
+            "Default": "INFO"
+        },
+        "EnvMainSleepInterval": {
+            "Type": "Number",
+            "Description": "The number of seconds to wait before checking  if all worker jobs have completed",
+            "Default": 60
+        },
+        "EnvAwsDefaultRegion": {
+            "Type": "String",
+            "Description": "The default region to use when calling aws services",
+            "Default": "us-east-1"
         }
     },
     "Resources": {
@@ -322,30 +347,51 @@
                                 "Ref": "MainNodeRange"
                             },
                             "Container": {
-                              "Command" : [],
-                              "Environment" : [],
-                              "Image" : {
-                                "Ref": "MainContainerImage"
-                              },
-                              "InstanceType" : {
-                                "Ref": "MainEc2InstanceType"
-                              },
-                              "JobRoleArn" : {
-                                "Ref": "BatchInstanceRole"
-                              },
-                              "Memory" : {
-                                "Ref": "MainNodeMemory"
-                              },
-                              "MountPoints" : [],
-                              "Privileged" : "True",
-                              "ReadonlyRootFilesystem" : "False",
-                              "ResourceRequirements" : [],
-                              "Ulimits" : [],
-                              "User" : "root",
-                              "Vcpus" : {
-                                "Ref": "MainNodeVpcus"
-                              },
-                              "Volumes" : []
+                                "Command" : [],
+                                "Environment":  [
+                                    { 
+                                        "Name": "S3_SUBMISSION_ARCIHVE",
+                                        "Value": { "Ref": "EnvS3SubmissionArchive" }
+                                    },
+                                    {
+                                        "Name": "S3_VALIDATION_BUCKET",
+                                        "Value": { "Ref": "EnvS3ValidationBucket" }
+                                    },
+                                    {
+                                        "name": "MAIN_LOG_LEVEL",
+                                        "value": { "Ref": "EnvMainLogLevel" }
+                                    },
+                                    {
+                                        "name": "AWS_DEFAULT_REGION",
+                                        "value": { "Ref": "EnvAwsDefaultRegion" }
+                                    },
+                                    {
+                                        "name": "MAIN_SLEEP_INTERVAL",
+                                        "value": { "Ref": "EnvMainSleepInterval" }
+                                    }
+                                ],
+                                "Image" : {
+                                    "Ref": "MainContainerImage"
+                                },
+                                "InstanceType" : {
+                                    "Ref": "MainEc2InstanceType"
+                                },
+                                "JobRoleArn" : {
+                                    "Ref": "BatchInstanceRole"
+                                },
+                                "Memory" : {
+                                    "Ref": "MainNodeMemory"
+                                },
+                                "MountPoints" : [],
+                                "Privileged" : "True",
+                                "ReadonlyRootFilesystem" : "False",
+                                "ResourceRequirements" : [],
+                                "Ulimits" : [],
+                                "User" : "root",
+                                "Vcpus" : {
+                                    "Ref": "MainNodeVpcus"
+                                },
+                                "Volumes" : []
                             }
                         }
                     ]
