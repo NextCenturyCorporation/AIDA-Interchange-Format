@@ -397,7 +397,7 @@
                                 "Command" : [],
                                 "Environment":  [
                                     { 
-                                        "Name": "S3_SUBMISSION_ARCIHVE",
+                                        "Name": "S3_SUBMISSION_ARCHIVE",
                                         "Value": { "Ref": "EnvS3SubmissionArchive" }
                                     },
                                     {
