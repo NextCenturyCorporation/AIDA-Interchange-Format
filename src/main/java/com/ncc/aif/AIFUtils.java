@@ -1126,6 +1126,7 @@ public class AIFUtils {
      */
     public static final class LDCTimeComponent {
         public enum LDCTimeType { ON, BEFORE, AFTER, UNKNOWN }
+        private static final String dateDelimiter = "-";
 
         private final LDCTimeType type;
         private final String year;
@@ -1153,6 +1154,36 @@ public class AIFUtils {
                 RDFDatatype literalType = NodeFactory.getType(type.getURI());
                 timeComponent.addLiteral(property, model.createTypedLiteral(value, literalType));
             }
+        }
+
+        /**
+         * Create an LDCTimeComponent from a type and a date
+         * @param type {@link String} representation of {@link LDCTimeType}
+         * @param date {@link String} containing date to be parsed. Expects yyyy-mm-dd where y, m, and d can be replaced with 'X'
+         * @return new {@link LDCTimeComponent} object
+         */
+        public static LDCTimeComponent createTime(String type, String date) {
+            if (type.toLowerCase().contains("unk")) {
+                return new AIFUtils.LDCTimeComponent(AIFUtils.LDCTimeComponent.LDCTimeType.UNKNOWN, null, null, null);
+            } else if (date.contains(dateDelimiter)) {
+                String[] dateParts = date.toLowerCase().split(dateDelimiter);
+                for (int i = 0; i < dateParts.length; i++) {
+                    if (dateParts[i].contains("x")) {
+                        dateParts[i] = null;
+                    } else if (i == 1) {
+                        dateParts[i] = "--" + dateParts[i];
+                    } else if (i == 2) {
+                        dateParts[i] = "---" + dateParts[i];
+                    }
+                }
+                String typeCompare = type.toUpperCase();
+                for (AIFUtils.LDCTimeComponent.LDCTimeType timeType : AIFUtils.LDCTimeComponent.LDCTimeType.values()) {
+                    if (typeCompare.contains(timeType.toString())) {
+                        return new AIFUtils.LDCTimeComponent(timeType, dateParts[0], dateParts[1], dateParts[2]);
+                    }
+                }
+            }
+            return null;
         }
     }
 
