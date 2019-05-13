@@ -37,8 +37,9 @@ public class ExamplesAndValidationTest {
     // WHen DUMP_TO_FILE is true, if a model or report is dumped, it goes to a file in target/test-dump-output
     private static final boolean DUMP_TO_FILE = false;
 
-    private static final String LDC_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#";
-    private static final String ONTOLOGY_NS = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#";
+    private static final String NIST_ROOT = "https://tac.nist.gov/tracks/SM-KBP/2018/";
+    private static final String LDC_NS = NIST_ROOT + "LdcAnnotations#";
+    private static final String ONTOLOGY_NS = NIST_ROOT + "SeedlingOntology#";
     private static final CharSource SEEDLING_ONTOLOGY = Resources.asCharSource(
             Resources.getResource("com/ncc/aif/ontologies/SeedlingOntology"),
             StandardCharsets.UTF_8);
