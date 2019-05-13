@@ -32,7 +32,7 @@
         "ComputeEnvironment": {
             "Type": "String",
             "Description": "Environment Name",
-            "Default": "aida-validation"
+            "Default": "aida-validation-cf-ce"
         },
         "ComputeEnvironmentMaxVCpus": {
             "Type": "Number",
@@ -87,7 +87,7 @@
         "JobQueueName": {
             "Type": "String",
             "Description": "Name of the Queue to be created",
-            "Default": "aida-validation-queue"
+            "Default": "aida-validation-cf-queue"
         },
         "JobQueuePriority": {
             "Type": "Number",
@@ -97,12 +97,12 @@
         "JobDefinitionName": {
             "Type": "String",
             "Description": "Name of the Job Definition to be created",
-            "Default": "aida-validation-job"
+            "Default": "aida-validation-cf-job"
         },
         "Subnets": {
-            "Type": "CommaDelimitedList",
-            "Description": "Comma-delimited list of CIDR blocks",
-            "Default": "10.10.0.0/24, 10.10.1.0/24, 10.10.2.0/24, 10.10.3.0/24, 10.10.4.0/24"
+            "Type": "List<AWS::EC2::Subnet::Id>",
+            "Description": "Comma-delimited list of subnet Ids",
+            "Default": "subnet-01d458cf6e5a06b9e,subnet-0528b9dfb2f0f7b75,subnet-07b18355f29b464b9,subnet-07d3e039201ef58de,subnet-0be18254f7f477b97, subnet-0c17c8a9490c1fd47"
         },
         "Vpc": {
             "ConstraintDescription": "Must be a valid VPC ID.",
@@ -145,32 +145,12 @@
         }
     },
     "Resources": {
-        "AidaValidationS3Policy" : {
-          "Type" : "AWS::S3::BucketPolicy",
-          "Properties" : {
-            "PolicyDocument": {
-              "Statement":[{
-                "Action":"s3:*",
-                "Effect":"Allow",
-                "Resource": "*"
-              }]
-            }
-          }
-        }, 
-        "AidaValidationSQSPolicy" : {
-          "Type": "AWS::SQS::QueuePolicy",
-          "Properties" : {
-            "PolicyDocument": {
-                "Statement":[{
-                    "Action":"SQS:*",
-                    "Effect":"Allow",
-                    "Resource": "*"
-                }]
-            }
-          }
-        }, 
         "BatchComputeEnvironment": {
+            "Type": "AWS::Batch::ComputeEnvironment",
             "Properties": {
+                "ComputeEnvironmentName" : {
+                    "Ref": "ComputeEnvironment"
+                },
                 "ComputeResources": {
                     "DesiredvCpus": {
                         "Ref": "ComputeEnvironmentDesiredVCpus"
@@ -181,16 +161,12 @@
                     "InstanceTypes": [
                         "m4.large"
                     ],
-                    "LaunchTemplate": {
-                        "LaunchTemplateName": "container-volume-encrypt"
-                    },
                     "MaxvCpus": {
                         "Ref": "ComputeEnvironmentMaxVCpus"
                     },
                     "MinvCpus": {
                         "Ref": "ComputeEnviornmentMinVCpus"
                     },
-                    "PlacementGroup": "ExampleClusterGroup",
                     "SecurityGroupIds": [
                         {
                             "Fn::GetAtt": [
@@ -199,11 +175,10 @@
                             ]
                         }
                     ],
-                    "Subnets": [
-                        {
+                    "Subnets": {
                             "Ref": "Subnets"
-                        }
-                    ],
+                    }
+                    ,
                     "Tags": {
                         "Name": "aida-batch-compute-environment",
                         "Project": "AIDA"
@@ -214,8 +189,7 @@
                     "Ref": "BatchServiceRole"
                 },
                 "Type": "MANAGED"
-            },
-            "Type": "AWS::Batch::ComputeEnvironment"
+            }
         },
         "BatchInstanceProfile": {
             "Type": "AWS::IAM::InstanceProfile",
@@ -246,11 +220,13 @@
                     ]
                 },
                 "ManagedPolicyArns": [
-                    "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+                    "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role",
+                    "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+                    "arn:aws:iam::aws:policy/AmazonSQSFullAccess",
+                    "arn:aws:iam::aws:policy/AWSBatchFullAccess"
                 ],
                 "Path": "/",
                 "Policies": [
-
                 ]
             },
             "Type": "AWS::IAM::Role"
@@ -264,7 +240,7 @@
                     "IpProtocol": "-1"
                 },
                 "SecurityGroupIngress": {
-                    "CirIp": {
+                    "CidrIp": {
                         "Ref": "VpcCidr"
                     },
                     "IpProtocol": "tcp",
@@ -377,7 +353,7 @@
                 "Timeout" : {
                     "AttemptDurationSeconds" : 100
                 },
-                "Type" : "MANAGED"
+                "Type" : "multinode"
             }
         }
     }
