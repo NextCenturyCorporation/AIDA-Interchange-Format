@@ -51,8 +51,9 @@ public final class ValidateAIF {
     private static final String AO_ENTITIES_RESNAME = "com/ncc/aif/ontologies/EntityOntology";
     private static final String AO_EVENTS_RESNAME = "com/ncc/aif/ontologies/EventOntology";
     private static final String AO_RELATIONS_RESNAME = "com/ncc/aif/ontologies/RelationOntology";
-    private static final String INTERCHANGE_URI = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology";
-    private static final String AIDA_DOMAIN_COMMON_URI = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon";
+    private static final String NIST_ROOT = "https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/";
+    private static final String INTERCHANGE_URI = NIST_ROOT + "InterchangeOntology";
+    private static final String AIDA_DOMAIN_COMMON_URI = NIST_ROOT + "AidaDomainOntologiesCommon";
 
     private static Model shaclModel;
     private static Model nistModel;

@@ -1,5 +1,5 @@
 @prefix sh:   <http://www.w3.org/ns/shacl#> .
-@prefix aida: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#> .
+@prefix aida: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#> .
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # restricted_hypothesis_aif.shacl
@@ -16,7 +16,7 @@ aida:SystemShape
     sh:sparql [
         sh:message "Exactly 1 Hypothesis should exist. Found {$this}" ;
         sh:select """
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
             SELECT (COUNT(?x) AS $this)
             WHERE {
                 ?x a aida:Hypothesis .
@@ -37,7 +37,7 @@ aida:SystemShape
         sh:select """
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#>
+            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
             SELECT (COUNT(?pred) AS $this)
             WHERE {
                 ?argumentAssertion a rdf:Statement .
@@ -75,7 +75,7 @@ aida:HypothesisEventRelationClusterImportanceRequiredShape
     sh:target [
         a sh:SPARQLTarget ;
         sh:select """
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
             SELECT ?prototype
             WHERE {
                 ?prototype a aida:SameAsCluster .
@@ -107,7 +107,7 @@ aida:HypothesisEntityClusterRequireHandle
     sh:target [
         a sh:SPARQLTarget ;
         sh:select """
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
             SELECT ?entityCluster
             WHERE {
                 ?entityCluster a aida:SameAsCluster .
@@ -131,7 +131,7 @@ aida:HypothesisClusterMembersSameAsBaseClass
     sh:message "All Clusters must have homogeneous members by base class (Entity, Event, or Relation)" ;
     sh:select """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
         SELECT $this (?member AS $value)
         WHERE {
       	    ?membership aida:cluster $this .
@@ -155,7 +155,7 @@ aida:KEsMustBeReferenced
     a sh:SPARQLConstraint ;
     sh:message "This KE is unreferenced by the hypothesis" ;
     sh:select """
-        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
         SELECT $this
         WHERE {
             ?hypothesis a aida:Hypothesis .
@@ -172,7 +172,7 @@ aida:AllKEsReferencedShape
         sh:select """
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#>
+            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
             SELECT ?argumentAssertion
             WHERE {
                 ?argumentAssertion a rdf:Statement .

@@ -1,11 +1,12 @@
 # Remove the below comment once we update to python3
 # -*- coding: utf-8 -*-
-import unittest
 import sys
+import unittest
+
 sys.path.append('../')
 import os
 from io import BytesIO
-from rdflib import URIRef, Graph, RDF
+from rdflib import URIRef
 from aida_interchange.Bounding_Box import Bounding_Box
 from aida_interchange.aida_rdf_ontologies import SEEDLING_TYPES_NIST
 from aida_interchange.LDCTimeComponent import LDCTimeComponent, LDCTimeType
@@ -424,19 +425,19 @@ class Examples(unittest.TestCase):
         g = aifutils.make_graph()
         system = aifutils.make_system_with_uri(g, "http://www.test.edu/system")
 
-        event = aifutils.make_event(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#V779961.00010", system)
-        event_type_assertion = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-1", event, SEEDLING_TYPES_NIST['Personnel.Elect'], system, 1.0)
+        event = aifutils.make_event(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#V779961.00010", system)
+        event_type_assertion = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-1", event, SEEDLING_TYPES_NIST['Personnel.Elect'], system, 1.0)
 
         # create the two entities involved in the event
-        putin = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#E781167.00398", system)
-        person_type_assertion = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-2", putin, SEEDLING_TYPES_NIST.Person, system, 1.0)
+        putin = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#E781167.00398", system)
+        person_type_assertion = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-2", putin, SEEDLING_TYPES_NIST.Person, system, 1.0)
 
-        russia = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#E779954.00004", system)
-        gpe_type_assertion = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-3", russia, SEEDLING_TYPES_NIST.GeopoliticalEntity, system, 1.0)
+        russia = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#E779954.00004", system)
+        gpe_type_assertion = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-3", russia, SEEDLING_TYPES_NIST.GeopoliticalEntity, system, 1.0)
 
         # link those entities to the event
-        electee_argument = aifutils.mark_as_argument(g, event, SEEDLING_TYPES_NIST['Personnel.Elect_Elect'], putin, system, 0.785, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-4")
-        place_argument = aifutils.mark_as_argument(g, event, SEEDLING_TYPES_NIST['Personnel.Elect_Place'], russia, system, 0.589, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-5")
+        electee_argument = aifutils.mark_as_argument(g, event, SEEDLING_TYPES_NIST['Personnel.Elect_Elect'], putin, system, 0.785, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-4")
+        place_argument = aifutils.mark_as_argument(g, event, SEEDLING_TYPES_NIST['Personnel.Elect_Place'], russia, system, 0.589, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-5")
 
 
         # the justification provides the evidence for our claim about the entity's type
@@ -463,7 +464,7 @@ class Examples(unittest.TestCase):
         audio_justification = aifutils.make_audio_justification(g, "NYT_ENG_201181231", 4.566, 9.876, system, 0.789)
 
         # combine all justifications into single justifiedBy triple with new confidence
-        aifutils.mark_compound_justification(g, [electee_argument], 
+        aifutils.mark_compound_justification(g, [electee_argument],
                                             [text_justification, image_justification, keyframe_video_justification, shot_video_justification, audio_justification],
                                             system, .321)
 
@@ -532,28 +533,28 @@ class Examples(unittest.TestCase):
         system = aifutils.make_system_with_uri(g, 'http://www.test.edu/testSystem')
         # buk document entity
         buk = aifutils.make_entity(g, "E779954.00005", system)
-        buk_is_weapon = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-1", buk, SEEDLING_TYPES_NIST.Weapon, system, 1.0)
+        buk_is_weapon = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-1", buk, SEEDLING_TYPES_NIST.Weapon, system, 1.0)
 
         # buk cross-document-entity
-        buk_kb_entity = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#E0084", system)
-        buk_kb_is_weapon = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-2", buk_kb_entity, SEEDLING_TYPES_NIST.Weapon, system, 1.0)
+        buk_kb_entity = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#E0084", system)
+        buk_kb_is_weapon = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-2", buk_kb_entity, SEEDLING_TYPES_NIST.Weapon, system, 1.0)
 
         # russia document entity
-        russia = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#E779954.00004", system)
-        russia_is_gpe = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-3", russia, SEEDLING_TYPES_NIST.GeopoliticalEntity, system, 1.0)
+        russia = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#E779954.00004", system)
+        russia_is_gpe = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-3", russia, SEEDLING_TYPES_NIST.GeopoliticalEntity, system, 1.0)
 
         # cluster buk
-        buk_cluster = aifutils.make_cluster_with_prototype(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#cluster-1", buk_kb_entity, system)
+        buk_cluster = aifutils.make_cluster_with_prototype(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#cluster-1", buk_kb_entity, system)
         buk_is_clustered = aifutils.mark_as_possible_cluster_member(g, buk, buk_cluster, .9, system)
 
         # Russia owns buk relation
-        buk_is_russian = aifutils.make_relation(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#R779959.00004", system)
-        aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-4", buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA'], system, 1.0)
+        buk_is_russian = aifutils.make_relation(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#R779959.00004", system)
+        aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-4", buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA'], system, 1.0)
         buk_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA_Affiliate'], buk, system, 1.0)
         russia_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA_Affiliation'], russia, system, 1.0)
 
         # Russia owns buk hypothesis
-        buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#hypothesis-1", 
+        buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#hypothesis-1",
                                                             [buk, buk_is_weapon, buk_is_clustered, buk_is_russian, buk_argument, russia_argument], system)
 
         self.new_file(g, "test_simple_hypothesis_with_cluster.ttl")
@@ -567,25 +568,25 @@ class Examples(unittest.TestCase):
         system = aifutils.make_system_with_uri(g, 'http://www.test.edu/testSystem')
         # buk document entity
         buk = aifutils.make_entity(g, "E779954.00005", system)
-        buk_is_weapon = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-1", buk, SEEDLING_TYPES_NIST.Weapon, system, 1.0)
+        buk_is_weapon = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-1", buk, SEEDLING_TYPES_NIST.Weapon, system, 1.0)
 
         # buk cross-document-entity
-        buk_kb_entity = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#E0084", system)
-        buk_kb_is_weapon = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-2", buk_kb_entity, SEEDLING_TYPES_NIST.Weapon, system, 1.0)
+        buk_kb_entity = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#E0084", system)
+        buk_kb_is_weapon = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-2", buk_kb_entity, SEEDLING_TYPES_NIST.Weapon, system, 1.0)
 
         # russia document entity
-        russia = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#E779954.00004", system)
-        russia_is_gpe = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-3", russia, SEEDLING_TYPES_NIST.GeopoliticalEntity, system, 1.0)
+        russia = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#E779954.00004", system)
+        russia_is_gpe = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-3", russia, SEEDLING_TYPES_NIST.GeopoliticalEntity, system, 1.0)
 
         # cluster buk
-        buk_cluster = aifutils.make_cluster_with_prototype(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#cluster-1", buk_kb_entity, system)
+        buk_cluster = aifutils.make_cluster_with_prototype(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#cluster-1", buk_kb_entity, system)
         buk_is_clustered = aifutils.mark_as_possible_cluster_member(g, buk, buk_cluster, .9, system)
         # add importance to the cluster - test negative importance
         aifutils.mark_importance(g, buk_cluster, -70.234)
 
         # Russia owns buk relation
-        buk_is_russian = aifutils.make_relation(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#R779959.00004", system)
-        aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#assertion-4", buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA'], system, 1.0)
+        buk_is_russian = aifutils.make_relation(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#R779959.00004", system)
+        aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-4", buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA'], system, 1.0)
         buk_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA_Affiliate'], buk, system, 1.0)
         russia_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA_Affiliation'], russia, system, 1.0)
         # add importance to the statements
@@ -594,7 +595,7 @@ class Examples(unittest.TestCase):
         aifutils.mark_importance(g, russia_argument, 9.999999e6)
 
         # Russia owns buk hypothesis
-        buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#hypothesis-1", 
+        buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#hypothesis-1",
                                                             [buk, buk_is_weapon, buk_is_clustered, buk_is_russian, buk_argument, russia_argument], system)
         # test highest possible importance value
         aifutils.mark_importance(g, buk_is_russian_hypothesis, sys.float_info.max)
@@ -673,12 +674,12 @@ class Examples(unittest.TestCase):
         system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
 
         putin = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
-        aifutils.mark_type(g, "http://www.test.edu/assertions/1", putin, SEEDLING_TYPES_NIST.Person, 
+        aifutils.mark_type(g, "http://www.test.edu/assertions/1", putin, SEEDLING_TYPES_NIST.Person,
                 system, 1.0)
         aifutils.mark_name(g, putin, "Путин")
-        
+
         vladimir_putin = aifutils.make_entity(g, "http://www.test.edu/entities/2", system)
-        aifutils.mark_type(g, "http://www.test.edu/assertions/2", vladimir_putin, SEEDLING_TYPES_NIST.Person, 
+        aifutils.mark_type(g, "http://www.test.edu/assertions/2", vladimir_putin, SEEDLING_TYPES_NIST.Person,
                 system, 1.0)
         aifutils.mark_name(g, vladimir_putin, "Vladimir Putin")
 
