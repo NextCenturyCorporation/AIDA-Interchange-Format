@@ -16,7 +16,7 @@ aida:EdgeJustificationCount
     a sh:SPARQLConstraint ;
     sh:message "Exactly 1 or 2 contained justifications required for an edge" ;
     sh:select """
-        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
         SELECT $this (COUNT(DISTINCT ?source) AS $value)
         WHERE {
             $this aida:justifiedBy ?x .
@@ -140,7 +140,7 @@ aida:EntityShape
     sh:sparql [
         sh:message "Entities must be clustered" ;
         sh:select """
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
             SELECT $this
             WHERE {
                 FILTER NOT EXISTS {
@@ -155,7 +155,7 @@ aida:EventRelationShape
     sh:sparql [
         sh:message "Events and Relations must be clustered" ;
         sh:select """
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
             SELECT $this
             WHERE {
                 FILTER NOT EXISTS {
@@ -228,7 +228,7 @@ aida:InformativeJustificationMembersUniqueParentDoc
     sh:message "Each Cluster, Entity, Event, or Relation can specify up to one informative mention per document as long as each informative mention points to a different sourceDocument" ;
     sh:select """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
       	SELECT $this
       	WHERE {
       	    $this aida:informativeJustification ?mentions .

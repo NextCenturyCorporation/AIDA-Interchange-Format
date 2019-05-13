@@ -56,7 +56,7 @@ aida:EntityShape
         sh:message "Entity must have type assertion or be non-prototype member of cluster" ;
         sh:select """
             PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
             SELECT $this
             WHERE {
                 FILTER ( NOT EXISTS {
@@ -118,7 +118,7 @@ aida:EventRelationShape
         sh:message "Events and Relations must have type assertion or be non-prototype member of cluster" ;
         sh:select """
             PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
             SELECT $this
             WHERE {
                 FILTER ( NOT EXISTS {
@@ -173,7 +173,7 @@ aida:EventArgumentShape
     sh:select """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#>
+        PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
         SELECT ?this
         WHERE {
             ?this a rdf:Statement .
@@ -234,7 +234,7 @@ aida:RelationArgumentShape
     sh:select """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#>
+        PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
         SELECT ?this
         WHERE {
             ?this a rdf:Statement .
@@ -398,7 +398,7 @@ aida:SharedTypeShape
         a sh:SPARQLTarget ;
         sh:select """
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
             SELECT ?this
             WHERE {
                 ?this a rdf:Statement .
@@ -435,7 +435,7 @@ aida:EntityTypeShape
         a sh:SPARQLTarget ;
         sh:select """
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
             SELECT ?this
             WHERE {
                 ?this a rdf:Statement .
@@ -459,7 +459,7 @@ aida:EventTypeShape
         a sh:SPARQLTarget ;
         sh:select """
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
             SELECT ?this
             WHERE {
                 ?this a rdf:Statement .
@@ -483,7 +483,7 @@ aida:RelationTypeShape
         a sh:SPARQLTarget ;
         sh:select """
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
             SELECT ?this
             WHERE {
                 ?this a rdf:Statement .
@@ -928,7 +928,7 @@ aida:RestrictNameProperty
         sh:select """
             PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#>
+            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
             SELECT $this
             WHERE {
                 ?typeAssertion rdf:subject $this .
@@ -955,7 +955,7 @@ aida:RestrictTextProperty
         sh:select """
             PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#>
+            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
             SELECT $this
             WHERE {
                 ?typeAssertion rdf:subject $this .
@@ -982,7 +982,7 @@ aida:RestrictNumericProperty
         sh:select """
             PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#>
+            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
             SELECT $this
             WHERE {
                 ?typeAssertion rdf:subject $this .
