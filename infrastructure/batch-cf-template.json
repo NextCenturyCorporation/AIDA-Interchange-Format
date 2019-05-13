@@ -21,6 +21,21 @@
             "Value": {
                 "Ref": "BatchJobDefinition"
             }
+        },
+        "BatchInstanceRole": {
+            "Value": {
+                "Ref": "BatchInstanceRole"
+            }
+        },
+        "BatchServiceRole": {
+            "Value": {
+                "Ref": "BatchServiceRole"
+            }
+        },
+        "BatchTaskRole": {
+            "Value": {
+                "Ref": "BatchTaskRole"
+            }
         }
     },
     "Parameters": {
@@ -32,7 +47,7 @@
         "ComputeEnvironment": {
             "Type": "String",
             "Description": "Environment Name",
-            "Default": "aida-validation-cf-ce"
+            "Default": "aida-validation-cf-compute"
         },
         "ComputeEnvironmentMaxVCpus": {
             "Type": "Number",
@@ -42,12 +57,12 @@
         "ComputeEnviornmentMinVCpus": {
             "Type": "Number",
             "Description": "The minimum number of vcpus for the compute environment.",
-            "Default": 1
+            "Default": 0
         },
         "ComputeEnvironmentDesiredVCpus": {
             "Type": "Number",
             "Description": "The desired number of vcpus for the compute environment.",
-            "Default": 2
+            "Default": 0
         },
         "ComputeNodes": {
             "Type": "Number",
@@ -181,7 +196,7 @@
                         "Ref": "ComputeEnvironmentDesiredVCpus"
                     },
                     "InstanceRole": {
-                        "Ref": "BatchInstanceRole"
+                        "Ref": "BatchInstanceProfile"
                     },
                     "InstanceTypes": [
                         "m4.large"
@@ -208,12 +223,27 @@
                         "Name": "aida-batch-compute-environment",
                         "Project": "AIDA"
                     },
+                    "Ec2KeyPair": {
+                        "Ref": "Ec2KeyPair"
+                    },
                     "Type": "EC2"
                 },
                 "ServiceRole": {
                     "Ref": "BatchServiceRole"
                 },
+                "State": "Enabled",
                 "Type": "MANAGED"
+            }
+        },
+        "BatchInstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Path": "/",
+                "Roles": [
+                    {
+                        "Ref": "BatchInstanceRole"
+                    }
+                ]
             }
         },
         "BatchInstanceRole": {
@@ -314,7 +344,7 @@
                 "Tags": [
                     {
                         "Key": "Name",
-                        "Value": "aida-batch-validation-sg"
+                        "Value": "aida-validation-batch-sg"
                     }
                 ],
                 "VpcId": {
@@ -351,7 +381,7 @@
                 },
                 "Parameters": {},
                 "RetryStrategy": {
-                    "Attempts": 0
+                    "Attempts": 1
                 },
                 "NodeProperties": {
                     "MainNode": 0,
