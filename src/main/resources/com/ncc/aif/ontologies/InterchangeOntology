@@ -420,6 +420,8 @@
         rdf:type owl:Class ;
         owl:unionOf (
           :Entity
+          :Event
+          :Relation
           :SameAsCluster ) ] ;
   rdfs:range :JustificationTypes ;
   rdfs:subPropertyOf owl:topObjectProperty .

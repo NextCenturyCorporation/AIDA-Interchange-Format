@@ -3,7 +3,7 @@ package com.ncc.aif;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.io.Resources;
-import org.apache.jena.ontology.OntModel;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
@@ -34,8 +34,8 @@ public class OntologyTest {
 
     @Test
     void aifOntology() throws IOException, IllegalAccessException {
-        OntModel ontModel = ModelFactory.createOntologyModel();
-        RDFDataMgr.read(ontModel,
+        Model model = ModelFactory.createDefaultModel();
+        RDFDataMgr.read(model,
                 Resources.getResource("com/ncc/aif/ontologies/InterchangeOntology").openStream(),
                 Lang.TURTLE);
 
@@ -44,7 +44,7 @@ public class OntologyTest {
         for (Field field : AidaAnnotationOntology.class.getDeclaredFields()) {
             if (classesToCheck.contains(field.getType())) {
                 Resource toTest = (Resource)field.get(AidaAnnotationOntology.class);
-                if (!ontModel.contains(toTest, RDF.type)) {
+                if (!model.contains(toTest, RDF.type)) {
                     System.out.println(toTest.getURI());
                     invalid = true;
                 }
