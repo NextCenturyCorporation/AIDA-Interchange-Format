@@ -442,9 +442,6 @@
                         }
                     ]
                 },
-                "Timeout" : {
-                    "AttemptDurationSeconds" : 100
-                },
                 "Type" : "multinode"
             }
         }
