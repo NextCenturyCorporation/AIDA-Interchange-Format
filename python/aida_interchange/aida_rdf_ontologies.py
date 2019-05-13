@@ -159,7 +159,7 @@ AIDA_PROGRAM_ONTOLOGY_LUT = {
     "website": AIDA_PROGRAM_ONTOLOGY.website}
 
 AIDA_ANNOTATION = ClosedNamespace(
-    uri=URIRef("https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#"),
+    uri=URIRef("https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#"),
     terms=[
       # Classes
       'AudioJustification',

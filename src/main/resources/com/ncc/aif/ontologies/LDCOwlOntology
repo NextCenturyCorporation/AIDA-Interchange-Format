@@ -1,18 +1,18 @@
 ######################################################
-# Created by com.ncc.verdi.ldc.LDCOntology on 2019-04-24T19:36:31.790Z
-# For more information about this file, refer to:
+# Created by com.ncc.verdi.ldc.LDCOntology on 2019-05-10T19:15:59.357Z
+# For more information about this file, refer to: 
 # https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/tree/master/src/main/resources/com/ncc/aif/ontologies/README.md
 ######################################################
-@prefix ldcOnt: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/LDCOntology#> .
-@prefix aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon#> .
+@prefix ldcOnt: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntology#> .
+@prefix aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#> .
 @prefix owl:   <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 
-<https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/LDCOwlOntology>
+<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOwlOntology>
         a                owl:Ontology ;
         rdfs:comment     "An ontology for creating messages from LDC data to use in AIDA interchange language development" ;
         rdfs:label       "AIDA Domain Ontology for LDC Annotations" ;
-        owl:imports      <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/AidaDomainOntologiesCommon> ;
+        owl:imports      <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon> ;
         owl:versionInfo  "Version 0.1" .
 
 ######################################################
