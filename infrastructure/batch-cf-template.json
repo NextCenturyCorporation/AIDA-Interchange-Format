@@ -145,6 +145,30 @@
         }
     },
     "Resources": {
+        "AidaValidationS3Policy" : {
+          "Type" : "AWS::S3::BucketPolicy",
+          "Properties" : {
+            "PolicyDocument": {
+              "Statement":[{
+                "Action":"s3:*",
+                "Effect":"Allow",
+                "Resource": "*"
+              }]
+            }
+          }
+        }, 
+        "AidaValidationSQSPolicy" : {
+          "Type": "AWS::SQS::QueuePolicy",
+          "Properties" : {
+            "PolicyDocument": {
+                "Statement":[{
+                    "Action":"SQS:*",
+                    "Effect":"Allow",
+                    "Resource": "*"
+                }]
+            }
+          }
+        }, 
         "BatchComputeEnvironment": {
             "Properties": {
                 "ComputeResources": {
