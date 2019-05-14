@@ -413,10 +413,6 @@ public final class ValidateAIF {
             System.exit(ReturnCode.FILE_ERROR.ordinal());
         }
 
-        if (flags.contains(ArgumentFlags.ABORT)) {
-            validator.setAbortThreshold(abortParam); // abortParam was set and validated in processArgs()
-        }
-
         // Display a summary of what we're going to do.
         if (!validationFiles.isEmpty()) {
             logger.info("-> Validating KB(s): " +
@@ -435,6 +431,7 @@ public final class ValidateAIF {
         }
         if (flags.contains(ArgumentFlags.ABORT)) {
             logger.info("-> Validation will abort after " + abortParam + " SHACL violation(s).");
+            validator.setAbortThreshold(abortParam); // abortParam was set and validated in processArgs()
         }
         if (flags.contains(ArgumentFlags.FILE_OUTPUT)) {
             logger.info("-> Validation report for invalid KBs will be saved to <kbname>-report.txt.");
@@ -480,8 +477,7 @@ public final class ValidateAIF {
                         logger.warn("---> Validation of " + fileToValidate +
                                 " was aborted after " + abortParam + " SHACL violations.");
                         abortCount++;
-                    }
-                    else {
+                    } else {
                         logger.warn("---> Validation of " + fileToValidate + " failed.");
                     }
                 }
@@ -502,8 +498,7 @@ public final class ValidateAIF {
         if (!fileOutput) {
             logger.info("---> Validation report:");
             RDFDataMgr.write(System.err, validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
-        }
-        else {
+        } else {
             String outputFilename = fileToValidate.toString().replace(".ttl", "-report.txt");
             try {
                 RDFDataMgr.write(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)),
