@@ -122,7 +122,7 @@
         "Subnets": {
             "Type": "List<AWS::EC2::Subnet::Id>",
             "Description": "Comma-delimited list of subnet Ids",
-            "Default": "subnet-01d458cf6e5a06b9e,subnet-0528b9dfb2f0f7b75,subnet-07b18355f29b464b9,subnet-07d3e039201ef58de,subnet-0be18254f7f477b97, subnet-0c17c8a9490c1fd47"
+            "Default": "subnet-01d458cf6e5a06b9e,subnet-0528b9dfb2f0f7b75,subnet-07b18355f29b464b9,subnet-07d3e039201ef58de,subnet-0be18254f7f477b97,subnet-0c17c8a9490c1fd47"
         },
         "Vpc": {
             "ConstraintDescription": "Must be a valid VPC ID.",
@@ -285,6 +285,9 @@
                     ]
                 },
                 "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+                    "arn:aws:iam::aws:policy/AmazonSQSFullAccess",
+                    "arn:aws:iam::aws:policy/AWSBatchFullAccess",
                     "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
                 ],
                 "Path": "/",
