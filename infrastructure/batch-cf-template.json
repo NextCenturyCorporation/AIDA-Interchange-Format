@@ -67,7 +67,7 @@
         "ComputeNodes": {
             "Type": "Number",
             "Description": "The total number for nodes for the validation batch job.",
-            "Default": 1
+            "Default": 2
         },
         "MainNodeRange": {
             "Type": "String",
@@ -87,7 +87,7 @@
         "WorkerNodeRange": {
             "Type": "String",
             "Description": "The target node range for the main node (i.e. 0:0).",
-            "Default": "1:3"
+            "Default": "1:1"
         },
         "WorkerNodeMemory": {
             "Type": "Number",
@@ -97,6 +97,11 @@
         "MainNodeVpcus": {
             "Type": "Number",
             "Description": "The number of Vpcus for the main nodes (i.e. 2).",
+            "Default": 2
+        },
+        "WorkerNodeVpcus": {
+            "Type": "Number",
+            "Description": "The number of Vpcus for the worker nodes (i.e. 2).",
             "Default": 2
         },
         "JobQueueName": {
@@ -182,6 +187,21 @@
             "Type": "String",
             "Description": "The default region to use when calling aws services",
             "Default": "us-east-1"
+        },
+        "EnvWorkerLogLevel": {
+            "Type": "String",
+            "Description": "The log level for the worker nodes",
+            "Default": "INFO"
+        },
+        "EnvQueueInitTimeout": {
+            "Type": "String",
+            "Description": "The number of seconds to wait for the SQS queue to initialize",
+            "Default": "120"
+        },
+        "EnvValidationTimeout": {
+            "Type": "String",
+            "Description": "The number of seconds to wait for a single validation to complete before timing out",
+            "Default": "28880"
         }
     },
     "Resources": {
@@ -436,6 +456,53 @@
                                 "Ulimits" : [],
                                 "Vcpus" : {
                                     "Ref": "MainNodeVpcus"
+                                },
+                                "Volumes" : []
+                            }
+                        },
+                        {
+                            "TargetNodes": {
+                                "Ref": "WorkerNodeRange"
+                            },
+                            "Container": {
+                                "Command" : [],
+                                "Environment":  [
+                                    { 
+                                        "Name": "QUEUE_INIT_TIMEOUT",
+                                        "Value": { "Ref": "EnvQueueInitTimeout" }
+                                    },
+                                    {
+                                        "Name": "VALIDATION_TIMEOUT",
+                                        "Value": { "Ref": "EnvValidationTimeout" }
+                                    },
+                                    {
+                                        "Name": "S3_VALIDATION_BUCKET",
+                                        "Value": { "Ref": "EnvS3ValidationBucket" }
+                                    },
+                                    {
+                                        "Name": "WORKER_LOG_LEVEL",
+                                        "Value": { "Ref": "EnvWorkerLogLevel" }
+                                    }
+                                ],
+                                "Image" : {
+                                    "Ref": "WorkerContainerImage"
+                                },
+                                "InstanceType" : {
+                                    "Ref": "WorkerEc2InstanceType"
+                                },
+                                "JobRoleArn" : {
+                                    "Ref": "BatchTaskRole"
+                                },
+                                "Memory" : {
+                                    "Ref": "WorkerNodeMemory"
+                                },
+                                "MountPoints" : [],
+                                "Privileged" : "True",
+                                "ReadonlyRootFilesystem" : "False",
+                                "ResourceRequirements" : [],
+                                "Ulimits" : [],
+                                "Vcpus" : {
+                                    "Ref": "WorkerNodeVpcus"
                                 },
                                 "Volumes" : []
                             }
