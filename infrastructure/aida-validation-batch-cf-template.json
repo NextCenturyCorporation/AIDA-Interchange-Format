@@ -119,25 +119,6 @@
             "Description": "Name of the Job Definition to be created",
             "Default": "aida-validation-cf-job"
         },
-        "Subnets": {
-            "Type": "List<AWS::EC2::Subnet::Id>",
-            "Description": "Comma-delimited list of subnet Ids",
-            "Default": "subnet-01d458cf6e5a06b9e,subnet-0528b9dfb2f0f7b75,subnet-07b18355f29b464b9,subnet-07d3e039201ef58de,subnet-0be18254f7f477b97,subnet-0c17c8a9490c1fd47"
-        },
-        "Vpc": {
-            "ConstraintDescription": "Must be a valid VPC ID.",
-            "Type": "AWS::EC2::VPC::Id",
-            "Default": "vpc-08d1ca002b024fa5e"
-        },
-        "VpcCidr": {
-            "Type": "String",
-            "Description": "CIDR Block of the VPC, allows for ssh access",
-            "Default": "10.10.0.0/16",
-            "MinLength": "9",
-            "MaxLength": "18",
-            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
-            "ConstraintDescription": "Must be valid CIDR notation (i.e. x.x.x.x/x)."
-        },
         "Ec2KeyPair": {
             "Type": "AWS::EC2::KeyPair::KeyName",
             "Description": "Ec2KeyPair to use for Compute Environment",
@@ -235,9 +216,19 @@
                             ]
                         }
                     ],
-                    "Subnets": {
-                            "Ref": "Subnets"
-                    }
+                    "Subnets": [{
+                            "Fn::Join" : [ 
+                                ",", 
+                                [
+                                    { "Fn::ImportValue": "aida-validation-private-subnet-a" },
+                                    { "Fn::ImportValue": "aida-validation-private-subnet-b" },
+                                    { "Fn::ImportValue": "aida-validation-private-subnet-c" },
+                                    { "Fn::ImportValue": "aida-validation-private-subnet-d" },
+                                    { "Fn::ImportValue": "aida-validation-private-subnet-e" },
+                                    { "Fn::ImportValue": "aida-validation-private-subnet-f" }
+                                ]
+                            ]
+                    }]
                     ,
                     "Tags": {
                         "Name": "aida-batch-compute-environment",
@@ -358,7 +349,7 @@
                 },
                 "SecurityGroupIngress": {
                     "CidrIp": {
-                        "Ref": "VpcCidr"
+                        "Fn::ImportValue": "aida-validation-vpc-cidr"
                     },
                     "IpProtocol": "tcp",
                     "FromPort": "22",
@@ -371,7 +362,7 @@
                     }
                 ],
                 "VpcId": {
-                    "Ref": "Vpc"
+                    "Fn::ImportValue": "aida-validation-vpc-id"
                 }
             }
         },
