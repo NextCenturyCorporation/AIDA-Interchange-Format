@@ -12,9 +12,11 @@ import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.util.FileUtils;
+import org.topbraid.jenax.progress.SimpleProgressMonitor;
 import org.topbraid.jenax.statistics.ExecStatistics;
 import org.topbraid.jenax.statistics.ExecStatisticsListener;
 import org.topbraid.jenax.statistics.ExecStatisticsManager;
+import org.topbraid.shacl.validation.ValidationEngine;
 import org.topbraid.shacl.validation.ValidationEngineConfiguration;
 import org.topbraid.shacl.validation.ValidationUtil;
 import org.topbraid.shacl.vocabulary.SH;
@@ -85,6 +87,7 @@ public final class ValidateAIF {
     private Model domainModel;
     private Restriction restriction;
     private int abortThreshold = -1; // by default, do not abort on SHACL violation
+    private boolean monitoringProgress = false; // by default, do not monitor progress
 
     private ValidateAIF(Model domainModel, Restriction restriction) {
         initializeSHACLModels();
@@ -172,7 +175,7 @@ public final class ValidateAIF {
     // Show usage information.
     private static void showUsage() {
         System.out.println("Usage:\n" +
-                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--abort [num]] {-f FILE ... | -d DIRNAME}\n" +
+                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--progress] [--abort [num]] {-f FILE ... | -d DIRNAME}\n" +
                 "Options:\n" +
                 "--ldc           Validate against the LDC ontology\n" +
                 "--program       Validate against the program ontology\n" +
@@ -182,6 +185,7 @@ public final class ValidateAIF {
                 "-o              Save validation report model to a file.  KB.ttl would result in KB-report.txt.\n" +
                 "                Output defaults to stderr.\n" +
                 "-h, --help      Show this help and usage text\n" +
+                "--pm            Enable progress monitor that shows ongoing validation progress\n" +
                 "--abort [num]   Abort validation after [num] SHACL violations, or three violations if [num] is omitted.\n" +
                 "-f FILE ...     Validate the specified file(s) with a .ttl suffix\n" +
                 "-d DIRNAME      Validate all .ttl files in the specified directory\n" +
@@ -251,6 +255,9 @@ public final class ValidateAIF {
                     break;
                 case "--p2": // NOTE: this flag is not documented in the README nor the Usage info
                     flags.add(ArgumentFlags.PROGRESSIVE_PROFILING);
+                    break;
+                case "--pm":
+                    flags.add(ArgumentFlags.PROGRESS_MONITORING);
                     break;
                 case "--abort":
                     flags.add(ArgumentFlags.ABORT);
@@ -326,7 +333,7 @@ public final class ValidateAIF {
 
     // Command-line argument flags
     private enum ArgumentFlags {
-        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY, FILE_OUTPUT, PROFILING, PROGRESSIVE_PROFILING, ABORT
+        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY, FILE_OUTPUT, PROFILING, PROGRESSIVE_PROFILING, ABORT, PROGRESS_MONITORING
     }
 
     /**
@@ -356,6 +363,7 @@ public final class ValidateAIF {
                 flags.contains(ArgumentFlags.HYPO) ? Restriction.NIST_HYPOTHESIS : Restriction.NIST;
         final boolean ldcFlag = flags.contains(ArgumentFlags.LDC);
         final boolean programFlag = flags.contains(ArgumentFlags.PROGRAM);
+        final boolean progressMonitoring = flags.contains(ArgumentFlags.PROGRESS_MONITORING);
         final boolean profiling = flags.contains(ArgumentFlags.PROFILING) || flags.contains(ArgumentFlags.PROGRESSIVE_PROFILING);
 
         // Finally, try to create the validator, but fail if required elements can't be loaded/parsed.
@@ -440,6 +448,10 @@ public final class ValidateAIF {
         }
         if (profiling) {
             logger.info("-> Saving slow queries (> " + LONG_QUERY_THRESH + " ms) to <kbname>-stats.txt.");
+        }
+        if (progressMonitoring) {
+            logger.info("-> Progress monitor enabled that shows ongoing validation progress.");
+            validator.setProgressMonitor(true);
         }
         logger.info("*** Beginning validation of " + filesToValidate.size() + " file(s). ***");
 
@@ -568,6 +580,15 @@ public final class ValidateAIF {
     }
 
     /**
+     * Tells the validator whether or not to monitor progress and show ongoing validation progress
+     *
+     * @param newSetting whether or not to monitor progress
+     */
+    public void setProgressMonitor(boolean newSetting) {
+        this.monitoringProgress = newSetting;
+    }
+
+    /**
      * Tells the validator to "fail fast" if SHACL violations are detected.  Validation will terminate after
      * <code>abortThreshold</code> SHACL violations are detected.  Use zero to disable failing fast.
      *
@@ -642,12 +663,21 @@ public final class ValidateAIF {
         }
 
         // Validates against the SHACL file to ensure that resources have the required properties
-        // (and in some cases, only the required properties) of the proper types.  Returns true if
-        // validation passes.
-        return ValidationUtil.validateModel(unionModel, shacl,
+        // (and in some cases, only the required properties) of the proper types.
+        ValidationEngine engine = ValidationUtil.createValidationEngine(unionModel, shacl,
                 new ValidationEngineConfiguration()
                         .setValidateShapes(true)
                         .setValidationErrorBatch(abortThreshold));
+        if (monitoringProgress) {
+            engine.setProgressMonitor(new ValidationProgressMonitor("Validation progress"));
+        }
+        try {
+            engine.applyEntailments();
+            return engine.validateAll();
+        }
+        catch(InterruptedException ex) {
+            return null;
+        }
     }
 
     /**
@@ -839,6 +869,32 @@ public final class ValidateAIF {
                 out.close();
             } catch (IOException ioe) {
                 logger.warn("---> Could not write statistics for " + basename + ".");
+            }
+        }
+    }
+
+    private class ValidationProgressMonitor extends SimpleProgressMonitor {
+        private final DateFormat format = new SimpleDateFormat("EEE, MMM d HH:mm:ss");
+        private final int outputThreshold = 1000;
+        private long timeIndex;
+
+        ValidationProgressMonitor(String name) {
+            super(name);
+        }
+
+        @Override
+        public void subTask(String label) {
+            println("Validating " + label);
+            timeIndex = Calendar.getInstance().getTime().getTime();
+        }
+
+        @Override
+        public void worked(int amount) {
+            super.worked(amount);
+            long duration = Calendar.getInstance().getTime().getTime() - this.timeIndex;
+            if (duration > outputThreshold) {
+                println("  Duration: " + duration + "ms");
+                println("  Timestamp: " + format.format(Calendar.getInstance().getTime()));
             }
         }
     }

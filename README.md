@@ -77,6 +77,7 @@ Usage:  <br>
 |`--nist-ta3` | validate against the NIST hypothesis restrictions (implies `--nist`) |
 |`-o` | Save validation report model to a file.  `KB.ttl` would result in `KB-report.txt`. Output defaults to stderr. |
 |`-h, --help` | This help and usage text |
+|`--pm` | Enable progress monitor that shows ongoing validation progress |
 |`--abort [num]` | Abort validation after `[num]` SHACL violations, or three violations if `[num]` is omitted. |
 |`-f FILE ...` | validate the specified file(s) with a `.ttl` suffix |
 |`-d DIRNAME` | validate all `.ttl` files in the specified directory |
