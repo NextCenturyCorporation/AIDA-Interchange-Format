@@ -21,7 +21,10 @@ import org.topbraid.shacl.validation.ValidationEngineConfiguration;
 import org.topbraid.shacl.validation.ValidationUtil;
 import org.topbraid.shacl.vocabulary.SH;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -670,21 +673,21 @@ public final class ValidateAIF {
         ValidationEngine engine = ValidationUtil.createValidationEngine(unionModel, shacl,
                 new ValidationEngineConfiguration()
                         .setValidateShapes(true)
+//                        .setReportDetails(true)
                         .setValidationErrorBatch(abortThreshold));
         if (monitorID != null) {
             try {
                 engine.setProgressMonitor(new AIFProgressMonitor(monitorID));
             } catch (IOException ioe) {
-                System.err.println("Could not open progress monitor filename for ID: " + monitorID);
-                ioe.printStackTrace();
+                System.err.printf("Could not open progress monitor filename for ID %s.  Disabling progress monitor.", monitorID);
+                ioe.printStackTrace(); // TODO: Remove prior to PR
                 engine.setProgressMonitor(null);
             }
         }
         try {
             engine.applyEntailments();
             return engine.validateAll();
-        }
-        catch(InterruptedException ex) {
+        } catch (InterruptedException ex) {
             return null;
         }
     }
@@ -881,96 +884,96 @@ public final class ValidateAIF {
             }
         }
     }
+}
 
-    /**
-     * A progress monitor for AIF validation.
-     * Writes a tab-delimited file in the following format:
-     * <code>ShapeNum | ShapeName | StartTime | EndTime | Duration</code>
-     * <code>1 | sh:MinExclusiveConstraintComponent | t1 | t2 | 25ms<code>
-     * <code>2 | etc | t1 | t2 | 1225ms<code>
-     */
-    private class AIFProgressMonitor extends NullProgressMonitor {
-        private final boolean logging = false;
-        private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.SSS");
-        private final int loggingThreshold = 1000;
-        private Map<Integer, String> shapeNameMap = Maps.newConcurrentMap();
-        private Map<Integer, Long> shapeTimeMap = Maps.newConcurrentMap();
-        private int shapeNum;
-        private int numShapes;
-        private BufferedWriter out;
+/**
+ * A progress monitor for AIF validation.
+ * Writes a tab-delimited file in the following format:
+ * <code>ShapeNum | ShapeName | StartTime | EndTime | Duration</code>
+ * <code>1 | sh:MinExclusiveConstraintComponent | t1 | t2 | 25ms<code>
+ * <code>2 | etc | t1 | t2 | 1225ms<code>
+ */
+class AIFProgressMonitor extends NullProgressMonitor {
+    private static final boolean LOGGING = true;
+    private static final SimpleDateFormat FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
+    private static final int LOGGING_THRESHOLD = 1000;
+    private Map<Integer, String> shapeNameMap = Maps.newConcurrentMap();
+    private Map<Integer, Long> shapeTimeMap = Maps.newConcurrentMap();
+    private int shapeNum;
+    private int numShapes;
+    private BufferedWriter out;
 
-        AIFProgressMonitor(String name) throws IOException {
-            // Create new file with basename based on name
-            String filename = name.replace(".ttl", "-progress.txt");
-            log("Creating file " + filename + ".txt with header.");
-            Path outputPath = Paths.get(filename);
-            // Supplying the DSYNC option below isn't working unless the file already exists, at least on Windows.
-            if (Files.notExists(Paths.get(filename))) {
-                outputPath = Files.createFile(Paths.get(filename));
-            }
-            out = Files.newBufferedWriter(outputPath, StandardOpenOption.DSYNC);
+    AIFProgressMonitor(String name) throws IOException {
+        // Create new file with basename based on name
+        String filename = name.replace(".ttl", "-progress.txt");
+        log("Creating file " + filename + ".txt with header.");
+        Path outputPath = Paths.get(filename);
+        // Supplying the DSYNC option below isn't working unless the file already exists, at least on Windows.
+        if (Files.notExists(Paths.get(filename))) {
+            outputPath = Files.createFile(Paths.get(filename));
         }
+        out = Files.newBufferedWriter(outputPath, StandardOpenOption.DSYNC);
+    }
 
-        private void log(String text) {
-            if (logging) {
-                System.out.println(text);
-            }
+    private void log(String text) {
+        if (LOGGING) {
+            System.out.println(text);
         }
+    }
 
-        @Override
-        public void beginTask(String label, int numShapes) {
-            log("Beginning task " + label + " (" + numShapes + ")");
-            this.numShapes = numShapes;
-            this.shapeNum = 0;
-            log("Logging to file number of shapes: " + this.numShapes);
-            try {
-                out.write("Total: " + this.numShapes + "\n");
-                out.write("#\tShapeName\tStartTime\tEndTime\tDuration (ms)\n");
-                out.flush();
-            } catch (IOException ioe) {
-                System.err.println("Could not write to progress monitor.");
-            }
+    @Override
+    public void beginTask(String label, int numShapes) {
+        log("Beginning task " + label + " (" + numShapes + ")");
+        this.numShapes = numShapes;
+        this.shapeNum = 0;
+        log("Logging to file number of shapes: " + this.numShapes);
+        try {
+            out.write("Total: " + this.numShapes + "\n");
+            out.write("#\tShapeName\tStartTime\tEndTime\tDuration (ms)\n");
+            out.flush();
+        } catch (IOException ioe) {
+            System.err.println("Could not write to progress monitor.");
         }
+    }
 
-        @Override
-        public void done() {
-            // As of this writing, this doesn't actually get called.  If it did, we could close the BufferedWriter here.
-            log("DONE!");
+    @Override
+    public void done() {
+        // As of this writing, this doesn't actually get called.  If it did, we could close the BufferedWriter here.
+        log("DONE!");
+    }
+
+    @Override
+    public void subTask(String label) {
+        log("Validating " + label); // e.g., label = "Shape 3: sh:DerivedValuesConstraintComponent"
+        final String[] parts = label.split(" ");
+        final int shapeNum = Integer.parseUnsignedInt(parts[1].replaceFirst(":", ""));
+        final String shapeName = parts[2];
+        shapeNameMap.put(shapeNum, shapeName);
+        shapeTimeMap.put(shapeNum, Calendar.getInstance().getTime().getTime());
+    }
+
+    @Override
+    public void worked(int amount) {
+        shapeNum += amount;
+        log("Worked " + shapeNum + " / " + numShapes);
+        final String shapeName = shapeNameMap.get(shapeNum);
+        final long startTimeMs = shapeTimeMap.get(shapeNum);
+        final Date endTime = Calendar.getInstance().getTime();
+        final long duration = endTime.getTime() - startTimeMs;
+        log("This should be " + shapeName); // For testing in multi-threaded environment.
+        if (duration > LOGGING_THRESHOLD) {
+            log("  Duration: " + duration + "ms");
+            log("  Timestamp: " + FORMAT.format(endTime));
         }
-
-        @Override
-        public void subTask(String label) {
-            log("Validating " + label); // e.g., label = "Shape 3: sh:DerivedValuesConstraintComponent"
-            final String[] parts = label.split(" ");
-            final int shapeNum = Integer.parseUnsignedInt(parts[1].replaceFirst(":", ""));
-            final String shapeName = parts[2];
-            shapeNameMap.put(shapeNum, shapeName);
-            shapeTimeMap.put(shapeNum, Calendar.getInstance().getTime().getTime());
-        }
-
-        @Override
-        public void worked(int amount) {
-            shapeNum += amount;
-            log("Worked " + shapeNum + " / " + numShapes);
-            final String shapeName = shapeNameMap.get(shapeNum);
-            final long startTimeMs = shapeTimeMap.get(shapeNum);
-            final Date endTime = Calendar.getInstance().getTime();
-            final long duration = endTime.getTime() - startTimeMs;
-            log("This should be " + shapeName); // For testing in multi-threaded environment.
-            if (duration > loggingThreshold) {
-                log("  Duration: " + duration + "ms");
-                log("  Timestamp: " + format.format(endTime));
+        // Write a row of the file.
+        try {
+            out.write("" + shapeNum + "\t" + shapeName + "\t" + FORMAT.format(new Date(startTimeMs)) + "\t" + FORMAT.format(endTime) + "\t" + duration + "\n");
+            out.flush();
+            if (shapeNum >= numShapes) {
+                out.close();
             }
-            // Write a row of the file.
-            try {
-                out.write("" + shapeNum + "\t" + shapeName + "\t" + format.format(new Date(startTimeMs)) + "\t" + format.format(endTime) + "\t" + duration + "\n");
-                out.flush();
-                if (shapeNum >= numShapes) {
-                    out.close();
-                }
-            } catch (IOException ioe) {
-                System.err.println("Could not write to progress monitor.");
-            }
+        } catch (IOException ioe) {
+            System.err.println("Could not write to progress monitor.");
         }
     }
 }
