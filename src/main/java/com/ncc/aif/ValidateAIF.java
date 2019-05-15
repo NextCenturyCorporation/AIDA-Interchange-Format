@@ -4,15 +4,15 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.common.io.CharSource;
-import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.util.FileUtils;
-import org.topbraid.jenax.progress.SimpleProgressMonitor;
+import org.topbraid.jenax.progress.NullProgressMonitor;
 import org.topbraid.jenax.statistics.ExecStatistics;
 import org.topbraid.jenax.statistics.ExecStatisticsListener;
 import org.topbraid.jenax.statistics.ExecStatisticsManager;
@@ -21,12 +21,11 @@ import org.topbraid.shacl.validation.ValidationEngineConfiguration;
 import org.topbraid.shacl.validation.ValidationUtil;
 import org.topbraid.shacl.vocabulary.SH;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
+import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -87,7 +86,7 @@ public final class ValidateAIF {
     private Model domainModel;
     private Restriction restriction;
     private int abortThreshold = -1; // by default, do not abort on SHACL violation
-    private boolean monitoringProgress = false; // by default, do not monitor progress
+    private String monitorID = null; // by default, do not monitor progress
 
     private ValidateAIF(Model domainModel, Restriction restriction) {
         initializeSHACLModels();
@@ -378,7 +377,7 @@ public final class ValidateAIF {
                 Set<CharSource> domainOntologySources = new HashSet<>();
                 for (String source : domainOntologies) {
                     File file = new File(source);
-                    domainOntologySources.add(Files.asCharSource(file, Charsets.UTF_8));
+                    domainOntologySources.add(com.google.common.io.Files.asCharSource(file, Charsets.UTF_8));
                 }
                 validator = create(ImmutableSet.copyOf(domainOntologySources), restriction);
             }
@@ -450,13 +449,12 @@ public final class ValidateAIF {
             logger.info("-> Saving slow queries (> " + LONG_QUERY_THRESH + " ms) to <kbname>-stats.txt.");
         }
         if (progressMonitoring) {
-            logger.info("-> Progress monitor enabled that shows ongoing validation progress.");
-            validator.setProgressMonitor(true);
+            logger.info("-> Saving ongoing validation progress to <kbname>-progress.txt.");
         }
         logger.info("*** Beginning validation of " + filesToValidate.size() + " file(s). ***");
 
         // Validate all files, noting I/O and other errors, but continue to validate even if one fails.
-        final DateFormat format = new SimpleDateFormat("EEE, MMM d HH:mm:ss");
+        final SimpleDateFormat format = new SimpleDateFormat("EEE, MMM d HH:mm:ss");
         int invalidCount = 0;
         int skipCount = 0;
         int abortCount = 0;
@@ -473,6 +471,9 @@ public final class ValidateAIF {
             if (notSkipped) {
                 if (profiling) {
                     stats.startCollection();
+                }
+                if (progressMonitoring) {
+                    validator.setProgressMonitor(fileToValidate.getName());
                 }
                 final Resource report = validator.validateKBAndReturnReport(dataToBeValidated);
                 if (profiling) {
@@ -513,7 +514,7 @@ public final class ValidateAIF {
         } else {
             String outputFilename = fileToValidate.toString().replace(".ttl", "-report.txt");
             try {
-                RDFDataMgr.write(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)),
+                RDFDataMgr.write(Files.newOutputStream(Paths.get(outputFilename)),
                         validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
             } catch (IOException ioe) {
                 logger.warn("---> Could not write validation report for " + fileToValidate + ".");
@@ -528,7 +529,7 @@ public final class ValidateAIF {
     private static boolean checkHypothesisSize(File fileToValidate) {
         try {
             final Path path = Paths.get(fileToValidate.toURI());
-            final long fileSize = java.nio.file.Files.size(path);
+            final long fileSize = Files.size(path);
             if (fileSize > 1024 * 1024 * 5) { // 5MB
                 logger.warn("---> Hypothesis KB " + fileToValidate + " is more than 5MB (" + fileSize + " bytes); skipping.");
                 return false;
@@ -546,7 +547,7 @@ public final class ValidateAIF {
         dataToBeValidated.addLoadedImport(INTERCHANGE_URI);
         dataToBeValidated.addLoadedImport(AIDA_DOMAIN_COMMON_URI);
         try {
-            loadModel(dataToBeValidated, Files.asCharSource(fileToValidate, Charsets.UTF_8));
+            loadModel(dataToBeValidated, com.google.common.io.Files.asCharSource(fileToValidate, Charsets.UTF_8));
         } catch (RuntimeException rte) {
             logger.warn("---> Could not read " + fileToValidate + "; skipping.");
             return false;
@@ -580,12 +581,12 @@ public final class ValidateAIF {
     }
 
     /**
-     * Tells the validator whether or not to monitor progress and show ongoing validation progress
+     * Tells the validator to monitor progress and show ongoing validation progress
      *
-     * @param newSetting whether or not to monitor progress
+     * @param id an identifier for the progress monitor
      */
-    public void setProgressMonitor(boolean newSetting) {
-        this.monitoringProgress = newSetting;
+    public void setProgressMonitor(String id) {
+        this.monitorID = id;
     }
 
     /**
@@ -668,8 +669,14 @@ public final class ValidateAIF {
                 new ValidationEngineConfiguration()
                         .setValidateShapes(true)
                         .setValidationErrorBatch(abortThreshold));
-        if (monitoringProgress) {
-            engine.setProgressMonitor(new ValidationProgressMonitor("Validation progress"));
+        if (monitorID != null) {
+            try {
+                engine.setProgressMonitor(new AIFProgressMonitor(monitorID));
+            } catch (IOException ioe) {
+                System.err.println("Could not open progress monitor filename for ID: " + monitorID);
+                ioe.printStackTrace();
+                engine.setProgressMonitor(null);
+            }
         }
         try {
             engine.applyEntailments();
@@ -735,7 +742,7 @@ public final class ValidateAIF {
         void dump(String basename) {
             final String outputFilename = basename.replace(".ttl", "-stats.txt");
             try {
-                final PrintStream out = new PrintStream(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)));
+                final PrintStream out = new PrintStream(Files.newOutputStream(Paths.get(outputFilename)));
                 dumpStats(out);
                 out.close();
             } catch (IOException ioe) {
@@ -854,7 +861,7 @@ public final class ValidateAIF {
             final String outputFilename = basename.replace(".ttl", "-stats.txt");
             try {
                 final List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
-                final PrintStream out = new PrintStream(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)));
+                final PrintStream out = new PrintStream(Files.newOutputStream(Paths.get(outputFilename)));
                 if (savedStats.isEmpty()) {
                     out.println("There were no queries that took longer than " + durationThreshold + "ms (of "
                             + stats.size() + " queries overall).");
@@ -873,28 +880,94 @@ public final class ValidateAIF {
         }
     }
 
-    private class ValidationProgressMonitor extends SimpleProgressMonitor {
-        private final DateFormat format = new SimpleDateFormat("EEE, MMM d HH:mm:ss");
-        private final int outputThreshold = 1000;
-        private long timeIndex;
+    /**
+     * A progress monitor for AIF validation.
+     * Writes a tab-delimited file in the following format:
+     * <code>ShapeNum | ShapeName | StartTime | EndTime | Duration</code>
+     * <code>1 | sh:MinExclusiveConstraintComponent | t1 | t2 | 25ms<code>
+     * <code>2 | etc | t1 | t2 | 1225ms<code>
+     */
+    private class AIFProgressMonitor extends NullProgressMonitor {
+        private final boolean logging = false;
+        private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.SSS");
+        private final int loggingThreshold = 1000;
+        private Map<Integer, String> shapeNameMap = Maps.newConcurrentMap();
+        private Map<Integer, Long> shapeTimeMap = Maps.newConcurrentMap();
+        private int shapeNum;
+        private int numShapes;
+        private BufferedWriter out;
 
-        ValidationProgressMonitor(String name) {
-            super(name);
+        AIFProgressMonitor(String name) throws IOException {
+            // Create new file with basename based on name
+            String filename = name.replace(".ttl", "-progress.txt");
+            log("Creating file " + filename + ".txt with header.");
+            Path outputPath = Paths.get(filename);
+            // Supplying the DSYNC option below isn't working unless the file already exists, at least on Windows.
+            if (Files.notExists(Paths.get(filename))) {
+                outputPath = Files.createFile(Paths.get(filename));
+            }
+            out = Files.newBufferedWriter(outputPath, StandardOpenOption.DSYNC);
+        }
+
+        private void log(String text) {
+            if (logging) {
+                System.out.println(text);
+            }
+        }
+
+        @Override
+        public void beginTask(String label, int numShapes) {
+            log("Beginning task " + label + " (" + numShapes + ")");
+            this.numShapes = numShapes;
+            this.shapeNum = 0;
+            log("Logging to file number of shapes: " + this.numShapes);
+            try {
+                out.write("Total: " + this.numShapes + "\n");
+                out.write("#\tShapeName\tStartTime\tEndTime\tDuration (ms)\n");
+                out.flush();
+            } catch (IOException ioe) {
+                System.err.println("Could not write to progress monitor.");
+            }
+        }
+
+        @Override
+        public void done() {
+            // As of this writing, this doesn't actually get called.  If it did, we could close the BufferedWriter here.
+            log("DONE!");
         }
 
         @Override
         public void subTask(String label) {
-            println("Validating " + label);
-            timeIndex = Calendar.getInstance().getTime().getTime();
+            log("Validating " + label); // e.g., label = "Shape 3: sh:DerivedValuesConstraintComponent"
+            final String[] parts = label.split(" ");
+            final int shapeNum = Integer.parseUnsignedInt(parts[1].replaceFirst(":", ""));
+            final String shapeName = parts[2];
+            shapeNameMap.put(shapeNum, shapeName);
+            shapeTimeMap.put(shapeNum, Calendar.getInstance().getTime().getTime());
         }
 
         @Override
         public void worked(int amount) {
-            super.worked(amount);
-            long duration = Calendar.getInstance().getTime().getTime() - this.timeIndex;
-            if (duration > outputThreshold) {
-                println("  Duration: " + duration + "ms");
-                println("  Timestamp: " + format.format(Calendar.getInstance().getTime()));
+            shapeNum += amount;
+            log("Worked " + shapeNum + " / " + numShapes);
+            final String shapeName = shapeNameMap.get(shapeNum);
+            final long startTimeMs = shapeTimeMap.get(shapeNum);
+            final Date endTime = Calendar.getInstance().getTime();
+            final long duration = endTime.getTime() - startTimeMs;
+            log("This should be " + shapeName); // For testing in multi-threaded environment.
+            if (duration > loggingThreshold) {
+                log("  Duration: " + duration + "ms");
+                log("  Timestamp: " + format.format(endTime));
+            }
+            // Write a row of the file.
+            try {
+                out.write("" + shapeNum + "\t" + shapeName + "\t" + format.format(new Date(startTimeMs)) + "\t" + format.format(endTime) + "\t" + duration + "\n");
+                out.flush();
+                if (shapeNum >= numShapes) {
+                    out.close();
+                }
+            } catch (IOException ioe) {
+                System.err.println("Could not write to progress monitor.");
             }
         }
     }
