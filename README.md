@@ -77,7 +77,7 @@ Usage:  <br>
 |`--nist-ta3` | validate against the NIST hypothesis restrictions (implies `--nist`) |
 |`-o` | Save validation report model to a file.  `KB.ttl` would result in `KB-report.txt`. Output defaults to stderr. |
 |`-h, --help` | This help and usage text |
-|`--abort [num]` | Abort validation after `[num]` SHACL violations, or three violations if `[num]` is omitted. |
+|`--abort [num]` | Abort validation after `[num]` SHACL violations (num > 2), or three violations if `[num]` is omitted. |
 |`-f FILE ...` | validate the specified file(s) with a `.ttl` suffix |
 |`-d DIRNAME` | validate all `.ttl` files in the specified directory |
 
@@ -114,8 +114,9 @@ violations.  Specify a number after the `--abort` flag to exit after that number
 summary will display the number of aborted validations-- but if your file has the exact number of violations as
 the threshold, it will still be counted as an aborted validation.
 
-**NOTE**: As of this writing, if you set the threshold to 1 violation, the validator will erroneously return that your
-KB is *valid*.  This appears to be a current bug or limitation in the TopBraid shacl library snapshot.
+**NOTE**: As of this writing, if you set the threshold too low (less than 3), the validator might erroneously return
+that your KB is *valid*.  This appears to be a current bug or limitation in the TopBraid shacl library snapshot.
+Consequently, the command-line validator will reject thresholds less than 3.
 
 Without the `--abort` option, the entire KB will be validated with full output of all violations.
 

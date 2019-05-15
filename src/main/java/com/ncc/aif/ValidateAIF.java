@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * An AIF Validator.  These are not instantiated directly; instead invoke {@link #createForDomainOntologySource} statically,
@@ -182,7 +183,7 @@ public final class ValidateAIF {
                 "-o              Save validation report model to a file.  KB.ttl would result in KB-report.txt.\n" +
                 "                Output defaults to stderr.\n" +
                 "-h, --help      Show this help and usage text\n" +
-                "--abort [num]   Abort validation after [num] SHACL violations, or three violations if [num] is omitted.\n" +
+                "--abort [num]   Abort validation after [num] SHACL violations (num > 2), or three violations if [num] is omitted.\n" +
                 "-f FILE ...     Validate the specified file(s) with a .ttl suffix\n" +
                 "-d DIRNAME      Validate all .ttl files in the specified directory\n" +
                 "\n" +
@@ -215,6 +216,7 @@ public final class ValidateAIF {
     private static boolean processArgs(String[] args, Set<ArgumentFlags> flags, Set<String> domainOntologies,
                                        Set<String> validationFiles, Set<String> validationDirs) {
         String abortStr = null;
+        Predicate<Integer> parameterSpecified = i -> (i + 1 < args.length && !args[i + 1].startsWith("-"));
         for (int i = 0; i < args.length; i++) {
             final String arg = args[i];
             final String strippedArg = arg.trim();
@@ -254,7 +256,7 @@ public final class ValidateAIF {
                     break;
                 case "--abort":
                     flags.add(ArgumentFlags.ABORT);
-                    if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
+                    if (parameterSpecified.test(i)) {
                         abortStr = args[++i];
                     } else {
                         // NOTE: Set this to 1 when/if TopBraid's fail-fast feature properly supports failing at first violation.
@@ -274,7 +276,7 @@ public final class ValidateAIF {
                         logger.error("Please specify either -d or -f, but not both.");
                         return false;
                     }
-                    if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
+                    if (parameterSpecified.test(i)) {
                         validationDirs.add(args[++i]);
                         /* NOTE: if we choose to support validating files in N directories, change the above to:
                          *   i += processFiles(args, i, validationDirs);
@@ -310,7 +312,7 @@ public final class ValidateAIF {
             } catch (NumberFormatException nfe) {
                 abortParam = -1;
             }
-            if (abortParam < 1) {
+            if (abortParam < 3) {
                 logger.error("Invalid abort parameter: " + abortStr);
                 return false;
             }
