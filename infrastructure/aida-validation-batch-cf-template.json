@@ -216,19 +216,14 @@
                             ]
                         }
                     ],
-                    "Subnets": [{
-                            "Fn::Join" : [ 
-                                ",", 
-                                [
-                                    { "Fn::ImportValue": "aida-validation-private-subnet-a" },
-                                    { "Fn::ImportValue": "aida-validation-private-subnet-b" },
-                                    { "Fn::ImportValue": "aida-validation-private-subnet-c" },
-                                    { "Fn::ImportValue": "aida-validation-private-subnet-d" },
-                                    { "Fn::ImportValue": "aida-validation-private-subnet-e" },
-                                    { "Fn::ImportValue": "aida-validation-private-subnet-f" }
-                                ]
-                            ]
-                    }]
+                    "Subnets": [
+                        { "Fn::ImportValue": "aida-validation-private-subnet-a" },
+                        { "Fn::ImportValue": "aida-validation-private-subnet-b" },
+                        { "Fn::ImportValue": "aida-validation-private-subnet-c" },
+                        { "Fn::ImportValue": "aida-validation-private-subnet-d" },
+                        { "Fn::ImportValue": "aida-validation-private-subnet-e" },
+                        { "Fn::ImportValue": "aida-validation-private-subnet-f" }
+                    ]
                     ,
                     "Tags": {
                         "Name": "aida-batch-compute-environment",
