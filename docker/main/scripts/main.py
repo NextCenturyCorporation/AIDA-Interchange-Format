@@ -318,20 +318,22 @@ def wait_for_processing(node_index, job_id, interval):
     :param str job_id: The AWS batch job id
     :param int interval: The interval to sleep before checking job list again 
         in seconds
+    :param int worker_init_timeout: The time in seconds to wait for worker jobs to start
     :raises ClientError: AWS batch client exception
     """
     batch_client = boto3.client('batch')
 
     try:
-        response = batch_client.list_jobs(
-            multiNodeJobId=job_id
-        )
-
-        job_list = response['jobSummaryList']
-        logging.info("AWS Batch job summary list %s", job_list)
-        running_jobs = list(filter(lambda job: job['status'] == 'RUNNING', job_list))
-
         while True:
+
+            response = batch_client.list_jobs(
+                multiNodeJobId=job_id
+            )
+
+            job_list = response['jobSummaryList']
+            logging.info("AWS Batch job summary list %s", job_list)
+            running_jobs = list(filter(lambda job: job['status'] == 'RUNNING', job_list))
+
             # check if no jobs are running, throw an error becasue master should still be running
             if len(running_jobs) == 0:
                 logging.error("No batch jobs with RUNNING status")
@@ -339,16 +341,16 @@ def wait_for_processing(node_index, job_id, interval):
             # ensure master node is always in RUNNING status if multiple jobs are running
             elif ( len(running_jobs) > 0 and 
                 not any(d['jobId'] == ''.join([job_id, '#', str(node_index)]) for d in running_jobs) ):
-                logging.error("Master batch job %s no longer has RUNNING status", ''.join([job_id, '#', str(node_index)]))
+                logging.error("Main batch job %s no longer has RUNNING status", ''.join([job_id, '#', str(node_index)]))
                 return False
             # check if only the master job is running
             elif len(running_jobs) == 1 and running_jobs[0]['jobId'] == ''.join([job_id, '#', str(node_index)]):
-                logging.info("No slave batch jobs with RUNNING status")
-                return True
+                logging.info("No worker batch jobs with RUNNING status, sleeping for %s seconds", interval)
+                time.sleep(interval)
             else:
                 running_job_ids = [d['jobId'] for d in running_jobs]
                 logging.info('There are %s batch jobs with RUNNING status %s,' 
-                    ' going back to sleep for %s seconds', len(running_jobs), running_job_ids, str(interval))
+                    ' sleeping for %s seconds', len(running_jobs), running_job_ids, str(interval))
                 time.sleep(interval)
 
     except ClientError as e:
