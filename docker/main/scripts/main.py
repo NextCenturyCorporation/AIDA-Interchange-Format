@@ -351,7 +351,7 @@ def wait_for_processing(node_index, job_id, interval, worker_init_timeout):
                 
                 # wait for worker jobs to initialize
                 if worker_init:
-                    logging.info("All worker batch jobs finished executing")
+                    logging.info("All worker batch jobs finiscdhed executing")
                     return True
                 elif not worker_init and time.time() >= worker_timeout:
                     logging.error("No worker batch jobs started with RUNNING status before timeout of %s seconds", worker_init_timeout)
@@ -360,6 +360,7 @@ def wait_for_processing(node_index, job_id, interval, worker_init_timeout):
                     logging.info("Waiting for worker batch jobs to initialize with RUNNING status, sleeping for %s seconds", interval)
                     time.sleep(interval)
             else:
+                worker_init = True
                 running_job_ids = [d['jobId'] for d in running_jobs]
                 logging.info('There are %s batch jobs with RUNNING status %s,' 
                     ' sleeping for %s seconds', len(running_jobs), running_job_ids, str(interval))
