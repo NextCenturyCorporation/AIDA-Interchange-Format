@@ -27,6 +27,9 @@ import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Predicate;
 
 /**
@@ -86,11 +89,18 @@ public final class ValidateAIF {
     private Model domainModel;
     private Restriction restriction;
     private int abortThreshold = -1; // by default, do not abort on SHACL violation
+    private ExecutorService executor;
 
     private ValidateAIF(Model domainModel, Restriction restriction) {
         initializeSHACLModels();
         this.domainModel = domainModel;
         this.restriction = restriction;
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        executor.shutdownNow();
     }
 
     // Ensure what file name an RDF syntax error occurs in is printed, which
@@ -122,6 +132,11 @@ public final class ValidateAIF {
     public static ValidateAIF createForLDCOntology(Restriction restriction) {
         return create(ImmutableSet.of(Resources.asCharSource(Resources.getResource(LDC_RESNAME), Charsets.UTF_8)),
                 restriction);
+    }
+    public static ValidateAIF createForLDCOntologyWithThreads(Restriction restriction, int threadCount) {
+        ValidateAIF ret = createForLDCOntology(restriction);
+        ret.executor = Executors.newFixedThreadPool(threadCount);
+        return ret;
     }
 
     /**
@@ -646,10 +661,25 @@ public final class ValidateAIF {
         // Validates against the SHACL file to ensure that resources have the required properties
         // (and in some cases, only the required properties) of the proper types.  Returns true if
         // validation passes.
-        return ValidationUtil.validateModel(unionModel, shacl,
-                new ValidationEngineConfiguration()
-                        .setValidateShapes(true)
-                        .setValidationErrorBatch(abortThreshold));
+        ValidationEngineConfiguration config = new ValidationEngineConfiguration()
+                .setValidateShapes(true)
+                .setValidationErrorBatch(abortThreshold);
+        if (executor != null) {
+            ThreadedValidationEngine engine = ThreadedValidationEngine.createValidationEngine(unionModel, shacl, config);
+            try {
+                engine.validateAll(executor);
+            } catch (InterruptedException|ExecutionException e) {
+                System.err.println("Unable to validate due to exception");
+                e.printStackTrace();
+            }
+            return engine.getReport();
+        } else {
+            return ValidationUtil.validateModel(unionModel, shacl, config);
+        }
+    }
+
+    public ExecutorService getExecutor() {
+        return executor;
     }
 
     /**
