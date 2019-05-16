@@ -332,20 +332,23 @@ def validate_message(validation_home, s3_bucket, batch_job_id, payload, timeout)
 		logging.error("Unable to download S3 object %s", payload)
 
 
-def execute_validation(validation_home, file_path, timeout):
+def execute_validation(validation_home, validation_flags, file_path, timeout):
 	"""Executes the AIF Validator as a subprocess for the turtle file located at the specified 
 	file path. 
 
 	:param str validation_home: The root directory for the installed AIF validator
+	:param str validation_flags: The configuration flags to pass to the AIF validator
 	:param str file_path: The path of the turtle (TTL) file to be validated
 	:param int timeout: The the timeout for the AIF validation subprocess
 	:returns: Return code that specifies the validation execution result 
 	:rtype: int
+
+	
 	"""
 	file_name = Path(file_path).name
 
 	try:
-		cmd = validation_home + '/target/appassembler/bin/validateAIF --ldc --nist -o -f '
+		cmd = validation_home + '/target/appassembler/bin/validateAIF ' + validation_flags + ' -f '
 		cmd += file_path
 
 		logging.info("Executing AIF Validation for file %s", file_name)
@@ -447,14 +450,15 @@ def validate_envs(envs):
 def main():
 
 	envs = {}
-	envs['QUEUE_INIT_TIMEOUT'] = os.environ.get('QUEUE_INIT_TIMEOUT') # default to 8 hours
-	envs['VALIDATION_TIMEOUT'] = os.environ.get('VALIDATION_TIMEOUT')
-	envs['VALIDATION_HOME'] = os.environ.get('VALIDATION_HOME')
-	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET')
+	envs['QUEUE_INIT_TIMEOUT'] = os.environ.get('QUEUE_INIT_TIMEOUT', 3600) # default to 8 hours
+	envs['VALIDATION_TIMEOUT'] = os.environ.get('VALIDATION_TIMEOUT', 28800)
+	envs['VALIDATION_HOME'] = os.environ.get('VALIDATION_HOME', '/opt/aif-validator')
+	envs['VALIDATION_FLAGS'] = os.enviorn.get('VALIDATION_FLAGS', '--ldc --nist -o')
+	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
 	envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID')
 	envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX')
 	envs['WORKER_LOG_LEVEL'] = os.environ.get('WORKER_LOG_LEVEL', 'INFO') # default log level
-	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION')
+	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
 
     # set logging to log to stdout
 	logging.basicConfig(level=os.environ.get('LOGLEVEL', envs['WORKER_LOG_LEVEL']))

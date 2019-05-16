@@ -308,7 +308,7 @@ def delete_sqs_queue(queue_url):
         logging.error(e)
 
 
-def wait_for_processing(node_index, job_id, interval):
+def wait_for_processing(node_index, job_id, interval, worker_init_timeout):
     """Waits in an indefinate loop while all AWS batch jobs are processed. Function will 
     query AWS batch for all current jobs with the specified job id. If the returned job 
     list has any jobs with the status of RUNNING (other than itself), it will sleep for 
@@ -322,6 +322,8 @@ def wait_for_processing(node_index, job_id, interval):
     :raises ClientError: AWS batch client exception
     """
     batch_client = boto3.client('batch')
+    worker_init = False
+    worker_timeout = time.time() + worker_init_timeout
 
     try:
         while True:
@@ -334,6 +336,7 @@ def wait_for_processing(node_index, job_id, interval):
             logging.info("AWS Batch job summary list %s", job_list)
             running_jobs = list(filter(lambda job: job['status'] == 'RUNNING', job_list))
 
+
             # check if no jobs are running, throw an error becasue master should still be running
             if len(running_jobs) == 0:
                 logging.error("No batch jobs with RUNNING status")
@@ -345,8 +348,17 @@ def wait_for_processing(node_index, job_id, interval):
                 return False
             # check if only the master job is running
             elif len(running_jobs) == 1 and running_jobs[0]['jobId'] == ''.join([job_id, '#', str(node_index)]):
-                logging.info("No worker batch jobs with RUNNING status, sleeping for %s seconds", interval)
-                time.sleep(interval)
+                
+                # wait for worker jobs to initialize
+                if worker_init:
+                    logging.info("All worker batch jobs finished executing")
+                    return True
+                elif not worker_init and time.time() >= worker_timeout:
+                    logging.error("No worker batch jobs started with RUNNING status before timeout of %s seconds", worker_init_timeout)
+                    return False
+                else:
+                    logging.info("Waiting for worker batch jobs to initialize with RUNNING status, sleeping for %s seconds", interval)
+                    time.sleep(interval)
             else:
                 running_job_ids = [d['jobId'] for d in running_jobs]
                 logging.info('There are %s batch jobs with RUNNING status %s,' 
@@ -391,6 +403,11 @@ def validate_envs(envs):
         logging.error("Master sleep interval [%s] must be an integer", envs['MAIN_SLEEP_INTERVAL'])
         return False
 
+    try:
+        int(envs['WORKER_INIT_TIMEOUT'])
+    except ValueError:
+        logging.error("Worker initialization timeout [%s] must be an integer", envs['WORKER_INIT_TIMEOUT'])
+
     # check the extension of the S3 submission
     if not check_valid_extension(envs['S3_SUBMISSION_ARCHIVE']):
         logging.error("S3 submission %s is not a valid archive type", envs['S3_SUBMISSION_ARCHIVE'])
@@ -414,6 +431,7 @@ def main():
     envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX', '0')
     envs['MAIN_LOG_LEVEL'] = os.environ.get('MAIN_LOG_LEVEL', 'INFO') # default info logging
     envs['MAIN_SLEEP_INTERVAL'] = os.environ.get('MAIN_SLEEP_INTERVAL')
+    envs['WORKER_INIT_TIMEOUT'] = os.environ.get('WORKER_INIT_TIMEOUT')
     envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION')
     
     # set logging to log to stdout
@@ -437,7 +455,11 @@ def main():
             enqueue_files(queue_url, envs['AWS_BATCH_JOB_ID'], envs['S3_VALIDATION_BUCKET'], 'sourcefiles')
              
             # wait for all AWS batch jobs to complete processing
-            wait_for_processing(envs['AWS_BATCH_JOB_NODE_INDEX'], envs['AWS_BATCH_JOB_ID'], int(envs['MAIN_SLEEP_INTERVAL']))
+            wait_for_processing(
+                envs['AWS_BATCH_JOB_NODE_INDEX'], 
+                envs['AWS_BATCH_JOB_ID'], 
+                int(envs['MAIN_SLEEP_INTERVAL']),
+                int(envs['WORKER_INIT_TIMEOUT']))
 
         # TODO this will be uncommented and refined in the finalalization development phase in
         # AIDA-763

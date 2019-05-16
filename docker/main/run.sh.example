@@ -4,9 +4,10 @@ docker run --rm -it \
         -e S3_SUBMISSION_ARCHIVE='' \
         -e S3_VALIDATION_BUCKET='' \
         -e AWS_BATCH_JOB_ID='' \
-        -e AWS_BATCH_JOB_NODE_INDEX= \
+        -e AWS_BATCH_JOB_NODE_INDEX= '' \
         -e MAIN_LOG_LEVEL='' \
-        -e MAIN_SLEEP_INTERVAL= \
+        -e MAIN_SLEEP_INTERVAL= '' \
+	-e WORKER_INIT_TIMEOUT= '' \
         -e AWS_ACCESS_KEY_ID='' \
         -e AWS_SECRET_ACCESS_KEY='' \
         -e AWS_DEFAULT_REGION='' \
