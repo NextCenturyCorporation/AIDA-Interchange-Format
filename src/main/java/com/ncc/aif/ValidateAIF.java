@@ -677,10 +677,14 @@ public final class ValidateAIF {
                         .setValidationErrorBatch(abortThreshold));
         if (monitorID != null) {
             try {
-                engine.setProgressMonitor(new AIFProgressMonitor(monitorID));
+                //engine.setProgressMonitor(new AIFProgressMonitor(monitorID));
+                engine.setProgressMonitor(new ThreadedAIFProgressMonitor(monitorID));
             } catch (IOException ioe) {
-                System.err.printf("Could not open progress monitor filename for ID %s.  Disabling progress monitor.", monitorID);
+                System.err.printf("Could not open progress monitor filename for ID %s.  Disabling progress monitor.\n", monitorID);
                 ioe.printStackTrace(); // TODO: Remove prior to PR
+                engine.setProgressMonitor(null);
+            } catch (Exception e) {
+                e.printStackTrace(); // TODO: Remove prior to PR
                 engine.setProgressMonitor(null);
             }
         }
@@ -889,35 +893,55 @@ public final class ValidateAIF {
 /**
  * A progress monitor for AIF validation.
  * Writes a tab-delimited file in the following format:
- * <code>ShapeNum | ShapeName | StartTime | EndTime | Duration</code>
+ * <code>Shape# | Shape Name | Start Time | End Time | Duration (ms)</code>
  * <code>1 | sh:MinExclusiveConstraintComponent | t1 | t2 | 25ms<code>
- * <code>2 | etc | t1 | t2 | 1225ms<code>
+ * <code>2 | sh:NotConstraintComponent | t1 | t2 | 1225ms<code>
  */
 class AIFProgressMonitor extends NullProgressMonitor {
     private static final boolean LOGGING = true;
+    private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
     private static final SimpleDateFormat FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
     private static final int LOGGING_THRESHOLD = 1000;
-    private Map<Integer, String> shapeNameMap = Maps.newConcurrentMap();
-    private Map<Integer, Long> shapeTimeMap = Maps.newConcurrentMap();
+    protected static final Map<String, BufferedWriter> fileMap = Maps.newConcurrentMap();
+    protected BufferedWriter out;
+    protected Map<Integer, String> shapeNameMap;
+    protected Map<Integer, Long> shapeTimeMap;
     private int shapeNum;
     private int numShapes;
-    private BufferedWriter out;
 
-    AIFProgressMonitor(String name) throws IOException {
-        // Create new file with basename based on name
-        String filename = name.replace(".ttl", "-progress.txt");
-        log("Creating file " + filename + ".txt with header.");
-        Path outputPath = Paths.get(filename);
-        // Supplying the DSYNC option below isn't working unless the file already exists, at least on Windows.
-        if (Files.notExists(Paths.get(filename))) {
-            outputPath = Files.createFile(Paths.get(filename));
-        }
-        out = Files.newBufferedWriter(outputPath, StandardOpenOption.DSYNC);
+    // Required for subclass; no public access
+    protected AIFProgressMonitor() {
     }
 
-    private void log(String text) {
+    AIFProgressMonitor(String name) throws IOException {
+        shapeNameMap = new HashMap<>();
+        shapeTimeMap = new HashMap<>();
+        initialize(name);
+    }
+
+    private void initialize(String name) throws IOException {
+        if (fileMap.containsKey(name)) {
+            throw new IllegalStateException("Cannot instantiate two AIFProgressMonitors with the same name.  Use ThreadedAIFProgressMonitor.");
+        } else {
+            out = createOutfile(name);
+            fileMap.put(name, out);
+        }
+    }
+
+    protected BufferedWriter createOutfile(String name) throws IOException {
+        // Create new file with basename based on name
+        final String filename = name.replace(".ttl", "-progress.txt");
+        log("Creating file " + filename + " for logging validation progress.");
+        final Path outputPath = Paths.get(filename);
+        Files.deleteIfExists(outputPath);
+        Files.createFile(outputPath);
+        // Supplying the DSYNC option requires that the file already exists.
+        return Files.newBufferedWriter(outputPath, StandardOpenOption.DSYNC);
+    }
+
+    protected static void log(String text) {
         if (LOGGING) {
-            System.out.println(text);
+            logger.info(text);
         }
     }
 
@@ -929,7 +953,10 @@ class AIFProgressMonitor extends NullProgressMonitor {
         log("Logging to file number of shapes: " + this.numShapes);
         try {
             out.write("Total: " + this.numShapes + "\n");
-            out.write("#\tShapeName\tStartTime\tEndTime\tDuration (ms)\n");
+            if (this instanceof ThreadedAIFProgressMonitor) {
+                out.write("Thread\t");
+            }
+            out.write("Shape#\tShape Name\tStart Time\tEnd Time\tDuration (ms)\n");
             out.flush();
         } catch (IOException ioe) {
             System.err.println("Could not write to progress monitor.");
@@ -954,26 +981,72 @@ class AIFProgressMonitor extends NullProgressMonitor {
 
     @Override
     public void worked(int amount) {
+        final Date endTime = Calendar.getInstance().getTime();
         shapeNum += amount;
         log("Worked " + shapeNum + " / " + numShapes);
         final String shapeName = shapeNameMap.get(shapeNum);
         final long startTimeMs = shapeTimeMap.get(shapeNum);
-        final Date endTime = Calendar.getInstance().getTime();
         final long duration = endTime.getTime() - startTimeMs;
-        log("This should be " + shapeName); // For testing in multi-threaded environment.
+
+        // For testing in multi-threaded environment.  TODO: Remove prior to PR
+        if (this instanceof ThreadedAIFProgressMonitor) {
+            logger.info("This should be " + shapeName);
+        }
         if (duration > LOGGING_THRESHOLD) {
             log("  Duration: " + duration + "ms");
             log("  Timestamp: " + FORMAT.format(endTime));
         }
         // Write a row of the file.
         try {
-            out.write("" + shapeNum + "\t" + shapeName + "\t" + FORMAT.format(new Date(startTimeMs)) + "\t" + FORMAT.format(endTime) + "\t" + duration + "\n");
+            writeRow(shapeName, new Date(startTimeMs), endTime, duration);
             out.flush();
             if (shapeNum >= numShapes) {
                 out.close();
             }
         } catch (IOException ioe) {
-            System.err.println("Could not write to progress monitor.");
+            logger.error("Could not write to progress monitor.");
         }
+    }
+
+    protected void writeRow(String shapeName, Date startTime, Date endTime, long duration) throws IOException {
+        out.write(shapeNum + "\t" + shapeName + "\t" + FORMAT.format(startTime) + "\t" + FORMAT.format(endTime) + "\t" + duration + "\n");
+    }
+}
+
+/**
+ * Threadsafe progress monitor for AIF validation.  Creating multiple instances with the same name will write to the
+ * same file in a threadsafe manner.
+ * Output file is identical to AIFProgressMonitor except for a new leftmost column of the thread name, e.g.:
+ * <code>Thread | Shape# | Shape Name | Start Time | End Time | Duration (ms)</code>
+ * <code>main | 1 | sh:MinExclusiveConstraintComponent | t1 | t2 | 25ms<code>
+ * <code>Thread-2 | 2 | sh:NotConstraintComponent | t1 | t2 | 1225ms<code>
+ */
+class ThreadedAIFProgressMonitor extends AIFProgressMonitor {
+
+    ThreadedAIFProgressMonitor(String name) throws IOException {
+        shapeNameMap = Maps.newConcurrentMap();
+        shapeTimeMap = Maps.newConcurrentMap();
+        initialize(name);
+    }
+
+    private synchronized void initialize(String name) throws IOException {
+        if (fileMap.containsKey(name)) {
+            out = fileMap.get(name); // reuse the file
+        } else { // create the file and store the mapping
+            out = createOutfile(name);
+            fileMap.put(name, out);
+        }
+
+        /* Shorter, but less readable
+        out = fileMap.getOrDefault(name, createOutfile(name));
+        if (fileMap.containsKey(name)) {
+            fileMap.put(name, out);
+        } */
+    }
+
+    @Override
+    protected void writeRow(String shapeName, Date startTime, Date endTime, long duration) throws IOException {
+        out.write(Thread.currentThread().getName() + "\t");
+        super.writeRow(shapeName, startTime, endTime, duration);
     }
 }
