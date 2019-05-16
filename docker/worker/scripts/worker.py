@@ -360,7 +360,7 @@ def execute_validation(validation_home, validation_flags, file_path, timeout):
 		cmd = validation_home + '/target/appassembler/bin/validateAIF ' + validation_flags + ' -f '
 		cmd += file_path
 
-		logging.info("Executing AIF Validation for file %s", file_name)
+		logging.info("Executing AIF Validation for file %s with flags %s", file_name, validation_flags)
 		#**********************
 		# Requies python 3.7+ *
 		#**********************
