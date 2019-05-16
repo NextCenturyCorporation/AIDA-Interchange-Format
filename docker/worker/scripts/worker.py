@@ -67,7 +67,7 @@ def check_sqs_has_messages(s3_bucket, batch_job_id, complete=False):
 
 def get_s3_object_list(s3_bucket, prefix):
 	"""Helper function that will get a list of objects in an S3 bucket
-	with the spefified prefix
+	with the specified prefix
 
 	:param str s3_bucket: The S3 bucket
 	:param str prefix: The prefix of the S3 objects to filter on
@@ -163,8 +163,8 @@ def bucket_exists(s3_bucket):
 def wait_for_sqs_queue(batch_job_id, s3_bucket, timeout):
 	"""Waits for SQS FIFO queue to exist within given timeout.
 
-	:param str batch_job_id: The id of the batch job as well as the n
-		ame of the SQS queue.
+	:param str batch_job_id: The id of the batch job as well as the 
+		name of the SQS queue.
 	:param str s3_bucket: The S3 bucket that stores batch job output
 	:param int timeout: Seconds to wait for SQS to become available
 	:returns: True if queue exists, False otherwise
@@ -243,7 +243,7 @@ def process_sqs_queue(batch_job_id, validation_home, validation_flags, s3_bucket
 	:param str validation_home: The root directory for the installed AIF validator
 	:param str validation_flags: The configuration flags to pass to the AIF validator
 	:param str s3_bucket: The S3 bucket that stores batch job output
-	:param int validation_timeout: The the timeout for the AIF validation subprocess
+	:param int validation_timeout: The the timeout for the AIF validation sub-process
 	:raises ClientError: SQS client exception
 	"""
 	sqs_client = boto3.client('sqs')
@@ -342,17 +342,15 @@ def validate_message(validation_home, validation_flags, s3_bucket, batch_job_id,
 
 
 def execute_validation(validation_home, validation_flags, file_path, timeout):
-	"""Executes the AIF Validator as a subprocess for the turtle file located at the specified 
+	"""Executes the AIF Validator as a sub-process for the turtle file located at the specified 
 	file path. 
 
 	:param str validation_home: The root directory for the installed AIF validator
 	:param str validation_flags: The configuration flags to pass to the AIF validator
 	:param str file_path: The path of the turtle (TTL) file to be validated
-	:param int timeout: The the timeout for the AIF validation subprocess
+	:param int timeout: The the timeout for the AIF validation sub-process
 	:returns: Return code that specifies the validation execution result 
 	:rtype: int
-
-	
 	"""
 	file_name = Path(file_path).name
 
@@ -408,10 +406,10 @@ def upload_validation_output(validation_dir, s3_bucket, s3_object_prefix, extens
 
 
 def is_env_set(env, value):
-    """Helper function to check if a specific enviornment variable is not None
+    """Helper function to check if a specific environment variable is not None
 
-    :param str env: The name of the enviornment variable
-    :param value: The value of the enviornment variable
+    :param str env: The name of the environment variable
+    :param value: The value of the environment variable
     :returns: True if environment variable is set, False otherwise
     :rtype: bool
     """
@@ -423,10 +421,10 @@ def is_env_set(env, value):
 
 
 def validate_envs(envs):
-    """Helper function to validate all of the enviroment variables exist and are valid before
+    """Helper function to validate all of the environment variables exist and are valid before
     processing starts.
 
-    :param dict envs: Dictionary of all environment varaibles
+    :param dict envs: Dictionary of all environment variables
     :returns: True if all environment variables are valid, False otherwise
     :rtype: bool
     """
