@@ -3,6 +3,8 @@
 docker run --rm -it \
         -e QUEUE_INIT_TIMEOUT='' \
 	-e VALIDATION_TIMEOUT='' \
+	-e VALIDATION_HOME='' \
+	-e VALIDATION_FLAGS= '' \
         -e S3_VALIDATION_BUCKET='' \
         -e AWS_BATCH_JOB_ID='' \
         -e AWS_BATCH_JOB_NODE_INDEX= \

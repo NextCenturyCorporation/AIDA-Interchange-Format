@@ -234,13 +234,14 @@ def delete_sqs_message(queue_url, msg_receipt_handle):
     	logging.error(e)
 
 
-def process_sqs_queue(batch_job_id, validation_home, s3_bucket, validation_timeout):
+def process_sqs_queue(batch_job_id, validation_home, validation_flags, s3_bucket, validation_timeout):
 	"""Function process messages until no more messages can be read from SQS 
 	queue and sourcefiles.done file has been populated in S3. 
 
 	:param str batch_job_id: The id of the batch job as well as the name of 
 		the SQS queue.
 	:param str validation_home: The root directory for the installed AIF validator
+	:param str validation_flags: The configuration flags to pass to the AIF validator
 	:param str s3_bucket: The S3 bucket that stores batch job output
 	:param int validation_timeout: The the timeout for the AIF validation subprocess
 	:raises ClientError: SQS client exception
@@ -271,7 +272,14 @@ def process_sqs_queue(batch_job_id, validation_home, s3_bucket, validation_timeo
 				delete_sqs_message(response['QueueUrl'], msg['ReceiptHandle'])
 
 				# This is where the processing happens
-				validate_message(validation_home, s3_bucket, batch_job_id, payload, validation_timeout)
+				validate_message(
+					validation_home, 
+					validation_flags, 
+					s3_bucket, 
+					batch_job_id, 
+					payload, 
+					validation_timeout
+				)
 
 			else:
 				logging.info("Message was empty and SQS queue is still being populated")
@@ -280,11 +288,12 @@ def process_sqs_queue(batch_job_id, validation_home, s3_bucket, validation_timeo
 		logging.error(e)
 
 
-def validate_message(validation_home, s3_bucket, batch_job_id, payload, timeout):
+def validate_message(validation_home, validation_flags, s3_bucket, batch_job_id, payload, timeout):
 	"""Downloads the file to be validated, executes the AIF validation, uploads validation results
 	to S3, and moves file be validated to appropriate place on S3.
 
 	:param str validation_home: The root directory for the installed AIF validator
+	:param str validation_flags: The configuration flags to pass to the AIF validator
 	:param str s3_bucket: The S3 validation bucket where files are located
 	:param str batch_job_id: The id of the batch job
 	:param str payload: The S3 object path obtained from the SQS message
@@ -305,7 +314,7 @@ def validate_message(validation_home, s3_bucket, batch_job_id, payload, timeout)
 			os.makedirs(validation_staging)
 
 		os.rename(file_name, validation_staging+'/'+file_name)
-		code = execute_validation(validation_home, validation_staging+'/'+file_name, timeout)
+		code = execute_validation(validation_home, validation_flags, validation_staging+'/'+file_name, timeout)
 
 		# upload any log output to s3
 		upload_validation_output(validation_staging, s3_bucket, '/'.join([batch_job_id, 'LOG']), '.log')
@@ -476,6 +485,7 @@ def main():
 			process_sqs_queue(
 				envs['AWS_BATCH_JOB_ID'],
 				envs['VALIDATION_HOME'],
+				envs['VALIDATION_FLAGS'],
 				envs['S3_VALIDATION_BUCKET'], 
 				int(envs['VALIDATION_TIMEOUT'])
 			)
