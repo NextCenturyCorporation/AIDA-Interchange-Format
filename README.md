@@ -66,7 +66,7 @@ validate N files or all files in a specified directory.
 To run the validator from the command line, run `target/appassembler/bin/validateAIF`
 with a series of command-line arguments (in any order) honoring the following usage:  <br>
 Usage:  <br>
-`validateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] {-f FILE ... | -d DIRNAME}`  <br>
+`validateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--abort [num]] {-f FILE ... | -d DIRNAME}`  <br>
 
 | Switch | Description |
 | ----------- | ----------- |
@@ -77,6 +77,7 @@ Usage:  <br>
 |`--nist-ta3` | validate against the NIST hypothesis restrictions (implies `--nist`) |
 |`-o` | Save validation report model to a file.  `KB.ttl` would result in `KB-report.txt`. Output defaults to stderr. |
 |`-h, --help` | This help and usage text |
+|`--abort [num]` | Abort validation after `[num]` SHACL violations (num > 2), or three violations if `[num]` is omitted. |
 |`-f FILE ...` | validate the specified file(s) with a `.ttl` suffix |
 |`-d DIRNAME` | validate all `.ttl` files in the specified directory |
 
@@ -91,9 +92,10 @@ Return values from the command-line validator are as follows:
 * `0 (Success)`.  There were no validation (or any other) errors.
 * `1 (Validation Error)`.	All specified files were validated but at least one failed validation.  Supersedes a File Error.
 * `2 (Usage Error)`.  There was a problem interpreting command-line arguments.  No validation was performed.
-* `3 (File Error)`.  A file was rejected, either due to an I/O error or because it didn't meet certain criteria.
-  Logging indicates the nature of the problem(s).  Validation may have been performed on a subset of specified KBs.
-  If there is an error loading any ontologies or SHACL files, then no validation is performed.
+* `3 (File Error)`.  A file was rejected or couldn't be validated, either due to an I/O error, a validation engine error,
+  or because it didn't meet certain criteria.  Logging indicates the nature of the problem(s).  Validation may
+  have been performed on a subset of specified KBs.  If there is an error loading any ontologies or SHACL files,
+  then no validation is performed.
 
 ### Running the validator in code
 To run the validator programmatically in Java code, first use one of the public `ValidateAIF.createXXX()`
@@ -103,6 +105,23 @@ is flexible enough to take a Set of ontologies.  All creation methods accept a f
 against restricted AIF.  See the JavaDocs.
 
 Note: the original `ValidateAIF.createForDomainOntologySource()` method remains for backward compatibility.
+
+### Failing fast
+
+The AIF Validator can be told to "fail fast," that is, exit as soon as a few SHACL violations are found in
+the specified KB.  On the command-line, use the `--abort` option to have the validator exit after three
+violations.  Specify a number after the `--abort` flag to exit after that number of violations.  The validation
+summary will display the number of aborted validations-- but if your file has the exact number of violations as
+the threshold, it will still be counted as an aborted validation.
+
+**NOTE**: As of this writing, if you set the threshold too low (less than 3), the validator might erroneously return
+that your KB is *valid*.  This appears to be a current bug or limitation in the TopBraid shacl library snapshot.
+Consequently, the command-line validator will reject thresholds less than 3.
+
+Without the `--abort` option, the entire KB will be validated with full output of all violations.
+
+To fail fast when using the validator programmatically, use `ValidateAIF.setAbortThreshold()` to set an error
+threshold.
 
 ### Differences from the legacy validator
 The AIF Validator bears certain important differences from the previous version of
@@ -205,7 +224,7 @@ You should now be ready to go.
 
 ### Java
 
-To generate the javadoc documenation, navigate to the top level directory in the AIDA-Interchange-Format project. Run the following command:
+To generate the javadoc documentation, navigate to the top level directory in the AIDA-Interchange-Format project. Run the following command:
 
 ```bash
 $ javadoc -d build/docs/javadoc/ src/main/java/com/ncc/aif/*.java
@@ -231,7 +250,7 @@ AIF was designed by Ryan Gabbard (gabbard@isi.edu) and Pedro Szekely
 (pszekeley@isi.edu) of USC ISI.  Gabbard also wrote the initial
 implementations of the associated tools.  The tools are now supported
 and extended by Eddie Curley (eddie.curley@nextcentury.com), Bao Pham
-(bao.pham@nextcentury.com), Clark Dorman (clark.dorman@nextcentury.com),
+(bao.pham@nextcentury.com), Craig Warsaw (craig.warsaw@nextcentury.com),
 and Darren Gemoets (darren.gemoets@nextcentury.com) of Next Century.
 
 The open repository will support an open NIST evaluation. For

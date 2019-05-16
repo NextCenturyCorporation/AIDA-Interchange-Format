@@ -15,7 +15,9 @@ import org.apache.jena.util.FileUtils;
 import org.topbraid.jenax.statistics.ExecStatistics;
 import org.topbraid.jenax.statistics.ExecStatisticsListener;
 import org.topbraid.jenax.statistics.ExecStatisticsManager;
+import org.topbraid.shacl.validation.ValidationEngineConfiguration;
 import org.topbraid.shacl.validation.ValidationUtil;
+import org.topbraid.shacl.vocabulary.SH;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +27,7 @@ import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * An AIF Validator.  These are not instantiated directly; instead invoke {@link #createForDomainOntologySource} statically,
@@ -57,6 +60,7 @@ public final class ValidateAIF {
     private static Model nistModel;
     private static Model nistHypoModel;
     private static boolean initialized = false;
+    private static int abortParam = -1; // TODO: separate command-line validator from its class, so we don't need this
     private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
     private static final Property CONFORMS = ResourceFactory.createProperty("http://www.w3.org/ns/shacl#conforms");
     private static final int LONG_QUERY_THRESH = 2000;
@@ -81,6 +85,7 @@ public final class ValidateAIF {
 
     private Model domainModel;
     private Restriction restriction;
+    private int abortThreshold = -1; // by default, do not abort on SHACL violation
 
     private ValidateAIF(Model domainModel, Restriction restriction) {
         initializeSHACLModels();
@@ -168,7 +173,7 @@ public final class ValidateAIF {
     // Show usage information.
     private static void showUsage() {
         System.out.println("Usage:\n" +
-                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] {-f FILE ... | -d DIRNAME}\n" +
+                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--abort [num]] {-f FILE ... | -d DIRNAME}\n" +
                 "Options:\n" +
                 "--ldc           Validate against the LDC ontology\n" +
                 "--program       Validate against the program ontology\n" +
@@ -178,6 +183,7 @@ public final class ValidateAIF {
                 "-o              Save validation report model to a file.  KB.ttl would result in KB-report.txt.\n" +
                 "                Output defaults to stderr.\n" +
                 "-h, --help      Show this help and usage text\n" +
+                "--abort [num]   Abort validation after [num] SHACL violations (num > 2), or three violations if [num] is omitted.\n" +
                 "-f FILE ...     Validate the specified file(s) with a .ttl suffix\n" +
                 "-d DIRNAME      Validate all .ttl files in the specified directory\n" +
                 "\n" +
@@ -203,12 +209,14 @@ public final class ValidateAIF {
                 numArgs++;
             }
         }
-        return numArgs; // Can't use fileList.size() just in case use specified same file twice
+        return numArgs; // Can't use fileList.size() just in case user specified same file twice
     }
 
     // Process command-line arguments, returning whether or not there were any errors.
     private static boolean processArgs(String[] args, Set<ArgumentFlags> flags, Set<String> domainOntologies,
                                        Set<String> validationFiles, Set<String> validationDirs) {
+        String abortStr = null;
+        Predicate<Integer> parameterSpecified = i -> (i + 1 < args.length && !args[i + 1].startsWith("-"));
         for (int i = 0; i < args.length; i++) {
             final String arg = args[i];
             final String strippedArg = arg.trim();
@@ -246,6 +254,15 @@ public final class ValidateAIF {
                 case "--p2": // NOTE: this flag is not documented in the README nor the Usage info
                     flags.add(ArgumentFlags.PROGRESSIVE_PROFILING);
                     break;
+                case "--abort":
+                    flags.add(ArgumentFlags.ABORT);
+                    if (parameterSpecified.test(i)) {
+                        abortStr = args[++i];
+                    } else {
+                        // NOTE: Set this to 1 when/if TopBraid's fail-fast feature properly supports failing at first violation.
+                        abortParam = 3;
+                    }
+                    break;
                 case "-f":
                     if (flags.contains(ArgumentFlags.DIRECTORY)) {
                         logger.error("Please specify either -d or -f, but not both.");
@@ -259,7 +276,7 @@ public final class ValidateAIF {
                         logger.error("Please specify either -d or -f, but not both.");
                         return false;
                     }
-                    if (!args[i + 1].startsWith("-")) {
+                    if (parameterSpecified.test(i)) {
                         validationDirs.add(args[++i]);
                         /* NOTE: if we choose to support validating files in N directories, change the above to:
                          *   i += processFiles(args, i, validationDirs);
@@ -268,7 +285,8 @@ public final class ValidateAIF {
                     flags.add(ArgumentFlags.DIRECTORY);
                     break;
                 default:
-                    logger.warn("Ignoring unknown argument: " + arg);
+                    logger.error("Unknown argument: " + arg);
+                    return false;
             }
         }
 
@@ -287,6 +305,18 @@ public final class ValidateAIF {
             logger.error("Please specify either file(s) or a directory of files to validate.");
             return false;
         }
+        if (abortStr != null) {
+            try {
+                // TODO: separate command-line validator from validator class
+                abortParam = Integer.parseUnsignedInt(abortStr);
+            } catch (NumberFormatException nfe) {
+                abortParam = -1;
+            }
+            if (abortParam < 3) {
+                logger.error("Invalid abort parameter: " + abortStr);
+                return false;
+            }
+        }
 
         return true;
     }
@@ -298,7 +328,7 @@ public final class ValidateAIF {
 
     // Command-line argument flags
     private enum ArgumentFlags {
-        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY, FILE_OUTPUT, PROFILING, PROGRESSIVE_PROFILING
+        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY, FILE_OUTPUT, PROFILING, PROGRESSIVE_PROFILING, ABORT
     }
 
     /**
@@ -401,6 +431,10 @@ public final class ValidateAIF {
         } else if (restriction == Restriction.NIST_HYPOTHESIS) {
             logger.info("-> Validating against NIST Hypothesis SHACL.");
         }
+        if (flags.contains(ArgumentFlags.ABORT)) {
+            logger.info("-> Validation will abort after " + abortParam + " SHACL violation(s).");
+            validator.setAbortThreshold(abortParam); // abortParam was set and validated in processArgs()
+        }
         if (flags.contains(ArgumentFlags.FILE_OUTPUT)) {
             logger.info("-> Validation report for invalid KBs will be saved to <kbname>-report.txt.");
         } else {
@@ -415,6 +449,7 @@ public final class ValidateAIF {
         final DateFormat format = new SimpleDateFormat("EEE, MMM d HH:mm:ss");
         int invalidCount = 0;
         int skipCount = 0;
+        int abortCount = 0;
         int fileNum = 0;
         final StatsCollector stats = flags.contains(ArgumentFlags.PROGRESSIVE_PROFILING) ?
                 new ProgressiveStatsCollector(LONG_QUERY_THRESH) : new StatsCollector(LONG_QUERY_THRESH);
@@ -434,10 +469,19 @@ public final class ValidateAIF {
                     stats.endCollection();
                     stats.dump(fileToValidate.toString());
                 }
-                if (!ValidateAIF.isValidReport(report)) {
-                    logger.warn("---> Validation of " + fileToValidate + " failed.");
+                if (report == null) {
+                    logger.warn("---> Could not validate " + fileToValidate + " (engine error).  Skipping.");
+                    skipCount++;
+                } else if (!ValidateAIF.isValidReport(report)) {
                     invalidCount++;
-                    dumpReport(report, fileToValidate, flags.contains(ArgumentFlags.FILE_OUTPUT));
+                    final int numViolations = processReport(report, fileToValidate, flags.contains(ArgumentFlags.FILE_OUTPUT));
+                    if (numViolations == abortParam) {
+                        logger.warn("---> Validation of " + fileToValidate +
+                                " was aborted after " + abortParam + " SHACL violations.");
+                        abortCount++;
+                    } else {
+                        logger.warn("---> Validation of " + fileToValidate + " failed.");
+                    }
                 }
                 date = Calendar.getInstance().getTime();
                 logger.info("---> completed " + format.format(date) + ".");
@@ -447,26 +491,27 @@ public final class ValidateAIF {
             dataToBeValidated.close();
         }
 
-        final ReturnCode returnCode = displaySummary(fileNum + nonTTLcount, invalidCount, skipCount + nonTTLcount);
+        final ReturnCode returnCode = displaySummary(fileNum + nonTTLcount, invalidCount, skipCount + nonTTLcount, abortCount);
         System.exit(returnCode.ordinal());
     }
 
-    // Dump the validation report model either to stderr or a file
-    private static void dumpReport(Resource validationReport, File fileToValidate, boolean fileOutput) {
+    // Dump the validation report model either to stderr or a file, and return the number of violations.
+    private static int processReport(Resource validationReport, File fileToValidate, boolean fileOutput) {
         if (!fileOutput) {
             logger.info("---> Validation report:");
             RDFDataMgr.write(System.err, validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
-            return;
+        } else {
+            String outputFilename = fileToValidate.toString().replace(".ttl", "-report.txt");
+            try {
+                RDFDataMgr.write(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)),
+                        validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
+            } catch (IOException ioe) {
+                logger.warn("---> Could not write validation report for " + fileToValidate + ".");
+            }
+            logger.info("--> Saved validation report to " + outputFilename);
         }
 
-        String outputFilename = fileToValidate.toString().replace(".ttl", "-report.txt");
-        try {
-            RDFDataMgr.write(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)),
-                    validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
-        } catch (IOException ioe) {
-            logger.warn("---> Could not write validation report for " + fileToValidate + ".");
-        }
-        logger.info("--> Saved validation report to " + outputFilename);
+        return validationReport.getModel().listStatements(null, SH.resultSeverity, SH.Violation).toList().size();
     }
 
     // Return false if file is > 5MB or size couldn't be determined, otherwise true
@@ -500,14 +545,17 @@ public final class ValidateAIF {
     }
 
     // Display a summary to the user
-    private static ReturnCode displaySummary(int fileCount, int invalidCount, int skipCount) {
+    private static ReturnCode displaySummary(int fileCount, int invalidCount, int skipCount, int abortCount) {
         final int validCount = fileCount - invalidCount - skipCount;
         logger.info("Summary:");
         logger.info("\tFiles submitted: " + fileCount);
         logger.info("\tSkipped files: " + skipCount);
-        logger.info("\tKB(s) sent to validator: " + (fileCount - skipCount));
-        logger.info("\tValid KB(s): " + (fileCount - invalidCount - skipCount));
-        logger.info("\tInvalid KB(s): " + invalidCount);
+        logger.info("\tKBs sent to validator: " + (fileCount - skipCount));
+        logger.info("\tValid KBs: " + (fileCount - invalidCount - skipCount));
+        logger.info("\tInvalid KBs: " + invalidCount);
+        if (abortCount > 0) {
+            logger.info("\t  Aborted validations: " + abortCount);
+        }
         if (fileCount == validCount) {
             logger.info("*** All submitted KBs were valid. ***");
         } else if (fileCount == skipCount) {
@@ -519,6 +567,19 @@ public final class ValidateAIF {
         } else {
             return skipCount == 0 ? ReturnCode.SUCCESS : ReturnCode.FILE_ERROR;
         }
+    }
+
+    /**
+     * Tells the validator to "fail fast" if SHACL violations are detected.  Validation will terminate after
+     * <code>abortThreshold</code> SHACL violations are detected.  Use zero to disable failing fast.
+     *
+     * @param abortThreshold the violation threshold to abort validation
+     */
+    public void setAbortThreshold(int abortThreshold) {
+        if (abortThreshold < 0) {
+            throw new IllegalArgumentException("Abort threshold must be greater than 0, or 0 to disable.");
+        }
+        this.abortThreshold = abortThreshold == 0 ? -1 : abortThreshold;
     }
 
     /**
@@ -548,7 +609,7 @@ public final class ValidateAIF {
      * Validate the specified KB and return a validation report.
      *
      * @param dataToBeValidated KB to be validated
-     * @return a validation report from which more information can be derived
+     * @return a validation report from which more information can be derived, or null if validation didn't complete
      */
     public Resource validateKBAndReturnReport(Model dataToBeValidated) {
         return validateKBAndReturnReport(dataToBeValidated, null);
@@ -559,7 +620,7 @@ public final class ValidateAIF {
      *
      * @param dataToBeValidated KB to be validated
      * @param union             unified KB if not null
-     * @return a validation report from which more information can be derived
+     * @return a validation report from which more information can be derived, or null if validation didn't complete
      */
     public Resource validateKBAndReturnReport(Model dataToBeValidated, Model union) {
         // We unify the given KB with the background and domain KBs before validation.
@@ -585,11 +646,14 @@ public final class ValidateAIF {
         // Validates against the SHACL file to ensure that resources have the required properties
         // (and in some cases, only the required properties) of the proper types.  Returns true if
         // validation passes.
-        return ValidationUtil.validateModel(unionModel, shacl, true);
+        return ValidationUtil.validateModel(unionModel, shacl,
+                new ValidationEngineConfiguration()
+                        .setValidateShapes(true)
+                        .setValidationErrorBatch(abortThreshold));
     }
 
     /**
-     * Returns whether or not [validationReport] is that of a valid KB.
+     * Returns whether or not <code>validationReport</code> is that of a valid KB.
      *
      * @param validationReport a validation report model, such as returned by {@link #validateKB(Model)}
      * @return True if the KB that generated the specified report is valid
@@ -612,7 +676,7 @@ public final class ValidateAIF {
         final int durationThreshold;
 
         /**
-         * Creates a statistics collector that saves queries slower than [threshold] ms to a file.
+         * Creates a statistics collector that saves queries slower than <code>threshold</code> ms to a file.
          *
          * @param threshold the threshold definition of a slow query for this statistics collector
          */
@@ -675,9 +739,10 @@ public final class ValidateAIF {
 
         /**
          * Dump a single query's statistics to the specified PrintStream
-         * @param queryNum the query number showing where it occurred chronologically in validation
-         * @param queryStats statistics about the query returned by TopBraid
-         * @param out a PrintStream to dump the query statistics
+         *
+         * @param queryNum      the query number showing where it occurred chronologically in validation
+         * @param queryStats    statistics about the query returned by TopBraid
+         * @param out           a PrintStream to dump the query statistics
          * @param leadingSpaces whether to print leading or trailing spaces
          */
         void dumpStat(Integer queryNum, ExecStatistics queryStats, PrintStream out,
@@ -710,7 +775,7 @@ public final class ValidateAIF {
         private final SortedMap<Integer, ExecStatistics> savedStats = new TreeMap<>();
 
         /**
-         * Creates a statistics collector that progressively dumps queries slower than [threshold] ms to stdout.
+         * Creates a statistics collector that progressively dumps queries slower than <code>threshold</code> ms to stdout.
          *
          * @param threshold the threshold definition of a slow query for this statistics collector
          */
