@@ -14,7 +14,7 @@ from botocore.exceptions import ClientError
 
 def download_and_extract_submission_from_S3(s3_submission, source_dir):
     """Downloads submission from s3 and extracts its contents to the working directory.
-    Submssions must be an archive of .zip, .tar.gz, or .tgz.
+    Submissions must be an archive of .zip, .tar.gz, or .tgz.
 
     :param str s3_submission: The s3 object path for the submission
     :param str source_dir: The local directory path to place extracted s3_submission files
@@ -96,7 +96,7 @@ def extract_s3_submission_paths(s3_submission):
 
 
 def enqueue_files(queue_url, job_id, s3_bucket, source_log_path):
-    """Uploads all turtle (ttl) files in source diretory to the provided S3 bucket,
+    """Uploads all turtle (ttl) files in source directory to the provided S3 bucket,
     adds each S3 object path as a message on SQS and updates sourcefiles on S3. After 
     all messages have processed and added to the queue, a final source file will be 
     uploaded with a suffix of '.done' and the old source file will be removed 
@@ -191,7 +191,7 @@ def delete_s3_object(s3_bucket, s3_object):
     """Deletes an S3 object from S3
 
     :param str s3_object: The S3 object to delete
-    :raises ClientError: S3 resrouce exception
+    :raises ClientError: S3 resource exception
     """
     s3 = boto3.resource('s3')
     try:
@@ -208,7 +208,7 @@ def delete_s3_objects_with_prefix(s3_bucket, s3_prefix):
     :param str s3_bucket: The S3 bucket where the objects will be deleted from
     :param str s3_prefix: The prefix that all the S3_objects must have in order to be
         deleted
-    :raises ClientError: S3 resrouce exception
+    :raises ClientError: S3 resource exception
     """
     s3 = boto3.resource('s3')
     try:
@@ -309,7 +309,7 @@ def delete_sqs_queue(queue_url):
 
 
 def wait_for_processing(node_index, job_id, interval, worker_init_timeout):
-    """Waits in an indefinate loop while all AWS batch jobs are processed. Function will 
+    """Waits in an indefinite loop while all AWS batch jobs are processed. Function will 
     query AWS batch for all current jobs with the specified job id. If the returned job 
     list has any jobs with the status of RUNNING (other than itself), it will sleep for 
     the specified interval and then execute the check again. 
@@ -371,10 +371,10 @@ def wait_for_processing(node_index, job_id, interval, worker_init_timeout):
 
 
 def is_env_set(env, value):
-    """Helper function to check if a specific enviornment variable is not None
+    """Helper function to check if a specific environment variable is not None
 
-    :param str env: The name of the enviornment variable
-    :param value: The value of the enviornment variable
+    :param str env: The name of the environment variable
+    :param value: The value of the environment variable
     :returns: True if environment variable is set, False otherwise
     :rtype: bool
     """
@@ -386,10 +386,10 @@ def is_env_set(env, value):
 
 
 def validate_envs(envs):
-    """Helper function to validate all of the enviroment variables exist and are valid before
+    """Helper function to validate all of the environment variables exist and are valid before
     processing starts.
 
-    :param dict envs: Dictionary of all environment varaibles
+    :param dict envs: Dictionary of all environment variables
     :returns: True if all environment variables are valid, False otherwise
     :rtype: bool
     """
