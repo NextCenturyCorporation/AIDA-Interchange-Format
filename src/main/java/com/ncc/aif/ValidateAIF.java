@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
 import org.apache.jena.ontology.OntModel;
@@ -12,7 +11,6 @@ import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.util.FileUtils;
-import org.topbraid.jenax.progress.NullProgressMonitor;
 import org.topbraid.jenax.statistics.ExecStatistics;
 import org.topbraid.jenax.statistics.ExecStatisticsListener;
 import org.topbraid.jenax.statistics.ExecStatisticsManager;
@@ -21,14 +19,12 @@ import org.topbraid.shacl.validation.ValidationEngineConfiguration;
 import org.topbraid.shacl.validation.ValidationUtil;
 import org.topbraid.shacl.vocabulary.SH;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Predicate;
@@ -454,7 +450,7 @@ public final class ValidateAIF {
             logger.info("-> Saving slow queries (> " + LONG_QUERY_THRESH + " ms) to <kbname>-stats.txt.");
         }
         if (progressMonitoring) {
-            logger.info("-> Saving ongoing validation progress to <kbname>-progress.txt.");
+            logger.info("-> Saving ongoing validation progress to <kbname>-progress.tab.");
         }
         logger.info("*** Beginning validation of " + filesToValidate.size() + " file(s). ***");
 
@@ -673,14 +669,12 @@ public final class ValidateAIF {
         ValidationEngine engine = ValidationUtil.createValidationEngine(unionModel, shacl,
                 new ValidationEngineConfiguration()
                         .setValidateShapes(true)
-//                        .setReportDetails(true)
                         .setValidationErrorBatch(abortThreshold));
         if (monitorID != null) {
             try {
                 engine.setProgressMonitor(new AIFProgressMonitor(monitorID));
             } catch (IOException ioe) {
                 System.err.printf("Could not open progress monitor filename for ID %s.  Disabling progress monitor.\n", monitorID);
-                ioe.printStackTrace(); // TODO: Remove prior to PR
                 engine.setProgressMonitor(null);
             }
         }
@@ -882,127 +876,6 @@ public final class ValidateAIF {
             } catch (IOException ioe) {
                 logger.warn("---> Could not write statistics for " + basename + ".");
             }
-        }
-    }
-}
-
-/**
- * Thread-safe progress monitor for AIF validation.  Creating multiple instances with the same name will write to the
- * same file in a thread-safe manner.
- * Writes a tab-delimited file in the following format:
- * <code>Thread | Shape# | Shape Name | Start Time | End Time | Duration (ms)</code>
- * <code>main | 1 | sh:MinExclusiveConstraintComponent | t1 | t2 | 25ms<code>
- * <code>Thread-2 | 2 | sh:NotConstraintComponent | t1 | t2 | 1225ms<code>
- */
-class AIFProgressMonitor extends NullProgressMonitor {
-    private static final boolean LOGGING = true;
-    private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
-    private static final SimpleDateFormat FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
-    private static final int LOGGING_THRESHOLD = 1000;
-    private static final Map<String, BufferedWriter> fileMap = Maps.newConcurrentMap();
-    private BufferedWriter out;
-    private Map<Integer, String> shapeNameMap;
-    private Map<Integer, Long> shapeTimeMap;
-    private int shapeNum;
-    private int numShapes;
-
-    AIFProgressMonitor(String name) throws IOException {
-        shapeNameMap = Maps.newConcurrentMap();
-        shapeTimeMap = Maps.newConcurrentMap();
-
-        if (fileMap.containsKey(name)) {
-            out = fileMap.get(name); // reuse the file
-        } else { // create the file and store the mapping
-            out = createOutfile(name);
-            fileMap.put(name, out);
-        }
-        /* Shorter, but less readable
-        out = fileMap.getOrDefault(name, createOutfile(name));
-        if (fileMap.containsKey(name)) {
-            fileMap.put(name, out);
-        } */
-    }
-
-    private BufferedWriter createOutfile(String name) throws IOException {
-        // Create new file with basename based on name
-        final String filename = name.replace(".ttl", "-progress.txt");
-        log("Creating file " + filename + " for logging validation progress.");
-        final Path outputPath = Paths.get(filename);
-        Files.deleteIfExists(outputPath);
-        Files.createFile(outputPath);
-        // Supplying the DSYNC option requires that the file already exists.
-        return Files.newBufferedWriter(outputPath, StandardOpenOption.DSYNC);
-    }
-
-    private static void log(String text) {
-        if (LOGGING) {
-            logger.info(text);
-        }
-    }
-
-    @Override
-    public void beginTask(String label, int numShapes) {
-        log("Beginning task " + label + " (" + numShapes + ")");
-        this.numShapes = numShapes;
-        this.shapeNum = 0;
-        log("Logging to file number of shapes: " + this.numShapes);
-        try {
-            out.write("Total: " + this.numShapes + "\n");
-            out.write("Thread\tShape#\tShape Name\tStart Time\tEnd Time\tDuration (ms)\n");
-            out.flush();
-        } catch (IOException ioe) {
-            System.err.println("Could not write to progress monitor.");
-        }
-    }
-
-    @Override
-    public void done() {
-        // As of this writing, this doesn't actually get called.  If it did, we could close the BufferedWriter here.
-        log("DONE!");
-    }
-
-    @Override
-    public void subTask(String label) {
-        log("Validating " + label); // e.g., label = "Shape 3: sh:DerivedValuesConstraintComponent"
-        final String[] parts = label.split(" ");
-        final int shapeNum = Integer.parseUnsignedInt(parts[1].replaceFirst(":", ""));
-        final String shapeName = parts[2];
-        shapeNameMap.put(shapeNum, shapeName);
-        shapeTimeMap.put(shapeNum, System.currentTimeMillis());
-    }
-
-    @Override
-    public void worked(int amount) {
-        final Date endTime = new Date();
-        shapeNum += amount;
-        log("Worked " + shapeNum + " / " + numShapes);
-        final String shapeName = shapeNameMap.get(shapeNum);
-        final long startTimeMs = shapeTimeMap.get(shapeNum);
-        final long duration = endTime.getTime() - startTimeMs;
-
-        // For testing in multi-threaded environment.  TODO: Remove prior to PR
-        logger.info("This should be " + shapeName);
-
-        if (duration > LOGGING_THRESHOLD) {
-            log("  Duration: " + duration + "ms");
-            log("  Timestamp: " + FORMAT.format(endTime));
-        }
-        // Write a row of the file.
-        try {
-            final String row =
-                    Thread.currentThread().getName() + "\t" +
-                            shapeNum + "\t" +
-                            shapeName + "\t" +
-                            FORMAT.format(new Date(startTimeMs)) + "\t" +
-                            FORMAT.format(endTime) + "\t" +
-                            duration + "\n";
-            out.write(row);
-            out.flush();
-            if (shapeNum >= numShapes) {
-                out.close();
-            }
-        } catch (IOException ioe) {
-            logger.error("Could not write to progress monitor.");
         }
     }
 }
