@@ -8,15 +8,15 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
 
 *    utilities to make it easier to work with this format.  Java utilities are
      in `src/main/java/com/ncc/aif/AIFUtils.java`, which can be used by adding
-     a Maven dependency on `com.ncc:aida-interchange:1.0.0-SNAPSHOT`.  A
+     a Maven dependency on `com.ncc:aida-interchange:1.1.0-SNAPSHOT`.  A
      Python translation of these utilities is in
      `python/aida_interchange/aifutils.py`.
-	 
+
 *    examples of how to use AIF. These are given in Java in the unit tests under
      `src/test/java/com/ncc/aif/ExamplesAndValidationTests`.  A Python
      translation of these examples is in `python/tests/Examples.py`.  If you run either set of
      examples, the corresponding Turtle output will be dumped.
-	 
+
 We recommend using Turtle format for AIF when working with single document files (for
 readability) but N-Triples for working with large KBs (for speed).
 
@@ -35,7 +35,7 @@ installation above into your build script or tool.  For gradle, for
 example, include the following in the dependencies in your `build.gradle` file:
 
 `dependencies {
-    compile 'com.ncc:aida-interchange:1.0-SNAPSHOT'
+    compile 'com.ncc:aida-interchange:1.1.0-SNAPSHOT'
 }`
 
 In your code, import classes from the `com.ncc.aif` package.
@@ -116,7 +116,7 @@ threshold.
 
 # Running the Ontology Resource Generator
 
-To generate the resource variables from a particular ontology file, please refer to 
+To generate the resource variables from a particular ontology file, please refer to
 the README located at `src/main/java/com/ncc/aif/ont2javagen/README.md`.
 
 # Additional Information about Individual Ontologies
@@ -150,7 +150,7 @@ The python project uses [Sphinx](http://www.sphinx-doc.org/en/master/) for gener
 ```bash
 $ ./update_documentation.sh
 ```
-This script will generate documentation in the form of HTML and place it within the `python/docs/build/html` folder. 
+This script will generate documentation in the form of HTML and place it within the `python/docs/build/html` folder.
 
 # FAQ
 
