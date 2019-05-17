@@ -84,6 +84,28 @@ def check_valid_extension(s3_submission):
     return False
 
 
+def upload_file_to_s3(s3_bucket, filepath):
+    """Helper function to upload single file to S3 bucket with specified prefix
+    TODO update this in main method
+
+    :param str s3_bucket: Name of the S3 bucket where the file will be uploaded
+    :param str s3_prefix: The prefix to prepend to the filename
+    :param str filepath: The local path of the file to be uploaded
+    :raises ClientError: S3 client exception
+    """
+    s3_client = boto3.client('s3')
+
+    try:
+        s3_object = Path(filepath).name
+
+        logging.info("Uploading %s to bucket %s", s3_object, s3_bucket)
+        s3_client.upload_file(str(filepath), s3_bucket, s3_object)
+
+    except ClientError as e:
+        logging.error(e)
+
+
+
 def extract_s3_submission_stem(s3_submission):
     """Helper function to extract s3 and file path information from s3 submission 
     path.
@@ -118,7 +140,7 @@ def bucket_exists(s3_bucket):
         logging.error(e)
 
 
-def check_for_unprocessed_messages(souce_dir, source_message_list):
+def validate_processed_messages(souce_dir, source_message_list):
     """
     """
     pass
@@ -165,6 +187,86 @@ def validate_envs(envs):
 
     return True
 
+def verify_validation(results_path, source_log_path):
+    """
+    :retruns: True if all files are account for, False otherwise
+    :rtype: bool
+    """
+    logging.info("Verifying validation result contents with SQS queue")
+    source_log = '/'.join([results_path, source_log_path])
+    if os.path.exists(source_log):
+
+        # read in source log files
+        sqs_objects = []
+        try: 
+            with open(source_log) as file:
+                sqs_objects = [Path(line.strip()).name for line in file]
+        except :
+            logging.error("Exception occured when reading %s during verification of validation", source_log_path)
+
+            create_verification_output(
+                results_path,
+                Path(source_log_path).stem + '.failed',
+                "Exception occured when reading {0} during verification of validation".format(source_log_path)
+            )
+            return False
+
+        # get all ttl files that have been processed
+        processed_objects = [] 
+        for filepath in Path(results_path).glob('**/*.ttl'):
+            processed_objects.append(filepath.name)
+
+        # find any missing files that should exist in S3 bucket
+        missing_objects = set(sqs_objects) - set(processed_objects)
+
+        if len(missing_objects) > 0:
+            logging.error("The following %s files were missing from validation results: %s",
+                    str(len(missing_objects)), missing_objects
+                )
+
+            create_verification_output(
+                results_path,
+                Path(source_log_path).stem + '.failed',
+                "The following {0} files were missing from validation results: {1}".format( 
+                    str(len(missing_objects)), missing_objects
+                )
+            )
+            return False, 
+        else:
+            logging.info("All %s files placed on SQS accounted for in validation results",
+                    str(len(sqs_objects))
+                )
+
+            create_verification_output(
+                results_path,
+                Path(source_log_path).stem + '.verified',
+                "All {0} files placed on SQS accounted for in validation results".format(
+                    str(len(sqs_objects))
+                )
+            )
+            return True, 
+    else:
+        logging.error("Source log file %s does not exist, unable to verify source files", source_log_path)
+
+        create_verification_output(
+            results_path, 
+            Path(source_log_path).stem + '.failed', 
+            "Source log file {0} does not exist, unable to verify source files".format(source_log_path)
+        )
+        return False, 
+
+
+def create_verification_output(results_path, source_verfication_path, message):
+    """
+    """
+    file_path = '/'.join([results_path, source_verfication_path])
+    try:
+        with open(file_path, "w") as f:
+            print(message, file=f)
+    except:
+        logging.error("Error when writing source verification file %s", file_path)
+
+
 def main():
     
     # read in all evnironment variables into dict
@@ -190,7 +292,13 @@ def main():
         # download all validation files from s3 for the currnet job
         results_path = extract_s3_submission_stem(envs['S3_SUBMISSION_ARCHIVE']) + '-results'
         sync_s3_bucket_prefix(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'], results_path)
-        make_job_results_tarfile(results_path+'.tar.gz', results_path, envs['AWS_BATCH_JOB_ID'])
+
+        # validate processed files
+        verify_validation(results_path, 'sourcefiles.done')
+        
+        results_tar = results_path+'.tar.gz'
+        make_job_results_tarfile(results_tar, results_path, envs['AWS_BATCH_JOB_ID'])
+        upload_file_to_s3(envs['S3_VALIDATION_BUCKET'], results_tar)
         #delete_s3_objects_with_prefix(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
         #delete_sqs_queue(queue_url)
     

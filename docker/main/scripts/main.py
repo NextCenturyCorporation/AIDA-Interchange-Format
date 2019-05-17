@@ -7,7 +7,6 @@ import glob
 import json
 import shutil
 import time
-import pickle
 from pathlib import Path
 from botocore.exceptions import ClientError
 
@@ -110,10 +109,11 @@ def extract_s3_submission_stem(s3_submission):
 
 def enqueue_files(queue_url, job_id, s3_bucket, source_log_path):
     """Uploads all turtle (ttl) files in source directory to the provided S3 bucket,
-    adds each S3 object path as a message on SQS and updates sourcefiles on S3. After 
-    all messages have processed and added to the queue, a final source file will be 
-    uploaded with a suffix of '.done' and the old source file will be removed 
-    from S3.
+    adds each S3 object path as a message on SQS and creates / updates the source log on S3. 
+    The source log is a serialized list of each S3 object path that will
+    be used for processing validation. After all messages have processed and added to 
+    the queue, a final source file will be uploaded with a suffix of '.done' and the old
+    source file will be removed from S3.
 
     :param str s3_bucket: Unique string name of the bucket where the 
         directories will be created
@@ -121,8 +121,8 @@ def enqueue_files(queue_url, job_id, s3_bucket, source_log_path):
     :param str job_id: Serves as the message group id for the SQS queue, the local directory
         where extracted turtle (ttl) source files are placed, and the S3 object prefix where 
         source files are uploaded.
-    :param str source_log_path: The path of the serialized file to be created with added
-        S3 objects
+    :param str source_log_path: The path of the serialized file to be created with 
+        S3 object paths
     :param str source_dir: The local directory that contains turtle (ttl) files
     :raises ClientError: S3 client exception
     """
@@ -139,8 +139,9 @@ def enqueue_files(queue_url, job_id, s3_bucket, source_log_path):
             response = add_sqs_message(queue_url, s3_object, job_id)
 
             if response:
-                with open(source_log_path, 'ab') as f:
-                    pickle.dump(s3_object, f)
+
+                with open(source_log_path, 'a+') as f:
+                    f.write(s3_object + '\n')
 
                 # upload file to S3
                 upload_file_to_s3(s3_bucket, job_id, source_log_path)
