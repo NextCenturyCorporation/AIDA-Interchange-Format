@@ -94,6 +94,19 @@ def extract_s3_submission_paths(s3_submission):
 
     return s3_bucket, s3_object, file_name, file_ext
 
+def extract_s3_submission_stem(s3_submission):
+    """Helper function to extract s3 and file path information from s3 submission 
+    path.
+
+    :param str s3_submission: The s3 object path of the submission
+    :returns: 
+        - file_name - the extracted file name including extension
+    :rtype: str
+    """
+    path = Path(s3_submission)
+    file_name = path.name.with_suffix('')
+    return file_name
+
 
 def enqueue_files(queue_url, job_id, s3_bucket, source_log_path):
     """Uploads all turtle (ttl) files in source directory to the provided S3 bucket,
@@ -141,8 +154,12 @@ def enqueue_files(queue_url, job_id, s3_bucket, source_log_path):
             # upload file to S3
             upload_file_to_s3(s3_bucket, job_id, source_log_path+'.done')
 
-            #delete the old file
+            # delete the old file
             delete_s3_object(s3_bucket, '/'.join([job_id, source_log_path]))
+
+        # remove the source directory
+        logging.info("Removing source staging directory %s", job_id)
+        shutil.rmtree(job_id)
 
     except ClientError as e:
         logging.error(e)
@@ -227,6 +244,27 @@ def delete_s3_objects_with_prefix(s3_bucket, s3_prefix):
     except ClientError as e:
         logging.error(e)
 
+
+def download_s3_objects_with_prefix(s3_bucket, s3_prefix, dest_path):
+    """Downloads all S3 objects from S3 bucket with specified prefix
+
+    :param str s3_bucket: The S3 bucket where the objects will be deleted from
+    :param str s3_prefix: The prefix that all the S3_objects must have in order to be
+        deleted
+    :param str dest_path: The destination folder for downloaded s3 objects
+    :raises ClientError: S3 resource exception
+    """
+    s3 = boto3.resource('s3')
+    try:
+        bucket = s3.Bucket(s3_bucket)
+        objects_to_download = []
+        for obj in bucket.objects.filter(Prefix=s3_prefix+'/'):
+            bucket.download_file(obj.key, dest_path+'/'+obj.key)
+
+        logging.info("Downloaded all files in %s from s3 bucket %s", s3_prefix, bucket.name)
+
+    except ClientError as e:
+        logging.error(e)
 
 def create_sqs_queue(queue_name):
     """Creates SQS FIFO queue with specified name.
@@ -464,6 +502,11 @@ def main():
 
         # TODO this will be uncommented and refined in the finalalization development phase in
         # AIDA-763
+
+        # download all validation files from s3 for the currnet job
+        #results = extract_s3_submission_filename(envs['S3_SUBMISSION_ARCHIVE'])
+        #download_s3_objects_with_prefix(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'], results)
+
         #delete_s3_objects_with_prefix(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
         #delete_sqs_queue(queue_url)
     
