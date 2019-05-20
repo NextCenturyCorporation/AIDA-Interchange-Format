@@ -35,11 +35,11 @@ def check_sqs_has_messages(s3_bucket, batch_job_id, complete=False):
 	"""Function will verify if the sourcefiles has been created
 	indicating messages have been added to the SQS queue. If the complete flag
 	is set to True, it will specifically look for the sourcefiles key that has
-	.done in the suffix, indicating the SQS queue has been fully populated.
+	.queued in the suffix, indicating the SQS queue has been fully populated.
 
 	:param str s3_bucket: The s3 bucket that contains the sourcefiles object
 	:param str batch_job_id: The id of the batch job
-	:param bool complete: True checks if sourcefile has the .done suffix, False 
+	:param bool complete: True checks if sourcefile has the .queued suffix, False 
 		otherwise
 	:returns: True if file exists, False otherwise
 	:rtype: bool
@@ -51,10 +51,10 @@ def check_sqs_has_messages(s3_bucket, batch_job_id, complete=False):
 	if complete and len(objs) > 0:
 
 		for obj in objs:
-			if obj.key == sourcefiles_prefix+'.done':
-				logging.info("sourcefiles.done found in S3 bucket %s", s3_bucket)
+			if obj.key == sourcefiles_prefix+'.queued':
+				logging.info("sourcefiles.queued found in S3 bucket %s", s3_bucket)
 				return True
-		logging.info("sourcefiles.done does not exist S3 bucket %s", s3_bucket)
+		logging.info("sourcefiles.queued does not exist S3 bucket %s", s3_bucket)
 		return False
 	else:
 		if len(objs) > 0: 
@@ -236,7 +236,7 @@ def delete_sqs_message(queue_url, msg_receipt_handle):
 
 def process_sqs_queue(batch_job_id, validation_home, validation_flags, s3_bucket, validation_timeout):
 	"""Function process messages until no more messages can be read from SQS 
-	queue and sourcefiles.done file has been populated in S3. 
+	queue and sourcefiles.queued file has been populated in S3. 
 
 	:param str batch_job_id: The id of the batch job as well as the name of 
 		the SQS queue.
