@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+//TODO: remove me
 public class ValidatorPerformanceTest {
     private static final String ROOT = "../VERDI/MockTA1Algo/";
     private static final String SAMPLE = ROOT + "R103.Sample.2019.05.14/";
@@ -40,7 +41,8 @@ public class ValidatorPerformanceTest {
     private ValidateAIF threaded;
     public ValidatorPerformanceTest(int threadCount) {
         normal = ValidateAIF.createForLDCOntology(ValidateAIF.Restriction.NIST);
-        threaded = ValidateAIF.createForLDCOntologyWithThreads(ValidateAIF.Restriction.NIST, threadCount);
+        threaded = ValidateAIF.createForLDCOntology(ValidateAIF.Restriction.NIST);
+        threaded.setThreadCount(threadCount);
     }
 
     void runAgainstFile(String file, int runs) throws IOException {
