@@ -209,9 +209,14 @@ def get_sqs_message(queue_url):
 		else:
 			logging.info("SQS queue %s did not return a messages", queue_url)
 			return None
+
 	except ClientError as e:
-		logging.error(e)
-		return None
+		if e.response['Error']['Code'] == \
+               'AWS.SimpleQueueService.NonExistentQueue':
+			return 'NonExistentQueue'
+		else:
+			logging.error(e)
+			return None
 
 
 def delete_sqs_message(queue_url, msg_receipt_handle):
@@ -258,6 +263,11 @@ def process_sqs_queue(batch_job_id, validation_home, validation_flags, s3_bucket
 
 			logging.info("Getting next message from SQS queue %s", response['QueueUrl'])
 			msg = get_sqs_message(response['QueueUrl'])
+
+			# check if sqs was deleted to prevent endless loop
+			if msg == 'NonExistentQueue':
+				logging.error("SQS queue %s no longer exists", queue_name)
+				break
 
 			#check if queue has finished populating and message is None
 			if msg is None and check_sqs_has_messages(s3_bucket, batch_job_id, True):

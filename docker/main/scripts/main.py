@@ -647,7 +647,7 @@ def main():
 
             # check for debug mode
             if bool(envs['DEBUG']):
-                debug_wait_for_processing(400, 30)
+                debug_wait_for_processing(40, 30)
             else:
                 # wait for all AWS batch jobs to complete processing
                 wait_for_processing(
