@@ -13,143 +13,31 @@ from pathlib import Path
 from botocore.exceptions import ClientError
 from subprocess import CalledProcessError
 
-
-def download_s3_objects_with_prefix(s3_bucket, s3_prefix, dest_path):
-    """Downloads all S3 objects from S3 bucket with specified prefix
+def delete_s3_objects_with_prefix(s3_bucket, s3_prefix):
+    """Deletes all S3 objects from S3 bucket with specified prefix
 
     :param str s3_bucket: The S3 bucket where the objects will be deleted from
     :param str s3_prefix: The prefix that all the S3_objects must have in order to be
         deleted
-    :param str dest_path: The destination folder for downloaded s3 objects
     :raises ClientError: S3 resource exception
     """
     s3 = boto3.resource('s3')
     try:
         bucket = s3.Bucket(s3_bucket)
-        objects_to_download = []
+        objects_to_delete = []
         for obj in bucket.objects.filter(Prefix=s3_prefix+'/'):
-            with open(dest_path+'/'+obj.key, 'wb') as data:
-                bucket.download_fileobj(obj.key, data)
+            objects_to_delete.append({'Key': obj.key})
 
-        logging.info("Downloaded all files in %s from s3 bucket %s", s3_prefix, bucket.name)
-
-    except ClientError as e:
-        logging.error(e)
-
-def sync_s3_bucket_prefix(s3_bucket, s3_prefix, dest_path):
-
-    try:
-        cmd = 'aws s3 sync s3://' + s3_bucket + '/' + s3_prefix + ' ' + dest_path
-
-        logging.info("Syncing S3 bucket %s with prefix %s", s3_bucket, s3_prefix)
-        #**********************
-        # Requies python 3.7+ *
-        #**********************
-        output = subprocess.run(cmd, check=True, shell=True)
-        logging.info("Succesfully downloaded all files from s3 bucket %s with prefix %s", s3_bucket, s3_prefix)
-        
-    except CalledProcessError as e:
-        logging.error("Error [%s] occured when syncing s3 bucket %s with prefix %s", str(e.returncode), s3_bucket, s3_prefix)
-
-def is_env_set(env, value):
-    """Helper function to check if a specific environment variable is not None
-
-    :param str env: The name of the environment variable
-    :param value: The value of the environment variable
-    :returns: True if environment variable is set, False otherwise
-    :rtype: bool
-    """
-    if not value:
-        logging.error("Environment variable %s is not set", env)
-        return False
-    logging.info("Environment variable %s is set to %s", env, value)
-    return True
-
-def check_valid_extension(s3_submission):
-    """Helper function that checks the s3_submission extension is valid before
-    downloading archive from S3. Valid submissions can be archived as .tar.gz, 
-    .tgz, or .zip. 
-
-    :param str s3_submission: The s3 submission download path
-    :returns: True if submission has valid extension, False otherwise
-    :rtype: bool
-    """
-    path = Path(s3_submission)
-    file_ext = "".join(path.suffixes)
-
-    valid_ext = [".tar.gz", ".tgz", ".zip"]
-
-    if file_ext in valid_ext:
-        return True
-    return False
-
-
-def upload_file_to_s3(s3_bucket, filepath):
-    """Helper function to upload single file to S3 bucket with specified prefix
-    TODO update this in main method
-
-    :param str s3_bucket: Name of the S3 bucket where the file will be uploaded
-    :param str s3_prefix: The prefix to prepend to the filename
-    :param str filepath: The local path of the file to be uploaded
-    :raises ClientError: S3 client exception
-    """
-    s3_client = boto3.client('s3')
-
-    try:
-        s3_object = Path(filepath).name
-
-        logging.info("Uploading %s to bucket %s", s3_object, s3_bucket)
-        s3_client.upload_file(str(filepath), s3_bucket, s3_object)
+        logging.info("Deleting %s from s3 bucket %s", objects_to_delete, bucket.name)
+        bucket.delete_objects(
+            Delete={
+                'Objects': objects_to_delete
+            }
+        )
 
     except ClientError as e:
         logging.error(e)
 
-
-
-def extract_s3_submission_stem(s3_submission):
-    """Helper function to extract s3 and file path information from s3 submission 
-    path.
-
-    :param str s3_submission: The s3 object path of the submission
-    :returns: 
-        - stem - the extracted stem from the s3_submission
-    :rtype: str
-    """
-    path = Path(s3_submission)
-    stem = Path(path.with_suffix('')).stem
-    return stem
-
-
-def bucket_exists(s3_bucket):
-    """Helper function that will check if a S3 bucket exists
-
-    :param str s3_bucket: The S3 bucket that is being checked
-    :returns: True if bucket exists, False otherwise
-    :rtype: bool
-    :raises ClientError: S3 resource exception
-    """
-    s3 = boto3.resource('s3')
-
-    try:
-        bucket = s3.Bucket(s3_bucket)
-        if bucket.creation_date is not None:
-            return True
-        return False
-
-    except ClientError as e:
-        logging.error(e)
-
-
-def validate_processed_messages(souce_dir, source_message_list):
-    """
-    """
-    pass
-
-def make_job_results_tarfile(output_filename, source_dir, job_id):
-    """
-    """
-    with tarfile.open(output_filename, "w:gz") as tar:
-        tar.add(source_dir, arcname=os.path.basename(source_dir))
 
 def validate_envs(envs):
     """Helper function to validate all of the environment variables exist and are valid before
@@ -186,6 +74,120 @@ def validate_envs(envs):
         return False
 
     return True
+
+def delete_sqs_queue(queue_url):
+    """Deletes SQS queue at specified queue url.
+
+    :param str queue_url: The SQS queue url of queue to be deleted
+    :raises ClientError: SQS client exception
+    """
+    sqs_client = boto3.client('sqs')
+
+    try:
+        logging.info("deleting sqs queue %s", queue_url)
+        queue = sqs_client.delete_queue(
+            QueueUrl = queue_url,
+        )
+
+    except ClientError as e:
+        logging.error(e)
+    except Exception as e:
+        logging.error(e)
+
+
+def is_env_set(env, value):
+    """Helper function to check if a specific environment variable is not None
+
+    :param str env: The name of the environment variable
+    :param value: The value of the environment variable
+    :returns: True if environment variable is set, False otherwise
+    :rtype: bool
+    """
+    if not value:
+        logging.error("Environment variable %s is not set", env)
+        return False
+    logging.info("Environment variable %s is set to %s", env, value)
+    return True
+
+def check_valid_extension(s3_submission):
+    """Helper function that checks the s3_submission extension is valid before
+    downloading archive from S3. Valid submissions can be archived as .tar.gz, 
+    .tgz, or .zip. 
+
+    :param str s3_submission: The s3 submission download path
+    :returns: True if submission has valid extension, False otherwise
+    :rtype: bool
+    """
+    path = Path(s3_submission)
+    file_ext = "".join(path.suffixes)
+    valid_ext = [".tar.gz", ".tgz", ".zip"]
+
+    if file_ext in valid_ext:
+        return True
+    return False
+
+
+def upload_file_to_s3(s3_bucket, filepath):
+    """Helper function to upload single file to S3 bucket with specified prefix
+    TODO update this in main method
+
+    :param str s3_bucket: Name of the S3 bucket where the file will be uploaded
+    :param str s3_prefix: The prefix to prepend to the filename
+    :param str filepath: The local path of the file to be uploaded
+    :raises ClientError: S3 client exception
+    """
+    s3_client = boto3.client('s3')
+
+    try:
+        s3_object = Path(filepath).name
+
+        logging.info("Uploading %s to bucket %s", s3_object, s3_bucket)
+        s3_client.upload_file(str(filepath), s3_bucket, s3_object)
+
+    except ClientError as e:
+        logging.error(e)
+
+
+def bucket_exists(s3_bucket):
+    """Helper function that will check if a S3 bucket exists
+
+    :param str s3_bucket: The S3 bucket that is being checked
+    :returns: True if bucket exists, False otherwise
+    :rtype: bool
+    :raises ClientError: S3 resource exception
+    """
+    s3 = boto3.resource('s3')
+
+    try:
+        bucket = s3.Bucket(s3_bucket)
+        if bucket.creation_date is not None:
+            return True
+        return False
+
+    except ClientError as e:
+        logging.error(e)
+
+
+def extract_s3_submission_stem(s3_submission):
+    """Helper function to extract s3 and file path information from s3 submission 
+    path.
+
+    :param str s3_submission: The s3 object path of the submission
+    :returns: 
+        - stem - the extracted stem from the s3_submission
+    :rtype: str
+    """
+    path = Path(s3_submission)
+    stem = Path(path.with_suffix('')).stem
+    return stem
+
+
+def make_job_results_tarfile(output_filename, source_dir, job_id):
+    """
+    """
+    with tarfile.open(output_filename, "w:gz") as tar:
+        tar.add(source_dir, arcname=os.path.basename(source_dir))
+
 
 def verify_validation(results_path, source_log_path):
     """
@@ -266,6 +268,20 @@ def create_verification_output(results_path, source_verfication_path, message):
     except:
         logging.error("Error when writing source verification file %s", file_path)
 
+def sync_s3_bucket_prefix(s3_bucket, s3_prefix, dest_path):
+
+    try:
+        cmd = 'aws s3 sync s3://' + s3_bucket + '/' + s3_prefix + ' ' + dest_path
+
+        logging.info("Syncing S3 bucket %s with prefix %s", s3_bucket, s3_prefix)
+        #**********************
+        # Requies python 3.7+ *
+        #**********************
+        output = subprocess.run(cmd, check=True, shell=True)
+        logging.info("Succesfully downloaded all files from s3 bucket %s with prefix %s", s3_bucket, s3_prefix)
+        
+    except CalledProcessError as e:
+        logging.error("Error [%s] occured when syncing s3 bucket %s with prefix %s", str(e.returncode), s3_bucket, s3_prefix)
 
 def main():
     
@@ -296,10 +312,10 @@ def main():
         # validate processed files
         verify_validation(results_path, 'sourcefiles.done')
         
-        results_tar = results_path+'.tar.gz'
-        make_job_results_tarfile(results_tar, results_path, envs['AWS_BATCH_JOB_ID'])
+        # tar results and upload to validation bucket
+        make_job_results_tarfile(results_path+'.tar.gz', results_path, envs['AWS_BATCH_JOB_ID'])
         upload_file_to_s3(envs['S3_VALIDATION_BUCKET'], results_tar)
-        #delete_s3_objects_with_prefix(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
-        #delete_sqs_queue(queue_url)
+        delete_s3_objects_with_prefix(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
+        delete_sqs_queue(queue_url)
     
 if __name__ == "__main__": main()

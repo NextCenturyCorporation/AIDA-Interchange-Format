@@ -7,8 +7,10 @@ import glob
 import json
 import shutil
 import time
+import subprocess
 from pathlib import Path
 from botocore.exceptions import ClientError
+from subprocess import CalledProcessError
 
 
 def download_and_extract_submission_from_S3(s3_submission, source_dir):
@@ -43,10 +45,15 @@ def download_and_extract_submission_from_S3(s3_submission, source_dir):
             zip_ref.extractall(source_dir)
             zip_ref.close()
 
+        ttls = glob.glob(source_dir + '/**/*.ttl', recursive=True)
         # if no ttl files extracted raise an exception
-        if len(glob.glob(source_dir + '/**/*.ttl', recursive=True)) <= 0 :
+        if len(ttls) <= 0 :
             raise Exception ("No ttl files extracted to directory {0} for S3 submission {1}"
                 .format(source_dir, file_name))
+
+        # check for duplicates
+        if len(ttls) != len(set(ttls)):
+            raise Exception("Duplicate ttl files found in S3 submission {0}".format(file_name))
             
     except ClientError as e:
         logging.error(e)
@@ -99,12 +106,12 @@ def extract_s3_submission_stem(s3_submission):
 
     :param str s3_submission: The s3 object path of the submission
     :returns: 
-        - file_name - the extracted file name including extension
+        - stem - the extracted stem from the s3_submission
     :rtype: str
     """
     path = Path(s3_submission)
-    file_name = path.name.with_suffix('')
-    return file_name
+    stem = Path(path.with_suffix('')).stem
+    return stem
 
 
 def enqueue_files(queue_url, job_id, s3_bucket, source_log_path):
@@ -112,7 +119,7 @@ def enqueue_files(queue_url, job_id, s3_bucket, source_log_path):
     adds each S3 object path as a message on SQS and creates / updates the source log on S3. 
     The source log is a serialized list of each S3 object path that will
     be used for processing validation. After all messages have processed and added to 
-    the queue, a final source file will be uploaded with a suffix of '.done' and the old
+    the queue, a final source file will be uploaded with a suffix of '.queued' and the old
     source file will be removed from S3.
 
     :param str s3_bucket: Unique string name of the bucket where the 
@@ -144,16 +151,16 @@ def enqueue_files(queue_url, job_id, s3_bucket, source_log_path):
                     f.write(s3_object + '\n')
 
                 # upload file to S3
-                upload_file_to_s3(s3_bucket, job_id, source_log_path)
+                upload_file_to_s3_with_prefix(s3_bucket, job_id, source_log_path)
             else:
                 logging.error("Unable to add %s as SQS message", s3_object)
         
         # append .done to the sourceifles path
         if os.path.exists(source_log_path):
-            os.rename(source_log_path, source_log_path+'.done')
+            os.rename(source_log_path, source_log_path+'.queued')
 
             # upload file to S3
-            upload_file_to_s3(s3_bucket, job_id, source_log_path+'.done')
+            upload_file_to_s3_with_prefix(s3_bucket, job_id, source_log_path+'.queued')
 
             # delete the old file
             delete_s3_object(s3_bucket, '/'.join([job_id, source_log_path]))
@@ -166,7 +173,7 @@ def enqueue_files(queue_url, job_id, s3_bucket, source_log_path):
         logging.error(e)
 
 
-def upload_file_to_s3(s3_bucket, s3_prefix, filepath):
+def upload_file_to_s3_with_prefix(s3_bucket, s3_prefix, filepath):
     """Helper function to upload single file to S3 bucket with specified prefix
 
     :param str s3_bucket: Name of the S3 bucket where the file will be uploaded
@@ -178,6 +185,24 @@ def upload_file_to_s3(s3_bucket, s3_prefix, filepath):
 
     try:
         s3_object = '/'.join([s3_prefix, Path(filepath).name])
+
+        logging.info("Uploading %s to bucket %s", s3_object, s3_bucket)
+        s3_client.upload_file(str(filepath), s3_bucket, s3_object)
+
+    except ClientError as e:
+        logging.error(e)
+
+def upload_file_to_s3(s3_bucket, filepath):
+    """Helper function to upload single file to S3 bucket
+
+    :param str s3_bucket: Name of the S3 bucket where the file will be uploaded
+    :param str filepath: The local path of the file to be uploaded
+    :raises ClientError: S3 client exception
+    """
+    s3_client = boto3.client('s3')
+
+    try:
+        s3_object = Path(filepath).name
 
         logging.info("Uploading %s to bucket %s", s3_object, s3_bucket)
         s3_client.upload_file(str(filepath), s3_bucket, s3_object)
@@ -245,27 +270,6 @@ def delete_s3_objects_with_prefix(s3_bucket, s3_prefix):
     except ClientError as e:
         logging.error(e)
 
-
-def download_s3_objects_with_prefix(s3_bucket, s3_prefix, dest_path):
-    """Downloads all S3 objects from S3 bucket with specified prefix
-
-    :param str s3_bucket: The S3 bucket where the objects will be deleted from
-    :param str s3_prefix: The prefix that all the S3_objects must have in order to be
-        deleted
-    :param str dest_path: The destination folder for downloaded s3 objects
-    :raises ClientError: S3 resource exception
-    """
-    s3 = boto3.resource('s3')
-    try:
-        bucket = s3.Bucket(s3_bucket)
-        objects_to_download = []
-        for obj in bucket.objects.filter(Prefix=s3_prefix+'/'):
-            bucket.download_file(obj.key, dest_path+'/'+obj.key)
-
-        logging.info("Downloaded all files in %s from s3 bucket %s", s3_prefix, bucket.name)
-
-    except ClientError as e:
-        logging.error(e)
 
 def create_sqs_queue(queue_name):
     """Creates SQS FIFO queue with specified name.
@@ -347,6 +351,28 @@ def delete_sqs_queue(queue_url):
         logging.error(e)
 
 
+def debug_wait_for_processing(processing_timeout, sleep_interval):
+    """This function is used for debugging purposes. This will remove any depencency on 
+    AWS batch and allow for jobs to be processe for the specified amount of time set in 
+    the [processing_timeout] parameter. Once that amount of time has elapsed this function will
+    return true.
+
+    :param int processing_timeout: The amount of time to wait for processing to occur in debug
+        mode
+    :param int sleep_interval: The amount of time to sleep before checking for timeout
+    :returns: True, always
+    :rtype: bool
+    """
+    timeout = time.time() + processing_timeout
+
+    while time.time() < timeout:
+        logging.info("Debug mode enabled. Simulating processing for %s seconds. Sleeping for %s seconds", 
+            processing_timeout, sleep_interval)
+        time.sleep(sleep_interval)
+
+    return True
+
+
 def wait_for_processing(node_index, job_id, interval, worker_init_timeout):
     """Waits in an indefinite loop while all AWS batch jobs are processed. Function will 
     query AWS batch for all current jobs with the specified job id. If the returned job 
@@ -409,6 +435,124 @@ def wait_for_processing(node_index, job_id, interval, worker_init_timeout):
         logging.error(e)
 
 
+def make_job_results_tarfile(output_filename, source_dir):
+    """Creates a tar file of the source directory that contains the job results.
+
+    :param str output_filename: The name of the tar file to be created
+    :param str source_dir: The directory to be compressed
+    """
+    with tarfile.open(output_filename, "w:gz") as tar:
+        tar.add(source_dir, arcname=os.path.basename(source_dir))
+
+
+def verify_validation(results_path, source_log_path):
+    """Verifies that all files enqueued on SQS were accounted for in the 
+    resulting S3 bucket after validation. 
+
+    :retruns: True if all files are account for, False otherwise
+    :rtype: bool
+    """
+    logging.info("Verifying validation result contents with SQS queue")
+    source_log = '/'.join([results_path, source_log_path])
+    if os.path.exists(source_log):
+
+        # read in source log files
+        sqs_objects = []
+        try: 
+            with open(source_log) as file:
+                sqs_objects = [Path(line.strip()).name for line in file]
+        except :
+            logging.error("Exception occured when reading %s during verification of validation", source_log_path)
+
+            create_verification_output(
+                results_path,
+                Path(source_log_path).stem + '.failed',
+                "Exception occured when reading {0} during verification of validation".format(source_log_path)
+            )
+            return False
+
+        # get all ttl files that have been processed
+        processed_objects = [] 
+        for filepath in Path(results_path).glob('**/*.ttl'):
+            processed_objects.append(filepath.name)
+
+        # find any missing files that should exist in S3 bucket
+        missing_objects = set(sqs_objects) - set(processed_objects)
+
+        if len(missing_objects) > 0:
+            logging.error("The following %s files were missing from validation results: %s",
+                    str(len(missing_objects)), missing_objects
+                )
+
+            create_verification_output(
+                results_path,
+                Path(source_log_path).stem + '.failed',
+                "The following {0} files were missing from validation results: {1}".format( 
+                    str(len(missing_objects)), missing_objects
+                )
+            )
+            return False, 
+        else:
+            logging.info("All %s files placed on SQS accounted for in validation results",
+                    str(len(sqs_objects))
+                )
+
+            create_verification_output(
+                results_path,
+                Path(source_log_path).stem + '.verified',
+                "All {0} files placed on SQS accounted for in validation results".format(
+                    str(len(sqs_objects))
+                )
+            )
+            return True, 
+    else:
+        logging.error("Source log file %s does not exist, unable to verify source files", source_log_path)
+
+        create_verification_output(
+            results_path, 
+            Path(source_log_path).stem + '.failed', 
+            "Source log file {0} does not exist, unable to verify source files".format(source_log_path)
+        )
+        return False, 
+
+
+def create_verification_output(results_path, source_verfication_path, message):
+    """Generates verification file with verification reuslts to be added to final 
+    archive.
+
+    :param str results_path: The path where the current validation results are located
+    :param str source_verification_path: The path to place this verification output file
+    :param str message: The message that will be added to the file with the verification 
+        results
+    """
+    file_path = '/'.join([results_path, source_verfication_path])
+    try:
+        with open(file_path, "w") as f:
+            print(message, file=f)
+    except:
+        logging.error("Error when writing source verification file %s", file_path)
+
+def sync_s3_bucket_prefix(s3_bucket, s3_prefix, dest_path):
+    """Helper function that will sync an s3 bucket to the current working directory.
+
+    :param str s3_bucket: The source bucket to sync
+    :param str s3_prefix: The s3 bucket prefix to filter the files to sync
+    :param str dest_path: The local destination path where files will be syned to
+    """
+    try:
+        cmd = 'aws s3 sync s3://' + s3_bucket + '/' + s3_prefix + ' ' + dest_path
+
+        logging.info("Syncing S3 bucket %s with prefix %s", s3_bucket, s3_prefix)
+        #**********************
+        # Requies python 3.7+ *
+        #**********************
+        output = subprocess.run(cmd, check=True, shell=True)
+        logging.info("Succesfully downloaded all files from s3 bucket %s with prefix %s", s3_bucket, s3_prefix)
+        
+    except CalledProcessError as e:
+        logging.error("Error [%s] occured when syncing s3 bucket %s with prefix %s", str(e.returncode), s3_bucket, s3_prefix)
+
+
 def is_env_set(env, value):
     """Helper function to check if a specific environment variable is not None
 
@@ -458,6 +602,12 @@ def validate_envs(envs):
         logging.error("S3 validation bucket %s does not exist", envs['S3_VALIDATION_BUCKET'])
         return False
 
+    # check debug mode is a bool
+    try:
+        bool(envs['DEBUG'])
+    except ValueError:
+        logging.error('Debug flag [%s] must be a boolean', envs['DEBUG'])
+
     return True
 
 
@@ -473,6 +623,7 @@ def main():
     envs['MAIN_SLEEP_INTERVAL'] = os.environ.get('MAIN_SLEEP_INTERVAL')
     envs['WORKER_INIT_TIMEOUT'] = os.environ.get('WORKER_INIT_TIMEOUT')
     envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION')
+    envs['DEBUG'] = os.environ.get('DEBUG', 'False')
     
     # set logging to log to stdout
     logging.basicConfig(level=os.environ.get('LOGLEVEL', envs['MAIN_LOG_LEVEL']))
@@ -493,22 +644,30 @@ def main():
         if queue_url:
             # create sqs connection
             enqueue_files(queue_url, envs['AWS_BATCH_JOB_ID'], envs['S3_VALIDATION_BUCKET'], 'sourcefiles')
-             
-            # wait for all AWS batch jobs to complete processing
-            wait_for_processing(
-                envs['AWS_BATCH_JOB_NODE_INDEX'], 
-                envs['AWS_BATCH_JOB_ID'], 
-                int(envs['MAIN_SLEEP_INTERVAL']),
-                int(envs['WORKER_INIT_TIMEOUT']))
 
-        # TODO this will be uncommented and refined in the finalalization development phase in
-        # AIDA-763
+            # check for debug mode
+            if bool(envs['DEBUG']):
+                debug_wait_for_processing(90, 30)
+            else:
+                # wait for all AWS batch jobs to complete processing
+                wait_for_processing(
+                    envs['AWS_BATCH_JOB_NODE_INDEX'], 
+                    envs['AWS_BATCH_JOB_ID'], 
+                    int(envs['MAIN_SLEEP_INTERVAL']),
+                    int(envs['WORKER_INIT_TIMEOUT']))
 
         # download all validation files from s3 for the currnet job
-        #results = extract_s3_submission_filename(envs['S3_SUBMISSION_ARCHIVE'])
-        #download_s3_objects_with_prefix(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'], results)
+        results_path = extract_s3_submission_stem(envs['S3_SUBMISSION_ARCHIVE']) + '-results'
+        sync_s3_bucket_prefix(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'], results_path)
 
-        #delete_s3_objects_with_prefix(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
-        #delete_sqs_queue(queue_url)
+        # validate processed files
+        verify_validation(results_path, 'sourcefiles.queued')
+        
+        # tar results and upload to validation bucket
+        results_tar = results_path+'.tar.gz'
+        make_job_results_tarfile(results_tar, results_path)
+        upload_file_to_s3(envs['S3_VALIDATION_BUCKET'], results_tar)
+        delete_s3_objects_with_prefix(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
+        delete_sqs_queue(queue_url)
     
 if __name__ == "__main__": main()
