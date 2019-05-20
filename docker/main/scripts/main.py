@@ -260,12 +260,15 @@ def delete_s3_objects_with_prefix(s3_bucket, s3_prefix):
         for obj in bucket.objects.filter(Prefix=s3_prefix+'/'):
             objects_to_delete.append({'Key': obj.key})
 
-        logging.info("Deleting %s from s3 bucket %s", objects_to_delete, bucket.name)
-        bucket.delete_objects(
-            Delete={
-                'Objects': objects_to_delete
-            }
-        )
+        if len(objects_to_delete) > 0:
+            logging.info("Deleting %s from s3 bucket %s", objects_to_delete, bucket.name)
+            bucket.delete_objects(
+                Delete={
+                    'Objects': objects_to_delete
+                }
+            )
+        else:
+            logging.info("Nothing to delete from s3 bucket %s", bucket.name)
 
     except ClientError as e:
         logging.error(e)
@@ -454,6 +457,8 @@ def verify_validation(results_path, source_log_path):
     """
     logging.info("Verifying validation result contents with SQS queue")
     source_log = '/'.join([results_path, source_log_path])
+    verification_log = Path(source_log_path).stem + '.verification'
+
     if os.path.exists(source_log):
 
         # read in source log files
@@ -466,7 +471,7 @@ def verify_validation(results_path, source_log_path):
 
             create_verification_output(
                 results_path,
-                Path(source_log_path).stem + '.failed',
+                verification_log,
                 "Exception occured when reading {0} during verification of validation".format(source_log_path)
             )
             return False
@@ -486,21 +491,21 @@ def verify_validation(results_path, source_log_path):
 
             create_verification_output(
                 results_path,
-                Path(source_log_path).stem + '.failed',
+                verification_log,
                 "The following {0} files were missing from validation results: {1}".format( 
                     str(len(missing_objects)), missing_objects
                 )
             )
             return False, 
         else:
-            logging.info("All %s files placed on SQS accounted for in validation results",
+            logging.info("The %s files placed on SQS were accounted for in validation results",
                     str(len(sqs_objects))
                 )
 
             create_verification_output(
                 results_path,
-                Path(source_log_path).stem + '.verified',
-                "All {0} files placed on SQS accounted for in validation results".format(
+                verification_log,
+                "The {0} files placed on SQS were accounted for in validation results".format(
                     str(len(sqs_objects))
                 )
             )
@@ -510,7 +515,7 @@ def verify_validation(results_path, source_log_path):
 
         create_verification_output(
             results_path, 
-            Path(source_log_path).stem + '.failed', 
+            verification_log,
             "Source log file {0} does not exist, unable to verify source files".format(source_log_path)
         )
         return False, 
@@ -647,7 +652,7 @@ def main():
 
             # check for debug mode
             if bool(envs['DEBUG']):
-                debug_wait_for_processing(40, 30)
+                debug_wait_for_processing(90, 30)
             else:
                 # wait for all AWS batch jobs to complete processing
                 wait_for_processing(
