@@ -672,6 +672,8 @@ def main():
         results_tar = results_path+'.tar.gz'
         make_job_results_tarfile(results_tar, results_path)
         upload_file_to_s3(envs['S3_VALIDATION_BUCKET'], results_tar)
+
+        # clean up sqs queue and s3 validation staging data
         delete_s3_objects_with_prefix(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
         delete_sqs_queue(queue_url)
     
