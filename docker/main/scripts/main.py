@@ -125,10 +125,10 @@ def enqueue_files(queue_url, job_id, s3_bucket, source_log_path):
     :param str s3_bucket: Unique string name of the bucket where the 
         directories will be created
     :param str queue_url: The SQS queue url
-    :param str job_id: Serves as the message group id for the SQS queue, the local directory
-        where extracted turtle (ttl) source files are placed, and the S3 object prefix where 
+    :param str job_id: The AWS batch id as well as the local directory path where extracted
+        turtle (ttl) source files are placed, and the S3 object prefix where 
         source files are uploaded.
-    :param str source_log_path: The path of the serialized file to be created with 
+    :param str source_log_path: The path of the source log file that contains the 
         S3 object paths
     :param str source_dir: The local directory that contains turtle (ttl) files
     :raises ClientError: S3 client exception
@@ -145,13 +145,9 @@ def enqueue_files(queue_url, job_id, s3_bucket, source_log_path):
             # add the mssage to SQS
             response = add_sqs_message(queue_url, s3_object, job_id)
 
+            # update the source log with the added object path
             if response:
-
-                with open(source_log_path, 'a+') as f:
-                    f.write(s3_object + '\n')
-
-                # upload file to S3
-                upload_file_to_s3_with_prefix(s3_bucket, job_id, source_log_path)
+                update_source_log(source_log_path, s3_object, s3_bucket, job_id)
             else:
                 logging.error("Unable to add %s as SQS message", s3_object)
         
@@ -171,6 +167,25 @@ def enqueue_files(queue_url, job_id, s3_bucket, source_log_path):
 
     except ClientError as e:
         logging.error(e)
+
+
+def update_source_log(source_log_path, record, s3_bucket, job_id):
+    """Function will append the record to the source log and upload it to
+    s3. 
+
+    :param str source_log_path: The path of the source log file that contains the 
+        S3 object paths 
+    :param str recrod: The record to append to the source log file
+    :param str s3_bucket: The s3 bucket to upload the source log file to
+    :param str job_id: The AWS batch id as well as the local directory path where extracted
+        turtle (ttl) source files are placed, and the S3 object prefix where 
+        source files are uploaded.
+    """
+    with open(source_log_path, 'a+') as f:
+        f.write(record + '\n')
+
+    # upload file to S3
+    upload_file_to_s3_with_prefix(s3_bucket, job_id, source_log_path)
 
 
 def upload_file_to_s3_with_prefix(s3_bucket, s3_prefix, filepath):
@@ -345,10 +360,12 @@ def delete_sqs_queue(queue_url):
     sqs_client = boto3.client('sqs')
 
     try:
-        logging.info("deleting sqs queue %s", queue_url)
-        queue = sqs_client.delete_queue(
-            QueueUrl = queue_url,
-        )
+
+        if queue_url is not None:
+            logging.info("Deleting sqs queue %s", queue_url)
+            queue = sqs_client.delete_queue(
+                QueueUrl = queue_url,
+            )
 
     except ClientError as e:
         logging.error(e)
@@ -558,6 +575,61 @@ def sync_s3_bucket_prefix(s3_bucket, s3_prefix, dest_path):
         logging.error("Error [%s] occured when syncing s3 bucket %s with prefix %s", str(e.returncode), s3_bucket, s3_prefix)
 
 
+def configure_sns_bucket_topic(s3_bucket, job_id, topic_arn):
+    """Function configures the SNS event notification when the job completes 
+    validation. 
+
+    :param str s3_bucket: The s3 validation bucket
+    :param str job_id: The AWS batch job id
+    :param str topic_arn: The SNS topic arn to publish to
+    """
+ 
+    s3 = boto3.resource('s3')
+    bucket_notification = s3.BucketNotification(s3_bucket)
+ 
+    data = {'TopicConfigurations': [
+        {
+        'Id': 'CompletedEvent',
+            'TopicArn': topic_arn,
+            'Events': ['s3:ObjectCreated:*'],
+            'Filter': {
+                'Key': {
+                    'FilterRules': [
+                        {
+                            'Name': 'Prefix',
+                            'Value': '/'.join([job_id, 'sourcefiles.verification'])
+                        }
+                    ]
+                }
+            }
+        }
+        ]}
+
+    logging.info("Configuring SNS topic %s with data %s", topic_arn, data)
+ 
+    # This will cause the event to be triggered as a test
+    response = bucket_notification.put(NotificationConfiguration=data)
+
+
+def publish_sns_message(topic_arn, message):
+    """Function will publish message on to the SNS topic specified by
+    the topic arn.
+
+    :param str topic_arn: The SNS topic arn
+    :param str message: The message to publish
+    """
+    sns = boto3.client('sns')
+
+    try:
+        #publish message 
+        response = sns.publish(
+                TopicArn=topic_arn,
+                Message=message
+            )
+    except ClientError as e:
+        logging.error(e)
+
+
 def is_env_set(env, value):
     """Helper function to check if a specific environment variable is not None
 
@@ -628,6 +700,7 @@ def main():
     envs['MAIN_SLEEP_INTERVAL'] = os.environ.get('MAIN_SLEEP_INTERVAL')
     envs['WORKER_INIT_TIMEOUT'] = os.environ.get('WORKER_INIT_TIMEOUT')
     envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION')
+    envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN')
     envs['DEBUG'] = os.environ.get('DEBUG', 'False')
     
     # set logging to log to stdout
@@ -640,6 +713,14 @@ def main():
         envs['AWS_BATCH_JOB_ID'] = (envs['AWS_BATCH_JOB_ID']).split("#")[0]
         logging.info("Extracted AWS_BATCH_JOB_ID as %s", envs['AWS_BATCH_JOB_ID'])
 
+        # configure SNS topic 
+        configure_sns_bucket_topic(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'], envs['AWS_SNS_TOPIC_ARN'])
+
+        # publish message notification that job has started
+        message = "The archive {0} has been submitted for validation with job id {1}\
+            .".format(Path(envs['S3_SUBMISSION_ARCHIVE']).name, envs['AWS_BATCH_JOB_ID'])
+        publish_sns_message(envs['AWS_SNS_TOPIC_ARN'], message)
+
         # create s3 connection
         download_and_extract_submission_from_S3(envs['S3_SUBMISSION_ARCHIVE'], envs['AWS_BATCH_JOB_ID'])
 
@@ -647,7 +728,8 @@ def main():
         queue_url = create_sqs_queue(envs['AWS_BATCH_JOB_ID'])
 
         if queue_url:
-            # create sqs connection
+
+            # queue all the files
             enqueue_files(queue_url, envs['AWS_BATCH_JOB_ID'], envs['S3_VALIDATION_BUCKET'], 'sourcefiles')
 
             # check for debug mode
