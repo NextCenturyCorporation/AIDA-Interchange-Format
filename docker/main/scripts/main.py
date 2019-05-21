@@ -575,42 +575,6 @@ def sync_s3_bucket_prefix(s3_bucket, s3_prefix, dest_path):
         logging.error("Error [%s] occured when syncing s3 bucket %s with prefix %s", str(e.returncode), s3_bucket, s3_prefix)
 
 
-def configure_sns_bucket_topic(s3_bucket, job_id, topic_arn):
-    """Function configures the SNS event notification when the job completes 
-    validation. 
-
-    :param str s3_bucket: The s3 validation bucket
-    :param str job_id: The AWS batch job id
-    :param str topic_arn: The SNS topic arn to publish to
-    """
- 
-    s3 = boto3.resource('s3')
-    bucket_notification = s3.BucketNotification(s3_bucket)
- 
-    data = {'TopicConfigurations': [
-        {
-        'Id': 'CompletedEvent',
-            'TopicArn': topic_arn,
-            'Events': ['s3:ObjectCreated:*'],
-            'Filter': {
-                'Key': {
-                    'FilterRules': [
-                        {
-                            'Name': 'Prefix',
-                            'Value': '/'.join([job_id, 'sourcefiles.verification'])
-                        }
-                    ]
-                }
-            }
-        }
-        ]}
-
-    logging.info("Configuring SNS topic %s with data %s", topic_arn, data)
- 
-    # This will cause the event to be triggered as a test
-    response = bucket_notification.put(NotificationConfiguration=data)
-
-
 def publish_sns_message(topic_arn, message):
     """Function will publish message on to the SNS topic specified by
     the topic arn.
@@ -621,6 +585,8 @@ def publish_sns_message(topic_arn, message):
     sns = boto3.client('sns')
 
     try:
+        logging.info("Publishing message [%s] to topic arn %s", message, topic_arn)
+
         #publish message 
         response = sns.publish(
                 TopicArn=topic_arn,
@@ -713,13 +679,10 @@ def main():
         envs['AWS_BATCH_JOB_ID'] = (envs['AWS_BATCH_JOB_ID']).split("#")[0]
         logging.info("Extracted AWS_BATCH_JOB_ID as %s", envs['AWS_BATCH_JOB_ID'])
 
-        # configure SNS topic 
-        configure_sns_bucket_topic(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'], envs['AWS_SNS_TOPIC_ARN'])
-
         # publish message notification that job has started
-        message = "The archive {0} has been submitted for validation with job id {1}\
-            .".format(Path(envs['S3_SUBMISSION_ARCHIVE']).name, envs['AWS_BATCH_JOB_ID'])
-        publish_sns_message(envs['AWS_SNS_TOPIC_ARN'], message)
+        init_msg = "The archive {0} has been submitted for validation with job id {1}." \
+            .format(Path(envs['S3_SUBMISSION_ARCHIVE']).name, envs['AWS_BATCH_JOB_ID'])
+        publish_sns_message(envs['AWS_SNS_TOPIC_ARN'], init_msg)
 
         # create s3 connection
         download_and_extract_submission_from_S3(envs['S3_SUBMISSION_ARCHIVE'], envs['AWS_BATCH_JOB_ID'])
@@ -754,6 +717,14 @@ def main():
         results_tar = results_path+'.tar.gz'
         make_job_results_tarfile(results_tar, results_path)
         upload_file_to_s3(envs['S3_VALIDATION_BUCKET'], results_tar)
+
+        compelte_msg = "The validation of {0} with job id {1} has completed. Results can be found" \
+            " in the {2} S3 bucket".format(
+                Path(envs['S3_SUBMISSION_ARCHIVE']).name, 
+                envs['AWS_BATCH_JOB_ID'], 
+                envs['S3_VALIDATION_BUCKET']
+            )
+        publish_sns_message(envs['AWS_SNS_TOPIC_ARN'], compelte_msg)
 
         # clean up sqs queue and s3 validation staging data
         delete_s3_objects_with_prefix(envs['S3_VALIDATION_BUCKET'], envs['AWS_BATCH_JOB_ID'])
