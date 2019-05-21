@@ -25,33 +25,42 @@ public class ValidateCLITest {
     @BeforeEach
     void createCLI() {
         toTest = new CommandLine(new ValidateAIFCli());
+        System.setErr(System.out);
     }
 
     @Test
     void testSimple() {
-        expectFileShouldNotExist("--ldc", "tmp.ttl");
+        expectFileShouldNotExist("--ldc", "-f", "tmp.ttl");
     }
 
     @Test
     void requireOntology() {
         expect("CLI requires an ontology option", ValidateAIFCli.ReturnCode.USAGE_ERROR,
-                "--nist", "tmp.ttl");
-        expectFileShouldNotExist("--ldc", "tmp.ttl");
-        expectFileShouldNotExist("--program", "tmp.ttl");
-        expectFileShouldNotExist("--ont", "src/main/resources/com/ncc/aif/ontologies/SeedlingOntology", "tmp.ttl");
+                "--nist", "-f", "tmp.ttl");
+        expectFileShouldNotExist("--ldc", "-f", "tmp.ttl");
+        expectFileShouldNotExist("--program", "-f", "tmp.ttl");
+        expectFileShouldNotExist("--ont",
+                "src/main/resources/com/ncc/aif/ontologies/SeedlingOntology",
+                "src/main/resources/com/ncc/aif/ontologies/LDCOntology",
+                "-f", "tmp.ttl");
     }
 
     @Test
     void abortThreshold() {
         expect("Threshold must be greater than 3", ValidateAIFCli.ReturnCode.USAGE_ERROR,
                 "--ldc", "--abort", "-1", "tmp.ttl");
-        expectFileShouldNotExist("--ldc", "--abort", "4", "tmp.ttl");
+        expectFileShouldNotExist("--ldc", "--abort", "4", "-f", "tmp.ttl");
     }
 
     @Test
     void threads() {
         expect("Thread count must be at least 1", ValidateAIFCli.ReturnCode.USAGE_ERROR,
                 "--ldc", "-t", "-1", "tmp.ttl");
-        expectFileShouldNotExist("--ldc", "-t", "4", "tmp.ttl");
+        expectFileShouldNotExist("--ldc", "-t", "4", "-f", "tmp.ttl");
+    }
+
+    @Test
+    void files() {
+        expectFileShouldNotExist("--ldc", "-t", "4", "-f", "tmp.ttl", "another.ttl");
     }
 }

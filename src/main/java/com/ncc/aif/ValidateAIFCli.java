@@ -18,7 +18,6 @@ import org.topbraid.shacl.vocabulary.SH;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
 import java.io.File;
@@ -70,7 +69,7 @@ public class ValidateAIFCli implements Callable<Integer> {
 
         @Option(names = "--ont", description = "Validate against the OWL-formatted ontolog(ies) at the specified filename(s)",
                 paramLabel = "FILE", arity = "1..*", required = true)
-        private String customOntologies;
+        private List<File> customOntologies;
     }
 
     @ArgGroup(exclusive = true, multiplicity = "0..1", heading = "Restrictions:%n")
@@ -103,7 +102,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     @Option(names = "--p2", description = "Enable progressive profiling", hidden = true)
     private boolean useProgressiveProfiling;
 
-    @Option(names = { "-t" }, description = "Specify the number of threads to use during validation", paramLabel = "num")
+    @Option(names = "-t", description = "Specify the number of threads to use during validation", paramLabel = "num")
     private void setThreadCount(int count) {
         if (count < DEFAULT_THREAD_COUNT) {
             throw new CommandLine.ParameterException(spec.commandLine(),
@@ -113,11 +112,17 @@ public class ValidateAIFCli implements Callable<Integer> {
     }
     private int threads = DEFAULT_THREAD_COUNT;
 
-    @Option(names = "-d", description = "Treat specified files as directories")
-    private boolean useDirectories;
+    @ArgGroup(exclusive = true, multiplicity = "1", heading = "AIF Files:%n")
+    private FileArgs fileArgs;
+    private static class FileArgs {
+        @Option(names = "-d", description = "Validate all .ttl files in the specified directory", paramLabel = "DIRNAME",
+                required = true)
+        private File directory;
 
-    @Parameters(description = "The specified file(s) with a .ttl suffix or directory containing .ttl files", arity = "1..*")
-    private List<File> files;
+        @Option(names = "-f", description = "Validate the specified file(s) with a .ttl suffix", paramLabel = "FILE",
+                arity = "1..*", required = true)
+        private List<File> files;
+    }
 
     @Spec private CommandLine.Model.CommandSpec spec;
 
@@ -151,10 +156,9 @@ public class ValidateAIFCli implements Callable<Integer> {
                 StringBuilder builder = new StringBuilder();
                 // Convert the specified domain ontologies to CharSources.
                 Set<CharSource> domainOntologySources = new HashSet<>();
-                for (String source : ontologies.customOntologies.split(" ")) {
-                    File file = new File(source);
+                for (File file : ontologies.customOntologies) {
                     domainOntologySources.add(Files.asCharSource(file, Charsets.UTF_8));
-                    builder.append(source).append(" ");
+                    builder.append(file.getName()).append(" ");
                 }
                 validator = ValidateAIF.create(ImmutableSet.copyOf(domainOntologySources), restriction);
                 builder.setLength(builder.length() - 1);
@@ -167,12 +171,13 @@ public class ValidateAIFCli implements Callable<Integer> {
         }
 
         validator.setThreadCount(threads);
+        boolean hasFiles = fileArgs.files != null;
 
         // Collect the file(s) to be validated.
         final List<File> filesToValidate = new ArrayList<>();
         int nonTTLcount = 0;
-        if (!useDirectories) {
-            for (File file : files) {
+        if (hasFiles) {
+            for (File file : fileArgs.files) {
                 if (file.getName().endsWith(".ttl")) {
                     filesToValidate.add(file);
                 } else {
@@ -181,17 +186,16 @@ public class ValidateAIFCli implements Callable<Integer> {
                 }
             }
         } else { // -d option
-            for (File dir : files) {
-                if (!dir.exists()) {
-                    logger.warn("Skipping non-existent directory: " + dir.getName());
-                } else if (dir.isDirectory()) {
-                    File[] files = dir.listFiles(pathname -> pathname.toString().endsWith(".ttl"));
-                    if (files != null) {
-                        filesToValidate.addAll(Arrays.asList(files));
-                    }
-                } else {
-                    logger.warn("Skipping non-directory: " + dir.getName());
+            File dir = fileArgs.directory;
+            if (!dir.exists()) {
+                logger.warn("Skipping non-existent directory: " + dir.getName());
+            } else if (dir.isDirectory()) {
+                File[] files = dir.listFiles(pathname -> pathname.toString().endsWith(".ttl"));
+                if (files != null) {
+                    filesToValidate.addAll(Arrays.asList(files));
                 }
+            } else {
+                logger.warn("Skipping non-directory: " + dir.getName());
             }
         }
 
@@ -201,12 +205,12 @@ public class ValidateAIFCli implements Callable<Integer> {
         }
 
         // Display a summary of what we're going to do.
-        if (!useDirectories) {
+        if (hasFiles) {
             logger.info("-> Validating KB(s): " +
                     (filesToValidate.size() <= 5 ? filesToValidate : "from command-line arguments."));
         } else { // We'd have failed by now if there were no TTL files in the directory
             // This would need to be addressed if we supported validating files in N directories.
-            logger.info("-> Validating all KBs (*.ttl) in directory: " + files.get(0));
+            logger.info("-> Validating all KBs (*.ttl) in directory: " + fileArgs.directory.getName());
         }
         logger.info("-> Validating with domain ontology(ies): " + ontologyStr);
         if (restriction == ValidateAIF.Restriction.NIST) {
