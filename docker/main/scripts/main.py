@@ -659,13 +659,13 @@ def main():
     # read in all evnironment variables into dict
     envs = {}
     envs['S3_SUBMISSION_ARCHIVE'] = os.environ.get('S3_SUBMISSION_ARCHIVE')
-    envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
+    envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET')
     envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID')
     envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX')
     envs['MAIN_LOG_LEVEL'] = os.environ.get('MAIN_LOG_LEVEL', 'INFO') # default info logging
     envs['MAIN_SLEEP_INTERVAL'] = os.environ.get('MAIN_SLEEP_INTERVAL', '30')
-    envs['WORKER_INIT_TIMEOUT'] = os.environ.get('WORKER_INIT_TIMEOUT')
-    envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION')
+    envs['WORKER_INIT_TIMEOUT'] = os.environ.get('WORKER_INIT_TIMEOUT', '300')
+    envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
     envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN')
     envs['DEBUG'] = os.environ.get('DEBUG', 'False')
     
@@ -724,6 +724,7 @@ def main():
                 envs['AWS_BATCH_JOB_ID'], 
                 envs['S3_VALIDATION_BUCKET']
             )
+
         publish_sns_message(envs['AWS_SNS_TOPIC_ARN'], compelte_msg)
 
         # clean up sqs queue and s3 validation staging data
