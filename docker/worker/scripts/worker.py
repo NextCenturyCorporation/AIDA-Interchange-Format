@@ -375,20 +375,20 @@ def execute_validation(validation_home, validation_flags, file_path, timeout):
 		output = subprocess.run(cmd, stdout=PIPE, timeout=timeout, check=True, shell=True, universal_newlines=True)
 
 		f = open(file_path+'.log', 'w')
-		f.write(str(output))
+		f.write(output.stdout)
 		f.close()
 		logging.info("Validation succeeded for file %s", file_name)
 		return 0
 		
 	except CalledProcessError as e:
 		f = open(file_path+'.log', 'w')
-		f.write(str(e.output))
+		f.write(e.output)
 		f.close()
 		logging.info("Validation failed for file %s with error code %s", file_name, str(e.returncode))
 		return e.returncode
 	except TimeoutExpired as e:
 		f = open(file_path+'.log', 'w')
-		f.write(str(e.output))
+		f.write(e.output)
 		f.close()
 		logging.info("Validation timed out for file %s after %s seconds", file_name, str(timeout))
 		return -1
