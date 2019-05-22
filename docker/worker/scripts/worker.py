@@ -471,7 +471,7 @@ def main():
 	envs['VALIDATION_TIMEOUT'] = os.environ.get('VALIDATION_TIMEOUT', 28800)
 	envs['VALIDATION_HOME'] = os.environ.get('VALIDATION_HOME', '/opt/aif-validator')
 	envs['VALIDATION_FLAGS'] = os.environ.get('VALIDATION_FLAGS', '--ldc --nist -o')
-	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
+	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET')
 	envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID')
 	envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX')
 	envs['WORKER_LOG_LEVEL'] = os.environ.get('WORKER_LOG_LEVEL', 'INFO') # default log level
