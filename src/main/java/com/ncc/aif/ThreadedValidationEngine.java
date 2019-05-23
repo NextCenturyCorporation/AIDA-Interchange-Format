@@ -21,12 +21,18 @@ import org.topbraid.shacl.vocabulary.SH;
 
 import java.net.URI;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class ThreadedValidationEngine extends ValidationEngine {
     private List<Future<ValidationMetadata>> validationMetadata = new LinkedList<>();
     private ThreadLocal<Model> threadModel = ThreadLocal.withInitial(ModelFactory::createDefaultModel);
     private ThreadLocal<Integer> threadViolations = ThreadLocal.withInitial(() -> 0);
+    private Predicate<RDFNode> focusNodeFilter;
 
     private ThreadedValidationEngine(Dataset dataset, URI shapesGraphURI, ShapesGraph shapesGraph) {
         super(dataset, shapesGraphURI, shapesGraph, null);
@@ -36,34 +42,29 @@ public class ThreadedValidationEngine extends ValidationEngine {
         public String threadName;
         public String shapeName;
         public long duration;
-        public int size;
+        public int targetCount;
+        public int filteredTargetCount;
         public Model model;
         public int violations;
+        public boolean ignored;
 
-        public ValidationMetadata(String threadName, String shapeName, long duration, int size, Model model, int violations) {
+        public ValidationMetadata(String threadName, String shapeName, long duration, int targetCount,
+                                  int filteredTargetCount, Model model, int violations, boolean ignored) {
             this.threadName = threadName;
             this.shapeName = shapeName;
             this.duration = duration;
-            this.size = size;
+            this.targetCount = targetCount;
+            this.filteredTargetCount = filteredTargetCount;
             this.model = model;
             this.violations = violations;
+            this.ignored = ignored;
         }
 
         @Override
         public String toString() {
-            return String.join(" ", threadName, shapeName, String.valueOf(duration), String.valueOf(size));
+            return String.join(" ", threadName, shapeName, duration + "ms",
+                    filteredTargetCount + "/" + targetCount, "v" + violations, ignored ? "ignored" : "");
         }
-    }
-
-    @Override
-    public Resource validateAll() throws InterruptedException {
-        try {
-            validateAll(Executors.newFixedThreadPool(4));
-        } catch (ExecutionException e) {
-            System.err.println("Validation experienced exception");
-            e.printStackTrace();
-        }
-        return super.getReport();
     }
 
     @Override
@@ -84,6 +85,12 @@ public class ThreadedValidationEngine extends ValidationEngine {
         }
 
         return result;
+    }
+
+    @Override
+    public void setFocusNodeFilter(Predicate<RDFNode> value) {
+        super.setFocusNodeFilter(value);
+        focusNodeFilter = value;
     }
 
     private void throwMaxiumNumberViolationsIfReached(int violations) {
@@ -113,7 +120,7 @@ public class ThreadedValidationEngine extends ValidationEngine {
         }
 
         Resource report = getReport();
-        Model model = report.getModel();
+        Model model = report.getModel().setNsPrefixes(dataset.getDefaultModel());
         models.values().forEach(model::add);
         model.listSubjectsWithProperty(RDF.type, SH.ValidationResult)
                 .forEachRemaining(result -> report.addProperty(SH.result, result));
@@ -130,13 +137,23 @@ public class ThreadedValidationEngine extends ValidationEngine {
                 monitor.subTask("Shape " + id + ": " + getLabelFunction().apply(shape.getShapeResource()));
             }
 
-            List<RDFNode> focusNodes = null;
-            if(!shapesGraph.isIgnored(shape.getShapeResource().asNode())) {
-                focusNodes = SHACLUtil.getTargetNodes(shape.getShapeResource(), dataset);
-                if(!focusNodes.isEmpty()) {
+            int targetCount = 0;
+            int filteredCount = 0;
+            threadViolations.set(0);
+            boolean ignored = shapesGraph.isIgnored(shape.getShapeResource().asNode());
+            if(!ignored) {
+                List<RDFNode> focusNodes = SHACLUtil.getTargetNodes(shape.getShapeResource(), dataset);
+                targetCount = focusNodes.size();
+
+                List<RDFNode> filtered = focusNodeFilter != null ?
+                        focusNodes.stream().filter(focusNodeFilter).collect(Collectors.toList()) :
+                        focusNodes;
+                filteredCount = filtered.size();
+
+                if(!filtered.isEmpty()) {
                     for(Constraint constraint : shape.getConstraints()) {
                         try {
-                            validateNodesAgainstConstraint(focusNodes, constraint);
+                            validateNodesAgainstConstraint(filtered, constraint);
                         } catch (MaximumNumberViolations e) {
                             executor.shutdownNow();
                         }
@@ -145,17 +162,20 @@ public class ThreadedValidationEngine extends ValidationEngine {
             }
             if(monitor != null) {
                 monitor.worked(id);
+                if (monitor.isCanceled()) {
+                    executor.shutdownNow();
+                }
             }
             SHACLScriptEngineManager.end(nested);
-            int violations = threadViolations.get();
-            threadViolations.set(0);
             return new ValidationMetadata(
                     Thread.currentThread().getName(),
                     shape.getShapeResource().getLocalName(),
                     System.currentTimeMillis() - start,
-                    focusNodes != null ? focusNodes.size() : 0,
+                    targetCount,
+                    filteredCount,
                     threadModel.get(),
-                    violations);
+                    threadViolations.get(),
+                    ignored);
         };
     }
 

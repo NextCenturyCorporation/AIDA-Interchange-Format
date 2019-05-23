@@ -247,6 +247,8 @@ public final class ValidateAIF {
         // entity type" will know what types are in fact entity types.
         final Model unionModel = (union == null) ? ModelFactory.createUnion(domainModel, dataToBeValidated) : union;
         unionModel.setNsPrefix("sh", "http://www.w3.org/ns/shacl#");
+        unionModel.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
+        unionModel.setNsPrefix("aidaDomainCommon", AidaDomainOntologiesCommon.CanHaveName.getNameSpace());
 
         // Apply appropriate SHACL restrictions
         Model shacl;
@@ -271,6 +273,7 @@ public final class ValidateAIF {
         if (executor != null) {
             ThreadedValidationEngine engine = ThreadedValidationEngine.createValidationEngine(unionModel, shacl, config);
             try {
+                engine.applyEntailments();
                 engine.validateAll(executor);
             } catch (InterruptedException|ExecutionException e) {
                 System.err.println("Unable to validate due to exception");

@@ -2,12 +2,14 @@ package com.ncc.aif;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import org.apache.commons.io.FileUtils;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -25,7 +27,7 @@ public class ValidatorPerformanceTest {
     private static final String KB = SAMPLE + "R103.kb.ttl";
     private static final String SMALL_TA1 = SAMPLE + "IC00120RO.parent.ttl";
     private static final String MEDIUM_TA1 = SAMPLE + "IC0011WX8.parent.ttl";
-    private static final String BIG_TA1 = ROOT + "R103.2019.05.14/IC0011TIJ.parent.ttl";
+    private static final String BIG_TA1 = ROOT + "R103.2019.05.23/IC0011TIJ.parent.ttl";
     private static final String GAIA_KB = "/home/HQ/ecurley/Documents/AIDA/2019.05.17-AIDA-795-Threading/big-gaia-sansprivate.ttl";
     private static final String NORMAL_TAG = "normal";
     private static final String THREAD_TAG = "threaded";
@@ -49,7 +51,7 @@ public class ValidatorPerformanceTest {
         Model model = ModelFactory.createDefaultModel();
         RDFDataMgr.read(model, file);
 
-        System.out.println(file);
+        System.out.println(file + "(" + FileUtils.byteCountToDisplaySize(new File(file).length()) + ")");
 
         List<Map<ValidateAIF, Long>> results = new LinkedList<>();
         for (int i = 0; i < runs; i++) {
@@ -91,10 +93,15 @@ public class ValidatorPerformanceTest {
         // print out by thread
         for (List<ThreadedValidationEngine.ValidationMetadata> list : threads.values()) {
             long sum = 0;
+            int violations = 0;
+            StringBuilder builder = new StringBuilder();
             for (ThreadedValidationEngine.ValidationMetadata md : list) {
                 sum += md.duration;
+                violations += md.violations;
+                builder.append("  ").append(md.toString()).append("\n");
             }
-            System.out.println(list.get(0).threadName + ": " + sum + "(" + list.size() +")");
+            System.out.println(list.get(0).threadName + ": " + sum + "ms (" + list.size() +") = " + violations);
+            System.out.print(builder);
         }
     }
 }
