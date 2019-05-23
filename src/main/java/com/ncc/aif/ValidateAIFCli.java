@@ -16,7 +16,6 @@ import org.topbraid.jenax.statistics.ExecStatisticsListener;
 import org.topbraid.jenax.statistics.ExecStatisticsManager;
 import org.topbraid.shacl.vocabulary.SH;
 import picocli.CommandLine;
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
@@ -34,7 +33,14 @@ import java.util.concurrent.Callable;
  * A command-line AIF validator.  For details, see <a href="https://github.com/NextCenturyCorporation/AIDA-Interchange-Format">the AIF README</a>
  * section entitled, <i>The AIF Validator</i>.
  */
-@CommandLine.Command(name = "validateAIF", description = "Used to validate Turtle files with extension .ttl", exitCodeOnInvalidInput = 2)
+@CommandLine.Command(name = "validateAIF",
+        sortOptions = false,
+        synopsisHeading = "%nUsage: ",
+        descriptionHeading = "%nDescription: ",
+        optionListHeading = "%nOptions:%n",
+        description = "Used to validate Turtle files with extension .ttl",
+        mixinStandardHelpOptions = true,
+        version = "1.1.0")
 public class ValidateAIFCli implements Callable<Integer> {
 
     // Program return codes from the AIF Validator.
@@ -43,57 +49,58 @@ public class ValidateAIFCli implements Callable<Integer> {
     }
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    // Package Constants
+    // ----------------------------
+    // Error strings
+    static final String ERR_MISSING_ONT_FLAG = "Must use one of these flags: --ldc | --program | --ont";
+    static final String ERR_TOO_MANY_ONT_FLAGS = "Can only use one of these flags: --ldc | --program | --ont";
+    static final String ERR_MISSING_FILE_FLAG = "Must use one of these flags: -f | -d";
+    static final String ERR_TOO_MANY_FILE_FLAGS = "Can only use one of these flags: -f | -d";
+    static final String ERR_SMALLER_THAN_MIN = "%s must be at least %d";
+    // Logging strings
+    static final String START_MSG = "AIF Validator";
+
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     // Internal Constants
     // ----------------------------
     // Logger
     private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
     // ViolationThreshold
+    private static final String ABORT_PARAMETER_STRING = "Abort parameter";
     private static final int DEFAULT_MAX_VIOLATIONS = -1;
     private static final int MINIMUM_MAX_VIOLATIONS = 3;
     // Profiling
     private static final int LONG_QUERY_THRESH = 2000;
     // Threading
-    private static final int DEFAULT_THREAD_COUNT = 1;
+    private static final String THREAD_COUNT_STRING = "Thread count";
+    private static final int MINIMUM_THREAD_COUNT = 1;
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     // Command Line Arguments
     // ----------------------------
-    @ArgGroup(exclusive = true, multiplicity = "1", heading = "Domain Ontologies:%n")
-    private OntologyArgs ontologies;
-    private static class OntologyArgs {
-        @Option(names = "--ldc", description = "Validate against the LDC ontology", required = true)
-        private boolean useLDCOntology;
+    private int argCounter = 1;
+    //TODO: make ArgGroup when 4.0 is stable
+    @Option(names = "--ldc", description = "Validate against the LDC ontology")
+    private boolean useLDCOntology;
 
-        @Option(names = "--program", description = "Validate against the program ontology", required = true)
-        private boolean useProgramOntology;
+    @Option(names = "--program", description = "Validate against the program ontology")
+    private boolean useProgramOntology;
 
-        @Option(names = "--ont", description = "Validate against the OWL-formatted ontolog(ies) at the specified filename(s)",
-                paramLabel = "FILE", arity = "1..*", required = true)
-        private List<File> customOntologies;
-    }
+    @Option(names = "--ont", description = "Validate against the OWL-formatted ontolog(ies) at the specified filename(s)",
+            paramLabel = "FILE", arity = "1..*")
+    private List<File> customOntologies;
 
-    @ArgGroup(exclusive = true, multiplicity = "0..1", heading = "Restrictions:%n")
-    private RestrictionArgs restrictionArgs;
-    private static class RestrictionArgs {
-        @Option(names = "--nist", description = "Validate against the NIST restrictions", required = true)
-        private boolean useNISTRestriction;
+    //TODO: make ArgGroup when 4.0 is stable
+    @Option(names = "--nist", description = "Validate against the NIST restrictions")
+    private boolean useNISTRestriction;
 
-        @Option(names = "--nist-ta3", description = "Validate against the NIST hypothesis restrictions (implies --nist)",
-                required = true)
-        private boolean useNISTTA3Rescriction;
-    }
+    @Option(names = "--nist-ta3", description = "Validate against the NIST hypothesis restrictions (implies --nist)")
+    private boolean useNISTTA3Rescriction;
 
     @Option(names = "-o", description = "Save validation report model to a file.  KB.ttl would result in KB-report.txt.")
     private boolean outputToFile;
 
     @Option(names = "--abort", description = "Abort validation after [num] SHACL violations (num > 2), or 3 violations if [num] is omitted.", paramLabel = "num")
-    private void setMaxValidationErrors(int max) {
-        if (max < MINIMUM_MAX_VIOLATIONS) {
-            throw new CommandLine.ParameterException(spec.commandLine(),
-                    String.format("Abort parameter must be at least %d", MINIMUM_MAX_VIOLATIONS));
-        }
-        maxValidationErrors = max;
-    }
     private int maxValidationErrors = DEFAULT_MAX_VIOLATIONS;
 
     @Option(names = "-p", description = "Enable profiling", hidden = true)
@@ -103,60 +110,67 @@ public class ValidateAIFCli implements Callable<Integer> {
     private boolean useProgressiveProfiling;
 
     @Option(names = "-t", description = "Specify the number of threads to use during validation", paramLabel = "num")
-    private void setThreadCount(int count) {
-        if (count < DEFAULT_THREAD_COUNT) {
-            throw new CommandLine.ParameterException(spec.commandLine(),
-                    String.format("Thread count must be at least %d", DEFAULT_THREAD_COUNT));
-        }
-        threads = count;
-    }
-    private int threads = DEFAULT_THREAD_COUNT;
+    private int threads = MINIMUM_THREAD_COUNT;
 
-    @ArgGroup(exclusive = true, multiplicity = "1", heading = "AIF Files:%n")
-    private FileArgs fileArgs;
-    private static class FileArgs {
-        @Option(names = "-d", description = "Validate all .ttl files in the specified directory", paramLabel = "DIRNAME",
-                required = true)
-        private File directory;
+    //TODO: make ArgGroup when 4.0 is stable
+    @Option(names = "-d", description = "Validate all .ttl files in the specified directory", paramLabel = "DIRNAME")
+    private File directory;
 
-        @Option(names = "-f", description = "Validate the specified file(s) with a .ttl suffix", paramLabel = "FILE",
-                arity = "1..*", required = true)
-        private List<File> files;
-    }
+    @Option(names = "-f", description = "Validate the specified file(s) with a .ttl suffix", paramLabel = "FILE",
+            arity = "1..*")
+    private List<File> files;
 
-    @Spec private CommandLine.Model.CommandSpec spec;
+    @Spec
+    private CommandLine.Model.CommandSpec spec;
 
     public static void main(String[] args) {
-        System.exit(new CommandLine(new ValidateAIFCli()).execute(args));
+        System.exit(execute(args));
+    }
+
+    public static int execute(String[] args) {
+        Integer result = CommandLine.call(new ValidateAIFCli(), args);
+        return result == null ? ReturnCode.USAGE_ERROR.ordinal() : result;
     }
 
     @Override
     public Integer call() {
+        // Enforce mutual exclusion for domain ontologies
+        checkOntMutex();
+
+        // Enforce mutual exclusion for file arguments
+        checkFileMutex();
+
+        // Enforce minimum checks
+        boolean abortSet = maxValidationErrors != DEFAULT_MAX_VIOLATIONS;
+        if (abortSet) {
+            checkMinimum(maxValidationErrors, ABORT_PARAMETER_STRING, MINIMUM_MAX_VIOLATIONS);
+        }
+        checkMinimum(threads, THREAD_COUNT_STRING, MINIMUM_THREAD_COUNT);
+
         // Prevent too much logging from obscuring the actual problems.
         logger.setLevel(Level.INFO);
-        logger.info("AIF Validator");
+        logger.info(START_MSG);
 
         // Collect the flags parsed from the arguments
-        final ValidateAIF.Restriction restriction =
-                restrictionArgs == null ? ValidateAIF.Restriction.NONE :
-                restrictionArgs.useNISTTA3Rescriction ? ValidateAIF.Restriction.NIST_TA3 : ValidateAIF.Restriction.NIST;
+        final ValidateAIF.Restriction restriction = useNISTTA3Rescriction ? ValidateAIF.Restriction.NIST_TA3 :
+                useNISTRestriction ? ValidateAIF.Restriction.NIST : ValidateAIF.Restriction.NONE;
         final boolean profiling = useProfiling || useProgressiveProfiling;
 
         // Finally, try to create the validator, but fail if required elements can't be loaded/parsed.
         ValidateAIF validator = null;
         final String ontologyStr;
         try {
-            if (ontologies.useLDCOntology) {
+            if (useLDCOntology) {
                 validator = ValidateAIF.createForLDCOntology(restriction);
                 ontologyStr = "LDC (LO)";
-            } else if (ontologies.useProgramOntology) {
+            } else if (useProgramOntology) {
                 validator = ValidateAIF.createForProgramOntology(restriction);
                 ontologyStr = "Program (AO)";
             } else {
                 StringBuilder builder = new StringBuilder();
                 // Convert the specified domain ontologies to CharSources.
                 Set<CharSource> domainOntologySources = new HashSet<>();
-                for (File file : ontologies.customOntologies) {
+                for (File file : customOntologies) {
                     domainOntologySources.add(Files.asCharSource(file, Charsets.UTF_8));
                     builder.append(file.getName()).append(" ");
                 }
@@ -171,13 +185,13 @@ public class ValidateAIFCli implements Callable<Integer> {
         }
 
         validator.setThreadCount(threads);
-        boolean hasFiles = fileArgs.files != null;
+        boolean hasFiles = files != null;
 
         // Collect the file(s) to be validated.
         final List<File> filesToValidate = new ArrayList<>();
         int nonTTLcount = 0;
         if (hasFiles) {
-            for (File file : fileArgs.files) {
+            for (File file : files) {
                 if (file.getName().endsWith(".ttl")) {
                     filesToValidate.add(file);
                 } else {
@@ -186,7 +200,7 @@ public class ValidateAIFCli implements Callable<Integer> {
                 }
             }
         } else { // -d option
-            File dir = fileArgs.directory;
+            File dir = directory;
             if (!dir.exists()) {
                 logger.warn("Skipping non-existent directory: " + dir.getName());
             } else if (dir.isDirectory()) {
@@ -210,7 +224,7 @@ public class ValidateAIFCli implements Callable<Integer> {
                     (filesToValidate.size() <= 5 ? filesToValidate : "from command-line arguments."));
         } else { // We'd have failed by now if there were no TTL files in the directory
             // This would need to be addressed if we supported validating files in N directories.
-            logger.info("-> Validating all KBs (*.ttl) in directory: " + fileArgs.directory.getName());
+            logger.info("-> Validating all KBs (*.ttl) in directory: " + directory.getName());
         }
         logger.info("-> Validating with domain ontology(ies): " + ontologyStr);
         if (restriction == ValidateAIF.Restriction.NIST) {
@@ -218,7 +232,7 @@ public class ValidateAIFCli implements Callable<Integer> {
         } else if (restriction == ValidateAIF.Restriction.NIST_TA3) {
             logger.info("-> Validating against NIST Hypothesis SHACL.");
         }
-        if (maxValidationErrors != DEFAULT_MAX_VIOLATIONS) {
+        if (abortSet) {
             logger.info("-> Validation will abort after " + maxValidationErrors + " SHACL violation(s).");
             validator.setAbortThreshold(maxValidationErrors);
         }
@@ -280,6 +294,43 @@ public class ValidateAIFCli implements Callable<Integer> {
 
         final ReturnCode returnCode = displaySummary(fileNum + nonTTLcount, invalidCount, skipCount + nonTTLcount, abortCount);
         return returnCode.ordinal();
+    }
+
+    //TODO: make ArgGroup when 4.0 is stable
+    private void checkOntMutex() {
+        // Enforce mutual exclusion for domain ontologies
+        boolean hasCustom = customOntologies != null;
+        if (!(useProgramOntology || useLDCOntology || hasCustom)) {
+            throw new CommandLine.ParameterException(spec.commandLine(),
+                    ERR_MISSING_ONT_FLAG);
+        }
+        if (!(useProgramOntology ^ useLDCOntology ^ hasCustom)) {
+            throw new CommandLine.ParameterException(spec.commandLine(),
+                    ERR_TOO_MANY_ONT_FLAGS);
+        }
+    }
+
+    //TODO: make ArgGroup when 4.0 is stable
+    private void checkFileMutex() {
+        // Enforce mutual exclusion for file arguments
+        boolean hasFiles = files != null;
+        boolean hasDirectory = directory != null;
+        if (!(hasDirectory || hasFiles)) {
+            throw new CommandLine.ParameterException(spec.commandLine(),
+                    ERR_MISSING_FILE_FLAG);
+        }
+        if (hasFiles && hasDirectory) {
+            throw new CommandLine.ParameterException(spec.commandLine(),
+                    ERR_TOO_MANY_FILE_FLAGS);
+        }
+    }
+
+    private void checkMinimum(int value, String name, int atLeast) {
+        // Enforce mutual exclusion for domain ontologies
+        if (value < atLeast) {
+            throw new CommandLine.ParameterException(spec.commandLine(),
+                    String.format(ERR_SMALLER_THAN_MIN, name, atLeast));
+        }
     }
 
     // Load the model, or fail trying.  Returns true if it's loaded, otherwise false.

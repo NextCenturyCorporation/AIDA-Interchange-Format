@@ -1,66 +1,129 @@
 package com.ncc.aif;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import picocli.CommandLine;
+import org.junit.jupiter.api.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ValidateCLITest {
-    CommandLine toTest;
+    private static final boolean SHOW_OUTPUT = false;
+    PrintStream oldOut;
+    PrintStream oldErr;
+    ByteArrayOutputStream baos;
 
-    private void expect(String message, ValidateAIFCli.ReturnCode code, String... args) {
-        assertEquals(code.ordinal(), toTest.execute(args), message);
-        System.out.println();
+    private void expect(String shouldContain, ValidateAIFCli.ReturnCode code, String... args) {
+        int result = ValidateAIFCli.execute(args);
+        if (SHOW_OUTPUT) {
+            printOutput(args);
+        }
+        assertEquals(code.ordinal(), result, "Wrong error code. Should have returned " + code.ordinal());
+        assertTrue(baos.toString().contains(shouldContain), "Output does not contain required string: " + shouldContain);
     }
-    private void expectFileError(String message, String... args) {
-        expect(message, ValidateAIFCli.ReturnCode.FILE_ERROR, args);
+    private void expectUsageError(String shouldContain, String... args) {
+        expect(shouldContain, ValidateAIFCli.ReturnCode.USAGE_ERROR, args);
     }
-    private void expectFileShouldNotExist(String... args) {
-        expect("File should not exist", ValidateAIFCli.ReturnCode.FILE_ERROR, args);
+    private void expectCorrect(String... args) {
+        expect(ValidateAIFCli.START_MSG, ValidateAIFCli.ReturnCode.FILE_ERROR, args);
+    }
+    private void printOutput(String... args) {
+        StringBuilder builder = new StringBuilder("Args: ");
+        for (String arg : args) {
+            builder.append(arg).append(" ");
+        }
+        builder.setLength(builder.length() - 1);
+        oldOut.println(builder.toString());
+        oldOut.println(baos.toString());
+    }
+
+    @BeforeAll
+    void setup() {
+        oldOut = System.out;
+        oldErr = System.err;
     }
 
     @BeforeEach
     void createCLI() {
-        toTest = new CommandLine(new ValidateAIFCli());
-        System.setErr(System.out);
+        baos = new ByteArrayOutputStream();
+        PrintStream out = new PrintStream(baos);
+        System.setOut(out);
+        System.setErr(out);
     }
 
-    @Test
-    void testSimple() {
-        expectFileShouldNotExist("--ldc", "-f", "tmp.ttl");
+    @Nested
+    class OntologyArguments {
+        @Test
+        void missingOntology() {
+            expectUsageError(ValidateAIFCli.ERR_MISSING_ONT_FLAG,"--nist", "-f", "tmp.ttl");
+        }
+        @Test
+        void tooManyOntologies() {
+            expectUsageError(ValidateAIFCli.ERR_TOO_MANY_ONT_FLAGS,"--ldc", "--program", "--nist", "-f", "tmp.ttl");
+        }
+        @Test
+        void correctLDC() {
+            expectCorrect("--ldc", "-f", "tmp.ttl");
+        }
+        @Test
+        void correctProgram() {
+            expectCorrect("--program", "-f", "tmp.ttl");
+        }
+        @Test
+        void correctCustom() {
+            expectCorrect("--ont",
+                    "src/main/resources/com/ncc/aif/ontologies/SeedlingOntology",
+                    "src/main/resources/com/ncc/aif/ontologies/LDCOntology",
+                    "-f", "tmp.ttl");
+        }
     }
 
-    @Test
-    void requireOntology() {
-        expect("CLI requires an ontology option", ValidateAIFCli.ReturnCode.USAGE_ERROR,
-                "--nist", "-f", "tmp.ttl");
-        expectFileShouldNotExist("--ldc", "-f", "tmp.ttl");
-        expectFileShouldNotExist("--program", "-f", "tmp.ttl");
-        expectFileShouldNotExist("--ont",
-                "src/main/resources/com/ncc/aif/ontologies/SeedlingOntology",
-                "src/main/resources/com/ncc/aif/ontologies/LDCOntology",
-                "-f", "tmp.ttl");
+    @Nested
+    class ThresholdArgument {
+        @Test
+        void thresholdTooLow() {
+            expectUsageError(ValidateAIFCli.ERR_SMALLER_THAN_MIN.replaceAll("%.", ""),
+                    "--ldc", "--abort", "1", "-f", "tmp.ttl");
+        }
+        @Test
+        void correctThreshold() {
+            expectCorrect("--ldc", "--abort", "4", "-f", "tmp.ttl");
+        }
     }
 
-    @Test
-    void abortThreshold() {
-        expect("Threshold must be greater than 3", ValidateAIFCli.ReturnCode.USAGE_ERROR,
-                "--ldc", "--abort", "-1", "tmp.ttl");
-        expectFileShouldNotExist("--ldc", "--abort", "4", "-f", "tmp.ttl");
+    @Nested
+    class ThreadArgument {
+        @Test
+        void threadsTooLow() {
+            expectUsageError(ValidateAIFCli.ERR_SMALLER_THAN_MIN.replaceAll("%.", ""),
+                    "--ldc", "-t", "-1", "-f", "tmp.ttl");
+        }
+        @Test
+        void correctThread() {
+            expectCorrect("--ldc", "-t", "4", "-f", "tmp.ttl");
+        }
+
     }
 
-    @Test
-    void threads() {
-        expect("Thread count must be at least 1", ValidateAIFCli.ReturnCode.USAGE_ERROR,
-                "--ldc", "-t", "-1", "tmp.ttl");
-        expectFileShouldNotExist("--ldc", "-t", "4", "-f", "tmp.ttl");
-    }
-
-    @Test
-    void files() {
-        expectFileShouldNotExist("--ldc", "-t", "4", "-f", "tmp.ttl", "another.ttl");
+    @Nested
+    class FileArguments {
+        @Test
+        void correctMultipleFiles() {
+            expectCorrect("--ldc", "-t", "4", "-f", "tmp.ttl", "another.ttl");
+        }
+        @Test
+        void correctDirectory() {
+            expectCorrect("--ldc", "-t", "4", "-d", "tmp");
+        }
+        @Test
+        void tooManyFileArguments() {
+            expectUsageError(ValidateAIFCli.ERR_TOO_MANY_FILE_FLAGS,"--ldc", "-d", "tmp", "-f", "tmp.ttl");
+        }
+        @Test
+        void missingFileArguments() {
+            expectUsageError(ValidateAIFCli.ERR_MISSING_FILE_FLAG,"--ldc");
+        }
     }
 }
