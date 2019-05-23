@@ -594,7 +594,7 @@ public final class ValidateAIF {
 
         final String filename = id + "-progress.tab";
         try {
-            this.progressMonitor = new AIFProgressMonitor("");
+            this.progressMonitor = new AIFProgressMonitor(filename);
         } catch (IOException e) {
             logger.warn("Could not open progress monitor filename {}.  Writing progress to StdOut.", filename);
             this.progressMonitor = new AIFProgressMonitor();
