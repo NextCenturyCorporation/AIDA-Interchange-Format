@@ -66,7 +66,7 @@ validate N files or all files in a specified directory.
 To run the validator from the command line, run `target/appassembler/bin/validateAIF`
 with a series of command-line arguments (in any order) honoring the following usage:  <br>
 Usage:  <br>
-`validateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--abort [num]] {-f FILE ... | -d DIRNAME}`  <br>
+`validateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--abort [num]] [--pm] {-f FILE ... | -d DIRNAME}`  <br>
 
 | Switch | Description |
 | ----------- | ----------- |
@@ -78,6 +78,7 @@ Usage:  <br>
 |`-o` | Save validation report model to a file.  `KB.ttl` would result in `KB-report.txt`. Output defaults to stderr. |
 |`-h, --help` | This help and usage text |
 |`--abort [num]` | Abort validation after `[num]` SHACL violations (num > 2), or three violations if `[num]` is omitted. |
+|`--pm | Enable progress monitor that shows ongoing validation progress |
 |`-f FILE ...` | validate the specified file(s) with a `.ttl` suffix |
 |`-d DIRNAME` | validate all `.ttl` files in the specified directory |
 

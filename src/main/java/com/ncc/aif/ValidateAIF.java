@@ -86,7 +86,7 @@ public final class ValidateAIF {
     private Model domainModel;
     private Restriction restriction;
     private int abortThreshold = -1; // by default, do not abort on SHACL violation
-    private String monitorID = null; // by default, do not monitor progress
+    private AIFProgressMonitor progressMonitor = null; // by default, do not monitor progress
 
     private ValidateAIF(Model domainModel, Restriction restriction) {
         initializeSHACLModels();
@@ -174,7 +174,7 @@ public final class ValidateAIF {
     // Show usage information.
     private static void showUsage() {
         System.out.println("Usage:\n" +
-                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--progress] [--abort [num]] {-f FILE ... | -d DIRNAME}\n" +
+                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--abort [num]] [--pm] {-f FILE ... | -d DIRNAME}\n" +
                 "Options:\n" +
                 "--ldc           Validate against the LDC ontology\n" +
                 "--program       Validate against the program ontology\n" +
@@ -474,7 +474,7 @@ public final class ValidateAIF {
                     stats.startCollection();
                 }
                 if (progressMonitoring) {
-                    validator.setProgressMonitor(fileToValidate.getName());
+                    validator.setProgressMonitor(fileToValidate.getName().replace(".ttl", ""));
                 }
                 final Resource report = validator.validateKBAndReturnReport(dataToBeValidated);
                 if (profiling) {
@@ -582,12 +582,23 @@ public final class ValidateAIF {
     }
 
     /**
-     * Tells the validator to monitor progress and show ongoing validation progress
+     * Tells the validator whether or not to monitor progress and show ongoing validation progress
      *
-     * @param id an identifier for the progress monitor
+     * @param id if non-null, an identifier for the progress monitor, otherwise disables progress monitoring
      */
     public void setProgressMonitor(String id) {
-        this.monitorID = id;
+        if (id == null) {
+            this.progressMonitor = null;
+            return;
+        }
+
+        final String filename = id + "-progress.tab";
+        try {
+            this.progressMonitor = new AIFProgressMonitor("");
+        } catch (IOException e) {
+            logger.warn("Could not open progress monitor filename {}.  Writing progress to StdOut.", filename);
+            this.progressMonitor = new AIFProgressMonitor();
+        }
     }
 
     /**
@@ -670,14 +681,7 @@ public final class ValidateAIF {
                 new ValidationEngineConfiguration()
                         .setValidateShapes(true)
                         .setValidationErrorBatch(abortThreshold));
-        if (monitorID != null) {
-            try {
-                engine.setProgressMonitor(new AIFProgressMonitor(monitorID));
-            } catch (IOException ioe) {
-                System.err.printf("Could not open progress monitor filename for ID %s.  Disabling progress monitor.\n", monitorID);
-                engine.setProgressMonitor(null);
-            }
-        }
+        engine.setProgressMonitor(progressMonitor);
         try {
             engine.applyEntailments();
             return engine.validateAll();
