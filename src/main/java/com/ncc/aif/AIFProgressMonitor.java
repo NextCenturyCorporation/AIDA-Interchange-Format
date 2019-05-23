@@ -121,7 +121,7 @@ class AIFProgressMonitor extends NullProgressMonitor {
         }
     }
 
-    // Unit test that simulates a validator invoking both variants of the AIFProgressMonitor
+    // Simulate a validator invoking both variants of the AIFProgressMonitor
     public static void main(String[] args) {
         AIFProgressMonitor fileMonitor, stdoutMonitor;
         final java.util.Random r = new java.util.Random();
