@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Generates java resources from an ontology.  Directions for how to generate java files from this class can be found at
@@ -81,36 +82,44 @@ public class OntologyGeneration {
      */
     public static void main(String[] args) {
 
-        try {
-
+        if (args.length == 0) {
+            String root = "src/main/resources/com/ncc/aif/ontologies/";
+            Stream.of(
+                    "AidaDomainOntologiesCommon",
+                    "EntityOntology",
+                    "EventOntology",
+                    "InterchangeOntology",
+                    "LDCOntology",
+                    "LDCOwlOntology",
+                    "RelationOntology")
+                .map(file -> root + file)
+                .forEach(OntologyGeneration::writeJavaFile);
+        } else {
             for (String arg : args) {
-
-                OntologyGeneration ctx = new OntologyGeneration();
-
-                ctx.addOntologyToGenerate(new FileInputStream(arg));
-
-                System.out.println("Generating for ontology located at " + arg);
-
-                owgMapperWriter();
-
-                owgClassList.clear();
+                writeJavaFile(arg);
             }
-
-        } catch (IOException ex) {
-            System.err.println(ex.getMessage());
         }
     }
 
     // Writes the generated Java classes
-    private static void owgMapperWriter() throws IOException {
+    private static void writeJavaFile(String ontologyLocation) {
+        try {
+            OntologyGeneration ctx = new OntologyGeneration();
+            ctx.addOntologyToGenerate(new FileInputStream(ontologyLocation));
 
-        OWGClass test = owgClassList.get(0);
-        String classNameTest = test.uri;
-        String variableClassName = classNameTest.substring(classNameTest.lastIndexOf('/') + 1, classNameTest.indexOf('#'));
+            System.out.println("Generating for ontology located at " + ontologyLocation);
+            OWGClass test = owgClassList.get(0);
+            String classNameTest = test.uri;
+            String variableClassName = classNameTest.substring(classNameTest.lastIndexOf('/') + 1, classNameTest.indexOf('#'));
 
-        List<String> lines = owgMapperInfo(variableClassName);
-        Path file = Paths.get("src/main/java/com/ncc/aif/" + variableClassName + ".java");
-        Files.write(file, lines, Charset.forName("UTF-8"));
+            List<String> lines = owgMapperInfo(variableClassName);
+            Path file = Paths.get("src/main/java/com/ncc/aif/" + variableClassName + ".java");
+            Files.write(file, lines, Charset.forName("UTF-8"));
+        } catch (IOException e) {
+            System.err.println("Unable to process file " + ontologyLocation);
+            e.printStackTrace();
+        }
+        owgClassList.clear();
     }
 
     // Writes the static variables for each ontology class

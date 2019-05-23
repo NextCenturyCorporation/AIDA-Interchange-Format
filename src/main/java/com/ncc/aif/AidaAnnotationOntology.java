@@ -9,7 +9,7 @@ import org.apache.jena.rdf.model.ResourceFactory;
  */
 public final class AidaAnnotationOntology {
 
-    public static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#";
+    public static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#";
 
     // properties
     public static final Property SYSTEM_PROPERTY = ResourceFactory.createProperty(NAMESPACE + "system");
@@ -111,8 +111,8 @@ public final class AidaAnnotationOntology {
             ResourceFactory.createResource(NAMESPACE + "Hypothesis");
     public static final Resource PRIVATE_DATA_CLASS =
             ResourceFactory.createResource(NAMESPACE + "PrivateData");
-    public static final Property LDC_TIME_CLASS =
+    public static final Resource LDC_TIME_CLASS =
             ResourceFactory.createProperty(NAMESPACE + "LDCTime");
-    public static final Property LDC_TIME_COMPONENT =
+    public static final Resource LDC_TIME_COMPONENT =
             ResourceFactory.createProperty(NAMESPACE + "LDCTimeComponent");
 }
