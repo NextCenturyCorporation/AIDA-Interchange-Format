@@ -20,10 +20,6 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
      translation of these examples is in `python/tests/Examples.py`.  If you run either set of
      examples, the corresponding Turtle output will be dumped.
 	 
-	 * Validation tests that use the Kotlin implementation of AIF are located at
-	 `src/test/java/edu/isi/gaia/ExamplesAndValidationTests`.
-	 * Validation tools for the Python output is currently in progress.
-
 *    code to translate from the TAC KBP Coldstart++ KB format into this format.
      `src/main/java/edu/isi/gaia/ColdStart2AidaInterchange.kt`.  ColdStart is only available
 	 in Kotlin and is unsupported.
@@ -60,9 +56,6 @@ has a series of examples showing how to add things to the model.  The
 `src/text/java/com/ncc/aif/ScalingTest.java` file has examples of how
 to write the model out.
 
-The file `src/test/java/edu/isi/gaia/ExamplesAndValidationTests.java`
-has similar examples that use the Kotlin version.
-
 # The AIF Validator
 The AIF validator is an extension of the validator written by Ryan Gabbard (USC ISI)
 and converted to Java by Next Century.  This version of the validator accepts multiple
@@ -73,16 +66,20 @@ validate N files or all files in a specified directory.
 To run the validator from the command line, run `target/appassembler/bin/validateAIF`
 with a series of command-line arguments (in any order) honoring the following usage:  <br>
 Usage:  <br>
-`validateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-h | --help] {-f FILE ... | -d DIRNAME}`  <br>
-Options:  <br>
-`--ldc` validate against the LDC ontology  <br>
-`--program` validate against the program ontology  <br>
-`--ont FILE ...` validate against the OWL-formatted ontolog(ies) at the specified filename(s)  <br>
-`--nist` validate against the NIST restrictions  <br>
-`--nist-ta3` validate against the NIST hypothesis restrictions (implies --nist) <br>
-`-h, --help` This help and usage text  <br>
-`-f FILE ...` validate the specified file(s) with a .ttl suffix  <br>
-`-d DIRNAME` validate all .ttl files in the specified directory  <br>
+`validateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] {-f FILE ... | -d DIRNAME}`  <br>
+
+| Switch | Description |
+| ----------- | ----------- |
+|`--ldc`    | validate against the LDC ontology |
+|`--program`| validate against the program ontology |
+|`--ont FILE ...` | validate against the OWL-formatted ontolog(ies) at the specified filename(s) |
+|`--nist` | validate against the NIST restrictions |
+|`--nist-ta3` | validate against the NIST hypothesis restrictions (implies `--nist`) |
+|`-o` | Save validation report model to a file.  `KB.ttl` would result in `KB-report.txt`. Output defaults to stderr. |
+|`-h, --help` | This help and usage text |
+|`-f FILE ...` | validate the specified file(s) with a `.ttl` suffix |
+|`-d DIRNAME` | validate all `.ttl` files in the specified directory |
+
 Either a file (-f) or a directory (-d) must be specified (but not both).  <br>
 Exactly one of --ldc, --program, or --ont must be specified.  <br>
 Ontology files can be found in `src/main/resources/com/ncc/aif/ontologies`:
@@ -203,6 +200,26 @@ If you need to edit either the Java or Kotlin code:
  3. Choose the `pom.xml` for this repository and accept all defaults.
 
 You should now be ready to go.
+
+# Documentation
+
+### Java
+
+To generate the javadoc documenation, navigate to the top level directory in the AIDA-Interchange-Format project. Run the following command:
+
+```bash
+$ javadoc -d build/docs/javadoc/ src/main/java/com/ncc/aif/*.java
+```
+This script will generate documentation in the form of HTML and place it within the `build/docs/javadoc` folder.
+
+### Python
+
+The python project uses [Sphinx](http://www.sphinx-doc.org/en/master/) for generating documentation. To generate the documentation, navigate to the `python/docs` directory and run the `update_documentation.sh` script.
+
+```bash
+$ ./update_documentation.sh
+```
+This script will generate documentation in the form of HTML and place it within the `python/docs/build/html` folder. 
 
 # FAQ
 

@@ -8,14 +8,18 @@ import com.google.common.io.CharSource;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import org.apache.jena.ontology.OntModel;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.*;
+import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.util.FileUtils;
+import org.topbraid.jenax.statistics.ExecStatistics;
+import org.topbraid.jenax.statistics.ExecStatisticsListener;
+import org.topbraid.jenax.statistics.ExecStatisticsManager;
 import org.topbraid.shacl.validation.ValidationUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -27,7 +31,7 @@ import java.util.*;
  * specifying a domain ontology, and make calls to the returned validator.
  *
  * @author Ryan Gabbard (USC ISI)
- * @author Converted to Java by Next Century Corporation
+ * @author Converted to Java developed further by Next Century Corporation
  */
 public final class ValidateAIF {
 
@@ -53,6 +57,8 @@ public final class ValidateAIF {
     private static Model nistHypoModel;
     private static boolean initialized = false;
     private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
+    private static final Property CONFORMS = ResourceFactory.createProperty("http://www.w3.org/ns/shacl#conforms");
+    private static final int LONG_QUERY_THRESH = 2000;
 
     private static void initializeSHACLModels() {
         if (!initialized) {
@@ -161,16 +167,18 @@ public final class ValidateAIF {
     // Show usage information.
     private static void showUsage() {
         System.out.println("Usage:\n" +
-                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-h | --help] {-f FILE ... | -d DIRNAME}\n" +
+                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] {-f FILE ... | -d DIRNAME}\n" +
                 "Options:\n" +
-                "--ldc\t\tValidate against the LDC ontology\n" +
-                "--program\t\tValidate against the program ontology\n" +
-                "--ont FILE ...\tValidate against the OWL-formatted ontolog(ies) at the specified filename(s)\n" +
-                "--nist\t\tValidate against the NIST restrictions\n" +
-                "--nist-ta3\t\tValidate against the NIST hypothesis restrictions (implies --nist)\n" +
-                "-h, --help\tShow this help and usage text\n" +
-                "-f FILE ...\tvalidate the specified file(s) with a .ttl suffix\n" +
-                "-d DIRNAME\tValidate all .ttl files in the specified directory\n" +
+                "--ldc           Validate against the LDC ontology\n" +
+                "--program       Validate against the program ontology\n" +
+                "--ont FILE ...  Validate against the OWL-formatted ontolog(ies) at the specified filename(s)\n" +
+                "--nist          Validate against the NIST restrictions\n" +
+                "--nist-ta3      Validate against the NIST hypothesis restrictions (implies --nist)\n" +
+                "-o              Save validation report model to a file.  KB.ttl would result in KB-report.txt.\n" +
+                "                Output defaults to stderr.\n" +
+                "-h, --help      Show this help and usage text\n" +
+                "-f FILE ...     Validate the specified file(s) with a .ttl suffix\n" +
+                "-d DIRNAME      Validate all .ttl files in the specified directory\n" +
                 "\n" +
                 "Either a file (-f) or a directory (-d) must be specified (but not both).\n" +
                 "Exactly one of --ldc, --program, or --ont must be specified.\n" +
@@ -220,17 +228,26 @@ public final class ValidateAIF {
                     flags.add(ArgumentFlags.NIST);
                     flags.add(ArgumentFlags.HYPO);
                     break;
+                case "-o":
+                    flags.add(ArgumentFlags.FILE_OUTPUT);
+                    break;
                 case "--ont":
                     int numFiles = processFiles(args, i, domainOntologies);
                     if (numFiles == 0) {
-                        System.err.println("ERROR: --ont requires at least one ontology file to be specified.");
+                        logger.error("--ont requires at least one ontology file to be specified.");
                         return false;
                     }
                     i += numFiles;
                     break;
+                case "-p": // NOTE: this flag is not documented in the README nor the Usage info
+                    flags.add(ArgumentFlags.PROFILING);
+                    break;
+                case "--p2": // NOTE: this flag is not documented in the README nor the Usage info
+                    flags.add(ArgumentFlags.PROGRESSIVE_PROFILING);
+                    break;
                 case "-f":
                     if (flags.contains(ArgumentFlags.DIRECTORY)) {
-                        System.err.println("ERROR: Please specify either -d or -f, but not both.");
+                        logger.error("Please specify either -d or -f, but not both.");
                         return false;
                     }
                     i += processFiles(args, i, validationFiles);
@@ -238,7 +255,7 @@ public final class ValidateAIF {
                     break;
                 case "-d":
                     if (flags.contains(ArgumentFlags.FILES)) {
-                        System.err.println("ERROR: Please specify either -d or -f, but not both.");
+                        logger.error("Please specify either -d or -f, but not both.");
                         return false;
                     }
                     if (!args[i + 1].startsWith("-")) {
@@ -250,7 +267,7 @@ public final class ValidateAIF {
                     flags.add(ArgumentFlags.DIRECTORY);
                     break;
                 default:
-                    System.err.println("Ignoring unknown argument: " + arg);
+                    logger.warn("Ignoring unknown argument: " + arg);
             }
         }
 
@@ -260,13 +277,13 @@ public final class ValidateAIF {
                         (domainOntologies.isEmpty() ? 0 : 1)
         );
         if (ontologyFlags != 1) {
-            System.err.println("ERROR: Please specify exactly one of --ldc, --program, and --ont.");
+            logger.error("Please specify exactly one of --ldc, --program, and --ont.");
             return false;
         }
         if ((validationFiles.isEmpty() && validationDirs.isEmpty()) ||
                 (!validationFiles.isEmpty() && !validationDirs.isEmpty())) // this can happen if -d or -f had no argument
         {
-            System.err.println("ERROR: Please specify either file(s) or a directory of files to validate.");
+            logger.error("Please specify either file(s) or a directory of files to validate.");
             return false;
         }
 
@@ -280,7 +297,7 @@ public final class ValidateAIF {
 
     // Command-line argument flags
     private enum ArgumentFlags {
-        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY
+        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY, FILE_OUTPUT, PROFILING, PROGRESSIVE_PROFILING
     }
 
     /**
@@ -310,6 +327,7 @@ public final class ValidateAIF {
                 flags.contains(ArgumentFlags.HYPO) ? Restriction.NIST_HYPOTHESIS : Restriction.NIST;
         final boolean ldcFlag = flags.contains(ArgumentFlags.LDC);
         final boolean programFlag = flags.contains(ArgumentFlags.PROGRAM);
+        final boolean profiling = flags.contains(ArgumentFlags.PROFILING) || flags.contains(ArgumentFlags.PROGRESSIVE_PROFILING);
 
         // Finally, try to create the validator, but fail if required elements can't be loaded/parsed.
         ValidateAIF validator = null;
@@ -382,6 +400,14 @@ public final class ValidateAIF {
         } else if (restriction == Restriction.NIST_HYPOTHESIS) {
             logger.info("-> Validating against NIST Hypothesis SHACL.");
         }
+        if (flags.contains(ArgumentFlags.FILE_OUTPUT)) {
+            logger.info("-> Validation report for invalid KBs will be saved to <kbname>-report.txt.");
+        } else {
+            logger.info("-> Validation report for invalid KBs will be printed to stderr.");
+        }
+        if (profiling) {
+            logger.info("-> Saving slow queries (> " + LONG_QUERY_THRESH + " ms) to <kbname>-stats.txt.");
+        }
         logger.info("*** Beginning validation of " + filesToValidate.size() + " file(s). ***");
 
         // Validate all files, noting I/O and other errors, but continue to validate even if one fails.
@@ -389,6 +415,8 @@ public final class ValidateAIF {
         int invalidCount = 0;
         int skipCount = 0;
         int fileNum = 0;
+        final StatsCollector stats = flags.contains(ArgumentFlags.PROGRESSIVE_PROFILING) ?
+                new ProgressiveStatsCollector(LONG_QUERY_THRESH) : new StatsCollector(LONG_QUERY_THRESH);
         for (File fileToValidate : filesToValidate) {
             Date date = Calendar.getInstance().getTime();
             logger.info("-> Validating " + fileToValidate + " at " + format.format(date) +
@@ -397,9 +425,18 @@ public final class ValidateAIF {
             boolean notSkipped = ((restriction != Restriction.NIST_HYPOTHESIS) || checkHypothesisSize(fileToValidate))
                     && loadFile(dataToBeValidated, fileToValidate);
             if (notSkipped) {
-                if (!validator.validateKB(dataToBeValidated)) {
+                if (profiling) {
+                    stats.startCollection();
+                }
+                final Resource report = validator.validateKBAndReturnReport(dataToBeValidated);
+                if (profiling) {
+                    stats.endCollection();
+                    stats.dump(fileToValidate.toString());
+                }
+                if (!ValidateAIF.isValidReport(report)) {
                     logger.warn("---> Validation of " + fileToValidate + " failed.");
                     invalidCount++;
+                    dumpReport(report, fileToValidate, flags.contains(ArgumentFlags.FILE_OUTPUT));
                 }
                 date = Calendar.getInstance().getTime();
                 logger.info("---> completed " + format.format(date) + ".");
@@ -409,8 +446,26 @@ public final class ValidateAIF {
             dataToBeValidated.close();
         }
 
-        final ReturnCode returnCode = displaySummary(fileNum+nonTTLcount, invalidCount, skipCount+nonTTLcount);
+        final ReturnCode returnCode = displaySummary(fileNum + nonTTLcount, invalidCount, skipCount + nonTTLcount);
         System.exit(returnCode.ordinal());
+    }
+
+    // Dump the validation report model either to stderr or a file
+    private static void dumpReport(Resource validationReport, File fileToValidate, boolean fileOutput) {
+        if (!fileOutput) {
+            logger.info("---> Validation report:");
+            RDFDataMgr.write(System.err, validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
+            return;
+        }
+
+        String outputFilename = fileToValidate.toString().replace(".ttl", "-report.txt");
+        try {
+            RDFDataMgr.write(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)),
+                    validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
+        } catch (IOException ioe) {
+            logger.warn("---> Could not write validation report for " + fileToValidate + ".");
+        }
+        logger.info("--> Saved validation report to " + outputFilename);
     }
 
     // Return false if file is > 5MB or size couldn't be determined, otherwise true
@@ -454,8 +509,7 @@ public final class ValidateAIF {
         logger.info("\tInvalid KB(s): " + invalidCount);
         if (fileCount == validCount) {
             logger.info("*** All submitted KBs were valid. ***");
-        }
-        else if (fileCount == skipCount) {
+        } else if (fileCount == skipCount) {
             logger.info("*** No validation was performed. ***");
         }
 
@@ -468,6 +522,7 @@ public final class ValidateAIF {
 
     /**
      * Returns whether or not the KB is valid.
+     * If you want any information about why the KB was invalid, use {@link #validateKBAndReturnReport(Model)}
      *
      * @param dataToBeValidated The model to validate
      * @return True if the KB is valid
@@ -478,19 +533,41 @@ public final class ValidateAIF {
 
     /**
      * Returns whether or not the KB is valid.
+     * If you want any information about why the KB was invalid, use {@link #validateKBAndReturnReport(Model, Model)}
      *
      * @param dataToBeValidated KB to be validated
      * @param union             unified KB if not null
      * @return True if the KB is valid
      */
     public boolean validateKB(Model dataToBeValidated, Model union) {
+        return isValidReport(validateKBAndReturnReport(dataToBeValidated, union));
+    }
+
+    /**
+     * Validate the specified KB and return a validation report.
+     *
+     * @param dataToBeValidated KB to be validated
+     * @return a validation report from which more information can be derived
+     */
+    public Resource validateKBAndReturnReport(Model dataToBeValidated) {
+        return validateKBAndReturnReport(dataToBeValidated, null);
+    }
+
+    /**
+     * Validate the specified KB and return a validation report.
+     *
+     * @param dataToBeValidated KB to be validated
+     * @param union             unified KB if not null
+     * @return a validation report from which more information can be derived
+     */
+    public Resource validateKBAndReturnReport(Model dataToBeValidated, Model union) {
         // We unify the given KB with the background and domain KBs before validation.
         // This is required so that constraints like "the object of a type must be an
         // entity type" will know what types are in fact entity types.
         final Model unionModel = (union == null) ? ModelFactory.createUnion(domainModel, dataToBeValidated) : union;
         unionModel.setNsPrefix("sh", "http://www.w3.org/ns/shacl#");
 
-        // Apply appropriate shacl restrictions
+        // Apply appropriate SHACL restrictions
         Model shacl;
         switch (restriction) {
             case NIST:
@@ -503,22 +580,202 @@ public final class ValidateAIF {
             default:
                 shacl = shaclModel;
         }
-        return validateAgainstShacl(unionModel, shacl);
+
+        // Validates against the SHACL file to ensure that resources have the required properties
+        // (and in some cases, only the required properties) of the proper types.  Returns true if
+        // validation passes.
+        return ValidationUtil.validateModel(unionModel, shacl, true);
     }
 
     /**
-     * Validates against the SHACL file to ensure that resources have the required properties
-     * (and in some cases, only the required properties) of the proper types.  Returns true if
-     * validation passes.
+     * Returns whether or not [validationReport] is that of a valid KB.
+     *
+     * @param validationReport a validation report model, such as returned by {@link #validateKB(Model)}
+     * @return True if the KB that generated the specified report is valid
      */
-    private boolean validateAgainstShacl(Model dataToBeValidated, Model shacl) {
-        // Do SHACL validation.
-        final Resource report = ValidationUtil.validateModel(dataToBeValidated, shacl, true);
-        final boolean valid = report.getRequiredProperty(
-                shacl.createProperty("http://www.w3.org/ns/shacl#conforms")).getBoolean();
-        if (!valid) {
-            report.getModel().write(System.err, FileUtils.langTurtle);
+    public static boolean isValidReport(Resource validationReport) {
+        return validationReport.getRequiredProperty(CONFORMS).getBoolean();
+    }
+
+
+    /**
+     * A statistics collector for use in profiling TopBraid-based SHACL validation.  Typical usage is to call
+     * {@link #startCollection()} and {@link #endCollection()} to bound statistics collection,
+     * then call {@link #dump(String)} to dump slow query statistics to <filename>-stats.txt.
+     * <p>
+     * This statistics collector only outputs slow queries via the {@link #dump(String)} method.  If you suspect
+     * validation will not complete due to out of memory or other error conditions, consider using {@link ProgressiveStatsCollector}.
+     */
+    private static class StatsCollector {
+
+        final int durationThreshold;
+
+        /**
+         * Creates a statistics collector that saves queries slower than [threshold] ms to a file.
+         *
+         * @param threshold the threshold definition of a slow query for this statistics collector
+         */
+        StatsCollector(int threshold) {
+            this.durationThreshold = threshold;
         }
-        return valid;
+
+        /**
+         * Start statistics collection.  Clears any previous statistics gathered by TopBraid statistics manager.
+         */
+        void startCollection() {
+            ExecStatisticsManager.get().reset();
+            ExecStatisticsManager.get().setRecording(true);
+        }
+
+        /**
+         * End statistics collection.
+         */
+        void endCollection() {
+            ExecStatisticsManager.get().setRecording(false);
+        }
+
+        /**
+         * Dump all gathered slow query statistics to <basename>-stats.txt, starting with the slowest queries.
+         *
+         * @param basename a file basename to determine the profiling output filename
+         */
+        void dump(String basename) {
+            final String outputFilename = basename.replace(".ttl", "-stats.txt");
+            try {
+                final PrintStream out = new PrintStream(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)));
+                dumpStats(out);
+                out.close();
+            } catch (IOException ioe) {
+                logger.warn("---> Could not write statistics for " + basename + ".");
+            }
+        }
+
+        // Dump stats to the specified PrintStream
+        private void dumpStats(PrintStream out) {
+            final SortedMap<Integer, ExecStatistics> savedStats = new TreeMap<>();
+            final SortedSet<Map.Entry<Integer, ExecStatistics>> sortedStats = new TreeSet<>(
+                    Collections.reverseOrder(Comparator.comparing(entry -> entry.getValue().getDuration())));
+            List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
+            for (int i = 0; i < stats.size(); i++) {
+                if (stats.get(i).getDuration() > durationThreshold) {
+                    savedStats.put(i, stats.get(i));
+                }
+            }
+            if (savedStats.isEmpty()) {
+                out.println("There were no queries that took longer than " + durationThreshold + "ms (of "
+                        + stats.size() + " queries overall).");
+            } else {
+                out.println("Displaying " + savedStats.size() + " slow queries (of "
+                        + stats.size() + " queries overall).");
+                sortedStats.addAll(savedStats.entrySet());
+                sortedStats.forEach(n -> dumpStat(n.getKey(), n.getValue(), out, true));
+            }
+        }
+
+        /**
+         * Dump a single query's statistics to the specified PrintStream
+         * @param queryNum the query number showing where it occurred chronologically in validation
+         * @param queryStats statistics about the query returned by TopBraid
+         * @param out a PrintStream to dump the query statistics
+         * @param leadingSpaces whether to print leading or trailing spaces
+         */
+        void dumpStat(Integer queryNum, ExecStatistics queryStats, PrintStream out,
+                      boolean leadingSpaces) {
+            if (leadingSpaces) {
+                out.println("\n");
+            }
+            out.println("Query #" + (queryNum + 1));
+            out.println("Label: " + queryStats.getLabel());
+            out.println("Duration: " + queryStats.getDuration() + "ms");
+            out.println("StartTime: " + new Date(queryStats.getStartTime()));
+            out.println("Context node: " + queryStats.getContext().toString());
+            out.println("Query Text: " + queryStats.getQueryText().replaceAll("PREFIX.+\n", ""));
+            if (!leadingSpaces) {
+                out.println("\n");
+            }
+        }
+    }
+
+    /**
+     * A statistics collector for use in profiling TopBraid-based SHACL validation.  Typical usage is to call
+     * {@link #startCollection()} and {@link #endCollection()} to bound statistics collection,
+     * then call {@link #dump(String)} to dump slow query statistics to <filename>-stats.txt.
+     * <p>
+     * This statistics collector progressively dumps slow queries to stdout, which is useful if you suspect
+     * the validation will not complete due to out of memory or other error conditions.
+     */
+    private static class ProgressiveStatsCollector extends StatsCollector implements ExecStatisticsListener {
+
+        private final SortedMap<Integer, ExecStatistics> savedStats = new TreeMap<>();
+
+        /**
+         * Creates a statistics collector that progressively dumps queries slower than [threshold] ms to stdout.
+         *
+         * @param threshold the threshold definition of a slow query for this statistics collector
+         */
+        ProgressiveStatsCollector(int threshold) {
+            super(threshold);
+        }
+
+        /**
+         * Start statistics collection.  Clears any previous statistics gathered by TopBraid statistics manager.
+         */
+        @Override
+        void startCollection() {
+            savedStats.clear();
+            super.startCollection();
+            ExecStatisticsManager.get().addListener(this);
+        }
+
+        /**
+         * End statistics collection.
+         */
+        @Override
+        void endCollection() {
+            super.endCollection();
+            ExecStatisticsManager.get().removeListener(this);
+        }
+
+        /**
+         * Receives notification that a TopBraid query statistic has been generated.
+         */
+        public void statisticsUpdated() {
+            final List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
+            final ExecStatistics statistic = stats.get(stats.size() - 1);
+            if (statistic.getDuration() > durationThreshold) {
+                savedStats.put(stats.size(), statistic);
+                System.out.println("Dumping slow query #" + stats.size() + "; " + statistic.getDuration() + "ms.");
+                dumpStat(stats.size(), statistic, System.out, false);
+                System.out.flush(); // Make sure stdout gets displayed even if we eventually run out of memory
+            }
+        }
+
+        /**
+         * Dump all gathered slow query statistics to <basename>-stats.txt, starting with the slowest queries.
+         *
+         * @param basename a file basename to determine the profiling output filename
+         */
+        @Override
+        void dump(String basename) {
+            final String outputFilename = basename.replace(".ttl", "-stats.txt");
+            try {
+                final List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
+                final PrintStream out = new PrintStream(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)));
+                if (savedStats.isEmpty()) {
+                    out.println("There were no queries that took longer than " + durationThreshold + "ms (of "
+                            + stats.size() + " queries overall).");
+                } else {
+                    out.println("Displaying " + savedStats.size() + " slow queries (of "
+                            + stats.size() + " queries overall).");
+                    final SortedSet<Map.Entry<Integer, ExecStatistics>> sortedStats = new TreeSet<>(
+                            Collections.reverseOrder(Comparator.comparing(entry -> entry.getValue().getDuration())));
+                    sortedStats.addAll(savedStats.entrySet());
+                    sortedStats.forEach(n -> dumpStat(n.getKey(), n.getValue(), out, true));
+                }
+                out.close();
+            } catch (IOException ioe) {
+                logger.warn("---> Could not write statistics for " + basename + ".");
+            }
+        }
     }
 }

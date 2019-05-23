@@ -22,6 +22,7 @@ setup(name='aida-interchange',
       python_requires='~=3.0',
       install_requires=[
         'rdflib',
+        'sphinx>=2.0.1',
         'attrs>=17.4.0',
         'typing_extensions',
       ],

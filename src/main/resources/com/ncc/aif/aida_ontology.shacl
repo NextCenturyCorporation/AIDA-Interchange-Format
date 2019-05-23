@@ -778,8 +778,8 @@ aida:CompoundJustificationShape
 aida:CompoundJustificationMinimum
    a sh:PropertyShape ;
    sh:path aida:containedJustification ;
-   sh:minCount 2 ;
-   sh:message "aida:CompoundJustification requires at least 2 justifications" .
+   sh:minCount 1 ;
+   sh:message "aida:CompoundJustification requires at least 1 justification" .
 
 aida:CompoundJustificationTypes
    a sh:PropertyShape ;
@@ -1242,7 +1242,7 @@ aida:MutualExclusionAlternativeShape
 aida:ImportancePropertyShape
   a sh:PropertyShape ;
   sh:path aida:importance ;
-  sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] ) .
+  sh:datatype xsd:double .
 
 aida:HypothesisShape
     a sh:NodeShape ;

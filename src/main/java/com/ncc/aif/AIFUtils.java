@@ -955,14 +955,14 @@ public class AIFUtils {
      * @param resource   The Resource to mark with the specified importance
      * @param importance The importance value with which to mark the specified Resource
      */
-    public static void markImportance(Resource resource, Integer importance) {
+    public static void markImportance(Resource resource, Double importance) {
         resource.addLiteral(AidaAnnotationOntology.IMPORTANCE_PROPERTY, importance);
     }
 
     /**
      * Mark [resource] as having the specified [informativeJustification] value.
      *
-     * @param resource                 The Resource to mark with the specified importance
+     * @param resource                 The Resource to mark with the specified informative justification
      * @param informativeJustification The justification which will be considered informative
      */
     public static void markInformativeJustification(Resource resource, Resource informativeJustification) {
@@ -1126,6 +1126,7 @@ public class AIFUtils {
      */
     public static final class LDCTimeComponent {
         public enum LDCTimeType { ON, BEFORE, AFTER, UNKNOWN }
+        private static final String dateDelimiter = "-";
 
         private final LDCTimeType type;
         private final String year;
@@ -1142,17 +1143,47 @@ public class AIFUtils {
         private Resource makeAIFTimeComponent(Model model) {
             final Resource timeComponent = makeAIFResource(model, null, AidaAnnotationOntology.LDC_TIME_COMPONENT, null);
             timeComponent.addProperty(AidaAnnotationOntology.LDC_TIME_TYPE, type.toString());
-            addInteger(model, timeComponent, AidaAnnotationOntology.LDC_TIME_YEAR, year, XSD.gYear);
-            addInteger(model, timeComponent, AidaAnnotationOntology.LDC_TIME_MONTH, month, XSD.gMonth);
-            addInteger(model, timeComponent, AidaAnnotationOntology.LDC_TIME_DAY, day, XSD.gDay);
+            addLiteral(model, timeComponent, AidaAnnotationOntology.LDC_TIME_YEAR, year, XSD.gYear);
+            addLiteral(model, timeComponent, AidaAnnotationOntology.LDC_TIME_MONTH, month, XSD.gMonth);
+            addLiteral(model, timeComponent, AidaAnnotationOntology.LDC_TIME_DAY, day, XSD.gDay);
             return timeComponent;
         }
 
-        private static void addInteger(Model model, Resource timeComponent, Property property, String value, Resource type) {
+        private static void addLiteral(Model model, Resource timeComponent, Property property, String value, Resource type) {
             if (value != null) {
                 RDFDatatype literalType = NodeFactory.getType(type.getURI());
                 timeComponent.addLiteral(property, model.createTypedLiteral(value, literalType));
             }
+        }
+
+        /**
+         * Create an LDCTimeComponent from a type and a date
+         * @param type {@link String} representation of {@link LDCTimeType}
+         * @param date {@link String} containing date to be parsed. Expects yyyy-mm-dd where y, m, and d can be replaced with 'X'
+         * @return new {@link LDCTimeComponent} object
+         */
+        public static LDCTimeComponent createTime(String type, String date) {
+            if (type.toLowerCase().contains("unk")) {
+                return new AIFUtils.LDCTimeComponent(AIFUtils.LDCTimeComponent.LDCTimeType.UNKNOWN, null, null, null);
+            } else if (date.contains(dateDelimiter)) {
+                String[] dateParts = date.toLowerCase().split(dateDelimiter);
+                for (int i = 0; i < dateParts.length; i++) {
+                    if (dateParts[i].contains("x")) {
+                        dateParts[i] = null;
+                    } else if (i == 1) {
+                        dateParts[i] = "--" + dateParts[i];
+                    } else if (i == 2) {
+                        dateParts[i] = "---" + dateParts[i];
+                    }
+                }
+                String typeCompare = type.toUpperCase();
+                for (AIFUtils.LDCTimeComponent.LDCTimeType timeType : AIFUtils.LDCTimeComponent.LDCTimeType.values()) {
+                    if (typeCompare.contains(timeType.toString())) {
+                        return new AIFUtils.LDCTimeComponent(timeType, dateParts[0], dateParts[1], dateParts[2]);
+                    }
+                }
+            }
+            return null;
         }
     }
 

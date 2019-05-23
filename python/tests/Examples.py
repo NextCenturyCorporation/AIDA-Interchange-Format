@@ -3,15 +3,23 @@
 import unittest
 import sys
 sys.path.append('../')
+import os
 from io import BytesIO
 from rdflib import URIRef, Graph, RDF
 from aida_interchange.Bounding_Box import Bounding_Box
 from aida_interchange.aida_rdf_ontologies import SEEDLING_TYPES_NIST
+from aida_interchange.LDCTimeComponent import LDCTimeComponent, LDCTimeType
 from aida_interchange import aifutils
 
 
 # Running these tests will output the examples to the console
 class Examples(unittest.TestCase):
+
+    def new_file(self, g, test_name):
+        if self.test_dir_path is not None:
+            f = open(self.test_dir_path + "/" + test_name, "wb+")
+            f.write(g.serialize(format='turtle'))
+            f.close()
 
     def test_create_an_entity_with_all_justification_types_and_confidence(self):
         g = aifutils.make_graph()
@@ -58,6 +66,7 @@ class Examples(unittest.TestCase):
         # let's mark our entity with some arbitrary system-private data. You can attach such data
         # to nearly anything
         aifutils.mark_private_data(g, entity, "{ 'hello' : 'world' }", system)
+        self.new_file(g, "test_create_an_entity_with_all_justification_types_and_confidence.ttl")
 
         self.dump_graph(g, "Example of entity with all justifications")
 
@@ -90,7 +99,7 @@ class Examples(unittest.TestCase):
         aifutils.mark_as_argument(g, event, arg, electee, system, 0.785)
         arg2 = URIRef(SEEDLING_TYPES_NIST['Personnel.Elect'] + "_Place")
         aifutils.mark_as_argument(g, event, arg2, election_country, system, 0.589)
-
+        self.new_file(g, "test_create_an_event.ttl")
         self.dump_graph(g, "Example of creating an event")
 
 
@@ -113,7 +122,7 @@ class Examples(unittest.TestCase):
                                          "NYT_ENG_201181231", 343, 367, system, 0.3)
 
         aifutils.mark_as_mutually_exclusive(g, { tuple([entity_is_a_person]):0.5, tuple([entity_is_an_organization]):0.2}, system, None)
-
+        self.new_file(g, "test_create_an_entity_with_uncertainty_about_its_type.ttl")
         self.dump_graph(g, "Example of entity with uncertainty about type")
 
 
@@ -162,7 +171,7 @@ class Examples(unittest.TestCase):
         # but not both
         aifutils.mark_as_mutually_exclusive(g, { tuple([place_of_birth_in_cambridge_cluster]):0.4,
                                                  tuple([place_of_birth_in_louisville_cluster]):0.6}, system, None)
-
+        self.new_file(g, "test_create_a_relation_between_two_entities_where_there_is_uncertainty_about_identity_of_one_argument.ttl")
         self.dump_graph(g, "Relation between two entities with uncertainty about id of one")
 
 
@@ -231,7 +240,7 @@ class Examples(unittest.TestCase):
                                                                     google,
                                                                     "http://www/test.org/assertions/9", system, 1.0)
         aifutils.mark_depends_on_hypothesis(g, bob_works_for_google, bob_lives_in_california_hypothesis)
-
+        self.new_file(g, "test_two_hypotheses.ttl")
         self.dump_graph(g, "Example of two hypotheses")
 
 
@@ -265,7 +274,7 @@ class Examples(unittest.TestCase):
         # then we mark these as mutually exclusive
         # we also mark confidence 0.2 that neither of these are true
         aifutils.mark_as_mutually_exclusive(g, { tuple(bob_hit_fred_assertions):0.6, tuple(fred_hit_bob_assertions):0.2}, system, 0.2)
-
+        self.new_file(g, "test_use_subgraph_confidences_to_show_mutually_exclusive_linked_event_argument_options.ttl")
         self.dump_graph(g, "Example of subgraph confidences to show mutually exclusive linked event argument options")
 
 
@@ -296,7 +305,7 @@ class Examples(unittest.TestCase):
                                   .785)
         aifutils.mark_as_argument(g, event, SEEDLING_TYPES_NIST[event_type_string] + "_Place", election_country, system,
                                   .589)
-
+        self.new_file(g, "test_create_seedling_event.ttl")
         self.dump_graph(g, "Example of seedling event")
 
 
@@ -327,7 +336,7 @@ class Examples(unittest.TestCase):
                                   .785, "http://www.test.edu/eventArgument/1")
         aifutils.mark_as_argument(g, event, SEEDLING_TYPES_NIST[event_type_string] + "_Place", election_country, system,
                                   .589, "http://www.test.edu/eventArgument/2")
-
+        self.new_file(g, "test_create_seedling_event_with_event_argument_uri.ttl")
         self.dump_graph(g, "Example of seedling event with event assertion URI")
 
 
@@ -364,7 +373,7 @@ class Examples(unittest.TestCase):
         # let's mark our entity with some arbitrary system-private data. You can attach such data
         # to nearly anything
         aifutils.mark_private_data_with_vector(g, entity, system, vec)
-
+        self.new_file(g, "test_create_an_entity_with_image_justification_and_vector.ttl")
         self.dump_graph(g, "Example of entity with image justification and vector")
 
     def test_make_entity(self):
@@ -377,6 +386,7 @@ class Examples(unittest.TestCase):
         aifutils.mark_text_justification(g, [entity, type_assertion], "NYT_ENG_20181231",
                                          42, 143, system, 0.973)
 
+        self.new_file(g, "test_make_an_entity.ttl")
         self.dump_graph(g, "Example of creating an entity")
         self.assertEqual([type_assertion], aifutils.get_type_assertions(g, entity))
 
@@ -406,6 +416,7 @@ class Examples(unittest.TestCase):
         aifutils.mark_numeric_value_as_long(g, entity, 100)
         aifutils.mark_numeric_value_as_string(g, entity, "100")
 
+        self.new_file(g, "test_create_a_seedling_entity_with_alternate_names.ttl")
         self.dump_graph(g, "Example of seedling entity with alternate names")
 
 
@@ -458,6 +469,7 @@ class Examples(unittest.TestCase):
 
         aifutils.mark_compound_justification(g, [place_argument], [text_justification, image_justification], system, 0.543)
 
+        self.new_file(g, "test_create_compound_justification.ttl")
         self.dump_graph(g, "Example of compound justification")
 
 
@@ -509,6 +521,7 @@ class Examples(unittest.TestCase):
 
         aifutils.mark_as_possible_cluster_member(g, president_cluster, trump_cluster, .6, system)
 
+        self.new_file(g, "test_create_hierarchical_cluster.ttl")
         self.dump_graph(g, "Seedling hierarchical cluster")
 
     def test_simple_hypothesis_with_cluster(self):
@@ -543,6 +556,7 @@ class Examples(unittest.TestCase):
         buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#hypothesis-1", 
                                                             [buk, buk_is_weapon, buk_is_clustered, buk_is_russian, buk_argument, russia_argument], system)
 
+        self.new_file(g, "test_simple_hypothesis_with_cluster.ttl")
         self.dump_graph(g, "Simple hypothesis with cluster")
 
     def test_simple_hypothesis_with_importance_with_cluster(self):
@@ -566,8 +580,8 @@ class Examples(unittest.TestCase):
         # cluster buk
         buk_cluster = aifutils.make_cluster_with_prototype(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#cluster-1", buk_kb_entity, system)
         buk_is_clustered = aifutils.mark_as_possible_cluster_member(g, buk, buk_cluster, .9, system)
-        # add importance to the cluster
-        aifutils.mark_importance(g, buk_cluster, 70)
+        # add importance to the cluster - test negative importance
+        aifutils.mark_importance(g, buk_cluster, -70.234)
 
         # Russia owns buk relation
         buk_is_russian = aifutils.make_relation(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#R779959.00004", system)
@@ -575,14 +589,17 @@ class Examples(unittest.TestCase):
         buk_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA_Affiliate'], buk, system, 1.0)
         russia_argument = aifutils.mark_as_argument(g, buk_is_russian, SEEDLING_TYPES_NIST['GeneralAffiliation.APORA_Affiliation'], russia, system, 1.0)
         # add importance to the statements
-        aifutils.mark_importance(g, buk_argument, 94)
-        aifutils.mark_importance(g, russia_argument, 100)
+        aifutils.mark_importance(g, buk_argument, 100.0)
+        # add large importance
+        aifutils.mark_importance(g, russia_argument, 9.999999e6)
 
         # Russia owns buk hypothesis
         buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://tac.nist.gov/tracks/SM-KBP/2018/LdcAnnotations#hypothesis-1", 
                                                             [buk, buk_is_weapon, buk_is_clustered, buk_is_russian, buk_argument, russia_argument], system)
-        aifutils.mark_importance(g, buk_is_russian_hypothesis, 120)
+        # test highest possible importance value
+        aifutils.mark_importance(g, buk_is_russian_hypothesis, sys.float_info.max)
 
+        self.new_file(g, "test_simple_hypothesis_with_importance_cluster.ttl")
         self.dump_graph(g, "Simple hypothesis with importance with cluster")
 
     def test_create_a_simple_cluster_with_handle(self):
@@ -610,6 +627,7 @@ class Examples(unittest.TestCase):
         # person 1 is definitely in the cluster, person 2 is probably in the cluster
         aifutils.mark_as_possible_cluster_member(g, putin, putin_cluster, 0.71, system)
 
+        self.new_file(g, "test_create_a_simple_cluster_with_handle.ttl")
         self.dump_graph(g, "create a simple cluster with handle")
 
     def test_create_an_entity_with_information_justification(self):
@@ -643,71 +661,64 @@ class Examples(unittest.TestCase):
         # person 1 is definitely in the cluster, person 2 is probably in the cluster
         aifutils.mark_as_possible_cluster_member(g, putin, putin_cluster, 0.71, system)
 
+        self.new_file(g, "test_create_an_entity_and_cluster_with_informative_mention.ttl")
         self.dump_graph(g, "create an entity and cluster with informative mention")
 
 
-    def test_read_and_write_turtle(self):
-        print("test read and write turtle")
-
-        # we want to say that the cluster of Trump entities might be the same as the cluster of the president entities
+    def test_create_a_cluster_with_link_and_confidence(self):
         g = aifutils.make_graph()
         g.bind('ldcOnt', SEEDLING_TYPES_NIST.uri)
 
-        #every AIF needs an object for the system responsible for creating it
-        system = aifutils.make_system_with_uri(g, 'http://www.test.edu/testSystem')
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
 
-        # create president entities
-        president_usa = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
-        aifutils.mark_type(g, "http://www.test.edu/assertions/1", president_usa, SEEDLING_TYPES_NIST.GeopoliticalEntity,
-                           system, 1.0)
-        aifutils.mark_name(g, president_usa, "the president")
+        putin = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/1", putin, SEEDLING_TYPES_NIST.Person, 
+                system, 1.0)
+        aifutils.mark_name(g, putin, "Путин")
+        
+        vladimir_putin = aifutils.make_entity(g, "http://www.test.edu/entities/2", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/2", vladimir_putin, SEEDLING_TYPES_NIST.Person, 
+                system, 1.0)
+        aifutils.mark_name(g, vladimir_putin, "Vladimir Putin")
 
-        new_president = aifutils.make_entity(g, "http://www.test.edu/entities/2", system)
-        aifutils.mark_type(g, "http://www.test.edu/assertions/2", president_usa, SEEDLING_TYPES_NIST.GeopoliticalEntity,
-                           system, 1.0)
-        aifutils.mark_name(g, president_usa, "the newly-inaugurated president")
+        # create a cluster with prototype
+        putin_cluster = aifutils.make_cluster_with_prototype(g, "http://www.test.edu/clusters/1", vladimir_putin, system, "Vladimir Putin")
 
-        president_45 = aifutils.make_entity(g, "http://www.test.edu/entities/3", system)
-        aifutils.mark_type(g, "http://www.test.edu/assertions/3", president_usa, SEEDLING_TYPES_NIST.GeopoliticalEntity,
-                           system, 1.0)
-        aifutils.mark_name(g, president_usa, "the 45th president")
+        # person 1 is definitely in the cluster, person 2 is probably in the cluster
+        aifutils.mark_as_possible_cluster_member(g, putin, putin_cluster, 1.0, system)
+        aifutils.mark_as_possible_cluster_member(g, vladimir_putin, putin_cluster, 0.71, system)
 
-        # cluster president entities
-        president_cluster = aifutils.make_cluster_with_prototype(g, "http://www.test.edu/clusters/president",
-                                                                 president_usa, system)
+        # also we can link this entity to something in an external KB
+        aifutils.link_to_external_kb(g, putin_cluster, "freebase.FOO", system, .398)
 
-        aifutils.mark_as_possible_cluster_member(g, president_usa, president_cluster, 1, system)
-        aifutils.mark_as_possible_cluster_member(g, new_president, president_cluster, .9, system)
-        aifutils.mark_as_possible_cluster_member(g, president_45, president_cluster, .9, system)
+        self.new_file(g, "test_create_a_cluster_with_link_and_confidence.ttl")
+        self.dump_graph(g, "create a cluster with link and confidence")
 
-        # create Trump entities
-        donald_trump = aifutils.make_entity(g, "http://www.test.edu/entities/4", system)
-        aifutils.mark_type(g, "http://www.test.edu/assertions/4", president_usa, SEEDLING_TYPES_NIST.Person, system, 1.0)
-        aifutils.mark_name(g, president_usa, "Donald Trump")
 
-        trump = aifutils.make_entity(g, "http://www.test.edu/entities/5", system)
-        aifutils.mark_type(g, "http://www.test.edu/assertions/5", president_usa, SEEDLING_TYPES_NIST.Person, system, 1.0)
-        aifutils.mark_name(g, president_usa, "Trump")
+    def test_create_an_event_with_ldc_time(self):
+        g = aifutils.make_graph()
+        g.bind('ldcOnt', SEEDLING_TYPES_NIST.uri)
 
-        # cluster trump entities
-        trump_cluster = aifutils.make_cluster_with_prototype(g, "http://www.test.edu/clusters/trump", donald_trump, system)
-        aifutils.mark_as_possible_cluster_member(g, donald_trump, trump_cluster, 1, system)
-        aifutils.mark_as_possible_cluster_member(g, trump, trump_cluster, .9, system)
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
 
-        aifutils.mark_as_possible_cluster_member(g, president_cluster, trump_cluster, .6, system)
+        # create a start position event with unknown start and end time
+        event_start_position = aifutils.make_event(g, "http://www.test.edu/event/1", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/1", event_start_position, SEEDLING_TYPES_NIST['Personnel.StartPosition'], system, 1.0)
+        unkown = LDCTimeComponent(LDCTimeType.UNKONWN, None, None, None)
+        endBefore = LDCTimeComponent(LDCTimeType.BEFORE, "2016", None, None)
+        aifutils.mark_ldc_time(g, event_start_position, unkown, endBefore, system)
 
-        # write graph to file
-        file = open("../test_read_and_write.ttl", "wb")
-        file.write(g.serialize(format='turtle'))
-        file.close()
+        # create an attack event with an unkown start date, but definite end date
+        event_attack_unknown = aifutils.make_event(g, "http://www.test.edu/event/2", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/2", event_attack_unknown, SEEDLING_TYPES_NIST['Conflict.Attack'], system, 1.0)
+        start = LDCTimeComponent(LDCTimeType.AFTER, "2014", "--02", None)
+        end = LDCTimeComponent(LDCTimeType.ON, "2014", "--02", "---21")
+        aifutils.mark_ldc_time(g, event_attack_unknown, start, end, system)
 
-        # create new graph and read in file
-        graph = Graph()
-        graph.parse("../test_read_and_write.ttl", format='turtle')
-
-        # verify that one of the trump entities exists in new graph object
-        dtrump = URIRef("http://www.test.edu/entities/4")
-        self.assertTrue((dtrump, None, None) in graph)
+        self.new_file(g, "test_create_an_event_with_ldc_time.ttl")
+        self.dump_graph(g, "create an event with LDCTime")
 
 
     def dump_graph(self, g, description):
@@ -720,4 +731,13 @@ class Examples(unittest.TestCase):
         print(serialization.getvalue().decode('utf-8'))
 
 if __name__ == '__main__':
+    # get directory path
+    Examples.test_dir_path = os.environ.get("DIR_PATH", None)
+    if Examples.test_dir_path is not None:
+        if not os.path.exists(Examples.test_dir_path):
+            Examples.test_dir_path = None
+            print("Test output directory does not exist. Example turtle files will not be saved")
+    else:
+        print("Test output directory was not provided. Example turtle files will not be saved")
+
     unittest.main()

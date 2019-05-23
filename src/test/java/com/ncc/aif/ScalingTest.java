@@ -14,11 +14,16 @@ import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.tdb.TDBFactory;
 
 import java.io.File;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 import static com.ncc.aif.AIFUtils.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Test to see how large we can scale AIF with the LDC ontology (LO).  AIF uses a Jena-based model,
@@ -281,21 +286,21 @@ public class ScalingTest {
         Resource typeToUse;
         if (rand < 0.15 || createLongString) {
             markName(entityResource, getRandomString(createLongString ? 257 : 7));
-            typeToUse = LDCOntology.Person;
+            typeToUse = LDCOntology.PER;
         } else if (rand < 0.3) {
             markTextValue(entityResource, getRandomString(7));
-            typeToUse = LDCOntology.Results;
+            typeToUse = LDCOntology.RES;
         } else if (rand < 0.4) {
             // LDC doesn't have numeric values, but other ontologies might, so keep this here
             if (ALLOW_NUMERIC_TYPES) {
                 markNumericValueAsDouble(entityResource, r.nextDouble());
-                typeToUse = LDCOntology.NumericalValue_Number_Number;
+                typeToUse = LDCOntology.VAL_Number_Number;
             } else {
                 markTextValue(entityResource, getRandomString(7));
-                typeToUse = LDCOntology.Results;
+                typeToUse = LDCOntology.RES;
             }
         } else {
-            typeToUse = LDCOntology.Person;
+            typeToUse = LDCOntology.PER;
         }
 
         // Set the type
@@ -436,7 +441,11 @@ public class ScalingTest {
             RDFDataMgr.write(Files.newOutputStream(Paths.get(filename)), model, RDFFormat.TURTLE_PRETTY);
             if (performValidation) {
                 System.out.println("\nDoing validation.  Validation errors (if any) follow:");
-                assertTrue(ldcValidator.validateKB(model));
+                final Resource report = ldcValidator.validateKBAndReturnReport(model);
+                if (!ValidateAIF.isValidReport(report)) {
+                    RDFDataMgr.write(System.err, report.getModel(), RDFFormat.TURTLE_PRETTY);
+                    fail("Generated model was invalid.");
+                }
             }
         } catch (Exception e) {
             System.err.println("Unable to write to file " + filename + " " + e.getMessage());

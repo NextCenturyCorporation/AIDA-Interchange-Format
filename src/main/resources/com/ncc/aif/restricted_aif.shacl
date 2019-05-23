@@ -28,9 +28,6 @@ aida:EdgeJustificationCount
     """
     .
 
-# Turn off CompoundJustificationMinimum globally
-aida:CompoundJustificationMinimum sh:deactivated true .
-
 #########################
 # Each edge justification must be represented uniformly in AIF by
 # aida:CompoundJustification, even if only one span is provided
@@ -141,7 +138,7 @@ aida:ClusterMembershipShape
 #------------------------
 aida:EntityShape
     sh:sparql [
-        sh:message "Entity is not clustered" ;
+        sh:message "Entities must be clustered" ;
         sh:select """
             PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
             SELECT $this
@@ -154,26 +151,9 @@ aida:EntityShape
         """ ;
     ] .
 
-aida:EventShape
+aida:EventRelationShape
     sh:sparql [
-        sh:message "Event is not clustered" ;
-        sh:select """
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
-            SELECT $this
-            WHERE {
-                FILTER NOT EXISTS {
-                    ?membership a aida:ClusterMembership .
-                    ?membership aida:clusterMember $this .
-                }
-            }
-        """ ;
-    ] .
-
-aida:RelationMustBeClustered
-    a sh:NodeShape ;
-    sh:targetClass aida:Relation ;
-    sh:sparql [
-        sh:message "Relation is not clustered" ;
+        sh:message "Events and Relations must be clustered" ;
         sh:select """
             PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
             SELECT $this
@@ -214,7 +194,63 @@ aida:RequiredJustificationPropertyShape
    sh:message "Type assertions must have at least one justification" .
 
 #########################
-# Each entity/filler name string is limited to 256 UTF-8 characters
+# Justifications require a source document and a source
+# The source restriction is defined on the aida:SharedJustificationShape in the aida_ontology.shacl
+#------------------------
+aida:JustificationSourceDocumentShape
+    a sh:NodeShape ;
+    sh:targetClass aida:Justification ;
+    sh:property [
+        sh:path aida:sourceDocument ;
+        sh:minCount 1 ;
+        sh:message "Justifications require a sourceDocument" ;
+    ]
+    .
+
+#########################
+# Each entity/filler name, text value, and numeric value is limited to 256 UTF-8 characters
 #------------------------
 aida:NamePropertyShape
-  sh:maxLength 256;
+  sh:maxLength 256 .
+
+aida:TextPropertyShape
+  sh:maxLength 256 .
+
+aida:NumericPropertyShape
+  sh:maxLength 256 .
+
+#########################
+# Each Cluster, Entity, Event, or Relation can specify up to one informative mention per document as long as each
+# informative mention points to a different sourceDocument
+#------------------------
+aida:InformativeJustificationMembersUniqueParentDoc
+    a sh:SPARQLConstraint ;
+    sh:message "Each Cluster, Entity, Event, or Relation can specify up to one informative mention per document as long as each informative mention points to a different sourceDocument" ;
+    sh:select """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
+      	SELECT $this
+      	WHERE {
+      	    $this aida:informativeJustification ?mentions .
+      	    ?mentions aida:sourceDocument ?parentDoc
+      	}
+      	GROUP BY $this
+      	HAVING (COUNT(DISTINCT ?parentDoc) < COUNT(DISTINCT ?mentions))
+    """
+    .
+
+aida:InformativeJustificationMembersShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf aida:informativeJustification ;
+    sh:sparql aida:InformativeJustificationMembersUniqueParentDoc .
+
+#########################
+# 4.3 #10: Each aida:linkAssertion must have exactly one aida:confidence
+#------------------------
+# Add to pre-existing LinkAssertionShape
+aida:LinkAssertionShape
+    sh:property [
+        sh:path aida:confidence ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] .
