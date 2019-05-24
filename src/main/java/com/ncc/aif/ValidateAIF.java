@@ -1,14 +1,18 @@
 package com.ncc.aif;
 
+import ch.qos.logback.classic.Logger;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.util.FileUtils;
+import org.slf4j.LoggerFactory;
+import org.topbraid.shacl.validation.ValidationEngine;
 import org.topbraid.shacl.validation.ValidationEngineConfiguration;
 import org.topbraid.shacl.validation.ValidationUtil;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.*;
@@ -159,6 +163,28 @@ public final class ValidateAIF {
     }
 
     /**
+     * Tells the validator whether or not to monitor progress and show ongoing validation progress
+     *
+     * @param id if non-null, an identifier for the progress monitor, otherwise disables progress monitoring
+     */
+    public void setProgressMonitor(String id) {
+        if (id == null) {
+            this.progressMonitor = null;
+            return;
+        }
+
+        final String filename = id + "-progress.tab";
+        try {
+            this.progressMonitor = new AIFProgressMonitor(filename);
+        } catch (IOException e) {
+            // Default constructor for AIFProgressMonitor makes use of logger. Add logging there
+            this.progressMonitor = new AIFProgressMonitor();
+            LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)
+                    .warn("Could not open progress monitor filename {}.  Writing progress to StdOut.", filename);
+        }
+    }
+
+    /**
      * Tells the validator to "fail fast" if SHACL violations are detected.  Validation will terminate after
      * <code>abortThreshold</code> SHACL violations are detected.  Use zero to disable failing fast.
      *
@@ -283,8 +309,7 @@ public final class ValidateAIF {
             validationMetadata = engine.getValidationMetadata();
             return engine.getReport();
         } else {
-            ValidationEngine engine = ValidationUtil.createValidationEngine(unionModel, shacl,
-                    config);
+            ValidationEngine engine = ValidationUtil.createValidationEngine(unionModel, shacl, config);
             engine.setProgressMonitor(progressMonitor);
             try {
                 engine.applyEntailments();

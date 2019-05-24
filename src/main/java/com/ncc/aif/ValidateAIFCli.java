@@ -5,7 +5,6 @@ import ch.qos.logback.classic.Logger;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
-import com.google.common.io.Files;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
@@ -22,9 +21,9 @@ import picocli.CommandLine.Spec;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -103,6 +102,9 @@ public class ValidateAIFCli implements Callable<Integer> {
     @Option(names = "--abort", description = "Abort validation after [num] SHACL violations (num > 2), or 3 violations if [num] is omitted.", paramLabel = "num")
     private int maxValidationErrors = DEFAULT_MAX_VIOLATIONS;
 
+    @Option(names = "--pm", description = "Enable progress monitor that shows ongoing validation progress")
+    private boolean useProgressMonitor;
+
     @Option(names = "-p", description = "Enable profiling", hidden = true)
     private boolean useProfiling;
 
@@ -171,7 +173,7 @@ public class ValidateAIFCli implements Callable<Integer> {
                 // Convert the specified domain ontologies to CharSources.
                 Set<CharSource> domainOntologySources = new HashSet<>();
                 for (File file : customOntologies) {
-                    domainOntologySources.add(Files.asCharSource(file, Charsets.UTF_8));
+                    domainOntologySources.add(com.google.common.io.Files.asCharSource(file, Charsets.UTF_8));
                     builder.append(file.getName()).append(" ");
                 }
                 validator = ValidateAIF.create(ImmutableSet.copyOf(domainOntologySources), restriction);
@@ -244,10 +246,13 @@ public class ValidateAIFCli implements Callable<Integer> {
         if (profiling) {
             logger.info("-> Saving slow queries (> " + LONG_QUERY_THRESH + " ms) to <kbname>-stats.txt.");
         }
+        if (useProgressMonitor) {
+            logger.info("-> Saving ongoing validation progress to <kbname>-progress.tab.");
+        }
         logger.info("*** Beginning validation of " + filesToValidate.size() + " file(s). ***");
 
         // Validate all files, noting I/O and other errors, but continue to validate even if one fails.
-        final DateFormat format = new SimpleDateFormat("EEE, MMM d HH:mm:ss");
+        final SimpleDateFormat format = new SimpleDateFormat("EEE, MMM d HH:mm:ss");
         int invalidCount = 0;
         int skipCount = 0;
         int abortCount = 0;
@@ -264,6 +269,9 @@ public class ValidateAIFCli implements Callable<Integer> {
             if (notSkipped) {
                 if (profiling) {
                     stats.startCollection();
+                }
+                if (useProgressMonitor) {
+                    validator.setProgressMonitor(fileToValidate.getName().replace(".ttl", ""));
                 }
                 final Resource report = validator.validateKBAndReturnReport(dataToBeValidated);
                 if (profiling) {
@@ -336,7 +344,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     // Load the model, or fail trying.  Returns true if it's loaded, otherwise false.
     private static boolean loadFile(Model dataToBeValidated, File fileToValidate) {
         try {
-            ValidateAIF.loadModel(dataToBeValidated, Files.asCharSource(fileToValidate, Charsets.UTF_8));
+            ValidateAIF.loadModel(dataToBeValidated, com.google.common.io.Files.asCharSource(fileToValidate, Charsets.UTF_8));
         } catch (RuntimeException rte) {
             logger.warn("---> Could not read " + fileToValidate + "; skipping.");
             return false;
@@ -352,7 +360,7 @@ public class ValidateAIFCli implements Callable<Integer> {
         } else {
             String outputFilename = fileToValidate.toString().replace(".ttl", "-report.txt");
             try {
-                RDFDataMgr.write(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)),
+                RDFDataMgr.write(Files.newOutputStream(Paths.get(outputFilename)),
                         validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
             } catch (IOException ioe) {
                 logger.warn("---> Could not write validation report for " + fileToValidate + ".");
@@ -367,7 +375,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     private static boolean checkHypothesisSize(File fileToValidate) {
         try {
             final Path path = Paths.get(fileToValidate.toURI());
-            final long fileSize = java.nio.file.Files.size(path);
+            final long fileSize = Files.size(path);
             if (fileSize > 1024 * 1024 * 5) { // 5MB
                 logger.warn("---> Hypothesis KB " + fileToValidate + " is more than 5MB (" + fileSize + " bytes); skipping.");
                 return false;
@@ -449,7 +457,7 @@ public class ValidateAIFCli implements Callable<Integer> {
         void dump(String basename) {
             final String outputFilename = basename.replace(".ttl", "-stats.txt");
             try {
-                final PrintStream out = new PrintStream(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)));
+                final PrintStream out = new PrintStream(Files.newOutputStream(Paths.get(outputFilename)));
                 dumpStats(out);
                 out.close();
             } catch (IOException ioe) {
@@ -568,7 +576,7 @@ public class ValidateAIFCli implements Callable<Integer> {
             final String outputFilename = basename.replace(".ttl", "-stats.txt");
             try {
                 final List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
-                final PrintStream out = new PrintStream(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)));
+                final PrintStream out = new PrintStream(Files.newOutputStream(Paths.get(outputFilename)));
                 if (savedStats.isEmpty()) {
                     out.println("There were no queries that took longer than " + durationThreshold + "ms (of "
                             + stats.size() + " queries overall).");
