@@ -837,7 +837,7 @@ aida:LDCTimeShape
         sh:class aida:LDCTimeComponent
     ] ;
 
-    sh:property sh:JustificationPropertyShape ;
+    sh:property aida:JustificationPropertyShape ;
 
     # may provide an optional source system
     sh:property aida:SystemPropertyShape ;
