@@ -677,7 +677,7 @@ public class AIFUtils {
                                                   Resource system, Double confidence) {
         if (endTimestamp <= startTimestamp) {
             throw new IllegalArgumentException("End timestamp " + endTimestamp
-                    + "does not follow start timestamp " + startTimestamp);
+                    + " does not follow start timestamp " + startTimestamp);
         }
         final Resource justification = makeAIFJustification(model, docId, AidaAnnotationOntology.AUDIO_JUSTIFICATION_CLASS,
                 system, confidence);
