@@ -67,6 +67,7 @@ public final class ValidateAIF {
     private Model domainModel;
     private Restriction restriction;
     private int abortThreshold = -1; // by default, do not abort on SHACL violation
+    private AIFProgressMonitor progressMonitor = null; // by default, do not monitor progress
     private ThreadPoolExecutor executor;
     private List<Future<ThreadedValidationEngine.ValidationMetadata>> validationMetadata;
 
@@ -282,7 +283,15 @@ public final class ValidateAIF {
             validationMetadata = engine.getValidationMetadata();
             return engine.getReport();
         } else {
-            return ValidationUtil.validateModel(unionModel, shacl, config);
+            ValidationEngine engine = ValidationUtil.createValidationEngine(unionModel, shacl,
+                    config);
+            engine.setProgressMonitor(progressMonitor);
+            try {
+                engine.applyEntailments();
+                return engine.validateAll();
+            } catch (InterruptedException ex) {
+                return null;
+            }
         }
     }
 
