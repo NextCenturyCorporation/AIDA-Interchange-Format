@@ -84,12 +84,14 @@ public final class ValidateAIF {
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        executor.shutdownNow();
+        if (executor != null) {
+            executor.shutdownNow();
+        }
     }
 
     // Ensure what file name an RDF syntax error occurs in is printed, which
     // doesn't happen by default.
-    public static void loadModel(Model model, CharSource ontologySource) {
+    static void loadModel(Model model, CharSource ontologySource) {
         try {
             model.read(ontologySource.openBufferedStream(), "urn:x-base", FileUtils.langTurtle);
         } catch (Exception exception) { // includes IOException & JenaException
@@ -198,7 +200,7 @@ public final class ValidateAIF {
     }
 
     /**
-     * Tells the validator to use the specified number of threads to use during validation
+     * Tells the validator to use the specified number of threads during validation
      *
      * @param threadCount number of threads to use during validation
      */
@@ -292,8 +294,7 @@ public final class ValidateAIF {
         }
 
         // Validates against the SHACL file to ensure that resources have the required properties
-        // (and in some cases, only the required properties) of the proper types.  Returns true if
-        // validation passes.
+        // (and in some cases, only the required properties) of the proper types.
         ValidationEngineConfiguration config = new ValidationEngineConfiguration()
                 .setValidateShapes(true)
                 .setValidationErrorBatch(abortThreshold);
@@ -302,12 +303,13 @@ public final class ValidateAIF {
             try {
                 engine.applyEntailments();
                 engine.validateAll(executor);
+                validationMetadata = engine.getValidationMetadata();
+                return engine.getReport();
             } catch (InterruptedException|ExecutionException e) {
                 System.err.println("Unable to validate due to exception");
                 e.printStackTrace();
+                return null;
             }
-            validationMetadata = engine.getValidationMetadata();
-            return engine.getReport();
         } else {
             ValidationEngine engine = ValidationUtil.createValidationEngine(unionModel, shacl, config);
             engine.setProgressMonitor(progressMonitor);
