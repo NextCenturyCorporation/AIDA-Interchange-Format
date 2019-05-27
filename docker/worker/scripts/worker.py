@@ -38,9 +38,9 @@ class Worker:
 				# process messages
 				self._process_sqs_queue()
 		else:
-			# log error that worker timed out waiting for sqs queue
-			pass
-
+			logging.error("Worker with node index %s timed out waiting for SQS queue to be available after %s seconds", 
+				self.node_index, self.queue_init_timeout)
+			
 	
 	def _bucket_exists(self):
 		"""Helper function that will check if a validation bucket
