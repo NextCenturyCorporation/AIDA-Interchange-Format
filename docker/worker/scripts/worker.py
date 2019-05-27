@@ -27,6 +27,7 @@ class Worker:
 		self.source_log = 'sourcelog'
 		self.session = boto3.session.Session(region_name=self.aws_region)
 
+
 	def run(self):
 		"""
 		"""
@@ -40,7 +41,7 @@ class Worker:
 		else:
 			logging.error("Worker with node index %s timed out waiting for SQS queue to be available after %s seconds", 
 				self.node_index, self.queue_init_timeout)
-			
+
 	
 	def _bucket_exists(self):
 		"""Helper function that will check if a validation bucket
