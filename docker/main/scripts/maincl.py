@@ -12,6 +12,7 @@ from pathlib import Path
 from botocore.exceptions import ClientError
 from subprocess import CalledProcessError
 
+
 class Main:
 
     # Initializer / Instance Attributes
@@ -68,19 +69,15 @@ class Main:
         self._verify_validation(results_path)
 
         # generate validation metrics
+        metrics = self._get_results_metrics(results_path)
 
         # create results and upload to validation bucket
         self._create_results_tarfile(results_tar, results_path)
         self._upload_file_to_s3(results_tar)
 
-        compelte_msg = "The validation of {0} with job id {1} has completed. Results can be found" \
-            " in the {2} S3 bucket".format(
-                Path(self.submission).name, 
-                self.job_id, 
-                self.bucket
-            )
+        report = self._create_validation_report(metrics, results_tar)
 
-        self._publish_sns_message(compelte_msg)
+        self._publish_sns_message(report)
 
         # clean up sqs queue and s3 validation staging data
         self._delete_s3_objects_with_prefix(self.job_id)
@@ -112,6 +109,7 @@ class Main:
             logging.error(e)
             self._publish_failure_message(e)
             raise
+
 
     def _check_submission_extension(self):
         """Helper function that checks the submission extension is valid before
@@ -598,6 +596,7 @@ class Main:
             )
             return False
 
+
     def _create_verification_output(self, results_path, source_verfication_path, message):
         """Generates verification file with verification reuslts to be added to final 
         archive and sets verification message for final report.
@@ -615,6 +614,7 @@ class Main:
                 self.verification = message #set for final report
         except:
             logging.error("Error when writing source verification file %s", file_path)
+
 
     def _create_results_tarfile(self, filename, source_dir):
         """Creates a tar file of the source directory that contains the job results.
@@ -672,6 +672,48 @@ class Main:
 
         except ClientError as e:
             logging.error(e)
+
+
+    def _get_results_metrics(self, results_path):
+        """Function will inspect sync'd S3 directory and count and store results 
+        for each validation category.
+
+        :param str results_path: The local path of the sync'd s3 directory
+        :returns: Dictionary of validation metrics found
+        :rtype: dict
+        """
+        metrics = {}
+        metrics['valid'] = len(glob.glob(results_path + "/VALID/*.ttl"))
+        metrics['invalid'] = len(glob.glob(results_path + "/INVALID/*.ttl"))
+        metrics['error'] = len(glob.glob(results_path + "/ERROR/*.ttl"))
+        metrics['timeout'] = len(glob.glob(results_path + "/TIMEOUT/*.ttl"))
+        metrics['unprocessed'] = len(glob.glob(results_path + "/UNPROCESSED/*.ttl"))
+
+        logging.info("Validation result metrics: %s", metrics)
+        return metrics
+
+    def _create_validation_report(self, metrics, results_archive):
+        """Function will generate the final validation report that will be sent in an SNS
+        message. 
+
+        :param dict metrics: The counts of each validation category 
+        :param str results_archive: The name of the final results archive that will be 
+            uploaded to s3. 
+        """
+        report = "The validation of {0} with job id: {1} has completed. {2} .ttl were files extracted " \
+            .format(Path(self.submission).name, self.job_id, self.extracted) + " from the submission." \
+            + self.verification + "\n\nValidation Summary\n------------------\n" \
+            
+
+        report += "VALID: " + str(metrics['valid']) + "\n"
+        report += "INVALID: " + str(metrics['invalid']) + "\n"
+        report += "ERROR: " + str(metrics['error']) + "\n"
+        report += "TIMEOUT: " + str(metrics['timeout']) + "\n"
+        report += "UNPROCESSED: " + str(metrics['unprocessed']) + "\n\n"
+
+        report += "The validation results archive {0} can be found in the {1} S3 bucket " \
+            .format(results_archive, self.bucket)
+        return report
 
 
 def read_envs():
