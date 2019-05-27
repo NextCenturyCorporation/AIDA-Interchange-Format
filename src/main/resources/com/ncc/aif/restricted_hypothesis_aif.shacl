@@ -166,7 +166,7 @@ aida:KEsMustBeReferenced
 
 aida:AllKEsReferencedShape
     a sh:NodeShape ;
-    sh:targetClass aida:Entity, aida:Event, aida:Relation ;
+    sh:targetClass aida:Entity, aida:Event, aida:Relation, aida:ClusterMembership, aida:SameAsCluster;
     sh:target [
         a sh:SPARQLTarget ;
         sh:select """

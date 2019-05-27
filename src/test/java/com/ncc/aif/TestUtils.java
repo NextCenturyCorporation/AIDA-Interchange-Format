@@ -262,7 +262,16 @@ class TestUtils {
     Resource makeValidAIFHypothesis(String uri, Resource... resources) {
         Set<Resource> set = new HashSet<>();
         Collections.addAll(set, resources);
-        return makeHypothesis(model, uri == null ? getHypothesisUri() : uri, set, system);
+        return makeValidAIFHypothesis(uri, set);
+    }
+
+    /**
+     * Makes and returns a valid hypothesis object involving the specified resource(s) using the specified URI.
+     *
+     * @param resources A {@link Set} of entities, relations, and arguments that contribute to the hypothesis
+     */
+    Resource makeValidAIFHypothesis(String uri, Set<Resource> resources) {
+        return makeHypothesis(model, uri == null ? getHypothesisUri() : uri, resources, system);
     }
 
     /**

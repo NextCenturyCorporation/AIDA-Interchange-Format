@@ -2,7 +2,6 @@ package com.ncc.aif;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
@@ -75,8 +74,8 @@ public class NistTA3ExamplesAndValidationTest {
 
             @Test
             void invalidTooMany() {
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge);
-                utils.makeValidTA3Hypothesis(101.0, entity, event, eventEdge);
+                utils.makeValidTA3Hypothesis();
+                utils.makeValidTA3Hypothesis(101.0);
                 utils.testInvalid("NISTHypothesis.invalid (too many): there should be exactly 1 hypothesis");
             }
 
@@ -87,7 +86,7 @@ public class NistTA3ExamplesAndValidationTest {
 
             @Test
             void valid() {
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge);
+                utils.makeValidTA3Hypothesis();
                 utils.testValid("NISTHypothesis.valid: there should be exactly 1 hypothesis");
             }
         }
@@ -99,9 +98,8 @@ public class NistTA3ExamplesAndValidationTest {
             @Test
             // No handle property on entity cluster in hypothesis
             void invalidNoHandle() {
-                final Resource newEntity = utils.makeValidNistEntity(
-                        LDCOntology.PER).getKey();
-                utils.makeValidTA3Hypothesis(entity, newEntity, event, eventEdge);
+                utils.addResourcesPair(utils.makeValidNistEntity(LDCOntology.PER));
+                utils.makeValidTA3Hypothesis();
 
                 utils.testInvalid("NISTHypothesis.invalid (no handle exists): Each entity cluster in the hypothesis " +
                         "graph must have exactly one handle");
@@ -116,7 +114,7 @@ public class NistTA3ExamplesAndValidationTest {
                 final Resource newEntity = entityPair.getKey();
                 final Resource cluster = entityPair.getValue();
                 cluster.addProperty(AidaAnnotationOntology.HANDLE, "handle3");
-                utils.makeValidTA3Hypothesis(entity, newEntity, event, eventEdge);
+                utils.makeValidTA3Hypothesis();
 
                 utils.testInvalid("NISTHypothesis.invalid (multiple handles exist): Each entity cluster in the " +
                         "hypothesis graph must have exactly one handle");
@@ -125,7 +123,7 @@ public class NistTA3ExamplesAndValidationTest {
             @Test
             // One handle on entity cluster in hypothesis
             void valid() {
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge);
+                utils.makeValidTA3Hypothesis();
                 utils.testValid("NISTHypothesis.valid: Each entity cluster in the hypothesis graph must have " +
                         "exactly one handle");
             }
@@ -138,14 +136,14 @@ public class NistTA3ExamplesAndValidationTest {
             @Test
             void invalid() {
                 //invalid hypothesis, no importance value
-                makeHypothesis(model, utils.getHypothesisUri(), ImmutableSet.of(entity, event, eventEdge), system);
+                makeHypothesis(model, utils.getHypothesisUri(), utils.resources, system);
                 utils.testInvalid("NISTHypothesis.invalid (hypothesis has no importance value): Each hypothesis " +
                         "graph must have exactly one hypothesis importance value");
             }
 
             @Test
             void valid() {
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge);
+                utils.makeValidTA3Hypothesis();
                 utils.testValid("NISTHypothesis.valid: Each hypothesis graph must have exactly one" +
                         " hypothesis importance value");
             }
@@ -167,13 +165,16 @@ public class NistTA3ExamplesAndValidationTest {
                 relationCluster = relationPair.getValue();
                 eventCluster = makeClusterWithPrototype(model, utils.getClusterUri(), event, system);
 
+                // Add non-TA3 resources
+                utils.addResourcesPair(relationPair);
+                utils.addResourcesPair(new ImmutablePair<>(event, eventCluster));
+
                 // This isn't strictly needed to be valid, but it's here because the example looks incomplete if an
                 // entity has a relationship without a relation edge defining that relationship.
                 relationEdge = utils.makeValidTA3Edge(relation,
                         LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
                         entity, 102.0);
-
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, relationEdge);
+                utils.makeValidTA3Hypothesis();
             }
 
             @Test
@@ -218,10 +219,10 @@ public class NistTA3ExamplesAndValidationTest {
             void invalidEventEdge() {
                 //invalid event argument, needs importance value
                 Resource invalidEventEdge = markAsArgument(model, event,
-                        LDCOntology.Personnel_Elect,
+                        LDCOntology.Personnel_Elect_Candidate,
                         entity, system, 0.785, "event-argument-1");
-
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, invalidEventEdge);
+                utils.resources.add(invalidEventEdge);
+                utils.makeValidTA3Hypothesis();
 
                 utils.testInvalid("NISTHypothesis.invalid (event edge has no importance value): Each edge KE in the " +
                         "hypothesis graph must have exactly one edge importance value");
@@ -233,8 +234,8 @@ public class NistTA3ExamplesAndValidationTest {
                 Resource invalidRelationEdge = markAsArgument(model, relation,
                         LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
                         entity, system, 0.785, "relation-argument-1");
-
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, invalidRelationEdge);
+                utils.resources.add(invalidRelationEdge);
+                utils.makeValidTA3Hypothesis();
 
                 utils.testInvalid("NISTHypothesis.invalid (relation edge has no importance value): Each edge KE in the " +
                         "hypothesis graph must have exactly one edge importance value");
@@ -242,7 +243,7 @@ public class NistTA3ExamplesAndValidationTest {
 
             @Test
             void validEventEdge() {
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation);
+                utils.makeValidTA3Hypothesis();
 
                 utils.testValid("NISTHypothesis.valid (event edge has importance value): Each edge KE in the " +
                         "hypothesis graph must have exactly one edge importance value");
@@ -251,10 +252,10 @@ public class NistTA3ExamplesAndValidationTest {
             @Test
             void validRelationEdge() {
                 // link entity to the relation
-                Resource relationEdge = utils.makeValidTA3Edge(relation,
+                utils.makeValidTA3Edge(relation,
                         LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
                         entity, 120.0);
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, relationEdge);
+                utils.makeValidTA3Hypothesis();
 
                 utils.testValid("NISTHypothesis.valid (relation edge has importance value): Each edge KE in the " +
                         "hypothesis graph must have exactly one edge importance value");
@@ -267,14 +268,15 @@ public class NistTA3ExamplesAndValidationTest {
             @Test
             void invalid() {
                 Resource fakeEntity = model.createResource(utils.getEntityUri());
-                utils.makeValidTA3Hypothesis(fakeEntity, entity, event, eventEdge);
+                utils.resources.add(fakeEntity);
+                utils.makeValidTA3Hypothesis();
                 utils.testInvalid("NISTHypothesis.invalid (entity is not defined): All KEs referenced by hypothesis " +
                         "must be defined in model");
             }
 
             @Test
             void valid() {
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge);
+                utils.makeValidTA3Hypothesis();
                 utils.testValid("NISTHypothesis.valid: All KEs referenced by hypothesis must be defined in model");
             }
         }
@@ -298,13 +300,13 @@ public class NistTA3ExamplesAndValidationTest {
             @Test
             void invalid() {
                 utils.makeValidTA3Hypothesis(entity, relation, relationEdge);
-                utils.testInvalid("NISTHypothesis.invalid (event and event edge is not referenced in hypothesis): " +
-                        "All KEs in model must be referenced by hypothesis");
+                utils.testInvalid("NISTHypothesis.invalid (event, eventEdge, and all cluster information " +
+                        "missing): All KEs in model must be referenced by hypothesis");
             }
 
             @Test
             void valid() {
-                utils.makeValidTA3Hypothesis(entity, relation, relationEdge, event, eventEdge);
+                utils.makeValidTA3Hypothesis();
                 utils.testValid("NISTHypothesis.valid: All KEs in model must be referenced by hypothesis");
             }
         }
@@ -320,9 +322,7 @@ public class NistTA3ExamplesAndValidationTest {
                 ImmutablePair<Resource, Resource> pair = utils.makeValidNistTA3Entity(
                         LDCOntology.PER,
                         "entityHandle");
-                entity = pair.getKey();
-                entityCluster = pair.getValue();
-                utils.makeValidTA3Hypothesis(entity);
+                utils.makeValidTA3Hypothesis();
                 utils.testInvalid("NISTHypothesis.invalid (no event or relation exists): Each hypothesis graph must " +
                         "have at least one event or relation with at least one edge.");
             }
@@ -338,31 +338,32 @@ public class NistTA3ExamplesAndValidationTest {
                         LDCOntology.Conflict_Attack_Attacker,
                         entity, 102.0);
 
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, invalidRelationEdge);
+                utils.makeValidTA3Hypothesis();
                 utils.testInvalid("NISTHypothesis.invalid (event has invalid relation edge): Each hypothesis graph " +
                         "must have at least one event or relation with at least one edge.");
             }
 
-            // TODO This test case needs to be updated and @Test needs to be added back in  once we decide on the
-            // TODO new design of this class upon the completion of AIDA-720.
-            @Disabled("TODO test case to be updated")
             @Test
             void validRelationAndRelationEdge() {
+                NistTA3ExamplesAndValidationTest.this.setup();
+                ImmutablePair<Resource, Resource> pair = utils.makeValidNistTA3Entity(
+                        LDCOntology.PER,
+                        "entityHandle");
                 final Resource relation = utils.makeValidNistTA3Relation(
                         LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation,
                         103.0).getKey();
-                final Resource relationEdge = utils.makeValidTA3Edge(relation,
+                utils.makeValidTA3Edge(relation,
                         LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
-                        entity, 102.0);
+                        pair.getLeft(), 102.0);
 
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, relationEdge);
+                utils.makeValidTA3Hypothesis();
                 utils.testValid("NISTHypothesis.valid (relation has relation edge): Each hypothesis graph must have " +
                         "at least one event or relation with at least one edge.");
             }
 
             @Test
             void validEventAndEventEdge() {
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge);
+                utils.makeValidTA3Hypothesis();
                 utils.testValid("NISTHypothesis.valid (event has event edge): Each hypothesis graph must have " +
                         "at least one event or relation with at least one edge.");
             }
@@ -376,7 +377,7 @@ public class NistTA3ExamplesAndValidationTest {
                         LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
                         entity, 102.0);
 
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, relationEdge);
+                utils.makeValidTA3Hypothesis();
                 utils.testValid("NISTHypothesis.valid (event has event edge and relation has relation edge): Each " +
                         "hypothesis graph must have at least one event or relation with at least one edge.");
             }
@@ -409,9 +410,10 @@ public class NistTA3ExamplesAndValidationTest {
                         103.0).getKey();
 
                 //add invalid event cluster member to relation cluster
-                markAsPossibleClusterMember(model, eventMember, relationCluster, 1.0, system);
+                utils.addResourcesPair(new ImmutablePair<>(eventMember,
+                        markAsPossibleClusterMember(model, eventMember, relationCluster, 1.0, system)));
 
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge, eventMember, relation, relationEdge);
+                utils.makeValidTA3Hypothesis();
                 utils.testInvalid("NISTHypothesis.invalid (event exists in relation cluster): Clusters must be " +
                         "homogeneous by base class (Entity, Event, or Relation).");
             }
@@ -425,9 +427,10 @@ public class NistTA3ExamplesAndValidationTest {
                         utils.makeValidJustification());
 
                 //add valid relation cluster member to relation cluster
-                markAsPossibleClusterMember(model, relationMember, relationCluster, 1.0, system);
+                utils.addResourcesPair(new ImmutablePair<>(relationMember,
+                        markAsPossibleClusterMember(model, relationMember, relationCluster, 1.0, system)));
 
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, relationEdge, relationMember);
+                utils.makeValidTA3Hypothesis();
                 utils.testValid("NISTHypothesis.valid: Clusters must be homogeneous by base class " +
                         "(Entity, Event, or Relation)");
             }

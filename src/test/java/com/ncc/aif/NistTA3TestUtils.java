@@ -1,7 +1,13 @@
 package com.ncc.aif;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.ncc.aif.AIFUtils.markImportance;
 
@@ -14,6 +20,8 @@ import static com.ncc.aif.AIFUtils.markImportance;
  * whereas makeValidNistTA3XXX() always returns a valid restricted AIF object for use in TA3.
  */
 class NistTA3TestUtils extends NistTestUtils {
+    private static final Resource[] EMPTY = new Resource[0];
+    Set<Resource> resources = new HashSet<>();
 
     /**
      * Constructor for utilities for testing TA3 restricted AIF functionality.
@@ -27,6 +35,12 @@ class NistTA3TestUtils extends NistTestUtils {
         super(annotationNamespace, validator, dumpAlways, dumpToFile);
     }
 
+    @Override
+    Model startNewTest() {
+        resources.clear();
+        return super.startNewTest();
+    }
+
     /**
      * Makes and returns a valid TA3 NIST-restricted entity of the specified type and its cluster with the specified
      * cluster handle.
@@ -38,6 +52,7 @@ class NistTA3TestUtils extends NistTestUtils {
     ImmutablePair<Resource, Resource> makeValidNistTA3Entity(Resource type, String clusterHandle) {
         ImmutablePair<Resource, Resource> pair = makeValidNistEntity(type);
         pair.getValue().addProperty(AidaAnnotationOntology.HANDLE, clusterHandle);
+        addResourcesPair(pair);
         return pair;
     }
 
@@ -52,6 +67,7 @@ class NistTA3TestUtils extends NistTestUtils {
     ImmutablePair<Resource, Resource> makeValidNistTA3Event(Resource type, double importance) {
         ImmutablePair<Resource, Resource> pair = makeValidNistEvent(type);
         markImportance(pair.getValue(), importance);
+        addResourcesPair(pair);
         return pair;
     }
 
@@ -66,6 +82,7 @@ class NistTA3TestUtils extends NistTestUtils {
     ImmutablePair<Resource, Resource> makeValidNistTA3Relation(Resource type, double importance) {
         ImmutablePair<Resource, Resource> pair = makeValidNistRelation(type);
         markImportance(pair.getValue(), importance);
+        addResourcesPair(pair);
         return pair;
     }
 
@@ -81,7 +98,17 @@ class NistTA3TestUtils extends NistTestUtils {
     Resource makeValidTA3Edge(Resource eventOrRelation, Resource type, Resource argumentFiller, double importance) {
         Resource edge = makeValidAIFEdge(eventOrRelation, type, argumentFiller);
         markImportance(edge, importance);
+        resources.add(edge);
         return edge;
+    }
+
+    /**
+     * Makes and returns a valid TA3 NIST-restricted hypothesis using the stored resource objects.
+     *
+     * @param importance the importance to mark the edge
+     */
+    Resource makeValidTA3Hypothesis(double importance) {
+        return makeValidTA3Hypothesis(importance, EMPTY);
     }
 
     /**
@@ -90,20 +117,41 @@ class NistTA3TestUtils extends NistTestUtils {
      * @param resources A set of entities, relations, and arguments that contribute to the hypothesis
      */
     Resource makeValidTA3Hypothesis(Resource... resources) {
-        Resource hypothesis = makeValidAIFHypothesis(resources);
-        markImportance(hypothesis, 100.0);
-        return hypothesis;
+        return makeValidTA3Hypothesis(100d, resources);
     }
 
     /**
      * Makes and returns a valid TA3 NIST-restricted hypothesis involving the specified resource(s) and importance.
+     * If no resources are specified, the internally stored resources are used
      *
      * @param importance the importance with which to make the hypothesis
      * @param resources  A set of entities, relations, and arguments that contribute to the hypothesis
      */
     Resource makeValidTA3Hypothesis(double importance, Resource... resources) {
-        Resource hypothesis = makeValidAIFHypothesis(resources);
+        boolean useInternal = resources == null || resources.length == 0;
+        Resource hypothesis = useInternal ? makeValidAIFHypothesis(null, this.resources) :
+                makeValidAIFHypothesis(resources);
         markImportance(hypothesis, importance);
         return hypothesis;
+    }
+
+    /**
+     * Add resource, cluster, and cluster membership from the provided <code>pair</code>
+     * @param pair {@link ImmutablePair} containing a resource (L) and it's corresponding cluster (R)
+     */
+    void addResourcesPair(Pair<Resource, Resource> pair) {
+        // add resource
+        resources.add(pair.getLeft());
+
+        // add cluster
+        Resource cluster = pair.getRight();
+        resources.add(cluster);
+
+        // add cluster membership
+        ResIterator it = model.listSubjectsWithProperty(AidaAnnotationOntology.CLUSTER_PROPERTY, cluster);
+        if (it.hasNext()) {
+            Resource membership = it.next();
+            resources.add(membership);
+        }
     }
 }
