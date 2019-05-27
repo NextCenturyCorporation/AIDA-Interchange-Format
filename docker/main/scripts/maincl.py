@@ -19,7 +19,7 @@ class Main:
         
         self.submission = envs['S3_SUBMISSION_ARCHIVE']
         self.bucket = envs['S3_VALIDATION_BUCKET']
-        self.job_id =  (envs['AWS_BATCH_JOB_ID']).split("#")[0]
+        self.job_id = (envs['AWS_BATCH_JOB_ID']).split("#")[0]
         self.node_index = envs['AWS_BATCH_JOB_NODE_INDEX']
         self.sleep_interval = int(envs['MAIN_SLEEP_INTERVAL'])
         self.worker_init_timeout = int(envs['WORKER_INIT_TIMEOUT'])
@@ -40,6 +40,10 @@ class Main:
         init_msg = "The archive {0} has been submitted for validation with job id {1}." \
             .format(Path(self.submission).name, self.job_id)
         self._publish_sns_message(init_msg)
+
+        # verify bucket and submission extension
+        self._bucket_exists()
+        self._check_submission_extension()
 
         # download and extract the submission
         self._download_and_extract_submission_from_s3()
@@ -81,6 +85,52 @@ class Main:
         # clean up sqs queue and s3 validation staging data
         self._delete_s3_objects_with_prefix(self.job_id)
         self._delete_sqs_queue(queue_url)
+
+
+    def _bucket_exists(self):
+        """Helper function that will check if a validation bucket
+        exists.
+
+        :returns: True if bucket exists, False otherwise
+        :raises ClientError: S3 resource exception
+        :rasses ValueError: The validation bucket does not exist
+        """
+        s3 = self.session.resource('s3')
+
+        try:
+            logging.info("Checking if validation bucket %s exists", self.bucket)
+
+            bucket = s3.Bucket(self.bucket)
+            if bucket.creation_date is None:
+                raise ValueError("Validation bucket {0} does not exist".format(self.bucket))
+
+        except ClientError as e:
+            logging.error(e)
+            self._publish_failure_message(e)
+            raise
+        except ValueError as e:
+            logging.error(e)
+            self._publish_failure_message(e)
+            raise
+
+    def _check_submission_extension(self):
+        """Helper function that checks the submission extension is valid before
+        downloading archive from S3. Valid submissions can be archived as .tar.gz, 
+        .tgz, or .zip. 
+
+        :returns: True if submission has valid extension, False otherwise
+        """
+        file_ext = self._get_submission_extension()
+        valid_ext = [".tar.gz", ".tgz", ".zip"]
+
+        try:
+            logging.info("Checking if submission %s is a valid archive type", self.submission)
+            if file_ext not in valid_ext:
+                raise ValueError("Submission {0} is not a valid archive type".format(self.submission))
+        except ValueError as e:
+            logging.error(e)
+            self._publish_failure_message(e)
+            raise
 
 
     def _publish_sns_message(self, message):
@@ -624,95 +674,6 @@ class Main:
             logging.error(e)
 
 
-def check_valid_extension(s3_submission):
-    """Helper function that checks the s3_submission extension is valid before
-    downloading archive from S3. Valid submissions can be archived as .tar.gz, 
-    .tgz, or .zip. 
-
-    :param str s3_submission: The s3 submission download path
-    :returns: True if submission has valid extension, False otherwise
-    :rtype: bool
-    """
-    path = Path(s3_submission)
-    suffixes = path.suffixes
-
-    if len(suffixes) > 1 and suffixes[-1] == '.gz':
-        file_ext = "".join([suffixes[-2], suffixes[-1]])
-    elif len(suffixes) > 1:
-        file_ext = suffixes[-1]
-    elif len(suffixes) == 1:
-        file_ext = suffixes[0]
-
-    valid_ext = [".tar.gz", ".tgz", ".zip"]
-
-    if file_ext in valid_ext:
-        return True
-    return False
-
-
-def bucket_exists(s3_bucket):
-    """Helper function that will check if a S3 bucket exists
-
-    :param str s3_bucket: The S3 bucket that is being checked
-    :returns: True if bucket exists, False otherwise
-    :rtype: bool
-    :raises ClientError: S3 resource exception
-    """
-    s3 = boto3.resource('s3')
-
-    try:
-        bucket = s3.Bucket(s3_bucket)
-        if bucket.creation_date is not None:
-            return True
-        return False
-
-    except ClientError as e:
-        logging.error(e)
-
-
-def validate_envs(envs):
-    """Helper function to validate all of the environment variables exist and are valid before
-    processing starts.
-
-    :param dict envs: Dictionary of all environment variables
-    :returns: True if all environment variables are valid, False otherwise
-    :rtype: bool
-    """
-    for k, v in envs.items():
-        if not is_env_set(k, v):
-            return False
-
-    #check if master sleep interval can be converted to int
-    try:
-        int(envs['MAIN_SLEEP_INTERVAL'])
-    except ValueError:
-        logging.error("Master sleep interval [%s] must be an integer", envs['MAIN_SLEEP_INTERVAL'])
-        return False
-
-    try:
-        int(envs['WORKER_INIT_TIMEOUT'])
-    except ValueError:
-        logging.error("Worker initialization timeout [%s] must be an integer", envs['WORKER_INIT_TIMEOUT'])
-
-    # check the extension of the S3 submission
-    if not check_valid_extension(envs['S3_SUBMISSION_ARCHIVE']):
-        logging.error("S3 submission %s is not a valid archive type", envs['S3_SUBMISSION_ARCHIVE'])
-        return False
-
-    # check that the validation bucket exists
-    if not bucket_exists(envs['S3_VALIDATION_BUCKET']):
-        logging.error("S3 validation bucket %s does not exist", envs['S3_VALIDATION_BUCKET'])
-        return False
-
-    # check debug mode is a bool
-    try:
-        bool(envs['DEBUG'])
-    except ValueError:
-        logging.error('Debug flag [%s] must be a boolean', envs['DEBUG'])
-
-    return True
-
-
 def read_envs():
     """Function will read in all environment variables into a dictionary
 
@@ -720,7 +681,7 @@ def read_envs():
     :rtype: dict
     """
     envs = {}
-    envs['S3_SUBMISSION_ARCHIVE'] = os.environ.get('S3_SUBMISSION_ARCHIVE', 'aida-validation/archives/small_test.zip')
+    envs['S3_SUBMISSION_ARCHIVE'] = os.environ.get('S3_SUBMISSION_ARCHIVE', 'aida-validation/archives/NistExamplesTTL.tar.gz')
     envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
     envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID', 'c8c90aa7-4f33-4729-9e5c-0068cb9ce75c')
     envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX', '0')
@@ -728,9 +689,8 @@ def read_envs():
     envs['WORKER_INIT_TIMEOUT'] = os.environ.get('WORKER_INIT_TIMEOUT', '300')
     envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
     envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN', 'arn:aws:sns:us-east-1:606941321404:aida-validation')
-    envs['AWS_PROFILE'] = os.environ.get('AWS_PROFILE', 'default')
     envs['DEBUG'] = os.environ.get('DEBUG', 'True')
-    envs['DEBUG_TIMEOUT'] = os.environ.get('DEBUG_TIMEOUT', '30')
+    envs['DEBUG_TIMEOUT'] = os.environ.get('DEBUG_TIMEOUT', '600')
     envs['DEBUG_SLEEP_INTERVAL'] = os.environ.get('DEBUG_SLEEP_INTERVAL', '10')
     return envs
 
@@ -764,21 +724,23 @@ def validate_envs(envs: dict):
         logging.error("Worker initialization timeout [%s] must be an integer", envs['WORKER_INIT_TIMEOUT'])
         return False
 
-    # check the extension of the S3 submission
-    if not check_valid_extension(envs['S3_SUBMISSION_ARCHIVE']):
-        logging.error("S3 submission %s is not a valid archive type", envs['S3_SUBMISSION_ARCHIVE'])
-        return False
-
-    # check that the validation bucket exists
-    if not bucket_exists(envs['S3_VALIDATION_BUCKET']):
-        logging.error("S3 validation bucket %s does not exist", envs['S3_VALIDATION_BUCKET'])
-        return False
-
     # check debug mode is a bool
     try:
         bool(envs['DEBUG'])
     except ValueError:
         logging.error("Debug flag [%s] must be a boolean", envs['DEBUG'])
+        return False
+
+    try:
+        int(envs['DEBUG_TIMEOUT'])
+    except ValueError:
+        logging.error("Debug timeout [%s] must be a integer", envs['DEBUG_TIMEOUT'])
+        return False
+
+    try:
+        int(envs['DEBUG_SLEEP_INTERVAL'])
+    except ValueError:
+        logging.error("Debug sleep interval [%s] must be a integer", envs['DEBUG_SLEEP_INTERVALs'])
         return False
 
     return True
@@ -798,8 +760,6 @@ def is_env_set(env, value):
     logging.info("Environment variable %s is set to %s", env, value)
     return True
 
-class EnvironmentVariableValidationError(Exception):
-    pass
 
 def main():
 
@@ -815,7 +775,7 @@ def main():
         main.run()
 
     else:
-        raise EnvironmentVariableValidationError("Exception occured when validating environment variables") 
+        raise ValueError("Exception occured when validating environment variables") 
 
 
 if __name__ == "__main__": main()
