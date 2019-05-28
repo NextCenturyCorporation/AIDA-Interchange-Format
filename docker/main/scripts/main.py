@@ -700,8 +700,8 @@ class Main:
         :param str results_archive: The name of the final results archive that will be 
             uploaded to s3. 
         """
-        report = "The validation of {0} with job_id {1} has completed. {2} .ttl were files extracted " \
-            .format(self.submission, self.job_id, self.extracted) + " from the submission." \
+        report = "The validation of {0} with job id: {1} has completed. {2} .ttl were files extracted " \
+            .format(Path(self.submission).name, self.job_id, self.extracted) + " from the submission." \
             + self.verification + "\n\nValidation Summary\n------------------\n" \
             
 
