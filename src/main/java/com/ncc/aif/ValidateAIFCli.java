@@ -5,11 +5,13 @@ import ch.qos.logback.classic.Logger;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
+import com.google.common.io.Resources;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
+import org.topbraid.jenax.progress.ProgressMonitor;
 import org.topbraid.jenax.statistics.ExecStatistics;
 import org.topbraid.jenax.statistics.ExecStatisticsListener;
 import org.topbraid.jenax.statistics.ExecStatisticsManager;
@@ -35,11 +37,10 @@ import java.util.concurrent.Callable;
 @CommandLine.Command(name = "validateAIF",
         sortOptions = false,
         synopsisHeading = "%nUsage: ",
-        descriptionHeading = "%nDescription: ",
+        descriptionHeading = "%nDescription:%n  ",
         optionListHeading = "%nOptions:%n",
-        description = "Used to validate Turtle files with extension .ttl",
-        mixinStandardHelpOptions = true,
-        version = "1.1.0")
+        description = "Validate AIDA Interchange Format (AIF) Turtle files with extension .ttl",
+        versionProvider = ValidateAIFCli.PropertyVersionProvider.class)
 public class ValidateAIFCli implements Callable<Integer> {
 
     // Program return codes from the AIF Validator.
@@ -58,6 +59,9 @@ public class ValidateAIFCli implements Callable<Integer> {
     static final String ERR_SMALLER_THAN_MIN = "%s must be at least %d";
     // Logging strings
     static final String START_MSG = "AIF Validator";
+    // Version
+    static final String VERSION_FILE = "com/ncc/aif/version.properties";
+    static final String VERSION_PROPERTY = "version";
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     // Internal Constants
@@ -78,7 +82,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     // Command Line Arguments
     // ----------------------------
     private int argCounter = 1;
-    //TODO: make ArgGroup when 4.0 is stable
+    //TODO: When picocli 4.0 is stable, make this an ArgGroup to enforce mutual exclusivity
     @Option(names = "--ldc", description = "Validate against the LDC ontology")
     private boolean useLDCOntology;
 
@@ -89,18 +93,26 @@ public class ValidateAIFCli implements Callable<Integer> {
             paramLabel = "FILE", arity = "1..*")
     private List<File> customOntologies;
 
-    //TODO: make ArgGroup when 4.0 is stable
+    //TODO: When picocli 4.0 is stable, make this an ArgGroup to enforce mutual exclusivity
     @Option(names = "--nist", description = "Validate against the NIST restrictions")
     private boolean useNISTRestriction;
 
     @Option(names = "--nist-ta3", description = "Validate against the NIST hypothesis restrictions (implies --nist)")
     private boolean useNISTTA3Rescriction;
 
-    @Option(names = "-o", description = "Save validation report model to a file.  KB.ttl would result in KB-report.txt.")
-    private boolean outputToFile;
-
-    @Option(names = "--abort", description = "Abort validation after [num] SHACL violations (num > 2), or 3 violations if [num] is omitted.", paramLabel = "num")
+    @Option(names = "--abort", description = "Abort validation after [num] SHACL violations (num > 2), or 3 violations if [num] is omitted.",
+            paramLabel = "num", arity = "0..1", converter = MaxErrorConverter.class)
     private int maxValidationErrors = DEFAULT_MAX_VIOLATIONS;
+    private static class MaxErrorConverter implements CommandLine.ITypeConverter<Integer> {
+        @Override
+        public Integer convert(String value) {
+            try {
+                return "".equals(value) ? MINIMUM_MAX_VIOLATIONS : Integer.parseInt(value);
+            } catch (Exception ex) {
+                throw new CommandLine.TypeConversionException(String.format("'%s' is not an %s", value, Integer.TYPE.getSimpleName()));
+            }
+        }
+    }
 
     @Option(names = "--pm", description = "Enable progress monitor that shows ongoing validation progress")
     private boolean useProgressMonitor;
@@ -111,16 +123,25 @@ public class ValidateAIFCli implements Callable<Integer> {
     @Option(names = "--p2", description = "Enable progressive profiling", hidden = true)
     private boolean useProgressiveProfiling;
 
+    @Option(names = "-o", description = "Save validation report model to a file.  KB.ttl would result in KB-report.txt.")
+    private boolean outputToFile;
+
     @Option(names = "-t", description = "Specify the number of threads to use during validation", paramLabel = "num")
     private int threads = MINIMUM_THREAD_COUNT;
 
-    //TODO: make ArgGroup when 4.0 is stable
+    //TODO: When picocli 4.0 is stable, make this an ArgGroup to enforce mutual exclusivity
     @Option(names = "-d", description = "Validate all .ttl files in the specified directory", paramLabel = "DIRNAME")
     private File directory;
 
     @Option(names = "-f", description = "Validate the specified file(s) with a .ttl suffix", paramLabel = "FILE",
             arity = "1..*")
     private List<File> files;
+
+    @Option(names = { "-h", "--help" }, usageHelp = true, description = "This help and usage text")
+    boolean help;
+
+    @Option(names = { "-v", "--version" }, versionHelp = true, description = "Print the validator version")
+    boolean version;
 
     @Spec
     private CommandLine.Model.CommandSpec spec;
@@ -130,7 +151,13 @@ public class ValidateAIFCli implements Callable<Integer> {
     }
 
     public static int execute(String[] args) {
-        Integer result = CommandLine.call(new ValidateAIFCli(), args);
+        CommandLine cmd = new CommandLine(new ValidateAIFCli());
+        cmd.setUsageHelpWidth(76);
+        CommandLine.Help.Ansi ansi = CommandLine.Help.Ansi.AUTO;
+        List<Object> results = cmd.parseWithHandlers(
+                new CommandLine.RunLast().useOut(System.out).useAnsi(ansi),
+                new CommandLine.DefaultExceptionHandler<List<Object>>().useErr(System.err).useAnsi(ansi), args);
+        Integer result = (results == null || results.isEmpty()) ? null : (Integer) results.get(0);
         return result == null ? ReturnCode.USAGE_ERROR.ordinal() : result;
     }
 
@@ -147,7 +174,11 @@ public class ValidateAIFCli implements Callable<Integer> {
         if (abortSet) {
             checkMinimum(maxValidationErrors, ABORT_PARAMETER_STRING, MINIMUM_MAX_VIOLATIONS);
         }
-        checkMinimum(threads, THREAD_COUNT_STRING, MINIMUM_THREAD_COUNT);
+
+        boolean threadSet = threads != MINIMUM_THREAD_COUNT;
+        if (threadSet) {
+            checkMinimum(threads, THREAD_COUNT_STRING, MINIMUM_THREAD_COUNT);
+        }
 
         // Prevent too much logging from obscuring the actual problems.
         logger.setLevel(Level.INFO);
@@ -186,7 +217,6 @@ public class ValidateAIFCli implements Callable<Integer> {
             return ReturnCode.FILE_ERROR.ordinal();
         }
 
-        validator.setThreadCount(threads);
         boolean hasFiles = files != null;
 
         // Collect the file(s) to be validated.
@@ -238,6 +268,10 @@ public class ValidateAIFCli implements Callable<Integer> {
             logger.info("-> Validation will abort after " + maxValidationErrors + " SHACL violation(s).");
             validator.setAbortThreshold(maxValidationErrors);
         }
+        if (threadSet) {
+            logger.info("-> Validation will use " + threads + " threads.");
+            validator.setThreadCount(threads);
+        }
         if (outputToFile) {
             logger.info("-> Validation report for invalid KBs will be saved to <kbname>-report.txt.");
         } else {
@@ -263,7 +297,7 @@ public class ValidateAIFCli implements Callable<Integer> {
             Date date = Calendar.getInstance().getTime();
             logger.info("-> Validating " + fileToValidate + " at " + format.format(date) +
                     " (" + ++fileNum + " of " + filesToValidate.size() + ").");
-            final Model dataToBeValidated = ModelFactory.createOntologyModel();
+            final Model dataToBeValidated = ModelFactory.createDefaultModel();
             boolean notSkipped = ((restriction != ValidateAIF.Restriction.NIST_TA3) || checkHypothesisSize(fileToValidate))
                     && loadFile(dataToBeValidated, fileToValidate);
             if (notSkipped) {
@@ -271,7 +305,15 @@ public class ValidateAIFCli implements Callable<Integer> {
                     stats.startCollection();
                 }
                 if (useProgressMonitor) {
-                    validator.setProgressMonitor(fileToValidate.getName().replace(".ttl", ""));
+                    String filename = fileToValidate.getName().replace(".ttl", "") + "-progress.tab";
+                    ProgressMonitor pm;
+                    try {
+                        pm = new AIFProgressMonitor(filename);
+                    } catch (IOException e) {
+                        pm = new AIFProgressMonitor();
+                        logger.warn("Could not open progress monitor filename {}.  Writing progress to StdOut.", filename);
+                    }
+                    validator.setProgressMonitor(pm);
                 }
                 final Resource report = validator.validateKBAndReturnReport(dataToBeValidated);
                 if (profiling) {
@@ -410,6 +452,15 @@ public class ValidateAIFCli implements Callable<Integer> {
             return ReturnCode.VALIDATION_ERROR;
         } else {
             return skipCount == 0 ? ReturnCode.SUCCESS : ReturnCode.FILE_ERROR;
+        }
+    }
+
+    public static class PropertyVersionProvider implements CommandLine.IVersionProvider {
+        @Override
+        public String[] getVersion() throws Exception {
+            Properties props = new Properties();
+            props.load(Resources.getResource(VERSION_FILE).openStream());
+            return new String[]{props.getProperty(VERSION_PROPERTY)};
         }
     }
 

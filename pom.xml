@@ -130,6 +130,7 @@
                 </execution>
               </executions>
             </plugin>
+            <!-- to create executable -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>appassembler-maven-plugin</artifactId>
@@ -165,9 +166,20 @@
                         <artifactId>junit-jupiter-engine</artifactId>
                         <version>5.2.0</version>
                     </dependency>
-
                 </dependencies>
             </plugin>
+            <!-- to capture version -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+            </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 </project>

@@ -1,9 +1,12 @@
 package com.ncc.aif;
 
+import com.google.common.io.Resources;
 import org.junit.jupiter.api.*;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,9 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ValidateCLITest {
     private static final boolean SHOW_OUTPUT = false;
-    PrintStream oldOut;
-    PrintStream oldErr;
-    ByteArrayOutputStream baos;
+    private PrintStream oldOut;
+    private PrintStream oldErr;
+    private ByteArrayOutputStream baos;
 
     private void expect(String shouldContain, ValidateAIFCli.ReturnCode code, String... args) {
         int result = ValidateAIFCli.execute(args);
@@ -51,6 +54,13 @@ public class ValidateCLITest {
         PrintStream out = new PrintStream(baos);
         System.setOut(out);
         System.setErr(out);
+    }
+
+    @Test
+    void version() throws IOException {
+        Properties props = new Properties();
+        props.load(Resources.getResource(ValidateAIFCli.VERSION_FILE).openStream());
+        expectUsageError(props.getProperty(ValidateAIFCli.VERSION_PROPERTY), "-v");
     }
 
     @Nested
@@ -91,6 +101,11 @@ public class ValidateCLITest {
         void correctThreshold() {
             expectCorrect("--ldc", "--abort", "4", "-f", "tmp.ttl");
         }
+
+        @Test
+        void correctThresholdWithoutValue() {
+            expectCorrect("--ldc", "--abort", "-f", "tmp.ttl");
+        }
     }
 
     @Nested
@@ -124,6 +139,23 @@ public class ValidateCLITest {
         @Test
         void missingFileArguments() {
             expectUsageError(ValidateAIFCli.ERR_MISSING_FILE_FLAG,"--ldc");
+        }
+        @Test
+        void missingSpecifiedFile() {
+            expectUsageError("Expected parameter for option","-f", "--ldc");
+        }
+        @Disabled("Bug in picocli where this is valid. Not using assertNoMissingMandatoryParameter")
+        @Test
+        void missingSpecifiedDirectory() {
+            expectUsageError(ValidateAIFCli.ERR_MISSING_FILE_FLAG,"-d", "--ldc", "--program");
+        }
+    }
+
+    @Nested
+    class CombinedArguments {
+        @Test
+        void correctCombinedArguments() {
+            expectCorrect("--ldc", "-op", "-f", "tmp.ttl");
         }
     }
 }
