@@ -90,7 +90,7 @@ class Main:
 
         :returns: True if bucket exists, False otherwise
         :raises ClientError: S3 resource exception
-        :rasses ValueError: The validation bucket does not exist
+        :raises ValueError: The validation bucket does not exist
         """
         s3 = self.session.resource('s3')
 
@@ -117,6 +117,7 @@ class Main:
         .tgz, or .zip. 
 
         :returns: True if submission has valid extension, False otherwise
+        :raises ValueError: The submission extension type is invalid
         """
         file_ext = self._get_submission_extension()
         valid_ext = [".tar.gz", ".tgz", ".zip"]
