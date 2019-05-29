@@ -376,7 +376,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     }
 
     private void checkMinimum(int value, String name, int atLeast) {
-        // Enforce mutual exclusion for domain ontologies
+        // Enforce minimum values for certain parameters
         if (value < atLeast) {
             throw new CommandLine.ParameterException(spec.commandLine(),
                     String.format(ERR_SMALLER_THAN_MIN, name, atLeast));
