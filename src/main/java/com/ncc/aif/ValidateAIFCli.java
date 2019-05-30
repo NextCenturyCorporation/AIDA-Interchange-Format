@@ -126,7 +126,8 @@ public class ValidateAIFCli implements Callable<Integer> {
     @Option(names = "-o", description = "Save validation report model to a file.  KB.ttl would result in KB-report.txt.")
     private boolean outputToFile;
 
-    @Option(names = "-t", description = "Specify the number of threads to use during validation", paramLabel = "num")
+    @Option(names = "-t", description = "Specify the number of threads to use during validation. As the threaded validator" +
+            " doesn't currently support adding a progress monitor, this disables the --pm option.", paramLabel = "num")
     private int threads = MINIMUM_THREAD_COUNT;
 
     //TODO: When picocli 4.0 is stable, make this an ArgGroup to enforce mutual exclusivity

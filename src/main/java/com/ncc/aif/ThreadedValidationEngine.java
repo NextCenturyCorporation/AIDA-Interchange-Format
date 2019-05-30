@@ -73,14 +73,14 @@ public class ThreadedValidationEngine extends ValidationEngine {
         result.addProperty(SH.resultSeverity, constraint.getShapeResource().getSeverity());
         result.addProperty(SH.sourceConstraintComponent, constraint.getComponent());
         result.addProperty(SH.sourceShape, constraint.getShapeResource());
-        if(focusNode != null) {
+        if (focusNode != null) {
             result.addProperty(SH.focusNode, focusNode);
         }
 
         // check whether this thread has enough violations to trigger exception
         if (constraint.getShapeResource().getSeverity() == SH.Violation) {
             int violations = threadViolations.get() + 1;
-            throwMaxiumNumberViolationsIfReached(violations);
+            throwMaximumNumberViolationsIfReached(violations);
             threadViolations.set(violations);
         }
 
@@ -93,7 +93,7 @@ public class ThreadedValidationEngine extends ValidationEngine {
         focusNodeFilter = value;
     }
 
-    private void throwMaxiumNumberViolationsIfReached(int violations) {
+    private void throwMaximumNumberViolationsIfReached(int violations) {
         ValidationEngineConfiguration config = getConfiguration();
         if (config.getValidationErrorBatch() != -1 && violations >= config.getValidationErrorBatch()) {
             throw new MaximumNumberViolations(violations);
@@ -102,21 +102,25 @@ public class ThreadedValidationEngine extends ValidationEngine {
 
     public Resource validateAll(ExecutorService executor) throws InterruptedException, ExecutionException {
         List<Shape> rootShapes = shapesGraph.getRootShapes();
-        if(monitor != null) {
-            monitor.beginTask("Validating " + rootShapes.size() + " shapes", rootShapes.size());
-        }
+        //TODO: Add monitor support for threaded validator. Experience NPE with AIFProgressMonitor
+//        if (monitor != null) {
+//            monitor.beginTask("Validating " + rootShapes.size() + " shapes", rootShapes.size());
+//        }
 
         int i = 0;
-        for(Shape shape : rootShapes) {
+        for (Shape shape : rootShapes) {
             validationMetadata.add(executor.submit(getTask(shape, i++, executor)));
         }
 
         Map<String, Model> models = new HashMap<>();
         int violations = 0;
         for (Future<ValidationMetadata> future : validationMetadata) {
+            if (executor.isShutdown()) {
+                break;
+            }
             ValidationMetadata md = future.get();
             models.computeIfAbsent(md.threadName, key -> md.model);
-            throwMaxiumNumberViolationsIfReached(violations += md.violations);
+            throwMaximumNumberViolationsIfReached(violations += md.violations);
         }
 
         Resource report = getReport();
@@ -133,15 +137,15 @@ public class ThreadedValidationEngine extends ValidationEngine {
         return () -> {
             long start = System.currentTimeMillis();
             boolean nested = SHACLScriptEngineManager.begin();
-            if(monitor != null) {
-                monitor.subTask("Shape " + id + ": " + getLabelFunction().apply(shape.getShapeResource()));
-            }
+//            if (monitor != null) {
+//                monitor.subTask("Shape " + id + ": " + getLabelFunction().apply(shape.getShapeResource()));
+//            }
 
             int targetCount = 0;
             int filteredCount = 0;
             threadViolations.set(0);
             boolean ignored = shapesGraph.isIgnored(shape.getShapeResource().asNode());
-            if(!ignored) {
+            if (!ignored) {
                 List<RDFNode> focusNodes = SHACLUtil.getTargetNodes(shape.getShapeResource(), dataset);
                 targetCount = focusNodes.size();
 
@@ -150,22 +154,24 @@ public class ThreadedValidationEngine extends ValidationEngine {
                         focusNodes;
                 filteredCount = filtered.size();
 
-                if(!filtered.isEmpty()) {
-                    for(Constraint constraint : shape.getConstraints()) {
+                if (!filtered.isEmpty()) {
+                    for (Constraint constraint : shape.getConstraints()) {
                         try {
                             validateNodesAgainstConstraint(filtered, constraint);
                         } catch (MaximumNumberViolations e) {
-                            executor.shutdownNow();
+                            if (!executor.isShutdown()) {
+                                executor.shutdownNow();
+                            }
                         }
                     }
                 }
             }
-            if(monitor != null) {
-                monitor.worked(id);
-                if (monitor.isCanceled()) {
-                    executor.shutdownNow();
-                }
-            }
+//            if (monitor != null) {
+//                monitor.worked(id);
+//                if (monitor.isCanceled() && !executor.isShutdown()) {
+//                    executor.shutdownNow();
+//                }
+//            }
             SHACLScriptEngineManager.end(nested);
             return new ValidationMetadata(
                     Thread.currentThread().getName(),

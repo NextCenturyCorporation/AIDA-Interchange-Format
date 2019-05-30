@@ -183,7 +183,9 @@ public final class ValidateAIF {
     }
 
     /**
-     * Tells the validator to use the specified number of threads during validation
+     * Tells the validator to use the specified number of threads during validation.
+     * Currently, {@link ThreadedValidationEngine} does not support a {@link ProgressMonitor}. Setting this to
+     * anything other than 1 will disable progress monitoring.
      *
      * @param threadCount number of threads to use during validation
      */
@@ -283,6 +285,7 @@ public final class ValidateAIF {
                 .setValidationErrorBatch(abortThreshold);
         if (executor != null) {
             ThreadedValidationEngine engine = ThreadedValidationEngine.createValidationEngine(unionModel, shacl, config);
+            engine.setProgressMonitor(progressMonitor);
             try {
                 engine.applyEntailments();
                 engine.validateAll(executor);
