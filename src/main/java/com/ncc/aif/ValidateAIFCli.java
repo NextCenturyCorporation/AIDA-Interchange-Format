@@ -327,9 +327,9 @@ public class ValidateAIFCli implements Callable<Integer> {
                 } else if (!ValidateAIF.isValidReport(report)) {
                     invalidCount++;
                     final int numViolations = processReport(report, fileToValidate, outputToFile);
-                    if (numViolations == maxValidationErrors) {
+                    if (numViolations == maxValidationErrors || report.hasProperty(ThreadedValidationEngine.SH_ABORTED)) {
                         logger.warn("---> Validation of " + fileToValidate +
-                                " was aborted after " + maxValidationErrors + " SHACL violations.");
+                                " was aborted after " + numViolations + " SHACL violations.");
                         abortCount++;
                     } else {
                         logger.warn("---> Validation of " + fileToValidate + " failed.");

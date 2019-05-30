@@ -1,12 +1,10 @@
 package com.ncc.aif;
 
 import org.apache.jena.query.Dataset;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.RDF;
 import org.topbraid.jenax.util.ARQFactory;
+import org.topbraid.jenax.util.JenaDatatypes;
 import org.topbraid.shacl.arq.SHACLFunctions;
 import org.topbraid.shacl.engine.Constraint;
 import org.topbraid.shacl.engine.Shape;
@@ -29,6 +27,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ThreadedValidationEngine extends ValidationEngine {
+    public static Property SH_ABORTED = ResourceFactory.createProperty(SH.NS, "aborted");
+
     private List<Future<ValidationMetadata>> validationMetadata = new LinkedList<>();
     private ThreadLocal<Model> threadModel = ThreadLocal.withInitial(ModelFactory::createDefaultModel);
     private ThreadLocal<Integer> threadViolations = ThreadLocal.withInitial(() -> 0);
@@ -80,8 +80,10 @@ public class ThreadedValidationEngine extends ValidationEngine {
         // check whether this thread has enough violations to trigger exception
         if (constraint.getShapeResource().getSeverity() == SH.Violation) {
             int violations = threadViolations.get() + 1;
-            throwMaximumNumberViolationsIfReached(violations);
             threadViolations.set(violations);
+            if (exceedsMaximumNumberViolations(violations)) {
+                throw new MaximumNumberViolations(violations);
+            }
         }
 
         return result;
@@ -93,11 +95,9 @@ public class ThreadedValidationEngine extends ValidationEngine {
         focusNodeFilter = value;
     }
 
-    private void throwMaximumNumberViolationsIfReached(int violations) {
-        ValidationEngineConfiguration config = getConfiguration();
-        if (config.getValidationErrorBatch() != -1 && violations >= config.getValidationErrorBatch()) {
-            throw new MaximumNumberViolations(violations);
-        }
+    private boolean exceedsMaximumNumberViolations(int violations) {
+        int errorBatch = getConfiguration().getValidationErrorBatch();
+        return errorBatch != -1 && violations >= errorBatch;
     }
 
     public Resource validateAll(ExecutorService executor) throws InterruptedException, ExecutionException {
@@ -112,15 +112,19 @@ public class ThreadedValidationEngine extends ValidationEngine {
             validationMetadata.add(executor.submit(getTask(shape, i++, executor)));
         }
 
+        // Go through all futures and get md for those that have completed
         Map<String, Model> models = new HashMap<>();
         int violations = 0;
         for (Future<ValidationMetadata> future : validationMetadata) {
-            if (executor.isShutdown()) {
-                break;
+            if (!executor.isShutdown() || future.isDone()) {
+                ValidationMetadata md = future.get();
+                models.computeIfAbsent(md.threadName, key -> md.model);
+                //TODO: shutdown if violations exceed maximum
+                violations += md.violations;
+                if (exceedsMaximumNumberViolations(violations) && !executor.isShutdown()) {
+                    executor.shutdownNow();
+                }
             }
-            ValidationMetadata md = future.get();
-            models.computeIfAbsent(md.threadName, key -> md.model);
-            throwMaximumNumberViolationsIfReached(violations += md.violations);
         }
 
         Resource report = getReport();
@@ -130,10 +134,15 @@ public class ThreadedValidationEngine extends ValidationEngine {
                 .forEachRemaining(result -> report.addProperty(SH.result, result));
 
         updateConforms();
+
+        if (exceedsMaximumNumberViolations(violations)) {
+            report.addProperty(SH_ABORTED, JenaDatatypes.TRUE);
+        }
+
         return report;
     }
 
-    public Callable<ValidationMetadata> getTask(Shape shape, int id, ExecutorService executor) {
+    private Callable<ValidationMetadata> getTask(Shape shape, int id, ExecutorService executor) {
         return () -> {
             long start = System.currentTimeMillis();
             boolean nested = SHACLScriptEngineManager.begin();
