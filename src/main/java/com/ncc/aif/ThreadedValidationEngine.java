@@ -26,7 +26,14 @@ import java.util.concurrent.Future;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Extends {@link ValidationEngine} with the {@link #validateAll(ExecutorService)} method. It acts as a
+ * {@link ValidationEngine} in all other respects
+ *
+ * @author Edward Curley
+ */
 public class ThreadedValidationEngine extends ValidationEngine {
+    //TODO: come up with better property (topbraid?)
     public static Property SH_ABORTED = ResourceFactory.createProperty(SH.NS, "aborted");
 
     private List<Future<ValidationMetadata>> validationMetadata = new LinkedList<>();
@@ -38,6 +45,10 @@ public class ThreadedValidationEngine extends ValidationEngine {
         super(dataset, shapesGraphURI, shapesGraph, null);
     }
 
+    /**
+     * Contains statistics for each shape's validation. Used largely for debugging. Should probably be removed when
+     * progress monitoring is handled correctly.
+     */
     public static class ValidationMetadata {
         public String threadName;
         public String shapeName;
@@ -100,6 +111,17 @@ public class ThreadedValidationEngine extends ValidationEngine {
         return errorBatch != -1 && violations >= errorBatch;
     }
 
+    /**
+     * Validates all target nodes against all of their shapes. The provided {@code executor} is used to provide
+     * processing for each shape. This allows the user some control over the environment in which each shape is processed.
+     *
+     * To further narrow down which nodes to validate, use {@link #setFocusNodeFilter(Predicate)}.
+     *
+     * @param executor {@link ExecutorService} to send jobs to
+     * @return an instance of sh:ValidationReport in the results Model
+     * @throws InterruptedException when {@link Future#get()} experiences {@link InterruptedException}
+     * @throws ExecutionException when {@link Future#get()} experiences {@link ExecutionException}
+     */
     public Resource validateAll(ExecutorService executor) throws InterruptedException, ExecutionException {
         List<Shape> rootShapes = shapesGraph.getRootShapes();
         //TODO: Add monitor support for threaded validator. Experience NPE with AIFProgressMonitor
@@ -119,7 +141,6 @@ public class ThreadedValidationEngine extends ValidationEngine {
             if (!executor.isShutdown() || future.isDone()) {
                 ValidationMetadata md = future.get();
                 models.computeIfAbsent(md.threadName, key -> md.model);
-                //TODO: shutdown if violations exceed maximum
                 violations += md.violations;
                 if (exceedsMaximumNumberViolations(violations) && !executor.isShutdown()) {
                     executor.shutdownNow();
@@ -198,6 +219,9 @@ public class ThreadedValidationEngine extends ValidationEngine {
         return validationMetadata;
     }
 
+    /**
+     * Mimics {@link ValidationUtil#createValidationEngine(Model, Model, ValidationEngineConfiguration)}
+     */
     public static ThreadedValidationEngine createValidationEngine(Model dataModel, Model shapesModel,
                                                                   ValidationEngineConfiguration configuration) {
 
