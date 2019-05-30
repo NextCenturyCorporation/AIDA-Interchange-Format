@@ -68,7 +68,7 @@ Usage:  <br>
 |`--ont=FILE ...` | validate against the OWL-formatted ontolog(ies) at the specified filename(s) |
 |`--nist` | validate against the NIST restrictions |
 |`--nist-ta3` | validate against the NIST hypothesis restrictions (implies `--nist`) |
-|`--abort=[num]` | Abort validation after `[num]` SHACL violations (num > 2), or three violations if `[num]` is omitted. |
+|`--abort[=num]` | Abort validation after `[num]` SHACL violations (num > 2), or three violations if `[num]` is omitted. |
 |`--pm` | Enable progress monitor that shows ongoing validation progress |
 |`-o` | Save validation report model to a file.  `KB.ttl` would result in `KB-report.txt`. Output defaults to stderr. |
 |`-t=num` | Specify the number of threads to use during validation. As the threaded validator doesn't currently support adding a progress monitor, this disables the --pm option. |
