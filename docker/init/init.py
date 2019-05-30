@@ -61,9 +61,9 @@ def download_and_extract_submission_from_s3(session, submission):
 	        raise ValueError(err)
 
 	    # check for duplicates
-	    if len(ttls) != len(set(ttls)):
-	        err = "Duplicate files with .ttl extension found in S3 submission {0}".format(file_name)
-	        raise ValueError(err)
+	    #if len(ttls) != len(set(ttls)):
+	    #    err = "Duplicate files with .ttl extension found in S3 submission {0}".format(file_name)
+	    #    raise ValueError(err)
 
 	    return uid
 
@@ -73,6 +73,29 @@ def download_and_extract_submission_from_s3(session, submission):
 	except ValueError as e:
 	    logging.error(e)
 	    raise
+
+
+def upload_file_to_s3(session, filepath, bucket, prefix=None):
+    """Helper function to upload single file to S3 bucket with specified prefix
+
+    :param str filepath: The local path of the file to be uploaded
+    :param str bucket: The S3 bucket to upload file to
+    :param str prefix: The prefix to be added to the file name
+    :raises ClientError: S3 client exception
+    """
+    s3_client = session.client('s3')
+
+    try:
+        if prefix is not None:
+            s3_object = '/'.join([prefix, Path(filepath).name])
+        else:
+            s3_object = Path(filepath).name
+
+        logging.info("Uploading %s to bucket %s with prefix", s3_object, bucket)
+        s3_client.upload_file(str(filepath), bucket, s3_object)
+
+    except ClientError as e:
+        logging.error(e)
 
 
 def get_submission_paths(submission):
@@ -173,26 +196,69 @@ def get_task_type(stem):
 		raise ValueError("Invalid submission format. Could not extract task type with submission stem %s", stem) 
 
 
-def validate_and_upload(session, directory, task):
-	"""Validates directory structure of task type and then uploads contents to s3
+def validate_and_upload(session, directory, task, bucket, prefix):
+	"""Validates directory structure of task type and then uploads contents to s3. Will return a dictionary
+	of the jobs that need to be executed on batch with their corresponding s3 locations.
 
 	:param Session session: The boto3 session
 	:param str directory: The local directory containing the donwloaded contents of
 		the submission
 	:param Task task: The task enum that representing the task type of the submission
-	:raises ValueError: If the 
+	:param str bucket: The S3 bucket
+	:param str prefix: The prefix to append to all objects uploaded to the S3 bucket
+	:returns: List of dictionary objects representing the aws batch jobs that need to be executed
+	:rtype: List
 	"""
-	if task == Task.one:
+	logging.info("Validating submission as task type %s", task.value)
+	task_type = str(task.value)
+	jobs = []
 
+	if task == Task.one or task == Task.two:
+
+		# NIST direcotry required, do not upload INTER-TA if NIST does not exist
 		if not check_nist_directory(directory):
 			logging.error("Task 1 submission format is invalid. Could not locate NIST directory")
+		else:
+			jobs.append(upload_formatted_submission(session, directory, bucket, prefix, 'NIST'))
 
-	elif task == Task.two:
+			# INTER-TA directory **not required**
+			if check_inter_ta_directory(directory):
+				jobs.append(upload_formatted_submission(session, directory, bucket, prefix, 'INTER-TA'))
+
+		logging.info("AWS Batch jobs to be submitted: %s", jobs)
+		return jobs
 
 	elif task == Task.three:
+		pass
 
 	else:
 		logging.error("Could not validate submission structure for invalid task %s", task)
+
+
+def upload_formatted_submission(session, directory, bucket, prefix, validation_type):
+	"""
+	"""
+	job = {}
+	bucket_prefix = prefix + '-' + validation_type + '/UNPROCESSED'
+	logging.info("Task 1 submission %s directory exists. Uploading .ttl files to %s", 
+		validation_type, bucket + '/' + bucket_prefix)
+
+	ttl_paths = (glob.glob(directory + '/' + validation_type + '/*.ttl', recursive=True))
+
+	ttl_count = 0
+	for path in ttl_paths:
+		upload_file_to_s3(session, path, bucket, bucket_prefix)
+		ttl_count = ttl_count + 1
+
+	if ttl_count == 0:
+		logging.error("No .ttl files found in Task 1 submission %s directory", validation_type)
+
+	# create the batch job information
+	job['validation_flag'] = validation_type
+	job['count'] = ttl_count
+	job['path'] = bucket + '/' + bucket_prefix
+	return job
+		
 
 
 def check_nist_directory(directory):
@@ -217,13 +283,11 @@ def main():
 	# variables 
 	aws_region = 'us-east-1'
 	aws_bucket = 'aida-validation'
-	nist = 'NIST'
-	inter_ta = 'INTER-TA'
 
 	# set logging to info
 	logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO'))
 
-	submission = 'aida-validation-cu-ramfis/GAIA_1.Colorado_1.zip'
+	submission = 'aida-validation/archives/NextCentury_1.zip'
 
 	session = boto3.session.Session(region_name=aws_region)
 
@@ -234,14 +298,12 @@ def main():
 	task = get_task_type(stem)
 	staging_dir = download_and_extract_submission_from_s3(session, submission)
 
-	validate_submission_structure(stating_dir, task)
-
+	# validate structure of submission and upload to S3 
+	validate_and_upload(session, staging_dir, task, aws_bucket, stem)
 
 	# remove staing directory and downloaded submission
 	os.remove(Path(submission).name)
 	shutil.rmtree(staging_dir)
-
-
 
 
 if __name__ == "__main__": main()
