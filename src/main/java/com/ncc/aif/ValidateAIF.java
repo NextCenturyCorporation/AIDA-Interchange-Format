@@ -6,6 +6,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
+import org.apache.jena.ontology.OntModel;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
@@ -151,7 +152,9 @@ public final class ValidateAIF {
             throw new IllegalArgumentException("Must validate against at least one domain ontology.");
         }
 
-        final Model model = ModelFactory.createDefaultModel();
+        final OntModel model = ModelFactory.createOntologyModel();
+        model.addLoadedImport(INTERCHANGE_URI);
+        model.addLoadedImport(AIDA_DOMAIN_COMMON_URI);
 
         // Data will always be interpreted in the context of these two ontology files.
         final ImmutableSet<CharSource> aidaModels = ImmutableSet.of(
@@ -463,7 +466,7 @@ public final class ValidateAIF {
             Date date = Calendar.getInstance().getTime();
             logger.info("-> Validating " + fileToValidate + " at " + format.format(date) +
                     " (" + ++fileNum + " of " + filesToValidate.size() + ").");
-            final Model dataToBeValidated = ModelFactory.createDefaultModel();
+            final OntModel dataToBeValidated = ModelFactory.createOntologyModel();
             boolean notSkipped = ((restriction != Restriction.NIST_HYPOTHESIS) || checkHypothesisSize(fileToValidate))
                     && loadFile(dataToBeValidated, fileToValidate);
             if (notSkipped) {
@@ -541,7 +544,9 @@ public final class ValidateAIF {
     }
 
     // Load the model, or fail trying.  Returns true if it's loaded, otherwise false.
-    private static boolean loadFile(Model dataToBeValidated, File fileToValidate) {
+    private static boolean loadFile(OntModel dataToBeValidated, File fileToValidate) {
+        dataToBeValidated.addLoadedImport(INTERCHANGE_URI);
+        dataToBeValidated.addLoadedImport(AIDA_DOMAIN_COMMON_URI);
         try {
             loadModel(dataToBeValidated, com.google.common.io.Files.asCharSource(fileToValidate, Charsets.UTF_8));
         } catch (RuntimeException rte) {
