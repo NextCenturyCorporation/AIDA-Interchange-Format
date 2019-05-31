@@ -8,6 +8,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.topbraid.shacl.vocabulary.SH;
 
 import static com.ncc.aif.AIFUtils.*;
 
@@ -77,11 +78,13 @@ public class NistTA3ExamplesAndValidationTest {
             void invalidTooMany() {
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge);
                 utils.makeValidTA3Hypothesis(101.0, entity, event, eventEdge);
+                utils.expect(ShaclShapes.SystemShape, SH.SPARQLConstraintComponent, null);
                 utils.testInvalid("NISTHypothesis.invalid (too many): there should be exactly 1 hypothesis");
             }
 
             @Test
             void invalidTooFew() {
+                utils.expect(ShaclShapes.SystemShape, SH.SPARQLConstraintComponent, null);
                 utils.testInvalid("NISTHypothesis.invalid (too few): there should be exactly 1 hypothesis");
             }
 
@@ -103,6 +106,7 @@ public class NistTA3ExamplesAndValidationTest {
                         LDCOntology.PER).getKey();
                 utils.makeValidTA3Hypothesis(entity, newEntity, event, eventEdge);
 
+                utils.expect(null, SH.MinCountConstraintComponent, null);
                 utils.testInvalid("NISTHypothesis.invalid (no handle exists): Each entity cluster in the hypothesis " +
                         "graph must have exactly one handle");
             }
@@ -118,6 +122,7 @@ public class NistTA3ExamplesAndValidationTest {
                 cluster.addProperty(AidaAnnotationOntology.HANDLE, "handle3");
                 utils.makeValidTA3Hypothesis(entity, newEntity, event, eventEdge);
 
+                utils.expect(null, SH.MaxCountConstraintComponent, null);
                 utils.testInvalid("NISTHypothesis.invalid (multiple handles exist): Each entity cluster in the " +
                         "hypothesis graph must have exactly one handle");
             }
@@ -139,6 +144,7 @@ public class NistTA3ExamplesAndValidationTest {
             void invalid() {
                 //invalid hypothesis, no importance value
                 makeHypothesis(model, utils.getHypothesisUri(), ImmutableSet.of(entity, event, eventEdge), system);
+                utils.expect(ShaclShapes.ImportanceRequiredShape, SH.MinCountConstraintComponent, null);
                 utils.testInvalid("NISTHypothesis.invalid (hypothesis has no importance value): Each hypothesis " +
                         "graph must have exactly one hypothesis importance value");
             }
@@ -180,6 +186,7 @@ public class NistTA3ExamplesAndValidationTest {
             void invalidEvent() {
                 //invalid event cluster, no importance value
                 markImportance(relationCluster, 99.0);
+                utils.expect(ShaclShapes.ImportanceRequiredShape, SH.MinCountConstraintComponent, null);
                 utils.testInvalid("NISTHypothesis.invalid (event cluster has no importance value): Each event or " +
                         "relation (cluster) in the hypothesis must have exactly one importance value");
             }
@@ -188,6 +195,7 @@ public class NistTA3ExamplesAndValidationTest {
             void invalidRelation() {
                 //invalid relation cluster, no importance value
                 markImportance(eventCluster, 88.0);
+                utils.expect(ShaclShapes.ImportanceRequiredShape, SH.MinCountConstraintComponent, null);
                 utils.testInvalid("NISTHypothesis.invalid (relation cluster has no importance value): Each event or " +
                         "relation (cluster) in the hypothesis must have exactly one importance value");
             }
@@ -223,6 +231,7 @@ public class NistTA3ExamplesAndValidationTest {
 
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, invalidEventEdge);
 
+                utils.expect(null, TestUtils.XoneConstraintComponent, null);
                 utils.testInvalid("NISTHypothesis.invalid (event edge has no importance value): Each edge KE in the " +
                         "hypothesis graph must have exactly one edge importance value");
             }
@@ -236,6 +245,7 @@ public class NistTA3ExamplesAndValidationTest {
 
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, invalidRelationEdge);
 
+                utils.expect(ShaclShapes.ImportanceRequiredShape, SH.MinCountConstraintComponent, null);
                 utils.testInvalid("NISTHypothesis.invalid (relation edge has no importance value): Each edge KE in the " +
                         "hypothesis graph must have exactly one edge importance value");
             }
@@ -268,6 +278,7 @@ public class NistTA3ExamplesAndValidationTest {
             void invalid() {
                 Resource fakeEntity = model.createResource(utils.getEntityUri());
                 utils.makeValidTA3Hypothesis(fakeEntity, entity, event, eventEdge);
+                utils.expect(null, TestUtils.XoneConstraintComponent, null);
                 utils.testInvalid("NISTHypothesis.invalid (entity is not defined): All KEs referenced by hypothesis " +
                         "must be defined in model");
             }
@@ -297,6 +308,8 @@ public class NistTA3ExamplesAndValidationTest {
 
             @Test
             void invalid() {
+                utils.expect(ShaclShapes.AllKEsReferencedShape, SH.SPARQLConstraintComponent,
+                        ShaclShapes.KEsMustBeReferenced, 2);
                 utils.makeValidTA3Hypothesis(entity, relation, relationEdge);
                 utils.testInvalid("NISTHypothesis.invalid (event and event edge is not referenced in hypothesis): " +
                         "All KEs in model must be referenced by hypothesis");
@@ -323,6 +336,7 @@ public class NistTA3ExamplesAndValidationTest {
                 entity = pair.getKey();
                 entityCluster = pair.getValue();
                 utils.makeValidTA3Hypothesis(entity);
+                utils.expect(ShaclShapes.SystemShape, SH.SPARQLConstraintComponent, null);
                 utils.testInvalid("NISTHypothesis.invalid (no event or relation exists): Each hypothesis graph must " +
                         "have at least one event or relation with at least one edge.");
             }
@@ -338,6 +352,7 @@ public class NistTA3ExamplesAndValidationTest {
                         LDCOntology.Conflict_Attack_Attacker,
                         entity, 102.0);
 
+                utils.expect(null, SH.ClassConstraintComponent, null);
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, invalidRelationEdge);
                 utils.testInvalid("NISTHypothesis.invalid (event has invalid relation edge): Each hypothesis graph " +
                         "must have at least one event or relation with at least one edge.");
@@ -412,6 +427,9 @@ public class NistTA3ExamplesAndValidationTest {
                 markAsPossibleClusterMember(model, eventMember, relationCluster, 1.0, system);
 
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge, eventMember, relation, relationEdge);
+                utils.expect(ShaclShapes.HypothesisClusterMembersShape,
+                        SH.SPARQLConstraintComponent,
+                        ShaclShapes.HypothesisClusterMembersSameAsBaseClass);
                 utils.testInvalid("NISTHypothesis.invalid (event exists in relation cluster): Clusters must be " +
                         "homogeneous by base class (Entity, Event, or Relation).");
             }
