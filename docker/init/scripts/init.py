@@ -321,41 +321,95 @@ def check_inter_ta_directory(directory):
 	"""
 	return os.path.exists(directory + "/" + INTER_TA['directory'])
 
+
+def is_env_set(env, value):
+    """Helper function to check if a specific environment variable is not None
+
+    :param str env: The name of the environment variable
+    :param value: The value of the environment variable
+    :returns: True if environment variable is set, False otherwise
+    :rtype: bool
+    """
+    if not value:
+        logging.error("Environment variable %s is not set", env)
+        return False
+
+    logging.info("Environment variable %s is set to %s", env, value)
+    return True
+
+
+def validate_envs(envs):
+    """Helper function to validate all of the environment variables exist and are valid before
+    processing starts.
+
+    :param dict envs: Dictionary of all environment variables
+    :returns: True if all environment variables are valid, False otherwise
+    :rtype: bool
+    """
+    if not bool(envs):
+        logging.error("No environment variables found")
+        return False
+
+    for k, v in envs.items():
+        if not is_env_set(k, v):
+            return False
+
+    return True
+
+
+def read_envs():
+	"""Function will read in all environment variables into a dictionary
+
+	:returns: Dictionary containing all environment variables or defaults
+	:rtype: dict
+	"""
+	envs = {}
+	envs['S3_SUBMISSION_ARCHIVE_PATH'] = os.environ.get('S3_SUBMISSION_ARCHIVE', 'aida-validation/archives/NextCentury_1.zip')
+	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
+	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
+	return envs
+
+
 def main():
 
-	# variables 
-	aws_region = 'us-east-1'
-	aws_validation_bucket = 'aida-validation'
-	submission = 'aida-validation/archives/NextCentury_1.zip'
-
-	# set logging to info
+	# validate environment variables
+	envs = read_envs()
 	logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO'))
-	session = boto3.session.Session(region_name=aws_region)
 
-	check_submission_extension(submission)
-	stem = get_submission_stem(submission)
-	logging.info("File stem for submission %s is %s", submission, stem)
+	if validate_envs(envs):
 
-	staging_dir = download_and_extract_submission_from_s3(session, submission)
+		# set the boto session
+		session = boto3.session.Session(region_name=envs['AWS_DEFAULT_REGION'])
+		submission = envs['S3_SUBMISSION_ARCHIVE_PATH']
+		check_submission_extension(envs['S3_SUBMISSION_ARCHIVE_PATH'])
 
-	task = get_task_type(stem, staging_dir)
+		stem = get_submission_stem(envs['S3_SUBMISSION_ARCHIVE_PATH'])
+		logging.info("File stem for submission %s is %s", envs['S3_SUBMISSION_ARCHIVE_PATH'], stem)
 
-	# validate structure of submission and upload to S3 
-	jobs = validate_and_upload(session, staging_dir, task, aws_validation_bucket, stem)
+		# download / extract archive and return local directory
+		staging_dir = download_and_extract_submission_from_s3(session, envs['S3_SUBMISSION_ARCHIVE_PATH'])
 
-	if len(jobs) > 0:
-		logging.info("Submit the following jobs to AWS Batch:")
+		# identify the task type for the submission
+		task = get_task_type(stem, staging_dir)
 
-		for idx, job in enumerate(jobs):
-			job['S3_SUBMISSION_ARCHIVE'] = Path(submission).name
-			job['S3_SUBMISSION_TASK'] = task.value
-			logging.info("Job %s: %s", str(idx), str(job))
+		# validate structure of submission and upload to S3 
+		jobs = validate_and_upload(session, staging_dir, task, envs['S3_VALIDATION_BUCKET'], stem)
 
-	# remove staing directory and downloaded submission
-	os.remove(Path(submission).name)
+		# print out enviornment variables that will be set during aws batch submission
+		if len(jobs) > 0:
+			logging.info("Submit the following jobs to AWS Batch:")
 
-	logging.info("Removing %s", staging_dir)
-	shutil.rmtree(staging_dir)
+			for idx, job in enumerate(jobs):
+				job['S3_SUBMISSION_ARCHIVE'] = Path(envs['S3_SUBMISSION_ARCHIVE_PATH']).name
+				job['S3_SUBMISSION_TASK'] = task.value
+				logging.info("Job %s: %s", str(idx), str(job))
+
+		# remove staing directory and downloaded submission
+		os.remove(Path(envs['S3_SUBMISSION_ARCHIVE_PATH']).name)
+		shutil.rmtree(staging_dir)
+
+	else:
+		raise ValueError("Exception occured when validating environment variables") 
 
 
 if __name__ == "__main__": main()
