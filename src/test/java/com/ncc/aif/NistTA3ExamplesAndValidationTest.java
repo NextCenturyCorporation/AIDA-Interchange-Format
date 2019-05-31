@@ -308,9 +308,9 @@ public class NistTA3ExamplesAndValidationTest {
 
             @Test
             void invalid() {
+                utils.makeValidTA3Hypothesis(entity, relation, relationEdge);
                 utils.expect(ShaclShapes.AllKEsReferencedShape, SH.SPARQLConstraintComponent,
                         ShaclShapes.KEsMustBeReferenced, 2);
-                utils.makeValidTA3Hypothesis(entity, relation, relationEdge);
                 utils.testInvalid("NISTHypothesis.invalid (event and event edge is not referenced in hypothesis): " +
                         "All KEs in model must be referenced by hypothesis");
             }

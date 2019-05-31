@@ -89,7 +89,7 @@ public class OntologyGeneration {
 
         if (args.length == 0) {
             String aifRoot = "src/main/resources/com/ncc/aif/";
-            String ontRoot = "ontologies/";
+            String ontRoot = aifRoot + "ontologies/";
             Stream.of(
                     "AidaDomainOntologiesCommon",
                     "EntityOntology",
