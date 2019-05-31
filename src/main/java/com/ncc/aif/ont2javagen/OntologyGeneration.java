@@ -1,16 +1,21 @@
 package com.ncc.aif.ont2javagen;
 
 import org.apache.jena.ontology.*;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.util.FileUtils;
+import org.apache.jena.vocabulary.RDF;
+import org.topbraid.shacl.vocabulary.SH;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -83,7 +88,8 @@ public class OntologyGeneration {
     public static void main(String[] args) {
 
         if (args.length == 0) {
-            String root = "src/main/resources/com/ncc/aif/ontologies/";
+            String aifRoot = "src/main/resources/com/ncc/aif/";
+            String ontRoot = "ontologies/";
             Stream.of(
                     "AidaDomainOntologiesCommon",
                     "EntityOntology",
@@ -92,13 +98,61 @@ public class OntologyGeneration {
                     "LDCOntology",
                     "LDCOwlOntology",
                     "RelationOntology")
-                .map(file -> root + file)
+                .map(file -> ontRoot + file)
                 .forEach(OntologyGeneration::writeJavaFile);
+            writeShaclJavaFile(aifRoot + "aida_ontology.shacl",
+                    aifRoot + "restricted_aif.shacl",
+                    aifRoot + "restricted_hypothesis_aif.shacl");
         } else {
             for (String arg : args) {
                 writeJavaFile(arg);
             }
         }
+    }
+
+    private static void writeShaclJavaFile(String... locations) {
+        Model model = ModelFactory.createDefaultModel();
+        for (String location : locations) {
+            RDFDataMgr.read(model, location, Lang.TURTLE);
+        }
+        SortedSet<Resource> shapes = new TreeSet<>(Comparator.comparing(Resource::getURI));
+        addShapesOfType(model, shapes, SH.NodeShape);
+        addShapesOfType(model, shapes, SH.PropertyShape);
+        addShapesOfType(model, shapes, SH.SPARQLConstraint);
+
+        String className = "ShaclShapes";
+        String outFilename = "src/test/java/com/ncc/aif/" + className + ".java";
+        try {
+            OutputStream stream = Files.newOutputStream(Paths.get(outFilename),
+                    StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+            PrintStream out = new PrintStream(stream,true);
+            out.println("package com.ncc.aif;\n" +
+                    "\nimport org.apache.jena.rdf.model.Resource;\n" +
+                    "import org.apache.jena.rdf.model.ResourceFactory;\n" +
+                    "\n// WARNING. This is a Generated File.  Please do not edit.\n" +
+                    "// This class contains variables generated from SHACL files using the OntologyGeneration Class\n" +
+                    "// Please refer to the README at src/main/java/com/ncc/aif/ont2javagen for more information\n" +
+                    "// Last Generated On: " + new SimpleDateFormat("MM/dd/yyy HH:mm:ss").format(new Date()));
+            out.println("public final class " + className + " {");
+
+            String indent = "    ";
+            out.println(indent + "public static final String NS = AidaAnnotationOntology.NAMESPACE;");
+            for (Resource resource : shapes) {
+                String name = resource.getLocalName();
+                out.println(indent + "public static final Resource " + name + " = ResourceFactory.createResource(NS + \"" + name + "\");");
+            }
+            out.println("}");
+            out.close();
+        } catch (IOException e) {
+            System.err.println("Unable to write to " + outFilename);
+            e.printStackTrace();
+        }
+    }
+
+    private static void addShapesOfType(Model model, Set<Resource> shapes, Resource type) {
+        model.listSubjectsWithProperty(RDF.type, type)
+                .filterKeep(Resource::isURIResource)
+                .forEachRemaining(shapes::add);
     }
 
     // Writes the generated Java classes
