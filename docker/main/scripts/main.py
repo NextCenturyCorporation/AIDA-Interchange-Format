@@ -19,7 +19,8 @@ class Main:
     def __init__(self, envs):
         
         self.bucket = envs['S3_VALIDATION_BUCKET']
-        #self.submission_archive_name = envs['SUBMISSION_ARCHIVE']
+        self.s3_submission_archive = envs['S3_SUBMISSION_ARCHIVE']
+        self.s3_submission_task = envs['S3_SUBMISSION_TASK']
         self.s3_submission_bucket= envs['S3_SUBMISSION_BUCKET']
         self.s3_submission_prefix = envs['S3_SUBMISSION_PREFIX']
         self.job_id = (envs['AWS_BATCH_JOB_ID']).split("#")[0]
@@ -647,6 +648,8 @@ def read_envs():
     envs = {}
     envs['SUBMISSION_ARCHIVE'] = os.environ.get('S3_SUBMISSION_ARCHIVE', 'NextCentury_1.zip')
     envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
+    envs['S3_SUBMISSION_ARCHIVE'] = os.environ.get('S3_SUBSMISSION_ARCHIVE', 'NextCentury_1.tar.gz')
+    envs['S3_SUBMISSION_TASK'] = os.environ.get('S3_SUBMISSION_TASK', '1')
     envs['S3_SUBMISSION_BUCKET'] = os.environ.get('S3_SUBMISSION_BUCKET', 'aida-validation')
     envs['S3_SUBMISSION_PREFIX'] = os.environ.get('S3_SUBMISSION_PREFIX', 'NextCentury_1-NIST')
     envs['RESULT_ARCHIVE_NAME'] = os.environ.get('RESULT_ARCHIVE_NAME', 'NextCentury_1-NIST.tar.gz')

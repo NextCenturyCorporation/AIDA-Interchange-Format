@@ -12,9 +12,10 @@ from enum import Enum
 from botocore.exceptions import ClientError
 
 class Task(Enum):
-	one = 1
-	two = 2
-	three = 3
+	oneA = '1a'
+	oneB = '1b'
+	two = '2'
+	three = '3'
 
 # define all the different directory types and corresponding flags
 NIST = { 'validation': '--ldc --nist -o', 'name': 'nist', 'directory': 'NIST'  }
@@ -177,20 +178,32 @@ def get_submission_stem(submission):
 		return stem
 
 
-def get_task_type(stem):
+def get_task_type(stem, directory):
 	"""Function will determine the task type of the submission based on the naming 
 	convention of the stem.
 
 	:param str stem: The stem of the submission
+	:param str directory: The local directory containing the donwloaded contents of
+		the submission
 	:returns The task type enum of the submission stems
 	:rtype: Enum
 	"""
 	delim_count = stem.count('.')
 
 	if delim_count == 0:
-		return Task.one
+		if check_nist_directory(directory) and check_inter_ta_directory(directory):
+			return Task.oneA
+		elif check_nist(directory):
+			return Task.oneB
+		else:
+			raise ValueError("Invalid Task 1 submission format. Could not locate required %s directory in submission", 
+				NIST['directory']) 
 	elif delim_count == 1:
-		return Task.two
+		if check_nist_directory(directory):
+			return Task.two
+		else:
+			raise ValueError("Invalid Task 2 submission format. Could not locate required %s directory in submission", 
+				NIST['directory']) 
 	elif delim_count == 2:
 		return Task.three
 	else:
@@ -211,25 +224,25 @@ def validate_and_upload(session, directory, task, bucket, prefix):
 	:rtype: List
 	"""
 	logging.info("Validating submission as task type %s", task.value)
-	task_type = str(task.value)
+	task_type = task.value
 	jobs = []
 
-	if task == Task.one or task == Task.two:
+	if task == Task.oneA or task == Task.oneB or task == Task.two:
 
 		# NIST direcotry required, do not upload INTER-TA if NIST does not exist
 		if not check_nist_directory(directory):
 			logging.error("Task 1 submission format is invalid. Could not locate NIST directory")
 		else:
-			jobs.append(upload_formatted_submission(session, archive, directory, bucket, prefix, NIST))
+			jobs.append(upload_formatted_submission(session, directory, bucket, prefix, NIST))
 
 			# INTER-TA directory **not required**
 			if check_inter_ta_directory(directory):
-				jobs.append(upload_formatted_submission(session, archive, directory, bucket, prefix, INTER_TA))
+				jobs.append(upload_formatted_submission(session, directory, bucket, prefix, INTER_TA))
 
 		return jobs
 
 	elif task == Task.three:
-		jobs.append(upload_formatted_submission(session, archive, directory, bucket, prefix, NIST_TA3))
+		jobs.append(upload_formatted_submission(session, directory, bucket, prefix, NIST_TA3))
 
 	else:
 		logging.error("Could not validate submission structure for invalid task %s", task)
@@ -322,17 +335,19 @@ def main():
 	stem = get_submission_stem(submission)
 	logging.info("File stem for submission %s is %s", submission, stem)
 
-	task = get_task_type(stem)
 	staging_dir = download_and_extract_submission_from_s3(session, submission)
+
+	task = get_task_type(stem, staging_dir)
 
 	# validate structure of submission and upload to S3 
 	jobs = validate_and_upload(session, staging_dir, task, aws_validation_bucket, stem)
-	jobs['archive'] = Path(submission).name
 
 	if len(jobs) > 0:
 		logging.info("Submit the following jobs to AWS Batch:")
 
 		for idx, job in enumerate(jobs):
+			job['s3_submission_archive'] = Path(submission).name
+			job['s3_submission_task'] = task.value
 			logging.info("Job %s: %s", str(idx), str(job))
 
 	# remove staing directory and downloaded submission
