@@ -319,7 +319,7 @@ class TestUtils {
     }
 
     /**
-     * Specify that a {@code count} single violation will occur with the specified {@code shape},
+     * Specify that a single violation will occur with the specified {@code shape},
      * {@code constraintComponent}, and {@code constraint}.
      *
      * @param shape               {@link Resource} representing the SHACL shape
