@@ -652,9 +652,8 @@ def read_envs():
     :rtype: dict
     """
     envs = {}
-    envs['SUBMISSION_ARCHIVE'] = os.environ.get('S3_SUBMISSION_ARCHIVE', 'NextCentury_1.zip')
+    envs['S3_SUBMISSION_ARCHIVE'] = os.environ.get('S3_SUBMISSION_ARCHIVE', 'NextCentury_1.zip')
     envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
-    envs['S3_SUBMISSION_ARCHIVE'] = os.environ.get('S3_SUBSMISSION_ARCHIVE', 'NextCentury_1.tar.gz')
     envs['S3_SUBMISSION_TASK'] = os.environ.get('S3_SUBMISSION_TASK', '1a')
     envs['S3_SUBMISSION_EXTRACTED'] = os.environ.get('S3_SUBMISSION_EXTRACTED', '2')
     envs['S3_SUBMISSION_BUCKET'] = os.environ.get('S3_SUBMISSION_BUCKET', 'aida-validation')
