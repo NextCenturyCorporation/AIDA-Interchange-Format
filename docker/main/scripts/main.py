@@ -23,6 +23,7 @@ class Main:
         self.s3_submission_task = envs['S3_SUBMISSION_TASK']
         self.s3_submission_bucket= envs['S3_SUBMISSION_BUCKET']
         self.s3_submission_prefix = envs['S3_SUBMISSION_PREFIX']
+        self.s3_submission_validation_descr = envs['S3_SUBMISSION_VALIDATION_DESCR']
         self.job_id = (envs['AWS_BATCH_JOB_ID']).split("#")[0]
         self.node_index = envs['AWS_BATCH_JOB_NODE_INDEX']
         self.sleep_interval = int(envs['MAIN_SLEEP_INTERVAL'])
@@ -34,15 +35,16 @@ class Main:
         self.debug_sleep_interval = int(envs['DEBUG_SLEEP_INTERVAL'])
         self.source_log = 'sourcelog'
         self.session = boto3.session.Session(region_name=self.aws_region)
-        self.extracted = 0
+        self.extracted = envs['S3_SUBMISSION_EXTRACTED']
         self.verification = None
 
     def run(self):
         """
         """
         # publish message notification that job has started
-        init_msg = "The s3 objects located at {0}/{1} have been submitted for validation with job id {2}." \
-            .format(self.s3_submission_bucket, self.s3_submission_prefix, self.job_id)
+        init_msg = "The task {0} submission {1} has been submitted with {2} .ttl files for {3} validation. " \
+            "The job id associated with this validation is: {4}".format(self.s3_submission_task, self.s3_submission_archive, 
+                self.extracted, self.s3_submission_validation_descr, self.job_id)
         self._publish_sns_message(init_msg)
 
         # TODO should we verify both buckets?
@@ -167,8 +169,9 @@ class Main:
 
         param: str message: The failure message to publish
         """
-        heading = "The validation job {0} with submission {1} failed with the following" \
-             " error: {2}".format(self.job_id, Path(self.submission).name, message)
+        heading = "The job {0} for the task {1} submission {2} failed against {3} validation the with" \
+            " the following error: {4}".format(self.job_id, self.s3_submission_task, self.s3_submission_archive, 
+                self.s3_submission_validation_descr, message)
         self._publish_sns_message(heading)
 
 
@@ -263,10 +266,6 @@ class Main:
         :raises ClientError: S3 resource exception
         """
         s3 = self.session.resource('s3')
-
-        print("s3_source_bucket: " + s3_source_bucket)
-        print("s3_source_key:" + s3_source_key)
-        print("s3_object_dest:" + s3_object_dest)
 
         try:
             copy_source = {
@@ -615,6 +614,7 @@ class Main:
         logging.info("Validation result metrics: %s", metrics)
         return metrics
 
+
     def _create_validation_report(self, metrics, results_archive):
         """Function will generate the final validation report that will be sent in an SNS
         message. 
@@ -623,9 +623,10 @@ class Main:
         :param str results_archive: The name of the final results archive that will be 
             uploaded to s3. 
         """
-        report = "The validation of {0} with job id: {1} has completed. {2} .ttl were files extracted " \
-            .format(Path(self.submission).name, self.job_id, self.extracted) + " from the submission." \
-            + self.verification + "\n\nValidation Summary\n------------------\n" \
+        report = "The {0} validation of the task {1} submission {2} with job id: {3}" \
+        " has completed. " \
+            .format(self.s3_submission_validation_descr, self.s3_submission_task, self.s3_submission_archive, 
+                self.job_id, self.extracted) + "\n\nValidation Summary\n----------------------\n" \
             
 
         report += "VALID: " + str(metrics['valid']) + "\n"
@@ -634,8 +635,13 @@ class Main:
         report += "TIMEOUT: " + str(metrics['timeout']) + "\n"
         report += "UNPROCESSED: " + str(metrics['unprocessed']) + "\n\n"
 
-        report += "The validation results archive {0} can be found in the {1} S3 bucket " \
+        report += "Verification Summary\n-----------------------\n"
+        report += self.verification + "\n\n"
+
+        report += "Results\n--------\n"
+        report += "The validation results archive {0} can be found in the {1} S3 bucket \n" \
             .format(results_archive, self.bucket)
+        report += "The validation results can be found in {0}".format(self.bucket + '/' + self.job_id)
         return report
 
 
@@ -649,10 +655,12 @@ def read_envs():
     envs['SUBMISSION_ARCHIVE'] = os.environ.get('S3_SUBMISSION_ARCHIVE', 'NextCentury_1.zip')
     envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
     envs['S3_SUBMISSION_ARCHIVE'] = os.environ.get('S3_SUBSMISSION_ARCHIVE', 'NextCentury_1.tar.gz')
-    envs['S3_SUBMISSION_TASK'] = os.environ.get('S3_SUBMISSION_TASK', '1')
+    envs['S3_SUBMISSION_TASK'] = os.environ.get('S3_SUBMISSION_TASK', '1a')
+    envs['S3_SUBMISSION_EXTRACTED'] = os.environ.get('S3_SUBMISSION_EXTRACTED', '2')
     envs['S3_SUBMISSION_BUCKET'] = os.environ.get('S3_SUBMISSION_BUCKET', 'aida-validation')
-    envs['S3_SUBMISSION_PREFIX'] = os.environ.get('S3_SUBMISSION_PREFIX', 'NextCentury_1-NIST')
-    envs['RESULT_ARCHIVE_NAME'] = os.environ.get('RESULT_ARCHIVE_NAME', 'NextCentury_1-NIST.tar.gz')
+    envs['S3_SUBMISSION_PREFIX'] = os.environ.get('S3_SUBMISSION_PREFIX', 'NextCentury_1-nist')
+    envs['S3_SUBMISSION_VALIDATION_DESCR'] = os.environ.get('S3_SUBMISSION_VALIDATION_DESCR', 'NIST restricted')
+    envs['RESULT_ARCHIVE_NAME'] = os.environ.get('RESULT_ARCHIVE_NAME', 'NextCentury_1-nist.tar.gz')
     envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID', 'c8c90aa7-4f33-4729-9e5c-0068cb9ce75c')
     envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX', '0')
     envs['MAIN_SLEEP_INTERVAL'] = os.environ.get('MAIN_SLEEP_INTERVAL', '30')
@@ -660,7 +668,7 @@ def read_envs():
     envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
     envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN', 'arn:aws:sns:us-east-1:606941321404:aida-validation')
     envs['DEBUG'] = os.environ.get('DEBUG', 'True')
-    envs['DEBUG_TIMEOUT'] = os.environ.get('DEBUG_TIMEOUT', '600')
+    envs['DEBUG_TIMEOUT'] = os.environ.get('DEBUG_TIMEOUT', '100')
     envs['DEBUG_SLEEP_INTERVAL'] = os.environ.get('DEBUG_SLEEP_INTERVAL', '10')
     return envs
 

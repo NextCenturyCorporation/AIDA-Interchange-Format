@@ -18,9 +18,9 @@ class Task(Enum):
 	three = '3'
 
 # define all the different directory types and corresponding flags
-NIST = { 'validation': '--ldc --nist -o', 'name': 'nist', 'directory': 'NIST'  }
-INTER_TA = { 'validation': '--ldc -o', 'name': 'unrestricted', 'directory': 'INTER-TA'  }
-NIST_TA3 = { 'validation': '--ldc --nist-ta3 -o', 'name': 'nist-ta3', 'directory': 'NIST'  }
+NIST = { 'validation': '--ldc --nist -o', 'name': 'nist', 'directory': 'NIST', 'description': 'NIST restricted'  }
+INTER_TA = { 'validation': '--ldc -o', 'name': 'unrestricted', 'directory': 'INTER-TA', 'description': 'unrestricted'  }
+NIST_TA3 = { 'validation': '--ldc --nist-ta3 -o', 'name': 'nist-ta3', 'directory': 'NIST', 'description': 'NIST TA3 restricted' }
 
 
 def download_and_extract_submission_from_s3(session, submission):
@@ -279,10 +279,11 @@ def upload_formatted_submission(session, directory, bucket, prefix, validation_t
 				upload_file_to_s3(session, path, bucket, bucket_prefix)
 
 			# create the batch job information
-			job['s3_submission_bucket'] = bucket
-			job['s3_submission_prefix'] = bucket_prefix
-			job['validation_flags'] = validation_type['validation']
-			job['count'] = len(ttls)
+			job['S3_SUBMISSION_BUCKET'] = bucket
+			job['S3_SUBMISSION_PREFIX'] = bucket_prefix
+			job['VALIDATION_FLAGS'] = validation_type['validation']
+			job['S3_SUBMISSION_VALIDATION_DESCR'] = validation_type['description']
+			job['S3_SUBMISSION_EXTRACTED'] = len(ttls)
 
 	return job
 
@@ -346,8 +347,8 @@ def main():
 		logging.info("Submit the following jobs to AWS Batch:")
 
 		for idx, job in enumerate(jobs):
-			job['s3_submission_archive'] = Path(submission).name
-			job['s3_submission_task'] = task.value
+			job['S3_SUBMISSION_ARCHIVE'] = Path(submission).name
+			job['S3_SUBMISSION_TASK'] = task.value
 			logging.info("Job %s: %s", str(idx), str(job))
 
 	# remove staing directory and downloaded submission
