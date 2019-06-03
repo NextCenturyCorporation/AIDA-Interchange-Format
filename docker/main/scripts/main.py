@@ -47,7 +47,6 @@ class Main:
                 self.extracted, self.s3_submission_validation_descr, self.job_id)
         self._publish_sns_message(init_msg)
 
-        # TODO should we verify both buckets?
         self._bucket_exists()
         objects = self._create_s3_object_list()
 
@@ -115,7 +114,8 @@ class Main:
 
     def _create_s3_object_list(self):
         """Function will create a list of all the s3 object paths for the files in the 
-        s3 submission path.
+        s3 submission path. If no objects are found in the s3 bucket / prefix, an 
+        exception is thrown.
 
         :raises ClientError: S3 resource exception
         :raises ValueError: The validation bucket does not exist
@@ -131,6 +131,9 @@ class Main:
             for o in bucket.objects.filter(Prefix=self.s3_submission_prefix):
                 objects.append(o.key)
 
+            if len(objects) == 0:
+                raise ValueError("No s3 objects found in {0}/{1}"
+                    .format(self.s3_submission_bucket, self.s3_submission_prefix))
             return objects
 
         except ClientError as e:

@@ -193,21 +193,23 @@ def get_task_type(stem, directory):
 	if delim_count == 0:
 		if check_nist_directory(directory) and check_inter_ta_directory(directory):
 			return Task.oneA
-		elif check_nist(directory):
+		elif check_nist_directory(directory):
 			return Task.oneB
 		else:
-			raise ValueError("Invalid Task 1 submission format. Could not locate required %s directory in submission", 
-				NIST['directory']) 
+			raise ValueError("Invalid Task 1 submission format. Could not locate required {0} directory in submission" 
+				.format(NIST['directory']))
 	elif delim_count == 1:
 		if check_nist_directory(directory):
 			return Task.two
 		else:
-			raise ValueError("Invalid Task 2 submission format. Could not locate required %s directory in submission", 
-				NIST['directory']) 
+			raise ValueError("Invalid Task 2 submission format. Could not locate required {0} directory in submission"
+				.format(NIST['directory'])) 
+				
 	elif delim_count == 2:
 		return Task.three
 	else:
-		raise ValueError("Invalid submission format. Could not extract task type with submission stem %s", stem) 
+		raise ValueError("Invalid submission format. Could not extract task type with submission stem {0}"
+			.format(stem)) 
 
 
 def validate_and_upload(session, directory, task, bucket, prefix):
@@ -243,7 +245,7 @@ def validate_and_upload(session, directory, task, bucket, prefix):
 
 	elif task == Task.three:
 		jobs.append(upload_formatted_submission(session, directory, bucket, prefix, NIST_TA3))
-
+		return jobs
 	else:
 		logging.error("Could not validate submission structure for invalid task %s", task)
 
@@ -265,7 +267,7 @@ def upload_formatted_submission(session, directory, bucket, prefix, validation_t
 	job = {}
 	bucket_prefix = prefix + '-' + validation_type['name']
 	logging.info("Task 1 submission %s directory exists. Uploading .ttl files to %s", 
-		validation_type, bucket + '/' + bucket_prefix)
+		validation_type['directory'], bucket + '/' + bucket_prefix)
 
 	ttl_paths = (glob.glob(directory + '/' + validation_type ['directory'] + '/*.ttl', recursive=True))
 	ttls = [ Path(x).name for x in ttl_paths ]
@@ -402,7 +404,7 @@ def main():
 			for idx, job in enumerate(jobs):
 				job['S3_SUBMISSION_ARCHIVE'] = Path(envs['S3_SUBMISSION_ARCHIVE_PATH']).name
 				job['S3_SUBMISSION_TASK'] = task.value
-				logging.info("Job %s: %s", str(idx), str(job))
+				logging.info("Job %s: %s", str(idx+1), str(job))
 
 		# remove staing directory and downloaded submission
 		os.remove(Path(envs['S3_SUBMISSION_ARCHIVE_PATH']).name)
