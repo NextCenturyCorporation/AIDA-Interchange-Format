@@ -522,7 +522,7 @@ class Main:
             return False
 
 
-    def _create_verification_output(self, results_path, source_verfication_path, message):
+    def _create_verification_output(self, results_path, source_verification_path, message):
         """Generates verification file with verification results to be added to final 
         archive and sets verification message for final report.
 
@@ -532,7 +532,7 @@ class Main:
             results
         :raises Exception: Excpetion occurred when attempting to write to file 
         """
-        file_path = '/'.join([results_path, source_verfication_path])
+        file_path = '/'.join([results_path, source_verification_path])
         try:
             with open(file_path, "w") as f:
                 print(message, file=f)
