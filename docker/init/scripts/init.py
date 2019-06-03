@@ -411,7 +411,7 @@ def main():
 		shutil.rmtree(staging_dir)
 
 	else:
-		raise ValueError("Exception occured when validating environment variables") 
+		raise ValueError("Exception occurred when validating environment variables") 
 
 
 if __name__ == "__main__": main()
