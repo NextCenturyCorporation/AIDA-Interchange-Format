@@ -16,7 +16,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Stream;
@@ -126,13 +125,7 @@ public class OntologyGeneration {
             OutputStream stream = Files.newOutputStream(Paths.get(outFilename),
                     StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
             PrintStream out = new PrintStream(stream,true);
-            out.println("package com.ncc.aif;\n" +
-                    "\nimport org.apache.jena.rdf.model.Resource;\n" +
-                    "import org.apache.jena.rdf.model.ResourceFactory;\n" +
-                    "\n// WARNING. This is a Generated File.  Please do not edit.\n" +
-                    "// This class contains variables generated from SHACL files using the OntologyGeneration Class\n" +
-                    "// Please refer to the README at src/main/java/com/ncc/aif/ont2javagen for more information\n" +
-                    "// Last Generated On: " + new SimpleDateFormat("MM/dd/yyy HH:mm:ss").format(new Date()));
+            out.println(getHeader("This class contains variables generated from SHACL files using the OntologyGeneration class"));
             out.println("public final class " + className + " {");
 
             String indent = "    ";
@@ -204,35 +197,21 @@ public class OntologyGeneration {
         return owgMapping;
     }
 
+    private static String getHeader(String comment) {
+        return "package com.ncc.aif;\n" +
+                "\nimport org.apache.jena.rdf.model.Resource;\n" +
+                "import org.apache.jena.rdf.model.ResourceFactory;\n" +
+                "\n// WARNING. This is a Generated File.  Please do not edit.\n" +
+                "// " + comment + "\n" +
+                "// Please refer to the README at src/main/java/com/ncc/aif/ont2javagen for more information\n" +
+                "// Last Generated On: " + new SimpleDateFormat("MM/dd/yyy HH:mm:ss").format(new Date());
+    }
+
     // Writes the packages, imports and comments for the generated classes
     private static List<String> owgMapperHeader () {
-
-        String lineEmpty = "";
-        String lineOne = "package com.ncc.aif;";
-        String lineThree = "import org.apache.jena.rdf.model.Resource;";
-        String lineFour = "import org.apache.jena.rdf.model.ResourceFactory;";
-        String lineWarningOne = "// WARNING. This is a Generated File.  Please do not edit.";
-        String lineWarningTwo = "// This class contains Variables generated from Ontologies using the OntologyGeneration Class";
-        String lineWarningThree = "// Please refer to the README at src/main/java/com/ncc/aif/ont2javagen for more information";
-
-        DateFormat format = new SimpleDateFormat("MM/dd/yyy HH:mm:ss");
-        Date date = Calendar.getInstance().getTime();
-
-        String timeStamp = "// Last Generated On: " + format.format(date);
-
-        List<String> headerStrings = new ArrayList<>();
-
-        headerStrings.add(lineOne);
-        headerStrings.add(lineEmpty);
-        headerStrings.add(lineThree);
-        headerStrings.add(lineFour);
-        headerStrings.add(lineEmpty);
-        headerStrings.add(lineWarningOne);
-        headerStrings.add(lineWarningTwo);
-        headerStrings.add(lineWarningThree);
-        headerStrings.add(timeStamp);
-
-        return headerStrings;
+        String[] lines = getHeader("This class contains variables generated from ontologies using the OntologyGeneration class")
+                .split("\n");
+        return Arrays.asList(lines);
     }
 
     // Ontology classes that includes the name and uri of each class
