@@ -29,11 +29,11 @@ $ docker version -f '{{.Server.Experimental}}'
 
 To build the docker image, copy the `build.sh.example` file provided to a new file, `build.sh`. This script is made up of a docker build command with various `--build-arg` build arguments. These arguments should be configured to meet the needs of your particular Batch Worker Docker image. Each argument with an example value is described in the table below. 
 
-| Build Arg          |Example Value       | Drescription  | 
+| Build Arg          |Example Value       | Description  | 
 | -------------------|:-------------------|:-------------| 
 | `CREDS`             | _johndoe:pa$$word_ | NextCentury git credentials separated by a colon. _*If you have an @ symbol in your CREDS password you will need to escape it by replacing it with %40*_ |       
 | `GIT_REPO`           | _github.com_ | Base hostname for your github/gitlab | 
-| `VALIDATOR_REPO`  | _NextCenturyCorporation/AIDA-Interchange-Format.git_ | Git group/name repository for Batch Worker |    
+| `VALIDATOR_REPO`  | _NextCenturyCorporation/AIDA-Interchange-Format.git_ | Git group/name repository for AIF Validator |    
 | `VALIDATOR_BRANCH` | _master_ | Git branch name |  
 
 In addition to the build arguments, there is also a `--squash` flag at the end. This is optional. You must enable Docker experimental on the server if you would like to use this. See [Setup Docker experimentals](#Setup-Docker-experimentals)
