@@ -134,7 +134,7 @@ public class ThreadedValidationEngine extends ValidationEngine {
             validationMetadata.add(executor.submit(getTask(shape, i++, executor)));
         }
 
-        // Go through all futures and get md for those that have completed
+        // Go through all futures and get validation metadata for those that have completed
         Map<String, Model> models = new HashMap<>();
         int violations = 0;
         for (Future<ValidationMetadata> future : validationMetadata) {
