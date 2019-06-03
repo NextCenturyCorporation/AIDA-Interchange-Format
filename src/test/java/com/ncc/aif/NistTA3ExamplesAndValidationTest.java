@@ -280,6 +280,8 @@ public class NistTA3ExamplesAndValidationTest {
             }
         }
 
+        @Disabled("Disabled: This shape is not implemented correctly. A KE should consist of cluster, all membership nodes," +
+                " all member nodes, all type assertions for member nodes, and all justifications for type assertions for member nodes")
         @Nested
         class KEsInModelMustBeReferencedByHypothesis {
             Resource relation;
