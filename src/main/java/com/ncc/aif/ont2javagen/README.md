@@ -10,3 +10,14 @@ Ontologies used.
 
 To specify the program arguments in your IDE, navigate to the Edit Configurations for the OntologyGeneration class. Then add the path
 to the Ontology as the argument.
+
+If no program arguments are specified, the class will generate the following files:
+* src/main/resources/com/ncc/aif/ontologies/
+  * AidaDomainOntologiesCommon.java
+  * EntityOntology.java
+  * EventOntology.java
+  * InterchangeOntology.java
+  * LDCOntology.java
+  * LDCOwlOntology.java
+  * RelationOntology.java
+* src/test/resources/com/ncc/aif/ShaclShapes.java
