@@ -33,7 +33,7 @@ To build the docker image, copy the `build.sh.example` file provided to a new fi
 | -------------------|:-------------------|:-------------| 
 | `CREDS`             | _johndoe:pa$$word_ | NextCentury git credentials separated by a colon. _*If you have an @ symbol in your CREDS password you will need to escape it by replacing it with %40*_ |       
 | `GIT_REPO`           | _github.com_ | Base hostname for your github/gitlab | 
-| `VALIDATOR_REPO`  | _NextCenturyCorporation/AIDA-Interchange-Format.git_ | Git group/name repository for AIF Validator |    
+| `VALIDATOR_REPO`  | _NextCenturyCorporation/AIDA-Interchange-Format.git_ | Git group/name repository for Batch Worker |    
 | `VALIDATOR_BRANCH` | _master_ | Git branch name |  
 
 In addition to the build arguments, there is also a `--squash` flag at the end. This is optional. You must enable Docker experimental on the server if you would like to use this. See [Setup Docker experimentals](#Setup-Docker-experimentals)
