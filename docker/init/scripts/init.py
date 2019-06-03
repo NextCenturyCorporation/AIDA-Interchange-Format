@@ -24,7 +24,7 @@ NIST_TA3 = { 'validation': '--ldc --nist-ta3 -o', 'name': 'nist-ta3', 'directory
 
 
 def download_and_extract_submission_from_s3(session, submission):
-	"""Downloads submission from s3 and extracts contents to the working directory.
+	"""Downloads submission from s3 and extracts the contents to the working directory.
 	Submissions must be an archive of .zip, .tar.gz, or .tgz.
 
 	:param Session session: The boto3 session 
@@ -80,6 +80,7 @@ def download_and_extract_submission_from_s3(session, submission):
 def upload_file_to_s3(session, filepath, bucket, prefix=None):
     """Helper function to upload single file to S3 bucket with specified prefix
 
+	:param Session session: The boto3 session  
     :param str filepath: The local path of the file to be uploaded
     :param str bucket: The S3 bucket to upload file to
     :param str prefix: The prefix to be added to the file name
@@ -104,6 +105,7 @@ def get_submission_paths(submission):
     """Helper function to extract s3 and file path information from s3 submission 
     path.
 
+	:param str submission: The path of the submission on s3
     :returns: 
         - s3_bucket - the extracted S3 bucket
         - s3_object - the extracted s3 object
@@ -122,9 +124,9 @@ def get_submission_paths(submission):
 
 
 def get_submission_extension(submission):
-	"""Helper function to get the extension of the submission
+	"""Helper function to get the extension of the submission.
 
-	:param str submission: The full path of the submission on s3
+	:param str submission: The path of the submission on s3
 	:returns: The submission extension
 	:rtype: str
 	"""
@@ -213,8 +215,8 @@ def get_task_type(stem, directory):
 
 
 def validate_and_upload(session, directory, task, bucket, prefix):
-	"""Validates directory structure of task type and then uploads contents to s3. Will return a dictionary
-	of the jobs that need to be executed on batch with their corresponding s3 locations.
+	"""Validates directory structure of task type and uploads the contents to s3. Returns a dictionary
+	of jobs that need to be executed on batch with their corresponding s3 locations.
 
 	:param Session session: The boto3 session
 	:param str directory: The local directory containing the donwloaded contents of
@@ -251,9 +253,9 @@ def validate_and_upload(session, directory, task, bucket, prefix):
 
 
 def upload_formatted_submission(session, directory, bucket, prefix, validation_type):
-	"""Function will locate all ttl files within a submission subdirectory based on the validation 
-	type that was found in the get_task_type function and upload them to s3. Once all the files have been 
-	uploaded a dictionary object with information to pass into the aws batch job will be returned. 
+	"""Function will locate all .ttl files within a submission subdirectory based on the validation 
+	type that was found in the get_task_type function and upload them to s3. Once all files have been 
+	uploaded, a dictionary object with information to pass into the aws batch job will be returned. 
 
 	:param Session session: The boto3 session
 	:param str directory: The local directory containing the donwloaded contents of
@@ -261,8 +263,6 @@ def upload_formatted_submission(session, directory, bucket, prefix, validation_t
 	:param str bucket: The S3 bucket
 	:param str prefix: The prefix to append to all objects uploaded to the S3 bucket
 	:param validation_type: The validation type that these files will be validatated against
-	:param validation_flags: The validation flags to pass to the AIF validator when validating these
-		files. 
 	"""
 	job = {}
 	bucket_prefix = prefix + '-' + validation_type['name']
@@ -290,7 +290,7 @@ def upload_formatted_submission(session, directory, bucket, prefix, validation_t
 	return job
 
 def check_for_duplicates(ttls):
-	"""Function will check to see if there are any duplicates in a list of file names
+	"""Function will check for duplicates in a list of file names.
 
 	:param List ttls: A list of ttl file names.
 	:returns: True if duplicates were found, False otherwise
