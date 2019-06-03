@@ -49,7 +49,7 @@ class Worker:
 
 		:returns: True if bucket exists, False otherwise
 		:raises ClientError: S3 resource exception
-		:rasses ValueError: The validation bucket does not exist
+		:raises ValueError: The validation bucket does not exist
 		"""
 		s3 = self.session.resource('s3')
 
@@ -338,7 +338,7 @@ class Worker:
 
 			logging.info("Executing AIF Validation for file %s with flags %s", file_name, self.validation_flags)
 			#**********************
-			# Requies python 3.7+ *
+			# Requires python 3.7+ *
 			#**********************
 			output = subprocess.run(cmd, stdout=PIPE, timeout=self.validation_timeout, check=True, shell=True, universal_newlines=True)
 
@@ -373,7 +373,7 @@ class Worker:
 		items = glob.glob(validation_dir + '**/*' + extension)
 
 		if len(items) <= 0: 
-			logging.error("No validation ouptut files found in validation folder with extension %s", extension)
+			logging.error("No validation output files found in validation folder with extension %s", extension)
 		elif len(items) > 1: 
 			logging.error("Found multiple validation output %s files in validation staging folder", extension)
 		

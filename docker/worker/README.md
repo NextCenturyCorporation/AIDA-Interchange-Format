@@ -29,7 +29,7 @@ $ docker version -f '{{.Server.Experimental}}'
 
 To build the docker image, copy the `build.sh.example` file provided to a new file, `build.sh`. This script is made up of a docker build command with various `--build-arg` build arguments. These arguments should be configured to meet the needs of your particular Batch Worker Docker image. Each argument with an example value is described in the table below. 
 
-| Build Arg          |Example Value       | Drescription  | 
+| Build Arg          |Example Value       | Description  | 
 | -------------------|:-------------------|:-------------| 
 | `CREDS`             | _johndoe:pa$$word_ | NextCentury git credentials separated by a colon. _*If you have an @ symbol in your CREDS password you will need to escape it by replacing it with %40*_ |       
 | `GIT_REPO`           | _github.com_ | Base hostname for your github/gitlab | 

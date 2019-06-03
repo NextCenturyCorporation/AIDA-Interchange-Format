@@ -60,7 +60,7 @@ class Main:
             # wait for all AWS batch jobs to complete processing
             self._wait_for_processing()
 
-        # download all validation files from s3 for the currnet job
+        # download all validation files from s3 for the current job
         results_path = self._get_submission_stem() + '-results'
         results_tar = results_path + '.tar.gz'
         self._sync_s3_bucket(results_path)
@@ -90,7 +90,7 @@ class Main:
 
         :returns: True if bucket exists, False otherwise
         :raises ClientError: S3 resource exception
-        :rasses ValueError: The validation bucket does not exist
+        :raises ValueError: The validation bucket does not exist
         """
         s3 = self.session.resource('s3')
 
@@ -315,7 +315,7 @@ class Main:
                 logging.info("Uploading %s to bucket %s", s3_object, self.bucket)
                 s3_client.upload_file(str(filepath), self.bucket, s3_object)
 
-                # add the mssage to SQS
+                # add the message to SQS
                 response = self._add_sqs_message(queue_url, s3_object)
 
                 # update the source log with the added object path
@@ -329,7 +329,7 @@ class Main:
                 else:
                     logging.error("Unable to add %s as SQS message", s3_object)
             
-            # append .done to the sourceifles path
+            # append .done to the source log path
             if os.path.exists(self.source_log):
                 os.rename(self.source_log, self.source_log +'.queued')
 
@@ -410,8 +410,8 @@ class Main:
 
 
     def _debug_wait_for_processing(self):
-        """This function is used for debugging purposes. This will remove any depencency on 
-        AWS batch and allow for jobs to be processe for the specified amount of time set in 
+        """This function is used for debugging purposes. This will remove any dependency on 
+        AWS batch and allow for jobs to be processed for the specified amount of time set in 
         the [processing_timeout] parameter. Once that amount of time has elapsed this function will
         return true.
 
@@ -450,7 +450,7 @@ class Main:
                 running_jobs = list(filter(lambda job: job['status'] == 'RUNNING', job_list))
 
 
-                # check if no jobs are running, throw an error becasue master should still be running
+                # check if no jobs are running, throw an error because master should still be running
                 if len(running_jobs) == 0:
                     logging.error("No batch jobs with RUNNING status")
                     return False
@@ -503,7 +503,7 @@ class Main:
         """Helper function that will sync the s3 validation bucket with job id prefix to
         the current working directory.
 
-        :param str dest_path: The local destination path where files will be syned to
+        :param str dest_path: The local destination path where files will be synced to
         :raises CalledProcessError: Subprocess exception when executing aws cli sync
             command
         """
@@ -512,14 +512,14 @@ class Main:
 
             logging.info("Syncing S3 bucket %s with prefix %s", self.bucket, self.job_id)
             #**********************
-            # Requies python 3.7+ *
+            # Requires python 3.7+ *
             #**********************
             output = subprocess.run(cmd, check=True, shell=True)
-            logging.info("Succesfully downloaded all files from s3 bucket %s with prefix %s", 
+            logging.info("Successfully downloaded all files from s3 bucket %s with prefix %s", 
                 self.bucket, self.job_id)
             
         except CalledProcessError as e:
-            logging.error("Error [%s] occured when syncing s3 bucket %s with prefix %s", 
+            logging.error("Error [%s] occurred when syncing s3 bucket %s with prefix %s", 
                 str(e.returncode), self.bucket, self.job_id)
 
 
@@ -528,7 +528,7 @@ class Main:
         resulting S3 bucket after validation. 
 
         :param str results_path: The local path of the sync'd s3 bucket
-        :retruns: True if all files are account for, False otherwise
+        :returns: True if all files are account for, False otherwise
         :rtype: bool
         """
         logging.info("Verifying validation result contents with SQS queue")
@@ -543,12 +543,12 @@ class Main:
                 with open(queued_log) as file:
                     sqs_objects = [Path(line.strip()).name for line in file]
             except :
-                logging.error("Exception occured when reading %s during verification of validation", queued_log)
+                logging.error("Exception occurred when reading %s during verification of validation", queued_log)
 
                 self._create_verification_output(
                     results_path,
                     verification_log,
-                    "Exception occured when reading {0} during verification of validation".format(queued_log)
+                    "Exception occurred when reading {0} during verification of validation".format(queued_log)
                 )
                 return False
 
@@ -597,17 +597,17 @@ class Main:
             return False
 
 
-    def _create_verification_output(self, results_path, source_verfication_path, message):
-        """Generates verification file with verification reuslts to be added to final 
+    def _create_verification_output(self, results_path, source_verification_path, message):
+        """Generates verification file with verification results to be added to final 
         archive and sets verification message for final report.
 
         :param str results_path: The local path of the sync'd s3 bucket
         :param str source_verification_path: The path to place this verification output file
         :param str message: The message that will be added to the file with the verification 
             results
-        :raises Exception: Excpetion occured when attempting to write to file 
+        :raises Exception: Excpetion occurred when attempting to write to file 
         """
-        file_path = '/'.join([results_path, source_verfication_path])
+        file_path = '/'.join([results_path, source_verification_path])
         try:
             with open(file_path, "w") as f:
                 print(message, file=f)
@@ -756,7 +756,7 @@ def validate_envs(envs: dict):
     #check if master sleep interval can be converted to int
     try:
         int(envs['MAIN_SLEEP_INTERVAL'])
-    except InitilizationError:
+    except ValueError:
         logging.error("Master sleep interval [%s] must be an integer", envs['MAIN_SLEEP_INTERVAL'])
         return False
 
@@ -817,7 +817,7 @@ def main():
         main.run()
 
     else:
-        raise ValueError("Exception occured when validating environment variables") 
+        raise ValueError("Exception occurred when validating environment variables") 
 
 
 if __name__ == "__main__": main()
