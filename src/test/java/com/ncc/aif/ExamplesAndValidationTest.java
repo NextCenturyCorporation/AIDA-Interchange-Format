@@ -1048,12 +1048,16 @@ public class ExamplesAndValidationTest {
             LDCTimeComponent unknown = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.UNKNOWN, null, null, null);
             LDCTimeComponent endBefore = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2016", null, null);
             markLDCTime(model, eventStartPosition, unknown, endBefore, system);
+            Resource time = markLDCTime(model, eventStartPosition, unknown, endBefore, system);
+            markJustification(time, utils.makeValidJustification());
 
             // Create an attack event with an unknown start date, but definite end date
             final Resource eventAttackUnknown = utils.makeValidAIFEvent(SeedlingOntology.Conflict_Attack);
             LDCTimeComponent start = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2014", "--02", null);
             LDCTimeComponent end = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.ON, "2014", "--02", "---21");
             markLDCTime(model, eventAttackUnknown, start, end, system);
+            time = markLDCTime(model, eventAttackUnknown, start, end, system);
+            markJustification(time, utils.makeValidJustification());
 
             utils.testValid("create an event with LDCTime");
         }
