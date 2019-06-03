@@ -1,0 +1,9 @@
+#!/bin/bash
+
+docker build \
+	--build-arg CREDS=XXXX:XXXXX \
+	--build-arg GIT_REPO=github.com \
+	--build-arg VALIDATOR_REPO=NextCenturyCorporation/AIDA-Interchange-Format.git \
+	--build-arg VALIDATOR_BRANCH=master \
+	--squash \
+	-t batch-worker .
