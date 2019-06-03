@@ -1,33 +1,19 @@
 package com.ncc.aif;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
-import org.apache.jena.ontology.OntModel;
 import org.apache.jena.rdf.model.*;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.util.FileUtils;
-import org.topbraid.jenax.statistics.ExecStatistics;
-import org.topbraid.jenax.statistics.ExecStatisticsListener;
-import org.topbraid.jenax.statistics.ExecStatisticsManager;
+import org.topbraid.jenax.progress.ProgressMonitor;
 import org.topbraid.shacl.validation.ValidationEngine;
 import org.topbraid.shacl.validation.ValidationEngineConfiguration;
 import org.topbraid.shacl.validation.ValidationUtil;
-import org.topbraid.shacl.vocabulary.SH;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.*;
 
 /**
  * An AIF Validator.  These are not instantiated directly; instead invoke {@link #createForDomainOntologySource} statically,
@@ -40,41 +26,38 @@ public final class ValidateAIF {
 
     // Enum to track restrictions
     public enum Restriction {
-        NONE, NIST, NIST_HYPOTHESIS
+        NONE, NIST, NIST_TA3
     }
 
-    private static final String AIDA_SHACL_RESNAME = "com/ncc/aif/aida_ontology.shacl";
-    private static final String NIST_SHACL_RESNAME = "com/ncc/aif/restricted_aif.shacl";
-    private static final String NIST_HYPOTHESIS_SHACL_RESNAME = "com/ncc/aif/restricted_hypothesis_aif.shacl";
-    private static final String INTERCHANGE_RESNAME = "com/ncc/aif/ontologies/InterchangeOntology";
-    private static final String AIDA_DOMAIN_COMMON_RESNAME = "com/ncc/aif/ontologies/AidaDomainOntologiesCommon";
-    private static final String LDC_RESNAME = "com/ncc/aif/ontologies/LDCOntology";
-    private static final String AO_ENTITIES_RESNAME = "com/ncc/aif/ontologies/EntityOntology";
-    private static final String AO_EVENTS_RESNAME = "com/ncc/aif/ontologies/EventOntology";
-    private static final String AO_RELATIONS_RESNAME = "com/ncc/aif/ontologies/RelationOntology";
-    private static final String NIST_ROOT = "https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/";
-    private static final String INTERCHANGE_URI = NIST_ROOT + "InterchangeOntology";
-    private static final String AIDA_DOMAIN_COMMON_URI = NIST_ROOT + "AidaDomainOntologiesCommon";
+    private static final String AIF_ROOT = "com/ncc/aif/";
+    private static final String AIDA_SHACL_RESNAME = AIF_ROOT + "aida_ontology.shacl";
+    private static final String NIST_SHACL_RESNAME = AIF_ROOT + "restricted_aif.shacl";
+    private static final String NIST_HYPOTHESIS_SHACL_RESNAME = AIF_ROOT + "restricted_hypothesis_aif.shacl";
+
+    private static final String ONT_ROOT = AIF_ROOT + "ontologies/";
+    private static final String INTERCHANGE_RESNAME = ONT_ROOT + "InterchangeOntology";
+    private static final String AIDA_DOMAIN_COMMON_RESNAME = ONT_ROOT + "AidaDomainOntologiesCommon";
+    private static final String LDC_RESNAME = ONT_ROOT + "LDCOntology";
+    private static final String AO_ENTITIES_RESNAME = ONT_ROOT + "EntityOntology";
+    private static final String AO_EVENTS_RESNAME = ONT_ROOT + "EventOntology";
+    private static final String AO_RELATIONS_RESNAME = ONT_ROOT + "RelationOntology";
 
     private static Model shaclModel;
     private static Model nistModel;
     private static Model nistHypoModel;
     private static boolean initialized = false;
-    private static int abortParam = -1; // TODO: separate command-line validator from its class, so we don't need this
-    private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
     private static final Property CONFORMS = ResourceFactory.createProperty("http://www.w3.org/ns/shacl#conforms");
-    private static final int LONG_QUERY_THRESH = 2000;
 
     private static void initializeSHACLModels() {
         if (!initialized) {
-            shaclModel = ModelFactory.createOntologyModel();
+            shaclModel = ModelFactory.createDefaultModel();
             loadModel(shaclModel, Resources.asCharSource(Resources.getResource(AIDA_SHACL_RESNAME), Charsets.UTF_8));
 
-            nistModel = ModelFactory.createOntologyModel();
+            nistModel = ModelFactory.createDefaultModel();
             nistModel.add(shaclModel);
             loadModel(nistModel, Resources.asCharSource(Resources.getResource(NIST_SHACL_RESNAME), Charsets.UTF_8));
 
-            nistHypoModel = ModelFactory.createOntologyModel();
+            nistHypoModel = ModelFactory.createDefaultModel();
             nistHypoModel.add(nistModel);
             loadModel(nistHypoModel,
                     Resources.asCharSource(Resources.getResource(NIST_HYPOTHESIS_SHACL_RESNAME), Charsets.UTF_8));
@@ -86,7 +69,9 @@ public final class ValidateAIF {
     private Model domainModel;
     private Restriction restriction;
     private int abortThreshold = -1; // by default, do not abort on SHACL violation
-    private AIFProgressMonitor progressMonitor = null; // by default, do not monitor progress
+    private ProgressMonitor progressMonitor = null; // by default, do not monitor progress
+    private ThreadPoolExecutor executor;
+    private List<Future<ThreadedValidationEngine.ValidationMetadata>> validationMetadata;
 
     private ValidateAIF(Model domainModel, Restriction restriction) {
         initializeSHACLModels();
@@ -94,9 +79,17 @@ public final class ValidateAIF {
         this.restriction = restriction;
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        if (executor != null) {
+            executor.shutdownNow();
+        }
+    }
+
     // Ensure what file name an RDF syntax error occurs in is printed, which
     // doesn't happen by default.
-    private static void loadModel(Model model, CharSource ontologySource) {
+    static void loadModel(Model model, CharSource ontologySource) {
         try {
             model.read(ontologySource.openBufferedStream(), "urn:x-base", FileUtils.langTurtle);
         } catch (Exception exception) { // includes IOException & JenaException
@@ -152,9 +145,7 @@ public final class ValidateAIF {
             throw new IllegalArgumentException("Must validate against at least one domain ontology.");
         }
 
-        final OntModel model = ModelFactory.createOntologyModel();
-        model.addLoadedImport(INTERCHANGE_URI);
-        model.addLoadedImport(AIDA_DOMAIN_COMMON_URI);
+        final Model model = ModelFactory.createDefaultModel();
 
         // Data will always be interpreted in the context of these two ontology files.
         final ImmutableSet<CharSource> aidaModels = ImmutableSet.of(
@@ -171,434 +162,11 @@ public final class ValidateAIF {
         return new ValidateAIF(model, restriction == null ? Restriction.NONE : restriction);
     }
 
-    // Show usage information.
-    private static void showUsage() {
-        System.out.println("Usage:\n" +
-                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--abort [num]] [--pm] {-f FILE ... | -d DIRNAME}\n" +
-                "Options:\n" +
-                "--ldc           Validate against the LDC ontology\n" +
-                "--program       Validate against the program ontology\n" +
-                "--ont FILE ...  Validate against the OWL-formatted ontolog(ies) at the specified filename(s)\n" +
-                "--nist          Validate against the NIST restrictions\n" +
-                "--nist-ta3      Validate against the NIST hypothesis restrictions (implies --nist)\n" +
-                "-o              Save validation report model to a file.  KB.ttl would result in KB-report.txt.\n" +
-                "                Output defaults to stderr.\n" +
-                "-h, --help      Show this help and usage text\n" +
-                "--abort [num]   Abort validation after [num] SHACL violations (num > 2), or three violations if [num] is omitted.\n" +
-                "--pm            Enable progress monitor that shows ongoing validation progress\n" +
-                "-f FILE ...     Validate the specified file(s) with a .ttl suffix\n" +
-                "-d DIRNAME      Validate all .ttl files in the specified directory\n" +
-                "\n" +
-                "Either a file (-f) or a directory (-d) must be specified (but not both).\n" +
-                "Exactly one of --ldc, --program, or --ont must be specified.\n" +
-                "Ontology files can be found in src/main/resources/com/ncc/aif/ontologies:\n" +
-                "- LDC: LDCOntology\n" +
-                "- Program: EntityOntology, EventOntology, RelationOntology\n" +
-                "\n" +
-                "For more information, see the AIF README.");
-    }
-
-    // Process an option that takes N files as an argument and return N.
-    private static int processFiles(String[] args, int i, Set<String> fileList) {
-        i++; // skip the switch (-f or -d)
-        boolean done = false;
-        int numArgs = 0;
-        while (i < args.length && !done) {
-            if (args[i].startsWith("-")) {
-                done = true;
-            } else {
-                fileList.add(args[i++]);
-                numArgs++;
-            }
-        }
-        return numArgs; // Can't use fileList.size() just in case user specified same file twice
-    }
-
-    // Process command-line arguments, returning whether or not there were any errors.
-    private static boolean processArgs(String[] args, Set<ArgumentFlags> flags, Set<String> domainOntologies,
-                                       Set<String> validationFiles, Set<String> validationDirs) {
-        String abortStr = null;
-        Predicate<Integer> parameterSpecified = i -> (i + 1 < args.length && !args[i + 1].startsWith("-"));
-        for (int i = 0; i < args.length; i++) {
-            final String arg = args[i];
-            final String strippedArg = arg.trim();
-            switch (strippedArg) {
-                case "-h":
-                case "--help":
-                    return false;
-                case "--ldc":
-                    flags.add(ArgumentFlags.LDC);
-                    break;
-                case "--program":
-                    flags.add(ArgumentFlags.PROGRAM);
-                    break;
-                case "--nist":
-                    flags.add(ArgumentFlags.NIST);
-                    break;
-                case "--nist-ta3":
-                    flags.add(ArgumentFlags.NIST);
-                    flags.add(ArgumentFlags.HYPO);
-                    break;
-                case "-o":
-                    flags.add(ArgumentFlags.FILE_OUTPUT);
-                    break;
-                case "--ont":
-                    int numFiles = processFiles(args, i, domainOntologies);
-                    if (numFiles == 0) {
-                        logger.error("--ont requires at least one ontology file to be specified.");
-                        return false;
-                    }
-                    i += numFiles;
-                    break;
-                case "-p": // NOTE: this flag is not documented in the README nor the Usage info
-                    flags.add(ArgumentFlags.PROFILING);
-                    break;
-                case "--p2": // NOTE: this flag is not documented in the README nor the Usage info
-                    flags.add(ArgumentFlags.PROGRESSIVE_PROFILING);
-                    break;
-                case "--pm":
-                    flags.add(ArgumentFlags.PROGRESS_MONITORING);
-                    break;
-                case "--abort":
-                    flags.add(ArgumentFlags.ABORT);
-                    if (parameterSpecified.test(i)) {
-                        abortStr = args[++i];
-                    } else {
-                        // NOTE: Set this to 1 when/if TopBraid's fail-fast feature properly supports failing at first violation.
-                        abortParam = 3;
-                    }
-                    break;
-                case "-f":
-                    if (flags.contains(ArgumentFlags.DIRECTORY)) {
-                        logger.error("Please specify either -d or -f, but not both.");
-                        return false;
-                    }
-                    i += processFiles(args, i, validationFiles);
-                    flags.add(ArgumentFlags.FILES);
-                    break;
-                case "-d":
-                    if (flags.contains(ArgumentFlags.FILES)) {
-                        logger.error("Please specify either -d or -f, but not both.");
-                        return false;
-                    }
-                    if (parameterSpecified.test(i)) {
-                        validationDirs.add(args[++i]);
-                        /* NOTE: if we choose to support validating files in N directories, change the above to:
-                         *   i += processFiles(args, i, validationDirs);
-                         */
-                    }
-                    flags.add(ArgumentFlags.DIRECTORY);
-                    break;
-                default:
-                    logger.error("Unknown argument: " + arg);
-                    return false;
-            }
-        }
-
-        final int ontologyFlags = (
-                (flags.contains(ArgumentFlags.LDC) ? 1 : 0) +
-                        (flags.contains(ArgumentFlags.PROGRAM) ? 1 : 0) +
-                        (domainOntologies.isEmpty() ? 0 : 1)
-        );
-        if (ontologyFlags != 1) {
-            logger.error("Please specify exactly one of --ldc, --program, and --ont.");
-            return false;
-        }
-        if ((validationFiles.isEmpty() && validationDirs.isEmpty()) ||
-                (!validationFiles.isEmpty() && !validationDirs.isEmpty())) // this can happen if -d or -f had no argument
-        {
-            logger.error("Please specify either file(s) or a directory of files to validate.");
-            return false;
-        }
-        if (abortStr != null) {
-            try {
-                // TODO: separate command-line validator from validator class
-                abortParam = Integer.parseUnsignedInt(abortStr);
-            } catch (NumberFormatException nfe) {
-                abortParam = -1;
-            }
-            if (abortParam < 3) {
-                logger.error("Invalid abort parameter: " + abortStr);
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    // Program return codes from the AIF Validator.
-    private enum ReturnCode {
-        SUCCESS, VALIDATION_ERROR, USAGE_ERROR, FILE_ERROR
-    }
-
-    // Command-line argument flags
-    private enum ArgumentFlags {
-        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY, FILE_OUTPUT, PROFILING, PROGRESSIVE_PROFILING, ABORT, PROGRESS_MONITORING
-    }
-
     /**
-     * A command-line AIF validator.  For details, see <a href="https://github.com/NextCenturyCorporation/AIDA-Interchange-Format">the AIF README</a>
-     * section entitled, <i>The AIF Validator</i>.
-     *
-     * @param args Command line arguments as specified in the README
+     * Uses the provided <code>monitor</code> during validation. If null, no progress monitor will be used.
      */
-    public static void main(String[] args) {
-        HashSet<ArgumentFlags> flags = new HashSet<>();
-        final Set<String> domainOntologies = new HashSet<>();
-        final Set<String> validationFiles = new LinkedHashSet<>();
-        final Set<String> validationDirs = new LinkedHashSet<>();
-
-        // Prevent too much logging from obscuring the actual problems.
-        logger.setLevel(Level.INFO);
-        logger.info("AIF Validator");
-
-        // Process the arguments:  if there are any errors, show usage and exit.
-        if (!processArgs(args, flags, domainOntologies, validationFiles, validationDirs)) {
-            showUsage();
-            System.exit(ReturnCode.USAGE_ERROR.ordinal());
-        }
-
-        // Collect the flags parsed from the arguments
-        final Restriction restriction = !flags.contains(ArgumentFlags.NIST) ? Restriction.NONE :
-                flags.contains(ArgumentFlags.HYPO) ? Restriction.NIST_HYPOTHESIS : Restriction.NIST;
-        final boolean ldcFlag = flags.contains(ArgumentFlags.LDC);
-        final boolean programFlag = flags.contains(ArgumentFlags.PROGRAM);
-        final boolean progressMonitoring = flags.contains(ArgumentFlags.PROGRESS_MONITORING);
-        final boolean profiling = flags.contains(ArgumentFlags.PROFILING) || flags.contains(ArgumentFlags.PROGRESSIVE_PROFILING);
-
-        // Finally, try to create the validator, but fail if required elements can't be loaded/parsed.
-        ValidateAIF validator = null;
-        try {
-            if (ldcFlag) {
-                validator = createForLDCOntology(restriction);
-            } else if (programFlag) {
-                validator = createForProgramOntology(restriction);
-            } else {
-                // Convert the specified domain ontologies to CharSources.
-                Set<CharSource> domainOntologySources = new HashSet<>();
-                for (String source : domainOntologies) {
-                    File file = new File(source);
-                    domainOntologySources.add(com.google.common.io.Files.asCharSource(file, Charsets.UTF_8));
-                }
-                validator = create(ImmutableSet.copyOf(domainOntologySources), restriction);
-            }
-        } catch (RuntimeException rte) {
-            logger.error("Could not read/parse all domain ontologies or SHACL files...exiting.");
-            logger.error("--> " + rte.getLocalizedMessage());
-            System.exit(ReturnCode.FILE_ERROR.ordinal());
-        }
-
-        // Collect the file(s) to be validated.
-        final List<File> filesToValidate = new ArrayList<>();
-        int nonTTLcount = 0;
-        if (!validationFiles.isEmpty()) {
-            for (String file : validationFiles) {
-                if (file.endsWith(".ttl")) {
-                    filesToValidate.add(new File(file));
-                } else {
-                    logger.warn("Skipping file without .ttl suffix: " + file);
-                    nonTTLcount++;
-                }
-            }
-        } else { // -d option
-            for (String dirName : validationDirs) {
-                File dir = new File(dirName);
-                if (!dir.exists()) {
-                    logger.warn("Skipping non-existent directory: " + dirName);
-                } else if (dir.isDirectory()) {
-                    File[] files = dir.listFiles(pathname -> pathname.toString().endsWith(".ttl"));
-                    if (files != null) {
-                        filesToValidate.addAll(Arrays.asList(files));
-                    }
-                } else {
-                    logger.warn("Skipping non-directory: " + dirName);
-                }
-            }
-        }
-
-        if (filesToValidate.isEmpty()) {
-            logger.error("No files with .ttl suffix were specified.  Use -h option for help.");
-            System.exit(ReturnCode.FILE_ERROR.ordinal());
-        }
-
-        // Display a summary of what we're going to do.
-        if (!validationFiles.isEmpty()) {
-            logger.info("-> Validating KB(s): " +
-                    (filesToValidate.size() <= 5 ? filesToValidate : "from command-line arguments."));
-        } else { // We'd have failed by now if there were no TTL files in the directory
-            // This would need to be addressed if we supported validating files in N directories.
-            logger.info("-> Validating all KBs (*.ttl) in directory: " + validationDirs);
-        }
-        final String ontologyStr = (ldcFlag ? "LDC (LO)" : "") + (programFlag ? "Program (AO)" : "") +
-                (domainOntologies.isEmpty() ? "" : domainOntologies);
-        logger.info("-> Validating with domain ontology(ies): " + ontologyStr);
-        if (restriction == Restriction.NIST) {
-            logger.info("-> Validating against NIST SHACL.");
-        } else if (restriction == Restriction.NIST_HYPOTHESIS) {
-            logger.info("-> Validating against NIST Hypothesis SHACL.");
-        }
-        if (flags.contains(ArgumentFlags.ABORT)) {
-            logger.info("-> Validation will abort after " + abortParam + " SHACL violation(s).");
-            validator.setAbortThreshold(abortParam); // abortParam was set and validated in processArgs()
-        }
-        if (flags.contains(ArgumentFlags.FILE_OUTPUT)) {
-            logger.info("-> Validation report for invalid KBs will be saved to <kbname>-report.txt.");
-        } else {
-            logger.info("-> Validation report for invalid KBs will be printed to stderr.");
-        }
-        if (profiling) {
-            logger.info("-> Saving slow queries (> " + LONG_QUERY_THRESH + " ms) to <kbname>-stats.txt.");
-        }
-        if (progressMonitoring) {
-            logger.info("-> Saving ongoing validation progress to <kbname>-progress.tab.");
-        }
-        logger.info("*** Beginning validation of " + filesToValidate.size() + " file(s). ***");
-
-        // Validate all files, noting I/O and other errors, but continue to validate even if one fails.
-        final SimpleDateFormat format = new SimpleDateFormat("EEE, MMM d HH:mm:ss");
-        int invalidCount = 0;
-        int skipCount = 0;
-        int abortCount = 0;
-        int fileNum = 0;
-        final StatsCollector stats = flags.contains(ArgumentFlags.PROGRESSIVE_PROFILING) ?
-                new ProgressiveStatsCollector(LONG_QUERY_THRESH) : new StatsCollector(LONG_QUERY_THRESH);
-        for (File fileToValidate : filesToValidate) {
-            Date date = Calendar.getInstance().getTime();
-            logger.info("-> Validating " + fileToValidate + " at " + format.format(date) +
-                    " (" + ++fileNum + " of " + filesToValidate.size() + ").");
-            final OntModel dataToBeValidated = ModelFactory.createOntologyModel();
-            boolean notSkipped = ((restriction != Restriction.NIST_HYPOTHESIS) || checkHypothesisSize(fileToValidate))
-                    && loadFile(dataToBeValidated, fileToValidate);
-            if (notSkipped) {
-                if (profiling) {
-                    stats.startCollection();
-                }
-                if (progressMonitoring) {
-                    validator.setProgressMonitor(fileToValidate.getName().replace(".ttl", ""));
-                }
-                final Resource report = validator.validateKBAndReturnReport(dataToBeValidated);
-                if (profiling) {
-                    stats.endCollection();
-                    stats.dump(fileToValidate.toString());
-                }
-                if (report == null) {
-                    logger.warn("---> Could not validate " + fileToValidate + " (engine error).  Skipping.");
-                    skipCount++;
-                } else if (!ValidateAIF.isValidReport(report)) {
-                    invalidCount++;
-                    final int numViolations = processReport(report, fileToValidate, flags.contains(ArgumentFlags.FILE_OUTPUT));
-                    if (numViolations == abortParam) {
-                        logger.warn("---> Validation of " + fileToValidate +
-                                " was aborted after " + abortParam + " SHACL violations.");
-                        abortCount++;
-                    } else {
-                        logger.warn("---> Validation of " + fileToValidate + " failed.");
-                    }
-                }
-                date = Calendar.getInstance().getTime();
-                logger.info("---> completed " + format.format(date) + ".");
-            } else
-                skipCount++;
-
-            dataToBeValidated.close();
-        }
-
-        final ReturnCode returnCode = displaySummary(fileNum + nonTTLcount, invalidCount, skipCount + nonTTLcount, abortCount);
-        System.exit(returnCode.ordinal());
-    }
-
-    // Dump the validation report model either to stderr or a file, and return the number of violations.
-    private static int processReport(Resource validationReport, File fileToValidate, boolean fileOutput) {
-        if (!fileOutput) {
-            logger.info("---> Validation report:");
-            RDFDataMgr.write(System.err, validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
-        } else {
-            String outputFilename = fileToValidate.toString().replace(".ttl", "-report.txt");
-            try {
-                RDFDataMgr.write(Files.newOutputStream(Paths.get(outputFilename)),
-                        validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
-            } catch (IOException ioe) {
-                logger.warn("---> Could not write validation report for " + fileToValidate + ".");
-            }
-            logger.info("--> Saved validation report to " + outputFilename);
-        }
-
-        return validationReport.getModel().listStatements(null, SH.resultSeverity, SH.Violation).toList().size();
-    }
-
-    // Return false if file is > 5MB or size couldn't be determined, otherwise true
-    private static boolean checkHypothesisSize(File fileToValidate) {
-        try {
-            final Path path = Paths.get(fileToValidate.toURI());
-            final long fileSize = Files.size(path);
-            if (fileSize > 1024 * 1024 * 5) { // 5MB
-                logger.warn("---> Hypothesis KB " + fileToValidate + " is more than 5MB (" + fileSize + " bytes); skipping.");
-                return false;
-            } else {
-                return true;
-            }
-        } catch (IOException ioe) {
-            logger.warn("---> Could not determine size for hypothesis KB " + fileToValidate + "; skipping.");
-            return false;
-        }
-    }
-
-    // Load the model, or fail trying.  Returns true if it's loaded, otherwise false.
-    private static boolean loadFile(OntModel dataToBeValidated, File fileToValidate) {
-        dataToBeValidated.addLoadedImport(INTERCHANGE_URI);
-        dataToBeValidated.addLoadedImport(AIDA_DOMAIN_COMMON_URI);
-        try {
-            loadModel(dataToBeValidated, com.google.common.io.Files.asCharSource(fileToValidate, Charsets.UTF_8));
-        } catch (RuntimeException rte) {
-            logger.warn("---> Could not read " + fileToValidate + "; skipping.");
-            return false;
-        }
-        return true;
-    }
-
-    // Display a summary to the user
-    private static ReturnCode displaySummary(int fileCount, int invalidCount, int skipCount, int abortCount) {
-        final int validCount = fileCount - invalidCount - skipCount;
-        logger.info("Summary:");
-        logger.info("\tFiles submitted: " + fileCount);
-        logger.info("\tSkipped files: " + skipCount);
-        logger.info("\tKBs sent to validator: " + (fileCount - skipCount));
-        logger.info("\tValid KBs: " + (fileCount - invalidCount - skipCount));
-        logger.info("\tInvalid KBs: " + invalidCount);
-        if (abortCount > 0) {
-            logger.info("\t  Aborted validations: " + abortCount);
-        }
-        if (fileCount == validCount) {
-            logger.info("*** All submitted KBs were valid. ***");
-        } else if (fileCount == skipCount) {
-            logger.info("*** No validation was performed. ***");
-        }
-
-        if (invalidCount > 0) { // Return a failure code if anything fails to validate.
-            return ReturnCode.VALIDATION_ERROR;
-        } else {
-            return skipCount == 0 ? ReturnCode.SUCCESS : ReturnCode.FILE_ERROR;
-        }
-    }
-
-    /**
-     * Tells the validator whether or not to monitor progress and show ongoing validation progress
-     *
-     * @param id if non-null, an identifier for the progress monitor, otherwise disables progress monitoring
-     */
-    public void setProgressMonitor(String id) {
-        if (id == null) {
-            this.progressMonitor = null;
-            return;
-        }
-
-        final String filename = id + "-progress.tab";
-        try {
-            this.progressMonitor = new AIFProgressMonitor(filename);
-        } catch (IOException e) {
-            logger.warn("Could not open progress monitor filename {}.  Writing progress to StdOut.", filename);
-            this.progressMonitor = new AIFProgressMonitor();
-        }
+    public void setProgressMonitor(ProgressMonitor monitor) {
+        this.progressMonitor = monitor;
     }
 
     /**
@@ -612,6 +180,39 @@ public final class ValidateAIF {
             throw new IllegalArgumentException("Abort threshold must be greater than 0, or 0 to disable.");
         }
         this.abortThreshold = abortThreshold == 0 ? -1 : abortThreshold;
+    }
+
+    /**
+     * Tells the validator to use the specified number of threads during validation.
+     * Currently, {@link ThreadedValidationEngine} does not support a {@link ProgressMonitor}. Setting this to
+     * anything other than 1 will disable progress monitoring.
+     *
+     * @param threadCount number of threads to use during validation
+     */
+    public void setThreadCount(int threadCount) {
+        if (threadCount < 1) {
+            throw new IllegalArgumentException("Number of threads must be greater than or equal to 1.");
+        }
+        if (threadCount > 1 && (executor == null || executor.getPoolSize() != threadCount)) {
+            executor = new ThreadPoolExecutor(threadCount, threadCount,0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>());
+        } else if (threadCount == 1 && executor != null) {
+            executor.shutdown();
+            executor = null;
+        }
+    }
+
+    /**
+     * Return the current executor if one exists, null o/w
+     * @return the current executor if one exists, null o/w
+     */
+    public ExecutorService getExecutor() {
+        return executor;
+    }
+
+    //TODO: remove this when ValidatorPerformanceTest is removed
+    public List<Future<ThreadedValidationEngine.ValidationMetadata>> getValidationMetadata() {
+        return validationMetadata;
     }
 
     /**
@@ -660,6 +261,8 @@ public final class ValidateAIF {
         // entity type" will know what types are in fact entity types.
         final Model unionModel = (union == null) ? ModelFactory.createUnion(domainModel, dataToBeValidated) : union;
         unionModel.setNsPrefix("sh", "http://www.w3.org/ns/shacl#");
+        unionModel.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
+        unionModel.setNsPrefix("aidaDomainCommon", AidaDomainOntologiesCommon.CanHaveName.getNameSpace());
 
         // Apply appropriate SHACL restrictions
         Model shacl;
@@ -667,7 +270,7 @@ public final class ValidateAIF {
             case NIST:
                 shacl = nistModel;
                 break;
-            case NIST_HYPOTHESIS:
+            case NIST_TA3:
                 shacl = nistHypoModel;
                 break;
             case NONE: // fall-through on purpose
@@ -677,16 +280,31 @@ public final class ValidateAIF {
 
         // Validates against the SHACL file to ensure that resources have the required properties
         // (and in some cases, only the required properties) of the proper types.
-        ValidationEngine engine = ValidationUtil.createValidationEngine(unionModel, shacl,
-                new ValidationEngineConfiguration()
-                        .setValidateShapes(true)
-                        .setValidationErrorBatch(abortThreshold));
-        engine.setProgressMonitor(progressMonitor);
-        try {
-            engine.applyEntailments();
-            return engine.validateAll();
-        } catch (InterruptedException ex) {
-            return null;
+        ValidationEngineConfiguration config = new ValidationEngineConfiguration()
+                .setValidateShapes(true)
+                .setValidationErrorBatch(abortThreshold);
+        if (executor != null) {
+            ThreadedValidationEngine engine = ThreadedValidationEngine.createValidationEngine(unionModel, shacl, config);
+            engine.setProgressMonitor(progressMonitor);
+            try {
+                engine.applyEntailments();
+                engine.validateAll(executor);
+                validationMetadata = engine.getValidationMetadata();
+                return engine.getReport();
+            } catch (InterruptedException|ExecutionException e) {
+                System.err.println("Unable to validate due to exception");
+                e.printStackTrace();
+                return null;
+            }
+        } else {
+            ValidationEngine engine = ValidationUtil.createValidationEngine(unionModel, shacl, config);
+            engine.setProgressMonitor(progressMonitor);
+            try {
+                engine.applyEntailments();
+                return engine.validateAll();
+            } catch (InterruptedException ex) {
+                return null;
+            }
         }
     }
 
@@ -698,188 +316,5 @@ public final class ValidateAIF {
      */
     public static boolean isValidReport(Resource validationReport) {
         return validationReport.getRequiredProperty(CONFORMS).getBoolean();
-    }
-
-
-    /**
-     * A statistics collector for use in profiling TopBraid-based SHACL validation.  Typical usage is to call
-     * {@link #startCollection()} and {@link #endCollection()} to bound statistics collection,
-     * then call {@link #dump(String)} to dump slow query statistics to <filename>-stats.txt.
-     * <p>
-     * This statistics collector only outputs slow queries via the {@link #dump(String)} method.  If you suspect
-     * validation will not complete due to out of memory or other error conditions, consider using {@link ProgressiveStatsCollector}.
-     */
-    private static class StatsCollector {
-
-        final int durationThreshold;
-
-        /**
-         * Creates a statistics collector that saves queries slower than <code>threshold</code> ms to a file.
-         *
-         * @param threshold the threshold definition of a slow query for this statistics collector
-         */
-        StatsCollector(int threshold) {
-            this.durationThreshold = threshold;
-        }
-
-        /**
-         * Start statistics collection.  Clears any previous statistics gathered by TopBraid statistics manager.
-         */
-        void startCollection() {
-            ExecStatisticsManager.get().reset();
-            ExecStatisticsManager.get().setRecording(true);
-        }
-
-        /**
-         * End statistics collection.
-         */
-        void endCollection() {
-            ExecStatisticsManager.get().setRecording(false);
-        }
-
-        /**
-         * Dump all gathered slow query statistics to <basename>-stats.txt, starting with the slowest queries.
-         *
-         * @param basename a file basename to determine the profiling output filename
-         */
-        void dump(String basename) {
-            final String outputFilename = basename.replace(".ttl", "-stats.txt");
-            try {
-                final PrintStream out = new PrintStream(Files.newOutputStream(Paths.get(outputFilename)));
-                dumpStats(out);
-                out.close();
-            } catch (IOException ioe) {
-                logger.warn("---> Could not write statistics for " + basename + ".");
-            }
-        }
-
-        // Dump stats to the specified PrintStream
-        private void dumpStats(PrintStream out) {
-            final SortedMap<Integer, ExecStatistics> savedStats = new TreeMap<>();
-            final SortedSet<Map.Entry<Integer, ExecStatistics>> sortedStats = new TreeSet<>(
-                    Collections.reverseOrder(Comparator.comparing(entry -> entry.getValue().getDuration())));
-            List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
-            for (int i = 0; i < stats.size(); i++) {
-                if (stats.get(i).getDuration() > durationThreshold) {
-                    savedStats.put(i, stats.get(i));
-                }
-            }
-            if (savedStats.isEmpty()) {
-                out.println("There were no queries that took longer than " + durationThreshold + "ms (of "
-                        + stats.size() + " queries overall).");
-            } else {
-                out.println("Displaying " + savedStats.size() + " slow queries (of "
-                        + stats.size() + " queries overall).");
-                sortedStats.addAll(savedStats.entrySet());
-                sortedStats.forEach(n -> dumpStat(n.getKey(), n.getValue(), out, true));
-            }
-        }
-
-        /**
-         * Dump a single query's statistics to the specified PrintStream
-         *
-         * @param queryNum      the query number showing where it occurred chronologically in validation
-         * @param queryStats    statistics about the query returned by TopBraid
-         * @param out           a PrintStream to dump the query statistics
-         * @param leadingSpaces whether to print leading or trailing spaces
-         */
-        void dumpStat(Integer queryNum, ExecStatistics queryStats, PrintStream out,
-                      boolean leadingSpaces) {
-            if (leadingSpaces) {
-                out.println("\n");
-            }
-            out.println("Query #" + (queryNum + 1));
-            out.println("Label: " + queryStats.getLabel());
-            out.println("Duration: " + queryStats.getDuration() + "ms");
-            out.println("StartTime: " + new Date(queryStats.getStartTime()));
-            out.println("Context node: " + queryStats.getContext().toString());
-            out.println("Query Text: " + queryStats.getQueryText().replaceAll("PREFIX.+\n", ""));
-            if (!leadingSpaces) {
-                out.println("\n");
-            }
-        }
-    }
-
-    /**
-     * A statistics collector for use in profiling TopBraid-based SHACL validation.  Typical usage is to call
-     * {@link #startCollection()} and {@link #endCollection()} to bound statistics collection,
-     * then call {@link #dump(String)} to dump slow query statistics to <filename>-stats.txt.
-     * <p>
-     * This statistics collector progressively dumps slow queries to stdout, which is useful if you suspect
-     * the validation will not complete due to out of memory or other error conditions.
-     */
-    private static class ProgressiveStatsCollector extends StatsCollector implements ExecStatisticsListener {
-
-        private final SortedMap<Integer, ExecStatistics> savedStats = new TreeMap<>();
-
-        /**
-         * Creates a statistics collector that progressively dumps queries slower than <code>threshold</code> ms to stdout.
-         *
-         * @param threshold the threshold definition of a slow query for this statistics collector
-         */
-        ProgressiveStatsCollector(int threshold) {
-            super(threshold);
-        }
-
-        /**
-         * Start statistics collection.  Clears any previous statistics gathered by TopBraid statistics manager.
-         */
-        @Override
-        void startCollection() {
-            savedStats.clear();
-            super.startCollection();
-            ExecStatisticsManager.get().addListener(this);
-        }
-
-        /**
-         * End statistics collection.
-         */
-        @Override
-        void endCollection() {
-            super.endCollection();
-            ExecStatisticsManager.get().removeListener(this);
-        }
-
-        /**
-         * Receives notification that a TopBraid query statistic has been generated.
-         */
-        public void statisticsUpdated() {
-            final List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
-            final ExecStatistics statistic = stats.get(stats.size() - 1);
-            if (statistic.getDuration() > durationThreshold) {
-                savedStats.put(stats.size(), statistic);
-                System.out.println("Dumping slow query #" + stats.size() + "; " + statistic.getDuration() + "ms.");
-                dumpStat(stats.size(), statistic, System.out, false);
-                System.out.flush(); // Make sure stdout gets displayed even if we eventually run out of memory
-            }
-        }
-
-        /**
-         * Dump all gathered slow query statistics to <basename>-stats.txt, starting with the slowest queries.
-         *
-         * @param basename a file basename to determine the profiling output filename
-         */
-        @Override
-        void dump(String basename) {
-            final String outputFilename = basename.replace(".ttl", "-stats.txt");
-            try {
-                final List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
-                final PrintStream out = new PrintStream(Files.newOutputStream(Paths.get(outputFilename)));
-                if (savedStats.isEmpty()) {
-                    out.println("There were no queries that took longer than " + durationThreshold + "ms (of "
-                            + stats.size() + " queries overall).");
-                } else {
-                    out.println("Displaying " + savedStats.size() + " slow queries (of "
-                            + stats.size() + " queries overall).");
-                    final SortedSet<Map.Entry<Integer, ExecStatistics>> sortedStats = new TreeSet<>(
-                            Collections.reverseOrder(Comparator.comparing(entry -> entry.getValue().getDuration())));
-                    sortedStats.addAll(savedStats.entrySet());
-                    sortedStats.forEach(n -> dumpStat(n.getKey(), n.getValue(), out, true));
-                }
-                out.close();
-            } catch (IOException ioe) {
-                logger.warn("---> Could not write statistics for " + basename + ".");
-            }
-        }
     }
 }
