@@ -5,7 +5,6 @@ import ch.qos.logback.classic.Logger;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
-import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.rdf.model.*;
@@ -15,6 +14,7 @@ import org.apache.jena.util.FileUtils;
 import org.topbraid.jenax.statistics.ExecStatistics;
 import org.topbraid.jenax.statistics.ExecStatisticsListener;
 import org.topbraid.jenax.statistics.ExecStatisticsManager;
+import org.topbraid.shacl.validation.ValidationEngine;
 import org.topbraid.shacl.validation.ValidationEngineConfiguration;
 import org.topbraid.shacl.validation.ValidationUtil;
 import org.topbraid.shacl.vocabulary.SH;
@@ -22,9 +22,9 @@ import org.topbraid.shacl.vocabulary.SH;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Predicate;
@@ -86,6 +86,7 @@ public final class ValidateAIF {
     private Model domainModel;
     private Restriction restriction;
     private int abortThreshold = -1; // by default, do not abort on SHACL violation
+    private AIFProgressMonitor progressMonitor = null; // by default, do not monitor progress
 
     private ValidateAIF(Model domainModel, Restriction restriction) {
         initializeSHACLModels();
@@ -173,7 +174,7 @@ public final class ValidateAIF {
     // Show usage information.
     private static void showUsage() {
         System.out.println("Usage:\n" +
-                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--abort [num]] {-f FILE ... | -d DIRNAME}\n" +
+                "\tvalidateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--abort [num]] [--pm] {-f FILE ... | -d DIRNAME}\n" +
                 "Options:\n" +
                 "--ldc           Validate against the LDC ontology\n" +
                 "--program       Validate against the program ontology\n" +
@@ -184,6 +185,7 @@ public final class ValidateAIF {
                 "                Output defaults to stderr.\n" +
                 "-h, --help      Show this help and usage text\n" +
                 "--abort [num]   Abort validation after [num] SHACL violations (num > 2), or three violations if [num] is omitted.\n" +
+                "--pm            Enable progress monitor that shows ongoing validation progress\n" +
                 "-f FILE ...     Validate the specified file(s) with a .ttl suffix\n" +
                 "-d DIRNAME      Validate all .ttl files in the specified directory\n" +
                 "\n" +
@@ -253,6 +255,9 @@ public final class ValidateAIF {
                     break;
                 case "--p2": // NOTE: this flag is not documented in the README nor the Usage info
                     flags.add(ArgumentFlags.PROGRESSIVE_PROFILING);
+                    break;
+                case "--pm":
+                    flags.add(ArgumentFlags.PROGRESS_MONITORING);
                     break;
                 case "--abort":
                     flags.add(ArgumentFlags.ABORT);
@@ -328,7 +333,7 @@ public final class ValidateAIF {
 
     // Command-line argument flags
     private enum ArgumentFlags {
-        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY, FILE_OUTPUT, PROFILING, PROGRESSIVE_PROFILING, ABORT
+        NIST, HYPO, LDC, PROGRAM, FILES, DIRECTORY, FILE_OUTPUT, PROFILING, PROGRESSIVE_PROFILING, ABORT, PROGRESS_MONITORING
     }
 
     /**
@@ -358,6 +363,7 @@ public final class ValidateAIF {
                 flags.contains(ArgumentFlags.HYPO) ? Restriction.NIST_HYPOTHESIS : Restriction.NIST;
         final boolean ldcFlag = flags.contains(ArgumentFlags.LDC);
         final boolean programFlag = flags.contains(ArgumentFlags.PROGRAM);
+        final boolean progressMonitoring = flags.contains(ArgumentFlags.PROGRESS_MONITORING);
         final boolean profiling = flags.contains(ArgumentFlags.PROFILING) || flags.contains(ArgumentFlags.PROGRESSIVE_PROFILING);
 
         // Finally, try to create the validator, but fail if required elements can't be loaded/parsed.
@@ -372,7 +378,7 @@ public final class ValidateAIF {
                 Set<CharSource> domainOntologySources = new HashSet<>();
                 for (String source : domainOntologies) {
                     File file = new File(source);
-                    domainOntologySources.add(Files.asCharSource(file, Charsets.UTF_8));
+                    domainOntologySources.add(com.google.common.io.Files.asCharSource(file, Charsets.UTF_8));
                 }
                 validator = create(ImmutableSet.copyOf(domainOntologySources), restriction);
             }
@@ -443,10 +449,13 @@ public final class ValidateAIF {
         if (profiling) {
             logger.info("-> Saving slow queries (> " + LONG_QUERY_THRESH + " ms) to <kbname>-stats.txt.");
         }
+        if (progressMonitoring) {
+            logger.info("-> Saving ongoing validation progress to <kbname>-progress.tab.");
+        }
         logger.info("*** Beginning validation of " + filesToValidate.size() + " file(s). ***");
 
         // Validate all files, noting I/O and other errors, but continue to validate even if one fails.
-        final DateFormat format = new SimpleDateFormat("EEE, MMM d HH:mm:ss");
+        final SimpleDateFormat format = new SimpleDateFormat("EEE, MMM d HH:mm:ss");
         int invalidCount = 0;
         int skipCount = 0;
         int abortCount = 0;
@@ -463,6 +472,9 @@ public final class ValidateAIF {
             if (notSkipped) {
                 if (profiling) {
                     stats.startCollection();
+                }
+                if (progressMonitoring) {
+                    validator.setProgressMonitor(fileToValidate.getName().replace(".ttl", ""));
                 }
                 final Resource report = validator.validateKBAndReturnReport(dataToBeValidated);
                 if (profiling) {
@@ -503,7 +515,7 @@ public final class ValidateAIF {
         } else {
             String outputFilename = fileToValidate.toString().replace(".ttl", "-report.txt");
             try {
-                RDFDataMgr.write(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)),
+                RDFDataMgr.write(Files.newOutputStream(Paths.get(outputFilename)),
                         validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
             } catch (IOException ioe) {
                 logger.warn("---> Could not write validation report for " + fileToValidate + ".");
@@ -518,7 +530,7 @@ public final class ValidateAIF {
     private static boolean checkHypothesisSize(File fileToValidate) {
         try {
             final Path path = Paths.get(fileToValidate.toURI());
-            final long fileSize = java.nio.file.Files.size(path);
+            final long fileSize = Files.size(path);
             if (fileSize > 1024 * 1024 * 5) { // 5MB
                 logger.warn("---> Hypothesis KB " + fileToValidate + " is more than 5MB (" + fileSize + " bytes); skipping.");
                 return false;
@@ -536,7 +548,7 @@ public final class ValidateAIF {
         dataToBeValidated.addLoadedImport(INTERCHANGE_URI);
         dataToBeValidated.addLoadedImport(AIDA_DOMAIN_COMMON_URI);
         try {
-            loadModel(dataToBeValidated, Files.asCharSource(fileToValidate, Charsets.UTF_8));
+            loadModel(dataToBeValidated, com.google.common.io.Files.asCharSource(fileToValidate, Charsets.UTF_8));
         } catch (RuntimeException rte) {
             logger.warn("---> Could not read " + fileToValidate + "; skipping.");
             return false;
@@ -566,6 +578,26 @@ public final class ValidateAIF {
             return ReturnCode.VALIDATION_ERROR;
         } else {
             return skipCount == 0 ? ReturnCode.SUCCESS : ReturnCode.FILE_ERROR;
+        }
+    }
+
+    /**
+     * Tells the validator whether or not to monitor progress and show ongoing validation progress
+     *
+     * @param id if non-null, an identifier for the progress monitor, otherwise disables progress monitoring
+     */
+    public void setProgressMonitor(String id) {
+        if (id == null) {
+            this.progressMonitor = null;
+            return;
+        }
+
+        final String filename = id + "-progress.tab";
+        try {
+            this.progressMonitor = new AIFProgressMonitor(filename);
+        } catch (IOException e) {
+            logger.warn("Could not open progress monitor filename {}.  Writing progress to StdOut.", filename);
+            this.progressMonitor = new AIFProgressMonitor();
         }
     }
 
@@ -644,12 +676,18 @@ public final class ValidateAIF {
         }
 
         // Validates against the SHACL file to ensure that resources have the required properties
-        // (and in some cases, only the required properties) of the proper types.  Returns true if
-        // validation passes.
-        return ValidationUtil.validateModel(unionModel, shacl,
+        // (and in some cases, only the required properties) of the proper types.
+        ValidationEngine engine = ValidationUtil.createValidationEngine(unionModel, shacl,
                 new ValidationEngineConfiguration()
                         .setValidateShapes(true)
                         .setValidationErrorBatch(abortThreshold));
+        engine.setProgressMonitor(progressMonitor);
+        try {
+            engine.applyEntailments();
+            return engine.validateAll();
+        } catch (InterruptedException ex) {
+            return null;
+        }
     }
 
     /**
@@ -707,7 +745,7 @@ public final class ValidateAIF {
         void dump(String basename) {
             final String outputFilename = basename.replace(".ttl", "-stats.txt");
             try {
-                final PrintStream out = new PrintStream(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)));
+                final PrintStream out = new PrintStream(Files.newOutputStream(Paths.get(outputFilename)));
                 dumpStats(out);
                 out.close();
             } catch (IOException ioe) {
@@ -826,7 +864,7 @@ public final class ValidateAIF {
             final String outputFilename = basename.replace(".ttl", "-stats.txt");
             try {
                 final List<ExecStatistics> stats = ExecStatisticsManager.get().getStatistics();
-                final PrintStream out = new PrintStream(java.nio.file.Files.newOutputStream(Paths.get(outputFilename)));
+                final PrintStream out = new PrintStream(Files.newOutputStream(Paths.get(outputFilename)));
                 if (savedStats.isEmpty()) {
                     out.println("There were no queries that took longer than " + durationThreshold + "ms (of "
                             + stats.size() + " queries overall).");
