@@ -1164,6 +1164,7 @@ aida:ContentGraphShape
             [sh:class aida:Relation]
             [sh:class aida:SentimentAssertion]
             [sh:class aida:ClusterMembership]
+            [sh:class aida:SameAsCluster]
             [sh:class rdf:Statement] ) ;
         sh:message "Content graph cannot contain this type of node"
     ] ;

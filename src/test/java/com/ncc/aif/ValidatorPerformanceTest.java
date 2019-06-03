@@ -20,22 +20,21 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-//TODO: remove me
+//TODO: remove me when multi-threaded progress monitor is added
 public class ValidatorPerformanceTest {
-    private static final String ROOT = "../VERDI/MockTA1Algo/";
-    private static final String SAMPLE = ROOT + "R103.Sample.2019.05.14/";
-    private static final String KB = SAMPLE + "R103.kb.ttl";
-    private static final String SMALL_TA1 = SAMPLE + "IC00120RO.parent.ttl";
-    private static final String MEDIUM_TA1 = SAMPLE + "IC0011WX8.parent.ttl";
-    private static final String BIG_TA1 = ROOT + "R103.2019.05.23/IC0011TIJ.parent.ttl";
-    private static final String GAIA_KB = "/home/HQ/ecurley/Documents/AIDA/2019.05.17-AIDA-795-Threading/big-gaia-sansprivate.ttl";
-    private static final String NORMAL_TAG = "normal";
-    private static final String THREAD_TAG = "threaded";
+    // Requires that LDC Sample KB be created in MockTA1Algo.
+    private static final String ROOT = "../VERDI/MockTA1Algo/R103";
+    private static final String KB = ROOT + "R103.kb.ttl";
+    private static final String SMALL_TA1 = ROOT + "IC00120RO.parent.ttl";
+    private static final String MEDIUM_TA1 = ROOT + "IC0011WX8.parent.ttl";
+
+    // Requires that LDC TA1 output be created in MockTA1Algo
+    private static final String BIG_TA1 = ROOT + "IC0011TIJ.parent.ttl";
 
     public static void main(String[] args) throws InterruptedException, ExecutionException, IOException {
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
         ValidatorPerformanceTest test = new ValidatorPerformanceTest(4);
-        test.runAgainstFile(GAIA_KB, 1);
+        test.runAgainstFile(BIG_TA1, 1);
         test.printFutures();
     }
 
