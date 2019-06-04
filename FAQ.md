@@ -34,7 +34,7 @@ First, if you haven't already, you'll need to change your build script or tool t
 For gradle, for example, include the following in the dependencies in your `build.gradle` file:
 
 `dependencies {
-    compile 'com.ncc:aida-interchange:1.0-SNAPSHOT'
+    compile 'com.ncc:aida-interchange:1.0.1'
 }`
 
 Next, update any source files that import the `edu.isi.gaia` package to use the `com.ncc.aif` package instead.
