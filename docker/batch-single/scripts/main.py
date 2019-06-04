@@ -30,13 +30,24 @@ class Main:
         self.worker_init_timeout = int(envs['WORKER_INIT_TIMEOUT'])
         self.aws_region = envs['AWS_DEFAULT_REGION']
         self.aws_sns_topic = envs['AWS_SNS_TOPIC_ARN']
-        self.debug = bool(envs['DEBUG'])
+        self.debug = self._set_debug(envs['DEBUG'])
         self.debug_timeout = int(envs['DEBUG_TIMEOUT'])
         self.debug_sleep_interval = int(envs['DEBUG_SLEEP_INTERVAL'])
         self.source_log = 'sourcelog'
         self.session = boto3.session.Session(region_name=self.aws_region)
         self.extracted = envs['S3_SUBMISSION_EXTRACTED']
         self.verification = None
+
+    def _set_debug(self, flag):
+        """Helper function that will appropriatly set the debug flag based on the 
+        string value of envs['DEBUG']
+        """
+        if flag == 'True':
+            return True
+        elif flag == 'False':
+            return False
+        else:
+            raise ValueError('Unable to convert {0} to boolean value'.format(flag))
 
     def run(self):
         """
@@ -655,21 +666,20 @@ def read_envs():
     :rtype: dict
     """
     envs = {}
-    envs['S3_SUBMISSION_ARCHIVE'] = os.environ.get('S3_SUBMISSION_ARCHIVE', 'NextCentury_1.zip')
-    envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
-    envs['S3_SUBMISSION_TASK'] = os.environ.get('S3_SUBMISSION_TASK', '1a')
-    envs['S3_SUBMISSION_EXTRACTED'] = os.environ.get('S3_SUBMISSION_EXTRACTED', '2')
-    envs['S3_SUBMISSION_BUCKET'] = os.environ.get('S3_SUBMISSION_BUCKET', 'aida-validation')
-    envs['S3_SUBMISSION_PREFIX'] = os.environ.get('S3_SUBMISSION_PREFIX', 'NextCentury_1-nist')
-    envs['S3_SUBMISSION_VALIDATION_DESCR'] = os.environ.get('S3_SUBMISSION_VALIDATION_DESCR', 'NIST restricted')
-    envs['RESULT_ARCHIVE_NAME'] = os.environ.get('RESULT_ARCHIVE_NAME', 'NextCentury_1-nist.tar.gz')
-    envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID', 'c8c90aa7-4f33-4729-9e5c-0068cb9ce75c')
-    envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX', '0')
+    envs['S3_SUBMISSION_ARCHIVE'] = os.environ.get('S3_SUBMISSION_ARCHIVE')
+    envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET')
+    envs['S3_SUBMISSION_TASK'] = os.environ.get('S3_SUBMISSION_TASK')
+    envs['S3_SUBMISSION_EXTRACTED'] = os.environ.get('S3_SUBMISSION_EXTRACTED')
+    envs['S3_SUBMISSION_BUCKET'] = os.environ.get('S3_SUBMISSION_BUCKET')
+    envs['S3_SUBMISSION_PREFIX'] = os.environ.get('S3_SUBMISSION_PREFIX')
+    envs['S3_SUBMISSION_VALIDATION_DESCR'] = os.environ.get('S3_SUBMISSION_VALIDATION_DESCR')
+    envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID')
+    envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX')
     envs['MAIN_SLEEP_INTERVAL'] = os.environ.get('MAIN_SLEEP_INTERVAL', '30')
     envs['WORKER_INIT_TIMEOUT'] = os.environ.get('WORKER_INIT_TIMEOUT', '300')
     envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
-    envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN', 'arn:aws:sns:us-east-1:606941321404:aida-validation')
-    envs['DEBUG'] = os.environ.get('DEBUG', 'True')
+    envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN')
+    envs['DEBUG'] = os.environ.get('DEBUG', 'False')
     envs['DEBUG_TIMEOUT'] = os.environ.get('DEBUG_TIMEOUT', '100')
     envs['DEBUG_SLEEP_INTERVAL'] = os.environ.get('DEBUG_SLEEP_INTERVAL', '10')
     return envs
