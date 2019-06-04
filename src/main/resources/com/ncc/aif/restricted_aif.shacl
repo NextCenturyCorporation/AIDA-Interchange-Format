@@ -60,11 +60,7 @@ aida:RestrictCompoundJustificationPropertyShape
    sh:not [sh:class aida:CompoundJustification] ;
    sh:message "CompoundJustification must be used only for justifications of argument assertions" .
 
-aida:EventShape
-    # may not provide compound justification
-    sh:property aida:RestrictCompoundJustificationPropertyShape .
-
-aida:RelationShape
+aida:EventRelationShape
     # may not provide compound justification
     sh:property aida:RestrictCompoundJustificationPropertyShape .
 
