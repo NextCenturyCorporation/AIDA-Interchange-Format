@@ -17,7 +17,7 @@ class Main:
 
     # Initializer / Instance Attributes
     def __init__(self, envs):
-
+        
         self.submission = envs['S3_SUBMISSION_ARCHIVE']
         self.bucket = envs['S3_VALIDATION_BUCKET']
         self.job_id = (envs['AWS_BATCH_JOB_ID']).split("#")[0]
@@ -113,8 +113,8 @@ class Main:
 
     def _check_submission_extension(self):
         """Helper function that checks the submission extension is valid before
-        downloading archive from S3. Valid submissions can be archived as .tar.gz,
-        .tgz, or .zip.
+        downloading archive from S3. Valid submissions can be archived as .tar.gz, 
+        .tgz, or .zip. 
 
         :returns: True if submission has valid extension, False otherwise
         """
@@ -142,7 +142,7 @@ class Main:
         try:
             logging.info("Publishing message [%s] to topic %s", message, self.aws_sns_topic)
 
-            #publish message
+            #publish message 
             response = sns.publish(
                     TopicArn=self.aws_sns_topic,
                     Message=message
@@ -207,7 +207,7 @@ class Main:
 
             # save the number of files extracted
             self.extracted = len(ttls)
-
+                
         except ClientError as e:
             logging.error(e)
             self._publish_failure_message(e)
@@ -219,10 +219,10 @@ class Main:
 
 
     def _get_submission_paths(self):
-        """Helper function to extract s3 and file path information from s3 submission
+        """Helper function to extract s3 and file path information from s3 submission 
         path.
 
-        :returns:
+        :returns: 
             - s3_bucket - the extracted S3 bucket
             - s3_object - the extracted s3 object
             - file_name - the extracted file name including extension
@@ -230,8 +230,8 @@ class Main:
         :rtype: (str, str, str, str)
         """
         path = Path(self.submission)
-        s3_bucket = path.parts[0]
-        s3_object = '/'.join(path.parts[1:])
+        s3_bucket = path.parts[0]          
+        s3_object = '/'.join(path.parts[1:])   
         file_name = path.name
         suffixes = path.suffixes
         file_ext = self._get_submission_extension()
@@ -240,11 +240,11 @@ class Main:
 
 
     def _get_submission_extension(self):
-        """Helper function to get the extension of
+        """Helper function to get the extension of 
         """
         path = Path(self.submission)
         suffixes = path.suffixes
-
+        
         if len(suffixes) > 1 and suffixes[-1] == '.gz':
             file_ext = "".join([suffixes[-2], suffixes[-1]])
         elif len(suffixes) > 1:
@@ -260,7 +260,7 @@ class Main:
 
         :return: The SQS queue url
         :rtype: str
-        :raises ClientError: SQS client exception
+        :raises ClientError: SQS client exception  
         :raises Exception: SQS queue was unable to be created
         """
         sqs_client = self.session.client('sqs')
@@ -276,7 +276,7 @@ class Main:
                     'MessageRetentionPeriod':'1209600',
                     'FifoQueue': 'true',
                     'ContentBasedDeduplication': 'true'
-                }
+                }   
             )
 
             if not queue['QueueUrl']:
@@ -297,9 +297,9 @@ class Main:
 
     def _enqueue_files(self, queue_url):
         """Uploads all turtle (ttl) files in source directory to the provided S3 bucket,
-        adds each S3 object path as a message on SQS and creates / updates the source log on S3.
+        adds each S3 object path as a message on SQS and creates / updates the source log on S3. 
         The source log is a serialized list of each S3 object path that will
-        be used for processing validation. After all messages have processed and added to
+        be used for processing validation. After all messages have processed and added to 
         the queue, a final source file will be uploaded with a suffix of '.queued' and the old
         source file will be removed from S3.
 
@@ -328,7 +328,7 @@ class Main:
 
                 else:
                     logging.error("Unable to add %s as SQS message", s3_object)
-
+            
             # append .done to the source log path
             if os.path.exists(self.source_log):
                 os.rename(self.source_log, self.source_log +'.queued')
@@ -410,8 +410,8 @@ class Main:
 
 
     def _debug_wait_for_processing(self):
-        """This function is used for debugging purposes. This will remove any dependency on
-        AWS batch and allow for jobs to be processed for the specified amount of time set in
+        """This function is used for debugging purposes. This will remove any dependency on 
+        AWS batch and allow for jobs to be processed for the specified amount of time set in 
         the [processing_timeout] parameter. Once that amount of time has elapsed this function will
         return true.
 
@@ -421,17 +421,17 @@ class Main:
         timeout = time.time() + self.debug_timeout
 
         while time.time() < timeout:
-            logging.info("Debug mode enabled. Simulating processing for %s seconds. Sleeping for %s seconds",
+            logging.info("Debug mode enabled. Simulating processing for %s seconds. Sleeping for %s seconds", 
                 self.debug_timeout, self.debug_sleep_interval)
             time.sleep(self.debug_sleep_interval)
         return True
 
 
     def _wait_for_processing(self):
-        """Waits in an indefinite loop while all AWS batch jobs are processed. Function will
-        query AWS batch for all current jobs with the specified job id. If the returned job
-        list has any jobs with the status of RUNNING (other than itself), it will sleep for
-        the specified interval and then execute the check again.
+        """Waits in an indefinite loop while all AWS batch jobs are processed. Function will 
+        query AWS batch for all current jobs with the specified job id. If the returned job 
+        list has any jobs with the status of RUNNING (other than itself), it will sleep for 
+        the specified interval and then execute the check again. 
 
         :raises ClientError: AWS batch client exception
         """
@@ -455,30 +455,30 @@ class Main:
                     logging.error("No batch jobs with RUNNING status")
                     return False
                 # ensure master node is always in RUNNING status if multiple jobs are running
-                elif ( len(running_jobs) > 0 and
+                elif ( len(running_jobs) > 0 and 
                     not any(d['jobId'] == ''.join([self.job_id, '#', str(self.node_index)]) for d in running_jobs) ):
-                    logging.error("Main batch job %s no longer has RUNNING status",
+                    logging.error("Main batch job %s no longer has RUNNING status", 
                         ''.join([self.job_id, '#', str(self.node_index)]))
                     return False
                 # check if only the master job is running
                 elif len(running_jobs) == 1 and running_jobs[0]['jobId'] == ''.join([self.job_id, '#', str(self.node_index)]):
-
+                    
                     # wait for worker jobs to initialize
                     if worker_init:
                         logging.info("All worker batch jobs finished executing")
                         return True
                     elif not worker_init and time.time() >= self.worker_timeout:
-                        logging.error("No worker batch jobs started with RUNNING status before timeout of %s seconds",
+                        logging.error("No worker batch jobs started with RUNNING status before timeout of %s seconds", 
                             self.worker_init_timeout)
                         return False
                     else:
-                        logging.info("Waiting for worker batch jobs to initialize with RUNNING status, sleeping for %s seconds",
+                        logging.info("Waiting for worker batch jobs to initialize with RUNNING status, sleeping for %s seconds", 
                             self.sleep_interval)
                         time.sleep(self.sleep_interval)
                 else:
                     worker_init = True
                     running_job_ids = [d['jobId'] for d in running_jobs]
-                    logging.info('There are %s batch jobs with RUNNING status %s,'
+                    logging.info('There are %s batch jobs with RUNNING status %s,' 
                         ' sleeping for %s seconds', len(running_jobs), running_job_ids, str(self.sleep_interval))
                     time.sleep(self.sleep_interval)
 
@@ -487,10 +487,10 @@ class Main:
 
 
     def _get_submission_stem(self):
-        """Helper function to extract s3 and file path information from submission
+        """Helper function to extract s3 and file path information from submission 
         path.
 
-        :returns:
+        :returns: 
             - stem - the extracted stem from the submission
         :rtype: str
         """
@@ -515,17 +515,17 @@ class Main:
             # Requires python 3.7+ *
             #**********************
             output = subprocess.run(cmd, check=True, shell=True)
-            logging.info("Successfully downloaded all files from s3 bucket %s with prefix %s",
+            logging.info("Successfully downloaded all files from s3 bucket %s with prefix %s", 
                 self.bucket, self.job_id)
-
+            
         except CalledProcessError as e:
-            logging.error("Error [%s] occurred when syncing s3 bucket %s with prefix %s",
+            logging.error("Error [%s] occurred when syncing s3 bucket %s with prefix %s", 
                 str(e.returncode), self.bucket, self.job_id)
 
 
     def _verify_validation(self, results_path):
-        """Verifies that all files enqueued on SQS were accounted for in the
-        resulting S3 bucket after validation.
+        """Verifies that all files enqueued on SQS were accounted for in the 
+        resulting S3 bucket after validation. 
 
         :param str results_path: The local path of the sync'd s3 bucket
         :returns: True if all files are account for, False otherwise
@@ -539,7 +539,7 @@ class Main:
 
             # read in source log files
             sqs_objects = []
-            try:
+            try: 
                 with open(queued_log) as file:
                     sqs_objects = [Path(line.strip()).name for line in file]
             except :
@@ -553,7 +553,7 @@ class Main:
                 return False
 
             # get all ttl files that have been processed
-            processed_objects = []
+            processed_objects = [] 
             for filepath in Path(results_path).glob('**/*.ttl'):
                 processed_objects.append(filepath.name)
 
@@ -568,7 +568,7 @@ class Main:
                 self._create_verification_output(
                     results_path,
                     verification_log,
-                    "The following {0} files were missing from validation results: {1}".format(
+                    "The following {0} files were missing from validation results: {1}".format( 
                         str(len(missing_objects)), missing_objects
                     )
                 )
@@ -585,12 +585,12 @@ class Main:
                         str(len(sqs_objects))
                     )
                 )
-                return True
+                return True 
         else:
             logging.error("Source log file %s does not exist, unable to verify source files", source_log_path)
 
             self._create_verification_output(
-                results_path,
+                results_path, 
                 verification_log,
                 "Source log file {0} does not exist, unable to verify source files".format(source_log_path)
             )
@@ -598,14 +598,14 @@ class Main:
 
 
     def _create_verification_output(self, results_path, source_verification_path, message):
-        """Generates verification file with verification results to be added to final
+        """Generates verification file with verification results to be added to final 
         archive and sets verification message for final report.
 
         :param str results_path: The local path of the sync'd s3 bucket
         :param str source_verification_path: The path to place this verification output file
-        :param str message: The message that will be added to the file with the verification
+        :param str message: The message that will be added to the file with the verification 
             results
-        :raises Exception: Excpetion occurred when attempting to write to file
+        :raises Exception: Excpetion occurred when attempting to write to file 
         """
         file_path = '/'.join([results_path, source_verification_path])
         try:
@@ -675,7 +675,7 @@ class Main:
 
 
     def _get_results_metrics(self, results_path):
-        """Function will inspect sync'd S3 directory and count and store results
+        """Function will inspect sync'd S3 directory and count and store results 
         for each validation category.
 
         :param str results_path: The local path of the sync'd s3 directory
@@ -694,16 +694,16 @@ class Main:
 
     def _create_validation_report(self, metrics, results_archive):
         """Function will generate the final validation report that will be sent in an SNS
-        message.
+        message. 
 
-        :param dict metrics: The counts of each validation category
-        :param str results_archive: The name of the final results archive that will be
-            uploaded to s3.
+        :param dict metrics: The counts of each validation category 
+        :param str results_archive: The name of the final results archive that will be 
+            uploaded to s3. 
         """
         report = "The validation of {0} with job id: {1} has completed. {2} .ttl were files extracted " \
             .format(Path(self.submission).name, self.job_id, self.extracted) + " from the submission." \
             + self.verification + "\n\nValidation Summary\n------------------\n" \
-
+            
 
         report += "VALID: " + str(metrics['valid']) + "\n"
         report += "INVALID: " + str(metrics['invalid']) + "\n"
@@ -807,7 +807,7 @@ def main():
 
     # validate environment variables
     envs = read_envs()
-
+    
     # set logging to log to stdout
     logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO'))
 
@@ -817,7 +817,7 @@ def main():
         main.run()
 
     else:
-        raise ValueError("Exception occurred when validating environment variables")
+        raise ValueError("Exception occurred when validating environment variables") 
 
 
 if __name__ == "__main__": main()

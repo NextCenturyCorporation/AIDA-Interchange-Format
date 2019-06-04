@@ -20,7 +20,7 @@ class Worker:
 		self.validation_timeout = int(envs['VALIDATION_TIMEOUT'])
 		self.validation_home = envs['VALIDATION_HOME']
 		self.validation_flags = envs['VALIDATION_FLAGS']
-		self.bucket = envs['S3_VALIDATION_BUCKET']
+		self.bucket = envs['S3_VALIDATION_BUCKET'] 
 		self.job_id = (envs['AWS_BATCH_JOB_ID']).split("#")[0]
 		self.node_index = envs['AWS_BATCH_JOB_NODE_INDEX']
 		self.aws_region = envs['AWS_DEFAULT_REGION']
@@ -39,10 +39,10 @@ class Worker:
 				# process messages
 				self._process_sqs_queue()
 		else:
-			logging.error("Worker with node index %s timed out waiting for SQS queue to be available after %s seconds",
+			logging.error("Worker with node index %s timed out waiting for SQS queue to be available after %s seconds", 
 				self.node_index, self.queue_init_timeout)
 
-
+	
 	def _bucket_exists(self):
 		"""Helper function that will check if a validation bucket
 		exists.
@@ -94,7 +94,7 @@ class Worker:
 		"""Checks if SQS queue exists.
 
 		:param str queue: Name of the SQS queue to check
-		:returns: True if SQS queue exits, False otherwise.
+		:returns: True if SQS queue exits, False otherwise. 
 		:rtype: bool
 		:raises ClientError: SQS resource exception
 		"""
@@ -111,12 +111,12 @@ class Worker:
 
 
 	def _check_sqs_has_messages(self, complete=False):
-		"""Function will verify if the source log file has been created indicating
-		messages have been added to the SQS queue. If the complete parameter is set
-		to True, it will specifically look for the source log file that has .queued
+		"""Function will verify if the source log file has been created indicating 
+		messages have been added to the SQS queue. If the complete parameter is set 
+		to True, it will specifically look for the source log file that has .queued 
 		appended to the suffix, indicating the SQS queue has been fully populated.
 
-		:param bool complete: True checks if source log has the .queued suffix, False
+		:param bool complete: True checks if source log has the .queued suffix, False 
 			otherwise
 		:returns: True if messages are on queue based on the source logs, False otherwise
 		:rtype: bool
@@ -130,10 +130,10 @@ class Worker:
 			for obj in objs:
 				if obj.key == log_prefix +'.queued':
 					logging.info(self.source_log + ".queued found in S3 bucket %s", self.bucket)
-					return True
+					return True	
 			return False
 		else:
-			if len(objs) > 0:
+			if len(objs) > 0: 
 				logging.info(self.source_log + " exist in S3 bucket %s", self.bucket)
 				return True
 			return False
@@ -159,8 +159,8 @@ class Worker:
 
 
 	def _process_sqs_queue(self):
-		"""Function process messages until no more messages can be read from SQS
-		queue and source log .queued file has been populated in S3.
+		"""Function process messages until no more messages can be read from SQS 
+		queue and source log .queued file has been populated in S3. 
 
 		:raises ClientError: SQS client exception
 		"""
@@ -184,12 +184,12 @@ class Worker:
 
 				#check if queue has finished populating and message is None
 				if msg is None and self._check_sqs_has_messages(True):
-					logging.info("All SQS messages have been processed")
+					logging.info("All SQS messages have been processed")		
 					break
 
 				# process message
 				if msg is not None:
-					logging.info("Processing message %s", msg['Body'])
+					logging.info("Processing message %s", msg['Body'])	
 
 					payload = msg['Body']
 					self._delete_sqs_message(response['QueueUrl'], msg['ReceiptHandle'])
@@ -219,7 +219,7 @@ class Worker:
 				QueueUrl=queue_url,
 				MaxNumberOfMessages=1,	# only recieve a single message
 				WaitTimeSeconds=20, 	# enable long polling
-				VisibilityTimeout=10
+				VisibilityTimeout=10    
 			)
 
 			if 'Messages' in messages:
@@ -250,7 +250,7 @@ class Worker:
 	    sqs_client = self.session.client('sqs')
 	    try:
 	    	sqs_client.delete_message(
-	    		QueueUrl=queue_url,
+	    		QueueUrl=queue_url, 
 	    		ReceiptHandle=msg_receipt_handle
 	    	)
 	    	logging.info("Deleted message with receipt handle %s ", msg_receipt_handle)
@@ -324,10 +324,10 @@ class Worker:
 
 
 	def _execute_validation(self, file_path):
-		"""Executes the AIF Validator as a sub-process for the turtle file located at the specified
-		file path.
+		"""Executes the AIF Validator as a sub-process for the turtle file located at the specified 
+		file path. 
 
-		:returns: Return code that specifies the validation execution result
+		:returns: Return code that specifies the validation execution result 
 		:rtype: int
 		"""
 		file_name = Path(file_path).name
@@ -347,7 +347,7 @@ class Worker:
 			f.close()
 			logging.info("Validation succeeded for file %s", file_name)
 			return 0
-
+			
 		except CalledProcessError as e:
 			f = open(file_path+'.log', 'w')
 			f.write(e.output)
@@ -372,11 +372,11 @@ class Worker:
 		"""
 		items = glob.glob(validation_dir + '**/*' + extension)
 
-		if len(items) <= 0:
+		if len(items) <= 0: 
 			logging.error("No validation output files found in validation folder with extension %s", extension)
-		elif len(items) > 1:
+		elif len(items) > 1: 
 			logging.error("Found multiple validation output %s files in validation staging folder", extension)
-
+		
 		for item in items:
 			logging.info("Uploading %s file %s to S3 with prefix %s", extension, item, self.bucket + '/' + s3_object_prefix)
 			self._upload_file_to_s3(s3_object_prefix, item)
@@ -426,7 +426,7 @@ def read_envs():
 	:rtype: dict
 	"""
 	envs = {}
-	envs['QUEUE_INIT_TIMEOUT'] = os.environ.get('QUEUE_INIT_TIMEOUT', '3600')
+	envs['QUEUE_INIT_TIMEOUT'] = os.environ.get('QUEUE_INIT_TIMEOUT', '3600') 
 	envs['VALIDATION_TIMEOUT'] = os.environ.get('VALIDATION_TIMEOUT', '28800')
 	envs['VALIDATION_HOME'] = os.environ.get('VALIDATION_HOME', '/opt/aif-validator')
 	envs['VALIDATION_FLAGS'] = os.environ.get('VALIDATION_FLAGS', '--ldc --nist -o')
@@ -490,7 +490,7 @@ def main():
 
     # validate environment variables
     envs = read_envs()
-
+    
     # set logging to log to stdout
     logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO'))
 
@@ -500,7 +500,7 @@ def main():
         worker.run()
 
     else:
-        raise ValueError("Exception occured when validating environment variables")
+        raise ValueError("Exception occured when validating environment variables") 
 
 
 if __name__ == "__main__": main()
