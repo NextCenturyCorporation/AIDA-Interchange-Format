@@ -40,6 +40,7 @@ public class ThreadedValidationEngine extends ValidationEngine {
     private ThreadLocal<Model> threadModel = ThreadLocal.withInitial(ModelFactory::createDefaultModel);
     private ThreadLocal<Integer> threadViolations = ThreadLocal.withInitial(() -> 0);
     private Predicate<RDFNode> focusNodeFilter;
+    private boolean isStopped = false;
 
     private ThreadedValidationEngine(Dataset dataset, URI shapesGraphURI, ShapesGraph shapesGraph) {
         super(dataset, shapesGraphURI, shapesGraph, null);
@@ -131,20 +132,18 @@ public class ThreadedValidationEngine extends ValidationEngine {
 
         int i = 0;
         for (Shape shape : rootShapes) {
-            validationMetadata.add(executor.submit(getTask(shape, i++, executor)));
+            validationMetadata.add(executor.submit(getTask(shape, i++)));
         }
 
         // Go through all futures and get validation metadata for those that have completed
         Map<String, Model> models = new HashMap<>();
         int violations = 0;
         for (Future<ValidationMetadata> future : validationMetadata) {
-            if (!executor.isShutdown() || future.isDone()) {
-                ValidationMetadata md = future.get();
-                models.computeIfAbsent(md.threadName, key -> md.model);
-                violations += md.violations;
-                if (exceedsMaximumNumberViolations(violations) && !executor.isShutdown()) {
-                    executor.shutdownNow();
-                }
+            ValidationMetadata md = future.get();
+            models.computeIfAbsent(md.threadName, key -> md.model);
+            violations += md.violations;
+            if (exceedsMaximumNumberViolations(violations)) {
+                isStopped = true;
             }
         }
 
@@ -163,7 +162,7 @@ public class ThreadedValidationEngine extends ValidationEngine {
         return report;
     }
 
-    private Callable<ValidationMetadata> getTask(Shape shape, int id, ExecutorService executor) {
+    private Callable<ValidationMetadata> getTask(Shape shape, int id) {
         return () -> {
             long start = System.currentTimeMillis();
             boolean nested = SHACLScriptEngineManager.begin();
@@ -174,7 +173,7 @@ public class ThreadedValidationEngine extends ValidationEngine {
             int targetCount = 0;
             int filteredCount = 0;
             threadViolations.set(0);
-            boolean ignored = shapesGraph.isIgnored(shape.getShapeResource().asNode());
+            boolean ignored = isStopped || shapesGraph.isIgnored(shape.getShapeResource().asNode());
             if (!ignored) {
                 List<RDFNode> focusNodes = SHACLUtil.getTargetNodes(shape.getShapeResource(), dataset);
                 targetCount = focusNodes.size();
@@ -187,19 +186,19 @@ public class ThreadedValidationEngine extends ValidationEngine {
                 if (!filtered.isEmpty()) {
                     for (Constraint constraint : shape.getConstraints()) {
                         try {
-                            validateNodesAgainstConstraint(filtered, constraint);
-                        } catch (MaximumNumberViolations e) {
-                            if (!executor.isShutdown()) {
-                                executor.shutdownNow();
+                            if (!isStopped) {
+                                validateNodesAgainstConstraint(filtered, constraint);
                             }
+                        } catch (MaximumNumberViolations e) {
+                            isStopped = true;
                         }
                     }
                 }
             }
 //            if (monitor != null) {
 //                monitor.worked(id);
-//                if (monitor.isCanceled() && !executor.isShutdown()) {
-//                    executor.shutdownNow();
+//                if (monitor.isCanceled()) {
+//                    isStopped = true;
 //                }
 //            }
             SHACLScriptEngineManager.end(nested);
