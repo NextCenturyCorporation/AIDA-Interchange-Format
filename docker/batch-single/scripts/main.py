@@ -81,7 +81,7 @@ class Main:
         self._publish_sns_message(report)
 
         # clean up sqs queue and s3 validation staging data
-        self._delete_s3_objects_with_prefix(self.job_id)
+        # self._delete_s3_objects_with_prefix(self.job_id)
         self._delete_sqs_queue(queue_url)
 
 
