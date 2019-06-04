@@ -745,7 +745,7 @@ def main():
 
     # validate environment variables
     envs = read_envs()
-    
+
     # set logging to log to stdout
     logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO'))
 

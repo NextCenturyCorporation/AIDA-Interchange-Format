@@ -6,4 +6,4 @@ docker build \
 	--build-arg VALIDATOR_REPO=NextCenturyCorporation/AIDA-Interchange-Format.git \
 	--build-arg VALIDATOR_BRANCH=master \
 	--squash \
-	-t batch-worker .
+	-t batch-single .

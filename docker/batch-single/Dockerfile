@@ -69,4 +69,6 @@ RUN yum clean all && \
 WORKDIR $HOME
 
 COPY ["scripts/worker.py", "/usr/local/"]
-ENTRYPOINT ["python3", "/usr/local/worker.py"]
+COPY ["scripts/main.py", "/usr/local/"]
+COPY ["scripts/entrypoint.py", "/usr/local/"]
+ENTRYPOINT ["python3", "/usr/local/entrypoint.py"]
