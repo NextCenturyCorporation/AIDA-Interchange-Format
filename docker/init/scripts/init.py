@@ -185,7 +185,7 @@ def get_task_type(stem, directory):
 	convention of the stem.
 
 	:param str stem: The stem of the submission
-	:param str directory: The local directory containing the donwloaded contents of
+	:param str directory: The local directory containing the downloaded contents of
 		the submission
 	:returns The task type enum of the submission stems
 	:rtype: Enum
@@ -219,7 +219,7 @@ def validate_and_upload(session, directory, task, bucket, prefix):
 	of jobs that need to be executed on batch with their corresponding s3 locations.
 
 	:param Session session: The boto3 session
-	:param str directory: The local directory containing the donwloaded contents of
+	:param str directory: The local directory containing the downloaded contents of
 		the submission
 	:param Task task: The task enum that representing the task type of the submission
 	:param str bucket: The S3 bucket
@@ -258,18 +258,18 @@ def upload_formatted_submission(session, directory, bucket, prefix, validation_t
 	uploaded, a dictionary object with information to pass into the aws batch job will be returned. 
 
 	:param Session session: The boto3 session
-	:param str directory: The local directory containing the donwloaded contents of
+	:param str directory: The local directory containing the downloaded contents of
 		the submission
 	:param str bucket: The S3 bucket
 	:param str prefix: The prefix to append to all objects uploaded to the S3 bucket
-	:param validation_type: The validation type that these files will be validatated against
+	:param validation_type: The validation type that these files will be validated against
 	"""
 	job = {}
 	bucket_prefix = prefix + '-' + validation_type['name']
 	logging.info("Task 1 submission %s directory exists. Uploading .ttl files to %s", 
 		validation_type['directory'], bucket + '/' + bucket_prefix)
 
-	ttl_paths = (glob.glob(directory + '/' + validation_type ['directory'] + '/*.ttl', recursive=True))
+	ttl_paths = (glob.glob(directory + '/' + validation_type ['directory'] + '/**/*.ttl', recursive=True))
 	ttls = [ Path(x).name for x in ttl_paths ]
 
 	if not check_for_duplicates(ttls):
@@ -366,7 +366,7 @@ def read_envs():
 	:rtype: dict
 	"""
 	envs = {}
-	envs['S3_SUBMISSION_ARCHIVE_PATH'] = os.environ.get('S3_SUBMISSION_ARCHIVE', 'aida-validation/archives/NextCentury_1.zip')
+	envs['S3_SUBMISSION_ARCHIVE_PATH'] = os.environ.get('S3_SUBMISSION_ARCHIVE_PATH', 'aida-validation/archives/NextCentury_1.zip')
 	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
 	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
 	return envs
@@ -382,7 +382,6 @@ def main():
 
 		# set the boto session
 		session = boto3.session.Session(region_name=envs['AWS_DEFAULT_REGION'])
-		submission = envs['S3_SUBMISSION_ARCHIVE_PATH']
 		check_submission_extension(envs['S3_SUBMISSION_ARCHIVE_PATH'])
 
 		stem = get_submission_stem(envs['S3_SUBMISSION_ARCHIVE_PATH'])
