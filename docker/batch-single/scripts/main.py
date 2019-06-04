@@ -30,13 +30,29 @@ class Main:
         self.worker_init_timeout = int(envs['WORKER_INIT_TIMEOUT'])
         self.aws_region = envs['AWS_DEFAULT_REGION']
         self.aws_sns_topic = envs['AWS_SNS_TOPIC_ARN']
-        self.debug = bool(envs['DEBUG'])
+        self.debug = self._set_flag(envs['DEBUG'])
         self.debug_timeout = int(envs['DEBUG_TIMEOUT'])
         self.debug_sleep_interval = int(envs['DEBUG_SLEEP_INTERVAL'])
         self.source_log = 'sourcelog'
         self.session = boto3.session.Session(region_name=self.aws_region)
         self.extracted = envs['S3_SUBMISSION_EXTRACTED']
         self.verification = None
+
+
+    def _set_flag(self, flag):
+        """Helper function that will determine the boolean value of the passed in flag.
+
+        :param str flag: String that represents a boolean value
+        :returns: True if flag is 'True', False if flag is 'False'
+        :rtype: bool
+        :raises ValueError: Error if flag could not be converted to boolean        
+        """
+        if flag == 'True':
+            return True
+        elif flag == 'False':
+            return False
+        else:
+            raise ValueError("Unable to convert {0} to boolean value".format(flag))
 
     def run(self):
         """
