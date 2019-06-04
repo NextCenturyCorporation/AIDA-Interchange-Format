@@ -1,2 +1,0 @@
-kbToValidate: ./test.ttl
-domainOntology: ./src/main/resources/edu/isi/gaia/ontologies/SeedlingOntology
