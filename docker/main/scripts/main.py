@@ -1,14 +1,15 @@
-import boto3
-import glob
-import logging
 import os
-import shutil
-import subprocess
+import logging
+import boto3
 import tarfile
-import time
 import zipfile
-from botocore.exceptions import ClientError
+import glob
+import json
+import shutil
+import time
+import subprocess
 from pathlib import Path
+from botocore.exceptions import ClientError
 from subprocess import CalledProcessError
 
 
@@ -477,7 +478,7 @@ class Main:
                 else:
                     worker_init = True
                     running_job_ids = [d['jobId'] for d in running_jobs]
-                    logging.info('There are %s batch jobs with RUNNING status %s,' 
+                    logging.info('There are %s batch jobs with RUNNING status %s,'
                         ' sleeping for %s seconds', len(running_jobs), running_job_ids, str(self.sleep_interval))
                     time.sleep(self.sleep_interval)
 
