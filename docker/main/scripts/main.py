@@ -630,7 +630,6 @@ class Main:
         " has completed. " \
             .format(self.s3_submission_validation_descr, self.s3_submission_task, self.s3_submission_archive, 
                 self.job_id, self.extracted) + "\n\nValidation Summary\n----------------------\n" \
-            
 
         report += "VALID: " + str(metrics['valid']) + "\n"
         report += "INVALID: " + str(metrics['invalid']) + "\n"
@@ -645,6 +644,7 @@ class Main:
         report += "The validation results archive {0} can be found in the {1} S3 bucket \n" \
             .format(results_archive, self.bucket)
         report += "The validation results can be found in {0}".format(self.bucket + '/' + self.job_id)
+
         return report
 
 
@@ -693,7 +693,7 @@ def validate_envs(envs: dict):
     #check if master sleep interval can be converted to int
     try:
         int(envs['MAIN_SLEEP_INTERVAL'])
-    except InitilizationError:
+    except ValueError:
         logging.error("Master sleep interval [%s] must be an integer", envs['MAIN_SLEEP_INTERVAL'])
         return False
 

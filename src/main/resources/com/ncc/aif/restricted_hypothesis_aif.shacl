@@ -150,6 +150,7 @@ aida:HypothesisClusterMembersShape
 
 ########################
 # 4.3 TA3 #1.a All KEs in model should be referenced by hypothesis
+# This restriction is currently disabled. See below
 #------------------------
 aida:KEsMustBeReferenced
     a sh:SPARQLConstraint ;
@@ -165,6 +166,10 @@ aida:KEsMustBeReferenced
     .
 
 aida:AllKEsReferencedShape
+    # Disabled: This shape is not implemented correctly. A KE should consist of cluster, all membership nodes,
+    #           all member nodes, all type assertions for member nodes, and all justifications for type assertions for member nodes
+    sh:deactivated true ;
+
     a sh:NodeShape ;
     sh:targetClass aida:Entity, aida:Event, aida:Relation ;
     sh:target [

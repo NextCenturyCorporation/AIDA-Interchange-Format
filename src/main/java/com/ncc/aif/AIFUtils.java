@@ -677,7 +677,7 @@ public class AIFUtils {
                                                   Resource system, Double confidence) {
         if (endTimestamp <= startTimestamp) {
             throw new IllegalArgumentException("End timestamp " + endTimestamp
-                    + "does not follow start timestamp " + startTimestamp);
+                    + " does not follow start timestamp " + startTimestamp);
         }
         final Resource justification = makeAIFJustification(model, docId, AidaAnnotationOntology.AUDIO_JUSTIFICATION_CLASS,
                 system, confidence);
@@ -1199,8 +1199,12 @@ public class AIFUtils {
      */
     public static Resource markLDCTime(Model model, Resource toMark, LDCTimeComponent start, LDCTimeComponent end, Resource system) {
         final Resource ldcTime = makeAIFResource(model, null, AidaAnnotationOntology.LDC_TIME_CLASS, system);
-        ldcTime.addProperty(AidaAnnotationOntology.LDC_TIME_START, start.makeAIFTimeComponent(model));
-        ldcTime.addProperty(AidaAnnotationOntology.LDC_TIME_END, end.makeAIFTimeComponent(model));
+        if (start != null) {
+            ldcTime.addProperty(AidaAnnotationOntology.LDC_TIME_START, start.makeAIFTimeComponent(model));
+        }
+        if (end != null) {
+            ldcTime.addProperty(AidaAnnotationOntology.LDC_TIME_END, end.makeAIFTimeComponent(model));
+        }
 
         toMark.addProperty(AidaAnnotationOntology.LDC_TIME_PROPERTY, ldcTime);
         return ldcTime;
