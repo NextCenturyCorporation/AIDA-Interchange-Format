@@ -237,11 +237,16 @@ def validate_and_upload(session, directory, task, bucket, prefix):
 		if not check_nist_directory(directory):
 			logging.error("Task 1 submission format is invalid. Could not locate NIST directory")
 		else:
-			jobs.append(upload_formatted_submission(session, directory, bucket, prefix, NIST))
+			j = upload_formatted_submission(session, directory, bucket, prefix, NIST)
+			if j is not None:
+				jobs.append(j)
 
 			# INTER-TA directory **not required**
 			if check_inter_ta_directory(directory):
-				jobs.append(upload_formatted_submission(session, directory, bucket, prefix, INTER_TA))
+
+				j = upload_formatted_submission(session, directory, bucket, prefix, INTER_TA)
+				if j is not None:
+					jobs.append(j)
 
 		return jobs
 
@@ -263,6 +268,8 @@ def upload_formatted_submission(session, directory, bucket, prefix, validation_t
 	:param str bucket: The S3 bucket
 	:param str prefix: The prefix to append to all objects uploaded to the S3 bucket
 	:param validation_type: The validation type that these files will be validated against
+	:param returns: The dictionary representation of the job, None if error occurred
+	:param rtype: dict
 	"""
 	job = {}
 	bucket_prefix = prefix + '-' + validation_type['name']
@@ -287,7 +294,9 @@ def upload_formatted_submission(session, directory, bucket, prefix, validation_t
 			job['S3_SUBMISSION_VALIDATION_DESCR'] = validation_type['description']
 			job['S3_SUBMISSION_EXTRACTED'] = len(ttls)
 
-	return job
+			return job
+
+	return None
 
 def check_for_duplicates(ttls):
 	"""Function will check for duplicates in a list of file names.

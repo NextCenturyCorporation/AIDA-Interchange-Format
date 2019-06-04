@@ -30,24 +30,13 @@ class Main:
         self.worker_init_timeout = int(envs['WORKER_INIT_TIMEOUT'])
         self.aws_region = envs['AWS_DEFAULT_REGION']
         self.aws_sns_topic = envs['AWS_SNS_TOPIC_ARN']
-        self.debug = self._set_debug(envs['DEBUG'])
+        self.debug = bool(envs['DEBUG'])
         self.debug_timeout = int(envs['DEBUG_TIMEOUT'])
         self.debug_sleep_interval = int(envs['DEBUG_SLEEP_INTERVAL'])
         self.source_log = 'sourcelog'
         self.session = boto3.session.Session(region_name=self.aws_region)
         self.extracted = envs['S3_SUBMISSION_EXTRACTED']
         self.verification = None
-
-    def _set_debug(self, flag):
-        """Helper function that will appropriatly set the debug flag based on the 
-        string value of envs['DEBUG']
-        """
-        if flag == 'True':
-            return True
-        elif flag == 'False':
-            return False
-        else:
-            raise ValueError('Unable to convert {0} to boolean value'.format(flag))
 
     def run(self):
         """
@@ -99,7 +88,6 @@ class Main:
     def _bucket_exists(self):
         """Helper function that will check if a validation bucket
         exists.
-
         :returns: True if bucket exists, False otherwise
         :raises ClientError: S3 resource exception
         :raises ValueError: The validation bucket does not exist
@@ -127,7 +115,6 @@ class Main:
         """Function will create a list of all the s3 object paths for the files in the 
         s3 submission path. If no objects are found in the s3 bucket / prefix, an 
         exception is thrown.
-
         :raises ClientError: S3 resource exception
         :raises ValueError: The validation bucket does not exist
         """
@@ -160,7 +147,6 @@ class Main:
     def _publish_sns_message(self, message):
         """Function will publish message on to the SNS topic specified by
         the topic arn.
-
         :param str message: The message to publish
         """
         sns = self.session.client('sns')
@@ -180,7 +166,6 @@ class Main:
     def _publish_failure_message(self, message):
         """Helper function that will publish failure message to SNS if an unrecoverable error
         occurs before processing begins.
-
         param: str message: The failure message to publish
         """
         heading = "The job {0} for the task {1} submission {2} failed against {3} validation the with" \
@@ -191,7 +176,6 @@ class Main:
 
     def _create_sqs_queue(self):
         """Creates SQS FIFO queue with specified name.
-
         :return: The SQS queue url
         :rtype: str
         :raises ClientError: SQS client exception  
@@ -236,7 +220,6 @@ class Main:
         be used for processing validation. After all messages have processed and added to 
         the queue, a final source file will be uploaded with a suffix of '.queued' and the old
         source file will be removed from S3.
-
         :param str bucket_direcotry: The bucket and prefix directory that contains the unprocessed 
             ttl files
         :param str queue_url: The SQS queue url
@@ -274,7 +257,6 @@ class Main:
 
     def _move_s3_object(self, s3_source_bucket, s3_source_key, s3_object_dest):
         """Helper function that will move an S3 object within the validation bucket.
-
         :param str s3_object: The s3 object to be moved
         :param str s3_object_dest: The new s3 object destination
         :raises ClientError: S3 resource exception
@@ -298,7 +280,6 @@ class Main:
 
     def _add_sqs_message(self, queue_url, s3_object):
         """Adds new message on SQS queue with the S3 object path.
-
         :param str queue_url: The SQS queue url
         :param str s3_object: The s3 object path to add to SQS
         :raises ClientError: SQS client exception
@@ -323,7 +304,6 @@ class Main:
 
     def _upload_file_to_s3(self, filepath, prefix=None):
         """Helper function to upload single file to S3 bucket with specified prefix
-
         :param str filepath: The local path of the file to be uploaded
         :param str prefix: The prefix to be added to the file name
         :raises ClientError: S3 client exception
@@ -345,7 +325,6 @@ class Main:
 
     def _delete_s3_object(self, s3_object):
         """Deletes an S3 object from validation bucket.
-
         :param str s3_object: The S3 object to delete
         :raises ClientError: S3 resource exception
         """
@@ -363,7 +342,6 @@ class Main:
         AWS batch and allow for jobs to be processed for the specified amount of time set in 
         the [processing_timeout] parameter. Once that amount of time has elapsed this function will
         return true.
-
         :returns: True, always
         :rtype: bool
         """
@@ -381,7 +359,6 @@ class Main:
         query AWS batch for all current jobs with the specified job id. If the returned job 
         list has any jobs with the status of RUNNING (other than itself), it will sleep for 
         the specified interval and then execute the check again. 
-
         :raises ClientError: AWS batch client exception
         """
         batch_client = self.session.client('batch')
@@ -438,7 +415,6 @@ class Main:
     def _sync_s3_bucket(self, dest_path):
         """Helper function that will sync the s3 validation bucket with job id prefix to
         the current working directory.
-
         :param str dest_path: The local destination path where files will be synced to
         :raises CalledProcessError: Subprocess exception when executing aws cli sync
             command
@@ -462,7 +438,6 @@ class Main:
     def _verify_validation(self, results_path):
         """Verifies that all files enqueued on SQS were accounted for in the 
         resulting S3 bucket after validation. 
-
         :param str results_path: The local path of the sync'd s3 bucket
         :returns: True if all files are account for, False otherwise
         :rtype: bool
@@ -536,7 +511,6 @@ class Main:
     def _create_verification_output(self, results_path, source_verification_path, message):
         """Generates verification file with verification results to be added to final 
         archive and sets verification message for final report.
-
         :param str results_path: The local path of the sync'd s3 bucket
         :param str source_verification_path: The path to place this verification output file
         :param str message: The message that will be added to the file with the verification 
@@ -554,7 +528,6 @@ class Main:
 
     def _create_results_tarfile(self, filename, source_dir):
         """Creates a tar file of the source directory that contains the job results.
-
         :param str filename: The name of the tar file to be created
         :param str source_dir: The directory to be compressed
         """
@@ -564,7 +537,6 @@ class Main:
 
     def _delete_s3_objects_with_prefix(self, prefix):
         """Deletes all S3 objects from validation bucket with specified prefix
-
         :param str prefix: The prefix that all the S3_objects must have in order to be
             deleted
         :raises ClientError: S3 resource exception
@@ -592,7 +564,6 @@ class Main:
 
     def _delete_sqs_queue(self, queue_url):
         """Deletes SQS queue at specified queue url.
-
         :param str queue_url: The SQS queue url of queue to be deleted
         :raises ClientError: SQS client exception
         """
@@ -613,7 +584,6 @@ class Main:
     def _get_results_metrics(self, results_path):
         """Function will inspect sync'd S3 directory and count and store results 
         for each validation category.
-
         :param str results_path: The local path of the sync'd s3 directory
         :returns: Dictionary of validation metrics found
         :rtype: dict
@@ -632,7 +602,6 @@ class Main:
     def _create_validation_report(self, metrics, results_archive):
         """Function will generate the final validation report that will be sent in an SNS
         message. 
-
         :param dict metrics: The counts of each validation category 
         :param str results_archive: The name of the final results archive that will be 
             uploaded to s3. 
@@ -641,7 +610,6 @@ class Main:
         " has completed. " \
             .format(self.s3_submission_validation_descr, self.s3_submission_task, self.s3_submission_archive, 
                 self.job_id, self.extracted) + "\n\nValidation Summary\n----------------------\n" \
-            
 
         report += "VALID: " + str(metrics['valid']) + "\n"
         report += "INVALID: " + str(metrics['invalid']) + "\n"
@@ -656,12 +624,12 @@ class Main:
         report += "The validation results archive {0} can be found in the {1} S3 bucket \n" \
             .format(results_archive, self.bucket)
         report += "The validation results can be found in {0}".format(self.bucket + '/' + self.job_id)
+
         return report
 
 
 def read_envs():
     """Function will read in all environment variables into a dictionary
-
     :returns: Dictionary containing all environment variables or defaults
     :rtype: dict
     """
@@ -674,7 +642,7 @@ def read_envs():
     envs['S3_SUBMISSION_PREFIX'] = os.environ.get('S3_SUBMISSION_PREFIX')
     envs['S3_SUBMISSION_VALIDATION_DESCR'] = os.environ.get('S3_SUBMISSION_VALIDATION_DESCR')
     envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID')
-    envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX')
+    envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX', '0')
     envs['MAIN_SLEEP_INTERVAL'] = os.environ.get('MAIN_SLEEP_INTERVAL', '30')
     envs['WORKER_INIT_TIMEOUT'] = os.environ.get('WORKER_INIT_TIMEOUT', '300')
     envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
@@ -687,7 +655,6 @@ def read_envs():
 def validate_envs(envs: dict):
     """Helper function to validate all of the environment variables exist and are valid before
     processing starts.
-
     :param dict envs: Dictionary of all environment variables
     :returns: True if all environment variables are valid, False otherwise
     :rtype: bool
@@ -704,7 +671,7 @@ def validate_envs(envs: dict):
     #check if master sleep interval can be converted to int
     try:
         int(envs['MAIN_SLEEP_INTERVAL'])
-    except InitilizationError:
+    except ValueError:
         logging.error("Master sleep interval [%s] must be an integer", envs['MAIN_SLEEP_INTERVAL'])
         return False
 
@@ -737,7 +704,6 @@ def validate_envs(envs: dict):
 
 def is_env_set(env, value):
     """Helper function to check if a specific environment variable is not None
-
     :param str env: The name of the environment variable
     :param str value: The value of the environment variable
     :returns: True if environment variable is set, False otherwise
@@ -755,7 +721,7 @@ def main():
 
     # validate environment variables
     envs = read_envs()
-
+    
     # set logging to log to stdout
     logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO'))
 
