@@ -662,7 +662,6 @@ def read_envs():
     envs['S3_SUBMISSION_BUCKET'] = os.environ.get('S3_SUBMISSION_BUCKET', 'aida-validation')
     envs['S3_SUBMISSION_PREFIX'] = os.environ.get('S3_SUBMISSION_PREFIX', 'NextCentury_1-nist')
     envs['S3_SUBMISSION_VALIDATION_DESCR'] = os.environ.get('S3_SUBMISSION_VALIDATION_DESCR', 'NIST restricted')
-    envs['RESULT_ARCHIVE_NAME'] = os.environ.get('RESULT_ARCHIVE_NAME', 'NextCentury_1-nist.tar.gz')
     envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID', 'c8c90aa7-4f33-4729-9e5c-0068cb9ce75c')
     envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX', '0')
     envs['MAIN_SLEEP_INTERVAL'] = os.environ.get('MAIN_SLEEP_INTERVAL', '30')
