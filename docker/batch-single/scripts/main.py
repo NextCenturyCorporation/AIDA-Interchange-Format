@@ -409,7 +409,7 @@ class Main:
                     if worker_init:
                         logging.info("All worker batch jobs finished executing")
                         return True
-                    elif not worker_init and time.time() >= self.worker_timeout:
+                    elif not worker_init and time.time() >= worker_timeout:
                         logging.error("No worker batch jobs started with RUNNING status before timeout of %s seconds", 
                             self.worker_init_timeout)
                         return False
