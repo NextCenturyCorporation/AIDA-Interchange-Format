@@ -30,7 +30,7 @@ added.
 ### How do I migrate from the GAIA/Kotlin version of AIF to the Java version?
 
 First, if you haven't already, you'll need to change your build script or tool to import
-`aida-interchange-1.0-SNAPSHOT.jar` (changed from `gaia-interchange-kotlin-1.0-SNAPSHOT.jar`).
+`aida-interchange-1.0.1.jar` (changed from `gaia-interchange-kotlin-1.0-SNAPSHOT.jar`).
 For gradle, for example, include the following in the dependencies in your `build.gradle` file:
 
 `dependencies {
