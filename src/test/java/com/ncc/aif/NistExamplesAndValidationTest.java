@@ -97,18 +97,14 @@ public class NistExamplesAndValidationTest {
                         entity, system, 1.0, utils.getAssertionUri());
                 markJustification(eventEdge, justification);
 
+                // test that compound justification can only be used for argument assertions
                 final Resource justification1 = makeTextJustification(model, "source1", 0, 4, system, 1.0);
                 addSourceDocumentToJustification(justification1, "source1sourceDocument");
-                final Resource compound1 = markCompoundJustification(model,
+                markCompoundJustification(model,
                         ImmutableSet.of(entity, relation, event),
                         ImmutableSet.of(justification1),
                         system,
                         1.0);
-
-                // test that compound justification can only be used for argument assertions
-                markJustification(entity, compound1);
-                markJustification(relation, compound1);
-                markJustification(event, compound1);
 
                 utils.testInvalid("NIST.invalid: CompoundJustification must be used only for justifications of argument assertions");
             }
