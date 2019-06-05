@@ -1155,6 +1155,10 @@ aida:ContentGraphShape
 
     # a Subgraph can only be composed of the following types
     sh:property [
+        # Disabled: This shape is not implemented correctly. A KE should consist of cluster, all membership nodes,
+        #           all member nodes, all type assertions for member nodes, and all justifications for type assertions for member nodes
+        sh:deactivated true ;
+
         sh:path aida:subgraphContains ;
 
         # the contained nodes must be of the content node types
@@ -1164,6 +1168,7 @@ aida:ContentGraphShape
             [sh:class aida:Relation]
             [sh:class aida:SentimentAssertion]
             [sh:class aida:ClusterMembership]
+            [sh:class aida:SameAsCluster]
             [sh:class rdf:Statement] ) ;
         sh:message "Content graph cannot contain this type of node"
     ] ;

@@ -5,6 +5,7 @@ import ch.qos.logback.classic.Logger;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -271,6 +272,8 @@ public class NistTA3ExamplesAndValidationTest {
             }
         }
 
+        @Disabled("Disabled: This shape is not implemented correctly. A KE should consist of cluster, all membership nodes," +
+                " all member nodes, all type assertions for member nodes, and all justifications for type assertions for member nodes")
         @Nested
         class KEsInHypothesisMustBeDefined {
 
@@ -290,10 +293,13 @@ public class NistTA3ExamplesAndValidationTest {
             }
         }
 
+        @Disabled("Disabled: This shape is not implemented correctly. A KE should consist of cluster, all membership nodes," +
+                " all member nodes, all type assertions for member nodes, and all justifications for type assertions for member nodes")
         @Nested
         class KEsInModelMustBeReferencedByHypothesis {
             Resource relation;
             Resource relationEdge;
+            Resource relationCluster;
 
             @BeforeEach
             void setup() {
@@ -301,6 +307,7 @@ public class NistTA3ExamplesAndValidationTest {
                         LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation,
                         103.0);
                 relation = relationPair.getKey();
+                relationCluster = relationPair.getValue();
                 relationEdge = utils.makeValidTA3Edge(relation,
                         LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
                         entity, 102.0);
@@ -316,9 +323,17 @@ public class NistTA3ExamplesAndValidationTest {
             }
 
             @Test
-            void valid() {
+            void validWithoutCluster() {
                 utils.makeValidTA3Hypothesis(entity, relation, relationEdge, event, eventEdge);
-                utils.testValid("NISTHypothesis.valid: All KEs in model must be referenced by hypothesis");
+                utils.testValid("NISTHypothesis.validWithoutClusters: All KEs in model must be referenced by hypothesis");
+            }
+
+            @Test
+            void validWithClusterAndMembership() {
+                ResIterator it = model.listSubjectsWithProperty(AidaAnnotationOntology.CLUSTER_PROPERTY, relationCluster);
+                Assertions.assertTrue(it.hasNext(), "Unable to find expected cluster membership");
+                utils.makeValidTA3Hypothesis(entity, relation, relationEdge, event, eventEdge, relationCluster, it.nextResource());
+                utils.testValid("NISTHypothesis.validWithClusterAndMembership: All KEs in model must be referenced by hypothesis");
             }
         }
 

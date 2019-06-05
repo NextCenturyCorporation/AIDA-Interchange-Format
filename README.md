@@ -17,6 +17,8 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
      translation of these examples is in `python/tests/Examples.py`.  If you run either set of
      examples, the corresponding Turtle output will be dumped.
 
+*    the `validateAIF` command line utility that can be used to validate AIF .ttl files. See below for details. 
+
 We recommend using Turtle format for AIF when working with single document files (for
 readability) but N-Triples for working with large KBs (for speed).
 
