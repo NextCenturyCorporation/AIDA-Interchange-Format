@@ -1095,7 +1095,7 @@ public class ExamplesAndValidationTest {
         void nonTypeUsedAsType() {
             // use a blank node as the bogus entity type
             utils.makeValidAIFEntity(model.createResource());
-            utils.expect(ShaclShapes.EntitySubclass, SH.HasValueConstraintComponent, null);
+            utils.expect(ShaclShapes.EntitySubclass, TestUtils.HasValueConstraintComponent, null);
             utils.expect(ShaclShapes.EntitySubclass, SH.MinCountConstraintComponent, null);
             utils.testInvalid("Invalid: non-type used as type");
         }
@@ -1108,7 +1108,7 @@ public class ExamplesAndValidationTest {
             markAsArgument(model, relation, SeedlingOntology.Physical_Resident_Resident, personEntity, system, 1.0);
             markAsArgument(model, relation, SeedlingOntology.Physical_Resident_Place, louisvilleEntity, system, 1.0);
 
-            utils.expect(ShaclShapes.RelationSubclass, SH.HasValueConstraintComponent, null);
+            utils.expect(ShaclShapes.RelationSubclass, TestUtils.HasValueConstraintComponent, null);
             utils.expect(ShaclShapes.RelationSubclass, SH.MinCountConstraintComponent, null);
             utils.testInvalid("Invalid: relation of unknown type");
         }

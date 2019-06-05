@@ -34,6 +34,7 @@ class TestUtils {
     static final Resource XoneConstraintComponent = ResourceFactory.createResource(SH.NS + "XoneConstraintComponent");
     static final Resource MaxInclusiveConstraintComponent = ResourceFactory.createResource(SH.NS + "MaxInclusiveConstraintComponent");
     static final Resource NotConstraintComponent = ResourceFactory.createResource(SH.NS + "NotConstraintComponent");
+    static final Resource HasValueConstraintComponent = ResourceFactory.createResource(SH.NS + "HasValueConstraintComponent");
 
     protected Logger logger;
 
