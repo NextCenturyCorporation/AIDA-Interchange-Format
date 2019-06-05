@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
-import org.apache.jena.ontology.OntModel;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
@@ -63,14 +62,14 @@ public final class ValidateAIF {
 
     private static void initializeSHACLModels() {
         if (!initialized) {
-            shaclModel = ModelFactory.createOntologyModel();
+            shaclModel = ModelFactory.createDefaultModel();
             loadModel(shaclModel, Resources.asCharSource(Resources.getResource(AIDA_SHACL_RESNAME), Charsets.UTF_8));
 
-            nistModel = ModelFactory.createOntologyModel();
+            nistModel = ModelFactory.createDefaultModel();
             nistModel.add(shaclModel);
             loadModel(nistModel, Resources.asCharSource(Resources.getResource(NIST_SHACL_RESNAME), Charsets.UTF_8));
 
-            nistHypoModel = ModelFactory.createOntologyModel();
+            nistHypoModel = ModelFactory.createDefaultModel();
             nistHypoModel.add(nistModel);
             loadModel(nistHypoModel,
                     Resources.asCharSource(Resources.getResource(NIST_HYPOTHESIS_SHACL_RESNAME), Charsets.UTF_8));
@@ -146,9 +145,7 @@ public final class ValidateAIF {
             throw new IllegalArgumentException("Must validate against at least one domain ontology.");
         }
 
-        final OntModel model = ModelFactory.createOntologyModel();
-        model.addLoadedImport(INTERCHANGE_URI);
-        model.addLoadedImport(AIDA_DOMAIN_COMMON_URI);
+        final Model model = ModelFactory.createDefaultModel();
 
         // Data will always be interpreted in the context of these two ontology files.
         final ImmutableSet<CharSource> aidaModels = ImmutableSet.of(
@@ -422,7 +419,7 @@ public final class ValidateAIF {
             Date date = Calendar.getInstance().getTime();
             logger.info("-> Validating " + fileToValidate + " at " + format.format(date) +
                     " (" + ++fileNum + " of " + filesToValidate.size() + ").");
-            final OntModel dataToBeValidated = ModelFactory.createOntologyModel();
+            final Model dataToBeValidated = ModelFactory.createDefaultModel();
             boolean notSkipped = ((restriction != Restriction.NIST_HYPOTHESIS) || checkHypothesisSize(fileToValidate))
                     && loadFile(dataToBeValidated, fileToValidate);
             if (notSkipped) {
@@ -487,9 +484,7 @@ public final class ValidateAIF {
     }
 
     // Load the model, or fail trying.  Returns true if it's loaded, otherwise false.
-    private static boolean loadFile(OntModel dataToBeValidated, File fileToValidate) {
-        dataToBeValidated.addLoadedImport(INTERCHANGE_URI);
-        dataToBeValidated.addLoadedImport(AIDA_DOMAIN_COMMON_URI);
+    private static boolean loadFile(Model dataToBeValidated, File fileToValidate) {
         try {
             loadModel(dataToBeValidated, Files.asCharSource(fileToValidate, Charsets.UTF_8));
         } catch (RuntimeException rte) {
