@@ -1,22 +1,22 @@
 package com.ncc.aif;
 
 import ch.qos.logback.classic.Logger;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Resource;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
+import org.topbraid.shacl.vocabulary.SH;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static com.ncc.aif.AIFUtils.*;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Utilities for testing AIF functionality and/or creating examples.
@@ -30,6 +30,12 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Call {@link #startNewTest()} before each test to ensure a clean model.
  */
 class TestUtils {
+    // Constraints not included in top braid SH vocabulary (implemented in JS)
+    static final Resource XoneConstraintComponent = ResourceFactory.createResource(SH.NS + "XoneConstraintComponent");
+    static final Resource MaxInclusiveConstraintComponent = ResourceFactory.createResource(SH.NS + "MaxInclusiveConstraintComponent");
+    static final Resource NotConstraintComponent = ResourceFactory.createResource(SH.NS + "NotConstraintComponent");
+    static final Resource HasValueConstraintComponent = ResourceFactory.createResource(SH.NS + "HasValueConstraintComponent");
+
     protected Logger logger;
 
     // Constructor parameters
@@ -52,6 +58,7 @@ class TestUtils {
     // Data created by each test
     protected Model model;
     protected Resource system;
+    private Map<Triple<Resource, Resource, Resource>, Integer> expectedCounts;
 
     /**
      * Constructor for utilities for testing AIF functionality.
@@ -67,6 +74,7 @@ class TestUtils {
         this.dumpAlways = dumpAlways;
         this.dumpToFile = dumpToFile;
         this.logger = (Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        this.expectedCounts = new HashMap<>();
     }
 
     /**
@@ -84,6 +92,8 @@ class TestUtils {
         // every AIF needs an object for the system responsible for creating it
         system = makeSystemWithURI(model, getTestSystemUri());
         assertionCount = entityCount = eventCount = relationCount = hypothesisCount = clusterCount = documentCount = 1;
+
+        expectedCounts.clear();
 
         return model;
     }
@@ -269,7 +279,56 @@ class TestUtils {
      * Assert that the test with the specified description is invalid based on the current model and validator.
      */
     void testInvalid(String testDescription) {
-        assertAndDump(testDescription, false);
+        Resource report = assertAndDump(testDescription, false);
+        Map<Triple<Resource, Resource, Resource>, Integer> realCounts = new HashMap<>();
+        report.listProperties(SH.result)
+                .mapWith(Statement::getObject)
+                .mapWith(RDFNode::asResource)
+                .mapWith(TestUtils::getTriple)
+                .forEachRemaining(triple -> {
+                    assertTrue(expectedCounts.containsKey(triple), "Encountered unexpected violation: " + triple);
+                    realCounts.put(triple, realCounts.getOrDefault(triple, 0) + 1);
+                });
+
+        expectedCounts.forEach((type, count) -> {
+            Integer realCount = realCounts.get(type);
+            assertNotNull(realCount, "Unable to find violation: " + type);
+            assertEquals(count, realCount, "Number of violations don't match: " + type);
+        });
+    }
+    private static Resource getResource(Resource toTest) {
+        return toTest != null && toTest.isAnon() ? null : toTest;
+    }
+    private static Triple<Resource, Resource, Resource> getTriple(Resource result) {
+        return new ImmutableTriple<>(
+                getResource(result.getPropertyResourceValue(SH.sourceShape)),
+                getResource(result.getPropertyResourceValue(SH.sourceConstraintComponent)),
+                getResource(result.getPropertyResourceValue(SH.sourceConstraint)));
+    }
+
+    /**
+     * Specify that a {@code count} number of violations will occur with the specified {@code shape},
+     * {@code constraintComponent}, and {@code constraint}.
+     *
+     * @param shape               {@link Resource} representing the SHACL shape
+     * @param constraintComponent {@link Resource} representing the SHACL constraint component
+     * @param constraint          {@link Resource} representing the SHACL constraint
+     * @param count               number of violations of this type to expect
+     */
+    void expect(@Nullable Resource shape, @Nullable Resource constraintComponent, @Nullable Resource constraint, int count) {
+        expectedCounts.put(new  ImmutableTriple<>(shape, constraintComponent, constraint), count);
+    }
+
+    /**
+     * Specify that a single violation will occur with the specified {@code shape},
+     * {@code constraintComponent}, and {@code constraint}.
+     *
+     * @param shape               {@link Resource} representing the SHACL shape
+     * @param constraintComponent {@link Resource} representing the SHACL constraint component
+     * @param constraint          {@link Resource} representing the SHACL constraint
+     */
+    void expect(@Nullable Resource shape, @Nullable Resource constraintComponent, @Nullable Resource constraint) {
+        expect(shape, constraintComponent, constraint, 1);
     }
 
     /**
@@ -382,7 +441,7 @@ class TestUtils {
      * @param testDescription {@link String} containing the description of the test
      * @param expected        true if validation is expected to pass, false o/w
      */
-    private void assertAndDump(String testDescription, boolean expected) {
+    private Resource assertAndDump(String testDescription, boolean expected) {
         final Resource report = validator.validateKBAndReturnReport(model);
         final boolean valid = ValidateAIF.isValidReport(report);
 
@@ -405,6 +464,6 @@ class TestUtils {
         if (valid != expected) {
             fail("Validation was expected to " + (expected ? "pass" : "fail") + " but did not");
         }
-
+        return report;
     }
 }

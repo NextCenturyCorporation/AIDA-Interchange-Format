@@ -9,6 +9,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDF;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.topbraid.shacl.vocabulary.SH;
 
 import static com.ncc.aif.AIFUtils.*;
 
@@ -106,6 +107,9 @@ public class NistExamplesAndValidationTest {
                         system,
                         1.0);
 
+                utils.expect(ShaclShapes.RestrictCompoundJustificationPropertyShape, TestUtils.NotConstraintComponent,
+                        null, 3);
+                utils.expect(ShaclShapes.EdgeJustificationCompound, SH.ClassConstraintComponent,null, 2);
                 utils.testInvalid("NIST.invalid: CompoundJustification must be used only for justifications of argument assertions");
             }
 
@@ -117,6 +121,7 @@ public class NistExamplesAndValidationTest {
                 markSystem(compoundJustification, system);
 
                 markConfidence(model, compoundJustification, 1.0, system);
+                utils.expect(ShaclShapes.CompoundJustificationMinimum, SH.MinCountConstraintComponent, null);
                 utils.testInvalid("NIST.invalid: (No justification in CompoundJustification) Exactly 1 or 2 contained" +
                         " justifications in a CompoundJustification required for an edge");
             }
@@ -144,6 +149,7 @@ public class NistExamplesAndValidationTest {
                         system,
                         1.0);
 
+                utils.expect(ShaclShapes.RelationArgumentShape, SH.SPARQLConstraintComponent, ShaclShapes.EdgeJustificationCount);
                 utils.testInvalid("NIST.invalid: (More than two justifications in CompoundJustification) " +
                         "Exactly 1 or 2 contained justifications in a CompoundJustification required for an edge");
             }
@@ -204,6 +210,8 @@ public class NistExamplesAndValidationTest {
                         entity, system, 1.0, utils.getAssertionUri());
                 markJustification(eventEdge, compound);
 
+                utils.expect(ShaclShapes.EventArgumentShape, SH.SPARQLConstraintComponent, ShaclShapes.EdgeJustificationCount);
+                utils.expect(ShaclShapes.RelationArgumentShape, SH.SPARQLConstraintComponent, ShaclShapes.EdgeJustificationCount);
                 utils.testInvalid("NIST.invalid: edge justification contains one or two mentions (three is too many)");
             }
 
@@ -226,6 +234,9 @@ public class NistExamplesAndValidationTest {
                         entity, system, 1.0);
                 markJustification(eventEdge, compound);
 
+                utils.expect(ShaclShapes.EventArgumentShape, SH.SPARQLConstraintComponent, ShaclShapes.EdgeJustificationCount);
+                utils.expect(ShaclShapes.RelationArgumentShape, SH.SPARQLConstraintComponent, ShaclShapes.EdgeJustificationCount);
+                utils.expect(ShaclShapes.CompoundJustificationMinimum, SH.MinCountConstraintComponent, null);
                 utils.testInvalid("NIST.invalid: edge justification contains one or two mentions (zero is not enough)");
             }
 
@@ -286,6 +297,7 @@ public class NistExamplesAndValidationTest {
                 final Resource markShotVideoJustification = markShotVideoJustification(model, entity, "source1",
                         "shotId", system, 1.0);
                 addSourceDocumentToJustification(markShotVideoJustification, "source1SourceDocument");
+                utils.expect(ShaclShapes.JustificationPropertyShape, TestUtils.XoneConstraintComponent, null);
                 utils.testInvalid("NIST.invalid: No shot video");
             }
 
@@ -305,6 +317,7 @@ public class NistExamplesAndValidationTest {
             @Test
             void invalid() {
                 markAsPossibleClusterMember(model, eventCluster, entityCluster, .5, system);
+                utils.expect(null, TestUtils.XoneConstraintComponent, null);
                 utils.testInvalid("NIST.invalid: Flat clusters");
             }
 
@@ -339,6 +352,8 @@ public class NistExamplesAndValidationTest {
                         LDCOntology.Life_Die),
                         utils.makeValidJustification());
 
+                utils.expect(ShaclShapes.EntityShape, SH.SPARQLConstraintComponent, null);
+                utils.expect(ShaclShapes.EventRelationShape, SH.SPARQLConstraintComponent, null, 2);
                 utils.testInvalid("NIST.invalid: Everything has cluster");
             }
 
@@ -361,6 +376,7 @@ public class NistExamplesAndValidationTest {
                         LDCOntology.PER),
                         utils.makeValidJustification());
                 markAsPossibleClusterMember(model, newEntity, entityCluster, 1.2, system);
+                utils.expect(null, TestUtils.MaxInclusiveConstraintComponent, null);
                 utils.testInvalid("NIST.invalid: confidence must be between 0 and 1");
             }
 
@@ -385,6 +401,7 @@ public class NistExamplesAndValidationTest {
                 makeClusterWithPrototype(model, null, relation, system);
                 makeClusterWithPrototype(model, null, event, system);
 
+                utils.expect(ShaclShapes.ClusterShape, SH.NodeKindConstraintComponent, null, 3);
                 utils.testInvalid("NIST.invalid: Cluster has IRI");
             }
 
@@ -415,6 +432,8 @@ public class NistExamplesAndValidationTest {
                         LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation);
                 makeClusterWithPrototype(model, utils.getClusterUri(), newRelation, system);
 
+                utils.expect(ShaclShapes.RequiredJustificationPropertyShape, SH.MinCountConstraintComponent,
+                        null, 3);
                 utils.testInvalid("NIST.invalid: type assertions must be justified");
             }
 
@@ -438,6 +457,7 @@ public class NistExamplesAndValidationTest {
                         "fail because this string is exactly 257 characters long. This is filler text to " +
                         "get to the two hundred and fifty-seven limit.");
 
+                utils.expect(ShaclShapes.NamePropertyShape, SH.MaxLengthConstraintComponent, null);
                 utils.testInvalid("NIST.invalid (has name): Each entity name string is limited to 256 UTF-8 characters");
             }
 
@@ -450,6 +470,7 @@ public class NistExamplesAndValidationTest {
                         "fail because this string is exactly 257 characters long. This is filler text to " +
                         "get to the two hundred and fifty-seven limit.");
 
+                utils.expect(ShaclShapes.TextPropertyShape, SH.MaxLengthConstraintComponent, null);
                 utils.testInvalid("NIST.invalid (text value): Each entity text value string is limited to 256 UTF-8 characters");
             }
 
@@ -532,14 +553,15 @@ public class NistExamplesAndValidationTest {
             void invalidNoSource() {
                 // include the source document but not the source
                 addSourceDocumentToJustification(newJustification, "HC00002ZO");
+                utils.expect(null, SH.MinCountConstraintComponent, null);
                 utils.testInvalid("NIST.invalid (missing justification source): justifications require a source document and source");
-
             }
 
             @Test
             void invalidNoSourceDocument() {
                 // include the source but not the source document
                 newJustification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral("XP043002ZO"));
+                utils.expect(null, SH.MinCountConstraintComponent, null);
                 utils.testInvalid("NIST.invalid (missing justification source document): justifications require a source document and source");
             }
 
@@ -561,6 +583,8 @@ public class NistExamplesAndValidationTest {
                 markInformativeJustification(entity, utils.makeValidJustification(sourceDocument));
                 markInformativeJustification(entity, utils.makeValidJustification(sourceDocument));
 
+                utils.expect(ShaclShapes.InformativeJustificationMembersShape, SH.SPARQLConstraintComponent,
+                        ShaclShapes.InformativeJustificationMembersUniqueParentDoc);
                 utils.testInvalid("NIST.invalid: (informative justifications have same parent document) Each Cluster, " +
                         "Entity, Event, or Relation can specify up to one informative mention per document as long " +
                         "as each informative mention points to a different sourceDocument");
@@ -663,6 +687,7 @@ public class NistExamplesAndValidationTest {
             void invalidLinkToNonAssertion() {
                 linkAssertion.listProperties().toList().forEach(model::remove);
                 entity.addProperty(AidaAnnotationOntology.LINK, utils.makeValidJustification());
+                utils.expect(ShaclShapes.LinkPropertyShape, SH.ClassConstraintComponent, null);
                 utils.testInvalid("LinkAssertion.invalid: Link to non-LinkAssertion");
             }
 
@@ -670,6 +695,7 @@ public class NistExamplesAndValidationTest {
             void invalidNoTarget() {
                 link(entity);
                 markConfidence(model, linkAssertion, 1.0, system);
+                utils.expect(null, SH.MinCountConstraintComponent, null);
                 utils.testInvalid("LinkAssertion.invalid: No link target");
             }
 
@@ -679,6 +705,7 @@ public class NistExamplesAndValidationTest {
                 markConfidence(model, linkAssertion, 1.0, system);
                 target("SomeExternalKBId-1");
                 target("SomeExternalKBId-2");
+                utils.expect(null, SH.MaxCountConstraintComponent, null);
                 utils.testInvalid("LinkAssertion.invalid: Too many link targets");
             }
 
@@ -686,6 +713,7 @@ public class NistExamplesAndValidationTest {
             void invalidNoConfidence() {
                 link(entity);
                 target("SomeExternalKBId-1");
+                utils.expect(null, SH.MinCountConstraintComponent, null);
                 utils.testInvalid("LinkAssertion.invalid: No confidence");
             }
 
@@ -695,6 +723,7 @@ public class NistExamplesAndValidationTest {
                 markConfidence(model, linkAssertion, 1.0, system);
                 markConfidence(model, linkAssertion, .5, system);
                 target("SomeExternalKBId-1");
+                utils.expect(null, SH.MaxCountConstraintComponent, null);
                 utils.testInvalid("LinkAssertion.invalid: Too many confidences");
             }
 

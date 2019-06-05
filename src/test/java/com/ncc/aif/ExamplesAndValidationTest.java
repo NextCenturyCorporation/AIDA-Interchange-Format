@@ -18,6 +18,7 @@ import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.vocabulary.RDF;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.topbraid.shacl.vocabulary.SH;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -1077,6 +1078,7 @@ public class ExamplesAndValidationTest {
             // having multiple type assertions in case of uncertainty is ok, but there must always
             // be at least one type assertion
             makeEntity(model, utils.getEntityUri(), system);
+            utils.expect(ShaclShapes.EntityShape, SH.SPARQLConstraintComponent, null);
             utils.testInvalid("Invalid: entity with missing type");
         }
 
@@ -1085,6 +1087,7 @@ public class ExamplesAndValidationTest {
             // having multiple type assertions in case of uncertainty is ok, but there must always
             // be at least one type assertion
             makeEvent(model, utils.getEventUri(), system);
+            utils.expect(ShaclShapes.EventRelationShape, SH.SPARQLConstraintComponent, null);
             utils.testInvalid("Invalid: event missing type");
         }
 
@@ -1092,6 +1095,8 @@ public class ExamplesAndValidationTest {
         void nonTypeUsedAsType() {
             // use a blank node as the bogus entity type
             utils.makeValidAIFEntity(model.createResource());
+            utils.expect(ShaclShapes.EntitySubclass, TestUtils.HasValueConstraintComponent, null);
+            utils.expect(ShaclShapes.EntitySubclass, SH.MinCountConstraintComponent, null);
             utils.testInvalid("Invalid: non-type used as type");
         }
 
@@ -1103,6 +1108,8 @@ public class ExamplesAndValidationTest {
             markAsArgument(model, relation, SeedlingOntology.Physical_Resident_Resident, personEntity, system, 1.0);
             markAsArgument(model, relation, SeedlingOntology.Physical_Resident_Place, louisvilleEntity, system, 1.0);
 
+            utils.expect(ShaclShapes.RelationSubclass, TestUtils.HasValueConstraintComponent, null);
+            utils.expect(ShaclShapes.RelationSubclass, SH.MinCountConstraintComponent, null);
             utils.testInvalid("Invalid: relation of unknown type");
         }
 
@@ -1123,6 +1130,7 @@ public class ExamplesAndValidationTest {
             justification.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
             entity.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification);
 
+            utils.expect(ShaclShapes.RequiredConfidencePropertyShape, SH.MinCountConstraintComponent, null);
             utils.testInvalid("Invalid: justification missing confidence");
         }
 
