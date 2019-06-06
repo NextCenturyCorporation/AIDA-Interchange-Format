@@ -79,9 +79,9 @@
             "Description": "The amount of memory for the main node (i.e. 2048).",
             "Default": 2048
         },
-        "MainNodeVpcus": {
+        "MainNodeVcpus": {
             "Type": "Number",
-            "Description": "The number of Vpcus for the main node (i.e. 2).",
+            "Description": "The number of VCPUs for the main node (i.e. 2).",
             "Default": 2
         },
         "WorkerNodeRange": {
@@ -94,14 +94,14 @@
             "Description": "The amount of memory for the worker nodes (i.e. 2048).",
             "Default": 2048
         },
-        "MainNodeVpcus": {
+        "MainNodeVcpus": {
             "Type": "Number",
-            "Description": "The number of Vpcus for the main nodes (i.e. 2).",
+            "Description": "The number of VCPUs for the main nodes (i.e. 2).",
             "Default": 2
         },
-        "WorkerNodeVpcus": {
+        "WorkerNodeVcpus": {
             "Type": "Number",
-            "Description": "The number of Vpcus for the worker nodes (i.e. 2).",
+            "Description": "The number of VCPUs for the worker nodes (i.e. 2).",
             "Default": 2
         },
         "JobQueueName": {
@@ -136,12 +136,12 @@
         },
         "MainContainerImage": {
             "Type": "String",
-            "Description": "The location of the main container image",
-            "Default": "606941321404.dkr.ecr.us-east-1.amazonaws.com/batch-main:latest"
+            "Description": "The location of the main container image located in ECR",
+            "Default": "606941321404.dkr.ecr.us-east-1.amazonaws.com/batch-main:latest" 
         },
         "WorkerContainerImage": {
             "Type": "String",
-            "Description": "The location of the main container image",
+            "Description": "The location of the main container image located in ECR",
             "Default": "606941321404.dkr.ecr.us-east-1.amazonaws.com/batch-worker:latest"
         },
         "EnvS3SubmissionArchive": {
@@ -465,7 +465,7 @@
                                 "ResourceRequirements" : [],
                                 "Ulimits" : [],
                                 "Vcpus" : {
-                                    "Ref": "MainNodeVpcus"
+                                    "Ref": "MainNodeVcpus"
                                 },
                                 "Volumes" : []
                             }
@@ -520,7 +520,7 @@
                                 "ResourceRequirements" : [],
                                 "Ulimits" : [],
                                 "Vcpus" : {
-                                    "Ref": "WorkerNodeVpcus"
+                                    "Ref": "WorkerNodeVcpus"
                                 },
                                 "Volumes" : []
                             }
