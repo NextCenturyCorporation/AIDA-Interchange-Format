@@ -71,37 +71,37 @@
         },
         "MainNodeRange": {
             "Type": "String",
-            "Description": "The target node range for the main node (i.e. 0:0).",
+            "Description": "The target node range for the main node (e.g. 0:0).",
             "Default": "0:0"
         },
         "MainNodeMemory": {
             "Type": "Number",
-            "Description": "The amount of memory for the main node (i.e. 2048).",
+            "Description": "The amount of memory for the main node (e.g. 2048).",
             "Default": 2048
         },
         "MainNodeVcpus": {
             "Type": "Number",
-            "Description": "The number of VCPUs for the main node (i.e. 2).",
+            "Description": "The number of VCPUs for the main node (e.g. 2).",
             "Default": 2
         },
         "WorkerNodeRange": {
             "Type": "String",
-            "Description": "The target node range for the main node (i.e. 1:1).",
+            "Description": "The target node range for the main node (e.g. 1:1).",
             "Default": "1:1"
         },
         "WorkerNodeMemory": {
             "Type": "Number",
-            "Description": "The amount of memory for the worker nodes (i.e. 2048).",
+            "Description": "The amount of memory for the worker nodes (e.g. 2048).",
             "Default": 2048
         },
         "MainNodeVcpus": {
             "Type": "Number",
-            "Description": "The number of VCPUs for the main nodes (i.e. 2).",
+            "Description": "The number of VCPUs for the main nodes (e.g. 2).",
             "Default": 2
         },
         "WorkerNodeVcpus": {
             "Type": "Number",
-            "Description": "The number of VCPUs for the worker nodes (i.e. 2).",
+            "Description": "The number of VCPUs for the worker nodes (e.g. 2).",
             "Default": 2
         },
         "JobQueueName": {
