@@ -327,7 +327,7 @@ def upload_formatted_submission(session, directory, bucket, prefix, validation_t
 					}
 				]	
 			}
-			job['name'] = bucket_prefix
+			job['name'] = bucket_prefix.replace('.', '')
 			
 			return job
 
@@ -498,7 +498,7 @@ def main():
 			logging.info("Submit the following jobs to AWS Batch:")
 
 			for idx, job in enumerate(jobs):
-				logging.info("Submitting job[%s] with the following overrides: %s", str(idx+1), str(job))
+				logging.info("Submitting job[%s] with the following overrides: %s", job['name'], str(job))
 				submit_job(session, job['name'], envs['BATCH_JOB_QUEUE'], 
 					envs['BATCH_JOB_DEFINITION'], job, envs['BATCH_NUM_NODES'])
 
