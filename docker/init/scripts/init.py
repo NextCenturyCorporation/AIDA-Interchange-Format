@@ -333,6 +333,43 @@ def check_inter_ta_directory(directory):
 	return os.path.exists(directory + "/" + INTER_TA['directory'])
 
 
+def submit_job(session, job_name, job_queue, job_definition, env_overrides):
+	"""Function will submit a job to aws batch with the passed in environment
+	variable overrides.
+
+	:param Session session: The boto3 session
+	:param str job_name: The job name
+	:param str job_definition: The job definition that was configured on AWS batch
+	:param list env_overrides: List of dictionary environment variable 
+		overrides for the specific AWS batch job that is being submitted
+	"""
+	batch = boto3.client('batch')
+
+	try:
+		response = batch.submit_job(
+			jobName=job_name, #'jdoe-test-job', # use your HutchNet ID instead of 'jdoe'
+            jobQueue=job_queue, #'mixed', # sufficient for most jobs
+            jobDefinition=job_definition, #'myJobDef:7', # use a real job definition
+            containerOverrides={
+            	"environment": env_overrides
+
+            	#[ # optionally set environment variables
+                #	{"name": "FAVORITE_COLOR", "value": "blue"},
+                #    {"name": "FAVORITE_MONTH", "value": "December"}
+                #]
+        	}
+        )
+
+        if response is not None:
+        	logging.info("Job %s successfully submitted to AWS batch with job id: %s", job_name, response['jobId'])
+        else:
+        	logging.error("There was an error when submitting the batch job %s with definition %s to queue %s with " \
+        		" environment overrides %s", job_name, job_queue, job_definition, env_overrides)
+
+	except ClientError as e:
+    	logging.error(e)
+
+
 def is_env_set(env, value):
     """Helper function to check if a specific environment variable is not None
 
@@ -377,6 +414,8 @@ def read_envs():
 	envs = {}
 	envs['S3_SUBMISSION_ARCHIVE_PATH'] = os.environ.get('S3_SUBMISSION_ARCHIVE_PATH', 'aida-validation/archives/NextCentury_1.zip')
 	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
+	envs['BATCH_JOB_DEFINITION'] = os.environ.get('BATCH_JOB_DEFINITION', 'aida-single-node-nist:5')
+	envs['BATCH_JOB_QUEUE'] = os.environ.get('BATCH_JOB_QUEUE', 'aida-validation-cf-queue')
 	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
 	return envs
 
