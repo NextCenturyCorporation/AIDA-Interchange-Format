@@ -192,7 +192,7 @@ def get_task_type(stem, directory):
 	delim_count = stem.count('.')
 
 	if delim_count == 0:
-		if check_nist_directory(directory) and check_inter_ta_directory(directory):
+		if check_nist_directory(directory):
 			return Task.one
 		else:
 			raise ValueError("Invalid Task 1 submission format. Could not locate required {0} directory in submission" 
