@@ -456,11 +456,11 @@ def read_envs():
 	:rtype: dict
 	"""
 	envs = {}
-	envs['S3_SUBMISSION_ARCHIVE_PATH'] = os.environ.get('S3_SUBMISSION_ARCHIVE_PATH', 'aida-validation/archives/NextCentury_1.zip')
-	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
+	envs['S3_SUBMISSION_ARCHIVE_PATH'] = os.environ.get('S3_SUBMISSION_ARCHIVE_PATH')
+	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET')
 	envs['BATCH_NUM_NODES'] = os.environ.get('BATCH_NUM_NODES', '2')
-	envs['BATCH_JOB_DEFINITION'] = os.environ.get('BATCH_JOB_DEFINITION', 'aida-single-node-nist:6')
-	envs['BATCH_JOB_QUEUE'] = os.environ.get('BATCH_JOB_QUEUE', 'aida-validation-cf-queue')
+	envs['BATCH_JOB_DEFINITION'] = os.environ.get('BATCH_JOB_DEFINITION')
+	envs['BATCH_JOB_QUEUE'] = os.environ.get('BATCH_JOB_QUEUE')
 	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
 	return envs
 
