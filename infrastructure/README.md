@@ -40,6 +40,8 @@ $ aws cloudformation delete-stack --stack-name aida-validation-batch-stack
 $ aws cloudformation delete-stack --stack-name aida-validation-network-stack
 ```
 
+*Note: When deleting the aida-validation-network-stack, the NAT gateway will take some time to delete completely.*
+
 ### Checking Stack Status
 
 To check the status of a stack that was submitted for creation or deletion, run the following command replacing <stack name> with the name of the stack that you are checking:
