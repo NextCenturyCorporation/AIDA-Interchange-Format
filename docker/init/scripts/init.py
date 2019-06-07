@@ -12,15 +12,14 @@ from enum import Enum
 from botocore.exceptions import ClientError
 
 class Task(Enum):
-	oneA = '1a'
-	oneB = '1b'
+	one = '1'
 	two = '2'
 	three = '3'
 
 # define all the different directory types and corresponding flags
-NIST = { 'validation': '--ldc --nist -o', 'name': 'nist', 'directory': 'NIST', 'description': 'NIST restricted'  }
-INTER_TA = { 'validation': '--ldc -o', 'name': 'unrestricted', 'directory': 'INTER-TA', 'description': 'unrestricted'  }
-NIST_TA3 = { 'validation': '--ldc --nist-ta3 -o', 'name': 'nist-ta3', 'directory': 'NIST', 'description': 'NIST TA3 restricted' }
+NIST = { 'validation': '--ldc --nist -o', 'name': 'nist', 'directory': 'NIST', 'description': 'NIST RESTRICTED'  }
+INTER_TA = { 'validation': '--ldc -o', 'name': 'unrestricted', 'directory': 'INTER-TA', 'description': 'UNRESTRICTED'  }
+NIST_TA3 = { 'validation': '--ldc --nist-ta3 -o', 'name': 'nist-ta3', 'directory': 'NIST', 'description': 'NIST TA3 RESTRICTED' }
 
 
 def download_and_extract_submission_from_s3(session, submission):
@@ -194,9 +193,7 @@ def get_task_type(stem, directory):
 
 	if delim_count == 0:
 		if check_nist_directory(directory) and check_inter_ta_directory(directory):
-			return Task.oneA
-		elif check_nist_directory(directory):
-			return Task.oneB
+			return Task.one
 		else:
 			raise ValueError("Invalid Task 1 submission format. Could not locate required {0} directory in submission" 
 				.format(NIST['directory']))
@@ -232,7 +229,7 @@ def validate_and_upload(session, directory, task, bucket, prefix, submission_pat
 	task_type = task.value
 	jobs = []
 
-	if task == Task.oneA or task == Task.oneB or task == Task.two:
+	if task == Task.one or task == Task.two:
 
 		# NIST direcotry required, do not upload INTER-TA if NIST does not exist
 		if not check_nist_directory(directory):

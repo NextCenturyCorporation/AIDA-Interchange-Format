@@ -58,9 +58,7 @@ class Main:
         """
         """
         # publish message notification that job has started
-        init_msg = "The task {0} submission {1} has been submitted with {2} .ttl files for {3} validation. " \
-            "The job id associated with this validation is: {4}".format(self.s3_submission_task, self.s3_submission_archive, 
-                self.extracted, self.s3_submission_validation_descr, self.job_id)
+        init_msg = self._generate_init_report()
         self._publish_sns_message(init_msg)
 
         self._bucket_exists()
@@ -99,6 +97,20 @@ class Main:
         # clean up sqs queue and s3 validation staging data
         # self._delete_s3_objects_with_prefix(self.job_id)
         self._delete_sqs_queue(queue_url)
+
+
+    def _generate_init_report(self):
+        """Helper method to generate the initialization report to be sent out via SNS.
+        """
+        report = "The following job has been submitted for AIF Validation"
+
+        report += "\n\nJOB ID: {0}".format(self.job_id)
+        report += "\nSUBMISSION ARCHIVE: {0}".format(self.s3_submission_archive)
+        report += "\nTASK TYPE: {0}".format(self.s3_submission_task)
+        report += "\nVALIDATION TYPE: {0}".format(self.s3_submission_validation_descr)
+        report += "\nTTL FILE COUNT: {0}".format(self.extracted)
+
+        return report
 
 
     def _bucket_exists(self):
@@ -622,24 +634,23 @@ class Main:
         :param str results_archive: The name of the final results archive that will be 
             uploaded to s3. 
         """
-        report = "The {0} validation of the task {1} submission {2} with job id: {3}" \
-        " has completed. " \
-            .format(self.s3_submission_validation_descr, self.s3_submission_task, self.s3_submission_archive, 
-                self.job_id, self.extracted) + "\n\nValidation Summary\n----------------------\n" \
+        report = "The following job has completed AIF Validation"
 
-        report += "VALID: " + str(metrics['valid']) + "\n"
-        report += "INVALID: " + str(metrics['invalid']) + "\n"
-        report += "ERROR: " + str(metrics['error']) + "\n"
-        report += "TIMEOUT: " + str(metrics['timeout']) + "\n"
-        report += "UNPROCESSED: " + str(metrics['unprocessed']) + "\n\n"
+        report += "\n\nJOB ID: {0}".format(self.job_id)
+        report += "\nSUBMISSION ARCHIVE: {0}".format(self.s3_submission_archive)
+        report += "\nTASK TYPE: {0}".format(self.s3_submission_task)
+        report += "\nVALIDATION TYPE: {0}".format(self.s3_submission_validation_descr)
+        report += "\nTTL FILE COUNT: {0}".format(self.extracted)
+        report += "\nRESULTS ARCHIVE: https://{0}.s3.amazonaws.com/{1}".format(self.bucket, results_archive)
+        report += "\nRESULTS BUCKET: https://{0}.s3.amazonaws.com/{1}".format(self.bucket, self.job_id)
+        report += "\nVERIFICATION SUMMARY: {0}".format(self.verification)
 
-        report += "Verification Summary\n-----------------------\n"
-        report += self.verification + "\n\n"
-
-        report += "Results\n--------\n"
-        report += "The validation results archive {0} can be found in the {1} S3 bucket \n" \
-            .format(results_archive, self.bucket)
-        report += "The validation results can be found in {0}".format(self.bucket + '/' + self.job_id)
+        report += "\n\nVALIDATION SUMMARY:"
+        report += "\n|--VALID: {0}".format(str(metrics['valid']))
+        report += "\n|--INVALID: {0}".format(str(metrics['invalid']))
+        report += "\n|--ERROR: {0}".format(str(metrics['error']))
+        report += "\n|--TIMEOUT: {0}".format(str(metrics['timeout']))
+        report += "\n|--UNPROCESSED: {0}".format(str(metrics['unprocessed']))
 
         return report
 
