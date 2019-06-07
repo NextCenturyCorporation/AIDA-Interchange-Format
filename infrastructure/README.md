@@ -1,8 +1,8 @@
-# AIDA Interchange Format Infrastructure
+# AIDA Validation Infrastructure
 
 ## CloudFormation
 
-The AIDA Interchange Format project supports creating the AIDA validation environment on AWS via CloudFormation scripts. Read below on how to validate, create, and delete the various stacks necessary to execute AIDA validations. 
+The AIDA project supports creating the AIDA validation environment on AWS via CloudFormation scripts, or via the AWS Console. Read below how to validate, create, and delete the various stacks necessary to execute AIDA validations. 
 
 ### Install AWS CLI
 
@@ -10,7 +10,7 @@ In order to run the AWS CLI CloudFormation commands outlined in this README, you
 
 ### Validation
 
-To validate the AIDA Interchange Format infrastructure CloudFormation scripts, run the following commands:
+To validate the AIDA Validation infrastructure CloudFormation scripts, run the following commands:
 
 ```bash
 $ aws cloudformation validate-template --template-body file://aida-validation-vpc-cf-template.json
