@@ -344,6 +344,9 @@ public class ValidateAIFCli implements Callable<Integer> {
         }
 
         final ReturnCode returnCode = displaySummary(fileNum + nonTTLcount, invalidCount, skipCount + nonTTLcount, abortCount);
+        if (threadSet) {
+            validator.getExecutor().shutdownNow();
+        }
         return returnCode.ordinal();
     }
 

@@ -3,7 +3,7 @@
 docker run --rm -it \
         -e S3_SUBMISSION_ARCHIVE_PATH='' \
         -e S3_VALIDATION_BUCKET='' \
-	-e BATCH_NUM_NODES='' \
+	      -e BATCH_NUM_NODES='' \
         -e BATCH_JOB_DEFINITION='' \
         -e BATCH_JOB_QUEUE='' \
         -e AWS_ACCESS_KEY_ID='' \

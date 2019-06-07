@@ -21,7 +21,6 @@ NIST = { 'validation': '--ldc --nist -o', 'name': 'nist', 'directory': 'NIST', '
 INTER_TA = { 'validation': '--ldc -o', 'name': 'unrestricted', 'directory': 'INTER-TA', 'description': 'UNRESTRICTED'  }
 NIST_TA3 = { 'validation': '--ldc --nist-ta3 -o', 'name': 'nist-ta3', 'directory': 'NIST', 'description': 'NIST TA3 RESTRICTED' }
 
-
 def download_and_extract_submission_from_s3(session, submission):
 	"""Downloads submission from s3 and extracts the contents to the working directory.
 	Submissions must be an archive of .zip, .tar.gz, or .tgz.
@@ -210,7 +209,7 @@ def get_task_type(stem, directory):
 		raise ValueError("Invalid submission format. Could not extract task type with submission stem {0}"
 			.format(stem)) 
 
-
+    
 def validate_and_upload(session, directory, task, bucket, prefix, submission_path):
 	"""Validates directory structure of task type and uploads the contents to s3. Returns a dictionary
 	of jobs that need to be executed on batch with their corresponding s3 locations.
@@ -236,13 +235,14 @@ def validate_and_upload(session, directory, task, bucket, prefix, submission_pat
 			logging.error("Task 1 submission format is invalid. Could not locate NIST directory")
 		else:
 			j = upload_formatted_submission(session, directory, bucket, prefix, NIST, task, submission_path)
+
 			if j is not None:
 				jobs.append(j)
 
 			# INTER-TA directory **not required**
 			if check_inter_ta_directory(directory):
-
 				j = upload_formatted_submission(session, directory, bucket, prefix, INTER_TA, task, submission_path)
+
 				if j is not None:
 					jobs.append(j)
 
@@ -250,6 +250,7 @@ def validate_and_upload(session, directory, task, bucket, prefix, submission_pat
 
 	elif task == Task.three:
 		jobs.append(upload_formatted_submission(session, directory, bucket, prefix, NIST_TA3, task, submission_path))
+
 		return jobs
 	else:
 		logging.error("Could not validate submission structure for invalid task %s", task)
