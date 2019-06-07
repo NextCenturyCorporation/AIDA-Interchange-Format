@@ -85,13 +85,13 @@ class Main:
 
         # generate validation metrics
         metrics = self._get_results_metrics(results_path)
+        report = self._create_validation_report(metrics, results_tar, results_path)
 
         # create results and upload to validation bucket
         self._create_results_tarfile(results_tar, results_path)
         self._upload_file_to_s3(results_tar)
 
-        report = self._create_validation_report(metrics, results_tar)
-
+    
         self._publish_sns_message(report)
 
         # clean up sqs queue and s3 validation staging data
@@ -472,7 +472,6 @@ class Main:
         """
         logging.info("Verifying validation result contents with SQS queue")
         queued_log = '/'.join([results_path,  self.source_log + '.queued'])
-        verification_log = self.source_log + '.verification'
 
         if os.path.exists(queued_log):
 
@@ -483,12 +482,7 @@ class Main:
                     sqs_objects = [Path(line.strip()).name for line in file]
             except :
                 logging.error("Exception occurred when reading %s during verification of validation", queued_log)
-
-                self._create_verification_output(
-                    results_path,
-                    verification_log,
-                    "Exception occurred when reading {0} during verification of validation".format(queued_log)
-                )
+                self.verification = "Exception occurred when reading {0} during verification of validation".format(queued_log)
                 return False
 
             # get all ttl files that have been processed
@@ -503,55 +497,22 @@ class Main:
                 logging.error("The following %s files were missing from validation results: %s",
                         str(len(missing_objects)), missing_objects
                     )
-
-                self._create_verification_output(
-                    results_path,
-                    verification_log,
-                    "The following {0} files were missing from validation results: {1}".format( 
+                self.verification = "The following {0} files were missing from validation results: {1}".format( 
                         str(len(missing_objects)), missing_objects
                     )
-                )
                 return False
             else:
                 logging.info("Successfully verified all  %s files placed on SQS were accounted for in validation results",
                         str(len(sqs_objects))
                     )
-
-                self._create_verification_output(
-                    results_path,
-                    verification_log,
-                    "Successfully verified all {0} files placed on SQS were accounted for in validation results".format(
+                self.verification = "Successfully verified all {0} files placed on SQS were accounted for in validation results".format(
                         str(len(sqs_objects))
                     )
-                )
                 return True 
         else:
             logging.error("Source log file %s does not exist, unable to verify source files", source_log_path)
-
-            self._create_verification_output(
-                results_path, 
-                verification_log,
-                "Source log file {0} does not exist, unable to verify source files".format(source_log_path)
-            )
+            self.verification = "Source log file {0} does not exist, unable to verify source files".format(source_log_path)
             return False
-
-
-    def _create_verification_output(self, results_path, source_verification_path, message):
-        """Generates verification file with verification results to be added to final 
-        archive and sets verification message for final report.
-        :param str results_path: The local path of the sync'd s3 bucket
-        :param str source_verification_path: The path to place this verification output file
-        :param str message: The message that will be added to the file with the verification 
-            results
-        :raises Exception: Excpetion occurred when attempting to write to file 
-        """
-        file_path = '/'.join([results_path, source_verification_path])
-        try:
-            with open(file_path, "w") as f:
-                print(message, file=f)
-                self.verification = message #set for final report
-        except:
-            logging.error("Error when writing source verification file %s", file_path)
 
 
     def _create_results_tarfile(self, filename, source_dir):
@@ -627,7 +588,7 @@ class Main:
         return metrics
 
 
-    def _create_validation_report(self, metrics, results_archive):
+    def _create_validation_report(self, metrics, results_archive, results_path):
         """Function will generate the final validation report that will be sent in an SNS
         message. 
         :param dict metrics: The counts of each validation category 
@@ -651,6 +612,15 @@ class Main:
         report += "\n|--ERROR: {0}".format(str(metrics['error']))
         report += "\n|--TIMEOUT: {0}".format(str(metrics['timeout']))
         report += "\n|--UNPROCESSED: {0}".format(str(metrics['unprocessed']))
+
+        # write the file to be included in the tar
+        file_path = '/'.join([results_path, 'validation.report'])
+
+        try:
+            with open(file_path, "w") as f:
+                    print(report, file=f)
+        except: 
+            logging.error("Error when writing validation report to %s", file_path)
 
         return report
 
