@@ -17,6 +17,8 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
      translation of these examples is in `python/tests/Examples.py`.  If you run either set of
      examples, the corresponding Turtle output will be dumped.
 
+*    the `validateAIF` command line utility that can be used to validate AIF .ttl files. See below for details. 
+
 We recommend using Turtle format for AIF when working with single document files (for
 readability) but N-Triples for working with large KBs (for speed).
 
@@ -57,21 +59,23 @@ validate N files or all files in a specified directory.
 To run the validator from the command line, run `target/appassembler/bin/validateAIF`
 with a series of command-line arguments (in any order) honoring the following usage:  <br>
 Usage:  <br>
-`validateAIF { --ldc | --program | --ont FILE ...} [--nist] [--nist-ta3] [-o] [-h | --help] [--abort [num]] [--pm] {-f FILE ... | -d DIRNAME}`  <br>
+`validateAIF [-hov] [--ldc] [--nist] [--nist-ta3] [--pm] [--program] [--abort[=num]] [-d=DIRNAME] [-t=num] [--ont=FILE...]... [-f=FILE...]...`  <br>
 
 | Switch | Description |
 | ----------- | ----------- |
 |`--ldc`    | validate against the LDC ontology |
 |`--program`| validate against the program ontology |
-|`--ont FILE ...` | validate against the OWL-formatted ontolog(ies) at the specified filename(s) |
+|`--ont=FILE ...` | validate against the OWL-formatted ontolog(ies) at the specified filename(s) |
 |`--nist` | validate against the NIST restrictions |
 |`--nist-ta3` | validate against the NIST hypothesis restrictions (implies `--nist`) |
+|`--abort[=num]` | Abort validation after `[num]` SHACL violations (num > 2), or three violations if `[num]` is omitted. |
+|`--pm` | Enable progress monitor that shows ongoing validation progress |
 |`-o` | Save validation report model to a file.  `KB.ttl` would result in `KB-report.txt`. Output defaults to stderr. |
+|`-t=num` | Specify the number of threads to use during validation. As the threaded validator doesn't currently support adding a progress monitor, this disables the --pm option. |
+|`-d=DIRNAME` | validate all `.ttl` files in the specified directory |
+|`-f=FILE ...` | validate the specified file(s) with a `.ttl` suffix |
 |`-h, --help` | This help and usage text |
-|`--abort [num]` | Abort validation after `[num]` SHACL violations (num > 2), or three violations if `[num]` is omitted. |
-|`--pm | Enable progress monitor that shows ongoing validation progress |
-|`-f FILE ...` | validate the specified file(s) with a `.ttl` suffix |
-|`-d DIRNAME` | validate all `.ttl` files in the specified directory |
+|`-v, --version` | Print the validator version |
 
 Either a file (-f) or a directory (-d) must be specified (but not both).  <br>
 Exactly one of --ldc, --program, or --ont must be specified.  <br>
