@@ -69,6 +69,11 @@
             "Description": "The total number for nodes for the validation batch job.",
             "Default": 2
         },
+        "MainNodeRange": {
+            "Type": "String",
+            "Description": "The target node range for the main node (e.g. 0:0).",
+            "Default": "0:0"
+        },
         "MainNodeMemory": {
             "Type": "Number",
             "Description": "The amount of memory for the main node (e.g. 2048).",
@@ -427,7 +432,9 @@
                     },
                     "NodeRangeProperties": [
                         {
-                            "TargetNodes": "0:0",
+                            "TargetNodes": {
+                                "Ref": "MainNodeRange"
+                            },
                             "Container": {
                                 "Command" : [],
                                 "Environment":  [
