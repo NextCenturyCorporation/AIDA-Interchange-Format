@@ -52,7 +52,7 @@
         "ComputeEnvironmentMaxVCpus": {
             "Type": "Number",
             "Description": "The maximum number of vcpus for the compute environment.",
-            "Default": 5
+            "Default": 300
         },
         "ComputeEnviornmentMinVCpus": {
             "Type": "Number",
@@ -176,14 +176,14 @@
             "Default": "<validation bucket>"
         },
         "EnvMainSleepInterval": {
-            "Type": "String",
+            "Type": "Number",
             "Description": "The number of seconds to wait before checking if all worker jobs have completed",
-            "Default": "60"
+            "Default": 20
         },
 	    "EnvMainWorkerInitTimeout": {
-	        "Type": "String",
+	        "Type": "Number",
             "Description": "The time in seconds to wait for worker batch jobs to initialize beofe terminating",
-            "Default": "300"
+            "Default": 300
 	    },
         "EnvAwsDefaultRegion": {
             "Type": "String",
@@ -196,14 +196,14 @@
             "Default": "<aws sns topic arn>"
         },
         "EnvQueueInitTimeout": {
-            "Type": "String",
+            "Type": "Number",
             "Description": "The number of seconds to wait for the SQS queue to initialize",
-            "Default": "3600"
+            "Default": 3600
         },
         "EnvValidationTimeout": {
-            "Type": "String",
+            "Type": "Number",
             "Description": "The number of seconds to wait for a single validation to complete before timing out",
-            "Default": "28880"
+            "Default": 28800
         },
     	"EnvValidationHome": {
     	    "Type": "String",

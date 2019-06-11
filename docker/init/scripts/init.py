@@ -315,7 +315,7 @@ def upload_formatted_submission(session, directory, bucket, prefix, validation_t
 					},
 					{
 						'name': 'S3_SUBMISSION_PREFIX',
-						'value': prefix
+						'value': bucket_prefix
 					},
 					{
 						'name': 'S3_SUBMISSION_VALIDATION_DESCR',
