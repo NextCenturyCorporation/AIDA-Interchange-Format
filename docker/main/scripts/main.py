@@ -18,8 +18,12 @@ class Main:
     # Initializer / Instance Attributes
     def __init__(self, envs):
         
-        self.submission = envs['S3_SUBMISSION_ARCHIVE']
         self.bucket = envs['S3_VALIDATION_BUCKET']
+        self.s3_submission_archive = envs['S3_SUBMISSION_ARCHIVE']
+        self.s3_submission_task = envs['S3_SUBMISSION_TASK']
+        self.s3_submission_bucket= envs['S3_SUBMISSION_BUCKET']
+        self.s3_submission_prefix = envs['S3_SUBMISSION_PREFIX']
+        self.s3_submission_validation_descr = envs['S3_SUBMISSION_VALIDATION_DESCR']
         self.job_id = (envs['AWS_BATCH_JOB_ID']).split("#")[0]
         self.node_index = envs['AWS_BATCH_JOB_NODE_INDEX']
         self.sleep_interval = int(envs['MAIN_SLEEP_INTERVAL'])
@@ -31,27 +35,24 @@ class Main:
         self.debug_sleep_interval = int(envs['DEBUG_SLEEP_INTERVAL'])
         self.source_log = 'sourcelog'
         self.session = boto3.session.Session(region_name=self.aws_region)
-        self.extracted = 0
+        self.extracted = envs['S3_SUBMISSION_EXTRACTED']
         self.verification = None
 
     def run(self):
         """
         """
         # publish message notification that job has started
-        init_msg = "The archive {0} has been submitted for validation with job id {1}." \
-            .format(Path(self.submission).name, self.job_id)
+        init_msg = "The task {0} submission {1} has been submitted with {2} .ttl files for {3} validation. " \
+            "The job id associated with this validation is: {4}".format(self.s3_submission_task, self.s3_submission_archive, 
+                self.extracted, self.s3_submission_validation_descr, self.job_id)
         self._publish_sns_message(init_msg)
 
-        # verify bucket and submission extension
         self._bucket_exists()
-        self._check_submission_extension()
-
-        # download and extract the submission
-        self._download_and_extract_submission_from_s3()
+        objects = self._create_s3_object_list()
 
         # create SQS queue and populate
         queue_url = self._create_sqs_queue()
-        self._enqueue_files(queue_url)
+        self._enqueue_files(queue_url, objects)
 
         # check for debug mode
         if self.debug:
@@ -61,7 +62,7 @@ class Main:
             self._wait_for_processing()
 
         # download all validation files from s3 for the current job
-        results_path = self._get_submission_stem() + '-results'
+        results_path = self.s3_submission_prefix
         results_tar = results_path + '.tar.gz'
         self._sync_s3_bucket(results_path)
 
@@ -111,20 +112,34 @@ class Main:
             raise
 
 
-    def _check_submission_extension(self):
-        """Helper function that checks the submission extension is valid before
-        downloading archive from S3. Valid submissions can be archived as .tar.gz, 
-        .tgz, or .zip. 
+    def _create_s3_object_list(self):
+        """Function will create a list of all the s3 object paths for the files in the 
+        s3 submission path. If no objects are found in the s3 bucket / prefix, an 
+        exception is thrown.
 
-        :returns: True if submission has valid extension, False otherwise
+        :raises ClientError: S3 resource exception
+        :raises ValueError: The validation bucket does not exist
         """
-        file_ext = self._get_submission_extension()
-        valid_ext = [".tar.gz", ".tgz", ".zip"]
+        s3 = self.session.resource('s3')
+        objects = []
 
         try:
-            logging.info("Checking if submission %s is a valid archive type", self.submission)
-            if file_ext not in valid_ext:
-                raise ValueError("Submission {0} is not a valid archive type".format(self.submission))
+            logging.info("Creating list of s3 objects to add to SQS from %s", 
+                self.s3_submission_bucket + '/' + self.s3_submission_prefix)
+            bucket = s3.Bucket(self.s3_submission_bucket)
+            
+            for o in bucket.objects.filter(Prefix=self.s3_submission_prefix):
+                objects.append(o.key)
+
+            if len(objects) == 0:
+                raise ValueError("No s3 objects found in {0}/{1}"
+                    .format(self.s3_submission_bucket, self.s3_submission_prefix))
+            return objects
+
+        except ClientError as e:
+            logging.error(e)
+            self._publish_failure_message(e)
+            raise
         except ValueError as e:
             logging.error(e)
             self._publish_failure_message(e)
@@ -157,102 +172,10 @@ class Main:
 
         param: str message: The failure message to publish
         """
-        heading = "The validation job {0} with submission {1} failed with the following" \
-             " error: {2}".format(self.job_id, Path(self.submission).name, message)
+        heading = "The job {0} for the task {1} submission {2} failed against {3} validation the with" \
+            " the following error: {4}".format(self.job_id, self.s3_submission_task, self.s3_submission_archive, 
+                self.s3_submission_validation_descr, message)
         self._publish_sns_message(heading)
-
-
-    def _download_and_extract_submission_from_s3(self):
-        """Downloads submission from s3 and extracts contents to the working directory.
-        Submissions must be an archive of .zip, .tar.gz, or .tgz.
-
-        :raises ClientError: SQS client exception
-        :raises Exception: No turtle (TTL) files extracted from s3 submission
-        """
-        s3_bucket, s3_object, file_name, file_ext = self._get_submission_paths()
-
-        # create directory for output
-        if not os.path.exists(self.job_id):
-            os.makedirs(self.job_id)
-
-        s3_client = self.session.client('s3')
-
-        try:
-            logging.info("Downloading %s from bucket %s", s3_object, s3_bucket)
-            s3_client.download_file(s3_bucket, s3_object, file_name)
-            logging.info("Extracting %s", file_name)
-
-            # extract files
-            if file_ext == '.tgz' or file_ext == '.tar.gz':
-                # extract the contents of the .tar.gz
-                with tarfile.open(file_name) as tar:
-                    tar.extractall(self.job_id)
-            elif(file_ext == '.zip'):
-                zip_ref = zipfile.ZipFile(file_name, 'r')
-                zip_ref.extractall(self.job_id)
-                zip_ref.close()
-
-            ttls_paths = (glob.glob(self.job_id + '/**/*.ttl', recursive=True))
-            ttls = [ Path(x).name for x in ttls_paths ]
-
-            # if no ttl files extracted raise an exception
-            if len(ttls) <= 0 :
-                err = "No files with .ttl extension found in S3 submission {0}".format(file_name)
-                raise ValueError(err)
-
-            # check for duplicates
-            if len(ttls) != len(set(ttls)):
-                err = "Duplicate files with .ttl extension found in S3 submission {0}".format(file_name)
-                raise ValueError(err)
-
-            # save the number of files extracted
-            self.extracted = len(ttls)
-                
-        except ClientError as e:
-            logging.error(e)
-            self._publish_failure_message(e)
-            raise
-        except ValueError as e:
-            logging.error(e)
-            self._publish_failure_message(e)
-            raise
-
-
-    def _get_submission_paths(self):
-        """Helper function to extract s3 and file path information from s3 submission 
-        path.
-
-        :returns: 
-            - s3_bucket - the extracted S3 bucket
-            - s3_object - the extracted s3 object
-            - file_name - the extracted file name including extension
-            - file_ext - the extracted file extension
-        :rtype: (str, str, str, str)
-        """
-        path = Path(self.submission)
-        s3_bucket = path.parts[0]          
-        s3_object = '/'.join(path.parts[1:])   
-        file_name = path.name
-        suffixes = path.suffixes
-        file_ext = self._get_submission_extension()
-
-        return s3_bucket, s3_object, file_name, file_ext
-
-
-    def _get_submission_extension(self):
-        """Helper function to get the extension of 
-        """
-        path = Path(self.submission)
-        suffixes = path.suffixes
-        
-        if len(suffixes) > 1 and suffixes[-1] == '.gz':
-            file_ext = "".join([suffixes[-2], suffixes[-1]])
-        elif len(suffixes) > 1:
-            file_ext = suffixes[-1]
-        elif len(suffixes) == 1:
-            file_ext = suffixes[0]
-
-        return file_ext
 
 
     def _create_sqs_queue(self):
@@ -295,7 +218,7 @@ class Main:
             raise
 
 
-    def _enqueue_files(self, queue_url):
+    def _enqueue_files(self, queue_url, objects):
         """Uploads all turtle (ttl) files in source directory to the provided S3 bucket,
         adds each S3 object path as a message on SQS and creates / updates the source log on S3. 
         The source log is a serialized list of each S3 object path that will
@@ -303,45 +226,60 @@ class Main:
         the queue, a final source file will be uploaded with a suffix of '.queued' and the old
         source file will be removed from S3.
 
+        :param str bucket_direcotry: The bucket and prefix directory that contains the unprocessed 
+            ttl files
         :param str queue_url: The SQS queue url
         :raises ClientError: S3 client exception
         """
-        s3_client = self.session.client('s3')
+        for o in objects:
+            s3_object = '/'.join([self.job_id, 'UNPROCESSED', Path(o).name])
+
+            self._move_s3_object(self.s3_submission_bucket, o, s3_object)
+
+            # add the message to SQS
+            response = self._add_sqs_message(queue_url, s3_object)
+
+            # update the source log with the added object path
+            if response:
+                with open(self.source_log, 'a+') as f:
+                    f.write(s3_object + '\n')
+
+                # upload source log file to S3
+                self._upload_file_to_s3(self.source_log, self.job_id)
+
+            else:
+                logging.error("Unable to add %s as SQS message", s3_object)
+        
+        # append .done to the source log path
+        if os.path.exists(self.source_log):
+            os.rename(self.source_log, self.source_log +'.queued')
+
+            # upload file to S3
+            self._upload_file_to_s3(self.source_log +'.queued', self.job_id)
+
+            # delete the old file
+            self._delete_s3_object('/'.join([self.job_id, self.source_log]))
+
+
+    def _move_s3_object(self, s3_source_bucket, s3_source_key, s3_object_dest):
+        """Helper function that will move an S3 object within the validation bucket.
+
+        :param str s3_object: The s3 object to be moved
+        :param str s3_object_dest: The new s3 object destination
+        :raises ClientError: S3 resource exception
+        """
+        s3 = self.session.resource('s3')
 
         try:
-            for filepath in Path(self.job_id).glob('**/*.ttl'):
-                s3_object = '/'.join([self.job_id, 'UNPROCESSED', filepath.name])
+            copy_source = {
+                'Bucket': s3_source_bucket,
+                'Key': s3_source_key
+            }
+            logging.info("Moving s3 object %s from %s to %s ", 
+               s3_source_key, s3_source_bucket, self.bucket + '/' + s3_object_dest)
 
-                logging.info("Uploading %s to bucket %s", s3_object, self.bucket)
-                s3_client.upload_file(str(filepath), self.bucket, s3_object)
-
-                # add the message to SQS
-                response = self._add_sqs_message(queue_url, s3_object)
-
-                # update the source log with the added object path
-                if response:
-                    with open(self.source_log, 'a+') as f:
-                        f.write(s3_object + '\n')
-
-                    # upload file to S3
-                    self._upload_file_to_s3(self.source_log, self.job_id)
-
-                else:
-                    logging.error("Unable to add %s as SQS message", s3_object)
-            
-            # append .done to the source log path
-            if os.path.exists(self.source_log):
-                os.rename(self.source_log, self.source_log +'.queued')
-
-                # upload file to S3
-                self._upload_file_to_s3(self.source_log +'.queued', self.job_id)
-
-                # delete the old file
-                self._delete_s3_object('/'.join([self.job_id, self.source_log]))
-
-            # remove the source directory
-            logging.info("Removing source staging directory %s", self.job_id)
-            shutil.rmtree(self.job_id)
+            s3.meta.client.copy(copy_source, self.bucket, s3_object_dest)
+            s3.Object(s3_source_bucket, s3_source_key).delete()
 
         except ClientError as e:
             logging.error(e)
@@ -484,19 +422,6 @@ class Main:
 
         except ClientError as e:
             logging.error(e)
-
-
-    def _get_submission_stem(self):
-        """Helper function to extract s3 and file path information from submission 
-        path.
-
-        :returns: 
-            - stem - the extracted stem from the submission
-        :rtype: str
-        """
-        path = Path(self.submission)
-        stem = Path(path.with_suffix('')).stem
-        return stem
 
 
     def _sync_s3_bucket(self, dest_path):
@@ -692,6 +617,7 @@ class Main:
         logging.info("Validation result metrics: %s", metrics)
         return metrics
 
+
     def _create_validation_report(self, metrics, results_archive):
         """Function will generate the final validation report that will be sent in an SNS
         message. 
@@ -700,10 +626,10 @@ class Main:
         :param str results_archive: The name of the final results archive that will be 
             uploaded to s3. 
         """
-        report = "The validation of {0} with job id: {1} has completed. {2} .ttl were files extracted " \
-            .format(Path(self.submission).name, self.job_id, self.extracted) + " from the submission." \
-            + self.verification + "\n\nValidation Summary\n------------------\n" \
-            
+        report = "The {0} validation of the task {1} submission {2} with job id: {3}" \
+        " has completed. " \
+            .format(self.s3_submission_validation_descr, self.s3_submission_task, self.s3_submission_archive, 
+                self.job_id, self.extracted) + "\n\nValidation Summary\n----------------------\n" \
 
         report += "VALID: " + str(metrics['valid']) + "\n"
         report += "INVALID: " + str(metrics['invalid']) + "\n"
@@ -711,8 +637,14 @@ class Main:
         report += "TIMEOUT: " + str(metrics['timeout']) + "\n"
         report += "UNPROCESSED: " + str(metrics['unprocessed']) + "\n\n"
 
-        report += "The validation results archive {0} can be found in the {1} S3 bucket " \
+        report += "Verification Summary\n-----------------------\n"
+        report += self.verification + "\n\n"
+
+        report += "Results\n--------\n"
+        report += "The validation results archive {0} can be found in the {1} S3 bucket \n" \
             .format(results_archive, self.bucket)
+        report += "The validation results can be found in {0}".format(self.bucket + '/' + self.job_id)
+
         return report
 
 
@@ -723,8 +655,13 @@ def read_envs():
     :rtype: dict
     """
     envs = {}
-    envs['S3_SUBMISSION_ARCHIVE'] = os.environ.get('S3_SUBMISSION_ARCHIVE', 'aida-validation/archives/NistExamplesTTL.tar.gz')
+    envs['S3_SUBMISSION_ARCHIVE'] = os.environ.get('S3_SUBMISSION_ARCHIVE', 'NextCentury_1.zip')
     envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
+    envs['S3_SUBMISSION_TASK'] = os.environ.get('S3_SUBMISSION_TASK', '1a')
+    envs['S3_SUBMISSION_EXTRACTED'] = os.environ.get('S3_SUBMISSION_EXTRACTED', '2')
+    envs['S3_SUBMISSION_BUCKET'] = os.environ.get('S3_SUBMISSION_BUCKET', 'aida-validation')
+    envs['S3_SUBMISSION_PREFIX'] = os.environ.get('S3_SUBMISSION_PREFIX', 'NextCentury_1-nist')
+    envs['S3_SUBMISSION_VALIDATION_DESCR'] = os.environ.get('S3_SUBMISSION_VALIDATION_DESCR', 'NIST restricted')
     envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID', 'c8c90aa7-4f33-4729-9e5c-0068cb9ce75c')
     envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX', '0')
     envs['MAIN_SLEEP_INTERVAL'] = os.environ.get('MAIN_SLEEP_INTERVAL', '30')
@@ -732,7 +669,7 @@ def read_envs():
     envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
     envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN', 'arn:aws:sns:us-east-1:606941321404:aida-validation')
     envs['DEBUG'] = os.environ.get('DEBUG', 'True')
-    envs['DEBUG_TIMEOUT'] = os.environ.get('DEBUG_TIMEOUT', '600')
+    envs['DEBUG_TIMEOUT'] = os.environ.get('DEBUG_TIMEOUT', '100')
     envs['DEBUG_SLEEP_INTERVAL'] = os.environ.get('DEBUG_SLEEP_INTERVAL', '10')
     return envs
 

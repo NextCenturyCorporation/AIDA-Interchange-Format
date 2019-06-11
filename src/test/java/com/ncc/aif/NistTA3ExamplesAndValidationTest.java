@@ -227,12 +227,12 @@ public class NistTA3ExamplesAndValidationTest {
             void invalidEventEdge() {
                 //invalid event argument, needs importance value
                 Resource invalidEventEdge = markAsArgument(model, event,
-                        LDCOntology.Personnel_Elect,
+                        LDCOntology.Personnel_Elect_Candidate,
                         entity, system, 0.785, "event-argument-1");
 
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, invalidEventEdge);
 
-                utils.expect(null, TestUtils.XoneConstraintComponent, null);
+                utils.expect(ShaclShapes.ImportanceRequiredShape, SH.MinCountConstraintComponent, null);
                 utils.testInvalid("NISTHypothesis.invalid (event edge has no importance value): Each edge KE in the " +
                         "hypothesis graph must have exactly one edge importance value");
             }
@@ -272,6 +272,8 @@ public class NistTA3ExamplesAndValidationTest {
             }
         }
 
+        @Disabled("Disabled: This shape is not implemented correctly. A KE should consist of cluster, all membership nodes," +
+                " all member nodes, all type assertions for member nodes, and all justifications for type assertions for member nodes")
         @Nested
         class KEsInHypothesisMustBeDefined {
 

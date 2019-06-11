@@ -1,8 +1,13 @@
 #!/bin/bash
 
 docker run --rm -it \
-        -e S3_SUBMISSION_ARCHIVE='' \
         -e S3_VALIDATION_BUCKET='' \
+	-e S3_SUBMISSION_ARCHIVE='' \
+	-e S3_SUBMISSION_TASK='' \
+	-e S3_SUBMISSION_EXTRACTED=''\
+	-e S3_SUBMISSION_BUCKET=''\
+	-e S3_SUBMISSION_PREFIX=''\
+	-e S3_SUBMISSION_VALIDATION_DESCR='' \
         -e AWS_BATCH_JOB_ID='' \
         -e AWS_BATCH_JOB_NODE_INDEX='' \
         -e MAIN_SLEEP_INTERVAL='' \
