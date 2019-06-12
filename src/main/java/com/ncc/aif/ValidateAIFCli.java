@@ -6,11 +6,13 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
+import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
+import org.apache.jena.tdb.TDBFactory;
 import org.topbraid.jenax.progress.ProgressMonitor;
 import org.topbraid.jenax.statistics.ExecStatistics;
 import org.topbraid.jenax.statistics.ExecStatisticsListener;
@@ -117,6 +119,9 @@ public class ValidateAIFCli implements Callable<Integer> {
     @Option(names = "--pm", description = "Enable progress monitor that shows ongoing validation progress")
     private boolean useProgressMonitor;
 
+    @Option(names = "--disk", description = "Use disk-based model", hidden = true)
+    private boolean useDiskModel;
+
     @Option(names = "-p", description = "Enable profiling", hidden = true)
     private boolean useProfiling;
 
@@ -190,37 +195,8 @@ public class ValidateAIFCli implements Callable<Integer> {
                 useNISTRestriction ? ValidateAIF.Restriction.NIST : ValidateAIF.Restriction.NONE;
         final boolean profiling = useProfiling || useProgressiveProfiling;
 
-        // Finally, try to create the validator, but fail if required elements can't be loaded/parsed.
-        ValidateAIF validator = null;
-        final String ontologyStr;
-        try {
-            if (useLDCOntology) {
-                validator = ValidateAIF.createForLDCOntology(restriction);
-                ontologyStr = "LDC (LO)";
-            } else if (useProgramOntology) {
-                validator = ValidateAIF.createForProgramOntology(restriction);
-                ontologyStr = "Program (AO)";
-            } else {
-                StringBuilder builder = new StringBuilder();
-                // Convert the specified domain ontologies to CharSources.
-                Set<CharSource> domainOntologySources = new HashSet<>();
-                for (File file : customOntologies) {
-                    domainOntologySources.add(com.google.common.io.Files.asCharSource(file, Charsets.UTF_8));
-                    builder.append(file.getName()).append(" ");
-                }
-                validator = ValidateAIF.create(ImmutableSet.copyOf(domainOntologySources), restriction);
-                builder.setLength(builder.length() - 1);
-                ontologyStr = builder.toString();
-            }
-        } catch (RuntimeException rte) {
-            logger.error("Could not read/parse all domain ontologies or SHACL files...exiting.");
-            logger.error("--> " + rte.getLocalizedMessage());
-            return ReturnCode.FILE_ERROR.ordinal();
-        }
-
-        boolean hasFiles = files != null;
-
         // Collect the file(s) to be validated.
+        boolean hasFiles = files != null;
         final List<File> filesToValidate = new ArrayList<>();
         int nonTTLcount = 0;
         if (hasFiles) {
@@ -251,6 +227,37 @@ public class ValidateAIFCli implements Callable<Integer> {
             return ReturnCode.FILE_ERROR.ordinal();
         }
 
+        // Finally, try to create the validator, but fail if required elements can't be loaded/parsed.
+        ValidateAIF validator;
+        if (useDiskModel) {
+            ValidateAIF.setDiskBased(true);
+        }
+        final String ontologyStr;
+        try {
+            if (useLDCOntology) {
+                validator = ValidateAIF.createForLDCOntology(restriction);
+                ontologyStr = "LDC (LO)";
+            } else if (useProgramOntology) {
+                validator = ValidateAIF.createForProgramOntology(restriction);
+                ontologyStr = "Program (AO)";
+            } else {
+                StringBuilder builder = new StringBuilder();
+                // Convert the specified domain ontologies to CharSources.
+                Set<CharSource> domainOntologySources = new HashSet<>();
+                for (File file : customOntologies) {
+                    domainOntologySources.add(com.google.common.io.Files.asCharSource(file, Charsets.UTF_8));
+                    builder.append(file.getName()).append(" ");
+                }
+                validator = ValidateAIF.create(ImmutableSet.copyOf(domainOntologySources), restriction);
+                builder.setLength(builder.length() - 1);
+                ontologyStr = builder.toString();
+            }
+        } catch (RuntimeException rte) {
+            logger.error("Could not read/parse all domain ontologies or SHACL files...exiting.");
+            logger.error("--> " + rte.getLocalizedMessage());
+            return ReturnCode.FILE_ERROR.ordinal();
+        }
+
         // Display a summary of what we're going to do.
         if (hasFiles) {
             logger.info("-> Validating KB(s): " +
@@ -272,6 +279,9 @@ public class ValidateAIFCli implements Callable<Integer> {
         if (threadSet) {
             logger.info("-> Validation will use " + threads + " threads.");
             validator.setThreadCount(threads);
+        }
+        if (useDiskModel) {
+            logger.info("-> Using disk-based model for validation, saving TDB model to tdb-output/<kbname>/.");
         }
         if (outputToFile) {
             logger.info("-> Validation report for invalid KBs will be saved to <kbname>-report.txt.");
@@ -298,7 +308,26 @@ public class ValidateAIFCli implements Callable<Integer> {
             Date date = Calendar.getInstance().getTime();
             logger.info("-> Validating " + fileToValidate + " at " + format.format(date) +
                     " (" + ++fileNum + " of " + filesToValidate.size() + ").");
-            final Model dataToBeValidated = ModelFactory.createDefaultModel();
+            Model dataToBeValidated;
+            if (useDiskModel) {
+                try {
+                    Path directory = Paths.get("tdb-output", fileToValidate.getName().replace(".ttl", ""));
+                    if (Files.exists(directory)) { // Delete the directory if it exists
+                        Files.walk(directory).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+                    }
+                    Files.createDirectories(directory);
+                    Dataset dataset = TDBFactory.createDataset(directory.toString());
+                    dataToBeValidated = dataset.getDefaultModel();
+                }
+                catch (IOException ioe) {
+                    logger.error("Could not create disk-based model.");
+                    logger.error("--> " + ioe.getLocalizedMessage());
+                    return ReturnCode.FILE_ERROR.ordinal();
+                }
+            }
+            else {
+                dataToBeValidated = ModelFactory.createDefaultModel();
+            }
             boolean notSkipped = ((restriction != ValidateAIF.Restriction.NIST_TA3) || checkHypothesisSize(fileToValidate))
                     && loadFile(dataToBeValidated, fileToValidate);
             if (notSkipped) {

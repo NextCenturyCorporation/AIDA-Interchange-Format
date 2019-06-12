@@ -4,13 +4,21 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
+import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.*;
+import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.util.FileUtils;
 import org.topbraid.jenax.progress.ProgressMonitor;
 import org.topbraid.shacl.validation.ValidationEngine;
 import org.topbraid.shacl.validation.ValidationEngineConfiguration;
 import org.topbraid.shacl.validation.ValidationUtil;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.*;
@@ -42,9 +50,12 @@ public final class ValidateAIF {
     private static final String AO_EVENTS_RESNAME = ONT_ROOT + "EventOntology";
     private static final String AO_RELATIONS_RESNAME = ONT_ROOT + "RelationOntology";
 
+    public static final String DOMAIN_MODEL_PATH = "target/tdb-output/domainModel";
+
     private static Model shaclModel;
     private static Model nistModel;
     private static Model nistHypoModel;
+    private static boolean isDiskBased;
     private static boolean initialized = false;
     private static final Property CONFORMS = ResourceFactory.createProperty("http://www.w3.org/ns/shacl#conforms");
 
@@ -145,7 +156,26 @@ public final class ValidateAIF {
             throw new IllegalArgumentException("Must validate against at least one domain ontology.");
         }
 
-        final Model model = ModelFactory.createDefaultModel();
+        Model model;
+        if (isDiskBased) {
+            try {
+                // Make a disk-based model
+                Path directory = Paths.get(DOMAIN_MODEL_PATH);
+                if (Files.exists(directory)) { // Delete the directory if it exists
+                    Files.walk(directory).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+                }
+                Files.createDirectories(directory);
+                final Dataset dataset = TDBFactory.createDataset(directory.toString());
+                model = dataset.getDefaultModel();
+            } catch (IOException e) {
+                System.err.println("Unable to create domain model directory: " + e.getMessage());
+                e.printStackTrace();
+                throw new RuntimeException();
+            }
+        }
+        else {
+            model = ModelFactory.createDefaultModel();
+        }
 
         // Data will always be interpreted in the context of these two ontology files.
         final ImmutableSet<CharSource> aidaModels = ImmutableSet.of(
@@ -160,6 +190,14 @@ public final class ValidateAIF {
         }
 
         return new ValidateAIF(model, restriction == null ? Restriction.NONE : restriction);
+    }
+
+    /**
+     * Sets whether or not to use a disk-based model for validation.
+     * Must be called prior to the various <code>create</code> methods.
+     */
+    public static void setDiskBased(boolean diskBased) {
+        isDiskBased = diskBased;
     }
 
     /**
