@@ -431,12 +431,12 @@ def read_envs():
 	envs = {}
 	envs['QUEUE_INIT_TIMEOUT'] = os.environ.get('QUEUE_INIT_TIMEOUT', '3600') 
 	envs['VALIDATION_TIMEOUT'] = os.environ.get('VALIDATION_TIMEOUT', '28800')
-	envs['VALIDATION_HOME'] = os.environ.get('VALIDATION_HOME', '/home/HQ/psharkey/Development/AIDA/AIDA-Interchange-Format')
-	envs['VALIDATION_FLAGS'] = os.environ.get('VALIDATION_FLAGS', '--ldc --nist -o')
-	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
-	envs['S3_VALIDATION_PREFIX'] = os.environ.get('S3_VALIDATION_PREFIX', 'test')
-	envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID', 'c8c90aa7-4f33-4729-9e5c-0068cb9ce75c')
-	envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX', '1')
+	envs['VALIDATION_HOME'] = os.environ.get('VALIDATION_HOME', '/opt/aif-validator')
+	envs['VALIDATION_FLAGS'] = os.environ.get('VALIDATION_FLAGS')
+	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET')
+	envs['S3_VALIDATION_PREFIX'] = os.environ.get('S3_VALIDATION_PREFIX')
+	envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID')
+	envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX')
 	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
 	return envs
 

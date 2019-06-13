@@ -60,7 +60,7 @@ class Initialize:
 
 			for idx, job in enumerate(jobs):
 				logging.info("Submitting job[%s] with the following overrides: %s", job['name'], str(job))
-				##self.__submit_job(session, job['name'], job)
+				self._submit_job(job['name'], job)
 
 		# remove staing directory and downloaded submission
 		os.remove(Path(self.s3_submission_archive_path).name)
@@ -229,15 +229,16 @@ class Initialize:
 		:rtype: Enum
 		"""
 		delim_count = stem.count('.')
+		id_dir = self._get_run_id_directory(directory)
 
 		if delim_count == 0:
-			if self._check_nist_directory(directory):
+			if self._check_nist_directory(id_dir):
 				return Task.one
 			else:
 				raise ValueError("Invalid Task 1 submission format. Could not locate required {0} directory in submission" 
 					.format(self.NIST['directory']))
 		elif delim_count == 1:
-			if self._check_nist_directory(directory):
+			if self._check_nist_directory(id_dir):
 				return Task.two
 			else:
 				raise ValueError("Invalid Task 2 submission format. Could not locate required {0} directory in submission"
@@ -248,6 +249,24 @@ class Initialize:
 		else:
 			raise ValueError("Invalid submission format. Could not extract task type with submission stem {0}"
 				.format(stem)) 
+
+
+	def _get_run_id_directory(self, directory):
+		"""Helper function that will find the run ID directory. This should be a single directory in the top level
+		of every submission. If it does not exist or if there are multiple directories, an error will be raised.
+
+		:param str directory: The directory to search for the single run ID directory
+		:returns: The full path of the run ID directory
+		:rtype: str
+		"""
+		dir_list = [ name for name in os.listdir(directory) if os.path.isdir(os.path.join(directory, name)) ]
+
+		# There is no real validation to ensure the name of this directory is the run ID. This could be an improvement 
+		# in the future. 
+		if len(dir_list) == 1:
+			return directory + '/' + dir_list[0]
+		else:
+			raise ValueError("Submission should be a compressed tarball of a single directory named with the run ID")
 
     
 	def _validate_and_upload(self, directory, task, prefix):
@@ -263,24 +282,25 @@ class Initialize:
 		"""
 		logging.info("Validating submission as task type %s", task.value)
 		task_type = task.value
+		id_dir = self._get_run_id_directory(directory)
 		jobs = []
 
 		if task == Task.one or task == Task.two:
 
 			# NIST direcotry required, do not upload INTER-TA if NIST does not exist
-			if not self._check_nist_directory(directory):
+			if not self._check_nist_directory(id_dir):
 				#TODO Possibly raise here 
 				logging.error("Task 1 submission format is invalid. Could not locate NIST directory")
 
 			else:
-				j = self._upload_formatted_submission(directory, prefix, self.NIST, task)
+				j = self._upload_formatted_submission(id_dir, prefix, self.NIST, task)
 
 				if j is not None:
 					jobs.append(j)
 
 				# INTER-TA directory **not required**
-				if self._check_inter_ta_directory(directory):
-					j = self._upload_formatted_submission(directory, prefix, self.INTER_TA, task)
+				if self._check_inter_ta_directory(id_dir):
+					j = self._upload_formatted_submission(id_dir, prefix, self.INTER_TA, task)
 
 					if j is not None:
 						jobs.append(j)
@@ -288,7 +308,7 @@ class Initialize:
 			return jobs
 
 		elif task == Task.three:
-			jobs.append(self._upload_formatted_submission(directory, prefix, self.NIST_TA3, task))
+			jobs.append(self._upload_formatted_submission(id_dir, prefix, self.NIST_TA3, task))
 
 			return jobs
 		else:
@@ -334,6 +354,10 @@ class Initialize:
 						{
 							'name': 'S3_VALIDATION_BUCKET',
 							'value': self.s3_validation_bucket
+						},
+						{
+							'name': 'S3_VALIDATION_PREFIX',
+							'value': self.s3_validation_prefix
 						}
 					]
 				}
@@ -377,7 +401,7 @@ class Initialize:
 						}
 					]	
 				}
-				job['name'] = bucket_prefix.replace('.', '')
+				job['name'] = Path(bucket_prefix).stem.replace('.', '')
 				
 				return job
 
@@ -427,13 +451,13 @@ class Initialize:
 		:param list overrides: List of dictionary environment variable 
 			overrides for the main and worker nodes specific AWS batch job that is being submitted
 		"""
-		batch = boto3.client('batch')
+		batch = self.session.client('batch')
 
 		try:
 			response = batch.submit_job(
 				jobName=job_name, #'jdoe-test-job', # use your HutchNet ID instead of 'jdoe'
-	            jobQueue=self.job_queue, 
-	            jobDefinition=self.job_definition,
+	            jobQueue=self.batch_job_queue, 
+	            jobDefinition=self.batch_job_definition,
 	            nodeOverrides={
 	            	'nodePropertyOverrides': [
 	            		{
@@ -454,7 +478,7 @@ class Initialize:
 				logging.info("Job %s successfully submitted to AWS batch with job id: %s", job_name, response['jobId'])
 			else:
 				logging.error("There was an error when submitting the batch job %s with definition %s to queue %s with " \
-					" environment overrides %s", job_name, self.job_queue, self.job_definition, env_overrides)
+					" environment overrides %s", job_name, self.batch_job_queue, self.batch_job_definition, env_overrides)
 
 		except ClientError as e:
 			logging.error(e)
@@ -508,14 +532,14 @@ def read_envs():
 	:rtype: dict
 	"""
 	envs = {}
-	envs['S3_SUBMISSION_ARCHIVE_PATH'] = os.environ.get('S3_SUBMISSION_ARCHIVE_PATH', 'aida-validation/archives/Small_1.zip')
-	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
-	envs['S3_VALIDATION_PREFIX'] = os.environ.get('S3_VALIDATION_PREFIX', 'test')
-	envs['BATCH_NUM_NODES'] = os.environ.get('BATCH_NUM_NODES', '2')
-	envs['BATCH_JOB_DEFINITION'] = os.environ.get('BATCH_JOB_DEFINITION', 'aida-validation-batch-single-cf-job:7')
-	envs['BATCH_JOB_QUEUE'] = os.environ.get('BATCH_JOB_QUEUE', 'aida-validation-cf-queue')
+	envs['S3_SUBMISSION_ARCHIVE_PATH'] = os.environ.get('S3_SUBMISSION_ARCHIVE_PATH')
+	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET')
+	envs['S3_VALIDATION_PREFIX'] = os.environ.get('S3_VALIDATION_PREFIX')
+	envs['BATCH_NUM_NODES'] = os.environ.get('BATCH_NUM_NODES')
+	envs['BATCH_JOB_DEFINITION'] = os.environ.get('BATCH_JOB_DEFINITION')
+	envs['BATCH_JOB_QUEUE'] = os.environ.get('BATCH_JOB_QUEUE')
 	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
-	envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN', 'arn:aws:sns:us-east-1:606941321404:aida-validation')
+	envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN')
 
 	return envs
 
