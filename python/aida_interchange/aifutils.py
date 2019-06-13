@@ -636,7 +636,7 @@ def make_cluster_with_prototype(g, cluster_uri, prototype, system, handle=None):
         g.add((cluster, AIDA_ANNOTATION.handle, Literal(handle, datatype=XSD.string)))
     return cluster
 
-def mark_as_possible_cluster_member(g, possible_cluster_member, cluster, confidence, system):
+def mark_as_possible_cluster_member(g, possible_cluster_member, cluster, confidence, system, uri_ref=None):
     """
     Mark an entity or event as a possible member of a cluster.
 
@@ -649,7 +649,7 @@ def mark_as_possible_cluster_member(g, possible_cluster_member, cluster, confide
     :returns: The cluster membership assertion
     :rtype: rdflib.term.BNode
     """
-    cluster_member_assertion = _make_aif_resource(g, None, AIDA_ANNOTATION.ClusterMembership, system)
+    cluster_member_assertion = _make_aif_resource(g, uri_ref, AIDA_ANNOTATION.ClusterMembership, system)
     g.add((cluster_member_assertion, AIDA_ANNOTATION.cluster, cluster))
     g.add((cluster_member_assertion, AIDA_ANNOTATION.clusterMember, possible_cluster_member))
     mark_confidence(g, cluster_member_assertion, confidence, system)
