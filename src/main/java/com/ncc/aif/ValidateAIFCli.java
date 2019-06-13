@@ -312,12 +312,13 @@ public class ValidateAIFCli implements Callable<Integer> {
                     " (" + ++fileNum + " of " + filesToValidate.size() + ").");
             Model dataToBeValidated;
             Path directory = null;
+            Dataset dataset = null;
             if (useDiskModel) {
                 try {
                     deleteDir(Paths.get(DATA_MODEL_PATH));
                     directory = Paths.get(DATA_MODEL_PATH, fileToValidate.getName().replace(".ttl", ""));
                     Files.createDirectories(directory);
-                    Dataset dataset = TDBFactory.createDataset(directory.toString());
+                    dataset = TDBFactory.createDataset(directory.toString());
                     dataToBeValidated = dataset.getDefaultModel();
                 }
                 catch (IOException ioe) {
@@ -372,6 +373,9 @@ public class ValidateAIFCli implements Callable<Integer> {
 
             dataToBeValidated.close();
             if (useDiskModel) {
+                if (dataset != null) {
+                    dataset.close();
+                }
                 deleteDir(directory); // Clean up after ourselves
             }
         }
