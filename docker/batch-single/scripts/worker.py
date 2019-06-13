@@ -20,7 +20,8 @@ class Worker:
 		self.validation_timeout = int(envs['VALIDATION_TIMEOUT'])
 		self.validation_home = envs['VALIDATION_HOME']
 		self.validation_flags = envs['VALIDATION_FLAGS']
-		self.bucket = envs['S3_VALIDATION_BUCKET'] 
+		self.s3_validation_bucket = envs['S3_VALIDATION_BUCKET']
+		self.s3_validation_prefix = envs['S3_VALIDATION_PREFIX'] 
 		self.job_id = (envs['AWS_BATCH_JOB_ID']).split("#")[0]
 		self.node_index = envs['AWS_BATCH_JOB_NODE_INDEX']
 		self.aws_region = envs['AWS_DEFAULT_REGION']
@@ -32,7 +33,7 @@ class Worker:
 		"""
 		"""
 		# verify bucket and submission extension
-		self._bucket_exists()
+		self._bucket_exists(self.s3_validation_bucket)
 
 		if self._wait_for_sqs_queue():
 
@@ -43,10 +44,11 @@ class Worker:
 				self.node_index, self.queue_init_timeout)
 
 	
-	def _bucket_exists(self):
+	def _bucket_exists(self, s3_bucket):
 		"""Helper function that will check if a validation bucket
 		exists.
 
+		:param str s3_bucket: The bucket to check 
 		:returns: True if bucket exists, False otherwise
 		:raises ClientError: S3 resource exception
 		:raises ValueError: The validation bucket does not exist
@@ -54,11 +56,11 @@ class Worker:
 		s3 = self.session.resource('s3')
 
 		try:
-		    logging.info("Checking if validation bucket %s exists", self.bucket)
+		    logging.info("Checking if validation bucket %s exists", s3_bucket)
 
-		    bucket = s3.Bucket(self.bucket)
+		    bucket = s3.Bucket(s3_bucket)
 		    if bucket.creation_date is None:
-		        raise ValueError("Validation bucket {0} does not exist".format(self.bucket))
+		        raise ValueError("Validation bucket {0} does not exist".format(s3_bucket))
 
 		except ClientError as e:
 		    logging.error(e)
@@ -122,28 +124,28 @@ class Worker:
 		:rtype: bool
 		"""
 
-		log_prefix = '/'.join([self.job_id, self.source_log])
+		log_prefix = '/'.join([self.s3_validation_prefix, self.job_id, self.source_log])
 		objs = self._get_s3_object_list(log_prefix)
 
 		if complete and len(objs) > 0:
 
 			for obj in objs:
 				if obj.key == log_prefix +'.queued':
-					logging.info(self.source_log + ".queued found in S3 bucket %s", self.bucket)
+					logging.info(self.source_log + ".queued found in S3 bucket %s", self.s3_validation_bucket)
 					return True	
 			return False
 		else:
 			if len(objs) > 0: 
-				logging.info(self.source_log + " exist in S3 bucket %s", self.bucket)
+				logging.info(self.source_log + " exist in S3 bucket %s", self.s3_validation_bucket)
 				return True
 			return False
 
 
-	def _get_s3_object_list(self, prefix):
+	def _get_s3_object_list(self, s3_bucket_prefix):
 		"""Helper function that will get a list of objects in the validation
 		bucket with the specified prefix
 
-		:param str prefix: The prefix of the S3 objects to filter on
+		:param str s3_bucket_prefix: The prefix of the S3 objects to filter on
 		:returns: List of S3 ObjectSummary objects
 		:rtype: ObjectSummary
 		:raises ClientError: S3 resource exception
@@ -151,8 +153,8 @@ class Worker:
 		s3 = self.session.resource('s3')
 
 		try:
-			bucket = s3.Bucket(self.bucket)
-			objs = list(bucket.objects.filter(Prefix=prefix))
+			bucket = s3.Bucket(self.s3_validation_bucket)
+			objs = list(bucket.objects.filter(Prefix=s3_bucket_prefix))
 			return objs
 		except ClientError as e:
 			logging.error(e)
@@ -205,7 +207,7 @@ class Worker:
 
 
 	def _get_sqs_message(self, queue_url):
-		"""Get the next message from the SQS queue
+		"""Get the next message from the SQS queue.
 
 		:param queue_url: String URL of existing SQS queue
 		:returns: Dictionary object of SQS message
@@ -266,13 +268,11 @@ class Worker:
 		"""
 		# download the turtle file
 		file_name = Path(payload).name
-		self._download_s3_object(payload, file_name)
+		self._download_s3_object(self.s3_validation_bucket, payload, file_name)
 		validation_staging = 'validation-staging'
 
 	    # verify file exists and move into processing directory
-		exists = os.path.isfile(file_name)
-
-		if exists:
+		if os.path.isfile(file_name):
 
 			# create directory to store all validation results and file
 			if not os.path.exists(validation_staging):
@@ -282,21 +282,21 @@ class Worker:
 			code = self._execute_validation(validation_staging + '/' + file_name)
 
 			# upload any log output to s3
-			self._upload_validation_output(validation_staging, '/'.join([self.job_id, 'LOG']), '.log')
+			self._upload_validation_output(validation_staging, '/'.join([self.s3_validation_prefix, self.job_id, 'LOG']), '.log')
 
 			# valid
 			if code == 0:
-				self._move_s3_object(payload, '/'.join([self.job_id, 'VALID', file_name]))
+				self._move_s3_object(payload, '/'.join([self.s3_validation_prefix, self.job_id, 'VALID', file_name]))
 			# invalid
 			elif code == 1:
-				self._upload_validation_output(validation_staging, '/'.join([self.job_id, 'INVALID']), '.txt')
-				self._move_s3_object(payload, '/'.join([self.job_id, 'INVALID', file_name]))
+				self._upload_validation_output(validation_staging, '/'.join([self.s3_validation_prefix, self.job_id, 'INVALID']), '.txt')
+				self._move_s3_object(payload, '/'.join([self.s3_validation_prefix, self.job_id, 'INVALID', file_name]))
 			# timeout error
 			elif code == -1:
-				self._move_s3_object(payload, '/'.join([self.job_id, 'TIMEOUT', file_name]))
+				self._move_s3_object(payload, '/'.join([self.s3_validation_prefix, self.job_id, 'TIMEOUT', file_name]))
 			# other error occurred
 			elif code > 1:
-				self._move_s3_object(payload, '/'.join([self.job_id, 'ERROR', file_name]))
+				self._move_s3_object(payload, '/'.join([self.s3_validation_prefix, self.job_id, 'ERROR', file_name]))
 
 			# clean up validation staging
 			logging.info("Cleaning up validation staging directory %s", validation_staging)
@@ -306,10 +306,11 @@ class Worker:
 			logging.error("Unable to download S3 object %s", payload)
 
 
-	def _download_s3_object(self, s3_object, file_name):
+	def _download_s3_object(self, s3_bucket, s3_object, file_name):
 		"""Downloads the object from validation bucket based on s3 object paths extracted from the
 		SQS message payload.
 
+		:param str s3_bucket: The S3 bucket to download from
 		:param str s3_object: The S3 object to download
 		:param str file_name: The file name of the saved object
 		:raises ClientError: S3 client exception
@@ -317,8 +318,8 @@ class Worker:
 		s3_client = self.session.client('s3')
 
 		try:
-			logging.info("Downloading %s from bucket %s", s3_object, self.bucket)
-			s3_client.download_file(self.bucket, s3_object, file_name)
+			logging.info("Downloading %s from bucket %s", s3_object, s3_bucket)
+			s3_client.download_file(s3_bucket, s3_object, file_name)
 		except ClientError as e:
 			logging.error(e)
 
@@ -327,6 +328,7 @@ class Worker:
 		"""Executes the AIF Validator as a sub-process for the turtle file located at the specified 
 		file path. 
 
+		:param str file_path: The local path to the file that will be validated
 		:returns: Return code that specifies the validation execution result 
 		:rtype: int
 		"""
@@ -378,13 +380,14 @@ class Worker:
 			logging.error("Found multiple validation output %s files in validation staging folder", extension)
 		
 		for item in items:
-			logging.info("Uploading %s file %s to S3 with prefix %s", extension, item, self.bucket + '/' + s3_object_prefix)
-			self._upload_file_to_s3(s3_object_prefix, item)
+			logging.info("Uploading %s file %s to S3 with prefix %s", extension, item, self.s3_validation_bucket + '/' + s3_object_prefix)
+			self._upload_file_to_s3(self.s3_validation_bucket, s3_object_prefix, item)
 
 
-	def _upload_file_to_s3(self, s3_prefix, filepath):
+	def _upload_file_to_s3(self, s3_bucket, s3_bucket_prefix, filepath):
 	    """Helper function to upload single file to S3 bucket with specified prefix
 
+		:param str s3_bucket: The s3 bucket to upload file
 	    :param str s3_prefix: The prefix to prepend to the filename
 	    :param str filepath: The local path of the file to be uploaded
 	    :raises ClientError: S3 client exception
@@ -392,10 +395,10 @@ class Worker:
 	    s3_client = self.session.client('s3')
 
 	    try:
-	        s3_object = '/'.join([s3_prefix, Path(filepath).name])
+	        s3_object = '/'.join([s3_bucket_prefix, Path(filepath).name])
 
-	        logging.info("Uploading %s to bucket %s", s3_object, self.bucket)
-	        s3_client.upload_file(str(filepath), self.bucket, s3_object)
+	        logging.info("Uploading %s to bucket %s", s3_object, s3_bucket + '/' + s3_bucket_prefix)
+	        s3_client.upload_file(str(filepath), s3_bucket, s3_object)
 
 	    except ClientError as e:
 	        logging.error(e)
@@ -411,9 +414,9 @@ class Worker:
 		s3 = self.session.resource('s3')
 
 		try:
-			logging.info("Moving s3 object %s from %s to %s ", s3_object, self.bucket, s3_object_dest)
-			s3.Object(self.bucket, s3_object_dest).copy_from(CopySource=self.bucket + '/' + s3_object)
-			s3.Object(self.bucket, s3_object).delete()
+			logging.info("Moving s3 object %s from %s to %s ", s3_object, self.s3_validation_bucket, s3_object_dest)
+			s3.Object(self.s3_validation_bucket, s3_object_dest).copy_from(CopySource=self.s3_validation_bucket + '/' + s3_object)
+			s3.Object(self.s3_validation_bucket, s3_object).delete()
 
 		except ClientError as e:
 			logging.error(e)
@@ -428,10 +431,11 @@ def read_envs():
 	envs = {}
 	envs['QUEUE_INIT_TIMEOUT'] = os.environ.get('QUEUE_INIT_TIMEOUT', '3600') 
 	envs['VALIDATION_TIMEOUT'] = os.environ.get('VALIDATION_TIMEOUT', '28800')
-	envs['VALIDATION_HOME'] = os.environ.get('VALIDATION_HOME', '/opt/aif-validator')
-	envs['VALIDATION_FLAGS'] = os.environ.get('VALIDATION_FLAGS')
-	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET')
-	envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID')
+	envs['VALIDATION_HOME'] = os.environ.get('VALIDATION_HOME', '/home/HQ/psharkey/Development/AIDA/AIDA-Interchange-Format')
+	envs['VALIDATION_FLAGS'] = os.environ.get('VALIDATION_FLAGS', '--ldc --nist -o')
+	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
+	envs['S3_VALIDATION_PREFIX'] = os.environ.get('S3_VALIDATION_PREFIX', 'test')
+	envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID', 'c8c90aa7-4f33-4729-9e5c-0068cb9ce75c')
 	envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX', '1')
 	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
 	return envs

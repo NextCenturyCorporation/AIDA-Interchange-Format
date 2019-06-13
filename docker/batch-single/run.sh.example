@@ -2,6 +2,7 @@
 
 docker run --rm -it \
         -e S3_VALIDATION_BUCKET='' \
+	-e S3_VALIDATION_PREFIX='' \
         -e S3_SUBMISSION_ARCHIVE='' \
         -e S3_SUBMISSION_TASK='' \
         -e S3_SUBMISSION_EXTRACTED='' \
