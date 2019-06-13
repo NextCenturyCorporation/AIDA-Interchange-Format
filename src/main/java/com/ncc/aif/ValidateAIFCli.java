@@ -79,6 +79,8 @@ public class ValidateAIFCli implements Callable<Integer> {
     // Threading
     private static final String THREAD_COUNT_STRING = "Thread count";
     private static final int MINIMUM_THREAD_COUNT = 1;
+    // Disk-based model
+    private static final String DATA_MODEL_PATH = "target/tdb-output/dataModels";
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     // Command Line Arguments
@@ -119,7 +121,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     @Option(names = "--pm", description = "Enable progress monitor that shows ongoing validation progress")
     private boolean useProgressMonitor;
 
-    @Option(names = "--disk", description = "Use disk-based model", hidden = true)
+    @Option(names = "--disk", description = "Use disk-based model for validating very large files")
     private boolean useDiskModel;
 
     @Option(names = "-p", description = "Enable profiling", hidden = true)
@@ -281,7 +283,7 @@ public class ValidateAIFCli implements Callable<Integer> {
             validator.setThreadCount(threads);
         }
         if (useDiskModel) {
-            logger.info("-> Using disk-based model for validation, saving TDB model to tdb-output/<kbname>/.");
+            logger.info("-> Using disk-based model for validation.");
         }
         if (outputToFile) {
             logger.info("-> Validation report for invalid KBs will be saved to <kbname>-report.txt.");
@@ -309,12 +311,11 @@ public class ValidateAIFCli implements Callable<Integer> {
             logger.info("-> Validating " + fileToValidate + " at " + format.format(date) +
                     " (" + ++fileNum + " of " + filesToValidate.size() + ").");
             Model dataToBeValidated;
+            Path directory = null;
             if (useDiskModel) {
                 try {
-                    Path directory = Paths.get("tdb-output", fileToValidate.getName().replace(".ttl", ""));
-                    if (Files.exists(directory)) { // Delete the directory if it exists
-                        Files.walk(directory).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-                    }
+                    deleteDir(Paths.get(DATA_MODEL_PATH));
+                    directory = Paths.get(DATA_MODEL_PATH, fileToValidate.getName().replace(".ttl", ""));
                     Files.createDirectories(directory);
                     Dataset dataset = TDBFactory.createDataset(directory.toString());
                     dataToBeValidated = dataset.getDefaultModel();
@@ -370,6 +371,9 @@ public class ValidateAIFCli implements Callable<Integer> {
                 skipCount++;
 
             dataToBeValidated.close();
+            if (useDiskModel) {
+                deleteDir(directory); // Clean up after ourselves
+            }
         }
 
         final ReturnCode returnCode = displaySummary(fileNum + nonTTLcount, invalidCount, skipCount + nonTTLcount, abortCount);
@@ -377,6 +381,18 @@ public class ValidateAIFCli implements Callable<Integer> {
             validator.getExecutor().shutdownNow();
         }
         return returnCode.ordinal();
+    }
+
+    // Delete the specified directory; log a warning if it fails.
+    private void deleteDir(Path directory) {
+        try {
+            if (Files.exists(directory)) { // Delete the directory if it exists
+                Files.walk(directory).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+            }
+        }
+        catch (IOException ioe) {
+            logger.warn("---> Could not delete directory: " + directory.toString());
+        }
     }
 
     //TODO: make ArgGroup when 4.0 is stable
