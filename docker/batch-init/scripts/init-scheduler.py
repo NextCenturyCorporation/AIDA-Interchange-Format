@@ -92,8 +92,8 @@ def read_envs():
     envs['BATCH_JOB_QUEUE'] = os.environ.get('BATCH_JOB_QUEUE', 'aida-validation-cf-queue')
     envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN', 'arn:aws:sns:us-east-1:606941321404:aida-validation')
     envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
-    envs['AWS_ACCESS_KEY_ID'] = 'AKIAIB2DFOZESURXOAAA'
-    envs['AWS_SECRET_ACCESS_KEY'] = '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'
+    envs['AWS_ACCESS_KEY_ID'] = os.environ.get('AWS_ACCESS_KEY_ID')
+    envs['AWS_SECRET_ACCESS_KEY'] = os.environ.get('AWS_SECRET_ACCESS_KEY')
 
     return envs
 
@@ -123,8 +123,8 @@ def main():
     		'BATCH_JOB_QUEUE': envs['BATCH_JOB_QUEUE'],
     		'AWS_DEFAULT_REGION': envs['AWS_DEFAULT_REGION'], 
     		'AWS_SNS_TOPIC_ARN': envs['AWS_SNS_TOPIC_ARN'],
-    		'AWS_ACCESS_KEY_ID':  envs['AWS_ACCESS_KEY_ID'],
-    		'AWS_SECRET_ACCESS_KEY': envs['AWS_SECRET_ACCESS_KEY']
+    		#'AWS_ACCESS_KEY_ID':  envs['AWS_ACCESS_KEY_ID'],
+    		#'AWS_SECRET_ACCESS_KEY': envs['AWS_SECRET_ACCESS_KEY']
     	}
 
     	# get the full list of submissions located in the bucket/prefix
