@@ -115,7 +115,7 @@ def main():
     	# populate the initialization environment variable dictionary
 		batch_init_envs = {
 			'S3_VALIDATION_BUCKET': s3_bucket,
-			'S3_VALIDATION_PREFIX': s3_prefix + '/' + envs['S3_SUBMISSION_RESULTS_DIRECTORY'] 
+			'S3_VALIDATION_PREFIX': s3_prefix + '/' + envs['S3_SUBMISSION_RESULTS_DIRECTORY'],
     		'BATCH_INIT_DOCKER': envs['BATCH_INIT_DOCKER'],
     		'BATCH_NUM_NODES': envs['BATCH_NUM_NODES'],
     		'BATCH_JOB_DEFINITION': envs['BATCH_JOB_DEFINITION'],
