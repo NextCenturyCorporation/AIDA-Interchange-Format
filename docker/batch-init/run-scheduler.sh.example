@@ -2,8 +2,12 @@
 
 docker run --rm -it \
         -e S3_SUBMISSION_BUCKET='' \
-	-e AWS_ACCESS_KEY_ID='' \
-        -e AWS_SECRET_ACCESS_KEY='' \
+        -e S3_SUBMISSION_RESULTS_DIRECTORY='' \
+        -e BATCH_INIT_DOCKER='' \
+        -e BATCH_NUM_NODES='' \
+        -e BATCH_JOB_DEFINITION='' \
+        -e BATCH_JOB_QUEUE='' \
+        -e AWS_SNS_TOPIC_ARN='' \
         -e AWS_DEFAULT_REGION='' \
-        --name cron-batch-scheduler \
-        cron-batch-scheduler
+        --name -batch-init-scheduler \
+        batch-init-scheduler

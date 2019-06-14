@@ -85,13 +85,14 @@ def read_envs():
     :rtype: dict
     """
     envs = {}
-    envs['S3_SUBMISSION_BUCKET_PATH'] = os.environ.get('S3_SUBMISSION_BUCKET_PATH', 'aida-validation/cron-test')
-    envs['BATCH_INIT_DOCKER'] = os.environ.get('BATCH_INIT_DOCKER', 'batch-init:latest')
-    envs['BATCH_NUM_NODES'] = os.environ.get('BATCH_NUM_NODES', '4')
-    envs['BATCH_JOB_DEFINITION'] = os.environ.get('BATCH_JOB_DEFINITION', 'aida-validation-batch-single-cf-job:7')
-    envs['BATCH_JOB_QUEUE'] = os.environ.get('BATCH_JOB_QUEUE', 'aida-validation-cf-queue')
-    envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN', 'arn:aws:sns:us-east-1:606941321404:aida-validation')
-    envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
+    envs['S3_SUBMISSION_BUCKET_PATH'] = os.environ.get('S3_SUBMISSION_BUCKET_PATH')
+    envs['S3_SUBMISSION_RESULTS_DIRECTORY'] = os.environ.get('S3_SUBMISSION_RESULTS_DIRECTORY')
+    envs['BATCH_INIT_DOCKER'] = os.environ.get('BATCH_INIT_DOCKER')
+    envs['BATCH_NUM_NODES'] = os.environ.get('BATCH_NUM_NODES')
+    envs['BATCH_JOB_DEFINITION'] = os.environ.get('BATCH_JOB_DEFINITION')
+    envs['BATCH_JOB_QUEUE'] = os.environ.get('BATCH_JOB_QUEUE')
+    envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN')
+    envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION')
 
     return envs
 
@@ -114,7 +115,7 @@ def main():
     	# populate the initialization environment variable dictionary
 		batch_init_envs = {
 			'S3_VALIDATION_BUCKET': s3_bucket,
-			'S3_VALIDATION_PREFIX': s3_prefix + '/validation-results',
+			'S3_VALIDATION_PREFIX': s3_prefix + '/' + envs['S3_SUBMISSION_RESULTS_DIRECTORY'] 
     		'BATCH_INIT_DOCKER': envs['BATCH_INIT_DOCKER'],
     		'BATCH_NUM_NODES': envs['BATCH_NUM_NODES'],
     		'BATCH_JOB_DEFINITION': envs['BATCH_JOB_DEFINITION'],
@@ -132,11 +133,10 @@ def main():
 
 		for x in range(len(submissions)):
 
-			# A directory in s3 is an object so we must check and ignore it
+			# A directory in s3 is an object so we must check and ignore it 
+            # We also want to ignore any other files that are nested within directories
 			if submissions[x].key[-1] != '/' and len(Path(submissions[x].key).parts) == prefix_count:
 				logging.info("Found submission: %s", (str(submissions[x])))
-				envs['S3_VALIDATION_BUCKET'] = s3_bucket
-				envs['S3_VALIDATION_PREFIX'] = s3_prefix + '/validation-results'
 				envs['S3_SUBMISSION_ARCHIVE_PATH'] = submissions[x].bucket_name + '/' + submissions[x].key
 
 				logging.info(json.dumps(envs, indent = 4))
