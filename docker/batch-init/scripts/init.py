@@ -261,7 +261,7 @@ class Initialize:
 		"""
 		dir_list = [ name for name in os.listdir(directory) if os.path.isdir(os.path.join(directory, name)) ]
 
-		# There is no real validation to ensure the name of this directory is the run ID. This could be an improvement 
+		# TODO There is no real validation to ensure the name of this directory is the run ID. This could be an improvement 
 		# in the future. 
 		if len(dir_list) == 1:
 			return directory + '/' + dir_list[0]

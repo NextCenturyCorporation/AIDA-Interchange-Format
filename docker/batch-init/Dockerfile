@@ -12,5 +12,5 @@ RUN yum update --assumeyes --skip-broken && \
 #-------------------------------------------------------------
 RUN pip3 install boto3 awscli
 
-COPY ["scripts/entrypoint.py", "/usr/local/"]
-ENTRYPOINT ["python3", "/usr/local/entrypoint.py"]
+COPY ["../scripts/init.py", "/usr/local/"]
+ENTRYPOINT ["python3", "/usr/local/init.py"]

@@ -1,5 +1,7 @@
 # Batch Initialization Docker
 
+## Overview
+
 ## Setup
 
 ### Install Docker
@@ -25,12 +27,22 @@ Save, restart Docker via `service docker restart` and confirm experimental is en
 $ docker version -f '{{.Server.Experimental}}'
 ```
 
-## Building Batch Initialization Docker image
+## Batch Intializer 
+
+### Building Batch Initialization Docker image
 
 To build the docker image, copy the `build.sh.example` file provided to a new file, `build.sh`. 
 This script contains the `--squash` flag, which is optional but recommended. You must enable Docker experimental on the server if you would like to use this. See [Setup Docker experimentals](#Setup-Docker-experimentals)
 
-#### Execute the build
+### Building Batch Scheduler Docker image
+
+#### Setting up Batch Scheduler Cron Job
+
+```bash
+* * * * * /home/HQ/psharkey/Development/AIDA/AIDA-Interchange-Format/docker/init/run-scheduler.sh >> /tmp/scehduler.log 2>&1
+```
+
+### Execute the build
 
 Once you have updated all the build arguments with your appropriate values, execute the build script with:
 ```bash
@@ -38,7 +50,7 @@ $ chmod +x build.sh
 $ ./build.sh
 ```
 
-## Running the container
+### Running the container
 
 To run the Batch Main Docker container, copy the `run.sh.example` script to a new file, `run.sh`. The run script will start the Docker container. Execute the run script with:
 
@@ -46,3 +58,7 @@ To run the Batch Main Docker container, copy the `run.sh.example` script to a ne
 $ chmod +x run.sh
 $ ./run.sh
 ```
+
+## Batch Single
+
+### Building Batch Single Docker image
