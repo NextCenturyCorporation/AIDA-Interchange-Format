@@ -50,7 +50,7 @@ public final class ValidateAIF {
     private static final String AO_EVENTS_RESNAME = ONT_ROOT + "EventOntology";
     private static final String AO_RELATIONS_RESNAME = ONT_ROOT + "RelationOntology";
 
-    public static final String DOMAIN_MODEL_PATH = "target/tdb-output/domainModel";
+    public static final String DOMAIN_MODEL_PATH = System.getProperty("java.io.tmpdir") + "/domainModel";
 
     private static Model shaclModel;
     private static Model nistModel;
@@ -165,6 +165,7 @@ public final class ValidateAIF {
                     Files.walk(directory).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
                 }
                 Files.createDirectories(directory);
+                directory.toFile().deleteOnExit(); // not guaranteed
                 final Dataset dataset = TDBFactory.createDataset(directory.toString());
                 model = dataset.getDefaultModel();
             } catch (IOException e) {

@@ -80,7 +80,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     private static final String THREAD_COUNT_STRING = "Thread count";
     private static final int MINIMUM_THREAD_COUNT = 1;
     // Disk-based model
-    private static final String DATA_MODEL_PATH = "target/tdb-output/dataModels";
+    private static final String DATA_MODEL_PATH = System.getProperty("java.io.tmpdir") + "/dataModels";
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     // Command Line Arguments
@@ -304,6 +304,7 @@ public class ValidateAIFCli implements Callable<Integer> {
         int skipCount = 0;
         int abortCount = 0;
         int fileNum = 0;
+        Path dataModelDir = null;
         final StatsCollector stats = useProgressiveProfiling ?
                 new ProgressiveStatsCollector(LONG_QUERY_THRESH) : new StatsCollector(LONG_QUERY_THRESH);
         for (File fileToValidate : filesToValidate) {
@@ -311,14 +312,13 @@ public class ValidateAIFCli implements Callable<Integer> {
             logger.info("-> Validating " + fileToValidate + " at " + format.format(date) +
                     " (" + ++fileNum + " of " + filesToValidate.size() + ").");
             Model dataToBeValidated;
-            Path directory = null;
             Dataset dataset = null;
             if (useDiskModel) {
                 try {
                     deleteDir(Paths.get(DATA_MODEL_PATH));
-                    directory = Paths.get(DATA_MODEL_PATH, fileToValidate.getName().replace(".ttl", ""));
-                    Files.createDirectories(directory);
-                    dataset = TDBFactory.createDataset(directory.toString());
+                    dataModelDir = Paths.get(DATA_MODEL_PATH, fileToValidate.getName().replace(".ttl", ""));
+                    Files.createDirectories(dataModelDir);
+                    dataset = TDBFactory.createDataset(dataModelDir.toString());
                     dataToBeValidated = dataset.getDefaultModel();
                 }
                 catch (IOException ioe) {
@@ -376,11 +376,13 @@ public class ValidateAIFCli implements Callable<Integer> {
                 if (dataset != null) {
                     dataset.close();
                 }
-                deleteDir(directory); // Clean up after ourselves
             }
         }
 
         final ReturnCode returnCode = displaySummary(fileNum + nonTTLcount, invalidCount, skipCount + nonTTLcount, abortCount);
+        if (useDiskModel) {
+            deleteDir(Paths.get(DATA_MODEL_PATH)); // Try to clean up after ourselves
+        }
         if (threadSet) {
             validator.getExecutor().shutdownNow();
         }
