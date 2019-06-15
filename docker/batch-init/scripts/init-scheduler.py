@@ -121,7 +121,7 @@ def main():
     		'BATCH_JOB_DEFINITION': envs['BATCH_JOB_DEFINITION'],
     		'BATCH_JOB_QUEUE': envs['BATCH_JOB_QUEUE'],
     		'AWS_DEFAULT_REGION': envs['AWS_DEFAULT_REGION'], 
-    		'AWS_SNS_TOPIC_ARN': envs['AWS_SNS_TOPIC_ARN'],
+    		'AWS_SNS_TOPIC_ARN': envs['AWS_SNS_TOPIC_ARN']
     	}
 
     	# get the full list of submissions located in the bucket/prefix
@@ -143,9 +143,8 @@ def main():
 
 				# run the initilization for the submission
 				try: 
-					i = init.Initialize(envs)
+                    i = init.Initialize(envs)
 					i.run()
-
 				except Exception as e:
 					logging.error(e)
     		
