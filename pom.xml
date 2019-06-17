@@ -8,6 +8,44 @@
     <artifactId>aida-interchange</artifactId>
     <version>1.1.0-SNAPSHOT</version>
 
+    <name>AIDA-Interchange-Format</name>
+    <description>Library containing resources to support the AIDA Interchange Format (AIF)</description>
+    <url>https://github.com/NextCenturyCorporation/AIDA-Interchange-Format</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Next Century Corporation</name>
+            <email>aif-support@nextcentury.com</email>
+            <organization>Next Century Corporation</organization>
+            <organizationUrl>https://nextcentury.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/NextCenturyCorporation/AIDA-Interchange-Format.git</connection>
+        <developerConnection>scm:git:ssh://github.com/NextCenturyCorporation/AIDA-Interchange-Format.git</developerConnection>
+        <url>https://github.com/NextCenturyCorporation/AIDA-Interchange-Format</url>
+    </scm>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
