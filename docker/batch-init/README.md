@@ -4,7 +4,7 @@
 
 ### Install AWS CLI
 
-The AWS CLI is required when you are running any of the described Docker container below locally or on a non-EC2 instance that does not have appropriate AWS roles attached. For more information on how to install the AWS CLI see [Installing the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html).
+The AWS CLI is required when you are running the containers below locally or on a non-EC2 instance that does not have appropriate AWS roles attached. For more information on how to install the AWS CLI see [Installing the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html).
 
 ### Install Docker
 

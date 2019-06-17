@@ -539,7 +539,6 @@ def read_envs():
 	envs['BATCH_NUM_NODES'] = os.environ.get('BATCH_NUM_NODES')
 	envs['BATCH_JOB_DEFINITION'] = os.environ.get('BATCH_JOB_DEFINITION')
 	envs['BATCH_JOB_QUEUE'] = os.environ.get('BATCH_JOB_QUEUE')
-	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
 	envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN')
 
 	return envs
