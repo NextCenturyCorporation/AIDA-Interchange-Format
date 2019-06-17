@@ -91,6 +91,7 @@ def read_envs():
     envs['BATCH_JOB_DEFINITION'] = os.environ.get('BATCH_JOB_DEFINITION')
     envs['BATCH_JOB_QUEUE'] = os.environ.get('BATCH_JOB_QUEUE')
     envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN')
+    envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION')
 
     return envs
 
@@ -117,7 +118,8 @@ def main():
     		'BATCH_NUM_NODES': envs['BATCH_NUM_NODES'],
     		'BATCH_JOB_DEFINITION': envs['BATCH_JOB_DEFINITION'],
     		'BATCH_JOB_QUEUE': envs['BATCH_JOB_QUEUE'],
-    		'AWS_SNS_TOPIC_ARN': envs['AWS_SNS_TOPIC_ARN']
+    		'AWS_SNS_TOPIC_ARN': envs['AWS_SNS_TOPIC_ARN'],
+            'AWS_DEFAULT_REGION': envs['AWS_DEFAULT_REGION']
     	}
 
     	# get the full list of submissions located in the bucket/prefix
@@ -125,7 +127,7 @@ def main():
 
     	# this is used to ensure only items in the current prefix directory are read in
     	# TODO there has to be a better solution for this
-		prefix_count = len(Path(envs['S3_SUBMISSION_BUCKET_PATH']).parts)
+		prefix_count = len(Path(envs['S3_SUBMISSIONS_BUCKET_PATH']).parts)
 
 		for x in range(len(submissions)):
 
@@ -133,13 +135,13 @@ def main():
             # We also want to ignore any other files that are nested within directories
 			if submissions[x].key[-1] != '/' and len(Path(submissions[x].key).parts) == prefix_count:
 				logging.info("Found submission: %s", (str(submissions[x])))
-				envs['S3_SUBMISSION_ARCHIVE_PATH'] = submissions[x].bucket_name + '/' + submissions[x].key
+				batch_init_envs['S3_SUBMISSION_ARCHIVE_PATH'] = submissions[x].bucket_name + '/' + submissions[x].key
 
-				logging.info(json.dumps(envs, indent = 4))
+				logging.info(json.dumps(batch_init_envs, indent = 4))
 
 				# run the initilization for the submission
 				try: 
-					i = init.Initialize(envs)
+					i = init.Initialize(batch_init_envs)
 					i.run()
 				except Exception as e:
 					logging.error(e)
