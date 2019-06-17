@@ -44,3 +44,4 @@ def main():
             raise ValueError("Exception occurred when validating worker node environment variables")
 
 if __name__ == "__main__": main()
+
