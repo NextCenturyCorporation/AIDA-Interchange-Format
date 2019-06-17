@@ -224,7 +224,7 @@ class Worker:
 
 			if 'Messages' in messages:
 				msg = messages['Messages'][0]
-				logging.info("Recieved message with receipt handle %s", msg['ReceiptHandle'])
+				logging.info("Received message with receipt handle %s", msg['ReceiptHandle'])
 				return msg
 			else:
 				logging.info("SQS queue %s did not return a messages", queue_url)
@@ -504,3 +504,4 @@ def main():
 
 
 if __name__ == "__main__": main()
+

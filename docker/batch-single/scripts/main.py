@@ -248,9 +248,9 @@ class Main:
         be used for processing validation. After all messages have processed and added to 
         the queue, a final source file will be uploaded with a suffix of '.queued' and the old
         source file will be removed from S3.
-        :param str bucket_direcotry: The bucket and prefix directory that contains the unprocessed 
             ttl files
         :param str queue_url: The SQS queue url
+        :param list objects: The S3 object paths to queue on SQS
         :raises ClientError: S3 client exception
         """
         for o in objects:
@@ -732,3 +732,4 @@ def main():
 
 
 if __name__ == "__main__": main()
+
