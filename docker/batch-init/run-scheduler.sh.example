@@ -2,7 +2,7 @@
 
 AWS_ACCESS_KEY_ID=$(aws --profile default configure get aws_access_key_id)
 AWS_SECRET_ACCESS_KEY=$(aws --profile default configure get aws_secret_access_key)
-AWS_DEFAULT_REGION=$(aws --profile default configure get aws_default_region)
+AWS_DEFAULT_REGION=$(aws --profile default configure get region)
 
 docker run --rm -it \
         -e S3_SUBMISSIONS_BUCKET_PATH='' \
