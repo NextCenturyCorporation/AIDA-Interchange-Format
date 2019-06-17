@@ -85,9 +85,8 @@ def read_envs():
     :rtype: dict
     """
     envs = {}
-    envs['S3_SUBMISSION_BUCKET_PATH'] = os.environ.get('S3_SUBMISSION_BUCKET_PATH')
-    envs['S3_SUBMISSION_RESULTS_DIRECTORY'] = os.environ.get('S3_SUBMISSION_RESULTS_DIRECTORY')
-    envs['BATCH_INIT_DOCKER'] = os.environ.get('BATCH_INIT_DOCKER')
+    envs['S3_SUBMISSIONS_BUCKET_PATH'] = os.environ.get('S3_SUBMISSIONS_BUCKET_PATH')
+    envs['S3_SUBMISSIONS_RESULTS_DIRECTORY'] = os.environ.get('S3_SUBMISSIONS_RESULTS_DIRECTORY')
     envs['BATCH_NUM_NODES'] = os.environ.get('BATCH_NUM_NODES')
     envs['BATCH_JOB_DEFINITION'] = os.environ.get('BATCH_JOB_DEFINITION')
     envs['BATCH_JOB_QUEUE'] = os.environ.get('BATCH_JOB_QUEUE')
@@ -109,13 +108,12 @@ def main():
 		session = boto3.session.Session(region_name=envs['AWS_DEFAULT_REGION'])
 
     	# extract the bucket and the prefix where submissions are located
-		s3_bucket, s3_prefix = extract_submission_paths(envs['S3_SUBMISSION_BUCKET_PATH'])
+		s3_bucket, s3_prefix = extract_submission_paths(envs['S3_SUBMISSIONS_BUCKET_PATH'])
 
     	# populate the initialization environment variable dictionary
 		batch_init_envs = {
 			'S3_VALIDATION_BUCKET': s3_bucket,
-			'S3_VALIDATION_PREFIX': s3_prefix + '/' + envs['S3_SUBMISSION_RESULTS_DIRECTORY'],
-    		'BATCH_INIT_DOCKER': envs['BATCH_INIT_DOCKER'],
+			'S3_VALIDATION_PREFIX': s3_prefix + '/' + envs['S3_SUBMISSIONS_RESULTS_DIRECTORY'],
     		'BATCH_NUM_NODES': envs['BATCH_NUM_NODES'],
     		'BATCH_JOB_DEFINITION': envs['BATCH_JOB_DEFINITION'],
     		'BATCH_JOB_QUEUE': envs['BATCH_JOB_QUEUE'],

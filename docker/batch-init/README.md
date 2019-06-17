@@ -61,7 +61,7 @@ To run the Batch Initializer Docker container, copy the `run.sh.example` script 
 | `S3_VALIDATION_PREFIX`       | The directory to place the validation results in the `S3_VALIDATION_BUCKET` |    
 | `BATCH_NUM_NODES`        	 | The number of nodes to deploy the AWS Batch job on. *This must match the number of nodes entered when deploying the AWS Batch infrastructure via CloudFormation |  
 | `BATCH_JOB_DEFINITION`       | The AWS Batch job definition to use when executing the validation job |  
-| `BATCH_JOB_QUEUE`     		 | The AWS Batch job queue to use when executuing the validation job |  
+| `BATCH_JOB_QUEUE`     		 | The AWS Batch job queue to use when executing the validation job |  
 | `AWS_SNS_TOPIC_ARN`     	 | The AWS SNS topic to push notifications to during the AWS Batch validation job |  
 
 Execute the run script with:
@@ -90,8 +90,18 @@ $ ./build-scheduler.sh
 
 ### Running the container
 
-To run the Batch Scheduler Docker container, copy the `run-scheduler.sh.example` script to a new file, `run-scheduler.sh`. The run script will start the Docker container. Execute the run script with:
+To run the Batch Scheduler Docker container, copy the `run-scheduler.sh.example` script to a new file, `run-scheduler.sh`. The run script will start the Docker container. Before executing the script, update the passed in Docker environment variables within the `run-scheduler.sh` script. These environment variables should be configured to meet your needs for your particular Batch Initialization execution. Each variable is described in the table below.
 
+| Env Variable               | Description | 
+| ---------------------------|:--------------| 
+| `S3_SUBMISSIONS_BUCKET_PATH`        | The S3 bucket path of the submission archives |       
+| `S3_SUBMISSIONS_RESULTS_DIRECTORY`  | The S3 directory to stage the validation results in `S3_SUBMISSION_BUCKET_PATH`  |   
+| `BATCH_NUM_NODES`        	 | The number of nodes to deploy the AWS Batch job on. *This must match the number of nodes entered when deploying the AWS Batch infrastructure via CloudFormation |  
+| `BATCH_JOB_DEFINITION`       | The AWS Batch job definition to use when executing the validation job |  
+| `BATCH_JOB_QUEUE`     		 | The AWS Batch job queue to use when executing the validation job |  
+| `AWS_SNS_TOPIC_ARN`     	 | The AWS SNS topic to push notifications to during the AWS Batch validation job |  
+
+Execute the run script with:
 ```bash
 $ chmod +x run-scheduler.sh
 $ ./run-scheduler.sh

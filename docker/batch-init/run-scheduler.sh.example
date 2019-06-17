@@ -5,9 +5,8 @@ AWS_SECRET_ACCESS_KEY=$(aws --profile default configure get aws_secret_access_ke
 AWS_DEFAULT_REGION=$(aws --profile default configure get aws_default_region)
 
 docker run --rm -it \
-        -e S3_SUBMISSION_BUCKET='' \
-        -e S3_SUBMISSION_RESULTS_DIRECTORY='' \
-        -e BATCH_INIT_DOCKER='' \
+        -e S3_SUBMISSIONS_BUCKET_PATH='' \
+        -e S3_SUBMISSIONS_RESULTS_DIRECTORY='' \
         -e BATCH_NUM_NODES='' \
         -e BATCH_JOB_DEFINITION='' \
         -e BATCH_JOB_QUEUE='' \
