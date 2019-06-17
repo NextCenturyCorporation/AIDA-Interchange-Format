@@ -143,7 +143,7 @@ def main():
 
 				# run the initilization for the submission
 				try: 
-                    i = init.Initialize(envs)
+					i = init.Initialize(envs)
 					i.run()
 				except Exception as e:
 					logging.error(e)
