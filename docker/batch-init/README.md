@@ -56,14 +56,14 @@ To run the Batch Initializer Docker container, copy the `run.sh.example` script 
 
 | Env Variable               | Description | 
 | ---------------------------|:--------------| 
-| S3_SUBMISSION_ARCHIVE_PATH | The S3 object path to the submission archive |       
-| S3_VALIDATION_BUCKET       | The S3 bucket where the validation results should be uploaded to | 
-| S3_VALIDATION_PREFIX       | The directory to place the validation results in the `S3_VALIDATION_BUCKET` |    
-| BATCH_NUM_NODES        	 | The number of nodes to deploy the AWS Batch job on. *This must match the number of nodes entered when deploying the AWS Batch infrastructure via CloudFormation |  
-| BATCH_JOB_DEFINITION       | The AWS Batch job definition to use when executing the validation job |  
-| BATCH_JOB_QUEUE     		 | The AWS Batch job queue to use when executuing the validation job |  
-| AWS_SNS_TOPIC_ARN     	 | The AWS SNS topic to push notifications to during the AWS Batch validation job |  
-| AWS_DEFAULT_REGION         | The AWS region to use |  
+| `S3_SUBMISSION_ARCHIVE_PATH` | The S3 object path to the submission archive |       
+| `S3_VALIDATION_BUCKET`       | The S3 bucket where the validation results should be uploaded to | 
+| `S3_VALIDATION_PREFIX`       | The directory to place the validation results in the `S3_VALIDATION_BUCKET` |    
+| `BATCH_NUM_NODES`        	 | The number of nodes to deploy the AWS Batch job on. *This must match the number of nodes entered when deploying the AWS Batch infrastructure via CloudFormation |  
+| `BATCH_JOB_DEFINITION`       | The AWS Batch job definition to use when executing the validation job |  
+| `BATCH_JOB_QUEUE`     		 | The AWS Batch job queue to use when executuing the validation job |  
+| `AWS_SNS_TOPIC_ARN`     	 | The AWS SNS topic to push notifications to during the AWS Batch validation job |  
+| `AWS_DEFAULT_REGION`         | The AWS region to use |  
 
 Execute the run script with:
 
@@ -98,9 +98,9 @@ $ chmod +x run-scheduler.sh
 $ ./run-scheduler.sh
 ```
 
-#### Setting up Batch Scheduler Cron Job
+### Setting up Batch Scheduler Cron Job
 
-The Batch Scheduler can be set up to run via cron job at a specified time. In order to set up a cron job open cron tab with the following command:
+The Batch Scheduler Docker container can be set up to run via cron job at a specified time. In order to set up a cron job open cron tab with the following command:
 
 ```bash
 crontab -e
@@ -111,5 +111,5 @@ Once the crontab editor has opened, add the following line and save. You will ne
 Cron is driven by a time specification denoted by the five `*` at the beginning of the command. To specify a time when you would like your `run-scehduler.sh` script to be executed you will need to modify this command. More information on this specification can be found on the [Cron](https://en.wikipedia.org/wiki/Cron) wiki.
 
 ```bash
-* * * * * <your-path>/docker/init/run-scheduler.sh >> /tmp/run-scehduler.log 2>&1
+* * * * * <your-path>/docker/batch-init/run-scheduler.sh >> /tmp/run-scehduler.log 2>&1
 ```
