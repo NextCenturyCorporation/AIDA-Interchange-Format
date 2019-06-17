@@ -63,7 +63,6 @@ To run the Batch Initializer Docker container, copy the `run.sh.example` script 
 | `BATCH_JOB_DEFINITION`       | The AWS Batch job definition to use when executing the validation job |  
 | `BATCH_JOB_QUEUE`     		 | The AWS Batch job queue to use when executuing the validation job |  
 | `AWS_SNS_TOPIC_ARN`     	 | The AWS SNS topic to push notifications to during the AWS Batch validation job |  
-| `AWS_DEFAULT_REGION`         | The AWS region to use |  
 
 Execute the run script with:
 
