@@ -12,16 +12,14 @@ from enum import Enum
 from botocore.exceptions import ClientError
 
 class Task(Enum):
-	oneA = '1a'
-	oneB = '1b'
+	one = '1'
 	two = '2'
 	three = '3'
 
 # define all the different directory types and corresponding flags
-NIST = { 'validation': '--ldc --nist -o', 'name': 'nist', 'directory': 'NIST', 'description': 'NIST restricted'  }
-INTER_TA = { 'validation': '--ldc -o', 'name': 'unrestricted', 'directory': 'INTER-TA', 'description': 'unrestricted'  }
-NIST_TA3 = { 'validation': '--ldc --nist-ta3 -o', 'name': 'nist-ta3', 'directory': 'NIST', 'description': 'NIST TA3 restricted' }
-
+NIST = { 'validation': '--ldc --nist -o', 'name': 'nist', 'directory': 'NIST', 'description': 'NIST RESTRICTED'  }
+INTER_TA = { 'validation': '--ldc -o', 'name': 'unrestricted', 'directory': 'INTER-TA', 'description': 'UNRESTRICTED'  }
+NIST_TA3 = { 'validation': '--ldc --nist-ta3 -o', 'name': 'nist-ta3', 'directory': 'NIST', 'description': 'NIST TA3 RESTRICTED' }
 
 def download_and_extract_submission_from_s3(session, submission):
 	"""Downloads submission from s3 and extracts the contents to the working directory.
@@ -193,10 +191,8 @@ def get_task_type(stem, directory):
 	delim_count = stem.count('.')
 
 	if delim_count == 0:
-		if check_nist_directory(directory) and check_inter_ta_directory(directory):
-			return Task.oneA
-		elif check_nist_directory(directory):
-			return Task.oneB
+		if check_nist_directory(directory):
+			return Task.one
 		else:
 			raise ValueError("Invalid Task 1 submission format. Could not locate required {0} directory in submission" 
 				.format(NIST['directory']))
@@ -213,8 +209,8 @@ def get_task_type(stem, directory):
 		raise ValueError("Invalid submission format. Could not extract task type with submission stem {0}"
 			.format(stem)) 
 
-
-def validate_and_upload(session, directory, task, bucket, prefix):
+    
+def validate_and_upload(session, directory, task, bucket, prefix, submission_path, sns_topic):
 	"""Validates directory structure of task type and uploads the contents to s3. Returns a dictionary
 	of jobs that need to be executed on batch with their corresponding s3 locations.
 
@@ -224,6 +220,8 @@ def validate_and_upload(session, directory, task, bucket, prefix):
 	:param Task task: The task enum that representing the task type of the submission
 	:param str bucket: The S3 bucket
 	:param str prefix: The prefix to append to all objects uploaded to the S3 bucket
+	:param str submission_path: The submission path on S3
+	:param str sns_topic: The sns topic to associate with the job
 	:returns: List of dictionary objects representing the aws batch jobs that need to be executed
 	:rtype: List
 	"""
@@ -231,33 +229,35 @@ def validate_and_upload(session, directory, task, bucket, prefix):
 	task_type = task.value
 	jobs = []
 
-	if task == Task.oneA or task == Task.oneB or task == Task.two:
+	if task == Task.one or task == Task.two:
 
 		# NIST direcotry required, do not upload INTER-TA if NIST does not exist
 		if not check_nist_directory(directory):
 			logging.error("Task 1 submission format is invalid. Could not locate NIST directory")
 		else:
-			j = upload_formatted_submission(session, directory, bucket, prefix, NIST)
+			j = upload_formatted_submission(session, directory, bucket, prefix, NIST, task, submission_path, sns_topic)
+
 			if j is not None:
 				jobs.append(j)
 
 			# INTER-TA directory **not required**
 			if check_inter_ta_directory(directory):
+				j = upload_formatted_submission(session, directory, bucket, prefix, INTER_TA, task, submission_path, sns_topic)
 
-				j = upload_formatted_submission(session, directory, bucket, prefix, INTER_TA)
 				if j is not None:
 					jobs.append(j)
 
 		return jobs
 
 	elif task == Task.three:
-		jobs.append(upload_formatted_submission(session, directory, bucket, prefix, NIST_TA3))
+		jobs.append(upload_formatted_submission(session, directory, bucket, prefix, NIST_TA3, task, submission_path, sns_topic))
+
 		return jobs
 	else:
 		logging.error("Could not validate submission structure for invalid task %s", task)
 
 
-def upload_formatted_submission(session, directory, bucket, prefix, validation_type):
+def upload_formatted_submission(session, directory, bucket, prefix, validation_type, task, submission_path, sns_topic):
 	"""Function will locate all .ttl files within a submission subdirectory based on the validation 
 	type that was found in the get_task_type function and upload them to s3. Once all files have been 
 	uploaded, a dictionary object with information to pass into the aws batch job will be returned. 
@@ -268,6 +268,9 @@ def upload_formatted_submission(session, directory, bucket, prefix, validation_t
 	:param str bucket: The S3 bucket
 	:param str prefix: The prefix to append to all objects uploaded to the S3 bucket
 	:param validation_type: The validation type that these files will be validated against
+	:param Task task: The task enum that representing the task type of the submission
+	:param str submission_path: The submission path on S3
+	:param str sns_topic: The sns topic to associate with the job
 	:param returns: The dictionary representation of the job, None if error occurred
 	:param rtype: dict
 	"""
@@ -288,12 +291,56 @@ def upload_formatted_submission(session, directory, bucket, prefix, validation_t
 				upload_file_to_s3(session, path, bucket, bucket_prefix)
 
 			# create the batch job information
-			job['S3_SUBMISSION_BUCKET'] = bucket
-			job['S3_SUBMISSION_PREFIX'] = bucket_prefix
-			job['VALIDATION_FLAGS'] = validation_type['validation']
-			job['S3_SUBMISSION_VALIDATION_DESCR'] = validation_type['description']
-			job['S3_SUBMISSION_EXTRACTED'] = len(ttls)
-
+			job['worker'] = {
+				'environment': [
+					{
+						'name': 'VALIDATION_FLAGS',
+						'value': validation_type['validation']
+					},
+					{
+						'name': 'S3_VALIDATION_BUCKET',
+						'value': bucket
+					}
+				]
+			}
+			job['main'] = {
+				'environment': [
+					{
+						'name': 'S3_VALIDATION_BUCKET',
+						'value': bucket
+					},
+					{
+						'name': 'S3_SUBMISSION_BUCKET',
+						'value': bucket
+					},
+					{
+						'name': 'S3_SUBMISSION_PREFIX',
+						'value': bucket_prefix
+					},
+					{
+						'name': 'S3_SUBMISSION_VALIDATION_DESCR',
+						'value': validation_type['description']
+					},
+					{
+						'name': 'S3_SUBMISSION_EXTRACTED',
+						'value': str(len(ttls))
+					},
+					{
+						'name': 'S3_SUBMISSION_ARCHIVE',
+						'value': Path(submission_path).name
+					},
+					{
+						'name': 'S3_SUBMISSION_TASK',
+						'value': task.value
+					},
+					{
+						'name': 'AWS_SNS_TOPIC_ARN',
+						'value': sns_topic
+					}
+				]	
+			}
+			job['name'] = bucket_prefix.replace('.', '')
+			
 			return job
 
 	return None
@@ -333,6 +380,49 @@ def check_inter_ta_directory(directory):
 	return os.path.exists(directory + "/" + INTER_TA['directory'])
 
 
+def submit_job(session, job_name, job_queue, job_definition, overrides, num_nodes):
+	"""Function will submit a job to aws batch with the passed in environment
+	variable overrides.
+
+	:param Session session: The boto3 session
+	:param str job_name: The job name
+	:param str job_definition: The job definition that was configured on AWS batch
+	:param list overrides: List of dictionary environment variable 
+		overrides for the main and worker nodes specific AWS batch job that is being submitted
+	"""
+	batch = boto3.client('batch')
+
+	try:
+		response = batch.submit_job(
+			jobName=job_name, #'jdoe-test-job', # use your HutchNet ID instead of 'jdoe'
+            jobQueue=job_queue, #'mixed', # sufficient for most jobs
+            jobDefinition=job_definition, #'myJobDef:7', # use a real job definition
+            nodeOverrides={
+            	'nodePropertyOverrides': [
+            		{
+            			'targetNodes': '0:0',
+            			'containerOverrides': overrides['main']
+            			
+            		},
+            		{
+            			'targetNodes': '1:{0}'.format(int(num_nodes)-1),
+            			'containerOverrides': overrides['worker']
+            			
+            		}
+            	]
+        	}
+        )
+
+		if response is not None:
+			logging.info("Job %s successfully submitted to AWS batch with job id: %s", job_name, response['jobId'])
+		else:
+			logging.error("There was an error when submitting the batch job %s with definition %s to queue %s with " \
+				" environment overrides %s", job_name, job_queue, job_definition, env_overrides)
+
+	except ClientError as e:
+		logging.error(e)
+
+
 def is_env_set(env, value):
     """Helper function to check if a specific environment variable is not None
 
@@ -365,6 +455,12 @@ def validate_envs(envs):
         if not is_env_set(k, v):
             return False
 
+    try:
+        int(envs['BATCH_NUM_NODES'])
+    except ValueError:
+        logging.error("BATCH_NUM_NODES value [%s] must be an integer", envs['BATCH_NUM_NODES'])
+        return False
+
     return True
 
 
@@ -375,9 +471,13 @@ def read_envs():
 	:rtype: dict
 	"""
 	envs = {}
-	envs['S3_SUBMISSION_ARCHIVE_PATH'] = os.environ.get('S3_SUBMISSION_ARCHIVE_PATH', 'aida-validation/archives/NextCentury_1.zip')
-	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', 'aida-validation')
+	envs['S3_SUBMISSION_ARCHIVE_PATH'] = os.environ.get('S3_SUBMISSION_ARCHIVE_PATH')
+	envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET')
+	envs['BATCH_NUM_NODES'] = os.environ.get('BATCH_NUM_NODES', '2')
+	envs['BATCH_JOB_DEFINITION'] = os.environ.get('BATCH_JOB_DEFINITION')
+	envs['BATCH_JOB_QUEUE'] = os.environ.get('BATCH_JOB_QUEUE')
 	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
+	envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN')
 	return envs
 
 
@@ -403,16 +503,17 @@ def main():
 		task = get_task_type(stem, staging_dir)
 
 		# validate structure of submission and upload to S3 
-		jobs = validate_and_upload(session, staging_dir, task, envs['S3_VALIDATION_BUCKET'], stem)
+		jobs = validate_and_upload(session, staging_dir, task, envs['S3_VALIDATION_BUCKET'], 
+			stem, envs['S3_SUBMISSION_ARCHIVE_PATH'], envs['AWS_SNS_TOPIC_ARN'])
 
 		# print out enviornment variables that will be set during aws batch submission
 		if len(jobs) > 0:
 			logging.info("Submit the following jobs to AWS Batch:")
 
 			for idx, job in enumerate(jobs):
-				job['S3_SUBMISSION_ARCHIVE'] = Path(envs['S3_SUBMISSION_ARCHIVE_PATH']).name
-				job['S3_SUBMISSION_TASK'] = task.value
-				logging.info("Job %s: %s", str(idx+1), str(job))
+				logging.info("Submitting job[%s] with the following overrides: %s", job['name'], str(job))
+				submit_job(session, job['name'], envs['BATCH_JOB_QUEUE'], 
+					envs['BATCH_JOB_DEFINITION'], job, envs['BATCH_NUM_NODES'])
 
 		# remove staing directory and downloaded submission
 		os.remove(Path(envs['S3_SUBMISSION_ARCHIVE_PATH']).name)
@@ -423,3 +524,4 @@ def main():
 
 
 if __name__ == "__main__": main()
+
