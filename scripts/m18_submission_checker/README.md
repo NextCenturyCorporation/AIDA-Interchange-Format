@@ -19,11 +19,4 @@ This script DOES NOT check that files in the /NIST/ directory are RESTRICTED AIF
 Example usage and output for a valid TA_1a archive:
     
     $ python3 aida_m18_submission_checker.py /Users/njaffe/Documents/archives/OPERA_1.zip 
-    INFO:  Checking archive... this may take a moment for large files.
-    INFO:  archive /Users/njaffe/Documents/archives/OPERA_1.zip is detected to be of task type 1a.
-    INFO:  TA_1a Archive Validator report:
-    INFO:  TTL files found: 1653
-    INFO:  TTL files in valid locations: 1653
-    INFO:  Submission: /Users/njaffe/Documents/archives/OPERA_1.zip  is VALID and submit ready.
-    INFO:  Task Type: 1a | Task Type: 1a | Task Type: 1a | Task Type: 1a | Task Type: 1a | Task Type: 1a | Task Type: 1a | Task Type: 1a | Task Type: 1a | Task Type: 1a |
     
