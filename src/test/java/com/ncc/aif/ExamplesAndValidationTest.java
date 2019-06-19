@@ -22,6 +22,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.topbraid.shacl.vocabulary.SH;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,6 +46,7 @@ public class ExamplesAndValidationTest {
     private static final String NIST_ROOT = "https://tac.nist.gov/tracks/SM-KBP/";
     private static final String LDC_NS = NIST_ROOT + "2019/LdcAnnotations#";
     private static final String ONTOLOGY_NS = NIST_ROOT + "2018/ontologies/SeedlingOntology#";
+    private static final String DISKBASED_MODEL_PATH = System.getProperty("java.io.tmpdir") + "/diskbased-models/tests";
     private static final CharSource SEEDLING_ONTOLOGY = Resources.asCharSource(
             Resources.getResource("com/ncc/aif/ontologies/SeedlingOntology"),
             StandardCharsets.UTF_8);
@@ -54,6 +56,13 @@ public class ExamplesAndValidationTest {
     static void initTest() {
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
+        try {
+            if (Files.exists(Paths.get(DISKBASED_MODEL_PATH))) { // Delete the directory if it exists
+                Files.walk(Paths.get(DISKBASED_MODEL_PATH)).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+            }
+        } catch (IOException ioe) {
+            System.err.println("Unable to delete disk-based model directory: " + ioe.getMessage());
+        }
         utils = new TestUtils(LDC_NS, ValidateAIF.createForDomainOntologySource(SEEDLING_ONTOLOGY), DUMP_ALWAYS, DUMP_TO_FILE);
     }
 
@@ -1184,12 +1193,7 @@ public class ExamplesAndValidationTest {
 
     private ImmutablePair<Model, Dataset> createDiskBasedModel() {
         try {
-            final String DATA_MODEL_PATH = System.getProperty("java.io.tmpdir") + "/diskbased-models";
-            Path directory = Paths.get(DATA_MODEL_PATH);
-            if (Files.exists(directory)) { // Delete the directory if it exists
-                Files.walk(directory).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-            }
-            Path dataModelDir = Paths.get(DATA_MODEL_PATH, "model" + ++diskModelCount);
+            Path dataModelDir = Paths.get(DISKBASED_MODEL_PATH, "testmodel" + ++diskModelCount);
             System.out.println("Creating disk based model at " + dataModelDir.toString());
             Files.createDirectories(dataModelDir);
             final Dataset dataset = TDBFactory.createDataset(dataModelDir.toString());

@@ -50,12 +50,12 @@ public final class ValidateAIF {
     private static final String AO_EVENTS_RESNAME = ONT_ROOT + "EventOntology";
     private static final String AO_RELATIONS_RESNAME = ONT_ROOT + "RelationOntology";
 
-    public static final String DOMAIN_MODEL_PATH = System.getProperty("java.io.tmpdir") + "/domainModel";
+    public static final String DOMAIN_MODEL_PATH = System.getProperty("java.io.tmpdir") + "/diskbased-models/domainModel";
 
     private static Model shaclModel;
     private static Model nistModel;
     private static Model nistHypoModel;
-    private static boolean isDiskBased;
+    private static int diskModelCount;
     private static boolean initialized = false;
     private static final Property CONFORMS = ResourceFactory.createProperty("http://www.w3.org/ns/shacl#conforms");
 
@@ -157,13 +157,17 @@ public final class ValidateAIF {
         }
 
         Model model;
-        if (isDiskBased) {
+        if (diskModelCount > 0) {
             try {
                 // Make a disk-based model
-                Path directory = Paths.get(DOMAIN_MODEL_PATH);
-                if (Files.exists(directory)) { // Delete the directory if it exists
-                    Files.walk(directory).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+                Path directory;
+                do {
+                    directory = Paths.get(DOMAIN_MODEL_PATH + diskModelCount++);
+                    if (Files.exists(directory)) {
+                        Files.walk(directory).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+                    }
                 }
+                while (Files.exists(directory)); // if it was in use, it wasn't deleted, which is a good thing.
                 Files.createDirectories(directory);
                 directory.toFile().deleteOnExit(); // not guaranteed
                 final Dataset dataset = TDBFactory.createDataset(directory.toString());
@@ -173,8 +177,7 @@ public final class ValidateAIF {
                 e.printStackTrace();
                 throw new RuntimeException();
             }
-        }
-        else {
+        } else {
             model = ModelFactory.createDefaultModel();
         }
 
@@ -198,7 +201,11 @@ public final class ValidateAIF {
      * Must be called prior to the various <code>create</code> methods.
      */
     public static void setDiskBased(boolean diskBased) {
-        isDiskBased = diskBased;
+        if (diskBased) {
+            if (diskModelCount == 0) diskModelCount++;
+        } else {
+            diskModelCount = 0;
+        }
     }
 
     /**
@@ -233,7 +240,7 @@ public final class ValidateAIF {
             throw new IllegalArgumentException("Number of threads must be greater than or equal to 1.");
         }
         if (threadCount > 1 && (executor == null || executor.getPoolSize() != threadCount)) {
-            executor = new ThreadPoolExecutor(threadCount, threadCount,0L, TimeUnit.MILLISECONDS,
+            executor = new ThreadPoolExecutor(threadCount, threadCount, 0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<>());
         } else if (threadCount == 1 && executor != null) {
             executor.shutdown();
@@ -243,6 +250,7 @@ public final class ValidateAIF {
 
     /**
      * Return the current executor if one exists, null o/w
+     *
      * @return the current executor if one exists, null o/w
      */
     public ExecutorService getExecutor() {
@@ -330,7 +338,7 @@ public final class ValidateAIF {
                 engine.validateAll(executor);
                 validationMetadata = engine.getValidationMetadata();
                 return engine.getReport();
-            } catch (InterruptedException|ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 System.err.println("Unable to validate due to exception");
                 e.printStackTrace();
                 return null;

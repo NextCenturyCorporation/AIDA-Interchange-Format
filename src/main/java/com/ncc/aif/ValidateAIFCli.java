@@ -80,7 +80,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     private static final String THREAD_COUNT_STRING = "Thread count";
     private static final int MINIMUM_THREAD_COUNT = 1;
     // Disk-based model
-    private static final String DATA_MODEL_PATH = System.getProperty("java.io.tmpdir") + "/dataModels";
+    private static final String DATA_MODEL_PATH = System.getProperty("java.io.tmpdir") + "/diskbased-models/dataModels";
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     // Command Line Arguments
@@ -315,8 +315,8 @@ public class ValidateAIFCli implements Callable<Integer> {
             Dataset dataset = null;
             if (useDiskModel) {
                 try {
-                    deleteDir(Paths.get(DATA_MODEL_PATH));
                     dataModelDir = Paths.get(DATA_MODEL_PATH, fileToValidate.getName().replace(".ttl", ""));
+                    deleteDir(dataModelDir);  // Delete the directory if it exists
                     Files.createDirectories(dataModelDir);
                     dataset = TDBFactory.createDataset(dataModelDir.toString());
                     dataToBeValidated = dataset.getDefaultModel();
