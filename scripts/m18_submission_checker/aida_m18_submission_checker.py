@@ -287,7 +287,7 @@ def main():
         logging.warning("Total number of .ttl files located in invalid locations and will not be validated: {0}".format(archive_status['invalid']))
         logger_print_level = logging.warning if archive_status['valid'] > 0 else logging.error
         logger_print_level(warnings_dict[task_type])
-    if archive_status['total'] > 0 and archive_status['valid'] > 0:   # dont want them accidentally submitting 0
+    if archive_status['valid'] > 0:
         logging.info("{0} is VALID and submit ready according to task {1} rules!".format(archive_file_name, task_type))
 
     return True
