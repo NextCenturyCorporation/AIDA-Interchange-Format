@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
@@ -20,10 +21,13 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.topbraid.shacl.vocabulary.SH;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Comparator;
 
 import static com.ncc.aif.AIFUtils.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -55,6 +59,7 @@ public class ExamplesAndValidationTest {
 
     private Model model;
     private Resource system;
+    private int diskModelCount = 0;
 
     @BeforeEach
     void setup() {
@@ -993,7 +998,8 @@ public class ExamplesAndValidationTest {
 
         @Test
         void createEntityWithDiskBaseModelAndWriteOut() {
-            final Model model = createDiskBasedModel();
+            final ImmutablePair<Model, Dataset> pair = createDiskBasedModel();
+            final Model model = pair.getLeft();
 
             // every AIF needs an object for the system responsible for creating it
             final Resource system = makeSystemWithURI(model, utils.getTestSystemUri());
@@ -1008,9 +1014,14 @@ public class ExamplesAndValidationTest {
                     "HC000T6IV", 1029, 1033, system, 0.973);
 
             Path filename = writeModelToDisk(model);
+            model.close();
+            pair.getRight().close();
 
-            final Model model2 = readModelFromDisk(filename);
+            final ImmutablePair<Model, Dataset> pair2 = readModelFromDisk(filename);
+            final Model model2 = pair2.getLeft();
             Resource rtest = model2.getResource(putinDocumentEntityUri);
+            model2.close();
+            pair2.getRight().close();
             assertNotNull(rtest, "Entity does not exist");
         }
 
@@ -1159,11 +1170,11 @@ public class ExamplesAndValidationTest {
         return outputPath;
     }
 
-    private Model readModelFromDisk(Path filename) {
+    private ImmutablePair<Model, Dataset> readModelFromDisk(Path filename) {
         try {
-            Model model = createDiskBasedModel();
-            RDFDataMgr.read(model, Files.newInputStream(filename), Lang.TURTLE);
-            return model;
+            ImmutablePair<Model, Dataset> pair = createDiskBasedModel();
+            RDFDataMgr.read(pair.getLeft(), Files.newInputStream(filename), Lang.TURTLE);
+            return pair;
         } catch (Exception e) {
             System.err.println("Unable to write to tempfile " + e.getMessage());
             e.printStackTrace();
@@ -1171,13 +1182,19 @@ public class ExamplesAndValidationTest {
         return null;
     }
 
-    private Model createDiskBasedModel() {
+    private ImmutablePair<Model, Dataset> createDiskBasedModel() {
         try {
-            final Path outputPath = Files.createTempDirectory("diskbased-model-");
-            System.out.println("Creating disk based model at " + outputPath.toString());
-            final Dataset dataset = TDBFactory.createDataset(outputPath.toString());
+            final String DATA_MODEL_PATH = System.getProperty("java.io.tmpdir") + "/diskbased-models";
+            Path directory = Paths.get(DATA_MODEL_PATH);
+            if (Files.exists(directory)) { // Delete the directory if it exists
+                Files.walk(directory).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+            }
+            Path dataModelDir = Paths.get(DATA_MODEL_PATH, "model" + ++diskModelCount);
+            System.out.println("Creating disk based model at " + dataModelDir.toString());
+            Files.createDirectories(dataModelDir);
+            final Dataset dataset = TDBFactory.createDataset(dataModelDir.toString());
             final Model model = dataset.getDefaultModel();
-            return addNamespacesToModel(model);
+            return new ImmutablePair<>(addNamespacesToModel(model), dataset);
         } catch (Exception e) {
             System.err.println("Unable to create temp directory: " + e.getMessage());
             e.printStackTrace();
