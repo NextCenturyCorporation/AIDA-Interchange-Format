@@ -1,7 +1,9 @@
-'''
-
-'''
-import sys, os, re, logging, tarfile, zipfile
+import sys
+import os
+import re
+import logging
+import tarfile
+import zipfile
 
 '''
 Globals
@@ -283,7 +285,7 @@ def main():
     if archive_status['invalid'] > 0:
         logging.warning("Total number of .ttl files located in invalid locations and will not be validated: {0}".format(archive_status['invalid']))
         logging.warning(warnings_dict[task_type])
-    elif archive_status['total'] > 0:   # dont want them accidentally submitting 0
+    if archive_status['total'] > 0 and archive_status['valid'] > 0:   # dont want them accidentally submitting 0
         logging.info("{0} is VALID and submit ready according to task {1} rules!".format(archive_file_name, task_type))
 
     return True
