@@ -282,9 +282,11 @@ def main():
     logging.info("M18 Submission Checker Report for: \n\t{0}".format(archive_file_name))
     logging.info("Total .ttl files found in submission archive: {0}".format(archive_status['total']))
     logging.info("Total number of .ttl files to be validated: {0}".format(archive_status['valid']))
+    #if they have ttls located in invalid locations, print the warning
     if archive_status['invalid'] > 0:
         logging.warning("Total number of .ttl files located in invalid locations and will not be validated: {0}".format(archive_status['invalid']))
-        logging.warning(warnings_dict[task_type])
+        logger_print_level = logging.warning if archive_status['valid'] > 0 else logging.error
+        logger_print_level(warnings_dict[task_type])
     if archive_status['total'] > 0 and archive_status['valid'] > 0:   # dont want them accidentally submitting 0
         logging.info("{0} is VALID and submit ready according to task {1} rules!".format(archive_file_name, task_type))
 
