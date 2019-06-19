@@ -135,7 +135,7 @@ class Initialize:
 	        else:
 	            s3_object = Path(filepath).name
 
-	        logging.info("Uploading %s to bucket %s with prefix", s3_object, bucket)
+	        logging.info("Uploading %s to bucket %s", s3_object, bucket)
 	        s3_client.upload_file(str(filepath), bucket, s3_object)
 
 	    except ClientError as e:
