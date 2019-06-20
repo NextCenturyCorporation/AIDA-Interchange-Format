@@ -1,3 +1,4 @@
+
 import sys
 import os
 import re
@@ -11,12 +12,10 @@ Globals
 # list of names of items in the archive - to be populated after determining what filetype the archive is
 ARCHIVE_NAMES = []
 
-warnings_dict = {'1a':".ttl files must be located in either the <run_ID>/NIST/ or <run_id>/INTER-TA directory",
-                 '1b':".ttl files must be located the appropriate hypothesis_id subdirectory of the <run_ID>/NIST/ "
-                      "directory. i.e. <run_id>/NIST/<hypothesis_id>/file.ttl",
-                 '2':".ttl files must be located in either the <run_ID>/NIST/ or <run_id>/INTER-TA directory",
-                 '3':".ttl files must be located in the <run_ID>/ directory" }
-
+warnings_dict = {'1a' : ".ttl files must be located in the <run_ID>/NIST/ and optionally in the <run_id>/INTER-TA directory",
+                 '1b' : ".ttl files must be located the appropriate hypothesis_id subdirectory of the <run_ID>/NIST/ directory. i.e. <run_id>/NIST/<hypothesis_id>/<document_id>.ttl",
+                 '2' : ".ttl files must be located in the <run_ID>/NIST/ and optionally in the <run_id>/INTER-TA directory",
+                 '3' : ".ttl files must be located in the <run_ID>/ directory" }
 
 
 def check_runtime_args(args):
@@ -68,13 +67,35 @@ def get_archive_member_names(archive_file_name, archive_file_type):
     logging.info("Checking archive... this may take a moment for large files.")
 
     try:
-        archive = zipfile.ZipFile(archive_file_name, 'r', allowZip64=True) if archive_file_type == 'zip' else tarfile.open(archive_file_name, mode='r')
-        member_names_list = archive.namelist() if archive_file_type == 'zip' else archive.getnames()
-        return member_names_list
+
+        if archive_file_type == 'zip':
+
+            archive = zipfile.ZipFile(archive_file_name, 'r', allowZip64=True)
+            return archive.namelist()
+
+        elif archive_file_type == 'tar':
+
+            archive = tarfile.open(archive_file_name, mode='r')
+            archive_members = archive.getmembers()
+            archive_name_list = []
+
+            for item in archive_members:
+                if item.type == tarfile.DIRTYPE:
+
+                    #append a '/' to the end of the directory name to match zip output formatting
+                    archive_name_list.append(item.name + '/')
+
+                else:
+                    archive_name_list.append(item.name)
+
+            return archive_name_list
+
     except:
+
         # expected errors: (zipfile.BadZipFile, tarfile.ReadError), but catch all of them anyways
         logging.error("Error thrown attempting to read/open the archive. Please use 'zip' or 'tar' to create your archive.")
-        return None
+
+    return None
 
 def get_task_type(archive_file_name, archive_member_names):
     """
@@ -90,6 +111,7 @@ def get_task_type(archive_file_name, archive_member_names):
 
     # get rid of extra . count if the file extention is .tar.gz
     if basename.endswith('.tar.gz'):
+
         dot_count -= 1
 
     if dot_count == 1:
@@ -98,71 +120,76 @@ def get_task_type(archive_file_name, archive_member_names):
         member_names_str = " ".join(archive_member_names)
 
         # if .ttl file in "/NIST/" directory then ttls_under_nist_dir is not none (possible 1a)
-        ttls_under_nist_dir = re.compile(".*\/NIST\/[^\/]+.ttl", re.IGNORECASE).search(member_names_str)
+        ttls_under_nist_dir = re.compile(".*\/NIST\/[^\/]+.ttl").search(member_names_str)
         # if ".ttl file in a subdirectory of /NIST/" then ttls_under_nist_subdir is not none (possible 1b)
-        ttls_under_nist_subdir = re.compile(".*\/NIST\/\S*\/\S*\.ttl", re.IGNORECASE).search(member_names_str)
+        ttls_under_nist_subdir = re.compile(".*\/NIST\/\S*\/\S*\.ttl").search(member_names_str)
 
-        if ttls_under_nist_dir is not None and ttls_under_nist_subdir is None:
-            return '1a'
-        elif ttls_under_nist_subdir is not None and ttls_under_nist_dir is None:
+        # if ttls exist under a subdirectory of /NIST/ then assume this was intended to be 1b, otherwise assume 1a
+        if ttls_under_nist_subdir is not None:
+            if ttls_under_nist_dir is not None:
+                logging.warning("Could not determine if submission was intended to be task 1a or 1b.")
+                logging.warning(".ttl files exist in the ../NIST/ directory and in a subdirectory of ../NIST/..\nContinuing as task 1b...")
             return '1b'
+
         else:
-            # ttls found in /NIST/ and a subdirectory of /NIST/, so we cannot determine if 1a or 1b.
-            logging.warning("Cannot distinguish between 1a or 1b due to .ttl files existing at the same level as a subdirectory of /NIST/. \nContinuing as 1a.")
             return '1a'
-            # ^^ change to return None if we want to stop processing rather than continue as 1a
 
     elif dot_count == 2:
         return '2'
+
     elif dot_count == 3:
-        # else return the dot count if theres 2 or 3 dots
         return '3'
 
     else:
-        logging.error("Cannot determine the task type! Please input task type to arguments and run again.")
+        logging.error("Based on the number of periods in the file name, this is neither a Task 1a, 1b, 2, or 3 submission. Please name your submission file based on the rules defined in section 9 of the NIST AIDA 2019 Evaluation Plan.")
         return None
 
 def get_archive_submit_ready_status_values(task_type, archive_member_names):
     """
     Prereq: ARCHIVE_FILE_NAME, and ARCHIVE_NAMES have been set
 
-    :return: returns dictionary with counts for total ttls found in archive, count of ttls in valid locations, and count of ttls in invalid locations
-    :rtype: dict {'total': x, 'valid' : y, 'invalid' : z}
+    :return: total number of ttl files found, a dict of ttl counts per valid directory, and a dict of ttl counts per invalid directory
+    :rtype: int, dict {'dirname':int,...}, dict {'dirname':int,...}
     """
+    ttl_valid_count_dict = {}
+    ttl_invalid_count_dict = {}
     ttls_total_count = 0
-    ttls_error_warning_count = 0
-    ttls_valid_count = 0
 
-    validity_check = None
+    valid_dir_check = None
 
     # function pointer for which type of validity checking we want to do
     if task_type == '1a' or task_type == '2':
-        validity_check = do_TA1a_2_check
+        valid_dir_check = do_TA1a_2_check
     elif task_type == '1b':
-        validity_check = do_TA1b_check
+        valid_dir_check = do_TA1b_check
     elif task_type == '3':
-        validity_check = do_TA3_check
+        valid_dir_check = do_TA3_check
 
     for name in archive_member_names:
 
         # split into levels
         path_items = re.split('/', name)
 
-        # TODO CHECK IF PATH_ITEMS[-1] IS EVER NOT THE LOCATION OF THE .TTL FILE NAME
-
-        # if the current file is a .ttl file, check its validity and update counts
-        if path_items[-1].endswith('.ttl'):
+        if name.endswith('.ttl'):
 
             ttls_total_count += 1
+            file_dir_status = valid_dir_check(path_items)
 
-            file_status = validity_check(path_items)
+            dir = os.path.dirname(name) + '/'
 
-            if file_status == True:
-                ttls_valid_count += 1
+            if file_dir_status:
+                #get value for the current ttl dir, if it dosen't exist then add it to the dict
+                curr_val = ttl_valid_count_dict.setdefault(dir, 0)
+                curr_val += 1
+                ttl_valid_count_dict[dir] = curr_val
+
             else:
-                ttls_error_warning_count += 1
+                #get value for the current ttl dir, if it dosen't exist then add it to the dict
+                curr_val = ttl_invalid_count_dict.setdefault(dir, 0)
+                curr_val += 1
+                ttl_invalid_count_dict[dir] = curr_val
 
-    return {'total' : ttls_total_count, 'valid' : ttls_valid_count, 'invalid' : ttls_error_warning_count}
+    return ttls_total_count, ttl_valid_count_dict, ttl_invalid_count_dict
 
 def do_TA1a_2_check(path_items):
     """
@@ -179,13 +206,14 @@ def do_TA1a_2_check(path_items):
     Prints number of ttl files found, and number of ttl files that are in need to be checked.
 
     :param path_items: The path to the .ttl file that needs to be checked
-    :return: True if the file path is valid, False otherwise
-    :rtype: bool
+    :return: 'NIST' if .ttl file is in the ../NIST/ directory, 'INTER-TA' if in the ../INTER-TA/ directory or None if not in either directory
+    :rtype: string or None
     """
 
     # validate that the ttl file is in an acceptable directory
     # rule: ttl needs to be in 2nd level -- aka 3rd item in list['name', 'NIST', 'valid.ttl']
     # rule: ttl needs to be in directory named NIST, or INTER-TA
+
     try:
         if ((path_items[-2] == 'NIST' or path_items[-2] == 'INTER-TA') and len(path_items) == 3):
             return True
@@ -243,7 +271,74 @@ def do_TA3_check(path_items):
 
     return True if len(path_items) == 2 else False
 
+def get_archive_status_and_log(archive_file_name, task_type, ttls_total_count, ttl_valid_count_dict, ttl_invalid_count_dict):
+    """
+    Handles the proper log formatting (info, warning, errors) and logs the output determining the status of the archive
+    logs if archive check was Success, Partial Success, or Failure
+    :param archive_file_name: name of archive
+    :param task_type: task type of archive. 1a, 1b, 2, or 3
+    :param ttls_total_count: total count of .ttl files in archive
+    :param ttl_valid_count_dict: dictionary with counts of .ttl files per directory (e.g.: {runid/NIST/:20, runid/INTER-TA/:20})
+    :param ttl_invalid_count_dict: dictionary with counts of .ttl files per directory (e.g.: {runid/invalid_dir/: 20, ...})
+    :returns: True on Success or Partial success, False otherwise
+    """
 
+    logging.info("M18 Submission Checker Report for: \n\t{0}".format(archive_file_name))
+
+    # get totals
+    count_to_be_validated = sum(ttl_valid_count_dict.values())
+    count_not_to_be_validated = sum(ttl_invalid_count_dict.values())
+
+    row_format ="{:<{col_size}} | {:<6} | {:<17}"
+
+    # print counts per each valid type directory
+    if count_to_be_validated > 0:
+        col_size = max(map(len, ttl_valid_count_dict))
+        logging.info(row_format.format("Directory", "# .ttl", "", col_size=col_size))
+        for dir, count in ttl_valid_count_dict.items():
+            logging.info(row_format.format(dir, count, "valid location", col_size=col_size))
+
+    if count_not_to_be_validated > 0:
+        col_size = max(map(len, ttl_invalid_count_dict))
+        logging.info(row_format.format("Directory", "# .ttl", "", col_size=col_size))
+        for dir, count in ttl_invalid_count_dict.items():
+            logging.warning(row_format.format(dir, count, "invalid location", col_size=col_size))
+
+
+    required_exist = None
+    if task_type == '1a' or task_type == '2':
+        #for task 1a and 2 specifically, if there are no required files we log that it is an error, else it is ok
+        for k in ttl_valid_count_dict:
+            if '/NIST/' in str(k) :
+                required_exist = (ttl_valid_count_dict[k] > 0)
+
+        if required_exist == None:
+            required_exist = False
+
+    # log archive report
+    logging.info("Total .ttl files found in submission archive: {0}".format(ttls_total_count))
+    logging.info("Total number of .ttl files to be validated: {0}".format(count_to_be_validated))
+
+    #if invalid dont exsist, dont print this line
+    if count_not_to_be_validated > 0:
+        logging.info("Total number of .ttl files that will not be validated: {0}".format(count_not_to_be_validated))
+
+    if (((task_type == '1a' or task_type == '2') and required_exist) or (count_to_be_validated > 0 and required_exist == None)) and count_not_to_be_validated == 0:
+        logging.info("SUCCESS! {0} is organized according to task {1} rules and is ready to be submitted!".format(archive_file_name, task_type))
+        return True
+    else:
+        # point user in the right direction when theres some sort of unexpected thing happening
+        logging.info("For task {0}: {1}".format(task_type, warnings_dict[task_type]))
+
+        #and also do the correct status message
+        if count_to_be_validated == 0 or not required_exist:
+            logging.error("FAILURE! {0} is not organized according to task {1} rules, or has 0 files where 1 or more is expected.".format(archive_file_name, task_type))
+            return False
+        elif count_to_be_validated > 0 and count_not_to_be_validated > 0:
+            logging.info("PARTIAL SUCCESS. {0} is organized according to task {1} rules and can be submitted, but there are .ttl files in unexpected locations that will not be validated.".format(archive_file_name, task_type))
+            return True
+
+    return False
 
 def main():
     """
@@ -274,22 +369,13 @@ def main():
     if task_type == None:
         return False
 
-    logging.info("Archive " + str(archive_file_name) + " is detected to be of task type " + task_type + ".")
+    logging.info("Based on the number of periods in the file name, this archive is assumed to be a Task {0} submission.".format(task_type))
 
-    archive_status = get_archive_submit_ready_status_values(task_type, archive_member_names)
+    ttls_total_count, ttl_valid_count_dict, ttl_invalid_count_dict = get_archive_submit_ready_status_values(task_type, archive_member_names)
 
-    # log archive report
-    logging.info("M18 Submission Checker Report for: \n\t{0}".format(archive_file_name))
-    logging.info("Total .ttl files found in submission archive: {0}".format(archive_status['total']))
-    logging.info("Total number of .ttl files to be validated: {0}".format(archive_status['valid']))
-    #if they have ttls located in invalid locations, print the warning
-    if archive_status['invalid'] > 0:
-        logging.warning("Total number of .ttl files located in invalid locations and will not be validated: {0}".format(archive_status['invalid']))
-        logger_print_level = logging.warning if archive_status['valid'] > 0 else logging.error
-        logger_print_level(warnings_dict[task_type])
-    if archive_status['valid'] > 0:
-        logging.info("{0} is VALID and submit ready according to task {1} rules!".format(archive_file_name, task_type))
+    status = get_archive_status_and_log(archive_file_name, task_type, ttls_total_count, ttl_valid_count_dict, ttl_invalid_count_dict)
 
-    return True
+    return status
+
 
 if __name__ == "__main__": main()
