@@ -59,7 +59,7 @@ class Initialize:
 
 			for idx, job in enumerate(jobs):
 				logging.info("Submitting AWS Batch job[%s] with the following overrides: %s", job['name'], str(job))
-				#self._submit_job(job['name'], job)
+				self._submit_job(job['name'], job)
 
 		# remove staing directory and downloaded submission
 		os.remove(Path(self.s3_submission_archive_path).name)
