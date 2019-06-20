@@ -56,15 +56,46 @@ class Initialize:
 
 		# print out enviornment variables that will be set during aws batch submission
 		if len(jobs) > 0:
-			logging.info("Submit the following jobs to AWS Batch:")
 
 			for idx, job in enumerate(jobs):
-				logging.info("Submitting job[%s] with the following overrides: %s", job['name'], str(job))
-				self._submit_job(job['name'], job)
+				logging.info("Submitting AWS Batch job[%s] with the following overrides: %s", job['name'], str(job))
+				#self._submit_job(job['name'], job)
 
 		# remove staing directory and downloaded submission
 		os.remove(Path(self.s3_submission_archive_path).name)
 		shutil.rmtree(staging_dir)
+
+
+	def _publish_init_failure(self, err_message):
+		"""Function will publish message on to the SNS topic specified by
+		the topic arn that reports a failure. This will be used to notify 
+		the user that no job was submitted for this submission. 
+
+		:param str message: The message to publish
+		"""
+		message = "The submission {0} will not be validated because the following error occrured: {1}".format( 
+			self.s3_submission_archive_path , err_message)
+		self._publish_sns_message(message)
+
+
+	def _publish_sns_message(self, message):
+		"""Function will publish message on to the SNS topic specified by
+		the topic arn.
+
+		:param str message: The message to publish
+		"""
+		sns = self.session.client('sns')
+
+		try:
+			logging.info("Publishing message [%s] to topic %s", message, self.aws_sns_topic)
+
+			#publish message 
+			response = sns.publish(
+				TopicArn=self.aws_sns_topic,
+				Message=message
+			)
+		except ClientError as e:
+			logging.error(e)
 
 
 	def _download_and_extract_submission_from_s3(self):
@@ -113,9 +144,11 @@ class Initialize:
 
 		except ClientError as e:
 		    logging.error(e)
+		    self._publish_init_failure(e)
 		    raise
 		except ValueError as e:
 		    logging.error(e)
+		    self._publish_init_failure(e)
 		    raise
 
 
@@ -195,9 +228,10 @@ class Initialize:
 	    try:
 	        logging.info("Checking if submission %s is a valid archive type", self.s3_submission_archive_path)
 	        if file_ext not in valid_ext:
-	            raise ValueError("Submission {0} is not a valid archive type".format(self.s3_submission_archive_path))
+	            raise ValueError("Submission {0} is not a valid archive type. Submissions must be .tar.gz, .tgz, or .zip".format(self.s3_submission_archive_path))
 	    except ValueError as e:
 	        logging.error(e)
+	        self._publish_init_failure(e)
 	        raise
 
 
@@ -232,23 +266,42 @@ class Initialize:
 		id_dir = self._get_run_id_directory(directory)
 
 		if delim_count == 0:
-			if self._check_nist_directory(id_dir):
-				return Task.one
-			else:
-				raise ValueError("Invalid Task 1 submission format. Could not locate required {0} directory in submission" 
-					.format(self.NIST['directory']))
+			if not self._check_nist_directory(id_dir):
+				err = "Invalid Task 1 submission format. Unable to locate required {0} directory in submission".format(
+					self.NIST['directory'])
+				self._publish_init_failure(err)
+				raise ValueError(err)
+
+			if not self._check_nist_directory_has_ttl(id_dir):
+				err = "Invalid Task 1 submission format. {0} directory in submission does not contain any .ttl files".format(
+					self.NIST['directory'])
+				self._publish_init_failure(err)
+				raise ValueError(err)
+
+			return Task.one
+			
+				
 		elif delim_count == 1:
-			if self._check_nist_directory(id_dir):
-				return Task.two
-			else:
-				raise ValueError("Invalid Task 2 submission format. Could not locate required {0} directory in submission"
-					.format(self.NIST['directory'])) 
+			if not self._check_nist_directory(id_dir):
+				err = "Invalid Task 2 submission format. Unable to locate required {0} directory in submission".format(
+					self.NIST['directory'])
+				self._publish_init_failure(err)
+				raise ValueError(err)
+
+			if not self._check_nist_directory_has_ttl(id_dir):
+				err = "Invalid Task 2 submission format. {0} directory in submission does not contain any .ttl files".format(
+					self.NIST['directory'])
+				self._publish_init_failure(err)
+				raise ValueError(err)
+
+			return Task.two
 					
 		elif delim_count == 2:
 			return Task.three
 		else:
-			raise ValueError("Invalid submission format. Could not extract task type with submission stem {0}"
-				.format(stem)) 
+			err = "Invalid submission format. Could not extract task type with submission stem {0}".format(stem)
+			self._publish_init_failure(err)
+			raise ValueError() 
 
 
 	def _get_run_id_directory(self, directory):
@@ -266,7 +319,9 @@ class Initialize:
 		if len(dir_list) == 1:
 			return directory + '/' + dir_list[0]
 		else:
-			raise ValueError("Submission should be a compressed tarball of a single directory named with the run ID")
+			err = "Submission should be a compressed archive of a single directory named with the run ID"
+			self._publish_init_failure(err)
+			raise ValueError(err)
 
     
 	def _validate_and_upload(self, directory, task, prefix):
@@ -289,8 +344,7 @@ class Initialize:
 
 			# NIST direcotry required, do not upload INTER-TA if NIST does not exist
 			if not self._check_nist_directory(id_dir):
-				#TODO Possibly raise here 
-				logging.error("Task 1 submission format is invalid. Could not locate NIST directory")
+				logging.error("Task {0} submission format is invalid. Could not locate NIST directory".format(str(task.value)))
 
 			else:
 				j = self._upload_formatted_submission(id_dir, prefix, self.NIST, task)
@@ -330,7 +384,7 @@ class Initialize:
 		"""
 		job = {}
 		bucket_prefix = self.s3_validation_prefix + '/' + prefix + '-' + validation_type['name']
-		logging.info("Task 1 submission %s directory exists. Uploading .ttl files to %s", 
+		logging.info("Task %s submission %s directory exists. Uploading .ttl files to %s", str(task.value),
 			validation_type['directory'], self.s3_validation_bucket + '/' + bucket_prefix)
 
 		# inspect the current directory for .ttl files
@@ -340,7 +394,7 @@ class Initialize:
 		if not self._check_for_duplicates(ttls):
 
 			if len(ttls) == 0:
-				logging.error("No .ttl files found in Task 1 submission %s directory", validation_type['directory'])
+				logging.error("No .ttl files found in Task %s submission %s directory", str(task.value), validation_type['directory'])
 			else:
 				for path in ttl_paths:
 					self._upload_file_to_s3(path, self.s3_validation_bucket, bucket_prefix)
@@ -430,6 +484,21 @@ class Initialize:
 		:rtype: bool
 		"""
 		return os.path.exists(directory + "/" + self.NIST['directory'])
+
+
+	def _check_nist_directory_has_ttl(self, directory):
+		"""Helper function that will determine if there are any ttl files in the NIST
+		directory.
+
+		:param str directory: The run directory to validate against
+		:returns: True if NIST directory has .ttl files, False otherwise
+		:rtype: bool 
+		"""
+		ttls_paths = (glob.glob(directory + "/" + self.NIST['directory'] + '/*.ttl'))
+
+		if len([ Path(x).name for x in ttls_paths ]) > 0:
+			return True
+		return False
 
 
 	def _check_inter_ta_directory(self, directory):
