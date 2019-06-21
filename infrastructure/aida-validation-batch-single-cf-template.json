@@ -67,7 +67,7 @@
     	"ComputeEnvironmentAMIId":{
     	    "Type": "String",
     	    "Description": "Supply a valid custom AMI Id to use for the nodes",
-    	    "Default": "ami-0392243fbdb94d842"
+    	    "Default": "ami-0e35c4788eedd46d4"
     	},
         "ComputeNodes": {
             "Type": "Number",
