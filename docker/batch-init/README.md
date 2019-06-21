@@ -33,9 +33,9 @@ $ docker version -f '{{.Server.Experimental}}'
 
 The Batch Initializer assumes that the Batch Single Docker container has been deployed to ECR and the AWS Batch infrastructure has been appropriate deployed via CloudFormation. For more information on Batch Single, see the README.md in the `AIDA-Interchange-Format/docker/batch-single` directory. For more information on deploying the AWS Batch infrastructure with CloudFormation, see the README.md in `AIDA-Interchange-Format/infrastructure` directory. 
 
-## Batch Intializer
+## Batch Initializer
 
-The Batch Initializer Docker image is responsible for taking in a single AIF Validation archive submission, running validation on the submission contents and format, and submitting jobs to AWS Batch for validation. Also included in this repository is the Batch Scheduler Docker image. Batch Scheduler Docker is an extension of the Batch Initializter and is used for running Batch initializations on more than one AIF Validation archive submission that is stored on S3. See [Batch Scheduler](#Batch-Scheduler). 
+The Batch Initializer Docker image is responsible for taking in a single AIF Validation archive submission, running validation on the submission contents and format, and submitting jobs to AWS Batch for validation. Also included in this repository is the Batch Scheduler Docker image. Batch Scheduler Docker is an extension of the Batch Initializer and is used for running Batch initializations on more than one AIF Validation archive submission that is stored on S3. See [Batch Scheduler](#Batch-Scheduler). 
 
 ### Building Batch Initialization Docker image
 
@@ -73,7 +73,7 @@ $ ./run.sh
 
 ## Batch Scheduler
 
-Batch Scheduler Docker is an extension of the Batch Initializter which can be used for running Batch Initializations on more than one AIF Validation archive submission that is stored on S3. The only requirement for the Batch Scheduler is that all of the AIF submission archives must live in the same S3 object path. You do not need to build or deploy the Batch Initlaizer to use the Batch Scheduler. All Batch Initlizer logic will be included in the build Batch Scheduler Docker image. 
+Batch Scheduler Docker is an extension of the Batch Initializer which can be used for running Batch Initializations on more than one AIF Validation archive submission that is stored on S3. The only requirement for the Batch Scheduler is that all of the AIF submission archives must live in the same S3 object path. You do not need to build or deploy the Batch Initializer to use the Batch Scheduler. All Batch Initializer logic will be included in the build Batch Scheduler Docker image. 
 
 ### Building Batch Scheduler Docker image
 
@@ -117,8 +117,8 @@ crontab -e
 
 Once the crontab editor has opened, add the following line and save. You will need to replace `<your-path>` with the the full path to the `run-scheduler.sh` script on your machine. By default, the log of the cron job will be placed in `/tmp/run-scheduler.log`. You can update this path to write the logs to any valid path on your machine. 
 
-Cron is driven by a time specification denoted by the five `*` at the beginning of the command. To specify a time when you would like your `run-scehduler.sh` script to be executed you will need to modify this command. More information on this specification can be found on the [Cron](https://en.wikipedia.org/wiki/Cron) wiki.
+Cron is driven by a time specification denoted by the five `*` at the beginning of the command. To specify a time when you would like your `run-scheduler.sh` script to be executed you will need to modify this command. More information on this specification can be found on the [Cron](https://en.wikipedia.org/wiki/Cron) wiki.
 
 ```bash
-* * * * * <your-path>/docker/batch-init/run-scheduler.sh >> /tmp/run-scehduler.log 2>&1
+* * * * * <your-path>/docker/batch-init/run-scheduler.sh >> /tmp/run-scheduler.log 2>&1
 ```

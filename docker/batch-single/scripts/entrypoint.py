@@ -1,5 +1,6 @@
 import os
 import logging
+import shutil
 import main as main_node
 import worker as worker_node
 
@@ -11,6 +12,13 @@ def main():
 
     # set logging to log to stdout
     logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO'))
+
+
+    total, used, free = shutil.disk_usage("/")
+
+    logging.info("Total: %d GB", (total // (2**30)))
+    logging.info("Used: %d GB", (used // (2**30)))
+    logging.info("Free: %d GB", (free // (2**30)))
 
     if envs['AWS_BATCH_JOB_MAIN_NODE_INDEX'] == envs['AWS_BATCH_JOB_NODE_INDEX']:
 
