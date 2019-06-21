@@ -7,6 +7,11 @@
                 "Ref": "BatchComputeEnvironment"
             }
         },
+        "ComputeEnvironmentAMIId": {
+            "Value": {
+                "Ref": "ComputeEnvironmentAMIId"
+            }
+        },
         "BatchSecurityGroup": {
             "Value": {
                 "Ref": "BatchSecurityGroup"
