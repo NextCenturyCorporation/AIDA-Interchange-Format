@@ -1,6 +1,6 @@
 """
 aida_m18_submission_checker.py
-June 20th, 2019
+June 21st, 2019
 
 to run:
     python3 aida_m18_submission_checker.py <path/to/archive>
