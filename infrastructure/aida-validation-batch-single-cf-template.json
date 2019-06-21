@@ -1,0 +1,579 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Creates an AIF Validation AWS Batch environment",
+    "Outputs": {
+        "BatchComputeEnvironment": {
+            "Value": {
+                "Ref": "BatchComputeEnvironment"
+            }
+        },
+        "BatchSecurityGroup": {
+            "Value": {
+                "Ref": "BatchSecurityGroup"
+            }
+        },
+        "JobQueue": {
+            "Value": {
+                "Ref": "BatchJobQueue"
+            }
+        },
+        "JobDefinition": {
+            "Value": {
+                "Ref": "BatchJobDefinition"
+            }
+        },
+        "BatchInstanceRole": {
+            "Value": {
+                "Ref": "BatchInstanceRole"
+            }
+        },
+        "BatchServiceRole": {
+            "Value": {
+                "Ref": "BatchServiceRole"
+            }
+        },
+        "BatchTaskRole": {
+            "Value": {
+                "Ref": "BatchTaskRole"
+            }
+        }
+    },
+    "Parameters": {
+        "Release": {
+            "Type": "String",
+            "Description": "Release Identifier",
+            "Default": "develop"
+        },
+        "ComputeEnvironment": {
+            "Type": "String",
+            "Description": "Environment Name",
+            "Default": "aida-validation-cf-compute"
+        },
+        "ComputeEnvironmentMaxVCpus": {
+            "Type": "Number",
+            "Description": "The maximum number of vcpus for the compute environment.",
+            "Default": 300
+        },
+        "ComputeEnviornmentMinVCpus": {
+            "Type": "Number",
+            "Description": "The minimum number of vcpus for the compute environment.",
+            "Default": 0
+        },
+        "ComputeEnvironmentDesiredVCpus": {
+            "Type": "Number",
+            "Description": "The desired number of vcpus for the compute environment.",
+            "Default": 0
+        },
+    	"ComputeEnvironmentAMIId":{
+    	    "Type": "String",
+    	    "Description": "Supply a valid custom AMI Id to use for the nodes",
+    	    "Default": "ami-0392243fbdb94d842"
+    	},
+        "ComputeNodes": {
+            "Type": "Number",
+            "Description": "The total number for nodes for the validation batch job.",
+            "Default": 2
+        },
+        "MainNodeRange": {
+            "Type": "String",
+            "Description": "The target node range for the main node (e.g. 0:0).",
+            "Default": "0:0"
+        },
+        "MainNodeMemory": {
+            "Type": "Number",
+            "Description": "The amount of memory for the main node (e.g. 2048).",
+            "Default": 4096
+        },
+        "MainNodeVcpus": {
+            "Type": "Number",
+            "Description": "The number of VCPUs for the main node (e.g. 2).",
+            "Default": 2
+        },
+        "WorkerNodeRange": {
+            "Type": "String",
+            "Description": "The target node range for the main node (e.g. 1:1).",
+            "Default": "1:1"
+        },
+        "WorkerNodeMemory": {
+            "Type": "Number",
+            "Description": "The amount of memory for the worker nodes (e.g. 2048).",
+            "Default": 4096
+        },
+        "MainNodeVcpus": {
+            "Type": "Number",
+            "Description": "The number of VCPUs for the main nodes (e.g. 2).",
+            "Default": 2
+        },
+        "WorkerNodeVcpus": {
+            "Type": "Number",
+            "Description": "The number of VCPUs for the worker nodes (e.g. 2).",
+            "Default": 2
+        },
+        "JobQueueName": {
+            "Type": "String",
+            "Description": "Name of the Queue to be created",
+            "Default": "aida-validation-cf-queue"
+        },
+        "JobQueuePriority": {
+            "Type": "Number",
+            "Description": "The priority of the job queue.",
+            "Default": 1
+        },
+        "JobDefinitionName": {
+            "Type": "String",
+            "Description": "Name of the Job Definition to be created",
+            "Default": "aida-validation-batch-single-cf-job"
+        },
+        "Ec2KeyPair": {
+            "Type": "AWS::EC2::KeyPair::KeyName",
+            "Description": "Ec2KeyPair to use for Compute Environment",
+            "Default": "AIDA-All"
+        },
+        "MainEc2InstanceType": {
+            "Type": "String",
+            "Description": "The EC2 instance type for the main node",
+            "Default": "m4.large"
+        },
+        "WorkerEc2InstanceType": {
+            "Type": "String",
+            "Description": "The EC2 instance type for the worker node",
+            "Default": "m4.large"
+        },
+        "MainContainerImage": {
+            "Type": "String",
+            "Description": "The location of the main container image located in ECR",
+            "Default": "606941321404.dkr.ecr.us-east-1.amazonaws.com/batch-single:latest" 
+        },
+        "WorkerContainerImage": {
+            "Type": "String",
+            "Description": "The location of the main container image located in ECR",
+            "Default": "606941321404.dkr.ecr.us-east-1.amazonaws.com/batch-single:latest"
+        },
+        "EnvS3SubmissionArchive": {
+            "Type": "String",
+            "Description": "The S3 tar.gz, .tgz, .zip object to validate"
+        },
+        "EnvS3SubmissionBucket": {
+            "Type": "String",
+            "Description": "The S3 bucket for the AIF Validation submission"
+        },
+        "EnvS3SubmissionPrefix": {
+            "Type": "String",
+            "Description": "The S3 bucket prefix for the AIF Validation submission"
+        },
+        "EnvS3SubmissionValidationDescr": {
+            "Type": "String",
+            "Description": "The AIF Validation type description that will be applied to the submission"
+        },
+        "EnvS3SubmissionTask": {
+            "Type": "String",
+            "Description": "The task type of the submission"
+        },
+        "EnvS3SubmissionExtracted": {
+            "Type": "Number",
+            "Description": "The total number of turtle (ttl) files that were in the submission",
+            "Default": 0
+        },
+        "EnvS3ValidationBucket": {
+            "Type": "String",
+            "Description": "The S3 bucket that will contain all validation output"
+        },
+        "EnvMainSleepInterval": {
+            "Type": "Number",
+            "Description": "The number of seconds to wait before checking if all worker jobs have completed",
+            "Default": 20
+        },
+	    "EnvMainWorkerInitTimeout": {
+	        "Type": "Number",
+            "Description": "The time in seconds to wait for worker batch jobs to initialize beofe terminating",
+            "Default": 600
+	    },
+        "EnvAwsDefaultRegion": {
+            "Type": "String",
+            "Description": "The default region to use when calling aws services",
+            "Default": "us-east-1"
+        },
+        "EnvAwsSnsTopicArn": {
+            "Type": "String",
+            "Description": "The SNS topic ARN for the current submission"
+        },
+        "EnvQueueInitTimeout": {
+            "Type": "Number",
+            "Description": "The number of seconds to wait for the SQS queue to initialize",
+            "Default": 3600
+        },
+        "EnvValidationTimeout": {
+            "Type": "Number",
+            "Description": "The number of seconds to wait for a single validation to complete before timing out",
+            "Default": 28800
+        },
+    	"EnvValidationHome": {
+    	    "Type": "String",
+                "Description": "The local path of the AIF Validator on the docker container",
+                "Default": "/opt/aif-validator"
+    	},
+    	"EnvValidationFlags": {
+    	    "Type": "String",
+                "Description": "A single string that contains the flags to pass to the AIF Validator upon execution",
+                "Default": "--ldc --nist -o"
+    	}
+    },
+    "Resources": {
+        "BatchComputeEnvironment": {
+            "Type": "AWS::Batch::ComputeEnvironment",
+            "Properties": {
+                "ComputeEnvironmentName" : {
+                    "Ref": "ComputeEnvironment"
+                },
+                "ComputeResources": {
+		    "ImageId": {
+			"Ref": "ComputeEnvironmentAMIId"
+		    },
+                    "DesiredvCpus": {
+                        "Ref": "ComputeEnvironmentDesiredVCpus"
+                    },
+                    "InstanceRole": {
+                        "Ref": "BatchInstanceProfile"
+                    },
+                    "InstanceTypes": [
+                        "m4.large"
+                    ],
+                    "MaxvCpus": {
+                        "Ref": "ComputeEnvironmentMaxVCpus"
+                    },
+                    "MinvCpus": {
+                        "Ref": "ComputeEnviornmentMinVCpus"
+                    },
+                    "SecurityGroupIds": [
+                        {
+                            "Fn::GetAtt": [
+                                "BatchSecurityGroup",
+                                "GroupId"
+                            ]
+                        }
+                    ],
+                    "Subnets": [
+                        { "Fn::ImportValue": "aida-validation-private-subnet-a" },
+                        { "Fn::ImportValue": "aida-validation-private-subnet-b" },
+                        { "Fn::ImportValue": "aida-validation-private-subnet-c" },
+                        { "Fn::ImportValue": "aida-validation-private-subnet-d" },
+                        { "Fn::ImportValue": "aida-validation-private-subnet-e" },
+                        { "Fn::ImportValue": "aida-validation-private-subnet-f" }
+                    ]
+                    ,
+                    "Tags": {
+                        "Name": "aida-batch-compute-environment",
+                        "Project": "AIDA"
+                    },
+                    "Ec2KeyPair": {
+                        "Ref": "Ec2KeyPair"
+                    },
+                    "Type": "EC2"
+                },
+                "ServiceRole": {
+                    "Ref": "BatchServiceRole"
+                },
+                "State": "Enabled",
+                "Type": "MANAGED"
+            }
+        },
+        "BatchInstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Path": "/",
+                "Roles": [
+                    {
+                        "Ref": "BatchInstanceRole"
+                    }
+                ]
+            }
+        },
+        "BatchInstanceRole": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Action": [
+                                "sts:AssumeRole"
+                            ],
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "ec2.amazonaws.com"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+                    "arn:aws:iam::aws:policy/AmazonSQSFullAccess",
+                    "arn:aws:iam::aws:policy/AWSBatchFullAccess",
+                    "arn:aws:iam::aws:policy/AmazonSNSFullAccess",
+                    "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+                ],
+                "Path": "/",
+                "Policies": [
+                ]
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "BatchTaskRole": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Action": [
+                                "sts:AssumeRole"
+                            ],
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "ecs-tasks.amazonaws.com"
+                            }
+                        }
+                    ]
+                },
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+                    "arn:aws:iam::aws:policy/AmazonSQSFullAccess",
+                    "arn:aws:iam::aws:policy/AWSBatchFullAccess",
+                    "arn:aws:iam::aws:policy/AmazonSNSFullAccess"
+                ],
+                "Path": "/",
+                "Policies": [
+                ]
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "BatchServiceRole": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "sts:AssumeRole"
+                            ],
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "batch.amazonaws.com"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/service-role/AWSBatchServiceRole"
+                ],
+                "Path": "/",
+                "Policies": []
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "BatchSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Enable access to Batch instances",
+                "SecurityGroupEgress": {
+                    "CidrIp": "0.0.0.0/0",
+                    "IpProtocol": "-1"
+                },
+                "SecurityGroupIngress": {
+                    "CidrIp": {
+                        "Fn::ImportValue": "aida-validation-vpc-cidr"
+                    },
+                    "IpProtocol": "tcp",
+                    "FromPort": "22",
+                    "ToPort": "22"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "aida-validation-batch-sg"
+                    }
+                ],
+                "VpcId": {
+                    "Fn::ImportValue": "aida-validation-vpc-id"
+                }
+            }
+        },
+        "BatchJobQueue": {
+            "Type": "AWS::Batch::JobQueue",
+            "Properties": {
+                "ComputeEnvironmentOrder": [
+                    {
+                        "ComputeEnvironment": {
+                            "Ref": "BatchComputeEnvironment"
+                        },
+                        "Order": 1
+                    }
+                ],
+                "JobQueueName": {
+                    "Ref": "JobQueueName"
+                },
+                "Priority": {
+                    "Ref": "JobQueuePriority"
+                },
+                "State": "ENABLED"
+            },
+            "DependsOn": "BatchComputeEnvironment"
+        },
+        "BatchJobDefinition": {
+            "Type" : "AWS::Batch::JobDefinition",
+            "Properties" : {
+                "JobDefinitionName" : {
+                    "Ref": "JobDefinitionName"
+                },
+                "Parameters": {},
+                "RetryStrategy": {
+                    "Attempts": 1
+                },
+                "NodeProperties": {
+                    "MainNode": 0,
+                    "NumNodes": {
+                        "Ref": "ComputeNodes"
+                    },
+                    "NodeRangeProperties": [
+                        {
+                            "TargetNodes": {
+                                "Ref": "MainNodeRange"
+                            },
+                            "Container": {
+                                "Command" : [],
+                                "Environment":  [
+                                    { 
+                                        "Name": "S3_SUBMISSION_ARCHIVE",
+                                        "Value": { "Ref": "EnvS3SubmissionArchive" }
+                                    },
+                                    {
+                                        "Name": "S3_SUBMISSION_VALIDATION_DESCR",
+                                        "Value": { "Ref": "EnvS3SubmissionValidationDescr"}
+                                    },
+                                    {
+                                        "Name": "S3_VALIDATION_BUCKET",
+                                        "Value": { "Ref": "EnvS3ValidationBucket" }
+                                    },
+                                    {
+                                        "Name": "S3_SUBMISSION_BUCKET",
+                                        "Value": { "Ref": "EnvS3SubmissionBucket" }
+                                    },
+                                    {
+                                        "Name": "S3_SUBMISSION_PREFIX",
+                                        "Value": { "Ref": "EnvS3SubmissionPrefix" }
+                                    },
+                                    {
+                                        "Name": "S3_SUBMISSION_TASK",
+                                        "Value": { "Ref": "EnvS3SubmissionTask" }
+                                    },
+                                    {
+                                        "Name": "S3_SUBMISSION_EXTRACTED",
+                                        "Value": { "Ref": "EnvS3SubmissionExtracted" }
+                                    },
+                                    {
+                                        "Name": "MAIN_SLEEP_INTERVAL",
+                                        "Value": { "Ref": "EnvMainSleepInterval" }
+                                    },
+                				    {
+                				        "Name": "WORKER_INIT_TIMEOUT",
+                					    "Value": { "Ref": "EnvMainWorkerInitTimeout" }
+                				    },
+                                    {
+                                        "Name": "AWS_DEFAULT_REGION",
+                                        "Value": { "Ref": "EnvAwsDefaultRegion" }
+                                    },
+                                    {
+                                        "Name": "AWS_SNS_TOPIC_ARN",
+                                        "Value": { "Ref": "EnvAwsSnsTopicArn" }
+                                    },
+                                    {
+                                        "Name": "DEBUG",
+                                        "Value": "False"
+                                    }
+                                ],
+                                "Image" : {
+                                    "Ref": "MainContainerImage"
+                                },
+                                "InstanceType" : {
+                                    "Ref": "MainEc2InstanceType"
+                                },
+                                "JobRoleArn" : {
+                                    "Ref": "BatchTaskRole"
+                                },
+                                "Memory" : {
+                                    "Ref": "MainNodeMemory"
+                                },
+                                "MountPoints" : [],
+                                "Privileged" : "True",
+                                "ReadonlyRootFilesystem" : "False",
+                                "ResourceRequirements" : [],
+                                "Ulimits" : [],
+                                "Vcpus" : {
+                                    "Ref": "MainNodeVcpus"
+                                },
+                                "Volumes" : []
+                            }
+                        },
+                        {
+                            "TargetNodes": {
+                                "Ref": "WorkerNodeRange"
+                            },
+                            "Container": {
+                                "Command" : [],
+                                "Environment":  [
+                                    { 
+                                        "Name": "QUEUE_INIT_TIMEOUT",
+                                        "Value": { "Ref": "EnvQueueInitTimeout" }
+                                    },
+                                    {
+                                        "Name": "VALIDATION_TIMEOUT",
+                                        "Value": { "Ref": "EnvValidationTimeout" }
+                                    },
+                				    {
+                				        "Name": "VALIDATION_HOME",
+                                        "Value": { "Ref": "EnvValidationHome" }
+                				    },
+                				    {
+                                        "Name": "VALIDATION_FLAGS",
+                                        "Value": { "Ref": "EnvValidationFlags" }
+                				    },
+                                    {
+                                        "Name": "S3_VALIDATION_BUCKET",
+                                        "Value": { "Ref": "EnvS3ValidationBucket" }
+                                    },
+                                    {
+                                        "Name": "S3_SUBMISSION_BUCKET",
+                                        "Value": { "Ref": "EnvS3SubmissionBucket" }
+                                    }
+                                ],
+                                "Image" : {
+                                    "Ref": "WorkerContainerImage"
+                                },
+                                "InstanceType" : {
+                                    "Ref": "WorkerEc2InstanceType"
+                                },
+                                "JobRoleArn" : {
+                                    "Ref": "BatchTaskRole"
+                                },
+                                "Memory" : {
+                                    "Ref": "WorkerNodeMemory"
+                                },
+                                "MountPoints" : [],
+                                "Privileged" : "True",
+                                "ReadonlyRootFilesystem" : "False",
+                                "ResourceRequirements" : [],
+                                "Ulimits" : [],
+                                "Vcpus" : {
+                                    "Ref": "WorkerNodeVcpus"
+                                },
+                                "Volumes" : []
+                            }
+                        }
+                    ]
+                },
+                "Type" : "multinode"
+            }
+        }
+    }
+}
