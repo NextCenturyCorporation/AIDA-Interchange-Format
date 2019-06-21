@@ -121,7 +121,7 @@ public class ScalingTest {
         JustifyTypeAssertions           (0.3),
         // Each entity/filler name string is limited to 256 UTF-8 characters
         NameMaxLength                   (0.3),
-        // Each entity/filler name string is limited to 256 UTF-8 characters
+        // Justifications require a source document and a source
         JustificationSourceAndSourceDocument  (0.3);
 
         private final double frequency;
