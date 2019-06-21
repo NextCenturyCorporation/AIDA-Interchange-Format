@@ -181,7 +181,7 @@
 	    "EnvMainWorkerInitTimeout": {
 	        "Type": "Number",
             "Description": "The time in seconds to wait for worker batch jobs to initialize beofe terminating",
-            "Default": 300
+            "Default": 600
 	    },
         "EnvAwsDefaultRegion": {
             "Type": "String",
