@@ -18,7 +18,8 @@ class Main:
     # Initializer / Instance Attributes
     def __init__(self, envs):
         
-        self.bucket = envs['S3_VALIDATION_BUCKET']
+        self.s3_validation_bucket = envs['S3_VALIDATION_BUCKET'] 
+        self.s3_validation_prefix = envs['S3_VALIDATION_PREFIX']
         self.s3_submission_archive = envs['S3_SUBMISSION_ARCHIVE']
         self.s3_submission_task = envs['S3_SUBMISSION_TASK']
         self.s3_submission_bucket= envs['S3_SUBMISSION_BUCKET']
@@ -61,8 +62,12 @@ class Main:
         init_msg = self._generate_init_report()
         self._publish_sns_message(init_msg)
 
-        self._bucket_exists()
-        objects = self._create_s3_object_list()
+        # check that both the submission bucket and validation bucket exists 
+        self._bucket_exists(self.s3_validation_bucket)
+        self._bucket_exists(self.s3_submission_bucket)
+
+        # get all objects in the submission bucket
+        objects = self._create_s3_object_list(self.s3_submission_bucket, self.s3_submission_prefix)
 
         # create SQS queue and populate
         queue_url = self._create_sqs_queue()
@@ -76,9 +81,9 @@ class Main:
             self._wait_for_processing()
 
         # download all validation files from s3 for the current job
-        results_path = self.s3_submission_prefix
+        results_path = Path(self.s3_submission_prefix).stem
         results_tar = results_path + '.tar.gz'
-        self._sync_s3_bucket(results_path)
+        self._sync_s3_bucket(self.s3_validation_bucket, self.s3_validation_prefix, results_path)
 
         # validate processed files
         self._verify_validation(results_path)
@@ -89,9 +94,8 @@ class Main:
 
         # create results and upload to validation bucket
         self._create_results_tarfile(results_tar, results_path)
-        self._upload_file_to_s3(results_tar)
+        self._upload_file_to_s3(results_tar, self.s3_validation_bucket, self.s3_validation_prefix)
 
-    
         self._publish_sns_message(report)
 
         # clean up sqs queue and s3 validation staging data
@@ -113,9 +117,11 @@ class Main:
         return report
 
 
-    def _bucket_exists(self):
+    def _bucket_exists(self, s3_bucket):
         """Helper function that will check if a validation bucket
         exists.
+
+        :param str s3_bucket: The bucket to check 
         :returns: True if bucket exists, False otherwise
         :raises ClientError: S3 resource exception
         :raises ValueError: The validation bucket does not exist
@@ -123,11 +129,11 @@ class Main:
         s3 = self.session.resource('s3')
 
         try:
-            logging.info("Checking if validation bucket %s exists", self.bucket)
+            logging.info("Checking if validation bucket %s exists", s3_bucket)
 
-            bucket = s3.Bucket(self.bucket)
+            bucket = s3.Bucket(s3_bucket)
             if bucket.creation_date is None:
-                raise ValueError("Validation bucket {0} does not exist".format(self.bucket))
+                raise ValueError("Validation bucket {0} does not exist".format(s3_bucket))
 
         except ClientError as e:
             logging.error(e)
@@ -139,10 +145,13 @@ class Main:
             raise
 
 
-    def _create_s3_object_list(self):
+    def _create_s3_object_list(self, s3_bucket, s3_bucket_prefix):
         """Function will create a list of all the s3 object paths for the files in the 
         s3 submission path. If no objects are found in the s3 bucket / prefix, an 
         exception is thrown.
+
+        :param str s3_bucket: The s3 bucket to create object list from
+        :param str s3_bucket_prefix: The prefix of the s3 files to generate list from
         :raises ClientError: S3 resource exception
         :raises ValueError: The validation bucket does not exist
         """
@@ -151,15 +160,15 @@ class Main:
 
         try:
             logging.info("Creating list of s3 objects to add to SQS from %s", 
-                self.s3_submission_bucket + '/' + self.s3_submission_prefix)
-            bucket = s3.Bucket(self.s3_submission_bucket)
+                s3_bucket + '/' + s3_bucket_prefix)
+            bucket = s3.Bucket(s3_bucket)
             
-            for o in bucket.objects.filter(Prefix=self.s3_submission_prefix):
+            for o in bucket.objects.filter(Prefix=s3_bucket_prefix):
                 objects.append(o.key)
 
             if len(objects) == 0:
                 raise ValueError("No s3 objects found in {0}/{1}"
-                    .format(self.s3_submission_bucket, self.s3_submission_prefix))
+                    .format(s3_bucket, s3_bucket_prefix))
             return objects
 
         except ClientError as e:
@@ -175,6 +184,7 @@ class Main:
     def _publish_sns_message(self, message):
         """Function will publish message on to the SNS topic specified by
         the topic arn.
+
         :param str message: The message to publish
         """
         sns = self.session.client('sns')
@@ -194,6 +204,7 @@ class Main:
     def _publish_failure_message(self, message):
         """Helper function that will publish failure message to SNS if an unrecoverable error
         occurs before processing begins.
+
         param: str message: The failure message to publish
         """
         heading = "The job {0} for the task {1} submission {2} failed against {3} validation the with" \
@@ -204,6 +215,7 @@ class Main:
 
     def _create_sqs_queue(self):
         """Creates SQS FIFO queue with specified name.
+
         :return: The SQS queue url
         :rtype: str
         :raises ClientError: SQS client exception  
@@ -248,15 +260,16 @@ class Main:
         be used for processing validation. After all messages have processed and added to 
         the queue, a final source file will be uploaded with a suffix of '.queued' and the old
         source file will be removed from S3.
+
         :param str bucket_direcotry: The bucket and prefix directory that contains the unprocessed 
             ttl files
         :param str queue_url: The SQS queue url
         :raises ClientError: S3 client exception
         """
         for o in objects:
-            s3_object = '/'.join([self.job_id, 'UNPROCESSED', Path(o).name])
+            s3_object = '/'.join([self.s3_validation_prefix, self.job_id, 'UNPROCESSED', Path(o).name])
 
-            self._move_s3_object(self.s3_submission_bucket, o, s3_object)
+            self._move_s3_object(self.s3_submission_bucket, o, self.s3_validation_bucket, s3_object)
 
             # add the message to SQS
             response = self._add_sqs_message(queue_url, s3_object)
@@ -267,7 +280,8 @@ class Main:
                     f.write(s3_object + '\n')
 
                 # upload source log file to S3
-                self._upload_file_to_s3(self.source_log, self.job_id)
+                self._upload_file_to_s3(self.source_log, self.s3_validation_bucket, 
+                    self.s3_validation_prefix + '/' + self.job_id)
 
             else:
                 logging.error("Unable to add %s as SQS message", s3_object)
@@ -277,15 +291,19 @@ class Main:
             os.rename(self.source_log, self.source_log +'.queued')
 
             # upload file to S3
-            self._upload_file_to_s3(self.source_log +'.queued', self.job_id)
+            self._upload_file_to_s3(self.source_log +'.queued', self.s3_validation_bucket, 
+                self.s3_validation_prefix + '/' + self.job_id)
 
             # delete the old file
-            self._delete_s3_object('/'.join([self.job_id, self.source_log]))
+            self._delete_s3_object(self.s3_validation_bucket, '/'.join([self.s3_validation_prefix, self.job_id, self.source_log]))
 
 
-    def _move_s3_object(self, s3_source_bucket, s3_source_key, s3_object_dest):
+    def _move_s3_object(self, s3_source_bucket, s3_source_key, s3_dest_bucket, s3_object_dest):
         """Helper function that will move an S3 object within the validation bucket.
-        :param str s3_object: The s3 object to be moved
+        
+        :param str s3_source_bucket: The source bucket to move file from
+        :param str s3_source_key: The s3 file key to move
+        :param str s3_dest_bucket: The destination bucket
         :param str s3_object_dest: The new s3 object destination
         :raises ClientError: S3 resource exception
         """
@@ -297,9 +315,9 @@ class Main:
                 'Key': s3_source_key
             }
             logging.info("Moving s3 object %s from %s to %s ", 
-               s3_source_key, s3_source_bucket, self.bucket + '/' + s3_object_dest)
+               s3_source_key, s3_source_bucket, s3_dest_bucket + '/' + s3_object_dest)
 
-            s3.meta.client.copy(copy_source, self.bucket, s3_object_dest)
+            s3.meta.client.copy(copy_source, s3_dest_bucket, s3_object_dest)
             s3.Object(s3_source_bucket, s3_source_key).delete()
 
         except ClientError as e:
@@ -308,6 +326,7 @@ class Main:
 
     def _add_sqs_message(self, queue_url, s3_object):
         """Adds new message on SQS queue with the S3 object path.
+
         :param str queue_url: The SQS queue url
         :param str s3_object: The s3 object path to add to SQS
         :raises ClientError: SQS client exception
@@ -330,36 +349,40 @@ class Main:
             logging.error(e)
 
 
-    def _upload_file_to_s3(self, filepath, prefix=None):
+    def _upload_file_to_s3(self, filepath, s3_bucket, s3_bucket_prefix=None):
         """Helper function to upload single file to S3 bucket with specified prefix
+
         :param str filepath: The local path of the file to be uploaded
-        :param str prefix: The prefix to be added to the file name
+        :param str s3_bucket: The S3 bucket to upload file to
+        :param str s3_bucket_prefix: The prefix to give the S3 file being uploaded
         :raises ClientError: S3 client exception
         """
         s3_client = self.session.client('s3')
 
         try:
-            if prefix is not None:
-                s3_object = '/'.join([prefix, Path(filepath).name])
+            if s3_bucket_prefix is not None:
+                s3_object = '/'.join([s3_bucket_prefix, Path(filepath).name])
             else:
                 s3_object = Path(filepath).name
 
-            logging.info("Uploading %s to bucket %s", s3_object, self.bucket)
-            s3_client.upload_file(str(filepath), self.bucket, s3_object)
+            logging.info("Uploading %s to bucket %s", s3_object, s3_bucket)
+            s3_client.upload_file(str(filepath), s3_bucket, s3_object)
 
         except ClientError as e:
             logging.error(e)
 
 
-    def _delete_s3_object(self, s3_object):
+    def _delete_s3_object(self, s3_bucket, s3_object):
         """Deletes an S3 object from validation bucket.
+
+        :param str s3_bucket: The S3 bucket to delete object from
         :param str s3_object: The S3 object to delete
         :raises ClientError: S3 resource exception
         """
         s3 = self.session.resource('s3')
         try:
-            s3.Object(self.bucket, s3_object).delete()
-            logging.info("Deleted %s from s3 bucket %s", s3_object, self.bucket)
+            s3.Object(s3_bucket, s3_object).delete()
+            logging.info("Deleted %s from s3 bucket %s", s3_object, s3_bucket)
 
         except ClientError as e:
             logging.error(e)
@@ -370,6 +393,7 @@ class Main:
         AWS batch and allow for jobs to be processed for the specified amount of time set in 
         the [processing_timeout] parameter. Once that amount of time has elapsed this function will
         return true.
+
         :returns: True, always
         :rtype: bool
         """
@@ -387,6 +411,7 @@ class Main:
         query AWS batch for all current jobs with the specified job id. If the returned job 
         list has any jobs with the status of RUNNING (other than itself), it will sleep for 
         the specified interval and then execute the check again. 
+
         :raises ClientError: AWS batch client exception
         """
         batch_client = self.session.client('batch')
@@ -440,32 +465,36 @@ class Main:
             logging.error(e)
 
 
-    def _sync_s3_bucket(self, dest_path):
+    def _sync_s3_bucket(self, s3_bucket, s3_bucket_prefix, dest_path):
         """Helper function that will sync the s3 validation bucket with job id prefix to
         the current working directory.
+
+        :param str s3_bucket: The bucket to sync
+        :param str s3_bucket_prefx: The prefix of files to sync
         :param str dest_path: The local destination path where files will be synced to
         :raises CalledProcessError: Subprocess exception when executing aws cli sync
             command
         """
         try:
-            cmd = 'aws s3 sync s3://' + self.bucket + '/' + self.job_id + ' ' + dest_path
+            cmd = 'aws s3 sync s3://' + s3_bucket + '/' + s3_bucket_prefix + '/' + self.job_id + ' ' + dest_path
 
-            logging.info("Syncing S3 bucket %s with prefix %s", self.bucket, self.job_id)
+            logging.info("Syncing S3 bucket %s with prefix %s",s3_bucket, s3_bucket_prefix + '/' + self.job_id)
             #**********************
             # Requires python 3.7+ *
             #**********************
             output = subprocess.run(cmd, check=True, shell=True)
             logging.info("Successfully downloaded all files from s3 bucket %s with prefix %s", 
-                self.bucket, self.job_id)
+                s3_bucket, s3_bucket_prefix + '/' + self.job_id)
             
         except CalledProcessError as e:
             logging.error("Error [%s] occurred when syncing s3 bucket %s with prefix %s", 
-                str(e.returncode), self.bucket, self.job_id)
+                str(e.returncode), s3_bucket, s3_bucket_prefix + '/' + self.job_id)
 
 
     def _verify_validation(self, results_path):
         """Verifies that all files enqueued on SQS were accounted for in the 
         resulting S3 bucket after validation. 
+
         :param str results_path: The local path of the sync'd s3 bucket
         :returns: True if all files are account for, False otherwise
         :rtype: bool
@@ -517,6 +546,7 @@ class Main:
 
     def _create_results_tarfile(self, filename, source_dir):
         """Creates a tar file of the source directory that contains the job results.
+
         :param str filename: The name of the tar file to be created
         :param str source_dir: The directory to be compressed
         """
@@ -524,17 +554,19 @@ class Main:
             tar.add(source_dir, arcname=os.path.basename(source_dir))
 
 
-    def _delete_s3_objects_with_prefix(self, prefix):
-        """Deletes all S3 objects from validation bucket with specified prefix
-        :param str prefix: The prefix that all the S3_objects must have in order to be
+    def _delete_s3_objects_with_prefix(self, s3_bucket, s3_prefix):
+        """Deletes all S3 objects from bucket with specified prefix
+
+        :param str s3_bucket: The s3 bucket to delete from
+        :param str s3_prefix: The prefix that all the S3_objects must have in order to be
             deleted
         :raises ClientError: S3 resource exception
         """
         s3 = self.session.resource('s3')
         try:
-            bucket = s3.Bucket(self.bucket)
+            bucket = s3.Bucket(s3_bucket)
             objects_to_delete = []
-            for obj in bucket.objects.filter(Prefix=prefix + '/'):
+            for obj in bucket.objects.filter(Prefix=s3_prefix + '/'):
                 objects_to_delete.append({'Key': obj.key})
 
             if len(objects_to_delete) > 0:
@@ -553,6 +585,7 @@ class Main:
 
     def _delete_sqs_queue(self, queue_url):
         """Deletes SQS queue at specified queue url.
+
         :param str queue_url: The SQS queue url of queue to be deleted
         :raises ClientError: SQS client exception
         """
@@ -573,6 +606,7 @@ class Main:
     def _get_results_metrics(self, results_path):
         """Function will inspect sync'd S3 directory and count and store results 
         for each validation category.
+
         :param str results_path: The local path of the sync'd s3 directory
         :returns: Dictionary of validation metrics found
         :rtype: dict
@@ -590,7 +624,8 @@ class Main:
 
     def _create_validation_report(self, metrics, results_archive, results_path):
         """Function will generate the final validation report that will be sent in an SNS
-        message. 
+        message.
+
         :param dict metrics: The counts of each validation category 
         :param str results_archive: The name of the final results archive that will be 
             uploaded to s3. 
@@ -602,8 +637,10 @@ class Main:
         report += "\nTASK TYPE: {0}".format(self.s3_submission_task)
         report += "\nVALIDATION TYPE: {0}".format(self.s3_submission_validation_descr)
         report += "\nTTL FILE COUNT: {0}".format(self.extracted)
-        report += "\nRESULTS ARCHIVE: https://{0}.s3.amazonaws.com/{1}".format(self.bucket, results_archive)
-        report += "\nRESULTS BUCKET: https://{0}.s3.amazonaws.com/{1}".format(self.bucket, self.job_id)
+        report += "\nRESULTS ARCHIVE: located in s3: {0}".format(
+            self.s3_validation_bucket + '/' + self.s3_validation_prefix + '/' + results_archive)
+        report += "\nRESULTS ARCHIVE EXTRACTED: located in s3 {0}".format(
+            self.s3_validation_bucket + '/' + self.s3_validation_prefix + '/' + self.job_id)
         report += "\nVERIFICATION SUMMARY: {0}".format(self.verification)
 
         report += "\n\nVALIDATION SUMMARY:"
@@ -627,19 +664,21 @@ class Main:
 
 def read_envs():
     """Function will read in all environment variables into a dictionary
+
     :returns: Dictionary containing all environment variables or defaults
     :rtype: dict
     """
     envs = {}
     envs['S3_SUBMISSION_ARCHIVE'] = os.environ.get('S3_SUBMISSION_ARCHIVE')
     envs['S3_VALIDATION_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET')
+    envs['S3_VALIDATION_PREFIX'] = os.environ.get('S3_VALIDATION_PREFIX')
     envs['S3_SUBMISSION_TASK'] = os.environ.get('S3_SUBMISSION_TASK')
     envs['S3_SUBMISSION_EXTRACTED'] = os.environ.get('S3_SUBMISSION_EXTRACTED')
     envs['S3_SUBMISSION_BUCKET'] = os.environ.get('S3_SUBMISSION_BUCKET')
     envs['S3_SUBMISSION_PREFIX'] = os.environ.get('S3_SUBMISSION_PREFIX')
     envs['S3_SUBMISSION_VALIDATION_DESCR'] = os.environ.get('S3_SUBMISSION_VALIDATION_DESCR')
     envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID')
-    envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX', '0')
+    envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX')
     envs['MAIN_SLEEP_INTERVAL'] = os.environ.get('MAIN_SLEEP_INTERVAL', '30')
     envs['WORKER_INIT_TIMEOUT'] = os.environ.get('WORKER_INIT_TIMEOUT', '300')
     envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
@@ -652,6 +691,7 @@ def read_envs():
 def validate_envs(envs: dict):
     """Helper function to validate all of the environment variables exist and are valid before
     processing starts.
+
     :param dict envs: Dictionary of all environment variables
     :returns: True if all environment variables are valid, False otherwise
     :rtype: bool
@@ -701,6 +741,7 @@ def validate_envs(envs: dict):
 
 def is_env_set(env, value):
     """Helper function to check if a specific environment variable is not None
+
     :param str env: The name of the environment variable
     :param str value: The value of the environment variable
     :returns: True if environment variable is set, False otherwise
@@ -732,3 +773,4 @@ def main():
 
 
 if __name__ == "__main__": main()
+

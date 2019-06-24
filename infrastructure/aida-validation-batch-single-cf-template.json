@@ -77,7 +77,7 @@
         "MainNodeMemory": {
             "Type": "Number",
             "Description": "The amount of memory for the main node (e.g. 2048).",
-            "Default": 2048
+            "Default": 4096
         },
         "MainNodeVcpus": {
             "Type": "Number",
@@ -92,7 +92,7 @@
         "WorkerNodeMemory": {
             "Type": "Number",
             "Description": "The amount of memory for the worker nodes (e.g. 2048).",
-            "Default": 2048
+            "Default": 4096
         },
         "MainNodeVcpus": {
             "Type": "Number",
@@ -146,8 +146,7 @@
         },
         "EnvS3SubmissionArchive": {
             "Type": "String",
-            "Description": "The S3 tar.gz, .tgz, .zip object to validate",
-            "Default": "<bucket>/<submission archive>"
+            "Description": "The S3 tar.gz, .tgz, .zip object to validate"
         },
         "EnvS3SubmissionBucket": {
             "Type": "String",
@@ -172,8 +171,7 @@
         },
         "EnvS3ValidationBucket": {
             "Type": "String",
-            "Description": "The S3 bucket that will contain all validation output",
-            "Default": "<validation bucket>"
+            "Description": "The S3 bucket that will contain all validation output"
         },
         "EnvMainSleepInterval": {
             "Type": "Number",
@@ -183,7 +181,7 @@
 	    "EnvMainWorkerInitTimeout": {
 	        "Type": "Number",
             "Description": "The time in seconds to wait for worker batch jobs to initialize beofe terminating",
-            "Default": 300
+            "Default": 600
 	    },
         "EnvAwsDefaultRegion": {
             "Type": "String",
@@ -192,8 +190,7 @@
         },
         "EnvAwsSnsTopicArn": {
             "Type": "String",
-            "Description": "The SNS topic ARN for the current submission",
-            "Default": "<aws sns topic arn>"
+            "Description": "The SNS topic ARN for the current submission"
         },
         "EnvQueueInitTimeout": {
             "Type": "Number",

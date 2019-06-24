@@ -13,8 +13,7 @@ In order to run the AWS CLI CloudFormation commands outlined in this README, you
 To validate the AIDA Validation infrastructure CloudFormation scripts, run the following commands:
 
 ```bash
-$ aws cloudformation validate-template --template-body file://aida-validation-vpc-cf-template.json
-$ aws cloudformation validate-template --template-body file://aida-validation-batch-cf-template.json
+$ aws cloudformation validate-template --template-body file://aida-validation-network-cf-template.json
 $ aws cloudformation validate-template --template-body file://aida-validation-batch-single-cf-template.json
 ```
 
@@ -36,16 +35,6 @@ Currently AWS Batch has a bug where AWS Batch jobs can only be submitted with a 
 
 ```bash
 $ aws cloudformation create-stack --stack-name aida-validation-batch-single-stack --template-body file://aida-validation-batch-single-cf-template.json --capabilities CAPABILITY_IAM
-```
-
-#### Batch Multi Docker Image Deployment
-
-The AWS Batch mutli docker image deployment is currently **not functional**. AWS is working to fix a bug that is preventing a multi node deployment from using two different docker images during deployment. Please do not run the command below and only deploy the AWS Batch infrastructure outlined in the [Batch Single Docker Image Deployment](####batch-single-docker-image-deployment) section above. 
-
-To instantiate the multi docker image AIF Validation infrastructure run the following command:
-
-```bash
-$ aws cloudformation create-stack --stack-name aida-validation-batch-stack --template-body file://aida-validation-batch-cf-template.json --capabilities CAPABILITY_IAM
 ```
 
 ### Checking Stack Status

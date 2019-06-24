@@ -1,0 +1,18 @@
+#!/bin/bash
+
+AWS_ACCESS_KEY_ID=$(aws --profile default configure get aws_access_key_id)
+AWS_SECRET_ACCESS_KEY=$(aws --profile default configure get aws_secret_access_key)
+AWS_DEFAULT_REGION=$(aws --profile default configure get region)
+
+docker run --rm -it \
+        -e S3_SUBMISSIONS_BUCKET_PATH='' \
+        -e S3_SUBMISSIONS_RESULTS_DIRECTORY='' \
+        -e BATCH_NUM_NODES='' \
+        -e BATCH_JOB_DEFINITION='' \
+        -e BATCH_JOB_QUEUE='' \
+        -e AWS_SNS_TOPIC_ARN='' \
+	-e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+        -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+        -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION \
+        --name batch-init-scheduler \
+        batch-init-scheduler
