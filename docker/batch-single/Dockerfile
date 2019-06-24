@@ -46,14 +46,13 @@ ENV VALIDATION_HOME /opt/aif-validator
 RUN mkdir $VALIDATION_HOME
 
 # Define default arguments if nothing is supplied using --build-args
-ARG CREDS
 ARG GIT_REPO
 ARG VALIDATOR_REPO
 ARG VALIDATOR_BRANCH
 
 # Pull Git Repository
 WORKDIR /tmp
-RUN git clone https://$CREDS@$GIT_REPO/$VALIDATOR_REPO -b $VALIDATOR_BRANCH
+RUN git clone https://$GIT_REPO/$VALIDATOR_REPO -b $VALIDATOR_BRANCH
 
 # Run Gradle Build
 WORKDIR /tmp/AIDA-Interchange-Format

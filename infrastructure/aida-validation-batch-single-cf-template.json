@@ -52,7 +52,7 @@
         "ComputeEnvironmentMaxVCpus": {
             "Type": "Number",
             "Description": "The maximum number of vcpus for the compute environment.",
-            "Default": 5
+            "Default": 300
         },
         "ComputeEnviornmentMinVCpus": {
             "Type": "Number",
@@ -77,7 +77,7 @@
         "MainNodeMemory": {
             "Type": "Number",
             "Description": "The amount of memory for the main node (e.g. 2048).",
-            "Default": 2048
+            "Default": 4096
         },
         "MainNodeVcpus": {
             "Type": "Number",
@@ -92,7 +92,7 @@
         "WorkerNodeMemory": {
             "Type": "Number",
             "Description": "The amount of memory for the worker nodes (e.g. 2048).",
-            "Default": 2048
+            "Default": 4096
         },
         "MainNodeVcpus": {
             "Type": "Number",
@@ -117,7 +117,7 @@
         "JobDefinitionName": {
             "Type": "String",
             "Description": "Name of the Job Definition to be created",
-            "Default": "aida-validation-cf-job"
+            "Default": "aida-validation-batch-single-cf-job"
         },
         "Ec2KeyPair": {
             "Type": "AWS::EC2::KeyPair::KeyName",
@@ -137,68 +137,81 @@
         "MainContainerImage": {
             "Type": "String",
             "Description": "The location of the main container image located in ECR",
-            "Default": "606941321404.dkr.ecr.us-east-1.amazonaws.com/batch-main:latest" 
+            "Default": "606941321404.dkr.ecr.us-east-1.amazonaws.com/batch-single:latest" 
         },
         "WorkerContainerImage": {
             "Type": "String",
             "Description": "The location of the main container image located in ECR",
-            "Default": "606941321404.dkr.ecr.us-east-1.amazonaws.com/batch-worker:latest"
+            "Default": "606941321404.dkr.ecr.us-east-1.amazonaws.com/batch-single:latest"
         },
         "EnvS3SubmissionArchive": {
             "Type": "String",
-            "Description": "The S3 tar.gz, .tgz, .zip object to validate",
-            "Default": "aida-validation/test.zip"
+            "Description": "The S3 tar.gz, .tgz, .zip object to validate"
+        },
+        "EnvS3SubmissionBucket": {
+            "Type": "String",
+            "Description": "The S3 bucket for the AIF Validation submission"
+        },
+        "EnvS3SubmissionPrefix": {
+            "Type": "String",
+            "Description": "The S3 bucket prefix for the AIF Validation submission"
+        },
+        "EnvS3SubmissionValidationDescr": {
+            "Type": "String",
+            "Description": "The AIF Validation type description that will be applied to the submission"
+        },
+        "EnvS3SubmissionTask": {
+            "Type": "String",
+            "Description": "The task type of the submission"
+        },
+        "EnvS3SubmissionExtracted": {
+            "Type": "Number",
+            "Description": "The total number of turtle (ttl) files that were in the submission",
+            "Default": 0
         },
         "EnvS3ValidationBucket": {
             "Type": "String",
-            "Description": "The S3 bucket that will contain all validation output",
-            "Default": "aida-validation"
-        },
-        "EnvMainLogLevel": {
-            "Type": "String",
-            "Description": "The log level for the main node",
-            "Default": "INFO"
+            "Description": "The S3 bucket that will contain all validation output"
         },
         "EnvMainSleepInterval": {
-            "Type": "String",
+            "Type": "Number",
             "Description": "The number of seconds to wait before checking if all worker jobs have completed",
-            "Default": "60"
+            "Default": 20
         },
-	"EnvMainWorkerInitTimeout": {
-	    "Type": "String",
+	    "EnvMainWorkerInitTimeout": {
+	        "Type": "Number",
             "Description": "The time in seconds to wait for worker batch jobs to initialize beofe terminating",
-            "Default": "300"
-	},
+            "Default": 600
+	    },
         "EnvAwsDefaultRegion": {
             "Type": "String",
             "Description": "The default region to use when calling aws services",
             "Default": "us-east-1"
         },
-        "EnvWorkerLogLevel": {
+        "EnvAwsSnsTopicArn": {
             "Type": "String",
-            "Description": "The log level for the worker nodes",
-            "Default": "INFO"
+            "Description": "The SNS topic ARN for the current submission"
         },
         "EnvQueueInitTimeout": {
-            "Type": "String",
+            "Type": "Number",
             "Description": "The number of seconds to wait for the SQS queue to initialize",
-            "Default": "120"
+            "Default": 3600
         },
         "EnvValidationTimeout": {
-            "Type": "String",
+            "Type": "Number",
             "Description": "The number of seconds to wait for a single validation to complete before timing out",
-            "Default": "28880"
+            "Default": 28800
         },
-	"EnvValidationHome": {
-	    "Type": "String",
-            "Description": "The local path of the AIF Validator on the docker container",
-            "Default": "/opt/aif-validator"
-	},
-	"EnvValidationFlags": {
-	    "Type": "String",
-            "Description": "A single string that contains the flags to pass to the AIF Validator upon execution",
-            "Default": "--ldc --nist -o"
-	}
+    	"EnvValidationHome": {
+    	    "Type": "String",
+                "Description": "The local path of the AIF Validator on the docker container",
+                "Default": "/opt/aif-validator"
+    	},
+    	"EnvValidationFlags": {
+    	    "Type": "String",
+                "Description": "A single string that contains the flags to pass to the AIF Validator upon execution",
+                "Default": "--ldc --nist -o"
+    	}
     },
     "Resources": {
         "BatchComputeEnvironment": {
@@ -427,25 +440,49 @@
                                         "Value": { "Ref": "EnvS3SubmissionArchive" }
                                     },
                                     {
+                                        "Name": "S3_SUBMISSION_VALIDATION_DESCR",
+                                        "Value": { "Ref": "EnvS3SubmissionValidationDescr"}
+                                    },
+                                    {
                                         "Name": "S3_VALIDATION_BUCKET",
                                         "Value": { "Ref": "EnvS3ValidationBucket" }
                                     },
                                     {
-                                        "Name": "MAIN_LOG_LEVEL",
-                                        "Value": { "Ref": "EnvMainLogLevel" }
+                                        "Name": "S3_SUBMISSION_BUCKET",
+                                        "Value": { "Ref": "EnvS3SubmissionBucket" }
                                     },
                                     {
-                                        "Name": "AWS_DEFAULT_REGION",
-                                        "Value": { "Ref": "EnvAwsDefaultRegion" }
+                                        "Name": "S3_SUBMISSION_PREFIX",
+                                        "Value": { "Ref": "EnvS3SubmissionPrefix" }
+                                    },
+                                    {
+                                        "Name": "S3_SUBMISSION_TASK",
+                                        "Value": { "Ref": "EnvS3SubmissionTask" }
+                                    },
+                                    {
+                                        "Name": "S3_SUBMISSION_EXTRACTED",
+                                        "Value": { "Ref": "EnvS3SubmissionExtracted" }
                                     },
                                     {
                                         "Name": "MAIN_SLEEP_INTERVAL",
                                         "Value": { "Ref": "EnvMainSleepInterval" }
                                     },
-				    {
-				        "Name": "WORKER_INIT_TIMEOUT",
-					"Value": { "Ref": "EnvMainWorkerInitTimeout" }
-				    }
+                				    {
+                				        "Name": "WORKER_INIT_TIMEOUT",
+                					    "Value": { "Ref": "EnvMainWorkerInitTimeout" }
+                				    },
+                                    {
+                                        "Name": "AWS_DEFAULT_REGION",
+                                        "Value": { "Ref": "EnvAwsDefaultRegion" }
+                                    },
+                                    {
+                                        "Name": "AWS_SNS_TOPIC_ARN",
+                                        "Value": { "Ref": "EnvAwsSnsTopicArn" }
+                                    },
+                                    {
+                                        "Name": "DEBUG",
+                                        "Value": "False"
+                                    }
                                 ],
                                 "Image" : {
                                     "Ref": "MainContainerImage"
@@ -485,21 +522,21 @@
                                         "Name": "VALIDATION_TIMEOUT",
                                         "Value": { "Ref": "EnvValidationTimeout" }
                                     },
-				    {
-				        "Name": "VALIDATION_HOME",
+                				    {
+                				        "Name": "VALIDATION_HOME",
                                         "Value": { "Ref": "EnvValidationHome" }
-				    },
-				    {
+                				    },
+                				    {
                                         "Name": "VALIDATION_FLAGS",
                                         "Value": { "Ref": "EnvValidationFlags" }
-				    },
+                				    },
                                     {
                                         "Name": "S3_VALIDATION_BUCKET",
                                         "Value": { "Ref": "EnvS3ValidationBucket" }
                                     },
                                     {
-                                        "Name": "WORKER_LOG_LEVEL",
-                                        "Value": { "Ref": "EnvWorkerLogLevel" }
+                                        "Name": "S3_SUBMISSION_BUCKET",
+                                        "Value": { "Ref": "EnvS3SubmissionBucket" }
                                     }
                                 ],
                                 "Image" : {
