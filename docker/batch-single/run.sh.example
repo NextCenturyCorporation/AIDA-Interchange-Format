@@ -1,5 +1,8 @@
 #!/bin/bash
 
+AWS_ACCESS_KEY_ID=$(aws --profile default configure get aws_access_key_id)
+AWS_SECRET_ACCESS_KEY=$(aws --profile default configure get aws_secret_access_key)
+
 docker run --rm -it \
         -e S3_VALIDATION_BUCKET='' \
         -e S3_SUBMISSION_ARCHIVE='' \
@@ -16,8 +19,8 @@ docker run --rm -it \
         -e DEBUG='' \
         -e DEBUG_TIMEOUT='' \
         -e DEBUG_SLEEP_INTERVAL='' \
-        -e AWS_ACCESS_KEY_ID='' \
-        -e AWS_SECRET_ACCESS_KEY='' \
+        -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+        -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
         -e AWS_DEFAULT_REGION='' \
         -e QUEUE_INIT_TIMEOUT='' \
         -e VALIDATION_TIMEOUT='' \
