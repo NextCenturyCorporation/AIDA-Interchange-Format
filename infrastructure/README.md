@@ -13,8 +13,8 @@ In order to run the AWS CLI CloudFormation commands outlined in this README, you
 To validate the AIDA Validation infrastructure CloudFormation scripts, run the following commands:
 
 ```bash
-$ aws cloudformation validate-template --template-body file://aida-validation-vpc-cf-template.json
-$ aws cloudformation validate-template --template-body file://aida-validation-batch-cf-template.json
+$ aws cloudformation validate-template --template-body file://aida-validation-network-cf-template.json
+$ aws cloudformation validate-template --template-body file://aida-validation-batch-single-cf-template.json
 ```
 
 If the outputs are displayed after running the `validate-template` command, then everything was successfully validated. 
@@ -29,10 +29,12 @@ $ aws cloudformation create-stack --stack-name aida-validation-network-stack --t
 
 ### Creating Batch Stack
 
-To create the AIDA Validation batch stack run the following command:
+#### Batch Single Docker Image Deployment
+
+Currently AWS Batch has a bug where AWS Batch jobs can only be submitted with a single docker image. In order for AIF Validation to work properly, both the main node and worker node logic were integrated into a single docker image which is stored on ECR in the `batch-single` repository. To instantiate the single docker image AIF Validation infrastructure run the following command:
 
 ```bash
-$ aws cloudformation create-stack --stack-name aida-validation-batch-stack --template-body file://aida-validation-batch-cf-template.json --capabilities CAPABILITY_IAM
+$ aws cloudformation create-stack --stack-name aida-validation-batch-single-stack --template-body file://aida-validation-batch-single-cf-template.json --capabilities CAPABILITY_IAM
 ```
 
 ### Checking Stack Status
@@ -48,7 +50,7 @@ $ aws cloudformation describe-stacks --stack-name <stack name>
 To delete the AIDA Validation network and batch stacks, run the following commands in this order:
 
 ```bash
-$ aws cloudformation delete-stack --stack-name aida-validation-batch-stack
+$ aws cloudformation delete-stack --stack-name aida-validation-batch-single-stack
 $ aws cloudformation delete-stack --stack-name aida-validation-network-stack
 ```
 
