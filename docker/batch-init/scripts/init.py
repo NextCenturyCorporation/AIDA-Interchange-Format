@@ -7,12 +7,14 @@ import glob
 import logging
 import uuid
 import shutil
+import re
 from pathlib import Path
 from enum import Enum
 from botocore.exceptions import ClientError
 
 class Task(Enum):
-	one = '1'
+	oneA = '1a'
+	oneB = '1b'
 	two = '2'
 	three = '3'
 
@@ -55,11 +57,13 @@ class Initialize:
 		jobs = self._validate_and_upload(staging_dir, task, stem)
 
 		# print out enviornment variables that will be set during aws batch submission
-		if len(jobs) > 0:
+		if jobs:
 
 			for idx, job in enumerate(jobs):
 				logging.info("Submitting AWS Batch job[%s] with the following overrides: %s", job['name'], str(job))
 				self._submit_job(job['name'], job)
+		else:
+			logging.info("No AWS Batch jobs submitted for %s", self.s3_submission_archive_path)
 
 		# remove staing directory and downloaded submission
 		os.remove(Path(self.s3_submission_archive_path).name)
@@ -272,15 +276,19 @@ class Initialize:
 				self._publish_init_failure(err)
 				raise ValueError(err)
 
-			if not self._check_nist_directory_has_ttl(id_dir):
-				err = "Invalid Task 1 submission format. {0} directory in submission does not contain any .ttl files".format(
+			# check for task 1b
+			if self._check_nist_subdirectory_has_ttl(id_dir):
+				logging.info("Submission identified as Task 1b")
+				return Task.oneB
+			elif self._check_nist_directory_has_ttl(id_dir):
+				logging.info("Submission identified as Task 1a")
+				return Task.oneA
+			else:
+				err = "Invalid Task 1 submission format. {0} directory and subdirectories in submission do not contain any .ttl files".format(
 					self.NIST['directory'])
 				self._publish_init_failure(err)
 				raise ValueError(err)
-
-			return Task.one
 			
-				
 		elif delim_count == 1:
 			if not self._check_nist_directory(id_dir):
 				err = "Invalid Task 2 submission format. Unable to locate required {0} directory in submission".format(
@@ -294,10 +302,20 @@ class Initialize:
 				self._publish_init_failure(err)
 				raise ValueError(err)
 
+			logging.info("Submission identified as Task 2")
 			return Task.two
 					
 		elif delim_count == 2:
+			# check for ttl files in root directory
+			if not glob.glob(id_dir + '/*.ttl'):
+				err = "Invalid Task 3 submission format. {0} directory in submission does not contain any .ttl files".format(
+					id_dir)
+				self._publish_init_failure(err)
+				raise ValueError(err)
+
+			logging.info("Submission identified as Task 3")
 			return Task.three
+
 		else:
 			err = "Invalid submission format. Could not extract task type with submission stem {0}".format(stem)
 			self._publish_init_failure(err)
@@ -335,12 +353,12 @@ class Initialize:
 		:returns: List of dictionary objects representing the aws batch jobs that need to be executed
 		:rtype: List
 		"""
-		logging.info("Validating submission as task type %s", task.value)
+		logging.info("Validating submission as Task type %s", task.value)
 		task_type = task.value
 		id_dir = self._get_run_id_directory(directory)
 		jobs = []
 
-		if task == Task.one or task == Task.two:
+		if task == Task.oneA or task == Task.two:
 
 			# NIST direcotry required, do not upload INTER-TA if NIST does not exist
 			if not self._check_nist_directory(id_dir):
@@ -360,6 +378,8 @@ class Initialize:
 						jobs.append(j)
 
 			return jobs
+		elif task == Task.oneB:
+			logging.error("Task 1b submissions are currently not supported")
 
 		elif task == Task.three:
 			jobs.append(self._upload_formatted_submission(id_dir, prefix, self.NIST_TA3, task))
@@ -494,11 +514,19 @@ class Initialize:
 		:returns: True if NIST directory has .ttl files, False otherwise
 		:rtype: bool 
 		"""
-		ttls_paths = (glob.glob(directory + "/" + self.NIST['directory'] + '/*.ttl'))
 
-		if len([ Path(x).name for x in ttls_paths ]) > 0:
-			return True
-		return False
+		if not glob.glob(directory + '/' + self.NIST['directory'] + '/*.ttl'):
+			return False
+		return True
+
+
+	def _check_nist_subdirectory_has_ttl(self, directory):
+		"""Helper function that will determine if there are any ttls files in any subdirectories
+		under the NIST directory.
+		"""
+		if not glob.glob(directory + '/' + self.NIST['directory'] + '/**/*.ttl'):
+			return False
+		return True
 
 
 	def _check_inter_ta_directory(self, directory):
