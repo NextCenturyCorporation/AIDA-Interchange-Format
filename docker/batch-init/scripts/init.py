@@ -21,9 +21,9 @@ class Task(Enum):
 class Initialize:
 
 	# define all the different directory types and corresponding flags
-	NIST = { 'validation': '--ldc --nist -o', 'name': 'nist', 'directory': 'NIST', 'description': 'NIST RESTRICTED'  }
-	INTER_TA = { 'validation': '--ldc -o', 'name': 'unrestricted', 'directory': 'INTER-TA', 'description': 'UNRESTRICTED'  }
-	NIST_TA3 = { 'validation': '--ldc --nist-ta3 -o', 'name': 'nist-ta3', 'directory': 'NIST', 'description': 'NIST TA3 RESTRICTED' }
+	NIST = { 'validation': '--ldc --nist -o', 'name': 'nist', 'description': 'NIST RESTRICTED'  }
+	INTER_TA = { 'validation': '--ldc -o', 'name': 'unrestricted', 'description': 'UNRESTRICTED'  }
+	NIST_TA3 = { 'validation': '--ldc --nist-ta3 -o', 'name': 'nist-ta3', 'description': 'NIST TA3 RESTRICTED' }
 
 	# init instance attributes
 	def __init__(self, envs):
@@ -271,8 +271,7 @@ class Initialize:
 
 		if delim_count == 0:
 			if not self._check_nist_directory(id_dir):
-				err = "Invalid Task 1 submission format. Unable to locate required {0} directory in submission".format(
-					self.NIST['directory'])
+				err = "Invalid Task 1 submission format. Unable to locate required NIST directory in submission"
 				self._publish_init_failure(err)
 				raise ValueError(err)
 
@@ -284,21 +283,18 @@ class Initialize:
 				logging.info("Submission identified as Task 1a")
 				return Task.oneA
 			else:
-				err = "Invalid Task 1 submission format. {0} directory and subdirectories in submission do not contain any .ttl files".format(
-					self.NIST['directory'])
+				err = "Invalid Task 1 submission format. NIST directory or NIST subdirectories in submission do not contain any .ttl files"
 				self._publish_init_failure(err)
 				raise ValueError(err)
 			
 		elif delim_count == 1:
 			if not self._check_nist_directory(id_dir):
-				err = "Invalid Task 2 submission format. Unable to locate required {0} directory in submission".format(
-					self.NIST['directory'])
+				err = "Invalid Task 2 submission format. Unable to locate required NIST directory in submission"
 				self._publish_init_failure(err)
 				raise ValueError(err)
 
 			if not self._check_nist_directory_has_ttl(id_dir):
-				err = "Invalid Task 2 submission format. {0} directory in submission does not contain any .ttl files".format(
-					self.NIST['directory'])
+				err = "Invalid Task 2 submission format. NIST directory in submission does not contain any .ttl files"
 				self._publish_init_failure(err)
 				raise ValueError(err)
 
@@ -308,8 +304,7 @@ class Initialize:
 		elif delim_count == 2:
 			# check for ttl files in root directory
 			if not glob.glob(id_dir + '/*.ttl'):
-				err = "Invalid Task 3 submission format. {0} directory in submission does not contain any .ttl files".format(
-					id_dir)
+				err = "Invalid Task 3 submission format. NIST directory in submission does not contain any .ttl files"
 				self._publish_init_failure(err)
 				raise ValueError(err)
 
@@ -360,36 +355,59 @@ class Initialize:
 
 		if task == Task.oneA or task == Task.two:
 
-			# NIST direcotry required, do not upload INTER-TA if NIST does not exist
+			# NIST directory required, do not upload INTER-TA if NIST does not exist
 			if not self._check_nist_directory(id_dir):
 				logging.error("Task {0} submission format is invalid. Could not locate NIST directory".format(str(task.value)))
 
 			else:
-				j = self._upload_formatted_submission(id_dir, prefix, self.NIST, task)
+				j = self._upload_formatted_submission(id_dir, prefix, self.NIST, '/NIST/*.ttl', task)
 
 				if j is not None:
 					jobs.append(j)
 
 				# INTER-TA directory **not required**
 				if self._check_inter_ta_directory(id_dir):
-					j = self._upload_formatted_submission(id_dir, prefix, self.INTER_TA, task)
+					j = self._upload_formatted_submission(id_dir, prefix, self.INTER_TA, '/INTER-TA/*.ttl', task)
 
 					if j is not None:
 						jobs.append(j)
 
 			return jobs
+
 		elif task == Task.oneB:
 			logging.error("Task 1b submissions are currently not supported")
 
-		elif task == Task.three:
-			jobs.append(self._upload_formatted_submission(id_dir, prefix, self.NIST_TA3, task))
+			# NIST directoryrequired, do not upload INTER-TA if NIST does not exist
+			if not self._check_nist_directory(id_dir):
+				logging.error("Task {0} submission format is invalid. Could not locate NIST directory".format(str(task.value)))
+			else:
+				hypothesis_dirs = self._get_ta3_hypothesis_dirs(id_dir)
+
+				# check for hypothesis subdirectories
+				if hypothesis_dirs:
+
+					# make a submission out of each hypothesis subdirectory
+					for d in hypothesis_dirs:
+						j = self._upload_formatted_submission(id_dir, prefix + '-' + d, self.NIST_TA3, '/NIST/' + d + '/*.ttl', task)
+
+						if j is not None:
+							jobs.append(j)
+
+				else:
+					logging.error("Task {0} submission contains no hypothesis subdirectories".format(str(task.value)))
 
 			return jobs
+
+		elif task == Task.three:
+			jobs.append(self._upload_formatted_submission(id_dir, prefix, self.NIST_TA3, '/*.ttl', task))
+
+			return jobs
+
 		else:
 			logging.error("Could not validate submission structure for invalid task %s", task)
 
 
-	def _upload_formatted_submission(self, directory, prefix, validation_type, task):
+	def _upload_formatted_submission(self, directory, prefix, validation_type, ttl_glob, task):
 		"""Function will locate all .ttl files within a submission subdirectory based on the validation 
 		type that was found in the get_task_type function and upload them to s3. Once all files have been 
 		uploaded, a dictionary object with information to pass into the aws batch job will be returned. 
@@ -397,24 +415,25 @@ class Initialize:
 		:param str directory: The local directory containing the downloaded contents of
 			the submission
 		:param str prefix: The prefix to append to all objects uploaded to the S3 bucket
-		:param validation_type: The validation type that these files will be validated against
+		:param dict validation_type: The validation type that these files will be validated against
+		:param st ttl_glob: The glob expression to append in the glob statement to get the paths of all the
+			ttl files based on task type
 		:param Task task: The task enum that representing the task type of the submission
 		:param returns: The dictionary representation of the job, None if error occurred
 		:param rtype: dict
 		"""
 		job = {}
 		bucket_prefix = self.s3_validation_prefix + '/' + prefix + '-' + validation_type['name']
-		logging.info("Task %s submission %s directory exists. Uploading .ttl files to %s", str(task.value),
-			validation_type['directory'], self.s3_validation_bucket + '/' + bucket_prefix)
+		logging.info("Uploading Task %s .ttl files to %s", str(task.value), self.s3_validation_bucket + '/' + bucket_prefix)
 
 		# inspect the current directory for .ttl files
-		ttl_paths = (glob.glob(directory + '/' + validation_type['directory'] + '/*.ttl'))
-		ttls = [ Path(x).name for x in ttl_paths ]
+		ttl_paths = (glob.glob(directory + ttl_glob))
+		ttls = [ Path(x).name for x in ttl_paths ] #update this to not be name but last path + name
 
 		if not self._check_for_duplicates(ttls):
 
 			if len(ttls) == 0:
-				logging.error("No .ttl files found in Task %s submission %s directory", str(task.value), validation_type['directory'])
+				logging.error("No .ttl files found in Task %s submission", str(task.value))
 			else:
 				for path in ttl_paths:
 					self._upload_file_to_s3(path, self.s3_validation_bucket, bucket_prefix)
@@ -503,7 +522,7 @@ class Initialize:
 		:returns: True if directory exists, False otherwise
 		:rtype: bool
 		"""
-		return os.path.exists(directory + "/" + self.NIST['directory'])
+		return os.path.exists(directory + '/NIST')
 
 
 	def _check_nist_directory_has_ttl(self, directory):
@@ -515,7 +534,7 @@ class Initialize:
 		:rtype: bool 
 		"""
 
-		if not glob.glob(directory + '/' + self.NIST['directory'] + '/*.ttl'):
+		if not glob.glob(directory + '/NIST/*.ttl'):
 			return False
 		return True
 
@@ -523,8 +542,12 @@ class Initialize:
 	def _check_nist_subdirectory_has_ttl(self, directory):
 		"""Helper function that will determine if there are any ttls files in any subdirectories
 		under the NIST directory.
+
+		:param str directory: The directory to validate against
+		:returns: True if NIST subdirectories contain ttl files, False otherwise
+		:rtype: bool
 		"""
-		if not glob.glob(directory + '/' + self.NIST['directory'] + '/**/*.ttl'):
+		if not glob.glob(directory + '/NIST/**/*.ttl'):
 			return False
 		return True
 
@@ -537,7 +560,18 @@ class Initialize:
 		:returns: True if directory exists, False otherwise
 		:rtype: bool
 		"""
-		return os.path.exists(directory + "/" + self.INTER_TA['directory'])
+		return os.path.exists(directory + '/INTER-TA')
+
+
+	def _get_ta3_hypothesis_dirs(self, directory):
+		"""Helper function that will return the list of hypothesis directories within 
+		the NIST folder in a TA3 submission
+
+		:param str directory: The directory to validate against
+		:returns: list of directories within NIST subdirectory
+		:rtype: list
+		"""
+		return [d for d in os.listdir(directory + '/NIST') if os.path.isdir(os.path.join(directory + '/NIST', d))]
 
 
 	def _submit_job(self, job_name, overrides):
