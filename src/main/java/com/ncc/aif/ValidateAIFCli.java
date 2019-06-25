@@ -231,9 +231,6 @@ public class ValidateAIFCli implements Callable<Integer> {
 
         // Finally, try to create the validator, but fail if required elements can't be loaded/parsed.
         ValidateAIF validator;
-        if (useDiskModel) {
-            ValidateAIF.setDiskBased(true);
-        }
         final String ontologyStr;
         try {
             if (useLDCOntology) {

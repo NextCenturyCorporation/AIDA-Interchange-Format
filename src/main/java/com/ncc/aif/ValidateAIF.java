@@ -4,21 +4,13 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
-import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.*;
-import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.util.FileUtils;
 import org.topbraid.jenax.progress.ProgressMonitor;
 import org.topbraid.shacl.validation.ValidationEngine;
 import org.topbraid.shacl.validation.ValidationEngineConfiguration;
 import org.topbraid.shacl.validation.ValidationUtil;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.*;
@@ -50,12 +42,9 @@ public final class ValidateAIF {
     private static final String AO_EVENTS_RESNAME = ONT_ROOT + "EventOntology";
     private static final String AO_RELATIONS_RESNAME = ONT_ROOT + "RelationOntology";
 
-    public static final String DOMAIN_MODEL_PATH = System.getProperty("java.io.tmpdir") + "/diskbased-models/domainModel";
-
     private static Model shaclModel;
     private static Model nistModel;
     private static Model nistHypoModel;
-    private static int diskModelCount;
     private static boolean initialized = false;
     private static final Property CONFORMS = ResourceFactory.createProperty("http://www.w3.org/ns/shacl#conforms");
 
@@ -156,30 +145,7 @@ public final class ValidateAIF {
             throw new IllegalArgumentException("Must validate against at least one domain ontology.");
         }
 
-        Model model;
-        if (diskModelCount > 0) {
-            try {
-                // Make a disk-based model
-                Path directory;
-                do {
-                    directory = Paths.get(DOMAIN_MODEL_PATH + diskModelCount++);
-                    if (Files.exists(directory)) {
-                        Files.walk(directory).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-                    }
-                }
-                while (Files.exists(directory)); // if it was in use, it wasn't deleted, which is a good thing.
-                Files.createDirectories(directory);
-                directory.toFile().deleteOnExit(); // not guaranteed
-                final Dataset dataset = TDBFactory.createDataset(directory.toString());
-                model = dataset.getDefaultModel();
-            } catch (IOException e) {
-                System.err.println("Unable to create domain model directory: " + e.getMessage());
-                e.printStackTrace();
-                throw new RuntimeException();
-            }
-        } else {
-            model = ModelFactory.createDefaultModel();
-        }
+        final Model model = ModelFactory.createDefaultModel();
 
         // Data will always be interpreted in the context of these two ontology files.
         final ImmutableSet<CharSource> aidaModels = ImmutableSet.of(
@@ -194,18 +160,6 @@ public final class ValidateAIF {
         }
 
         return new ValidateAIF(model, restriction == null ? Restriction.NONE : restriction);
-    }
-
-    /**
-     * Sets whether or not to use a disk-based model for validation.
-     * Must be called prior to the various <code>create</code> methods.
-     */
-    public static void setDiskBased(boolean diskBased) {
-        if (diskBased) {
-            if (diskModelCount == 0) diskModelCount++;
-        } else {
-            diskModelCount = 0;
-        }
     }
 
     /**
@@ -306,7 +260,7 @@ public final class ValidateAIF {
         // We unify the given KB with the background and domain KBs before validation.
         // This is required so that constraints like "the object of a type must be an
         // entity type" will know what types are in fact entity types.
-        final Model unionModel = (union == null) ? ModelFactory.createUnion(domainModel, dataToBeValidated) : union;
+        final Model unionModel = (union == null) ? ModelFactory.createUnion(dataToBeValidated, domainModel) : union;
         unionModel.setNsPrefix("sh", "http://www.w3.org/ns/shacl#");
         unionModel.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
         unionModel.setNsPrefix("aidaDomainCommon", AidaDomainOntologiesCommon.CanHaveName.getNameSpace());
