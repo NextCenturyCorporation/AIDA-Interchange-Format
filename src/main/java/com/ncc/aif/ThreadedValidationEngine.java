@@ -42,6 +42,12 @@ public class ThreadedValidationEngine extends ValidationEngine {
     private Predicate<RDFNode> focusNodeFilter;
     private boolean isStopped = false;
 
+    // TODO: Hack for AIDA-732
+    // If true, then shape collection should be excluded
+    // If false, then shape collection should be included
+    public boolean exclude;
+    public Collection<String> shapeLabels = null;
+    
     private ThreadedValidationEngine(Dataset dataset, URI shapesGraphURI, ShapesGraph shapesGraph) {
         super(dataset, shapesGraphURI, shapesGraph, null);
     }
@@ -132,7 +138,26 @@ public class ThreadedValidationEngine extends ValidationEngine {
 
         int i = 0;
         for (Shape shape : rootShapes) {
-            validationMetadata.add(executor.submit(getTask(shape, i++)));
+            String label = getLabelFunction().apply(shape.getShapeResource());
+            if (shapeLabels == null || shapeLabels.isEmpty()) {
+                System.out.println("Submitting shape " + i + ": " + label);
+                validationMetadata.add(executor.submit(getTask(shape, i)));
+            } else if (exclude) {
+                if (shapeLabels.contains(label)) {
+                    System.out.println("Skipping shape " + i + ": " + label);
+                } else {
+                    System.out.println("Submitting shape " + i + ": " + label);
+                    validationMetadata.add(executor.submit(getTask(shape, i)));
+                }
+            } else {
+                if (!shapeLabels.contains(label)) {
+                    System.out.println("Skipping shape " + i + ": " + label);
+                } else {
+                    System.out.println("Submitting shape " + i + ": " + label);
+                    validationMetadata.add(executor.submit(getTask(shape, i)));
+                }
+            }
+            i++;
         }
 
         // Go through all futures and get validation metadata for those that have completed

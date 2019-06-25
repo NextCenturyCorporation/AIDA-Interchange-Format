@@ -130,6 +130,18 @@ public class ValidateAIFCli implements Callable<Integer> {
             " doesn't currently support adding a progress monitor, this disables the --pm option.", paramLabel = "num")
     private int threads = MINIMUM_THREAD_COUNT;
 
+    // TODO: Implement these flags for AIDA-732
+    // Example excludeShapesFile could contain
+    // aida:EntityShape
+    // aida:EventRelationShape
+    // aida:EventArgumentShape
+    // aida:RelationArgumentShape
+//    @Option(names = "--excludeShapes", description = "Specify a file that lists shapes to exclude from validation. " +
+//            "Currently requires -t option.", paramLabel = "excludeShapesFile")
+//
+//    @Option(names = "--includeShapes", description = "Specify a file that lists shapes to include in validation. " +
+//            "Currently requires -t option.", paramLabel = "includeShapesFile")
+
     //TODO: When picocli 4.0 is stable, make this an ArgGroup to enforce mutual exclusivity
     @Option(names = "-d", description = "Validate all .ttl files in the specified directory", paramLabel = "DIRNAME")
     private File directory;

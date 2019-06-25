@@ -11,6 +11,8 @@ import org.topbraid.shacl.validation.ValidationEngine;
 import org.topbraid.shacl.validation.ValidationEngineConfiguration;
 import org.topbraid.shacl.validation.ValidationUtil;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.*;
@@ -287,6 +289,19 @@ public final class ValidateAIF {
             ThreadedValidationEngine engine = ThreadedValidationEngine.createValidationEngine(unionModel, shacl, config);
             engine.setProgressMonitor(progressMonitor);
             try {
+                // TODO: HACK for AIDA-732 - should be passed in as an argument and/or file
+                // If exclude == true, then shapeLabels are skipped
+                // If exclude == false, then only shapeLabels are validated
+                // If shapeLabels is null or empty, all shapes are validated
+                engine.exclude = false;
+                ArrayList<String> shapeLabels = new ArrayList<>(Arrays.asList(
+                        "aida:EntityShape",
+                        "aida:EventRelationShape",
+                        "aida:EventArgumentShape",
+                        "aida:RelationArgumentShape"
+                ));
+                engine.shapeLabels = shapeLabels;
+
                 engine.applyEntailments();
                 engine.validateAll(executor);
                 validationMetadata = engine.getValidationMetadata();
