@@ -196,7 +196,7 @@ public final class ValidateAIF {
             throw new IllegalArgumentException("Number of threads must be greater than or equal to 1.");
         }
         if (threadCount > 1 && (executor == null || executor.getPoolSize() != threadCount)) {
-            executor = new ThreadPoolExecutor(threadCount, threadCount,0L, TimeUnit.MILLISECONDS,
+            executor = new ThreadPoolExecutor(threadCount, threadCount, 0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<>());
         } else if (threadCount == 1 && executor != null) {
             executor.shutdown();
@@ -206,6 +206,7 @@ public final class ValidateAIF {
 
     /**
      * Return the current executor if one exists, null o/w
+     *
      * @return the current executor if one exists, null o/w
      */
     public ExecutorService getExecutor() {
@@ -261,7 +262,7 @@ public final class ValidateAIF {
         // We unify the given KB with the background and domain KBs before validation.
         // This is required so that constraints like "the object of a type must be an
         // entity type" will know what types are in fact entity types.
-        final Model unionModel = (union == null) ? ModelFactory.createUnion(domainModel, dataToBeValidated) : union;
+        final Model unionModel = (union == null) ? ModelFactory.createUnion(dataToBeValidated, domainModel) : union;
         unionModel.setNsPrefix("sh", "http://www.w3.org/ns/shacl#");
         unionModel.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
         unionModel.setNsPrefix("aidaDomainCommon", AidaDomainOntologiesCommon.CanHaveName.getNameSpace());
@@ -306,7 +307,7 @@ public final class ValidateAIF {
                 engine.validateAll(executor);
                 validationMetadata = engine.getValidationMetadata();
                 return engine.getReport();
-            } catch (InterruptedException|ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 System.err.println("Unable to validate due to exception");
                 e.printStackTrace();
                 return null;

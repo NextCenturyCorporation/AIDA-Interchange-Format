@@ -17,7 +17,7 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
      translation of these examples is in `python/tests/Examples.py`.  If you run either set of
      examples, the corresponding Turtle output will be dumped.
 
-*    the `validateAIF` command line utility that can be used to validate AIF .ttl files. See below for details. 
+*    the `validateAIF` command line utility that can be used to validate AIF `.ttl` files. See below for details. 
 
 We recommend using Turtle format for AIF when working with single document files (for
 readability) but N-Triples for working with large KBs (for speed).
@@ -70,6 +70,7 @@ Usage:  <br>
 |`--nist-ta3` | validate against the NIST hypothesis restrictions (implies `--nist`) |
 |`--abort[=num]` | Abort validation after `[num]` SHACL violations (num > 2), or three violations if `[num]` is omitted. |
 |`--pm` | Enable progress monitor that shows ongoing validation progress |
+|`--disk` | Use disk-based model for validating very large files |
 |`-o` | Save validation report model to a file.  `KB.ttl` would result in `KB-report.txt`. Output defaults to stderr. |
 |`-t=num` | Specify the number of threads to use during validation. As the threaded validator doesn't currently support adding a progress monitor, this disables the --pm option. |
 |`-d=DIRNAME` | validate all `.ttl` files in the specified directory |

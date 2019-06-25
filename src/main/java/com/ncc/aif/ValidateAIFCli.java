@@ -6,11 +6,13 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
+import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
+import org.apache.jena.tdb.TDBFactory;
 import org.topbraid.jenax.progress.ProgressMonitor;
 import org.topbraid.jenax.statistics.ExecStatistics;
 import org.topbraid.jenax.statistics.ExecStatisticsListener;
@@ -77,6 +79,8 @@ public class ValidateAIFCli implements Callable<Integer> {
     // Threading
     private static final String THREAD_COUNT_STRING = "Thread count";
     private static final int MINIMUM_THREAD_COUNT = 1;
+    // Disk-based model
+    private static final String DATA_MODEL_PATH = System.getProperty("java.io.tmpdir") + "/diskbased-models/dataModels";
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     // Command Line Arguments
@@ -116,6 +120,9 @@ public class ValidateAIFCli implements Callable<Integer> {
 
     @Option(names = "--pm", description = "Enable progress monitor that shows ongoing validation progress")
     private boolean useProgressMonitor;
+
+    @Option(names = "--disk", description = "Use disk-based model for validating very large files")
+    private boolean useDiskModel;
 
     @Option(names = "-p", description = "Enable profiling", hidden = true)
     private boolean useProfiling;
@@ -202,37 +209,8 @@ public class ValidateAIFCli implements Callable<Integer> {
                 useNISTRestriction ? ValidateAIF.Restriction.NIST : ValidateAIF.Restriction.NONE;
         final boolean profiling = useProfiling || useProgressiveProfiling;
 
-        // Finally, try to create the validator, but fail if required elements can't be loaded/parsed.
-        ValidateAIF validator = null;
-        final String ontologyStr;
-        try {
-            if (useLDCOntology) {
-                validator = ValidateAIF.createForLDCOntology(restriction);
-                ontologyStr = "LDC (LO)";
-            } else if (useProgramOntology) {
-                validator = ValidateAIF.createForProgramOntology(restriction);
-                ontologyStr = "Program (AO)";
-            } else {
-                StringBuilder builder = new StringBuilder();
-                // Convert the specified domain ontologies to CharSources.
-                Set<CharSource> domainOntologySources = new HashSet<>();
-                for (File file : customOntologies) {
-                    domainOntologySources.add(com.google.common.io.Files.asCharSource(file, Charsets.UTF_8));
-                    builder.append(file.getName()).append(" ");
-                }
-                validator = ValidateAIF.create(ImmutableSet.copyOf(domainOntologySources), restriction);
-                builder.setLength(builder.length() - 1);
-                ontologyStr = builder.toString();
-            }
-        } catch (RuntimeException rte) {
-            logger.error("Could not read/parse all domain ontologies or SHACL files...exiting.");
-            logger.error("--> " + rte.getLocalizedMessage());
-            return ReturnCode.FILE_ERROR.ordinal();
-        }
-
-        boolean hasFiles = files != null;
-
         // Collect the file(s) to be validated.
+        boolean hasFiles = files != null;
         final List<File> filesToValidate = new ArrayList<>();
         int nonTTLcount = 0;
         if (hasFiles) {
@@ -263,6 +241,34 @@ public class ValidateAIFCli implements Callable<Integer> {
             return ReturnCode.FILE_ERROR.ordinal();
         }
 
+        // Finally, try to create the validator, but fail if required elements can't be loaded/parsed.
+        ValidateAIF validator;
+        final String ontologyStr;
+        try {
+            if (useLDCOntology) {
+                validator = ValidateAIF.createForLDCOntology(restriction);
+                ontologyStr = "LDC (LO)";
+            } else if (useProgramOntology) {
+                validator = ValidateAIF.createForProgramOntology(restriction);
+                ontologyStr = "Program (AO)";
+            } else {
+                StringBuilder builder = new StringBuilder();
+                // Convert the specified domain ontologies to CharSources.
+                Set<CharSource> domainOntologySources = new HashSet<>();
+                for (File file : customOntologies) {
+                    domainOntologySources.add(com.google.common.io.Files.asCharSource(file, Charsets.UTF_8));
+                    builder.append(file.getName()).append(" ");
+                }
+                validator = ValidateAIF.create(ImmutableSet.copyOf(domainOntologySources), restriction);
+                builder.setLength(builder.length() - 1);
+                ontologyStr = builder.toString();
+            }
+        } catch (RuntimeException rte) {
+            logger.error("Could not read/parse all domain ontologies or SHACL files...exiting.");
+            logger.error("--> " + rte.getLocalizedMessage());
+            return ReturnCode.FILE_ERROR.ordinal();
+        }
+
         // Display a summary of what we're going to do.
         if (hasFiles) {
             logger.info("-> Validating KB(s): " +
@@ -285,6 +291,9 @@ public class ValidateAIFCli implements Callable<Integer> {
             logger.info("-> Validation will use " + threads + " threads.");
             validator.setThreadCount(threads);
         }
+        if (useDiskModel) {
+            logger.info("-> Using disk-based model for validation.");
+        }
         if (outputToFile) {
             logger.info("-> Validation report for invalid KBs will be saved to <kbname>-report.txt.");
         } else {
@@ -304,13 +313,32 @@ public class ValidateAIFCli implements Callable<Integer> {
         int skipCount = 0;
         int abortCount = 0;
         int fileNum = 0;
+        Path dataModelDir = null;
         final StatsCollector stats = useProgressiveProfiling ?
                 new ProgressiveStatsCollector(LONG_QUERY_THRESH) : new StatsCollector(LONG_QUERY_THRESH);
         for (File fileToValidate : filesToValidate) {
             Date date = Calendar.getInstance().getTime();
             logger.info("-> Validating " + fileToValidate + " at " + format.format(date) +
                     " (" + ++fileNum + " of " + filesToValidate.size() + ").");
-            final Model dataToBeValidated = ModelFactory.createDefaultModel();
+            Model dataToBeValidated;
+            Dataset dataset = null;
+            if (useDiskModel) {
+                try {
+                    dataModelDir = Paths.get(DATA_MODEL_PATH, fileToValidate.getName().replace(".ttl", ""));
+                    deleteDir(dataModelDir);  // Delete the directory if it exists
+                    Files.createDirectories(dataModelDir);
+                    dataset = TDBFactory.createDataset(dataModelDir.toString());
+                    dataToBeValidated = dataset.getDefaultModel();
+                }
+                catch (IOException ioe) {
+                    logger.error("Could not create disk-based model.");
+                    logger.error("--> " + ioe.getLocalizedMessage());
+                    return ReturnCode.FILE_ERROR.ordinal();
+                }
+            }
+            else {
+                dataToBeValidated = ModelFactory.createDefaultModel();
+            }
             boolean notSkipped = ((restriction != ValidateAIF.Restriction.NIST_TA3) || checkHypothesisSize(fileToValidate))
                     && loadFile(dataToBeValidated, fileToValidate);
             if (notSkipped) {
@@ -353,13 +381,33 @@ public class ValidateAIFCli implements Callable<Integer> {
                 skipCount++;
 
             dataToBeValidated.close();
+            if (useDiskModel) {
+                if (dataset != null) {
+                    dataset.close();
+                }
+            }
         }
 
         final ReturnCode returnCode = displaySummary(fileNum + nonTTLcount, invalidCount, skipCount + nonTTLcount, abortCount);
+        if (useDiskModel) {
+            deleteDir(Paths.get(DATA_MODEL_PATH)); // Try to clean up after ourselves
+        }
         if (threadSet) {
             validator.getExecutor().shutdownNow();
         }
         return returnCode.ordinal();
+    }
+
+    // Delete the specified directory; log a warning if it fails.
+    private void deleteDir(Path directory) {
+        try {
+            if (Files.exists(directory)) { // Delete the directory if it exists
+                Files.walk(directory).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+            }
+        }
+        catch (IOException ioe) {
+            logger.warn("---> Could not delete directory: " + directory.toString());
+        }
     }
 
     //TODO: make ArgGroup when 4.0 is stable
