@@ -408,7 +408,7 @@ class Initialize:
 			validation_type['directory'], self.s3_validation_bucket + '/' + bucket_prefix)
 
 		# inspect the current directory for .ttl files
-		ttl_paths = (glob.glob(directory + '/' + validation_type ['directory'] + '/*.ttl'))
+		ttl_paths = (glob.glob(directory + '/' + validation_type['directory'] + '/*.ttl'))
 		ttls = [ Path(x).name for x in ttl_paths ]
 
 		if not self._check_for_duplicates(ttls):
