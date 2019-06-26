@@ -420,7 +420,7 @@
                 },
                 "Parameters": {},
                 "RetryStrategy": {
-                    "Attempts": 1
+                    "Attempts": 3
                 },
                 "NodeProperties": {
                     "MainNode": 0,
