@@ -494,7 +494,7 @@ class Initialize:
 						}
 					]	
 				}
-				job['name'] = Path(bucket_prefix).stem.replace('.', '')
+				job['name'] = Path(bucket_prefix).name.replace('.', '')
 				
 				return job
 
