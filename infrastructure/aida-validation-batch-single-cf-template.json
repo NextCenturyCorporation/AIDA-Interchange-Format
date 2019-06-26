@@ -67,7 +67,7 @@
         "ComputeNodes": {
             "Type": "Number",
             "Description": "The total number for nodes for the validation batch job.",
-            "Default": 2
+            "Default": 4
         },
         "MainNodeRange": {
             "Type": "String",
@@ -87,7 +87,7 @@
         "WorkerNodeRange": {
             "Type": "String",
             "Description": "The target node range for the main node (e.g. 1:1).",
-            "Default": "1:1"
+            "Default": "1:3"
         },
         "WorkerNodeMemory": {
             "Type": "Number",
