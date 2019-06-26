@@ -6,6 +6,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
+import org.apache.jena.base.Sys;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -31,7 +32,7 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
-
+import java.util.ArrayList;
 /**
  * A command-line AIF validator.  For details, see <a href="https://github.com/NextCenturyCorporation/AIDA-Interchange-Format">the AIF README</a>
  * section entitled, <i>The AIF Validator</i>.
@@ -59,6 +60,9 @@ public class ValidateAIFCli implements Callable<Integer> {
     static final String ERR_MISSING_FILE_FLAG = "Must use one of these flags: -f | -d";
     static final String ERR_TOO_MANY_FILE_FLAGS = "Can only use one of these flags: -f | -d";
     static final String ERR_SMALLER_THAN_MIN = "%s must be at least %d";
+    static final String ERR_TOO_MANY_SHAPE_FLAGS = "Can only use one of these flags: --excludeShapes | --includeShapes";
+    static final String ERR_MISSING_THREADED_FLAG = "--excludeShapes | --includeShapes require the -t flag";
+    static final String ERR_SHAPES_FILE_NOT_EXIST = "%s is not a file";
     // Logging strings
     static final String START_MSG = "AIF Validator";
     // Version
@@ -137,17 +141,15 @@ public class ValidateAIFCli implements Callable<Integer> {
             " doesn't currently support adding a progress monitor, this disables the --pm option.", paramLabel = "num")
     private int threads = MINIMUM_THREAD_COUNT;
 
-    // TODO: Implement these flags for AIDA-732
-    // Example excludeShapesFile could contain
-    // aida:EntityShape
-    // aida:EventRelationShape
-    // aida:EventArgumentShape
-    // aida:RelationArgumentShape
-//    @Option(names = "--excludeShapes", description = "Specify a file that lists shapes to exclude from validation. " +
-//            "Currently requires -t option.", paramLabel = "excludeShapesFile")
-//
-//    @Option(names = "--includeShapes", description = "Specify a file that lists shapes to include in validation. " +
-//            "Currently requires -t option.", paramLabel = "includeShapesFile")
+    // TODO: When picocli 4.0 is stable, make --excludeShapes and --includeShapes into an ArgGroup to enforce mutual exclusivity
+    // TODO: also require -t for --excludeShapes and --includeShapes if still applicable
+    @Option(names = "--excludeShapes", description = "Specify a file that lists shapes to exclude from validation. " +
+            "Currently requires -t option.", paramLabel = "excludeShapesFile")
+    private File excludeShapesFile;
+
+    @Option(names = "--includeShapes", description = "Specify a file that lists shapes to include in validation. " +
+            "Currently requires -t option.", paramLabel = "includeShapesFile")
+    private File includeShapesFile;
 
     //TODO: When picocli 4.0 is stable, make this an ArgGroup to enforce mutual exclusivity
     @Option(names = "-d", description = "Validate all .ttl files in the specified directory", paramLabel = "DIRNAME")
@@ -181,6 +183,7 @@ public class ValidateAIFCli implements Callable<Integer> {
         return result == null ? ReturnCode.USAGE_ERROR.ordinal() : result;
     }
 
+    // TODO: @ code review: shouldn't call() have a throws keyword?
     @Override
     public Integer call() {
         // Enforce mutual exclusion for domain ontologies
@@ -198,6 +201,11 @@ public class ValidateAIFCli implements Callable<Integer> {
         boolean threadSet = threads != MINIMUM_THREAD_COUNT;
         if (threadSet) {
             checkMinimum(threads, THREAD_COUNT_STRING, MINIMUM_THREAD_COUNT);
+        }
+
+        // Enforce mutual exclusion for shape arguments and that threads are enabled
+        if (excludeShapesFile != null || includeShapesFile != null) {
+            checkShapeArgs(excludeShapesFile, includeShapesFile, threadSet);
         }
 
         // Prevent too much logging from obscuring the actual problems.
@@ -269,6 +277,35 @@ public class ValidateAIFCli implements Callable<Integer> {
             return ReturnCode.FILE_ERROR.ordinal();
         }
 
+        // TODO: figure out the best ordering for this block, before or after the previous block, or with the first check
+        // Set the include/exclude shapes list if provided
+        if (excludeShapesFile != null || includeShapesFile != null) {
+
+            ArrayList<String> shapeList = new ArrayList<String>();
+            File shapeFile = includeShapesFile != null? includeShapesFile : excludeShapesFile;
+            Path path = Paths.get(shapeFile.toURI());
+
+            try (java.util.stream.Stream<String> stream = Files.lines(path)){
+                // for each line in the file, filter out commented lines or blank lines
+                // and append the leftover lines to the shape list
+                stream.filter(line -> line.substring(0, (line.contains("#") ? line.indexOf("#") : line.length())).trim().length() > 0)
+                        .forEach(line -> shapeList.add(line.substring(0, (line.contains("#") ? line.indexOf("#") : line.length())).trim()));
+            } catch (IOException | SecurityException ioe) {
+                logger.error("Failed to read the shape list file.");
+                logger.error("--> " + ioe.getLocalizedMessage());
+                return ReturnCode.FILE_ERROR.ordinal();
+            }
+
+            // Add shapes to validator object
+            if (shapeList.size() > 0) {
+                if (excludeShapesFile != null) {
+                    validator.setExcludeShapesList(shapeList);
+                } else if (includeShapesFile != null) {
+                    validator.setIncludeShapesList(shapeList);
+                }
+            }
+        }
+
         // Display a summary of what we're going to do.
         if (hasFiles) {
             logger.info("-> Validating KB(s): " +
@@ -305,6 +342,12 @@ public class ValidateAIFCli implements Callable<Integer> {
         if (useProgressMonitor) {
             logger.info("-> Saving ongoing validation progress to <kbname>-progress.tab.");
         }
+        if (excludeShapesFile != null) {
+            logger.info("-> Excluding shapes listed in " + excludeShapesFile);
+        } else if (includeShapesFile != null) {
+            logger.info("-> Only validating for shapes listed in " + includeShapesFile);
+        }
+
         logger.info("*** Beginning validation of " + filesToValidate.size() + " file(s). ***");
 
         // Validate all files, noting I/O and other errors, but continue to validate even if one fails.
@@ -445,6 +488,33 @@ public class ValidateAIFCli implements Callable<Integer> {
             throw new CommandLine.ParameterException(spec.commandLine(),
                     String.format(ERR_SMALLER_THAN_MIN, name, atLeast));
         }
+    }
+
+    private void checkShapeArgs(File excludeShapesFile, File includeShapesFile, boolean threadSet) {
+        // Enforce mutual exclusion for shapes arguments
+        boolean hasExcludes = excludeShapesFile != null;
+        boolean hasIncludes = includeShapesFile != null;
+        if (hasExcludes && hasIncludes) {
+            throw new CommandLine.ParameterException(spec.commandLine(),
+                    ERR_TOO_MANY_SHAPE_FLAGS);
+        } else if (!hasExcludes && !hasIncludes) {
+            // stop if none given
+            return;
+        }
+
+        // Ensure the file given exists
+        Path name = Paths.get((hasExcludes? excludeShapesFile : includeShapesFile).toURI());
+        if (! Files.exists(name) || Files.isDirectory(name)) {
+            throw new CommandLine.ParameterException(spec.commandLine(),
+                    String.format(ERR_SHAPES_FILE_NOT_EXIST, name));
+        }
+
+        // Ensure thread mode is enabled
+        if (! threadSet) {
+            throw new CommandLine.ParameterException(spec.commandLine(),
+                    ERR_MISSING_THREADED_FLAG);
+        }
+
     }
 
     // Load the model, or fail trying.  Returns true if it's loaded, otherwise false.

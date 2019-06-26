@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.*;
 
+
 /**
  * An AIF Validator.  These are not instantiated directly; instead invoke {@link #createForDomainOntologySource} statically,
  * specifying a domain ontology, and make calls to the returned validator.
@@ -74,6 +75,11 @@ public final class ValidateAIF {
     private ProgressMonitor progressMonitor = null; // by default, do not monitor progress
     private ThreadPoolExecutor executor;
     private List<Future<ThreadedValidationEngine.ValidationMetadata>> validationMetadata;
+
+
+    // TODO - we could do this with one array but for debugging and sanity were doing 2
+    private ArrayList<String> excludeShapesList;
+    private ArrayList<String> includeShapesList;
 
     private ValidateAIF(Model domainModel, Restriction restriction) {
         initializeSHACLModels();
@@ -205,6 +211,26 @@ public final class ValidateAIF {
     }
 
     /**
+     * Tells the validator to exclude specific shape types during validation.
+     * Requires threaded mode.
+     *
+     * @param shapeList a list of shapes to exclude
+     */
+    public void setExcludeShapesList(ArrayList<String> shapeList) {
+        this.excludeShapesList = shapeList;
+    }
+
+    /**
+     * Tells the validator to exclude specific shape types during validation.
+     * Requires threaded mode.
+     *
+     * @param shapeList a list of shapes to exclude
+     */
+    public void setIncludeShapesList(ArrayList<String> shapeList) {
+        this.includeShapesList = shapeList;
+    }
+
+    /**
      * Return the current executor if one exists, null o/w
      *
      * @return the current executor if one exists, null o/w
@@ -290,19 +316,26 @@ public final class ValidateAIF {
             ThreadedValidationEngine engine = ThreadedValidationEngine.createValidationEngine(unionModel, shacl, config);
             engine.setProgressMonitor(progressMonitor);
             try {
-                // TODO: HACK for AIDA-732 - should be passed in as an argument and/or file
-                // If exclude == true, then shapeLabels are skipped
-                // If exclude == false, then only shapeLabels are validated
-                // If shapeLabels is null or empty, all shapes are validated
-                engine.exclude = false;
-                ArrayList<String> shapeLabels = new ArrayList<>(Arrays.asList(
-                        "aida:EntityShape",
-                        "aida:EventRelationShape",
-                        "aida:EventArgumentShape",
-                        "aida:RelationArgumentShape"
-                ));
-                engine.shapeLabels = shapeLabels;
 
+                if (excludeShapesList != null || includeShapesList != null) {
+                    engine.exclude = excludeShapesList != null;
+                    engine.shapeLabels = excludeShapesList != null ? excludeShapesList : includeShapesList;
+
+                    // TODO: HACK for AIDA-732 - should be passed in as an argument and/or file
+                    // If exclude == true, then shapeLabels are skipped
+                    // If exclude == false, then only shapeLabels are validated
+                    // If shapeLabels is null or empty, all shapes are validated
+                    /*engine.exclude = false;
+                    ArrayList<String> shapeLabels = new ArrayList<>(Arrays.asList(
+                            "aida:EntityShape",
+                            "aida:EventRelationShape",
+                            "aida:EventArgumentShape",
+                            "aida:RelationArgumentShape"
+                    ));
+                    engine.shapeLabels = shapeLabels;
+
+                     */
+                }
                 engine.applyEntailments();
                 engine.validateAll(executor);
                 validationMetadata = engine.getValidationMetadata();
@@ -333,4 +366,6 @@ public final class ValidateAIF {
     public static boolean isValidReport(Resource validationReport) {
         return validationReport.getRequiredProperty(CONFORMS).getBoolean();
     }
+
+
 }
