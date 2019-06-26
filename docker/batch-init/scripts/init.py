@@ -375,9 +375,8 @@ class Initialize:
 			return jobs
 
 		elif task == Task.oneB:
-			logging.error("Task 1b submissions are currently not supported")
 
-			# NIST directoryrequired, do not upload INTER-TA if NIST does not exist
+			# NIST directory required
 			if not self._check_nist_directory(id_dir):
 				logging.error("Task {0} submission format is invalid. Could not locate NIST directory".format(str(task.value)))
 			else:
@@ -388,7 +387,7 @@ class Initialize:
 
 					# make a submission out of each hypothesis subdirectory
 					for d in hypothesis_dirs:
-						j = self._upload_formatted_submission(id_dir, prefix + '-' + d, self.NIST_TA3, '/NIST/' + d + '/*.ttl', task)
+						j = self._upload_formatted_submission(id_dir, prefix + '-' + d, self.NIST, '/NIST/' + d + '/*.ttl', task)
 
 						if j is not None:
 							jobs.append(j)
