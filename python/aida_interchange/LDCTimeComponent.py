@@ -7,7 +7,7 @@ class LDCTimeType(Enum):
     ON = 1
     BEFORE = 2
     AFTER = 3
-    UNKONWN = 4
+    UNKNOWN = 4
 
 class LDCTimeComponent:
     """
