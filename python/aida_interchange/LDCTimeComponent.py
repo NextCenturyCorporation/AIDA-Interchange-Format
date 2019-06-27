@@ -7,7 +7,7 @@ class LDCTimeType(Enum):
     ON = 1
     BEFORE = 2
     AFTER = 3
-    UNKONWN = 4
+    UNKNOWN = 4
 
 class LDCTimeComponent:
     """
@@ -51,4 +51,3 @@ class LDCTimeComponent:
         self.add_literal(g, time_component, AIDA_ANNOTATION.month, self.month, XSD.gMonth)
         self.add_literal(g, time_component, AIDA_ANNOTATION.day, self.day, XSD.gDay)
         return time_component
-        
