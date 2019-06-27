@@ -120,7 +120,9 @@ public class ScalingTest {
         // Each entity/relation/event type statement must have at least one justification
         JustifyTypeAssertions           (0.3),
         // Each entity/filler name string is limited to 256 UTF-8 characters
-        NameMaxLength                   (0.3);
+        NameMaxLength                   (0.3),
+        // Justifications require a source document and a source
+        JustificationSourceAndSourceDocument  (0.3);
 
         private final double frequency;
 
@@ -390,8 +392,11 @@ public class ScalingTest {
 
         // Justify the type assertion
         if (preserveValidity(NIST_RESTRICTION.JustifyTypeAssertions)) {
-            markTextJustification(model, resource, docId, 1029, 1033, system,
+            final Resource just = markTextJustification(model, resource, docId, 1029, 1033, system,
                     preserveValidity(NIST_RESTRICTION.ConfidenceValueRange) ? 0.973 : 1.973);
+            if (preserveValidity(NIST_RESTRICTION.JustificationSourceAndSourceDocument)) {
+                addSourceDocumentToJustification(just, getRandomDocId());
+            }
         }
 
         // Add some private data
@@ -405,10 +410,17 @@ public class ScalingTest {
         final Resource justification = preserveValidity(NIST_RESTRICTION.PreventShotVideo) ?
                 makeTextJustification(model, docId, 1029, 1033, system, 0.973) :
                 markShotVideoJustification(model, getRandomEntity(), "source1", "shotId", system, 1.0);
+        if (preserveValidity(NIST_RESTRICTION.JustificationSourceAndSourceDocument)) {
+            addSourceDocumentToJustification(justification, getRandomDocId());
+        }
         Resource compound;
         if (introduceChaos(NIST_RESTRICTION.EdgeJustificationLimit)) {
             final Resource justification2 = makeTextJustification(model, docId, 1055, 1071, system, 0.677);
             final Resource justification3 = makeTextJustification(model, docId, 1102, 1159, system, 0.881);
+            if (preserveValidity(NIST_RESTRICTION.JustificationSourceAndSourceDocument)) {
+                addSourceDocumentToJustification(justification2, getRandomDocId());
+                addSourceDocumentToJustification(justification3, getRandomDocId());
+            }
             compound = markCompoundJustification(model,
                     ImmutableSet.of(resource), ImmutableSet.of(justification, justification2, justification3), system, 1.0);
         } else {
