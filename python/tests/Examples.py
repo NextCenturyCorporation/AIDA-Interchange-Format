@@ -707,11 +707,11 @@ class Examples(unittest.TestCase):
         # create a start position event with unknown start and end time
         event_start_position = aifutils.make_event(g, "http://www.test.edu/event/1", system)
         aifutils.mark_type(g, "http://www.test.edu/assertions/1", event_start_position, SEEDLING_TYPES_NIST['Personnel.StartPosition'], system, 1.0)
-        unkown = LDCTimeComponent(LDCTimeType.UNKONWN, None, None, None)
+        unknown = LDCTimeComponent(LDCTimeType.UNKNOWN, None, None, None)
         endBefore = LDCTimeComponent(LDCTimeType.BEFORE, "2016", None, None)
-        aifutils.mark_ldc_time(g, event_start_position, unkown, endBefore, system)
+        aifutils.mark_ldc_time(g, event_start_position, unknown, endBefore, system)
 
-        # create an attack event with an unkown start date, but definite end date
+        # create an attack event with an unknown start date, but definite end date
         event_attack_unknown = aifutils.make_event(g, "http://www.test.edu/event/2", system)
         aifutils.mark_type(g, "http://www.test.edu/assertions/2", event_attack_unknown, SEEDLING_TYPES_NIST['Conflict.Attack'], system, 1.0)
         start = LDCTimeComponent(LDCTimeType.AFTER, "2014", "--02", None)
