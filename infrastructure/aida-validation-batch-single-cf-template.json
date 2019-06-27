@@ -7,6 +7,11 @@
                 "Ref": "BatchComputeEnvironment"
             }
         },
+        "ComputeEnvironmentAMIId": {
+            "Value": {
+                "Ref": "ComputeEnvironmentAMIId"
+            }
+        },
         "BatchSecurityGroup": {
             "Value": {
                 "Ref": "BatchSecurityGroup"
@@ -64,6 +69,11 @@
             "Description": "The desired number of vcpus for the compute environment.",
             "Default": 0
         },
+    	"ComputeEnvironmentAMIId":{
+    	    "Type": "String",
+    	    "Description": "Supply a valid custom AMI Id to use for the nodes",
+    	    "Default": "ami-00c621574d8a86e13"
+    	},
         "ComputeNodes": {
             "Type": "Number",
             "Description": "The total number for nodes for the validation batch job.",
@@ -221,6 +231,9 @@
                     "Ref": "ComputeEnvironment"
                 },
                 "ComputeResources": {
+		    "ImageId": {
+			"Ref": "ComputeEnvironmentAMIId"
+		    },
                     "DesiredvCpus": {
                         "Ref": "ComputeEnvironmentDesiredVCpus"
                     },
