@@ -10,6 +10,7 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.tdb.TDBFactory;
@@ -22,6 +23,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -290,7 +292,7 @@ public class ValidateAIFCli implements Callable<Integer> {
         if (profiling) {
             logger.info("-> Saving slow queries (> " + LONG_QUERY_THRESH + " ms) to <kbname>-stats.txt.");
         }
-        if (useProgressMonitor) {
+        if (useProgressMonitor && !threadSet) {
             logger.info("-> Saving ongoing validation progress to <kbname>-progress.tab.");
         }
         logger.info("*** Beginning validation of " + filesToValidate.size() + " file(s). ***");
@@ -344,18 +346,19 @@ public class ValidateAIFCli implements Callable<Integer> {
                     }
                     validator.setProgressMonitor(pm);
                 }
-                final Resource report = validator.validateKBAndReturnReport(dataToBeValidated);
+                final Set<Resource> reports = validator.validateKBAndReturnMultipleReports(dataToBeValidated, null);
                 if (profiling) {
                     stats.endCollection();
                     stats.dump(fileToValidate.toString());
                 }
-                if (report == null) {
+                if (reports.isEmpty()) {
                     logger.warn("---> Could not validate " + fileToValidate + " (engine error).  Skipping.");
                     skipCount++;
-                } else if (!ValidateAIF.isValidReport(report)) {
+                } else if (!ValidateAIF.isValidSetOfReports(reports)) {
                     invalidCount++;
-                    final int numViolations = processReport(report, fileToValidate, outputToFile);
-                    if (numViolations == maxValidationErrors || report.hasProperty(ThreadedValidationEngine.SH_ABORTED)) {
+                    final int numViolations = processReports(reports, fileToValidate, outputToFile);
+                    boolean hasAbort = reports.stream().anyMatch(report -> report.hasProperty(ThreadedValidationEngine.SH_ABORTED));
+                    if (numViolations == maxValidationErrors || hasAbort) {
                         logger.warn("---> Validation of " + fileToValidate +
                                 " was aborted after " + numViolations + " SHACL violations.");
                         abortCount++;
@@ -365,6 +368,17 @@ public class ValidateAIFCli implements Callable<Integer> {
                 }
                 date = Calendar.getInstance().getTime();
                 logger.info("---> completed " + format.format(date) + ".");
+
+                // TODO: replace this when multi-threaded progress monitor exists
+                if (useProgressMonitor && threadSet) {
+                    String outputFilename = fileToValidate.toString().replace(".ttl", "-performance.txt");
+                    logger.info("---> Saving thread metrics to " + outputFilename + ".");
+                    try (PrintStream ps = new PrintStream(Files.newOutputStream(Paths.get(outputFilename)))) {
+                        validator.printMetrics(ps);
+                    } catch (IOException e) {
+                        logger.warn("---> Could not write thread metrics to " + outputFilename + ".");
+                    }
+                }
             } else
                 skipCount++;
 
@@ -447,22 +461,35 @@ public class ValidateAIFCli implements Callable<Integer> {
     }
 
     // Dump the validation report model either to stderr or a file, and return the number of violations.
-    private static int processReport(Resource validationReport, File fileToValidate, boolean fileOutput) {
+    private static int processReports(Set<Resource> validationReports, File fileToValidate, boolean fileOutput) {
         if (!fileOutput) {
-            logger.info("---> Validation report:");
-            RDFDataMgr.write(System.err, validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
-        } else {
-            String outputFilename = fileToValidate.toString().replace(".ttl", "-report.txt");
-            try {
-                RDFDataMgr.write(Files.newOutputStream(Paths.get(outputFilename)),
-                        validationReport.getModel(), RDFFormat.TURTLE_PRETTY);
-            } catch (IOException ioe) {
-                logger.warn("---> Could not write validation report for " + fileToValidate + ".");
+            logger.info("---> Validation report(s):");
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            for (Resource report : validationReports) {
+                RDFDataMgr.write(baos, report.getModel(), RDFFormat.TURTLE_PRETTY);
             }
-            logger.info("--> Saved validation report to " + outputFilename);
+            logger.info(baos.toString());
+        } else {
+            String suffix = validationReports.size() == 1 ? "-report.txt" : "-report-%d.txt";
+            String template = fileToValidate.toString().replace(".ttl", suffix);
+            int i = 1;
+            for (Resource report : validationReports) {
+                String outputFilename = String.format(template, i++);
+                try {
+                    RDFDataMgr.write(Files.newOutputStream(Paths.get(outputFilename)),
+                            report.getModel(), RDFFormat.TURTLE_PRETTY);
+                } catch (IOException ioe) {
+                    logger.warn("---> Could not write validation report for " + fileToValidate + ".");
+                }
+                logger.info("--> Saved validation report to " + outputFilename);
+            }
         }
-
-        return validationReport.getModel().listStatements(null, SH.resultSeverity, SH.Violation).toList().size();
+        return validationReports.stream()
+                .map(Resource::getModel)
+                .map(model -> model.listStatements(null, SH.resultSeverity, SH.Violation))
+                .map(StmtIterator::toList)
+                .map(List::size)
+                .reduce(0, Integer::sum);
     }
 
     // Return false if file is > 5MB or size couldn't be determined, otherwise true

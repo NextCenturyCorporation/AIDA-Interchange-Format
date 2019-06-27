@@ -9,7 +9,6 @@ import org.topbraid.shacl.arq.SHACLFunctions;
 import org.topbraid.shacl.engine.Constraint;
 import org.topbraid.shacl.engine.Shape;
 import org.topbraid.shacl.engine.ShapesGraph;
-import org.topbraid.shacl.js.SHACLScriptEngineManager;
 import org.topbraid.shacl.util.SHACLUtil;
 import org.topbraid.shacl.validation.MaximumNumberViolations;
 import org.topbraid.shacl.validation.ValidationEngine;
@@ -36,11 +35,16 @@ public class ThreadedValidationEngine extends ValidationEngine {
     //TODO: come up with better property (topbraid?)
     public static Property SH_ABORTED = ResourceFactory.createProperty(SH.NS, "aborted");
 
-    private List<Future<ValidationMetadata>> validationMetadata = new LinkedList<>();
-    private ThreadLocal<Model> threadModel = ThreadLocal.withInitial(ModelFactory::createDefaultModel);
+    private List<Future<ShapeTaskMetadata>> validationMetadata = new LinkedList<>();
+    private ThreadLocal<Resource> threadReport = ThreadLocal.withInitial(() -> {
+        Model model = ModelFactory.createDefaultModel();
+        model.setNsPrefixes(dataset.getDefaultModel());
+        return model.createResource(SH.ValidationReport);
+    });
     private ThreadLocal<Integer> threadViolations = ThreadLocal.withInitial(() -> 0);
     private Predicate<RDFNode> focusNodeFilter;
     private boolean isStopped = false;
+    private long lastDuration = 0;
 
     private ThreadedValidationEngine(Dataset dataset, URI shapesGraphURI, ShapesGraph shapesGraph) {
         super(dataset, shapesGraphURI, shapesGraph, null);
@@ -50,38 +54,73 @@ public class ThreadedValidationEngine extends ValidationEngine {
      * Contains statistics for each shape's validation. Used largely for debugging. Should probably be removed when
      * progress monitoring is handled correctly.
      */
-    public static class ValidationMetadata {
-        public String threadName;
+    public static class ShapeTaskMetadata {
         public String shapeName;
-        public long duration;
+        public String threadName;
+        public long targetDuration;
+        public long totalDuration;
         public int targetCount;
         public int filteredTargetCount;
-        public Model model;
         public int violations;
         public boolean ignored;
+        List<Future<ConstraintTaskMetadata>> constraintFutures;
+        SortedSet<ConstraintTaskMetadata> constraintMDs;
+        Set<Resource> reports;
 
-        public ValidationMetadata(String threadName, String shapeName, long duration, int targetCount,
-                                  int filteredTargetCount, Model model, int violations, boolean ignored) {
-            this.threadName = threadName;
+        public ShapeTaskMetadata(String shapeName, String threadName) {
             this.shapeName = shapeName;
-            this.duration = duration;
-            this.targetCount = targetCount;
-            this.filteredTargetCount = filteredTargetCount;
-            this.model = model;
-            this.violations = violations;
-            this.ignored = ignored;
+            this.threadName = threadName;
+            this.targetDuration = this.totalDuration = 0;
+            this.targetCount = 0;
+            this.filteredTargetCount = 0;
+            this.violations = 0;
+            this.ignored = false;
+            constraintFutures = new LinkedList<>();
+            constraintMDs = new TreeSet<>(Collections.reverseOrder(Comparator.comparing(md -> md.duration)));
+            reports = new HashSet<>();
+        }
+
+        public void add(ConstraintTaskMetadata cmd) {
+            totalDuration += cmd.duration;
+            violations += cmd.violations;
+            reports.add(cmd.report);
+            constraintMDs.add(cmd);
         }
 
         @Override
         public String toString() {
-            return String.join(" ", threadName, shapeName, duration + "ms",
-                    filteredTargetCount + "/" + targetCount, "v" + violations, ignored ? "ignored" : "");
+            return String.join(" ", shapeName, threadName + "(" + targetDuration + "ms)",
+                    totalDuration + "ms", "n=" + filteredTargetCount + "/" + targetCount, "v=" + violations,
+                    ignored ? "ignored" : "");
+        }
+    }
+
+    public static class ConstraintTaskMetadata {
+        public String constraintName;
+        public String threadName;
+        public long duration;
+        public Resource report;
+        public int violations;
+
+        public ConstraintTaskMetadata(String threadName, String constraintName, long duration, Resource report, int violations) {
+            this.threadName = threadName;
+            this.constraintName = constraintName;
+            this.duration = duration;
+            this.report = report;
+            this.violations = violations;
+        }
+
+        @Override
+        public String toString() {
+            return String.join(" ", constraintName, threadName + "(" + duration + "ms)", "v=" + violations);
         }
     }
 
     @Override
     public Resource createResult(Resource type, Constraint constraint, RDFNode focusNode) {
-        Resource result = threadModel.get().createResource(type);
+        Resource report = threadReport.get();
+        Resource result = report.getModel().createResource(type);
+        report.addProperty(SH.result, result);
         result.addProperty(SH.resultSeverity, constraint.getShapeResource().getSeverity());
         result.addProperty(SH.sourceConstraintComponent, constraint.getComponent());
         result.addProperty(SH.sourceShape, constraint.getShapeResource());
@@ -123,7 +162,8 @@ public class ThreadedValidationEngine extends ValidationEngine {
      * @throws InterruptedException when {@link Future#get()} experiences {@link InterruptedException}
      * @throws ExecutionException when {@link Future#get()} experiences {@link ExecutionException}
      */
-    public Resource validateAll(ExecutorService executor) throws InterruptedException, ExecutionException {
+    public Set<Resource> validateAll(ExecutorService executor) throws InterruptedException, ExecutionException {
+        long start = System.currentTimeMillis();
         List<Shape> rootShapes = shapesGraph.getRootShapes();
         //TODO: Add monitor support for threaded validator. Experience NPE with AIFProgressMonitor
 //        if (monitor != null) {
@@ -132,90 +172,111 @@ public class ThreadedValidationEngine extends ValidationEngine {
 
         int i = 0;
         for (Shape shape : rootShapes) {
-            validationMetadata.add(executor.submit(getTask(shape, i++)));
+            validationMetadata.add(executor.submit(getShapeTask(shape, i++, executor)));
         }
 
         // Go through all futures and get validation metadata for those that have completed
-        Map<String, Model> models = new HashMap<>();
+        Set<Resource> reports = new HashSet<>();
         int violations = 0;
-        for (Future<ValidationMetadata> future : validationMetadata) {
-            ValidationMetadata md = future.get();
-            models.computeIfAbsent(md.threadName, key -> md.model);
-            violations += md.violations;
+        for (Future<ShapeTaskMetadata> shapeFuture : validationMetadata) {
+            ShapeTaskMetadata smd = shapeFuture.get();
+            for (Future<ConstraintTaskMetadata> constraintFuture : smd.constraintFutures) {
+                smd.add(constraintFuture.get());
+                if (exceedsMaximumNumberViolations(smd.violations)) {
+                    isStopped = true;
+                }
+            }
+            reports.addAll(smd.reports);
+            violations += smd.violations;
             if (exceedsMaximumNumberViolations(violations)) {
                 isStopped = true;
             }
         }
 
-        Resource report = getReport();
-        Model model = report.getModel().setNsPrefixes(dataset.getDefaultModel());
-        models.values().forEach(model::add);
-        model.listSubjectsWithProperty(RDF.type, SH.ValidationResult)
-                .forEachRemaining(result -> report.addProperty(SH.result, result));
-
-        updateConforms();
-
-        if (exceedsMaximumNumberViolations(violations)) {
-            report.addProperty(SH_ABORTED, JenaDatatypes.TRUE);
+        Set<Resource> valid = new HashSet<>();
+        Set<Resource> invalid = new HashSet<>();
+        for (Resource report : reports) {
+            boolean conforms = true;
+            StmtIterator it = report.listProperties(SH.result);
+            while(it.hasNext()) {
+                Statement s = it.next();
+                if(s.getResource().hasProperty(RDF.type, SH.ValidationResult)) {
+                    conforms = false;
+                    it.close();
+                    break;
+                }
+            }
+            report.removeAll(SH.conforms);
+            report.addProperty(SH.conforms, conforms ? JenaDatatypes.TRUE : JenaDatatypes.FALSE);
+            (conforms ? valid : invalid).add(report);
         }
 
-        return report;
+        if (invalid.isEmpty()) {
+            lastDuration = System.currentTimeMillis() - start;
+            return valid.size() > 1 ? Collections.singleton(valid.iterator().next()) : valid;
+        }
+
+        boolean exceededViolations = exceedsMaximumNumberViolations(violations);
+        for (Resource report : invalid) {
+            if (exceededViolations) {
+                report.addProperty(SH_ABORTED, JenaDatatypes.TRUE);
+            }
+        }
+        lastDuration = System.currentTimeMillis() - start;
+        return invalid;
     }
 
-    private Callable<ValidationMetadata> getTask(Shape shape, int id) {
+    private Callable<ShapeTaskMetadata> getShapeTask(Shape shape, int id, ExecutorService executor) {
         return () -> {
             long start = System.currentTimeMillis();
-            boolean nested = SHACLScriptEngineManager.begin();
-//            if (monitor != null) {
-//                monitor.subTask("Shape " + id + ": " + getLabelFunction().apply(shape.getShapeResource()));
-//            }
-
-            int targetCount = 0;
-            int filteredCount = 0;
-            threadViolations.set(0);
+            ShapeTaskMetadata smd =
+                    new ShapeTaskMetadata(shape.getShapeResource().getLocalName(), Thread.currentThread().getName());
             boolean ignored = isStopped || shapesGraph.isIgnored(shape.getShapeResource().asNode());
             if (!ignored) {
                 List<RDFNode> focusNodes = SHACLUtil.getTargetNodes(shape.getShapeResource(), dataset);
-                targetCount = focusNodes.size();
+                smd.targetCount = focusNodes.size();
 
                 List<RDFNode> filtered = focusNodeFilter != null ?
                         focusNodes.stream().filter(focusNodeFilter).collect(Collectors.toList()) :
                         focusNodes;
-                filteredCount = filtered.size();
-
+                smd.filteredTargetCount = filtered.size();
                 if (!filtered.isEmpty()) {
                     for (Constraint constraint : shape.getConstraints()) {
-                        try {
-                            if (!isStopped) {
-                                validateNodesAgainstConstraint(filtered, constraint);
-                            }
-                        } catch (MaximumNumberViolations e) {
-                            isStopped = true;
-                        }
+                        smd.constraintFutures.add(executor.submit(getConstraintTask(filtered, constraint)));
                     }
                 }
             }
-//            if (monitor != null) {
-//                monitor.worked(id);
-//                if (monitor.isCanceled()) {
-//                    isStopped = true;
-//                }
-//            }
-            SHACLScriptEngineManager.end(nested);
-            return new ValidationMetadata(
-                    Thread.currentThread().getName(),
-                    shape.getShapeResource().getLocalName(),
-                    System.currentTimeMillis() - start,
-                    targetCount,
-                    filteredCount,
-                    threadModel.get(),
-                    threadViolations.get(),
-                    ignored);
+            smd.totalDuration = smd.targetDuration = System.currentTimeMillis() - start;
+            return smd;
         };
     }
 
-    public List<Future<ValidationMetadata>> getValidationMetadata() {
+    private Callable<ConstraintTaskMetadata> getConstraintTask(List<RDFNode> focusNodes, Constraint constraint) {
+        return () -> {
+            long start = System.currentTimeMillis();
+            threadViolations.set(0);
+            try {
+                if (!isStopped) {
+                    validateNodesAgainstConstraint(focusNodes, constraint);
+                }
+            } catch (MaximumNumberViolations e) {
+                isStopped = true;
+            }
+            return new ConstraintTaskMetadata(
+                    Thread.currentThread().getName(),
+                    constraint.getComponent().getLocalName(),
+                    System.currentTimeMillis() - start,
+                    threadReport.get(),
+                    threadViolations.get());
+        };
+    }
+
+    public List<Future<ShapeTaskMetadata>> getValidationMetadata() {
         return validationMetadata;
+    }
+
+    public long getLastDuration() {
+        return lastDuration;
     }
 
     /**
