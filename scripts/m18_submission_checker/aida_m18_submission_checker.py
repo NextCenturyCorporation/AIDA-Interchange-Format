@@ -93,7 +93,7 @@ def get_archive_member_names(archive_file_name, archive_file_type):
             for item in archive_members:
                 if item.type == tarfile.DIRTYPE:
 
-                    #append a '/' to the end of the directory name to match zip output formatting
+                    # append a '/' to the end of the directory name to match zip output formatting
                     archive_name_list.append(item.name + '/')
 
                 else:
@@ -188,7 +188,7 @@ def get_archive_submit_ready_status_values(task_type, archive_member_names):
     valid_dir_check = None
 
     # function pointer for which type of validity checking we want to do
-    if task_type == '1a' or task_type == '2':
+    if task_type == '1a'or task_type == '2':
         valid_dir_check = do_TA1a_2_check
     elif task_type == '1b':
         valid_dir_check = do_TA1b_check
@@ -203,25 +203,25 @@ def get_archive_submit_ready_status_values(task_type, archive_member_names):
         if name.endswith('.ttl'):
 
             ttls_total_count += 1
-            file_dir_status = valid_dir_check(path_items)
+            file_dir_status = valid_dir_check(path_items, task_type)
 
             dir = os.path.dirname(name) + '/'
 
             if file_dir_status:
-                #get value for the current ttl dir, if it dosen't exist then add it to the dict
+                # get value for the current ttl dir, if it dosen't exist then add it to the dict
                 curr_val = ttl_valid_count_dict.setdefault(dir, 0)
                 curr_val += 1
                 ttl_valid_count_dict[dir] = curr_val
 
             else:
-                #get value for the current ttl dir, if it dosen't exist then add it to the dict
+                # get value for the current ttl dir, if it dosen't exist then add it to the dict
                 curr_val = ttl_invalid_count_dict.setdefault(dir, 0)
                 curr_val += 1
                 ttl_invalid_count_dict[dir] = curr_val
 
     return ttls_total_count, ttl_valid_count_dict, ttl_invalid_count_dict
 
-def do_TA1a_2_check(path_items):
+def do_TA1a_2_check(path_items, task_type):
     """
     Check the path in the archive to ensure the path is valid
     TASK 1a Directory structure:
@@ -233,9 +233,10 @@ def do_TA1a_2_check(path_items):
 
 
     Ignores non ttl files.
-    Prints number of ttl files found, and number of ttl files that are in need to be checked.
+    Logs number of ttl files found, and number of ttl files that are in need to be checked.
 
     :param path_items: The path to the .ttl file that needs to be checked
+    :param task_type: the task type to ensure the RUN_ID directory is named properly
     :return: 'NIST' if .ttl file is in the ../NIST/ directory, 'INTER-TA' if in the ../INTER-TA/ directory or None if not in either directory
     :rtype: string or None
     """
@@ -245,14 +246,15 @@ def do_TA1a_2_check(path_items):
     # rule: ttl needs to be in directory named NIST, or INTER-TA
 
     try:
-        if ((path_items[-2] == 'NIST' or path_items[-2] == 'INTER-TA') and len(path_items) == 3):
+        if (((task_type == '1a' and path_items[0].count('.') == 0) or (task_type == '2' and path_items[0].count('.') == 1))
+                and ((path_items[1] == 'NIST' or path_items[1] == 'INTER-TA') and len(path_items) == 3)):
             return True
     except:
         return False
     return False
 
 
-def do_TA1b_check(path_items):
+def do_TA1b_check(path_items, task_type='1b'):
     """
     Check the path in the archive to ensure the path is valid
     Task 1b directory structure:
@@ -262,9 +264,10 @@ def do_TA1b_check(path_items):
                 <document_id>.ttl 		(1 to X)
 
     Ignores non ttl files.
-    Prints number of ttl files found, and number of ttl files that are in need to be checked.
+    Logs number of ttl files found, and number of ttl files that are in need to be checked.
 
     :param path_items: The path to the .ttl file that needs to be checked
+    :param task_type: the task type to ensure the RUN_ID directory is named properly
     :return: True if the file path is valid, False otherwise
     :rtype: bool
     """
@@ -273,13 +276,13 @@ def do_TA1b_check(path_items):
     # rule: ttl needs to be in 3rd level -- aka 4th item in list['name', 'NIST', 'hypothesis', 'valid.ttl']
     # rule: ttl needs to be in a subdirectory within the NIST directory
     try:
-        if path_items[-3] == 'NIST' and len(path_items) == 4:
+        if path_items[0].count('.') == 0 and path_items[1] == 'NIST' and len(path_items) == 4:
             return True
     except:
         return False
     return False
 
-def do_TA3_check(path_items):
+def do_TA3_check(path_items, task_type='3'):
     """
     Check the path in the archive to ensure the path is valid
     Task 3 directory structure:
@@ -287,10 +290,11 @@ def do_TA3_check(path_items):
         <TA1performer>_<run>(-<TA1performer>_<run>).<TA2performer>_<run>(-<TA2performer>_<run>).<TA3performer>_<run>.<SIN ID>.<SIN frame ID>.<H followed by three digits>.ttl			(1 to X)
 
     Ignores non ttl files.
-    Prints number of ttl files found, and number of ttl files that are in need to be checked.
+    Logs number of ttl files found, and number of ttl files that are in need to be checked.
 
     we do not check for all NIST standards set by the document, only for basic directory structure.
     :param path_items: The path to the .ttl file that needs to be checked
+    :
     :return: True if the file path is valid, False otherwise
     :rtype: bool
     """
@@ -299,7 +303,7 @@ def do_TA3_check(path_items):
     # rule: ttl needs to be in 2nd level -- aka 3rd item in list['name', 'NIST', 'valid.ttl']
     # rule: ttl needs to be in directory named NIST, or INTER-TA
 
-    return True if len(path_items) == 2 else False
+    return True if path_items[0].count('.') == 3 and len(path_items) == 2 else False
 
 def get_archive_status_and_log(archive_file_name, task_type, ttls_total_count, ttl_valid_count_dict, ttl_invalid_count_dict):
     """
@@ -321,12 +325,12 @@ def get_archive_status_and_log(archive_file_name, task_type, ttls_total_count, t
 
     row_format ="{:<{col_size}} | {:<6} | {:<17}"
 
-    # print counts per each valid type directory
+    # log counts per each valid type directory
     if count_to_be_validated > 0:
         col_size = max(max(map(len, ttl_valid_count_dict)), len("Directory ")) + 3
         logging.info(row_format.format("   Directory", "# .ttl", "", col_size=col_size))
         for dir, count in ttl_valid_count_dict.items():
-            logging.info(row_format.format(("   "+dir), count, "valid location", col_size=col_size))
+            logging.info(row_format.format(("   " + dir), count, "valid location", col_size=col_size))
 
     if count_not_to_be_validated > 0:
         col_size = max(max(map(len, ttl_invalid_count_dict)), len("Directory "))
@@ -345,9 +349,8 @@ def get_archive_status_and_log(archive_file_name, task_type, ttls_total_count, t
     optional_flag = True if task_type == '1a' or task_type == '2' else False
     required_count = 0
     if optional_flag:
-        #for task 1a and 2 specifically, if there are no required files we log that it is an error, else it is ok
+        # for task 1a and 2 specifically, if there are no required files we log that it is an error, else it is ok
         for k in ttl_valid_count_dict:
-            #print("found {1} required files in {0}".format(k, str(ttl_valid_count_dict.get(k,0))))
             if '/NIST/' in str(k):
                 required_count += ttl_valid_count_dict.get(k, 0)
 
