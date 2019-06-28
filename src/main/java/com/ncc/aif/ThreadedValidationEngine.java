@@ -40,6 +40,7 @@ public class ThreadedValidationEngine extends ValidationEngine {
     private ThreadLocal<Model> threadModel = ThreadLocal.withInitial(ModelFactory::createDefaultModel);
     private ThreadLocal<Integer> threadViolations = ThreadLocal.withInitial(() -> 0);
     private Predicate<RDFNode> focusNodeFilter;
+    private int maxDepth = 0;
     private boolean isStopped = false;
 
     private ThreadedValidationEngine(Dataset dataset, URI shapesGraphURI, ShapesGraph shapesGraph) {
@@ -99,6 +100,11 @@ public class ThreadedValidationEngine extends ValidationEngine {
         }
 
         return result;
+    }
+
+    public void setMaxDepth(int value) {
+        if (value >= 0)
+            maxDepth = value;
     }
 
     @Override
@@ -182,6 +188,12 @@ public class ThreadedValidationEngine extends ValidationEngine {
                         focusNodes.stream().filter(focusNodeFilter).collect(Collectors.toList()) :
                         focusNodes;
                 filteredCount = filtered.size();
+
+                if (maxDepth > 0 && filteredCount > maxDepth) {
+                    filtered = filtered.subList(0, maxDepth-1);
+                    String label = getLabelFunction().apply(shape.getShapeResource());
+                    System.out.printf("Truncating shape# %d (%s) to %d, node size = %d.\n", id, label, maxDepth, filteredCount);
+                }
 
                 if (!filtered.isEmpty()) {
                     for (Constraint constraint : shape.getConstraints()) {

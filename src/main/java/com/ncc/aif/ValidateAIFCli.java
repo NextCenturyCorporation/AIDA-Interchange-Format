@@ -59,6 +59,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     static final String ERR_MISSING_FILE_FLAG = "Must use one of these flags: -f | -d";
     static final String ERR_TOO_MANY_FILE_FLAGS = "Can only use one of these flags: -f | -d";
     static final String ERR_SMALLER_THAN_MIN = "%s must be at least %d";
+    static final String ERR_DEPTH_REQUIRES_T = "--depth requires -t";
     // Logging strings
     static final String START_MSG = "AIF Validator";
     // Version
@@ -74,6 +75,11 @@ public class ValidateAIFCli implements Callable<Integer> {
     private static final String ABORT_PARAMETER_STRING = "Abort parameter";
     private static final int DEFAULT_MAX_VIOLATIONS = -1;
     private static final int MINIMUM_MAX_VIOLATIONS = 3;
+    // Depth
+    private static final String DEPTH_PARAMETER_STRING = "Depth parameter";
+    private static final int DEFAULT_DEPTH = -1;
+    private static final int MINIMUM_DEPTH = 1;
+
     // Profiling
     private static final int LONG_QUERY_THRESH = 2000;
     // Threading
@@ -112,6 +118,20 @@ public class ValidateAIFCli implements Callable<Integer> {
         public Integer convert(String value) {
             try {
                 return "".equals(value) ? MINIMUM_MAX_VIOLATIONS : Integer.parseInt(value);
+            } catch (Exception ex) {
+                throw new CommandLine.TypeConversionException(String.format("'%s' is not an %s", value, Integer.TYPE.getSimpleName()));
+            }
+        }
+    }
+
+    @Option(names = "--depth", description = "Perform shallow validation in which each SHACL rule (shape) is only applied to [num] target nodes, or 50 nodes if [num] is omitted (requires -t).",
+            paramLabel = "num", arity = "0..1", converter = DepthConverter.class)
+    private int depth = DEFAULT_DEPTH;
+    private static class DepthConverter implements CommandLine.ITypeConverter<Integer> {
+        @Override
+        public Integer convert(String value) {
+            try {
+                return "".equals(value) ? MINIMUM_DEPTH : Integer.parseInt(value);
             } catch (Exception ex) {
                 throw new CommandLine.TypeConversionException(String.format("'%s' is not an %s", value, Integer.TYPE.getSimpleName()));
             }
@@ -186,6 +206,14 @@ public class ValidateAIFCli implements Callable<Integer> {
         boolean threadSet = threads != MINIMUM_THREAD_COUNT;
         if (threadSet) {
             checkMinimum(threads, THREAD_COUNT_STRING, MINIMUM_THREAD_COUNT);
+        }
+
+        boolean depthSet = depth != DEFAULT_DEPTH;
+        if (depthSet) {
+            if (threadSet)
+                checkMinimum(depth, DEPTH_PARAMETER_STRING, MINIMUM_DEPTH);
+            else
+                throw new CommandLine.ParameterException(spec.commandLine(),ERR_DEPTH_REQUIRES_T);
         }
 
         // Prevent too much logging from obscuring the actual problems.
@@ -278,6 +306,10 @@ public class ValidateAIFCli implements Callable<Integer> {
         if (threadSet) {
             logger.info("-> Validation will use " + threads + " threads.");
             validator.setThreadCount(threads);
+        }
+        if (depthSet) {
+            logger.info("-> Performing shallow validation on " + depth + " target node(s) per rule.");
+            validator.setDepth(depth);
         }
         if (useDiskModel) {
             logger.info("-> Using disk-based model for validation.");

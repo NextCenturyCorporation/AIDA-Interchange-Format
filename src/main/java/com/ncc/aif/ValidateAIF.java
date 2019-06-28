@@ -69,6 +69,7 @@ public final class ValidateAIF {
     private Model domainModel;
     private Restriction restriction;
     private int abortThreshold = -1; // by default, do not abort on SHACL violation
+    private int depth = 0; // by default, do not perform shallow validation
     private ProgressMonitor progressMonitor = null; // by default, do not monitor progress
     private ThreadPoolExecutor executor;
     private List<Future<ThreadedValidationEngine.ValidationMetadata>> validationMetadata;
@@ -183,6 +184,21 @@ public final class ValidateAIF {
     }
 
     /**
+     * Tells the validator to perform a "shallow" validation.  Validation of a particular rule (shape) will
+     * only be performed on <code>depth</code> nodes/targets.  Use zero to disable shallow validation.
+     *
+     * Note that shallow validation is only supported for multi-threaded validations.  See {@link #setThreadCount}.
+     *
+     * @param depth the number of nodes/targets to validate per shape
+     */
+    public void setDepth(int depth) {
+        if (depth < 0) {
+            throw new IllegalArgumentException("Depth must be greater than 0, or 0 to disable shallow validation.");
+        }
+        this.depth = depth;
+    }
+
+    /**
      * Tells the validator to use the specified number of threads during validation.
      * Currently, {@link ThreadedValidationEngine} does not support a {@link ProgressMonitor}. Setting this to
      * anything other than 1 will disable progress monitoring.
@@ -287,6 +303,7 @@ public final class ValidateAIF {
         if (executor != null) {
             ThreadedValidationEngine engine = ThreadedValidationEngine.createValidationEngine(unionModel, shacl, config);
             engine.setProgressMonitor(progressMonitor);
+            engine.setMaxDepth(depth);
             try {
                 engine.applyEntailments();
                 engine.validateAll(executor);
