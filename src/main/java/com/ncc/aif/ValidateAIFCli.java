@@ -59,6 +59,8 @@ public class ValidateAIFCli implements Callable<Integer> {
     static final String ERR_MISSING_FILE_FLAG = "Must use one of these flags: -f | -d";
     static final String ERR_TOO_MANY_FILE_FLAGS = "Can only use one of these flags: -f | -d";
     static final String ERR_SMALLER_THAN_MIN = "%s must be at least %d";
+    static final String ERR_BAD_ARGTYPE = "%s is not a(n) %s";
+    static final String ERR_DEPTH_REQUIRES_T = "--depth requires -t with at least 2 threads";
     // Logging strings
     static final String START_MSG = "AIF Validator";
     // Version
@@ -72,8 +74,13 @@ public class ValidateAIFCli implements Callable<Integer> {
     private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
     // ViolationThreshold
     private static final String ABORT_PARAMETER_STRING = "Abort parameter";
-    private static final int DEFAULT_MAX_VIOLATIONS = -1;
+    private static final int DEFAULT_MAX_VIOLATIONS = 3;
     private static final int MINIMUM_MAX_VIOLATIONS = 3;
+    // Depth
+    private static final String DEPTH_PARAMETER_STRING = "Depth parameter";
+    private static final int DEFAULT_DEPTH = 50;
+    private static final int MINIMUM_DEPTH = 1;
+
     // Profiling
     private static final int LONG_QUERY_THRESH = 2000;
     // Threading
@@ -106,14 +113,31 @@ public class ValidateAIFCli implements Callable<Integer> {
 
     @Option(names = "--abort", description = "Abort validation after [num] SHACL violations (num > 2), or 3 violations if [num] is omitted.",
             paramLabel = "num", arity = "0..1", converter = MaxErrorConverter.class)
-    private int maxValidationErrors = DEFAULT_MAX_VIOLATIONS;
+    private int maxValidationErrors = Integer.MIN_VALUE; // Don't fail-fast by default
+
     private static class MaxErrorConverter implements CommandLine.ITypeConverter<Integer> {
         @Override
         public Integer convert(String value) {
             try {
-                return "".equals(value) ? MINIMUM_MAX_VIOLATIONS : Integer.parseInt(value);
+                return "".equals(value) ? DEFAULT_MAX_VIOLATIONS : Integer.parseInt(value);
             } catch (Exception ex) {
-                throw new CommandLine.TypeConversionException(String.format("'%s' is not an %s", value, Integer.TYPE.getSimpleName()));
+                throw new CommandLine.TypeConversionException(String.format(ERR_BAD_ARGTYPE, value, Integer.TYPE.getSimpleName()));
+            }
+        }
+    }
+
+    @Option(names = "--depth", description =
+            "Perform shallow validation in which each SHACL rule (shape) is only applied to [num] target nodes, or " + DEFAULT_DEPTH + " nodes if [num] is omitted (requires -t).",
+            paramLabel = "num", arity = "0..1", converter = DepthConverter.class)
+    private int depth = Integer.MIN_VALUE; // Don't perform shallow validation by default
+
+    private static class DepthConverter implements CommandLine.ITypeConverter<Integer> {
+        @Override
+        public Integer convert(String value) {
+            try {
+                return "".equals(value) ? DEFAULT_DEPTH : Integer.parseInt(value);
+            } catch (Exception ex) {
+                throw new CommandLine.TypeConversionException(String.format(ERR_BAD_ARGTYPE, value, Integer.TYPE.getSimpleName()));
             }
         }
     }
@@ -145,10 +169,10 @@ public class ValidateAIFCli implements Callable<Integer> {
             arity = "1..*")
     private List<File> files;
 
-    @Option(names = { "-h", "--help" }, usageHelp = true, description = "This help and usage text")
+    @Option(names = {"-h", "--help"}, usageHelp = true, description = "This help and usage text")
     boolean help;
 
-    @Option(names = { "-v", "--version" }, versionHelp = true, description = "Print the validator version")
+    @Option(names = {"-v", "--version"}, versionHelp = true, description = "Print the validator version")
     boolean version;
 
     @Spec
@@ -178,7 +202,7 @@ public class ValidateAIFCli implements Callable<Integer> {
         checkFileMutex();
 
         // Enforce minimum checks
-        boolean abortSet = maxValidationErrors != DEFAULT_MAX_VIOLATIONS;
+        boolean abortSet = maxValidationErrors != Integer.MIN_VALUE;
         if (abortSet) {
             checkMinimum(maxValidationErrors, ABORT_PARAMETER_STRING, MINIMUM_MAX_VIOLATIONS);
         }
@@ -186,6 +210,14 @@ public class ValidateAIFCli implements Callable<Integer> {
         boolean threadSet = threads != MINIMUM_THREAD_COUNT;
         if (threadSet) {
             checkMinimum(threads, THREAD_COUNT_STRING, MINIMUM_THREAD_COUNT);
+        }
+
+        boolean depthSet = depth != Integer.MIN_VALUE;
+        if (depthSet) {
+            if (threadSet)
+                checkMinimum(depth, DEPTH_PARAMETER_STRING, MINIMUM_DEPTH);
+            else
+                throw new CommandLine.ParameterException(spec.commandLine(), ERR_DEPTH_REQUIRES_T);
         }
 
         // Prevent too much logging from obscuring the actual problems.
@@ -279,6 +311,10 @@ public class ValidateAIFCli implements Callable<Integer> {
             logger.info("-> Validation will use " + threads + " threads.");
             validator.setThreadCount(threads);
         }
+        if (depthSet) {
+            logger.info("-> Performing shallow validation on " + depth + " target node(s) per rule.");
+            validator.setDepth(depth);
+        }
         if (useDiskModel) {
             logger.info("-> Using disk-based model for validation.");
         }
@@ -317,14 +353,12 @@ public class ValidateAIFCli implements Callable<Integer> {
                     Files.createDirectories(dataModelDir);
                     dataset = TDBFactory.createDataset(dataModelDir.toString());
                     dataToBeValidated = dataset.getDefaultModel();
-                }
-                catch (IOException ioe) {
+                } catch (IOException ioe) {
                     logger.error("Could not create disk-based model.");
                     logger.error("--> " + ioe.getLocalizedMessage());
                     return ReturnCode.FILE_ERROR.ordinal();
                 }
-            }
-            else {
+            } else {
                 dataToBeValidated = ModelFactory.createDefaultModel();
             }
             boolean notSkipped = ((restriction != ValidateAIF.Restriction.NIST_TA3) || checkHypothesisSize(fileToValidate))
@@ -392,8 +426,7 @@ public class ValidateAIFCli implements Callable<Integer> {
             if (Files.exists(directory)) { // Delete the directory if it exists
                 Files.walk(directory).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
             }
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             logger.warn("---> Could not delete directory: " + directory.toString());
         }
     }
