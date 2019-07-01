@@ -91,7 +91,12 @@ public class ValidateCLITest {
     }
 
     @Nested
-    class ThresholdArgument {
+    class AbortArgument {
+        @Test
+        void thresholdBadType() {
+            expectUsageError(ValidateAIFCli.ERR_BAD_ARGTYPE.replaceAll("%.", ""),
+                    "--ldc", "--abort", "foobar", "-f", "tmp.ttl");
+        }
         @Test
         void thresholdTooLow() {
             expectUsageError(ValidateAIFCli.ERR_SMALLER_THAN_MIN.replaceAll("%.", ""),
@@ -101,10 +106,35 @@ public class ValidateCLITest {
         void correctThreshold() {
             expectCorrect("--ldc", "--abort", "4", "-f", "tmp.ttl");
         }
-
         @Test
         void correctThresholdWithoutValue() {
             expectCorrect("--ldc", "--abort", "-f", "tmp.ttl");
+        }
+    }
+
+    @Nested
+    class DepthArgument {
+        @Test
+        void depthBadType() {
+            expectUsageError(ValidateAIFCli.ERR_BAD_ARGTYPE.replaceAll("%.", ""),
+                    "--ldc", "--depth", "foobar", "-t", "2", "-f", "tmp.ttl");
+        }
+        @Test
+        void depthTooLow() {
+            expectUsageError(ValidateAIFCli.ERR_SMALLER_THAN_MIN.replaceAll("%.", ""),
+                    "--ldc", "--depth", "-1", "-t=2", "-f", "tmp.ttl");
+        }
+        @Test
+        void correctDepth() {
+            expectCorrect("--ldc", "--depth", "1", "-t=2", "-f", "tmp.ttl");
+        }
+        @Test
+        void requiresMultithreads() {
+            expectUsageError(ValidateAIFCli.ERR_DEPTH_REQUIRES_T, "--ldc", "--depth", "-f", "tmp.ttl");
+        }
+        @Test
+        void correctDepthWithoutValue() {
+            expectCorrect("--ldc", "--depth", "-t=2", "-f", "tmp.ttl");
         }
     }
 

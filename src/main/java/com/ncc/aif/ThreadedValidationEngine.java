@@ -191,8 +191,6 @@ public class ThreadedValidationEngine extends ValidationEngine {
 
                 if (maxDepth > 0 && filteredCount > maxDepth) {
                     filtered = filtered.subList(0, maxDepth-1);
-                    String label = getLabelFunction().apply(shape.getShapeResource());
-                    System.out.printf("Truncating shape# %d (%s) to %d, node size = %d.\n", id, label, maxDepth, filteredCount);
                 }
 
                 if (!filtered.isEmpty()) {

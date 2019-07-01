@@ -59,6 +59,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     static final String ERR_MISSING_FILE_FLAG = "Must use one of these flags: -f | -d";
     static final String ERR_TOO_MANY_FILE_FLAGS = "Can only use one of these flags: -f | -d";
     static final String ERR_SMALLER_THAN_MIN = "%s must be at least %d";
+    static final String ERR_BAD_ARGTYPE = "%s is not a(n) %s";
     static final String ERR_DEPTH_REQUIRES_T = "--depth requires -t with at least 2 threads";
     // Logging strings
     static final String START_MSG = "AIF Validator";
@@ -73,6 +74,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
     // ViolationThreshold
     private static final String ABORT_PARAMETER_STRING = "Abort parameter";
+    private static final int DEFAULT_MAX_VIOLATIONS = 3;
     private static final int MINIMUM_MAX_VIOLATIONS = 3;
     // Depth
     private static final String DEPTH_PARAMETER_STRING = "Depth parameter";
@@ -117,9 +119,9 @@ public class ValidateAIFCli implements Callable<Integer> {
         @Override
         public Integer convert(String value) {
             try {
-                return "".equals(value) ? MINIMUM_MAX_VIOLATIONS : Integer.parseInt(value);
+                return "".equals(value) ? DEFAULT_MAX_VIOLATIONS : Integer.parseInt(value);
             } catch (Exception ex) {
-                throw new CommandLine.TypeConversionException(String.format("'%s' is not an %s", value, Integer.TYPE.getSimpleName()));
+                throw new CommandLine.TypeConversionException(String.format(ERR_BAD_ARGTYPE, value, Integer.TYPE.getSimpleName()));
             }
         }
     }
@@ -135,7 +137,7 @@ public class ValidateAIFCli implements Callable<Integer> {
             try {
                 return "".equals(value) ? DEFAULT_DEPTH : Integer.parseInt(value);
             } catch (Exception ex) {
-                throw new CommandLine.TypeConversionException(String.format("'%s' is not an %s", value, Integer.TYPE.getSimpleName()));
+                throw new CommandLine.TypeConversionException(String.format(ERR_BAD_ARGTYPE, value, Integer.TYPE.getSimpleName()));
             }
         }
     }
