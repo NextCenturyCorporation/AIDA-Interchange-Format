@@ -59,7 +59,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     static final String ERR_MISSING_FILE_FLAG = "Must use one of these flags: -f | -d";
     static final String ERR_TOO_MANY_FILE_FLAGS = "Can only use one of these flags: -f | -d";
     static final String ERR_SMALLER_THAN_MIN = "%s must be at least %d";
-    static final String ERR_DEPTH_REQUIRES_T = "--depth requires -t";
+    static final String ERR_DEPTH_REQUIRES_T = "--depth requires -t with at least 2 threads";
     // Logging strings
     static final String START_MSG = "AIF Validator";
     // Version
