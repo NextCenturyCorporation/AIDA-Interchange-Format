@@ -64,7 +64,7 @@ class Initialize:
 
 			for idx, job in enumerate(jobs):
 				logging.info("Submitting AWS Batch job[%s] with the following overrides: %s", job['name'], str(job))
-				#self._submit_job(job['name'], job)
+				self._submit_job(job['name'], job)
 		else:
 			logging.info("No AWS Batch jobs submitted for %s", self.s3_submission_archive_path)
 
