@@ -59,7 +59,7 @@ validate N files or all files in a specified directory.
 To run the validator from the command line, run `target/appassembler/bin/validateAIF`
 with a series of command-line arguments (in any order) honoring the following usage:  <br>
 Usage:  <br>
-`validateAIF [-hov] [--ldc] [--nist] [--nist-ta3] [--pm] [--program] [--abort[=num]] [-d=DIRNAME] [-t=num] [--ont=FILE...]... [-f=FILE...]...`  <br>
+`validateAIF [-hov] [--ldc] [--nist] [--nist-ta3] [--pm] [--program] [--abort[=num]] [--depth[=num]] [-d=DIRNAME] [-t=num] [--ont=FILE...]... [-f=FILE...]...`  <br>
 
 | Switch | Description |
 | ----------- | ----------- |
@@ -69,6 +69,7 @@ Usage:  <br>
 |`--nist` | validate against the NIST restrictions |
 |`--nist-ta3` | validate against the NIST hypothesis restrictions (implies `--nist`) |
 |`--abort[=num]` | Abort validation after `[num]` SHACL violations (num > 2), or three violations if `[num]` is omitted. |
+|`--depth[=num]` | Perform shallow validation in which each SHACL rule (shape) is only applied to `[num]` target nodes, or 50 nodes if `[num]` is omitted (requires -t). |
 |`--pm` | Enable progress monitor that shows ongoing validation progress |
 |`--disk` | Use disk-based model for validating very large files |
 |`-o` | Save validation report model to a file.  `KB.ttl` would result in `KB-report.txt`. Output defaults to stderr. |
