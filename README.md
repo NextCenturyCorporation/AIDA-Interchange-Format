@@ -121,6 +121,27 @@ Without the `--abort` option, the entire KB will be validated with full output o
 To fail fast when using the validator programmatically, use `ValidateAIF.setAbortThreshold()` to set an error
 threshold.
 
+### Shallow validation
+
+The `--depth` option performs a "shallow" validation in which each SHACL rule (shape) only considers a subset of its
+target nodes.  The size of this subset (i.e., the depth of the validation) can be specified on the command line.
+For example, `--depth=100` means that if your file has 30,000 event arguments, then the `aida:EventArgumentShape` will
+only be applied to 100 event arguments, significantly speeding up generation of an error report.  Any violations in
+these 100 nodes will be included in the error report.  By default (if no depth is specified), only 50 target nodes will
+be tested.  The `--depth` option requires enabling the multi-threaded validator via the `-t` option.
+Unlike failing fast, shallow validation ends early whether or not it finds any SHACL violations.
+
+To enable shallow validation programmatically, use `ValidateAIF.setDepth()` and specify a depth.
+
+### Memory considerations
+
+Validation of a large files can require significant system resources, particularly system RAM.  By default, the Java
+heap will use up to half of the available RAM on your system.  If you want to set a higher (or lower) maximum, then
+set the `JAVA_OPTS` environment variable to, for example, `-Xmx16G` to use up to 16GB of RAM.
+
+Alternatively, you can add `<extraJvmArguments>-Xmx16G</extraJvmArguments>` to your `pom.xml` file in the
+`<configuration>` block of the `appassembler-maven-plugin` plugin.
+
 # Running the Ontology Resource Generator
 
 To generate the resource variables from a particular ontology file, please refer to
