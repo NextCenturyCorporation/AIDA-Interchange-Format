@@ -81,7 +81,7 @@ class Main:
             self._wait_for_processing()
 
         # download all validation files from s3 for the current job
-        results_path = Path(self.s3_submission_prefix).stem
+        results_path = Path(self.s3_submission_prefix).name
         results_tar = results_path + '.tar.gz'
         self._sync_s3_bucket(self.s3_validation_bucket, self.s3_validation_prefix, results_path)
 
