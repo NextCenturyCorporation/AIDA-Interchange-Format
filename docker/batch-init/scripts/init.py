@@ -21,9 +21,9 @@ class Task(Enum):
 class Initialize:
 
 	# define all the different directory types and corresponding flags
-	NIST = { 'validation': '--ldc --nist -o', 'name': 'nist', 'description': 'NIST RESTRICTED'  }
-	INTER_TA = { 'validation': '--ldc -o', 'name': 'unrestricted', 'description': 'UNRESTRICTED'  }
-	NIST_TA3 = { 'validation': '--ldc --nist-ta3 -o', 'name': 'nist-ta3', 'description': 'NIST TA3 RESTRICTED' }
+	NIST = { 'name': 'nist', 'description': 'NIST RESTRICTED'  }
+	INTER_TA = { 'name': 'unrestricted', 'description': 'UNRESTRICTED'  }
+	NIST_TA3 = { 'name': 'nist-ta3', 'description': 'NIST TA3 RESTRICTED' }
 
 	# init instance attributes
 	def __init__(self, envs):
@@ -37,6 +37,11 @@ class Initialize:
 		self.batch_job_definition = envs['BATCH_JOB_DEFINITION']
 		self.batch_job_queue = envs['BATCH_JOB_QUEUE']
 		self.session = boto3.session.Session(region_name=self.aws_region)
+
+		# set validation flags for different submission types
+		self.NIST['validation'] = envs['NIST_VALIDATION_FLAGS']
+		self.INTER_TA['validation'] = envs['UNRESTRICTED_VALIDATION_FLAGS']
+		self.NIST_TA3['validation'] = envs['NIST_TA3_VALIDATION_FLAGS']
 
 
 	def run(self):
@@ -694,6 +699,9 @@ def read_envs():
 	envs['BATCH_JOB_QUEUE'] = os.environ.get('BATCH_JOB_QUEUE')
 	envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN')
 	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION')
+	envs['NIST_VALIDATION_FLAGS'] = os.environ.get('NIST_VALIDATION_FLAGS', '--ldc --nist -o')
+	envs['UNRESTRICTED_VALIDATION_FLAGS'] = os.environ.get('UNRESTRICTED_VALIDATION_FLAGS', '--ldc -o')
+	envs['NIST_TA3_VALIDATION_FLAGS'] = os.environ.get('NIST_TA3_VALIDATION_FLAGS', '--ldc --nist-ta3 -o')
 
 	return envs
 
