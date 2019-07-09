@@ -241,7 +241,8 @@
                         "Ref": "BatchInstanceProfile"
                     },
                     "InstanceTypes": [
-                        "m4.large"
+                        { "Ref": "MainEc2InstanceType" },
+                        { "Ref": "WorkerEc2InstanceType" }
                     ],
                     "MaxvCpus": {
                         "Ref": "ComputeEnvironmentMaxVCpus"
