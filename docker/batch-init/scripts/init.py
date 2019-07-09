@@ -50,11 +50,14 @@ class Initialize:
 		# download / extract archive and return local directory
 		staging_dir = self._download_and_extract_submission_from_s3()
 
+		# validate run id directory and return path
+		run_id_path = self._get_run_id_path(staging_dir)
+
 		# identify the task type for the submission
-		task = self._get_task_type(stem, staging_dir)
+		task = self._get_task_type(stem, run_id_path)
 
 		# validate structure of submission and upload to S3 
-		jobs = self._validate_and_upload(staging_dir, task, stem)
+		jobs = self._validate_and_upload(run_id_path, task, stem)
 
 		# print out enviornment variables that will be set during aws batch submission
 		if jobs:
@@ -75,10 +78,22 @@ class Initialize:
 		the topic arn that reports a failure. This will be used to notify 
 		the user that no job was submitted for this submission. 
 
-		:param str message: The message to publish
+		:param str err_message: The message to publish
 		"""
 		message = "The submission {0} will not be validated because the following error occrured: {1}".format( 
 			self.s3_submission_archive_path , err_message)
+		self._publish_sns_message(message)
+
+
+	def _publish_init_warning(self, warning_message):
+		"""Function will publish message on to the SNS topic specified by
+		the topic arn that reports a warning. This will be used to notify 
+		the user that a job will be submitted, but the submissions is not 
+		in a completely valid state.
+
+		:param str warning_message: The message to publish
+		"""
+		message = "The submission {0} caused the following warning: {1}".format(self.s3_submission_archive_path, warning_message)
 		self._publish_sns_message(message)
 
 
@@ -256,30 +271,29 @@ class Initialize:
 			return stem
 
 
-	def _get_task_type(self, stem, directory):
+	def _get_task_type(self, stem, run_id_path):
 		"""Function will determine the task type of the submission based on the naming 
 		convention of the stem.
 
 		:param str stem: The stem of the submission
-		:param str directory: The local directory containing the downloaded contents of
+		:param str run_id_path: The local directory path containing the downloaded contents of
 			the submission
 		:returns The task type enum of the submission stems
 		:rtype: Enum
 		"""
 		delim_count = stem.count('.')
-		id_dir = self._get_run_id_directory(directory)
 
 		if delim_count == 0:
-			if not self._check_nist_directory(id_dir):
+			if not self._check_nist_directory(run_id_path):
 				err = "Invalid Task 1 submission format. Unable to locate required NIST directory in submission"
 				self._publish_init_failure(err)
 				raise ValueError(err)
 
 			# check for task 1b
-			if self._check_nist_subdirectory_has_ttl(id_dir):
+			if self._check_nist_subdirectory_has_ttl(run_id_path):
 				logging.info("Submission identified as Task 1b")
 				return Task.oneB
-			elif self._check_nist_directory_has_ttl(id_dir):
+			elif self._check_nist_directory_has_ttl(run_id_path):
 				logging.info("Submission identified as Task 1a")
 				return Task.oneA
 			else:
@@ -288,12 +302,12 @@ class Initialize:
 				raise ValueError(err)
 			
 		elif delim_count == 1:
-			if not self._check_nist_directory(id_dir):
+			if not self._check_nist_directory(run_id_path):
 				err = "Invalid Task 2 submission format. Unable to locate required NIST directory in submission"
 				self._publish_init_failure(err)
 				raise ValueError(err)
 
-			if not self._check_nist_directory_has_ttl(id_dir):
+			if not self._check_nist_directory_has_ttl(run_id_path):
 				err = "Invalid Task 2 submission format. NIST directory in submission does not contain any .ttl files"
 				self._publish_init_failure(err)
 				raise ValueError(err)
@@ -303,7 +317,7 @@ class Initialize:
 					
 		elif delim_count == 2:
 			# check for ttl files in root directory
-			if not glob.glob(id_dir + '/*.ttl'):
+			if not glob.glob(run_id_path + '/*.ttl'):
 				err = "Invalid Task 3 submission format. NIST directory in submission does not contain any .ttl files"
 				self._publish_init_failure(err)
 				raise ValueError(err)
@@ -317,8 +331,8 @@ class Initialize:
 			raise ValueError() 
 
 
-	def _get_run_id_directory(self, directory):
-		"""Helper function that will find the run ID directory. This should be a single directory in the top level
+	def _get_run_id_path(self, directory):
+		"""Helper function that will find the run ID directory path. This should be a single directory in the top level
 		of every submission. If it does not exist or if there are multiple directories, an error will be raised.
 
 		:param str directory: The directory to search for the single run ID directory
@@ -326,6 +340,16 @@ class Initialize:
 		:rtype: str
 		"""
 		dir_list = [ name for name in os.listdir(directory) if os.path.isdir(os.path.join(directory, name)) ]
+
+		# We have noticed that some submissions created on a Mac include an invisible __MACOSX directory. This 
+		# check is to remove this from the list if it exists essentially ignoring it. 
+		if '__MACOSX' in dir_list:
+
+			# remove from the list
+			dir_list.remove('__MACOSX')
+			warn_msg = "Submission {0} contains invalid __MACOSX directory.".format(self.s3_submission_archive_path)
+			logging.warning(warn_msg)
+			self._publish_init_warning(warn_msg)
 
 		# TODO There is no real validation to ensure the name of this directory is the run ID. This could be an improvement 
 		# in the future. 
@@ -337,11 +361,11 @@ class Initialize:
 			raise ValueError(err)
 
     
-	def _validate_and_upload(self, directory, task, prefix):
+	def _validate_and_upload(self, run_id_path, task, prefix):
 		"""Validates directory structure of task type and uploads the contents to s3. Returns a dictionary
 		of jobs that need to be executed on batch with their corresponding s3 locations.
 
-		:param str directory: The local directory containing the downloaded contents of
+		:param str run_id_path: The local directory path containing the downloaded contents of
 			the submission
 		:param Task task: The task enum that representing the task type of the submission
 		:param str prefix: The prefix to append to all objects uploaded to the S3 bucket
@@ -350,24 +374,23 @@ class Initialize:
 		"""
 		logging.info("Validating submission as Task type %s", task.value)
 		task_type = task.value
-		id_dir = self._get_run_id_directory(directory)
 		jobs = []
 
 		if task == Task.oneA or task == Task.two:
 
 			# NIST directory required, do not upload INTER-TA if NIST does not exist
-			if not self._check_nist_directory(id_dir):
+			if not self._check_nist_directory(run_id_path):
 				logging.error("Task {0} submission format is invalid. Could not locate NIST directory".format(str(task.value)))
 
 			else:
-				j = self._upload_formatted_submission(id_dir, prefix, self.NIST, '/NIST/*.ttl', task)
+				j = self._upload_formatted_submission(run_id_path, prefix, self.NIST, '/NIST/*.ttl', task)
 
 				if j is not None:
 					jobs.append(j)
 
 				# INTER-TA directory **not required**
-				if self._check_inter_ta_directory(id_dir):
-					j = self._upload_formatted_submission(id_dir, prefix, self.INTER_TA, '/INTER-TA/*.ttl', task)
+				if self._check_inter_ta_directory(run_id_path):
+					j = self._upload_formatted_submission(run_id_path, prefix, self.INTER_TA, '/INTER-TA/*.ttl', task)
 
 					if j is not None:
 						jobs.append(j)
@@ -377,17 +400,17 @@ class Initialize:
 		elif task == Task.oneB:
 
 			# NIST directory required
-			if not self._check_nist_directory(id_dir):
+			if not self._check_nist_directory(run_id_path):
 				logging.error("Task {0} submission format is invalid. Could not locate NIST directory".format(str(task.value)))
 			else:
-				hypothesis_dirs = self._get_ta3_hypothesis_dirs(id_dir)
+				hypothesis_dirs = self._get_ta3_hypothesis_dirs(run_id_path)
 
 				# check for hypothesis subdirectories
 				if hypothesis_dirs:
 
 					# make a submission out of each hypothesis subdirectory
 					for d in hypothesis_dirs:
-						j = self._upload_formatted_submission(id_dir, prefix + '-' + d, self.NIST, '/NIST/' + d + '/*.ttl', task)
+						j = self._upload_formatted_submission(run_id_path, prefix + '-' + d, self.NIST, '/NIST/' + d + '/*.ttl', task)
 
 						if j is not None:
 							jobs.append(j)
@@ -398,7 +421,7 @@ class Initialize:
 			return jobs
 
 		elif task == Task.three:
-			jobs.append(self._upload_formatted_submission(id_dir, prefix, self.NIST_TA3, '/*.ttl', task))
+			jobs.append(self._upload_formatted_submission(run_id_path, prefix, self.NIST_TA3, '/*.ttl', task))
 
 			return jobs
 
