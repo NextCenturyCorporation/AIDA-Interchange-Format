@@ -137,7 +137,7 @@ To enable shallow validation programmatically, use `ValidateAIF.setDepth()` and 
 
 Validation of a large files can require significant system resources, particularly system RAM.  By default, the Java
 heap will use up to half of the available RAM on your system.  If you want to set a higher (or lower) maximum, then
-set the `JAVA_OPTS` environment variable to, for example, `-mx16G` to use up to 16GB of RAM.
+set the `JAVA_OPTS` environment variable to, for example, `-Xmx16G` to use up to 16GB of RAM.
 
 Alternatively, you can add `<extraJvmArguments>-Xmx16G</extraJvmArguments>` to your `pom.xml` file in the
 `<configuration>` block of the `appassembler-maven-plugin` plugin.
