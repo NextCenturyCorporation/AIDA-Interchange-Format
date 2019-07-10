@@ -784,7 +784,7 @@ aida:CompoundJustificationMinimum
 aida:CompoundJustificationTypes
    a sh:PropertyShape ;
    sh:path aida:containedJustification ;
-   sh:xone aida:JustificationTypeList ;
+   sh:or aida:JustificationTypeList ;
    sh:message "Unsupported compound justification type" .
 
 aida:JustificationTypeList
@@ -800,13 +800,13 @@ aida:JustificationTypeList
 aida:InformativeJustificationPropertyShape
     a sh:PropertyShape ;
     sh:path aida:informativeJustification ;
-    sh:xone aida:JustificationTypeList
+    sh:or aida:JustificationTypeList
     .
 
 aida:JustificationPropertyShape
    a sh:PropertyShape ;
    sh:path aida:justifiedBy ;
-   sh:xone (
+   sh:or (
      [sh:class aida:TextJustification]
      [sh:class aida:ImageJustification]
      [sh:class aida:AudioJustification]

@@ -93,20 +93,11 @@ aida:MutualExclusionConstraintShape
 #------------------------
 # Restrict normal Justification types globally
 aida:JustificationPropertyShape
-    sh:xone (
-        [sh:class aida:TextJustification]
-        [sh:class aida:ImageJustification]
-        [sh:class aida:AudioJustification]
-        [sh:class aida:KeyFrameVideoJustification]
-        [sh:class aida:CompoundJustification] ) .
+    sh:not [sh:class aida:ShotVideoJustification] .
 
 # Restrict CompoundJustificationTypes globally
 aida:CompoundJustificationTypes
-    sh:xone (
-        [sh:class aida:TextJustification]
-        [sh:class aida:ImageJustification]
-        [sh:class aida:AudioJustification]
-        [sh:class aida:KeyFrameVideoJustification] ) .
+    sh:not [sh:class aida:ShotVideoJustification] .
 
 #########################
 # 4.3 #2 Each cluster must have an IRI
