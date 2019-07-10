@@ -134,14 +134,9 @@
             "Description": "Ec2KeyPair to use for Compute Environment",
             "Default": "AIDA-All"
         },
-        "MainEc2InstanceType": {
+        "Ec2InstanceType": {
             "Type": "String",
             "Description": "The EC2 instance type for the main node",
-            "Default": "m4.large"
-        },
-        "WorkerEc2InstanceType": {
-            "Type": "String",
-            "Description": "The EC2 instance type for the worker node",
             "Default": "m4.large"
         },
         "MainContainerImage": {
@@ -241,8 +236,7 @@
                         "Ref": "BatchInstanceProfile"
                     },
                     "InstanceTypes": [
-                        { "Ref": "MainEc2InstanceType" },
-                        { "Ref": "WorkerEc2InstanceType" }
+                        { "Ref": "Ec2InstanceType" }
                     ],
                     "MaxvCpus": {
                         "Ref": "ComputeEnvironmentMaxVCpus"
@@ -502,7 +496,7 @@
                                     "Ref": "MainContainerImage"
                                 },
                                 "InstanceType" : {
-                                    "Ref": "MainEc2InstanceType"
+                                    "Ref": "Ec2InstanceType"
                                 },
                                 "JobRoleArn" : {
                                     "Ref": "BatchTaskRole"
@@ -557,7 +551,7 @@
                                     "Ref": "WorkerContainerImage"
                                 },
                                 "InstanceType" : {
-                                    "Ref": "WorkerEc2InstanceType"
+                                    "Ref": "Ec2InstanceType"
                                 },
                                 "JobRoleArn" : {
                                     "Ref": "BatchTaskRole"
