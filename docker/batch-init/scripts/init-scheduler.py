@@ -57,7 +57,6 @@ def validate_envs(envs: dict):
 
     for k, v in envs.items():
 
-        # JAVA OPTS is not required to be set
         if not is_env_set(k, v):
             return False
 
