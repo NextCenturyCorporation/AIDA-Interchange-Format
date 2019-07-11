@@ -56,7 +56,9 @@ def validate_envs(envs: dict):
         return False
 
     for k, v in envs.items():
-        if not is_env_set(k, v):
+
+        # JAVA OPTS is not required to be set
+        if not is_env_set(k, v) and k is not 'JAVA_OPTS':
             return False
 
     return True
@@ -70,6 +72,12 @@ def is_env_set(env, value):
     :returns: True if environment variable is set, False otherwise
     :rtype: bool
     """
+
+    # JAVA OPTS is not required to be set
+    if env is 'JAVA_OPTS':
+        logging.info("Environment variable JAVA_OPTS is set to %s", value)
+        return True
+
     if not value:
         logging.error("Environment variable %s is not set", env)
         return False
@@ -95,6 +103,7 @@ def read_envs():
     envs['NIST_VALIDATION_FLAGS'] = os.environ.get('NIST_VALIDATION_FLAGS', '--ldc --nist -o')
     envs['UNRESTRICTED_VALIDATION_FLAGS'] = os.environ.get('UNRESTRICTED_VALIDATION_FLAGS', '--ldc -o')
     envs['NIST_TA3_VALIDATION_FLAGS'] = os.environ.get('NIST_TA3_VALIDATION_FLAGS', '--ldc --nist-ta3 -o')
+    envs['JAVA_OPTS'] = os.environ.get('JAVA_OPTS')
 
     return envs
 
@@ -125,7 +134,8 @@ def main():
             'AWS_DEFAULT_REGION': envs['AWS_DEFAULT_REGION'],
             'NIST_VALIDATION_FLAGS': envs['NIST_VALIDATION_FLAGS'],
             'UNRESTRICTED_VALIDATION_FLAGS': envs['UNRESTRICTED_VALIDATION_FLAGS'],
-            'NIST_TA3_VALIDATION_FLAGS': envs['NIST_TA3_VALIDATION_FLAGS']
+            'NIST_TA3_VALIDATION_FLAGS': envs['NIST_TA3_VALIDATION_FLAGS'],
+            'JAVA_OPTS': envs['JAVA_OPTS']
     	}
 
     	# get the full list of submissions located in the bucket/prefix
