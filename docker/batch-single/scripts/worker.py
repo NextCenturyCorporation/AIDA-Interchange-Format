@@ -438,6 +438,7 @@ def read_envs():
 	envs['AWS_BATCH_JOB_ID'] = os.environ.get('AWS_BATCH_JOB_ID')
 	envs['AWS_BATCH_JOB_NODE_INDEX'] = os.environ.get('AWS_BATCH_JOB_NODE_INDEX')
 	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
+
 	return envs
 
 
@@ -470,6 +471,9 @@ def validate_envs(envs):
     except ValueError:
         logging.error("Validation timeout [%s] must be an integer", envs['VALIDATION_TIMEOUT'])
         return False
+
+    # print out JAVA_OPTS for logging purposes
+    logging.info("Envrionment variable JAVA_OPTS is set to %s", os.environ.get('JAVA_OPTS'))
 
     return True
 
