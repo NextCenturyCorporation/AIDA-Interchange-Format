@@ -43,6 +43,7 @@ public class ThreadedValidationEngine extends ValidationEngine {
     });
     private ThreadLocal<Integer> threadViolations = ThreadLocal.withInitial(() -> 0);
     private Predicate<RDFNode> focusNodeFilter;
+    private int maxDepth = 0;
     private boolean isStopped = false;
     private long lastDuration = 0;
 
@@ -138,6 +139,11 @@ public class ThreadedValidationEngine extends ValidationEngine {
         }
 
         return result;
+    }
+
+    public void setMaxDepth(int value) {
+        if (value >= 0)
+            maxDepth = value;
     }
 
     @Override
@@ -240,6 +246,11 @@ public class ThreadedValidationEngine extends ValidationEngine {
                         focusNodes.stream().filter(focusNodeFilter).collect(Collectors.toList()) :
                         focusNodes;
                 smd.filteredTargetCount = filtered.size();
+
+                if (maxDepth > 0 && filteredCount > maxDepth) {
+                    filtered = filtered.subList(0, maxDepth-1);
+                }
+
                 if (!filtered.isEmpty()) {
                     for (Constraint constraint : shape.getConstraints()) {
                         smd.constraintFutures.add(executor.submit(getConstraintTask(filtered, constraint)));

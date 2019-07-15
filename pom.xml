@@ -178,7 +178,6 @@
                         <phase>package</phase>
                         <goals><goal>assemble</goal></goals>
                         <configuration>
-                            <extraJvmArguments>-Xmx8G</extraJvmArguments>
                             <programs>
                                 <program>
                                     <mainClass>com.ncc.aif.ValidateAIFCli</mainClass>

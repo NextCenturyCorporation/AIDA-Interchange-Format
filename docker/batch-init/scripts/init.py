@@ -7,21 +7,23 @@ import glob
 import logging
 import uuid
 import shutil
+import re
 from pathlib import Path
 from enum import Enum
 from botocore.exceptions import ClientError
 
 class Task(Enum):
-	one = '1'
+	oneA = '1a'
+	oneB = '1b'
 	two = '2'
 	three = '3'
 
 class Initialize:
 
 	# define all the different directory types and corresponding flags
-	NIST = { 'validation': '--ldc --nist -o', 'name': 'nist', 'directory': 'NIST', 'description': 'NIST RESTRICTED'  }
-	INTER_TA = { 'validation': '--ldc -o', 'name': 'unrestricted', 'directory': 'INTER-TA', 'description': 'UNRESTRICTED'  }
-	NIST_TA3 = { 'validation': '--ldc --nist-ta3 -o', 'name': 'nist-ta3', 'directory': 'NIST', 'description': 'NIST TA3 RESTRICTED' }
+	NIST = { 'name': 'nist', 'description': 'NIST RESTRICTED'  }
+	INTER_TA = { 'name': 'unrestricted', 'description': 'UNRESTRICTED'  }
+	NIST_TA3 = { 'name': 'nist-ta3', 'description': 'NIST TA3 RESTRICTED' }
 
 	# init instance attributes
 	def __init__(self, envs):
@@ -36,6 +38,11 @@ class Initialize:
 		self.batch_job_queue = envs['BATCH_JOB_QUEUE']
 		self.session = boto3.session.Session(region_name=self.aws_region)
 
+		# set validation flags for different submission types
+		self.NIST['validation'] = envs['NIST_VALIDATION_FLAGS']
+		self.INTER_TA['validation'] = envs['UNRESTRICTED_VALIDATION_FLAGS']
+		self.NIST_TA3['validation'] = envs['NIST_TA3_VALIDATION_FLAGS']
+
 
 	def run(self):
 		""" Main method to run
@@ -48,18 +55,23 @@ class Initialize:
 		# download / extract archive and return local directory
 		staging_dir = self._download_and_extract_submission_from_s3()
 
+		# validate run id directory and return path
+		run_id_path = self._get_run_id_path(staging_dir)
+
 		# identify the task type for the submission
-		task = self._get_task_type(stem, staging_dir)
+		task = self._get_task_type(stem, run_id_path)
 
 		# validate structure of submission and upload to S3 
-		jobs = self._validate_and_upload(staging_dir, task, stem)
+		jobs = self._validate_and_upload(run_id_path, task, stem)
 
 		# print out enviornment variables that will be set during aws batch submission
-		if len(jobs) > 0:
+		if jobs:
 
 			for idx, job in enumerate(jobs):
 				logging.info("Submitting AWS Batch job[%s] with the following overrides: %s", job['name'], str(job))
 				self._submit_job(job['name'], job)
+		else:
+			logging.info("No AWS Batch jobs submitted for %s", self.s3_submission_archive_path)
 
 		# remove staing directory and downloaded submission
 		os.remove(Path(self.s3_submission_archive_path).name)
@@ -71,10 +83,22 @@ class Initialize:
 		the topic arn that reports a failure. This will be used to notify 
 		the user that no job was submitted for this submission. 
 
-		:param str message: The message to publish
+		:param str err_message: The message to publish
 		"""
 		message = "The submission {0} will not be validated because the following error occrured: {1}".format( 
 			self.s3_submission_archive_path , err_message)
+		self._publish_sns_message(message)
+
+
+	def _publish_init_warning(self, warning_message):
+		"""Function will publish message on to the SNS topic specified by
+		the topic arn that reports a warning. This will be used to notify 
+		the user that a job will be submitted, but the submissions is not 
+		in a completely valid state.
+
+		:param str warning_message: The message to publish
+		"""
+		message = "The submission {0} caused the following warning: {1}".format(self.s3_submission_archive_path, warning_message)
 		self._publish_sns_message(message)
 
 
@@ -252,60 +276,68 @@ class Initialize:
 			return stem
 
 
-	def _get_task_type(self, stem, directory):
+	def _get_task_type(self, stem, run_id_path):
 		"""Function will determine the task type of the submission based on the naming 
 		convention of the stem.
 
 		:param str stem: The stem of the submission
-		:param str directory: The local directory containing the downloaded contents of
+		:param str run_id_path: The local directory path containing the downloaded contents of
 			the submission
 		:returns The task type enum of the submission stems
 		:rtype: Enum
 		"""
 		delim_count = stem.count('.')
-		id_dir = self._get_run_id_directory(directory)
 
 		if delim_count == 0:
-			if not self._check_nist_directory(id_dir):
-				err = "Invalid Task 1 submission format. Unable to locate required {0} directory in submission".format(
-					self.NIST['directory'])
+			if not self._check_nist_directory(run_id_path):
+				err = "Invalid Task 1 submission format. Unable to locate required NIST directory in submission"
 				self._publish_init_failure(err)
 				raise ValueError(err)
 
-			if not self._check_nist_directory_has_ttl(id_dir):
-				err = "Invalid Task 1 submission format. {0} directory in submission does not contain any .ttl files".format(
-					self.NIST['directory'])
+			# check for task 1b
+			if self._check_nist_subdirectory_has_ttl(run_id_path):
+				logging.info("Submission identified as Task 1b")
+				return Task.oneB
+			elif self._check_nist_directory_has_ttl(run_id_path):
+				logging.info("Submission identified as Task 1a")
+				return Task.oneA
+			else:
+				err = "Invalid Task 1 submission format. NIST directory or NIST subdirectories in submission do not contain any .ttl files"
 				self._publish_init_failure(err)
 				raise ValueError(err)
-
-			return Task.one
 			
-				
 		elif delim_count == 1:
-			if not self._check_nist_directory(id_dir):
-				err = "Invalid Task 2 submission format. Unable to locate required {0} directory in submission".format(
-					self.NIST['directory'])
+			if not self._check_nist_directory(run_id_path):
+				err = "Invalid Task 2 submission format. Unable to locate required NIST directory in submission"
 				self._publish_init_failure(err)
 				raise ValueError(err)
 
-			if not self._check_nist_directory_has_ttl(id_dir):
-				err = "Invalid Task 2 submission format. {0} directory in submission does not contain any .ttl files".format(
-					self.NIST['directory'])
+			if not self._check_nist_directory_has_ttl(run_id_path):
+				err = "Invalid Task 2 submission format. NIST directory in submission does not contain any .ttl files"
 				self._publish_init_failure(err)
 				raise ValueError(err)
 
+			logging.info("Submission identified as Task 2")
 			return Task.two
 					
 		elif delim_count == 2:
+			# check for ttl files in root directory
+			if not glob.glob(run_id_path + '/*.ttl'):
+				err = "Invalid Task 3 submission format. NIST directory in submission does not contain any .ttl files"
+				self._publish_init_failure(err)
+				raise ValueError(err)
+
+			logging.info("Submission identified as Task 3")
 			return Task.three
+
 		else:
 			err = "Invalid submission format. Could not extract task type with submission stem {0}".format(stem)
 			self._publish_init_failure(err)
 			raise ValueError() 
 
 
-	def _get_run_id_directory(self, directory):
-		"""Helper function that will find the run ID directory. This should be a single directory in the top level
+	def _get_run_id_path(self, directory):
+		"""Helper function that will find the run ID directory path. This should be a single directory in the top level
 		of every submission. If it does not exist or if there are multiple directories, an error will be raised.
 
 		:param str directory: The directory to search for the single run ID directory
@@ -313,6 +345,16 @@ class Initialize:
 		:rtype: str
 		"""
 		dir_list = [ name for name in os.listdir(directory) if os.path.isdir(os.path.join(directory, name)) ]
+
+		# We have noticed that some submissions created on a Mac include an invisible __MACOSX directory. This 
+		# check is to remove this from the list if it exists essentially ignoring it. 
+		if '__MACOSX' in dir_list:
+
+			# remove from the list
+			dir_list.remove('__MACOSX')
+			warn_msg = "Submission {0} contains invalid __MACOSX directory.".format(self.s3_submission_archive_path)
+			logging.warning(warn_msg)
+			self._publish_init_warning(warn_msg)
 
 		# TODO There is no real validation to ensure the name of this directory is the run ID. This could be an improvement 
 		# in the future. 
@@ -324,52 +366,75 @@ class Initialize:
 			raise ValueError(err)
 
     
-	def _validate_and_upload(self, directory, task, prefix):
+	def _validate_and_upload(self, run_id_path, task, prefix):
 		"""Validates directory structure of task type and uploads the contents to s3. Returns a dictionary
 		of jobs that need to be executed on batch with their corresponding s3 locations.
 
-		:param str directory: The local directory containing the downloaded contents of
+		:param str run_id_path: The local directory path containing the downloaded contents of
 			the submission
 		:param Task task: The task enum that representing the task type of the submission
 		:param str prefix: The prefix to append to all objects uploaded to the S3 bucket
 		:returns: List of dictionary objects representing the aws batch jobs that need to be executed
 		:rtype: List
 		"""
-		logging.info("Validating submission as task type %s", task.value)
+		logging.info("Validating submission as Task type %s", task.value)
 		task_type = task.value
-		id_dir = self._get_run_id_directory(directory)
 		jobs = []
 
-		if task == Task.one or task == Task.two:
+		if task == Task.oneA or task == Task.two:
 
-			# NIST direcotry required, do not upload INTER-TA if NIST does not exist
-			if not self._check_nist_directory(id_dir):
+			# NIST directory required, do not upload INTER-TA if NIST does not exist
+			if not self._check_nist_directory(run_id_path):
 				logging.error("Task {0} submission format is invalid. Could not locate NIST directory".format(str(task.value)))
 
 			else:
-				j = self._upload_formatted_submission(id_dir, prefix, self.NIST, task)
+				j = self._upload_formatted_submission(run_id_path, prefix, self.NIST, '/NIST/*.ttl', task)
 
 				if j is not None:
 					jobs.append(j)
 
 				# INTER-TA directory **not required**
-				if self._check_inter_ta_directory(id_dir):
-					j = self._upload_formatted_submission(id_dir, prefix, self.INTER_TA, task)
+				if self._check_inter_ta_directory(run_id_path):
+					j = self._upload_formatted_submission(run_id_path, prefix, self.INTER_TA, '/INTER-TA/*.ttl', task)
 
 					if j is not None:
 						jobs.append(j)
 
 			return jobs
 
-		elif task == Task.three:
-			jobs.append(self._upload_formatted_submission(id_dir, prefix, self.NIST_TA3, task))
+		elif task == Task.oneB:
+
+			# NIST directory required
+			if not self._check_nist_directory(run_id_path):
+				logging.error("Task {0} submission format is invalid. Could not locate NIST directory".format(str(task.value)))
+			else:
+				hypothesis_dirs = self._get_ta3_hypothesis_dirs(run_id_path)
+
+				# check for hypothesis subdirectories
+				if hypothesis_dirs:
+
+					# make a submission out of each hypothesis subdirectory
+					for d in hypothesis_dirs:
+						j = self._upload_formatted_submission(run_id_path, prefix + '-' + d, self.NIST, '/NIST/' + d + '/*.ttl', task)
+
+						if j is not None:
+							jobs.append(j)
+
+				else:
+					logging.error("Task {0} submission contains no hypothesis subdirectories".format(str(task.value)))
 
 			return jobs
+
+		elif task == Task.three:
+			jobs.append(self._upload_formatted_submission(run_id_path, prefix, self.NIST_TA3, '/*.ttl', task))
+
+			return jobs
+
 		else:
 			logging.error("Could not validate submission structure for invalid task %s", task)
 
 
-	def _upload_formatted_submission(self, directory, prefix, validation_type, task):
+	def _upload_formatted_submission(self, directory, prefix, validation_type, ttl_glob, task):
 		"""Function will locate all .ttl files within a submission subdirectory based on the validation 
 		type that was found in the get_task_type function and upload them to s3. Once all files have been 
 		uploaded, a dictionary object with information to pass into the aws batch job will be returned. 
@@ -377,24 +442,25 @@ class Initialize:
 		:param str directory: The local directory containing the downloaded contents of
 			the submission
 		:param str prefix: The prefix to append to all objects uploaded to the S3 bucket
-		:param validation_type: The validation type that these files will be validated against
+		:param dict validation_type: The validation type that these files will be validated against
+		:param st ttl_glob: The glob expression to append in the glob statement to get the paths of all the
+			ttl files based on task type
 		:param Task task: The task enum that representing the task type of the submission
 		:param returns: The dictionary representation of the job, None if error occurred
 		:param rtype: dict
 		"""
 		job = {}
 		bucket_prefix = self.s3_validation_prefix + '/' + prefix + '-' + validation_type['name']
-		logging.info("Task %s submission %s directory exists. Uploading .ttl files to %s", str(task.value),
-			validation_type['directory'], self.s3_validation_bucket + '/' + bucket_prefix)
+		logging.info("Uploading Task %s .ttl files to %s", str(task.value), self.s3_validation_bucket + '/' + bucket_prefix)
 
 		# inspect the current directory for .ttl files
-		ttl_paths = (glob.glob(directory + '/' + validation_type ['directory'] + '/*.ttl'))
-		ttls = [ Path(x).name for x in ttl_paths ]
+		ttl_paths = (glob.glob(directory + ttl_glob))
+		ttls = [ Path(x).name for x in ttl_paths ] #update this to not be name but last path + name
 
 		if not self._check_for_duplicates(ttls):
 
 			if len(ttls) == 0:
-				logging.error("No .ttl files found in Task %s submission %s directory", str(task.value), validation_type['directory'])
+				logging.error("No .ttl files found in Task %s submission", str(task.value))
 			else:
 				for path in ttl_paths:
 					self._upload_file_to_s3(path, self.s3_validation_bucket, bucket_prefix)
@@ -456,7 +522,7 @@ class Initialize:
 						}
 					]	
 				}
-				job['name'] = Path(bucket_prefix).stem.replace('.', '')
+				job['name'] = Path(bucket_prefix).name.replace('.', '')
 				
 				return job
 
@@ -483,7 +549,7 @@ class Initialize:
 		:returns: True if directory exists, False otherwise
 		:rtype: bool
 		"""
-		return os.path.exists(directory + "/" + self.NIST['directory'])
+		return os.path.exists(directory + '/NIST')
 
 
 	def _check_nist_directory_has_ttl(self, directory):
@@ -494,11 +560,23 @@ class Initialize:
 		:returns: True if NIST directory has .ttl files, False otherwise
 		:rtype: bool 
 		"""
-		ttls_paths = (glob.glob(directory + "/" + self.NIST['directory'] + '/*.ttl'))
 
-		if len([ Path(x).name for x in ttls_paths ]) > 0:
-			return True
-		return False
+		if not glob.glob(directory + '/NIST/*.ttl'):
+			return False
+		return True
+
+
+	def _check_nist_subdirectory_has_ttl(self, directory):
+		"""Helper function that will determine if there are any ttls files in any subdirectories
+		under the NIST directory.
+
+		:param str directory: The directory to validate against
+		:returns: True if NIST subdirectories contain ttl files, False otherwise
+		:rtype: bool
+		"""
+		if not glob.glob(directory + '/NIST/**/*.ttl'):
+			return False
+		return True
 
 
 	def _check_inter_ta_directory(self, directory):
@@ -509,7 +587,18 @@ class Initialize:
 		:returns: True if directory exists, False otherwise
 		:rtype: bool
 		"""
-		return os.path.exists(directory + "/" + self.INTER_TA['directory'])
+		return os.path.exists(directory + '/INTER-TA')
+
+
+	def _get_ta3_hypothesis_dirs(self, directory):
+		"""Helper function that will return the list of hypothesis directories within 
+		the NIST folder in a TA3 submission
+
+		:param str directory: The directory to validate against
+		:returns: list of directories within NIST subdirectory
+		:rtype: list
+		"""
+		return [d for d in os.listdir(directory + '/NIST') if os.path.isdir(os.path.join(directory + '/NIST', d))]
 
 
 	def _submit_job(self, job_name, overrides):
@@ -610,6 +699,9 @@ def read_envs():
 	envs['BATCH_JOB_QUEUE'] = os.environ.get('BATCH_JOB_QUEUE')
 	envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN')
 	envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION')
+	envs['NIST_VALIDATION_FLAGS'] = os.environ.get('NIST_VALIDATION_FLAGS', '--ldc --nist -o')
+	envs['UNRESTRICTED_VALIDATION_FLAGS'] = os.environ.get('UNRESTRICTED_VALIDATION_FLAGS', '--ldc -o')
+	envs['NIST_TA3_VALIDATION_FLAGS'] = os.environ.get('NIST_TA3_VALIDATION_FLAGS', '--ldc --nist-ta3 -o')
 
 	return envs
 

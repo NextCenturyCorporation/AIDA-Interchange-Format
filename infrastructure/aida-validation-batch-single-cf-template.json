@@ -7,6 +7,11 @@
                 "Ref": "BatchComputeEnvironment"
             }
         },
+        "ComputeEnvironmentAMIId": {
+            "Value": {
+                "Ref": "ComputeEnvironmentAMIId"
+            }
+        },
         "BatchSecurityGroup": {
             "Value": {
                 "Ref": "BatchSecurityGroup"
@@ -64,10 +69,15 @@
             "Description": "The desired number of vcpus for the compute environment.",
             "Default": 0
         },
+    	"ComputeEnvironmentAMIId":{
+    	    "Type": "String",
+    	    "Description": "Supply a valid custom AMI Id to use for the nodes",
+    	    "Default": "ami-00c621574d8a86e13"
+    	},
         "ComputeNodes": {
             "Type": "Number",
             "Description": "The total number for nodes for the validation batch job.",
-            "Default": 2
+            "Default": 4
         },
         "MainNodeRange": {
             "Type": "String",
@@ -87,7 +97,7 @@
         "WorkerNodeRange": {
             "Type": "String",
             "Description": "The target node range for the main node (e.g. 1:1).",
-            "Default": "1:1"
+            "Default": "1:3"
         },
         "WorkerNodeMemory": {
             "Type": "Number",
@@ -124,14 +134,9 @@
             "Description": "Ec2KeyPair to use for Compute Environment",
             "Default": "AIDA-All"
         },
-        "MainEc2InstanceType": {
+        "Ec2InstanceType": {
             "Type": "String",
             "Description": "The EC2 instance type for the main node",
-            "Default": "m4.large"
-        },
-        "WorkerEc2InstanceType": {
-            "Type": "String",
-            "Description": "The EC2 instance type for the worker node",
             "Default": "m4.large"
         },
         "MainContainerImage": {
@@ -221,6 +226,9 @@
                     "Ref": "ComputeEnvironment"
                 },
                 "ComputeResources": {
+		    "ImageId": {
+			"Ref": "ComputeEnvironmentAMIId"
+		    },
                     "DesiredvCpus": {
                         "Ref": "ComputeEnvironmentDesiredVCpus"
                     },
@@ -228,7 +236,7 @@
                         "Ref": "BatchInstanceProfile"
                     },
                     "InstanceTypes": [
-                        "m4.large"
+                        { "Ref": "Ec2InstanceType" }
                     ],
                     "MaxvCpus": {
                         "Ref": "ComputeEnvironmentMaxVCpus"
@@ -420,7 +428,7 @@
                 },
                 "Parameters": {},
                 "RetryStrategy": {
-                    "Attempts": 1
+                    "Attempts": 3
                 },
                 "NodeProperties": {
                     "MainNode": 0,
@@ -488,7 +496,7 @@
                                     "Ref": "MainContainerImage"
                                 },
                                 "InstanceType" : {
-                                    "Ref": "MainEc2InstanceType"
+                                    "Ref": "Ec2InstanceType"
                                 },
                                 "JobRoleArn" : {
                                     "Ref": "BatchTaskRole"
@@ -543,7 +551,7 @@
                                     "Ref": "WorkerContainerImage"
                                 },
                                 "InstanceType" : {
-                                    "Ref": "WorkerEc2InstanceType"
+                                    "Ref": "Ec2InstanceType"
                                 },
                                 "JobRoleArn" : {
                                     "Ref": "BatchTaskRole"

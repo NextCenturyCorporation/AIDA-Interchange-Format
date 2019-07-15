@@ -92,6 +92,9 @@ def read_envs():
     envs['BATCH_JOB_QUEUE'] = os.environ.get('BATCH_JOB_QUEUE')
     envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN')
     envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION')
+    envs['NIST_VALIDATION_FLAGS'] = os.environ.get('NIST_VALIDATION_FLAGS', '--ldc --nist -o')
+    envs['UNRESTRICTED_VALIDATION_FLAGS'] = os.environ.get('UNRESTRICTED_VALIDATION_FLAGS', '--ldc -o')
+    envs['NIST_TA3_VALIDATION_FLAGS'] = os.environ.get('NIST_TA3_VALIDATION_FLAGS', '--ldc --nist-ta3 -o')
 
     return envs
 
@@ -119,7 +122,10 @@ def main():
     		'BATCH_JOB_DEFINITION': envs['BATCH_JOB_DEFINITION'],
     		'BATCH_JOB_QUEUE': envs['BATCH_JOB_QUEUE'],
     		'AWS_SNS_TOPIC_ARN': envs['AWS_SNS_TOPIC_ARN'],
-            'AWS_DEFAULT_REGION': envs['AWS_DEFAULT_REGION']
+            'AWS_DEFAULT_REGION': envs['AWS_DEFAULT_REGION'],
+            'NIST_VALIDATION_FLAGS': envs['NIST_VALIDATION_FLAGS'],
+            'UNRESTRICTED_VALIDATION_FLAGS': envs['UNRESTRICTED_VALIDATION_FLAGS'],
+            'NIST_TA3_VALIDATION_FLAGS': envs['NIST_TA3_VALIDATION_FLAGS']
     	}
 
     	# get the full list of submissions located in the bucket/prefix
