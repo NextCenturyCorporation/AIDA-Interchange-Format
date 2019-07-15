@@ -41,6 +41,11 @@
             "Value": {
                 "Ref": "BatchTaskRole"
             }
+        },
+        "JavaOpts": {
+            "Value": {
+                "Ref": "EnvJavaOpts"
+            }
         }
     },
     "Parameters": {
@@ -209,14 +214,18 @@
         },
     	"EnvValidationHome": {
     	    "Type": "String",
-                "Description": "The local path of the AIF Validator on the docker container",
-                "Default": "/opt/aif-validator"
+            "Description": "The local path of the AIF Validator on the docker container",
+            "Default": "/opt/aif-validator"
     	},
     	"EnvValidationFlags": {
     	    "Type": "String",
-                "Description": "A single string that contains the flags to pass to the AIF Validator upon execution",
-                "Default": "--ldc --nist -o"
-    	}
+            "Description": "A single string that contains the flags to pass to the AIF Validator upon execution",
+            "Default": "--ldc --nist -o"
+    	},
+        "EnvJavaOpts": {
+            "Type": "String",
+            "Description": "Optionally set the JAVA_OPTS environment variable"
+        }
     },
     "Resources": {
         "BatchComputeEnvironment": {
@@ -545,6 +554,10 @@
                                     {
                                         "Name": "S3_SUBMISSION_BUCKET",
                                         "Value": { "Ref": "EnvS3SubmissionBucket" }
+                                    }, 
+                                    {
+                                        "Name": "JAVA_OPTS",
+                                        "Value": { "Ref": "EnvJavaOpts" }
                                     }
                                 ],
                                 "Image" : {

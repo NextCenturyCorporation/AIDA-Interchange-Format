@@ -8,6 +8,7 @@ import logging
 import uuid
 import shutil
 import re
+import json
 from pathlib import Path
 from enum import Enum
 from botocore.exceptions import ClientError
@@ -36,6 +37,7 @@ class Initialize:
 		self.batch_num_nodes = envs['BATCH_NUM_NODES']
 		self.batch_job_definition = envs['BATCH_JOB_DEFINITION']
 		self.batch_job_queue = envs['BATCH_JOB_QUEUE']
+		self.java_opts = envs['JAVA_OPTS']
 		self.session = boto3.session.Session(region_name=self.aws_region)
 
 		# set validation flags for different submission types
@@ -68,7 +70,7 @@ class Initialize:
 		if jobs:
 
 			for idx, job in enumerate(jobs):
-				logging.info("Submitting AWS Batch job[%s] with the following overrides: %s", job['name'], str(job))
+				logging.info("Submitting AWS Batch job[%s] with the following overrides: \n%s", job['name'], json.dumps(job, indent = 4))
 				self._submit_job(job['name'], job)
 		else:
 			logging.info("No AWS Batch jobs submitted for %s", self.s3_submission_archive_path)
@@ -482,6 +484,16 @@ class Initialize:
 						}
 					]
 				}
+
+				# set JAVA_OPTS on worker if it exists
+				if self.java_opts:
+					job['worker']['environment'].append(
+							{
+								'name': 'JAVA_OPTS',
+								'value': self.java_opts
+							}
+						)
+
 				job['main'] = {
 					'environment': [
 						{
@@ -644,13 +656,19 @@ class Initialize:
 
 
 def is_env_set(env, value):
-    """Helper function to check if a specific environment variable is not None
+    """Helper function to check if a specific environment variable is not None.
 
     :param str env: The name of the environment variable
     :param value: The value of the environment variable
     :returns: True if environment variable is set, False otherwise
     :rtype: bool
     """
+
+    # JAVA OPTS is not required to be set
+    if env is 'JAVA_OPTS':
+    	logging.info("Environment variable JAVA_OPTS is set to %s", value)
+    	return True
+
     if not value:
         logging.error("Environment variable %s is not set", env)
         return False
@@ -672,6 +690,7 @@ def validate_envs(envs):
         return False
 
     for k, v in envs.items():
+
         if not is_env_set(k, v):
             return False
 
@@ -702,6 +721,7 @@ def read_envs():
 	envs['NIST_VALIDATION_FLAGS'] = os.environ.get('NIST_VALIDATION_FLAGS', '--ldc --nist -o')
 	envs['UNRESTRICTED_VALIDATION_FLAGS'] = os.environ.get('UNRESTRICTED_VALIDATION_FLAGS', '--ldc -o')
 	envs['NIST_TA3_VALIDATION_FLAGS'] = os.environ.get('NIST_TA3_VALIDATION_FLAGS', '--ldc --nist-ta3 -o')
+	envs['JAVA_OPTS'] = os.environ.get('JAVA_OPTS')
 
 	return envs
 
