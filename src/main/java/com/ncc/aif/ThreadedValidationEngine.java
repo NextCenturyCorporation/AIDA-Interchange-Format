@@ -97,6 +97,7 @@ public class ThreadedValidationEngine extends ValidationEngine {
     }
 
     public static class ConstraintTaskMetadata {
+        public static final Set<String> constraintsToRename = new HashSet<>(Arrays.asList("PropertyConstraintComponent", "SPARQLConstraintComponent"));
         public String constraintName;
         public String threadName;
         public long duration;
@@ -114,6 +115,17 @@ public class ThreadedValidationEngine extends ValidationEngine {
         @Override
         public String toString() {
             return String.join(" ", constraintName, threadName + "(" + duration + "ms)", "v=" + violations);
+        }
+
+        public static String getName(Constraint constraint) {
+            String name = constraint.getComponent().getLocalName();
+            if (constraintsToRename.contains(name)) {
+                RDFNode parameter = constraint.getParameterValue();
+                if (parameter.isURIResource()) {
+                    name = parameter.asResource().getLocalName();
+                }
+            }
+            return name;
         }
     }
 
@@ -247,7 +259,7 @@ public class ThreadedValidationEngine extends ValidationEngine {
                         focusNodes;
                 smd.filteredTargetCount = filtered.size();
 
-                if (maxDepth > 0 && filteredCount > maxDepth) {
+                if (maxDepth > 0 && smd.filteredTargetCount > maxDepth) {
                     filtered = filtered.subList(0, maxDepth-1);
                 }
 
@@ -273,9 +285,10 @@ public class ThreadedValidationEngine extends ValidationEngine {
             } catch (MaximumNumberViolations e) {
                 isStopped = true;
             }
+
             return new ConstraintTaskMetadata(
                     Thread.currentThread().getName(),
-                    constraint.getComponent().getLocalName(),
+                    ConstraintTaskMetadata.getName(constraint),
                     System.currentTimeMillis() - start,
                     threadReport.get(),
                     threadViolations.get());
