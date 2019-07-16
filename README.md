@@ -27,8 +27,33 @@ readability) but N-Triples for working with large KBs (for speed).
 * To install the Java code, do `mvn install` from the root of this repository using Apache Maven.
 Repeat this if you pull an updated version of the code. You can run the tests,
 which should output the examples, by doing `mvn test`.
+# UPDATE THIS!!!
 * To install the Python code, do `python setup.py install` from the root of
   this repository.
+
+# Creating the Python Environment
+
+* Firstly, install the virtual environment.
+
+```bash
+$ cd ~
+$ mkdir .virtualenvs
+$ sudo apt-get install python-virtualenv
+```
+
+* You should also verify virtualenv is correctly installed.
+
+```bash
+$ which virtualenv
+```
+
+* Navigate to the `python` directory and run the following.
+
+```bash
+$ virtualenv -p python3 env
+$ source ./env/bin/activate
+$ pip install -r requirements.txt
+```
 
 # Using the AIF Library
 
