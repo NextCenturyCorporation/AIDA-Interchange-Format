@@ -269,7 +269,13 @@ public class AIFUtils {
     // Helper function to create a justification (text, image, audio, etc.) in the system.
     private static Resource makeAIFJustification(Model model, String docId, Resource classType,
                                                  Resource system, Double confidence) {
-        final Resource justification = makeAIFResource(model, null, classType, system);
+        return makeAIFJustification(model, docId, classType, system, confidence, null);
+    }
+
+    // Helper function to create a justification (text, image, audio, etc.) in the system.
+    private static Resource makeAIFJustification(Model model, String docId, Resource classType,
+                                                 Resource system, Double confidence, String uri) {
+        final Resource justification = makeAIFResource(model, uri, classType, system);
         justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral(docId));
         markConfidence(model, justification, confidence, system);
         return justification;
@@ -308,6 +314,23 @@ public class AIFUtils {
      */
     public static Resource makeTextJustification(Model model, String docId, int startOffset, int endOffsetInclusive,
                                                  Resource system, Double confidence) {
+        return makeTextJustification(model, docId, startOffset, endOffsetInclusive, system, confidence, null);
+    }
+
+    /**
+     * Create a justification from a particular snippet of text.
+     *
+     * @param model              The underlying RDF model for the operation
+     * @param docId              A string containing the document element (child) ID of the source of the justification
+     * @param startOffset        An integer offset within the document for the start of the justification
+     * @param endOffsetInclusive An integer offset within the document for the end of the justification
+     * @param system             The system object for the system which made this justification
+     * @param confidence         The confidence with which to mark the justification
+     * @param uri                A String uri representation of the justification
+     * @return The created text justification resource
+     */
+    public static Resource makeTextJustification(Model model, String docId, int startOffset, int endOffsetInclusive,
+                                                 Resource system, Double confidence, String uri) {
         if (endOffsetInclusive < startOffset) {
             throw new IllegalArgumentException("End offset " + endOffsetInclusive + " precedes start offset " + startOffset);
         }
@@ -316,7 +339,7 @@ public class AIFUtils {
         }
 
         final Resource justification = makeAIFJustification(model, docId, AidaAnnotationOntology.TEXT_JUSTIFICATION_CLASS,
-                system, confidence);
+                system, confidence, uri);
         // the document ID for the justifying source document
         justification.addProperty(AidaAnnotationOntology.START_OFFSET,
                 model.createTypedLiteral(startOffset));
@@ -342,7 +365,27 @@ public class AIFUtils {
                                                  int startOffset, int endOffsetInclusive,
                                                  Resource system, Double confidence) {
         return markTextJustification(model, ImmutableSet.of(toMarkOn), docId, startOffset,
-                endOffsetInclusive, system, confidence);
+                endOffsetInclusive, system, confidence, null);
+    }
+
+    /**
+     * Mark something as being justified by a particular snippet of text.
+     *
+     * @param model              The underlying RDF model for the operation
+     * @param toMarkOn           The Resource to be marked by the specified text document
+     * @param docId              A string containing the document element (child) ID of the source of the justification
+     * @param startOffset        An integer offset within the document for start of the justification
+     * @param endOffsetInclusive An integer offset within the document for the end of the justification
+     * @param system             The system object for the system which marked this justification
+     * @param confidence         The confidence with which to mark the justification
+     * @param uri                A String uri representation of the text justification
+     * @return The created text justification resource
+     */
+    public static Resource markTextJustification(Model model, Resource toMarkOn, String docId,
+                                                 int startOffset, int endOffsetInclusive,
+                                                 Resource system, Double confidence, String uri) {
+        return markTextJustification(model, ImmutableSet.of(toMarkOn), docId, startOffset,
+                endOffsetInclusive, system, confidence, uri);
     }
 
     /**
@@ -360,7 +403,26 @@ public class AIFUtils {
     public static Resource markTextJustification(Model model, Collection<Resource> toMarkOn, String docId,
                                                  int startOffset, int endOffsetInclusive,
                                                  Resource system, Double confidence) {
-        final Resource justification = makeTextJustification(model, docId, startOffset, endOffsetInclusive, system, confidence);
+        return markTextJustification(model, toMarkOn, docId, startOffset, endOffsetInclusive, system, confidence, null);
+    }
+
+    /**
+     * Mark multiple things as being justified by a particular snippet of text.
+     *
+     * @param model              The underlying RDF model for the operation
+     * @param toMarkOn           A Collection of Resources to be marked by the specified text document
+     * @param docId              A string containing the document element (child) ID of the source of the justification
+     * @param startOffset        An integer offset within the document for start of the justification
+     * @param endOffsetInclusive An integer offset within the document for the end of the justification
+     * @param system             The system object for the system which marked this justification
+     * @param confidence         The confidence with which to mark the justification
+     * @param uri                A String uri representation of the text justification
+     * @return The created text justification resource
+     */
+    public static Resource markTextJustification(Model model, Collection<Resource> toMarkOn, String docId,
+                                                 int startOffset, int endOffsetInclusive,
+                                                 Resource system, Double confidence, String uri) {
+        final Resource justification = makeTextJustification(model, docId, startOffset, endOffsetInclusive, system, confidence, uri);
         markJustification(toMarkOn, justification);
         return justification;
     }
@@ -513,8 +575,24 @@ public class AIFUtils {
      */
     public static Resource makeImageJustification(Model model, String docId, BoundingBox boundingBox, Resource system,
                                                   Double confidence) {
+        return makeImageJustification(model, docId, boundingBox, system, confidence, null);
+    }
+
+    /**
+     * Make an image justification.
+     *
+     * @param model       The underlying RDF model for the operation
+     * @param docId       A string containing the document element (child) ID of the source of the justification
+     * @param boundingBox A rectangular box within the image that bounds the justification
+     * @param system      The system object for the system which made this justification
+     * @param confidence  The confidence with which to mark the justification
+     * @param uri         A String uri representation of the justification
+     * @return The created image justification resource
+     */
+    public static Resource makeImageJustification(Model model, String docId, BoundingBox boundingBox, Resource system,
+                                                  Double confidence, String uri) {
         final Resource justification = makeAIFJustification(model, docId, AidaAnnotationOntology.IMAGE_JUSTIFICATION_CLASS,
-                system, confidence);
+                system, confidence, uri);
         markBoundingBox(model, justification, boundingBox);
         return justification;
     }
@@ -532,7 +610,24 @@ public class AIFUtils {
      */
     public static Resource markImageJustification(Model model, Resource toMarkOn, String docId,
                                                   BoundingBox boundingBox, Resource system, Double confidence) {
-        return markImageJustification(model, ImmutableSet.of(toMarkOn), docId, boundingBox, system, confidence);
+        return markImageJustification(model, ImmutableSet.of(toMarkOn), docId, boundingBox, system, confidence, null);
+    }
+
+    /**
+     * Mark something as being justified by a particular image.
+     *
+     * @param model       The underlying RDF model for the operation
+     * @param toMarkOn    The Resource to be marked by the specified image document
+     * @param docId       A string containing the document element (child) ID of the source of the justification
+     * @param boundingBox A rectangular box within the image that bounds the justification
+     * @param system      The system object for the system which marked this justification
+     * @param confidence  The confidence with which to mark the justification
+     * @param uri         A String uri representation of the justification
+     * @return The created image justification resource
+     */
+    public static Resource markImageJustification(Model model, Resource toMarkOn, String docId,
+                                                  BoundingBox boundingBox, Resource system, Double confidence, String uri) {
+        return markImageJustification(model, ImmutableSet.of(toMarkOn), docId, boundingBox, system, confidence, uri);
     }
 
     /**
@@ -548,7 +643,24 @@ public class AIFUtils {
      */
     public static Resource markImageJustification(Model model, Collection<Resource> toMarkOn, String docId,
                                                   BoundingBox boundingBox, Resource system, Double confidence) {
-        final Resource justification = makeImageJustification(model, docId, boundingBox, system, confidence);
+        return markImageJustification(model, toMarkOn, docId, boundingBox, system, confidence, null);
+    }
+
+    /**
+     * Mark multiple things as being justified by a particular image.
+     *
+     * @param model       The underlying RDF model for the operation
+     * @param toMarkOn    A Collection of Resources to be marked by the specified image document
+     * @param docId       A string containing the document element (child) ID of the source of the justification
+     * @param boundingBox A rectangular box within the image that bounds the justification
+     * @param system      The system object for the system which made this justification
+     * @param confidence  The confidence with which to mark the justification
+     * @param uri         A String uri representation of the justification
+     * @return The created image justification resource
+     */
+    public static Resource markImageJustification(Model model, Collection<Resource> toMarkOn, String docId,
+                                                  BoundingBox boundingBox, Resource system, Double confidence, String uri) {
+        final Resource justification = makeImageJustification(model, docId, boundingBox, system, confidence, uri);
         markJustification(toMarkOn, justification);
         return justification;
     }
@@ -566,8 +678,25 @@ public class AIFUtils {
      */
     public static Resource makeKeyFrameVideoJustification(Model model, String docId, String keyFrame, BoundingBox boundingBox,
                                                           Resource system, Double confidence) {
+        return makeKeyFrameVideoJustification(model, docId, keyFrame, boundingBox, system, confidence, null);
+    }
+
+    /**
+     * Create a justification from something appearing in a key frame of a video.
+     *
+     * @param model       The underlying RDF model for the operation
+     * @param docId       A string containing the document element (child) ID of the source of the justification
+     * @param keyFrame    The String Id of the key frame of the specified video document
+     * @param boundingBox A rectangular box within the key frame that bounds the justification
+     * @param system      The system object for the system which made this justification
+     * @param confidence  The confidence with which to mark the justification
+     * @param uri         A String uri representation of the justification
+     * @return The created video justification resource
+     */
+    public static Resource makeKeyFrameVideoJustification(Model model, String docId, String keyFrame, BoundingBox boundingBox,
+                                                          Resource system, Double confidence, String uri) {
         final Resource justification = makeAIFJustification(model, docId, AidaAnnotationOntology.KEYFRAME_VIDEO_JUSTIFICATION_CLASS,
-                system, confidence);
+                system, confidence, uri);
         justification.addProperty(AidaAnnotationOntology.KEY_FRAME, model.createTypedLiteral(keyFrame));
         markBoundingBox(model, justification, boundingBox);
         return justification;
@@ -588,7 +717,26 @@ public class AIFUtils {
     public static Resource markKeyFrameVideoJustification(Model model, Resource toMarkOn, String docId, String keyFrame,
                                                           BoundingBox boundingBox, Resource system, Double confidence) {
         return markKeyFrameVideoJustification(model, ImmutableSet.of(toMarkOn), docId,
-                keyFrame, boundingBox, system, confidence);
+                keyFrame, boundingBox, system, confidence, null);
+    }
+
+    /**
+     * Mark a justification for something appearing in a key frame of a video.
+     *
+     * @param model       The underlying RDF model for the operation
+     * @param toMarkOn    The Resource to be marked by the specified video document
+     * @param docId       A string containing the document element (child) ID of the source of the justification
+     * @param keyFrame    The String Id of the key frame of the specified video document
+     * @param boundingBox A rectangular box within the key frame that bounds the justification
+     * @param system      The system object for the system which made this justification
+     * @param confidence  The confidence with which to mark the justification
+     * @param uri         A String uri representation of the justification
+     * @return The created video justification resource
+     */
+    public static Resource markKeyFrameVideoJustification(Model model, Resource toMarkOn, String docId, String keyFrame,
+                                                          BoundingBox boundingBox, Resource system, Double confidence, String uri) {
+        return markKeyFrameVideoJustification(model, ImmutableSet.of(toMarkOn), docId,
+                keyFrame, boundingBox, system, confidence, uri);
     }
 
     /**
@@ -605,7 +753,25 @@ public class AIFUtils {
      */
     public static Resource markKeyFrameVideoJustification(Model model, Collection<Resource> toMarkOn, String docId, String keyFrame,
                                                           BoundingBox boundingBox, Resource system, Double confidence) {
-        final Resource justification = makeKeyFrameVideoJustification(model, docId, keyFrame, boundingBox, system, confidence);
+        return markKeyFrameVideoJustification(model, toMarkOn, docId, keyFrame, boundingBox, system, confidence, null);
+    }
+
+    /**
+     * Mark multiple things as being justified by appearing in a key frame of a video.
+     *
+     * @param model       The underlying RDF model for the operation
+     * @param toMarkOn    A Collection of Resources to be marked by the specified video document
+     * @param docId       A string containing the document element (child) ID of the source of the justification
+     * @param keyFrame    The String Id of the key frame of the specified video document
+     * @param boundingBox A rectangular box within the key frame that bounds the justification
+     * @param system      The system object for the system which made this justification
+     * @param confidence  The confidence with which to mark the justification
+     * @param uri         A String uri representation of the justification
+     * @return The created video justification resource
+     */
+    public static Resource markKeyFrameVideoJustification(Model model, Collection<Resource> toMarkOn, String docId, String keyFrame,
+                                                          BoundingBox boundingBox, Resource system, Double confidence, String uri) {
+        final Resource justification = makeKeyFrameVideoJustification(model, docId, keyFrame, boundingBox, system, confidence, uri);
         markJustification(toMarkOn, justification);
         return justification;
     }
@@ -622,8 +788,24 @@ public class AIFUtils {
      */
     public static Resource makeShotVideoJustification(Model model, String docId, String shotId, Resource system,
                                                       Double confidence) {
+        return makeShotVideoJustification(model, docId, shotId, system, confidence, null);
+    }
+
+    /**
+     * Create a justification from something appearing in a video but not in a key frame.
+     *
+     * @param model      The underlying RDF model for the operation
+     * @param docId      A string containing the document element (child) ID of the source of the justification
+     * @param shotId     The String Id of the shot of the specified video document
+     * @param system     The system object for the system which made this justification
+     * @param confidence The confidence with which to mark the justification
+     * @param uri         A String uri representation of the justification
+     * @return The created video justification resource
+     */
+    public static Resource makeShotVideoJustification(Model model, String docId, String shotId, Resource system,
+                                                      Double confidence, String uri) {
         final Resource justification = makeAIFJustification(model, docId, AidaAnnotationOntology.SHOT_VIDEO_JUSTIFICATION_CLASS,
-                system, confidence);
+                system, confidence, uri);
         justification.addProperty(AidaAnnotationOntology.SHOT, model.createTypedLiteral(shotId));
         return justification;
     }
@@ -641,7 +823,24 @@ public class AIFUtils {
      */
     public static Resource markShotVideoJustification(Model model, Resource toMarkOn, String docId, String shotId,
                                                       Resource system, Double confidence) {
-        return markShotVideoJustification(model, ImmutableSet.of(toMarkOn), docId, shotId, system, confidence);
+        return markShotVideoJustification(model, ImmutableSet.of(toMarkOn), docId, shotId, system, confidence, null);
+    }
+
+    /**
+     * Mark a justification for something appearing in a video but not in a key frame.
+     *
+     * @param model      The underlying RDF model for the operation
+     * @param toMarkOn   A Resource to be marked by the specified video document
+     * @param docId      A string containing the document element (child) ID of the source of the justification
+     * @param shotId     The String Id of the shot of the specified video document
+     * @param system     The system object for the system which made this justification
+     * @param confidence The confidence with which to mark the justification
+     * @param uri         A String uri representation of the justification
+     * @return The created video justification resource
+     */
+    public static Resource markShotVideoJustification(Model model, Resource toMarkOn, String docId, String shotId,
+                                                      Resource system, Double confidence, String uri) {
+        return markShotVideoJustification(model, ImmutableSet.of(toMarkOn), docId, shotId, system, confidence, uri);
     }
 
     /**
@@ -657,7 +856,24 @@ public class AIFUtils {
      */
     public static Resource markShotVideoJustification(Model model, Collection<Resource> toMarkOn, String docId, String shotId,
                                                       Resource system, Double confidence) {
-        final Resource justification = makeShotVideoJustification(model, docId, shotId, system, confidence);
+        return markShotVideoJustification(model, toMarkOn, docId, shotId, system, confidence, null);
+    }
+
+    /**
+     * Mark multiple things as being justified by appearing in a video but not in a key frame.
+     *
+     * @param model      The underlying RDF model for the operation
+     * @param toMarkOn   A Collection of Resources to be marked by the specified video document
+     * @param docId      A string containing the document element (child) ID of the source of the justification
+     * @param shotId     The String Id of the shot of the specified video document
+     * @param system     The system object for the system which made this justification
+     * @param confidence The confidence with which to mark the justification
+     * @param uri         A String uri representation of the justification
+     * @return The created video justification resource
+     */
+    public static Resource markShotVideoJustification(Model model, Collection<Resource> toMarkOn, String docId, String shotId,
+                                                      Resource system, Double confidence, String uri) {
+        final Resource justification = makeShotVideoJustification(model, docId, shotId, system, confidence, uri);
         markJustification(toMarkOn, justification);
         return justification;
     }
@@ -675,12 +891,29 @@ public class AIFUtils {
      */
     public static Resource makeAudioJustification(Model model, String docId, Double startTimestamp, Double endTimestamp,
                                                   Resource system, Double confidence) {
+        return makeAudioJustification(model, docId, startTimestamp, endTimestamp, system, confidence, null);
+    }
+
+    /**
+     * Make an audio justification.
+     *
+     * @param model          The underlying RDF model for the operation
+     * @param docId          A string containing the document element (child) ID of the source of the justification
+     * @param startTimestamp A timestamp within the audio document where the justification starts
+     * @param endTimestamp   A timestamp within the audio document where the justification ends
+     * @param system         The system object for the system which made this justification
+     * @param confidence     The confidence with which to mark the justification
+     * @param uri            A String uri representation of the justification
+     * @return The created audio justification resource
+     */
+    public static Resource makeAudioJustification(Model model, String docId, Double startTimestamp, Double endTimestamp,
+                                                  Resource system, Double confidence, String uri) {
         if (endTimestamp <= startTimestamp) {
             throw new IllegalArgumentException("End timestamp " + endTimestamp
                     + " does not follow start timestamp " + startTimestamp);
         }
         final Resource justification = makeAIFJustification(model, docId, AidaAnnotationOntology.AUDIO_JUSTIFICATION_CLASS,
-                system, confidence);
+                system, confidence, uri);
 
         justification.addProperty(AidaAnnotationOntology.START_TIMESTAMP,
                 model.createTypedLiteral(startTimestamp));
@@ -706,7 +939,27 @@ public class AIFUtils {
                                                   Double startTimestamp, Double endTimestamp,
                                                   Resource system, Double confidence) {
         return markAudioJustification(model, ImmutableSet.of(toMarkOn), docId,
-                startTimestamp, endTimestamp, system, confidence);
+                startTimestamp, endTimestamp, system, confidence, null);
+    }
+
+    /**
+     * Mark something as being justified by a particular audio document.
+     *
+     * @param model          The underlying RDF model for the operation
+     * @param toMarkOn       A Resource to be marked by the specified audio document
+     * @param docId          A string containing the document element (child) ID of the source of the justification
+     * @param startTimestamp A timestamp within the audio document where the justification starts
+     * @param endTimestamp   A timestamp within the audio document where the justification ends
+     * @param system         The system object for the system which made this justification
+     * @param confidence     The confidence with which to mark the justification
+     * @param uri            A String uri representation of the justification
+     * @return The created audio justification resource
+     */
+    public static Resource markAudioJustification(Model model, Resource toMarkOn, String docId,
+                                                  Double startTimestamp, Double endTimestamp,
+                                                  Resource system, Double confidence, String uri) {
+        return markAudioJustification(model, ImmutableSet.of(toMarkOn), docId,
+                startTimestamp, endTimestamp, system, confidence, uri);
     }
 
     /**
@@ -724,7 +977,26 @@ public class AIFUtils {
     public static Resource markAudioJustification(Model model, Collection<Resource> toMarkOn, String docId,
                                                   Double startTimestamp, Double endTimestamp,
                                                   Resource system, Double confidence) {
-        final Resource justification = makeAudioJustification(model, docId, startTimestamp, endTimestamp, system, confidence);
+        return markAudioJustification(model, toMarkOn, docId, startTimestamp, endTimestamp, system, confidence, null);
+    }
+
+    /**
+     * Mark multiple things as being justified by appearing in an audio document.
+     *
+     * @param model          The underlying RDF model for the operation
+     * @param toMarkOn       A Collection of Resources to be marked by the specified audio document
+     * @param docId          A string containing the document element (child) ID of the source of the justification
+     * @param startTimestamp A timestamp within the audio document where the justification starts
+     * @param endTimestamp   A timestamp within the audio document where the justification ends
+     * @param system         The system object for the system which made this justification
+     * @param confidence     The confidence with which to mark the justification
+     * @param uri            A String uri representation of the justification
+     * @return The created audio justification resource
+     */
+    public static Resource markAudioJustification(Model model, Collection<Resource> toMarkOn, String docId,
+                                                  Double startTimestamp, Double endTimestamp,
+                                                  Resource system, Double confidence, String uri) {
+        final Resource justification = makeAudioJustification(model, docId, startTimestamp, endTimestamp, system, confidence, uri);
         markJustification(toMarkOn, justification);
         return justification;
     }
@@ -889,7 +1161,24 @@ public class AIFUtils {
     public static Resource markAsPossibleClusterMember(Model model, Resource possibleClusterMember,
                                                        Resource cluster, Double confidence,
                                                        Resource system) {
-        final Resource clusterMemberAssertion = makeAIFResource(model, null,
+        return markAsPossibleClusterMember(model, possibleClusterMember, cluster, confidence, system, null);
+    }
+
+    /**
+     * Mark an entity or event as a possible member of a cluster.
+     *
+     * @param model                 The underlying RDF model for the operation
+     * @param possibleClusterMember The entity or event to mark as a possible member of the specified cluster
+     * @param cluster               The cluster to associate with the possible cluster member
+     * @param confidence            The confidence with which to mark the cluster membership
+     * @param system                The system object for the system which marked the specified cluster
+     * @param uri                   A string URI representation of the cluster member
+     * @return The created cluster membership assertion
+     */
+    public static Resource markAsPossibleClusterMember(Model model, Resource possibleClusterMember,
+                                                       Resource cluster, Double confidence,
+                                                       Resource system, String uri) {
+        final Resource clusterMemberAssertion = makeAIFResource(model, uri,
                 AidaAnnotationOntology.CLUSTER_MEMBERSHIP_CLASS, system);
         clusterMemberAssertion.addProperty(AidaAnnotationOntology.CLUSTER_PROPERTY, cluster);
         clusterMemberAssertion.addProperty(AidaAnnotationOntology.CLUSTER_MEMBER, possibleClusterMember);
