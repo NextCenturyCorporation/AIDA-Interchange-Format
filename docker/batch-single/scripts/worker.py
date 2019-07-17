@@ -292,10 +292,10 @@ class Worker:
 				self._upload_validation_output(validation_staging, '/'.join([self.s3_validation_prefix, self.job_id, 'INVALID']), '.txt')
 				self._move_s3_object(payload, '/'.join([self.s3_validation_prefix, self.job_id, 'INVALID', file_name]))
 			# timeout error
-			elif code == -1:
+			elif code == 500:
 				self._move_s3_object(payload, '/'.join([self.s3_validation_prefix, self.job_id, 'TIMEOUT', file_name]))
 			# other error occurred
-			elif code > 1:
+			elif code > 1 or code < 0:
 				self._move_s3_object(payload, '/'.join([self.s3_validation_prefix, self.job_id, 'ERROR', file_name]))
 
 			# clean up validation staging
@@ -361,7 +361,7 @@ class Worker:
 			f.write(e.output)
 			f.close()
 			logging.info("Validation timed out for file %s after %s seconds", file_name, str(timeout))
-			return -1
+			return 500
 
 
 	def _upload_validation_output(self, validation_dir, s3_object_prefix, extension):
