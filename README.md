@@ -27,11 +27,14 @@ readability) but N-Triples for working with large KBs (for speed).
 * To install the Java code, do `mvn install` from the root of this repository using Apache Maven.
 Repeat this if you pull an updated version of the code. You can run the tests,
 which should output the examples, by doing `mvn test`.
-# UPDATE THIS!!!
 * To install the Python code, do `python setup.py install` from the root of
   this repository.
 
-# Creating the Python Environment
+# Python Development Setup
+
+* Setting up a virtual environment for Python development is the recommended best way to mitigate problems between multiple systems working on this project.
+
+## Creating the Python Environment
 
 * Firstly, install the virtual environment.
 
@@ -50,9 +53,21 @@ $ which virtualenv
 * Navigate to the `python` directory and run the following.
 
 ```bash
-$ virtualenv -p python3 env
+$ virtualenv -p python3 ~/.virtualenv
 $ source ./env/bin/activate
 $ pip install -r requirements.txt
+```
+
+* After running the virtual env command, the virtual environment is automatically activated.  If you need to re-activate the environment, you can run the following command while in the `python` folder.
+
+```bash
+$ source env/bin/activate
+```
+
+* Similarly, you can deactivate the current virtual environment by running the following command.
+
+``bash
+$ deactivate
 ```
 
 # Using the AIF Library
