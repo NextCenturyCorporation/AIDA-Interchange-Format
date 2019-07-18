@@ -1,7 +1,9 @@
 package com.ncc.aif;
 
+import org.apache.jena.graph.Node;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.*;
+import org.apache.jena.sparql.function.FunctionRegistry;
 import org.apache.jena.vocabulary.RDF;
 import org.topbraid.jenax.util.ARQFactory;
 import org.topbraid.jenax.util.JenaDatatypes;
@@ -9,12 +11,11 @@ import org.topbraid.shacl.arq.SHACLFunctions;
 import org.topbraid.shacl.engine.Constraint;
 import org.topbraid.shacl.engine.Shape;
 import org.topbraid.shacl.engine.ShapesGraph;
+import org.topbraid.shacl.js.SHACLScriptEngineManager;
 import org.topbraid.shacl.util.SHACLUtil;
-import org.topbraid.shacl.validation.MaximumNumberViolations;
-import org.topbraid.shacl.validation.ValidationEngine;
-import org.topbraid.shacl.validation.ValidationEngineConfiguration;
-import org.topbraid.shacl.validation.ValidationUtil;
+import org.topbraid.shacl.validation.*;
 import org.topbraid.shacl.vocabulary.SH;
+import org.topbraid.shacl.vocabulary.TOSH;
 
 import java.net.URI;
 import java.util.*;
@@ -32,6 +33,35 @@ import java.util.stream.Collectors;
  * @author Edward Curley
  */
 public class ThreadedValidationEngine extends ValidationEngine {
+    private static boolean initialized = false;
+    private static void initializeSHComponents() {
+        if (!initialized) {
+            FunctionRegistry.get().put(TOSH.hasShape.getURI(), ThreadSafeHasShapeFunction.class);
+            ConstraintExecutors.get().addSpecialExecutor(ResourceFactory.createResource(SH.NS + "XoneConstraintComponent"),
+                    new AbstractSpecialConstraintExecutorFactory() {
+                        @Override
+                        public ConstraintExecutor create(Constraint constraint) {
+                            return new XoneConstraintExecutor();
+                        }
+                    });
+            ConstraintExecutors.get().addSpecialExecutor(SH.ClassConstraintComponent,
+                    new AbstractSpecialConstraintExecutorFactory() {
+                        @Override
+                        public ConstraintExecutor create(Constraint constraint) {
+                            return new ClassConstraintExecutor();
+                        }
+                    });
+            ConstraintExecutors.get().addSpecialExecutor(ResourceFactory.createResource(SH.NS + "NotConstraintComponent"),
+                    new AbstractSpecialConstraintExecutorFactory() {
+                        @Override
+                        public ConstraintExecutor create(Constraint constraint) {
+                            return new NotConstraintExecutor();
+                        }
+                    });
+            initialized = true;
+        }
+    }
+
     //TODO: come up with better property (topbraid?)
     public static Property SH_ABORTED = ResourceFactory.createProperty(SH.NS, "aborted");
 
@@ -49,6 +79,7 @@ public class ThreadedValidationEngine extends ValidationEngine {
 
     private ThreadedValidationEngine(Dataset dataset, URI shapesGraphURI, ShapesGraph shapesGraph) {
         super(dataset, shapesGraphURI, shapesGraph, null);
+        initializeSHComponents();
     }
 
     /**
@@ -182,66 +213,110 @@ public class ThreadedValidationEngine extends ValidationEngine {
      */
     public Set<Resource> validateAll(ExecutorService executor) throws InterruptedException, ExecutionException {
         long start = System.currentTimeMillis();
-        List<Shape> rootShapes = shapesGraph.getRootShapes();
-        //TODO: Add monitor support for threaded validator. Experience NPE with AIFProgressMonitor
+        boolean nested = SHACLScriptEngineManager.begin();
+
+        Set<Resource> invalid = new HashSet<>();
+        try {
+            List<Shape> rootShapes = shapesGraph.getRootShapes();
+            //TODO: Add monitor support for threaded validator. Experience NPE with AIFProgressMonitor
 //        if (monitor != null) {
 //            monitor.beginTask("Validating " + rootShapes.size() + " shapes", rootShapes.size());
 //        }
 
-        int i = 0;
-        for (Shape shape : rootShapes) {
-            validationMetadata.add(executor.submit(getShapeTask(shape, i++, executor)));
-        }
+            int i = 0;
+            for (Shape shape : rootShapes) {
+                validationMetadata.add(executor.submit(getShapeTask(shape, i++, executor)));
+            }
 
-        // Go through all futures and get validation metadata for those that have completed
-        Set<Resource> reports = new HashSet<>();
-        int violations = 0;
-        for (Future<ShapeTaskMetadata> shapeFuture : validationMetadata) {
-            ShapeTaskMetadata smd = shapeFuture.get();
-            for (Future<ConstraintTaskMetadata> constraintFuture : smd.constraintFutures) {
-                smd.add(constraintFuture.get());
-                if (exceedsMaximumNumberViolations(smd.violations)) {
+            // Go through all futures and get validation metadata for those that have completed
+            Set<Resource> reports = new HashSet<>();
+            int violations = 0;
+            for (Future<ShapeTaskMetadata> shapeFuture : validationMetadata) {
+                ShapeTaskMetadata smd = shapeFuture.get();
+                for (Future<ConstraintTaskMetadata> constraintFuture : smd.constraintFutures) {
+                    smd.add(constraintFuture.get());
+                    if (exceedsMaximumNumberViolations(smd.violations)) {
+                        isStopped = true;
+                    }
+                }
+                reports.addAll(smd.reports);
+                violations += smd.violations;
+                if (exceedsMaximumNumberViolations(violations)) {
                     isStopped = true;
                 }
             }
-            reports.addAll(smd.reports);
-            violations += smd.violations;
-            if (exceedsMaximumNumberViolations(violations)) {
-                isStopped = true;
-            }
-        }
 
-        Set<Resource> valid = new HashSet<>();
-        Set<Resource> invalid = new HashSet<>();
-        for (Resource report : reports) {
-            boolean conforms = true;
-            StmtIterator it = report.listProperties(SH.result);
-            while(it.hasNext()) {
-                Statement s = it.next();
-                if(s.getResource().hasProperty(RDF.type, SH.ValidationResult)) {
-                    conforms = false;
-                    it.close();
-                    break;
+            Set<Resource> valid = new HashSet<>();
+            for (Resource report : reports) {
+                boolean conforms = true;
+                StmtIterator it = report.listProperties(SH.result);
+                while(it.hasNext()) {
+                    Statement s = it.next();
+                    if(s.getResource().hasProperty(RDF.type, SH.ValidationResult)) {
+                        conforms = false;
+                        it.close();
+                        break;
+                    }
+                }
+                report.removeAll(SH.conforms);
+                report.addProperty(SH.conforms, conforms ? JenaDatatypes.TRUE : JenaDatatypes.FALSE);
+                (conforms ? valid : invalid).add(report);
+            }
+
+            if (invalid.isEmpty()) {
+                lastDuration = System.currentTimeMillis() - start;
+                return valid.size() > 1 ? Collections.singleton(valid.iterator().next()) : valid;
+            }
+
+            boolean exceededViolations = exceedsMaximumNumberViolations(violations);
+            for (Resource report : invalid) {
+                if (exceededViolations) {
+                    report.addProperty(SH_ABORTED, JenaDatatypes.TRUE);
                 }
             }
-            report.removeAll(SH.conforms);
-            report.addProperty(SH.conforms, conforms ? JenaDatatypes.TRUE : JenaDatatypes.FALSE);
-            (conforms ? valid : invalid).add(report);
-        }
-
-        if (invalid.isEmpty()) {
+        } finally {
+            SHACLScriptEngineManager.end(nested);
             lastDuration = System.currentTimeMillis() - start;
-            return valid.size() > 1 ? Collections.singleton(valid.iterator().next()) : valid;
         }
+        return invalid;
+    }
 
-        boolean exceededViolations = exceedsMaximumNumberViolations(violations);
-        for (Resource report : invalid) {
-            if (exceededViolations) {
-                report.addProperty(SH_ABORTED, JenaDatatypes.TRUE);
+    @Override
+    public Resource validateNodesAgainstShape(List<RDFNode> focusNodes, Node shape) {
+        if(!shapesGraph.isIgnored(shape)) {
+            Shape vs;
+            synchronized (shapesGraph) {
+                vs = shapesGraph.getShape(shape);
+            }
+            if(!vs.getShapeResource().isDeactivated()) {
+                boolean nested = SHACLScriptEngineManager.begin();
+                ValidationEngine oldEngine = getCurrent();
+                setCurrent(this);
+                try {
+                    // Make getting constraints thread-safe
+                    Iterable<Constraint> constraints;
+                    synchronized (vs) {
+                        constraints = vs.getConstraints();
+                    }
+                    if (!constraints.iterator().hasNext() && XoneConstraintExecutor.isXone.get()) {
+                        System.out.println(vs.toString() + " has no constraints");
+                    }
+                    for(Constraint constraint : constraints) {
+                        validateNodesAgainstConstraint(focusNodes, constraint);
+                    }
+                }
+                finally {
+                    setCurrent(oldEngine);
+                    SHACLScriptEngineManager.end(nested);
+                }
             }
         }
-        lastDuration = System.currentTimeMillis() - start;
-        return invalid;
+        return getReport();
+    }
+
+    @Override
+    public Resource getReport() {
+        return threadReport.get();
     }
 
     private Callable<ShapeTaskMetadata> getShapeTask(Shape shape, int id, ExecutorService executor) {
@@ -325,5 +400,9 @@ public class ThreadedValidationEngine extends ValidationEngine {
         ThreadedValidationEngine engine = new ThreadedValidationEngine(dataset, shapesGraphURI, shapesGraph);
         engine.setConfiguration(configuration);
         return engine;
+    }
+
+    public static ThreadedValidationEngine createValidationEngine(Dataset dataset, URI sgURI, ShapesGraph sg) {
+        return new ThreadedValidationEngine(dataset, sgURI, sg);
     }
 }
