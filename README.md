@@ -61,7 +61,8 @@ $ pip install -r requirements.txt
 * After running the virtual env command, the virtual environment is automatically activated.  If you need to re-activate the environment, you can run the following command while in the `python` folder.
 
 ```bash
-$ source env/bin/activate
+$ cd ~
+$ source .virtualenv/bin/activate
 ```
 
 * Similarly, you can deactivate the current virtual environment by running the following command.
