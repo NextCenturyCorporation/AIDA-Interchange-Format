@@ -268,12 +268,6 @@ public class AIFUtils {
 
     // Helper function to create a justification (text, image, audio, etc.) in the system.
     private static Resource makeAIFJustification(Model model, String docId, Resource classType,
-                                                 Resource system, Double confidence) {
-        return makeAIFJustification(model, docId, classType, system, confidence, null);
-    }
-
-    // Helper function to create a justification (text, image, audio, etc.) in the system.
-    private static Resource makeAIFJustification(Model model, String docId, Resource classType,
                                                  Resource system, Double confidence, String uri) {
         final Resource justification = makeAIFResource(model, uri, classType, system);
         justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral(docId));
@@ -799,7 +793,7 @@ public class AIFUtils {
      * @param shotId     The String Id of the shot of the specified video document
      * @param system     The system object for the system which made this justification
      * @param confidence The confidence with which to mark the justification
-     * @param uri         A String uri representation of the justification
+     * @param uri        A String uri representation of the justification
      * @return The created video justification resource
      */
     public static Resource makeShotVideoJustification(Model model, String docId, String shotId, Resource system,
@@ -835,7 +829,7 @@ public class AIFUtils {
      * @param shotId     The String Id of the shot of the specified video document
      * @param system     The system object for the system which made this justification
      * @param confidence The confidence with which to mark the justification
-     * @param uri         A String uri representation of the justification
+     * @param uri        A String uri representation of the justification
      * @return The created video justification resource
      */
     public static Resource markShotVideoJustification(Model model, Resource toMarkOn, String docId, String shotId,
@@ -868,7 +862,7 @@ public class AIFUtils {
      * @param shotId     The String Id of the shot of the specified video document
      * @param system     The system object for the system which made this justification
      * @param confidence The confidence with which to mark the justification
-     * @param uri         A String uri representation of the justification
+     * @param uri        A String uri representation of the justification
      * @return The created video justification resource
      */
     public static Resource markShotVideoJustification(Model model, Collection<Resource> toMarkOn, String docId, String shotId,
@@ -1414,7 +1408,8 @@ public class AIFUtils {
      * This inner class encapsulates the LDC representation of time.
      */
     public static final class LDCTimeComponent {
-        public enum LDCTimeType { ON, BEFORE, AFTER, UNKNOWN }
+        public enum LDCTimeType {ON, BEFORE, AFTER, UNKNOWN}
+
         private static final String dateDelimiter = "-";
 
         private final LDCTimeType type;
@@ -1447,6 +1442,7 @@ public class AIFUtils {
 
         /**
          * Create an LDCTimeComponent from a type and a date
+         *
          * @param type {@link String} representation of {@link LDCTimeType}
          * @param date {@link String} containing date to be parsed. Expects yyyy-mm-dd where y, m, and d can be replaced with 'X'
          * @return new {@link LDCTimeComponent} object
