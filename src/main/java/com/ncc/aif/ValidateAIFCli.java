@@ -156,7 +156,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     @Option(names = "--p2", description = "Enable progressive profiling", hidden = true)
     private boolean useProgressiveProfiling;
 
-    @Option(names = "-o", description = "Save validation report model to a file.  KB.ttl would result in KB-report.txt.")
+    @Option(names = "-o", description = "Save validation report model to a file. KB.ttl results will be saved to KB-report*.txt, up to 1 report per thread")
     private boolean outputToFile;
 
     @Option(names = "-t", description = "Specify the number of threads to use during validation. As the threaded validator" +
@@ -321,7 +321,7 @@ public class ValidateAIFCli implements Callable<Integer> {
             logger.info("-> Using disk-based model for validation.");
         }
         if (outputToFile) {
-            logger.info("-> Validation report for invalid KBs will be saved to <kbname>-report.txt.");
+            logger.info("-> Validation report for invalid KBs will be saved to <kbname>-report*.txt., up to 1 report per thread");
         } else {
             logger.info("-> Validation report for invalid KBs will be printed to stderr.");
         }
@@ -385,7 +385,7 @@ public class ValidateAIFCli implements Callable<Integer> {
                     stats.endCollection();
                     stats.dump(fileToValidate.toString());
                 }
-                if (reports.isEmpty()) {
+                if (reports == null) {
                     logger.warn("---> Could not validate " + fileToValidate + " (engine error).  Skipping.");
                     skipCount++;
                 } else if (!ValidateAIF.isValidSetOfReports(reports)) {

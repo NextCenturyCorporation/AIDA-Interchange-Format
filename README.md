@@ -72,7 +72,7 @@ Usage:  <br>
 |`--depth[=num]` | Perform shallow validation in which each SHACL rule (shape) is only applied to `[num]` target nodes, or 50 nodes if `[num]` is omitted (requires -t). |
 |`--pm` | Enable progress monitor that shows ongoing validation progress |
 |`--disk` | Use disk-based model for validating very large files |
-|`-o` | Save validation report model to a file.  `KB.ttl` would result in `KB-report.txt`. Output defaults to stderr. |
+|`-o` | Save validation report model to a file. `KB.ttl` results will be saved to KB-report*.txt, up to 1 report per thread. Output defaults to stderr. |
 |`-t=num` | Specify the number of threads to use during validation. As the threaded validator doesn't currently support adding a progress monitor, this disables the --pm option. |
 |`-d=DIRNAME` | validate all `.ttl` files in the specified directory |
 |`-f=FILE ...` | validate the specified file(s) with a `.ttl` suffix |

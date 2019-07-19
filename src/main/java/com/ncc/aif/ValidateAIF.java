@@ -317,7 +317,7 @@ public final class ValidateAIF {
      */
     public Resource validateKBAndReturnReport(Model dataToBeValidated, Model union) {
         Set<Resource> reports = validateKBAndReturnMultipleReports(dataToBeValidated, union);
-        if (reports.isEmpty()) {
+        if (reports == null) {
             return null;
         } else if (executor != null) {
             Resource masterReport = null;
@@ -345,7 +345,7 @@ public final class ValidateAIF {
      *
      * @param dataToBeValidated KB to be validated
      * @param union             unified KB if not null
-     * @return a validation report from which more information can be derived, or null if validation didn't complete
+     * @return a {@link Set} of validation reports from which more information can be derived or null if validation didn't complete
      */
     public Set<Resource> validateKBAndReturnMultipleReports(Model dataToBeValidated, Model union) {
         Set<Resource> reports = new HashSet<>();
@@ -389,6 +389,7 @@ public final class ValidateAIF {
             } catch (InterruptedException | ExecutionException e) {
                 System.err.println("Unable to validate due to exception");
                 e.printStackTrace();
+                return null;
             }
         } else {
             ValidationEngine engine = ValidationUtil.createValidationEngine(unionModel, shacl, config);
@@ -397,7 +398,7 @@ public final class ValidateAIF {
                 engine.applyEntailments();
                 reports.add(engine.validateAll());
             } catch (InterruptedException ex) {
-                // don't add anything to reports
+                return null;
             }
         }
         return reports;
