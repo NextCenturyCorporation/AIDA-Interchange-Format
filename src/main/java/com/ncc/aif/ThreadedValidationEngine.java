@@ -298,9 +298,6 @@ public class ThreadedValidationEngine extends ValidationEngine {
                     synchronized (vs) {
                         constraints = vs.getConstraints();
                     }
-                    if (!constraints.iterator().hasNext() && XoneConstraintExecutor.isXone.get()) {
-                        System.out.println(vs.toString() + " has no constraints");
-                    }
                     for(Constraint constraint : constraints) {
                         validateNodesAgainstConstraint(focusNodes, constraint);
                     }

@@ -19,13 +19,10 @@ import java.util.List;
  * @author Edward Curley
  */
 public class ClassConstraintExecutor implements ConstraintExecutor {
-    //TODO: remove debugging
-    public static final ThreadLocal<Boolean> hasRun = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
     @Override
     public void executeConstraint(Constraint constraint, ValidationEngine engine, List<RDFNode> focusNodes) {
         RDFNode classType = constraint.getParameterValue();
-        hasRun.set(Boolean.TRUE);
         for(RDFNode focusNode : focusNodes) {
             engine.checkCanceled();
             for(RDFNode valueNode : engine.getValueNodes(constraint, focusNode)) {
