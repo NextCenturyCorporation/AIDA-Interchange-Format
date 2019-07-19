@@ -309,7 +309,9 @@ public final class ValidateAIF {
     }
 
     /**
-     * Validate the specified KB and return a validation report.
+     * Validate the specified KB and return a validation report. When the validator is using more than one thread,
+     * this method will combine all validation reports into a single report (may incur significant overhead).
+     * For the single-thread case, this is equivalent to {@link #validateKBAndReturnMultipleReports(Model, Model)}
      *
      * @param dataToBeValidated KB to be validated
      * @param union             unified KB if not null
@@ -341,7 +343,8 @@ public final class ValidateAIF {
     }
 
     /**
-     * Validate the specified KB and return a validation report.
+     * Validate the specified KB and return a set of validation reports. May return as many reports as there are threads.
+     * For the single-thread case, this is equivalent to {@link #validateKBAndReturnReport(Model, Model)}.
      *
      * @param dataToBeValidated KB to be validated
      * @param union             unified KB if not null
