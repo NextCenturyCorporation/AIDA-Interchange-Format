@@ -144,7 +144,8 @@ public class ValidateAIFCli implements Callable<Integer> {
         }
     }
 
-    @Option(names = "--pm", description = "Enable progress monitor that shows ongoing validation progress")
+    @Option(names = "--pm", description = "Enable progress monitor that shows ongoing validation progress. If -t is"
+            + " specified, then thread metrics are provided post-validation instead.")
     private boolean useProgressMonitor;
 
     @Option(names = "--disk", description = "Use disk-based model for validating very large files")
@@ -159,8 +160,8 @@ public class ValidateAIFCli implements Callable<Integer> {
     @Option(names = "-o", description = "Save validation report model to a file. KB.ttl results will be saved to KB-report*.txt, up to 1 report per thread")
     private boolean outputToFile;
 
-    @Option(names = "-t", description = "Specify the number of threads to use during validation. As the threaded validator" +
-            " doesn't currently support adding a progress monitor, this disables the --pm option.", paramLabel = "num")
+    @Option(names = "-t", description = "Specify the number of threads to use during validation. If the --pm option" +
+            " is specified, thread metrics are provided post-validation instead.", paramLabel = "num")
     private int threads = MINIMUM_THREAD_COUNT;
 
     //TODO: When picocli 4.0 is stable, make this an ArgGroup to enforce mutual exclusivity
@@ -339,7 +340,7 @@ public class ValidateAIFCli implements Callable<Integer> {
         int skipCount = 0;
         int abortCount = 0;
         int fileNum = 0;
-        Path dataModelDir = null;
+        Path dataModelDir;
         final StatsCollector stats = useProgressiveProfiling ?
                 new ProgressiveStatsCollector(LONG_QUERY_THRESH) : new StatsCollector(LONG_QUERY_THRESH);
         for (File fileToValidate : filesToValidate) {
