@@ -1008,6 +1008,7 @@ public class ExamplesAndValidationTest {
         @Test
         void createEntityWithDiskBaseModelAndWriteOut() {
             final ImmutablePair<Model, Dataset> pair = createDiskBasedModel();
+            assertNotNull(pair, "Disk-based model does not exist");
             final Model model = pair.getLeft();
 
             // every AIF needs an object for the system responsible for creating it
@@ -1027,6 +1028,7 @@ public class ExamplesAndValidationTest {
             pair.getRight().close();
 
             final ImmutablePair<Model, Dataset> pair2 = readModelFromDisk(filename);
+            assertNotNull(pair2, "Disk-based model does not exist");
             final Model model2 = pair2.getLeft();
             Resource rtest = model2.getResource(putinDocumentEntityUri);
             model2.close();
@@ -1081,6 +1083,144 @@ public class ExamplesAndValidationTest {
             markJustification(time, utils.makeValidJustification());
 
             utils.testValid("create an event with LDCTime");
+        }
+
+        /**
+         * Create justifications and cluster memberships with and without optional URIs.
+         * Without a URI, justifications and cluster memberships will be blank nodes.
+         */
+        @Nested
+        class testOptionalURIs {
+            private int uriCount;
+            private double confidence;
+            private BoundingBox boundingBox;
+            private Resource person1;
+            private Resource person2;
+            private ImmutableSet<Resource> personCollection;
+            private ImmutableSet<Resource> gpeCollection;
+
+            @BeforeEach
+            void setup() {
+                uriCount = 0;
+                confidence = 1.0;
+                boundingBox = new BoundingBox(new Point(123, 45), new Point(167, 98));
+
+                person1 = utils.makeValidAIFEntity(SeedlingOntology.Person);
+                person2 = utils.makeValidAIFEntity(SeedlingOntology.Person);
+                personCollection = ImmutableSet.of(person1, person2);
+
+                gpeCollection = ImmutableSet.of(utils.makeValidAIFEntity(SeedlingOntology.GeopoliticalEntity),
+                        utils.makeValidAIFEntity(SeedlingOntology.GeopoliticalEntity));
+            }
+
+            /**
+             * Create text justifications with and without optional URIs.  Without a URI, a blank node is created.
+             */
+            @Test
+            void textJustification() {
+                final int startOffset = 2;
+                final int endOffsetInclusive = 4;
+
+                makeTextJustification(model, utils.getDocumentName(), startOffset, endOffsetInclusive, system, confidence);
+                makeTextJustification(model, utils.getDocumentName(), startOffset*2, endOffsetInclusive*2, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+                markTextJustification(model, person1, utils.getDocumentName(), startOffset*3, endOffsetInclusive*3, system, confidence);
+                markTextJustification(model, person2, utils.getDocumentName(), startOffset*4, endOffsetInclusive*4, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+                markTextJustification(model, personCollection, utils.getDocumentName(), startOffset*5, endOffsetInclusive*5, system, confidence);
+                markTextJustification(model, gpeCollection, utils.getDocumentName(), startOffset*6, endOffsetInclusive*6, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+
+                utils.testValid("textJustification with and without optional URI argument");
+            }
+
+            /**
+             * Create image justifications with and without optional URIs.  Without a URI, a blank node is created.
+             */
+            @Test
+            void imageJustification() {
+                makeImageJustification(model, utils.getDocumentName(), boundingBox, system, confidence);
+                makeImageJustification(model, utils.getDocumentName(), boundingBox, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+                markImageJustification(model, person1, utils.getDocumentName(), boundingBox, system, confidence);
+                markImageJustification(model, person2, utils.getDocumentName(), boundingBox, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+                markImageJustification(model, personCollection, utils.getDocumentName(), boundingBox, system, confidence);
+                markImageJustification(model, gpeCollection, utils.getDocumentName(), boundingBox, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+
+                utils.testValid("imageJustification with and without optional URI argument");
+            }
+
+            /**
+             * Create keyFrame justifications with and without optional URIs.  Without a URI, a blank node is created.
+             */
+            @Test
+            void keyFrameJustification() {
+                final String keyFrame = "Keyframe ID#";
+
+                makeKeyFrameVideoJustification(model, utils.getDocumentName(), keyFrame+1, boundingBox, system, confidence);
+                makeKeyFrameVideoJustification(model, utils.getDocumentName(), keyFrame+2, boundingBox, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+                markKeyFrameVideoJustification(model, person1, utils.getDocumentName(), keyFrame+3, boundingBox, system, confidence);
+                markKeyFrameVideoJustification(model, person2, utils.getDocumentName(), keyFrame+4, boundingBox, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+                markKeyFrameVideoJustification(model, personCollection, utils.getDocumentName(), keyFrame+5, boundingBox, system, confidence);
+                markKeyFrameVideoJustification(model, gpeCollection, utils.getDocumentName(), keyFrame+6, boundingBox, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+
+                utils.testValid("keyFrameJustification with and without optional URI argument");
+            }
+
+            /**
+             * Create shot justifications with and without optional URIs.  Without a URI, a blank node is created.
+             */
+            @Test
+            void shotJustification() {
+                final String shotId = "Shot ID#";
+
+                makeShotVideoJustification(model, utils.getDocumentName(), shotId+1, system, confidence);
+                makeShotVideoJustification(model, utils.getDocumentName(), shotId+2, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+                markShotVideoJustification(model, person1, utils.getDocumentName(), shotId+3, system, confidence);
+                markShotVideoJustification(model, person2, utils.getDocumentName(), shotId+4, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+                markShotVideoJustification(model, personCollection, utils.getDocumentName(), shotId+5, system, confidence);
+                markShotVideoJustification(model, gpeCollection, utils.getDocumentName(), shotId+6, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+
+                utils.testValid("shotJustification with and without optional URI argument");
+            }
+
+            /**
+             * Create audio justifications with and without optional URIs.  Without a URI, a blank node is created.
+             */
+            @Test
+            void audioJustification() {
+                final Double startTimestamp = 5.0;
+                final Double endTimestamp = 10.0;
+
+                makeAudioJustification(model, utils.getDocumentName(), startTimestamp, endTimestamp, system, confidence);
+                makeAudioJustification(model, utils.getDocumentName(), startTimestamp*1.1, endTimestamp*1.1, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+                markAudioJustification(model, person1, utils.getDocumentName(), startTimestamp*1.2, endTimestamp*1.2, system, confidence);
+                markAudioJustification(model, person2, utils.getDocumentName(), startTimestamp*1.3, endTimestamp*1.3, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+                markAudioJustification(model, personCollection, utils.getDocumentName(), startTimestamp*1.4, endTimestamp*1.4, system, confidence);
+                markAudioJustification(model, gpeCollection, utils.getDocumentName(), startTimestamp*1.5, endTimestamp*1.5, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+
+                utils.testValid("audioJustification with and without optional URI argument");
+            }
+
+            /**
+             * Create cluster memberships with and without optional URIs.  Without a URI, a blank node is created.
+             */
+            @Test
+            void possibleClusterMember() {
+                // Two people, probably the same person
+                final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
+                markType(model, utils.getAssertionUri(), putin, SeedlingOntology.Person, system, 1.0);
+                markName(putin, "Путин");
+
+                final Resource vladimirPutin = makeEntity(model, utils.getUri("E780885.00311"), system);
+                markType(model, utils.getAssertionUri(), vladimirPutin, SeedlingOntology.Person, system, 1.0);
+                markName(vladimirPutin, "Vladimir Putin");
+
+                // create a cluster with prototype
+                final Resource putinCluster = makeClusterWithPrototype(model, utils.getClusterUri(), putin, system);
+
+                // person 1 is definitely in the cluster, person 2 is probably in the cluster
+                markAsPossibleClusterMember(model, putin, putinCluster, 1.0, system);
+                markAsPossibleClusterMember(model, vladimirPutin, putinCluster, 0.71, system, utils.getUri("clusterMembershipURI"));
+
+                utils.testValid("possibleClusterMember with and without optional URI argument");
+            }
         }
     }
 
