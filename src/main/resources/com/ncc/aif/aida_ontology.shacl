@@ -593,8 +593,8 @@ aida:SharedJustificationShape
 
 aida:SharedJustificationProperties
     a rdf:List ;
+    rdf:first aida:confidence ;
     rdf:rest (
-        aida:confidence
         aida:dependsOnHypothesis
         aida:privateData
         aida:source
@@ -785,12 +785,12 @@ aida:CompoundJustificationTypes
    a sh:PropertyShape ;
    sh:path aida:containedJustification ;
    sh:xone aida:JustificationTypeList ;
-   sh:message "Unsupported compound justification type" .
+   sh:message "Contained justification must be exactly one of the allowed types" .
 
 aida:JustificationTypeList
     a rdf:List ;
+    rdf:first [ sh:class aida:TextJustification ] ;
     rdf:rest (
-        [ sh:class aida:TextJustification ]
         [ sh:class aida:AudioJustification ]
         [ sh:class aida:ImageJustification ]
         [ sh:class aida:KeyFrameVideoJustification ]
@@ -800,20 +800,17 @@ aida:JustificationTypeList
 aida:InformativeJustificationPropertyShape
     a sh:PropertyShape ;
     sh:path aida:informativeJustification ;
-    sh:xone aida:JustificationTypeList
-    .
+    sh:xone aida:JustificationTypeList ;
+    sh:message "Informative justification must be exactly one of the allowed types" .
 
 aida:JustificationPropertyShape
-   a sh:PropertyShape ;
-   sh:path aida:justifiedBy ;
-   sh:xone (
-     [sh:class aida:TextJustification]
-     [sh:class aida:ImageJustification]
-     [sh:class aida:AudioJustification]
-     [sh:class aida:KeyFrameVideoJustification]
-     [sh:class aida:ShotVideoJustification]
-     [sh:class aida:CompoundJustification] ) ;
-   sh:message "Unsupported justification type" .
+    a sh:PropertyShape ;
+    sh:path aida:justifiedBy ;
+    sh:xone [
+        a rdf:List ;
+        rdf:first [sh:class aida:CompoundJustification] ;
+        rdf:rest aida:JustificationTypeList ] ;
+    sh:message "Justification must be exactly one of the allowed types" .
 
 #########################
 # LDC Time Representation

@@ -297,7 +297,7 @@ public class NistExamplesAndValidationTest {
                 final Resource markShotVideoJustification = markShotVideoJustification(model, entity, "source1",
                         "shotId", system, 1.0);
                 addSourceDocumentToJustification(markShotVideoJustification, "source1SourceDocument");
-                utils.expect(ShaclShapes.JustificationPropertyShape, TestUtils.XoneConstraintComponent, null);
+                utils.expect(ShaclShapes.JustificationPropertyShape, TestUtils.NotConstraintComponent, null);
                 utils.testInvalid("NIST.invalid: No shot video");
             }
 

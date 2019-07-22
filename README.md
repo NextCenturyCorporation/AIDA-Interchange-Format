@@ -70,10 +70,10 @@ Usage:  <br>
 |`--nist-ta3` | validate against the NIST hypothesis restrictions (implies `--nist`) |
 |`--abort[=num]` | Abort validation after `[num]` SHACL violations (num > 2), or three violations if `[num]` is omitted. |
 |`--depth[=num]` | Perform shallow validation in which each SHACL rule (shape) is only applied to `[num]` target nodes, or 50 nodes if `[num]` is omitted (requires -t). |
-|`--pm` | Enable progress monitor that shows ongoing validation progress |
+|`--pm` | Enable progress monitor that shows ongoing validation progress.  If `-t` is specified, then thread metrics are provided post-validation instead. |
 |`--disk` | Use disk-based model for validating very large files |
-|`-o` | Save validation report model to a file.  `KB.ttl` would result in `KB-report.txt`. Output defaults to stderr. |
-|`-t=num` | Specify the number of threads to use during validation. As the threaded validator doesn't currently support adding a progress monitor, this disables the --pm option. |
+|`-o` | Save validation report model to a file. `KB.ttl` results will be saved to KB-report*.txt, up to 1 report per thread. Output defaults to stderr. |
+|`-t=num` | Specify the number of threads to use during validation. If the `--pm` option is specified, thread metrics are provided post-validation instead. |
 |`-d=DIRNAME` | validate all `.ttl` files in the specified directory |
 |`-f=FILE ...` | validate the specified file(s) with a `.ttl` suffix |
 |`-h, --help` | This help and usage text |
@@ -100,9 +100,14 @@ To run the validator programmatically in Java code, first use one of the public 
 methods to create a validator object, then call one of the public `validateKB()` methods.
 `createForLDCOntology()` and `createForProgramOntology()` are convenience wrappers for `create()`, which
 is flexible enough to take a Set of ontologies.  All creation methods accept a flag for validating
-against restricted AIF.  See the JavaDocs.
+against restricted AIF; see the JavaDocs.  Note that the original `ValidateAIF.createForDomainOntologySource()` method
+remains for backward compatibility.
 
-Note: the original `ValidateAIF.createForDomainOntologySource()` method remains for backward compatibility.
+Once the validator has been initialized, there are several APIs to validate KBs and retrieve results.  `validateKB()`
+simply returns whether or not the KB is valid.  If you want any information about why the KB was invalid, use one of
+the `validateKBAndReturnXXX()` methods.  Results can be returned as multiple error reports, or as one combined report,
+but note that for some validations, particularly large files with many violations, combining reports could incur
+significant overhead. 
 
 ### Failing fast
 

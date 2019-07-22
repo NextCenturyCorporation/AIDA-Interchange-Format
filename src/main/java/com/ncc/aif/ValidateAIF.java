@@ -10,10 +10,12 @@ import org.topbraid.jenax.progress.ProgressMonitor;
 import org.topbraid.shacl.validation.ValidationEngine;
 import org.topbraid.shacl.validation.ValidationEngineConfiguration;
 import org.topbraid.shacl.validation.ValidationUtil;
+import org.topbraid.shacl.vocabulary.SH;
 
-import java.util.HashSet;
-import java.util.List;
+import java.io.PrintStream;
+import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.BiConsumer;
 
 /**
  * An AIF Validator.  These are not instantiated directly; instead invoke {@link #createForDomainOntologySource} statically,
@@ -72,7 +74,8 @@ public final class ValidateAIF {
     private int depth = 0; // by default, do not perform shallow validation
     private ProgressMonitor progressMonitor = null; // by default, do not monitor progress
     private ThreadPoolExecutor executor;
-    private List<Future<ThreadedValidationEngine.ValidationMetadata>> validationMetadata;
+    private List<Future<ThreadedValidationEngine.ShapeTaskMetadata>> validationMetadata;
+    private long lastDuration;
 
     private ValidateAIF(Model domainModel, Restriction restriction) {
         initializeSHACLModels();
@@ -227,9 +230,49 @@ public final class ValidateAIF {
         return executor;
     }
 
-    //TODO: remove this when ValidatorPerformanceTest is removed
-    public List<Future<ThreadedValidationEngine.ValidationMetadata>> getValidationMetadata() {
-        return validationMetadata;
+    //TODO: remove when ProgressMonitor is added to threaded validator
+    public void printMetrics(PrintStream ps) {
+
+        // sort shapes by duration
+        SortedSet<ThreadedValidationEngine.ShapeTaskMetadata> shapeMDs =
+                new TreeSet<>(Collections.reverseOrder(Comparator.comparing(md -> md.totalDuration)));
+
+        // accumulate thread durations
+        Map<String, Long> threadDuration = new HashMap<>();
+        BiConsumer<String, Long> addDuration = (name, duration) ->
+                threadDuration.put(name, threadDuration.getOrDefault(name, 0L) + duration);
+
+        // accumulate violations
+        int violations = 0;
+
+        // gather data
+        for (Future<ThreadedValidationEngine.ShapeTaskMetadata> future : validationMetadata) {
+            ThreadedValidationEngine.ShapeTaskMetadata smd;
+            try {
+                smd = future.get();
+                shapeMDs.add(smd);
+                addDuration.accept(smd.threadName, smd.targetDuration);
+                smd.constraintMDs.forEach(cmd -> addDuration.accept(cmd.threadName, cmd.duration));
+                violations += smd.violations;
+            } catch (InterruptedException | ExecutionException e) {
+                // do nothing
+            }
+        }
+
+        // print total
+        ps.println(String.format("Total: %dms v=%d", lastDuration, violations));
+
+        // print shapes sorted by duration
+        String separator = "-------------";
+        ps.println("\nShapes\n" + separator);
+        shapeMDs.stream()
+                .peek(ps::println)
+                .flatMap(smd -> smd.constraintMDs.stream())
+                .forEach(cmd -> ps.println("  " + cmd));
+
+        // print out thread duration
+        ps.println("\nThreads\n" + separator);
+        threadDuration.forEach((threadName, duration) -> ps.println(threadName + ": " + duration + "ms "));
     }
 
     /**
@@ -266,13 +309,50 @@ public final class ValidateAIF {
     }
 
     /**
-     * Validate the specified KB and return a validation report.
+     * Validate the specified KB and return a validation report. When the validator is using more than one thread,
+     * this method will combine all validation reports into a single report (may incur significant overhead).
+     * For the single-thread case, this is equivalent to {@link #validateKBAndReturnMultipleReports(Model, Model)}
      *
      * @param dataToBeValidated KB to be validated
      * @param union             unified KB if not null
      * @return a validation report from which more information can be derived, or null if validation didn't complete
      */
     public Resource validateKBAndReturnReport(Model dataToBeValidated, Model union) {
+        Set<Resource> reports = validateKBAndReturnMultipleReports(dataToBeValidated, union);
+        if (reports == null) {
+            return null;
+        } else if (executor != null) {
+            Resource masterReport = null;
+            for (Resource report : reports) {
+                if (masterReport == null) {
+                    masterReport = report;
+                } else {
+                    StmtIterator it = report.listProperties(SH.result);
+                    Model masterModel = masterReport.getModel();
+                    masterModel.add(report.getModel());
+                    while(it.hasNext()) {
+                        masterReport.addProperty(SH.result, it.next().getObject());
+                    }
+                    masterModel.removeAll(report, null, null);
+                }
+            }
+            return masterReport;
+        } else {
+            return reports.iterator().next();
+        }
+    }
+
+    /**
+     * Validate the specified KB and return a set of validation reports. May return as many reports as there are threads.
+     * For the single-thread case, this is equivalent to {@link #validateKBAndReturnReport(Model, Model)}.
+     *
+     * @param dataToBeValidated KB to be validated
+     * @param union             unified KB if not null
+     * @return a {@link Set} of validation reports from which more information can be derived or null if validation didn't complete
+     */
+    public Set<Resource> validateKBAndReturnMultipleReports(Model dataToBeValidated, Model union) {
+        Set<Resource> reports = new HashSet<>();
+
         // We unify the given KB with the background and domain KBs before validation.
         // This is required so that constraints like "the object of a type must be an
         // entity type" will know what types are in fact entity types.
@@ -306,9 +386,9 @@ public final class ValidateAIF {
             engine.setMaxDepth(depth);
             try {
                 engine.applyEntailments();
-                engine.validateAll(executor);
+                reports.addAll(engine.validateAll(executor));
                 validationMetadata = engine.getValidationMetadata();
-                return engine.getReport();
+                lastDuration = engine.getLastDuration();
             } catch (InterruptedException | ExecutionException e) {
                 System.err.println("Unable to validate due to exception");
                 e.printStackTrace();
@@ -319,11 +399,12 @@ public final class ValidateAIF {
             engine.setProgressMonitor(progressMonitor);
             try {
                 engine.applyEntailments();
-                return engine.validateAll();
+                reports.add(engine.validateAll());
             } catch (InterruptedException ex) {
                 return null;
             }
         }
+        return reports;
     }
 
     /**
@@ -334,5 +415,15 @@ public final class ValidateAIF {
      */
     public static boolean isValidReport(Resource validationReport) {
         return validationReport.getRequiredProperty(CONFORMS).getBoolean();
+    }
+
+    /**
+     * Returns whether or not <code>validationReports</code> are all indicative of a valid KB.
+     *
+     * @param validationReports a {@link Set} of validation reports, such as returned by {@link #validateKB(Model)}
+     * @return True if the KB that generated the specified reports is valid
+     */
+    public static boolean isValidSetOfReports(Set<Resource> validationReports) {
+        return validationReports.stream().allMatch(ValidateAIF::isValidReport);
     }
 }
