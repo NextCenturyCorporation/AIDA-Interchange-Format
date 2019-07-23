@@ -360,7 +360,7 @@ class Worker:
 			f = open(file_path+'.log', 'w')
 			f.write(e.output)
 			f.close()
-			logging.info("Validation timed out for file %s after %s seconds", file_name, str(timeout))
+			logging.info("Validation timed out for file %s after %s seconds", file_name, str(self.validation_timeout))
 			return -1
 
 
@@ -377,7 +377,7 @@ class Worker:
 		if len(items) <= 0: 
 			logging.error("No validation output files found in validation folder with extension %s", extension)
 		elif len(items) > 1: 
-			logging.error("Found multiple validation output %s files in validation staging folder", extension)
+			logging.info("Found multiple validation output %s files in validation staging folder", extension)
 		
 		for item in items:
 			logging.info("Uploading %s file %s to S3 with prefix %s", extension, item, self.s3_validation_bucket + '/' + s3_object_prefix)
