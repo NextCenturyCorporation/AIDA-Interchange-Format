@@ -4,7 +4,6 @@ import sys
 import unittest
 
 sys.path.append('../')
-sys.path.append('../aida_interchange')
 import os
 from io import BytesIO
 from rdflib import URIRef

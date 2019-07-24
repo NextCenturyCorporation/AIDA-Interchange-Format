@@ -53,8 +53,8 @@ $ which virtualenv
 * Navigate to the `python` directory and run the following.
 
 ```bash
-$ virtualenv -p python3 ~/.virtualenv
-$ source ./env/bin/activate
+$ virtualenv -p python3 ~/.virtualenv/aida-interchange-format
+$ source ./virtualenv/aida-interchange-format/bin/activate
 $ pip install -r requirements.txt
 ```
 
@@ -62,7 +62,7 @@ $ pip install -r requirements.txt
 
 ```bash
 $ cd ~
-$ source .virtualenv/bin/activate
+$ source .virtualenv/aida-interchange-format/bin/activate
 ```
 
 * Similarly, you can deactivate the current virtual environment by running the following command.
