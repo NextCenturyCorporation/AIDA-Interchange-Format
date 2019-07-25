@@ -1,10 +1,12 @@
 import unittest
 import sys
+import aifutils
+
 sys.path.append('../')
 from io import BytesIO
 from rdflib import URIRef, Literal, XSD, BNode, RDF
-from aida_interchange.aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY, AIDA_ANNOTATION
-from aida_interchange import aifutils
+from aida_rdf_ontologies import AIDA_PROGRAM_ONTOLOGY, AIDA_ANNOTATION
+
 
 class InvalidExamples(unittest.TestCase):
 

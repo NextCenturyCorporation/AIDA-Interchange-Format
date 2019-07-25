@@ -8,13 +8,13 @@ test_directory=test_`date +%s`
 mkdir $test_directory
 
 # save location of SeedlingOntology (validateAIF requires absolute path)
-pushd ../../src/main/resources/com/ncc/aif/ontologies
+pushd ../../../src/main/resources/com/ncc/aif/ontologies
 ontology_dir=`pwd`/SeedlingOntology
 popd
 
-# run Examples.py
+# run examples.py
 # DIR_PATH is the directory where example files are to be written
-DIR_PATH=$test_directory python3 Examples.py
+DIR_PATH=$test_directory python3 examples.py
 
 # validate test file directory
 # if return value is non zero, this script will exit

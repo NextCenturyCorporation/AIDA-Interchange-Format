@@ -2,15 +2,16 @@
 # -*- coding: utf-8 -*-
 import sys
 import unittest
-
+import aifutils
 sys.path.append('../')
 import os
+
 from io import BytesIO
 from rdflib import URIRef
-from aida_interchange.Bounding_Box import Bounding_Box
-from aida_interchange.aida_rdf_ontologies import SEEDLING_TYPES_NIST
-from aida_interchange.LDCTimeComponent import LDCTimeComponent, LDCTimeType
-from aida_interchange import aifutils
+from bounding_box import Bounding_Box
+from aida_rdf_ontologies import SEEDLING_TYPES_NIST
+from ldc_time_component import LDCTimeComponent, LDCTimeType
+
 
 
 # Running these tests will output the examples to the console
