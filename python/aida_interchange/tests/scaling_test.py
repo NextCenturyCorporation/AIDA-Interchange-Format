@@ -1,11 +1,13 @@
 import sys
-sys.path.append('../')
-from aida_rdf_ontologies import SEEDLING_TYPES_NIST
-import aifutils
-import random
-from rdflib import URIRef
 import os.path
 import time
+import aifutils
+import random
+
+sys.path.append('../')
+from aida_rdf_ontologies import SEEDLING_TYPES_NIST
+from rdflib import URIRef
+
 
 class ScalingTest():
     filename = "scalingdata.ttl"

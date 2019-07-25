@@ -1,7 +1,8 @@
+import aifutils
+
 from enum import Enum
 from rdflib import Graph, Literal, XSD, URIRef
 from aida_rdf_ontologies import AIDA_ANNOTATION
-import aifutils
 
 class LDCTimeType(Enum):
     ON = 1
