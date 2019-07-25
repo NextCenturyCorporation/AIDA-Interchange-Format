@@ -259,7 +259,7 @@ def make_relation(g, relation_uri, system):
     :param str relation_uri: A unique string URI for the relation
     :param rdflib.term.URIRef system: The system object for the system which created the 
         specified relation
-    :returns: The relaton object
+    :returns: The relation object
     :rtype: rdflib.term.URIRef  
     """
     return _make_aif_resource(g, relation_uri, AIDA_ANNOTATION.Relation, system)
@@ -543,7 +543,7 @@ def make_shot_video_justification(g, doc_id, shot_id, system, confidence,
     :param str doc_id: A string containing the document element (child) ID of the 
         source of the justification
     :param str shot_id: The string Id of the shot of the specified video document
-    :param rdflib.term.URIRef system: TThe system object for the system which made
+    :param rdflib.term.URIRef system: The system object for the system which made
         this justification
     :param float confidence: The confidence with which to mark the justification
     :param str uri_ref: A string URI representation of the video justification (Default is None)
@@ -570,7 +570,7 @@ def mark_shot_video_justification(g, things_to_justify, doc_id, shot_id, system,
     :param str shot_id: The string Id of the shot of the specified video document
     :param str doc_id: A string containing the document element (child) ID of the
         source of the justification
-    :param rdflib.term.URIRef system: TThe system object for the system which made 
+    :param rdflib.term.URIRef system: The system object for the system which made
         this justification
     :param float confidence: The confidence with which to mark the justification
     :param str uri_ref: A string URI representation of the video justification (Default is None)
