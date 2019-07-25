@@ -13,6 +13,7 @@ A convenient interface for creating simple AIF graphs.
 More complicated graphs will require direct manipulation of the RDF
 """
 
+
 def make_graph():
     """
     Creates the underlying RDF model
@@ -78,6 +79,7 @@ def mark_text_value(g, entity, text_value):
     """
     g.add((entity, AIDA_ANNOTATION.textValue,
            Literal(text_value, datatype=XSD.string)))
+
 
 def mark_numeric_value_as_string(g, entity, numeric_value):
     """
@@ -212,7 +214,7 @@ def mark_text_justification(g, things_to_justify, doc_id, start_offset,
     Mark multiple things as being justified by a particular snippet of text.
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param list things_to_justify: A list of resources to be marked by the specified text 
+    :param list things_to_justify: A list of resources to be marked by the specified text
         document
     :param str doc_id: A string containing the document element (child) ID of the source of 
         the justification
@@ -257,7 +259,7 @@ def make_relation(g, relation_uri, system):
     :param str relation_uri: A unique string URI for the relation
     :param rdflib.term.URIRef system: The system object for the system which created the 
         specified relation
-    :returns: The relaton object
+    :returns: The relation object
     :rtype: rdflib.term.URIRef  
     """
     return _make_aif_resource(g, relation_uri, AIDA_ANNOTATION.Relation, system)
@@ -348,8 +350,8 @@ def mark_boundingbox(g, to_mark_on, boundingbox):
     :param rdflib.graph.Graph g: The underlying RDF model
     :param rdflib.term.BNode to_mark_on: The resource to mark with the specified bounding
         box
-    :param rdflib.term.URIRef system: The system object for the system which marked this
-         bounding box
+    :param Bounding_Box boundingbox: A rectangular box
+        within the image that bounds the justification
     """
     bounding_box_resource = BNode()
     g.add((bounding_box_resource, RDF.type, AIDA_ANNOTATION.BoundingBox))
@@ -540,9 +542,11 @@ def make_shot_video_justification(g, doc_id, shot_id, system, confidence,
     :param rdflib.graph.Graph g: The underlying RDF model
     :param str doc_id: A string containing the document element (child) ID of the 
         source of the justification
-    :param rdflib.term.URIRef system: TThe system object for the system which made 
+    :param str shot_id: The string Id of the shot of the specified video document
+    :param rdflib.term.URIRef system: The system object for the system which made
         this justification
     :param float confidence: The confidence with which to mark the justification
+    :param str uri_ref: A string URI representation of the video justification (Default is None)
     :returns: The created video justification resource
     :rtype: rdflib.term.BNode
     """
@@ -563,11 +567,13 @@ def mark_shot_video_justification(g, things_to_justify, doc_id, shot_id, system,
     :param rdflib.graph.Graph g: The underlying RDF model
     :param list things_to_justify: A list of resources to be marked by the specified 
         video document
-    :param str doc_id: A string containing the document element (child) ID of the 
+    :param str shot_id: The string Id of the shot of the specified video document
+    :param str doc_id: A string containing the document element (child) ID of the
         source of the justification
-    :param rdflib.term.URIRef system: TThe system object for the system which made 
+    :param rdflib.term.URIRef system: The system object for the system which made
         this justification
     :param float confidence: The confidence with which to mark the justification
+    :param str uri_ref: A string URI representation of the video justification (Default is None)
     :returns: The created video justification resource
     :rtype: rdflib.term.BNode
     """
@@ -596,6 +602,7 @@ def mark_compound_justification(g, things_to_justify, justifications, system, co
         g.add((compound_justification, AIDA_ANNOTATION.containedJustification, justification))
     mark_justification(g, things_to_justify, compound_justification)
     return compound_justification
+
 
 def add_source_document_to_justification(g, justification, source_document) :
     """
@@ -636,7 +643,8 @@ def make_cluster_with_prototype(g, cluster_uri, prototype, system, handle=None):
         g.add((cluster, AIDA_ANNOTATION.handle, Literal(handle, datatype=XSD.string)))
     return cluster
 
-def mark_as_possible_cluster_member(g, possible_cluster_member, cluster, confidence, system):
+
+def mark_as_possible_cluster_member(g, possible_cluster_member, cluster, confidence, system, uri_ref=None):
     """
     Mark an entity or event as a possible member of a cluster.
 
@@ -646,10 +654,11 @@ def mark_as_possible_cluster_member(g, possible_cluster_member, cluster, confide
     :param rdflib.term.URIRef cluster: The cluster to associate with the possible cluster member
     :param float confidence: The confidence with which to mark the cluster membership
     :param rdflib.term.URIRef system: The system object for the system which marked the specified cluster
+    :param str uri_ref: A string URI representation of the cluster member (Default is None)
     :returns: The cluster membership assertion
     :rtype: rdflib.term.BNode
     """
-    cluster_member_assertion = _make_aif_resource(g, None, AIDA_ANNOTATION.ClusterMembership, system)
+    cluster_member_assertion = _make_aif_resource(g, uri_ref, AIDA_ANNOTATION.ClusterMembership, system)
     g.add((cluster_member_assertion, AIDA_ANNOTATION.cluster, cluster))
     g.add((cluster_member_assertion, AIDA_ANNOTATION.clusterMember, possible_cluster_member))
     mark_confidence(g, cluster_member_assertion, confidence, system)
@@ -701,10 +710,10 @@ def mark_informative_justification(g, resource, informative_justification):
     Mark resource as having an informativeJustification value
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param resource: the resource to mark with the specified imporatance
+    :param resource: the resource to mark with the specified importance
     :param informative_justification: the justification which will be considered informative
     """
-    g.add((resource, AIDA_ANNOTATION.informativeJustification , informative_justification))
+    g.add((resource, AIDA_ANNOTATION.informativeJustification, informative_justification))
 
 
 def mark_depends_on_hypothesis(g, depender, hypothesis):
@@ -713,7 +722,7 @@ def mark_depends_on_hypothesis(g, depender, hypothesis):
 
     :param rdflib.graph.Graph g: The underlying RDF model
     :param rdflib.term.URIRef depender: the argument that depends on the specified hypothesis
-    :param rdflib.term.URIRef hyptothesis: The hypothesis upon which to depend
+    :param rdflib.term.URIRef hypothesis: The hypothesis upon which to depend
     """
     g.add((depender, AIDA_ANNOTATION.dependsOnHypothesis, hypothesis))
 
@@ -793,6 +802,7 @@ def mark_private_data(g, resource, json_content, system):
 
     return private_data
 
+
 def mark_private_data_with_vector(g, resource, system, vector):
     """
     Mark data as private from vector data. Private data should not contain document-level content features.
@@ -823,6 +833,7 @@ def mark_private_data_with_vector(g, resource, system, vector):
     vector = json.dumps(vector)
     private_data = mark_private_data(g, resource, str(vector), system)
     return private_data
+
 
 def link_to_external_kb(g, to_link, external_kb_id, system, confidence):
     """
@@ -889,6 +900,7 @@ def _make_aif_justification(g, doc_id, class_type, system, confidence,
     mark_confidence(g, justification, confidence, system)
     return justification
 
+
 _TYPE_QUERY = prepareQuery("""SELECT ?typeAssertion WHERE {
   ?typeAssertion a rdf:Statement .
   ?typeAssertion rdf:predicate rdf:type .
@@ -931,7 +943,7 @@ def mark_ldc_time(g, to_mark, start, end, system):
     Add LDC start and end time representation to an Event or Relation
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param rdflib.term.URIRef to_mark: The Event or Realtion to add the LDC time data to
+    :param rdflib.term.URIRef to_mark: The Event or Relation to add the LDC time data to
     :param LDCTimeComponent start: containing the start time information
     :param LDCTimeComponent end: containing the end time information
     :param rdflib.term.URIRef  system: The system object for the system which marks the time
