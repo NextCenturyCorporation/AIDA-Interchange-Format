@@ -67,7 +67,8 @@ $ source .virtualenv/aida-interchange-format/bin/activate
 
 * Similarly, you can deactivate the current virtual environment by running the following command.
 
-``bash
+```
+bash
 $ deactivate
 ```
 
