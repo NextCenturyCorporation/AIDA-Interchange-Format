@@ -538,8 +538,8 @@ class Main:
                     )
                 return True 
         else:
-            logging.error("Source log file %s does not exist, unable to verify source files", source_log_path)
-            self.verification = "Source log file {0} does not exist, unable to verify source files".format(source_log_path)
+            logging.error("Source log file %s does not exist, unable to verify source files", queued_log)
+            self.verification = "Source log file {0} does not exist, unable to verify source files".format(queued_log )
             return False
 
 
