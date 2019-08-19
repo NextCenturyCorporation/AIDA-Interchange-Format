@@ -108,3 +108,4 @@ build/
 
 # Python documentation
 python/docs/build/
+python/docs/source/*.rst

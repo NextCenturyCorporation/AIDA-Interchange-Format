@@ -1,11 +1,11 @@
 import sys
-import os.path
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 import time
-import aifutils
 import random
 
-sys.path.append('../')
-from aida_rdf_ontologies import SEEDLING_TYPES_NIST
+from aida_interchange import aifutils
+from aida_interchange.aida_rdf_ontologies import SEEDLING_TYPES_NIST
 from rdflib import URIRef
 
 
@@ -180,7 +180,7 @@ class ScalingTest():
     def write_to_file(self, testname):
         print("\n\n", testname, "\n\n")
         file = open(testname, "w")
-        file.write(self.g.serialize(format='turtle'))
+        file.write(str(self.g.serialize(format='turtle')))
         file.close()
 
     ENTITY_TYPES = ["Person", "Organization", "Location", "Facility", "GeopoliticalEntity", "FillerType",
