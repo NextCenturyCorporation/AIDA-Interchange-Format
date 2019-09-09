@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 
 setup(name='aida-interchange',
       version='1.1.0',
-      author='NextCentury',
-      author_email='craig.warsaw@nextcentury.com',
+      author='Ryan Gabbard',
+      author_email='gabbard@isi.edu',
       description='AIDA Interchange Format tools',
       long_description=open('README.md').read(),
       long_description_content_type='text/markdown',
