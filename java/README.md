@@ -141,7 +141,7 @@ You should now be ready to go.
 
 # Documentation
 
-To generate the javadoc documentation, navigate to the top level directory in the AIDA-Interchange-Format project. Run the following command:
+To generate the javadoc documentation, navigate to the `java` directory in the AIDA-Interchange-Format project. Run the following command:
 
 ```bash
 $ javadoc -d build/docs/javadoc/ src/main/java/com/ncc/aif/*.java
