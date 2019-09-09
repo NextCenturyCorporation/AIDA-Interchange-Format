@@ -3,8 +3,6 @@
 * To install the Java code, do `mvn install` from the root of this repository using Apache Maven.
 Repeat this if you pull an updated version of the code. You can run the tests,
 which should output the examples, by doing `mvn test`.
-* To install the Python code, do `python setup.py install` from the root of
-  this repository.
 
 # Using the AIF Library
 
