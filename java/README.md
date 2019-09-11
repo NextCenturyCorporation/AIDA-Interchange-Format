@@ -20,7 +20,7 @@ model, and then write the model out.
 
 The file `src/test/java/com/ncc/aif/ExamplesAndValidationTests.java`
 has a series of examples showing how to add things to the model.  The
-`src/text/java/com/ncc/aif/ScalingTest.java` file has examples of how
+`src/test/java/com/ncc/aif/ScalingTest.java` file has examples of how
 to write the model out.
 
 # The AIF Validator

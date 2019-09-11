@@ -24,9 +24,9 @@ readability) but N-Triples for working with large KBs (for speed).
 
 # Installation
 
-For instructions on installing the Java code, see the [AIF Java README](https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java)
+For instructions on installing the Java code, see the [AIF Java README](https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/tree/master/java)
 
-For instructions on installing the Python code, see the [AIF Python README](https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/master/python)
+For instructions on installing the Python code, see the [AIF Python README](https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/tree/master/python)
 
 # FAQ
 
@@ -37,10 +37,8 @@ Please see `FAQ.md` for frequently asked questions.
 AIF was designed by Ryan Gabbard (gabbard@isi.edu) and Pedro Szekely
 (pszekeley@isi.edu) of USC ISI.  Gabbard also wrote the initial
 implementations of the associated tools.  The tools are now supported
-and extended by Eddie Curley (eddie.curley@nextcentury.com), Bao Pham
-(bao.pham@nextcentury.com), Craig Warsaw (craig.warsaw@nextcentury.com),
-Darren Gemoets (darren.gemoets@nextcentury.com), and Patrick 
-Sharkey (patrick.sharkey@nextcentury.com) of Next Century.
+and by Next Century. For questions related to AIF, please contact Craig 
+Warsaw (craig.warsaw@nextcentury.com). 
 
 The open repository will support an open NIST evaluation. For
 questions related to this evaluation, please contact Hoa Dang

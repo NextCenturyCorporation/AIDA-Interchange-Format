@@ -34,7 +34,7 @@ Navigate inside the `python` directory and run the following
 
 ```bash
 $ virtualenv -p python3 ~/.virtualenvs/aida-interchange-format
-$ source ./virtualenvs/aida-interchange-format/bin/activate
+$ source ~/.virtualenvs/aida-interchange-format/bin/activate
 $ pip install -r requirements.txt
 ```	
 
@@ -43,7 +43,7 @@ $ pip install -r requirements.txt
 Your virtual environment will be automatically activated after running the virtualenv command. If you need to re-activate your virtual environment you can run the following command while in the root python folder of the project
 
 ```bash
-$ source ./virtualenvs/aida-interchange-format/bin/activate
+$ source ~/.virtualenvs/aida-interchange-format/bin/activate
 ```
 
 ## Deactivate virtual environment
