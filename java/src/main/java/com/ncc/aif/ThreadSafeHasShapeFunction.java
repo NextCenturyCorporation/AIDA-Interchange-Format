@@ -1,5 +1,6 @@
 package com.ncc.aif;
 
+import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
@@ -32,10 +33,14 @@ import java.util.Collections;
  * @author Edward Curley
  */
 public class ThreadSafeHasShapeFunction extends HasShapeFunction {
-    private static ThreadLocal<Boolean> recursionIsErrorFlag = new ThreadLocal<Boolean>();
+    private static ThreadLocal<Boolean> recursionIsErrorFlag = new ThreadLocal<>();
 
     @Override
     protected NodeValue exec(Node focusNode, Node shapeNode, Node recursionIsError, FunctionEnv env) {
+        return exec(focusNode, shapeNode, recursionIsError, env.getActiveGraph(), DatasetImpl.wrap(env.getDataset()));
+    }
+
+    public static NodeValue exec(Node focusNode, Node shapeNode, Node recursionIsError, Graph activeGraph, Dataset dataset) {
 
         Boolean oldFlag = recursionIsErrorFlag.get();
         if (JenaDatatypes.TRUE.asNode().equals(recursionIsError)) {
@@ -59,9 +64,8 @@ public class ThreadSafeHasShapeFunction extends HasShapeFunction {
             } else {
 
                 try {
-                    Model model = ModelFactory.createModelForGraph(env.getActiveGraph());
+                    Model model = ModelFactory.createModelForGraph(activeGraph);
                     RDFNode resource = model.asRDFNode(focusNode);
-                    Dataset dataset = DatasetImpl.wrap(env.getDataset());
                     Resource shape = (Resource) dataset.getDefaultModel().asRDFNode(shapeNode);
                     return NodeValue.makeBoolean(hasShapeInternal(resource, shape, dataset));
                 } finally {
@@ -73,7 +77,7 @@ public class ThreadSafeHasShapeFunction extends HasShapeFunction {
         }
     }
 
-    private Model doRun(RDFNode focusNode, Resource shape, Dataset dataset) {
+    private static Model doRun(RDFNode focusNode, Resource shape, Dataset dataset) {
         URI sgURI = getShapesGraphURI();
         ShapesGraph sg = getShapesGraph();
         if (sgURI == null) {
@@ -97,7 +101,7 @@ public class ThreadSafeHasShapeFunction extends HasShapeFunction {
                 getModel();
     }
 
-    private boolean hasShapeInternal(RDFNode focusNode, Resource shape, Dataset dataset) {
+    private static boolean hasShapeInternal(RDFNode focusNode, Resource shape, Dataset dataset) {
         Model results = doRun(focusNode, shape, dataset);
         if (getResultsModel() != null) {
             getResultsModel().add(results);
@@ -120,12 +124,12 @@ public class ThreadSafeHasShapeFunction extends HasShapeFunction {
         }
     }
 
-    public static boolean hasShape(RDFNode focusNode, Resource shape, ValidationEngine engine) {
+    static boolean hasShape(RDFNode focusNode, Resource shape, ValidationEngine engine) {
         URI oldShapesGraphURI = HasShapeFunction.getShapesGraphURI();
         ShapesGraph oldShapesGraph = HasShapeFunction.getShapesGraph();
         try {
             setShapesGraph(engine.getShapesGraph(), engine.getShapesGraphURI());
-            return new ThreadSafeHasShapeFunction().hasShapeInternal(focusNode, shape, engine.getDataset());
+            return ThreadSafeHasShapeFunction.hasShapeInternal(focusNode, shape, engine.getDataset());
         } finally {
             HasShapeFunction.setShapesGraph(oldShapesGraph, oldShapesGraphURI);
         }

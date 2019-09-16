@@ -281,7 +281,7 @@ public class NistTA3ExamplesAndValidationTest {
             void invalid() {
                 Resource fakeEntity = model.createResource(utils.getEntityUri());
                 utils.makeValidTA3Hypothesis(fakeEntity, entity, event, eventEdge);
-                utils.expect(null, TestUtils.XoneConstraintComponent, null);
+                utils.expect(null, SH.XoneConstraintComponent, null);
                 utils.testInvalid("NISTHypothesis.invalid (entity is not defined): All KEs referenced by hypothesis " +
                         "must be defined in model");
             }

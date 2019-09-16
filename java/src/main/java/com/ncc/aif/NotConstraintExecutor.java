@@ -9,7 +9,7 @@ import org.topbraid.shacl.validation.ConstraintExecutor;
 import org.topbraid.shacl.validation.ValidationEngine;
 import org.topbraid.shacl.vocabulary.SH;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Implements handling of sh:not without SPARQL
@@ -19,7 +19,7 @@ import java.util.List;
 public class NotConstraintExecutor implements ConstraintExecutor {
 
     @Override
-    public void executeConstraint(Constraint constraint, ValidationEngine engine, List<RDFNode> focusNodes) {
+    public void executeConstraint(Constraint constraint, ValidationEngine engine, Collection<RDFNode> focusNodes) {
         RDFNode shape = constraint.getParameterValue();
         Resource path = constraint.getShapeResource().getPath();
         for(RDFNode focusNode : focusNodes) {

@@ -37,27 +37,12 @@ public class ThreadedValidationEngine extends ValidationEngine {
     private static void initializeSHComponents() {
         if (!initialized) {
             FunctionRegistry.get().put(TOSH.hasShape.getURI(), ThreadSafeHasShapeFunction.class);
-            ConstraintExecutors.get().addSpecialExecutor(ResourceFactory.createResource(SH.NS + "XoneConstraintComponent"),
-                    new AbstractSpecialConstraintExecutorFactory() {
-                        @Override
-                        public ConstraintExecutor create(Constraint constraint) {
-                            return new XoneConstraintExecutor();
-                        }
-                    });
+            ConstraintExecutors.get().addSpecialExecutor(SH.XoneConstraintComponent,
+                    constraint -> new XoneConstraintExecutor());
             ConstraintExecutors.get().addSpecialExecutor(SH.ClassConstraintComponent,
-                    new AbstractSpecialConstraintExecutorFactory() {
-                        @Override
-                        public ConstraintExecutor create(Constraint constraint) {
-                            return new ClassConstraintExecutor();
-                        }
-                    });
-            ConstraintExecutors.get().addSpecialExecutor(ResourceFactory.createResource(SH.NS + "NotConstraintComponent"),
-                    new AbstractSpecialConstraintExecutorFactory() {
-                        @Override
-                        public ConstraintExecutor create(Constraint constraint) {
-                            return new NotConstraintExecutor();
-                        }
-                    });
+                    constraint -> new ClassConstraintExecutor());
+            ConstraintExecutors.get().addSpecialExecutor(SH.NotConstraintComponent,
+                    constraint -> new NotConstraintExecutor());
             initialized = true;
         }
     }

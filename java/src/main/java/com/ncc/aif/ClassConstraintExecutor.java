@@ -11,7 +11,7 @@ import org.topbraid.shacl.validation.ConstraintExecutor;
 import org.topbraid.shacl.validation.ValidationEngine;
 import org.topbraid.shacl.vocabulary.SH;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Implements handling of sh:class without SPARQL
@@ -21,7 +21,7 @@ import java.util.List;
 public class ClassConstraintExecutor implements ConstraintExecutor {
 
     @Override
-    public void executeConstraint(Constraint constraint, ValidationEngine engine, List<RDFNode> focusNodes) {
+    public void executeConstraint(Constraint constraint, ValidationEngine engine, Collection<RDFNode> focusNodes) {
         RDFNode classType = constraint.getParameterValue();
         for(RDFNode focusNode : focusNodes) {
             engine.checkCanceled();
@@ -55,7 +55,7 @@ public class ClassConstraintExecutor implements ConstraintExecutor {
         } else if (current.equals(classType)) {
             return true;
         } else if (current.isResource()) {
-            List<RDFNode> nodes = current.asResource()
+            Collection<RDFNode> nodes = current.asResource()
                     .listProperties(RDFS.subClassOf)
                     .mapWith(Statement::getObject)
                     .toList();
