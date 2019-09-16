@@ -1,24 +1,14 @@
-#!/usr/bin/env python
-
-from distutils.core import setup
-
-import setuptools
-
-with open("README.md", "r") as fh:
-  long_description = fh.read()
+from setuptools import setup, find_packages
 
 setup(name='aida-interchange',
-      version='0.1.0',
+      version='1.1.0',
       author='Ryan Gabbard',
       author_email='gabbard@isi.edu',
       description='AIDA Interchange Format tools',
-      long_description=long_description,
+      long_description=open('README.md').read(),
       long_description_content_type='text/markdown',
       url='https://github.com/NextCenturyCorporation/AIDA-Interchange-Format.git',
-      packages=setuptools.find_packages(where='./python/', exclude=['tests']),
-      package_dir={
-          '' : 'python'
-          },
+      packages=find_packages(exclude=['tests']),
       python_requires='~=3.0',
       install_requires=[
         'rdflib',
@@ -31,4 +21,4 @@ setup(name='aida-interchange',
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
       ),
-      )
+)
