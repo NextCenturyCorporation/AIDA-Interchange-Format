@@ -1,6 +1,5 @@
 package com.ncc.aif;
 
-import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
@@ -27,8 +26,8 @@ import java.net.URI;
 import java.util.Collections;
 
 /**
- * A thread-safe implementation of the tosh:hasShape function. Had to include most of the code from
- * {@link HasShapeFunction} due to change being in private method
+ * A thread-safe implementation of the tosh:hasShape function. Included most of the code from
+ * {@link HasShapeFunction} (with minor changes) due to updating a private method
  *
  * @author Edward Curley
  */
@@ -37,11 +36,6 @@ public class ThreadSafeHasShapeFunction extends HasShapeFunction {
 
     @Override
     protected NodeValue exec(Node focusNode, Node shapeNode, Node recursionIsError, FunctionEnv env) {
-        return exec(focusNode, shapeNode, recursionIsError, env.getActiveGraph(), DatasetImpl.wrap(env.getDataset()));
-    }
-
-    public static NodeValue exec(Node focusNode, Node shapeNode, Node recursionIsError, Graph activeGraph, Dataset dataset) {
-
         Boolean oldFlag = recursionIsErrorFlag.get();
         if (JenaDatatypes.TRUE.asNode().equals(recursionIsError)) {
             recursionIsErrorFlag.set(true);
@@ -64,8 +58,9 @@ public class ThreadSafeHasShapeFunction extends HasShapeFunction {
             } else {
 
                 try {
-                    Model model = ModelFactory.createModelForGraph(activeGraph);
+                    Model model = ModelFactory.createModelForGraph(env.getActiveGraph());
                     RDFNode resource = model.asRDFNode(focusNode);
+                    Dataset dataset = DatasetImpl.wrap(env.getDataset());
                     Resource shape = (Resource) dataset.getDefaultModel().asRDFNode(shapeNode);
                     return NodeValue.makeBoolean(hasShapeInternal(resource, shape, dataset));
                 } finally {

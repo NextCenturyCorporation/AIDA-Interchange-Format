@@ -12,6 +12,7 @@ import org.topbraid.shacl.validation.ValidationEngine;
 import org.topbraid.shacl.vocabulary.SH;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Implements handling of sh:class without SPARQL
@@ -55,7 +56,7 @@ public class ClassConstraintExecutor implements ConstraintExecutor {
         } else if (current.equals(classType)) {
             return true;
         } else if (current.isResource()) {
-            Collection<RDFNode> nodes = current.asResource()
+            List<RDFNode> nodes = current.asResource()
                     .listProperties(RDFS.subClassOf)
                     .mapWith(Statement::getObject)
                     .toList();
