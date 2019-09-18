@@ -107,7 +107,7 @@ public class NistExamplesAndValidationTest {
                         system,
                         1.0);
 
-                utils.expect(ShaclShapes.RestrictCompoundJustificationPropertyShape, TestUtils.NotConstraintComponent,
+                utils.expect(ShaclShapes.RestrictCompoundJustificationPropertyShape, SH.NotConstraintComponent,
                         null, 3);
                 utils.expect(ShaclShapes.EdgeJustificationCompound, SH.ClassConstraintComponent,null, 2);
                 utils.testInvalid("NIST.invalid: CompoundJustification must be used only for justifications of argument assertions");
@@ -297,7 +297,7 @@ public class NistExamplesAndValidationTest {
                 final Resource markShotVideoJustification = markShotVideoJustification(model, entity, "source1",
                         "shotId", system, 1.0);
                 addSourceDocumentToJustification(markShotVideoJustification, "source1SourceDocument");
-                utils.expect(ShaclShapes.JustificationPropertyShape, TestUtils.NotConstraintComponent, null);
+                utils.expect(ShaclShapes.JustificationPropertyShape, SH.NotConstraintComponent, null);
                 utils.testInvalid("NIST.invalid: No shot video");
             }
 
@@ -317,7 +317,7 @@ public class NistExamplesAndValidationTest {
             @Test
             void invalid() {
                 markAsPossibleClusterMember(model, eventCluster, entityCluster, .5, system);
-                utils.expect(null, TestUtils.XoneConstraintComponent, null);
+                utils.expect(null, SH.XoneConstraintComponent, null);
                 utils.testInvalid("NIST.invalid: Flat clusters");
             }
 
@@ -376,7 +376,7 @@ public class NistExamplesAndValidationTest {
                         LDCOntology.PER),
                         utils.makeValidJustification());
                 markAsPossibleClusterMember(model, newEntity, entityCluster, 1.2, system);
-                utils.expect(null, TestUtils.MaxInclusiveConstraintComponent, null);
+                utils.expect(null, SH.MaxInclusiveConstraintComponent, null);
                 utils.testInvalid("NIST.invalid: confidence must be between 0 and 1");
             }
 

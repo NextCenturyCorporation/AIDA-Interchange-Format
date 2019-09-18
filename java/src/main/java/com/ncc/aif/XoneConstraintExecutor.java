@@ -11,7 +11,7 @@ import org.topbraid.shacl.validation.ValidationEngine;
 import org.topbraid.shacl.vocabulary.SH;
 
 import java.util.HashSet;
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -22,7 +22,7 @@ import java.util.Set;
 public class XoneConstraintExecutor implements ConstraintExecutor {
 
     @Override
-    public void executeConstraint(Constraint constraint, ValidationEngine engine, List<RDFNode> focusNodes) {
+    public void executeConstraint(Constraint constraint, ValidationEngine engine, Collection<RDFNode> focusNodes) {
         RDFNode shapeList = constraint.getParameterValue();
         Resource path = constraint.getShapeResource().getPath();
         Set<Resource> shapes = getMembersOfResourceList(shapeList);

@@ -11,6 +11,7 @@ import org.topbraid.shacl.validation.ConstraintExecutor;
 import org.topbraid.shacl.validation.ValidationEngine;
 import org.topbraid.shacl.vocabulary.SH;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -21,7 +22,7 @@ import java.util.List;
 public class ClassConstraintExecutor implements ConstraintExecutor {
 
     @Override
-    public void executeConstraint(Constraint constraint, ValidationEngine engine, List<RDFNode> focusNodes) {
+    public void executeConstraint(Constraint constraint, ValidationEngine engine, Collection<RDFNode> focusNodes) {
         RDFNode classType = constraint.getParameterValue();
         for(RDFNode focusNode : focusNodes) {
             engine.checkCanceled();

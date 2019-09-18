@@ -23,7 +23,7 @@ mvn org.apache.maven.plugins:maven-install-plugin:3.0.0-M1:install-file  \
     -DlocalRepositoryPath=repo
 ```
 
-For example, the shacl jar file (`1.2-SNAPSHOT`) was added with the following command:
+For example, the shacl jar file (`1.2-SNAPSHOT`, since removed) was added with the following command:
 
 ```
 mvn org.apache.maven.plugins:maven-install-plugin:3.0.0-M1:install-file \

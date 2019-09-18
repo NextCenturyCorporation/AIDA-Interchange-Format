@@ -26,17 +26,16 @@ import java.net.URI;
 import java.util.Collections;
 
 /**
- * A thread-safe implementation of the tosh:hasShape function. Had to include most of the code from
- * {@link HasShapeFunction} due to change being in private method
+ * A thread-safe implementation of the tosh:hasShape function. Included most of the code from
+ * {@link HasShapeFunction} (with minor changes) due to updating a private method
  *
  * @author Edward Curley
  */
 public class ThreadSafeHasShapeFunction extends HasShapeFunction {
-    private static ThreadLocal<Boolean> recursionIsErrorFlag = new ThreadLocal<Boolean>();
+    private static ThreadLocal<Boolean> recursionIsErrorFlag = new ThreadLocal<>();
 
     @Override
     protected NodeValue exec(Node focusNode, Node shapeNode, Node recursionIsError, FunctionEnv env) {
-
         Boolean oldFlag = recursionIsErrorFlag.get();
         if (JenaDatatypes.TRUE.asNode().equals(recursionIsError)) {
             recursionIsErrorFlag.set(true);
@@ -73,7 +72,7 @@ public class ThreadSafeHasShapeFunction extends HasShapeFunction {
         }
     }
 
-    private Model doRun(RDFNode focusNode, Resource shape, Dataset dataset) {
+    private static Model doRun(RDFNode focusNode, Resource shape, Dataset dataset) {
         URI sgURI = getShapesGraphURI();
         ShapesGraph sg = getShapesGraph();
         if (sgURI == null) {
@@ -97,7 +96,7 @@ public class ThreadSafeHasShapeFunction extends HasShapeFunction {
                 getModel();
     }
 
-    private boolean hasShapeInternal(RDFNode focusNode, Resource shape, Dataset dataset) {
+    private static boolean hasShapeInternal(RDFNode focusNode, Resource shape, Dataset dataset) {
         Model results = doRun(focusNode, shape, dataset);
         if (getResultsModel() != null) {
             getResultsModel().add(results);
@@ -120,12 +119,12 @@ public class ThreadSafeHasShapeFunction extends HasShapeFunction {
         }
     }
 
-    public static boolean hasShape(RDFNode focusNode, Resource shape, ValidationEngine engine) {
+    static boolean hasShape(RDFNode focusNode, Resource shape, ValidationEngine engine) {
         URI oldShapesGraphURI = HasShapeFunction.getShapesGraphURI();
         ShapesGraph oldShapesGraph = HasShapeFunction.getShapesGraph();
         try {
             setShapesGraph(engine.getShapesGraph(), engine.getShapesGraphURI());
-            return new ThreadSafeHasShapeFunction().hasShapeInternal(focusNode, shape, engine.getDataset());
+            return ThreadSafeHasShapeFunction.hasShapeInternal(focusNode, shape, engine.getDataset());
         } finally {
             HasShapeFunction.setShapesGraph(oldShapesGraph, oldShapesGraphURI);
         }

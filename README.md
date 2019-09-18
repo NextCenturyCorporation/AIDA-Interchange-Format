@@ -99,7 +99,7 @@ summary will display the number of aborted validations-- but if your file has th
 the threshold, it will still be counted as an aborted validation.
 
 **NOTE**: As of this writing, if you set the threshold too low (less than 3), the validator might erroneously return
-that your KB is *valid*.  This appears to be a current bug or limitation in the TopBraid shacl library snapshot.
+that your KB is *valid*.  This appears to be a current bug or limitation in the TopBraid shacl library.
 Consequently, the command-line validator will reject thresholds less than 3.
 
 Without the `--abort` option, the entire KB will be validated with full output of all violations.

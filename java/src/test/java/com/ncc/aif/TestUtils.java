@@ -30,11 +30,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * Call {@link #startNewTest()} before each test to ensure a clean model.
  */
 class TestUtils {
-    // Constraints not included in top braid SH vocabulary (implemented in JS)
-    static final Resource XoneConstraintComponent = ResourceFactory.createResource(SH.NS + "XoneConstraintComponent");
-    static final Resource MaxInclusiveConstraintComponent = ResourceFactory.createResource(SH.NS + "MaxInclusiveConstraintComponent");
-    static final Resource NotConstraintComponent = ResourceFactory.createResource(SH.NS + "NotConstraintComponent");
-
     protected Logger logger;
 
     // Constructor parameters
