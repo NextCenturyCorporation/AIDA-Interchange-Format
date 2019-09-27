@@ -6,11 +6,11 @@ The basic steps are:
 1. Install virtualenv (done once)
 2. Create a virtual environment (done once per development effort)
 3. Repeat as needed:
-  - Activate a virtual environment
-  - Install libraries and develop code
-  - Deactivate a virtual environment
+  1. Activate a virtual environment
+  2. Install libraries and develop code
+  3. Deactivate a virtual environment
 
-Follow the instructions below to set up your virtual environment. It is important to note that you should never install any project specific python dependencies outside of your virtual environment. Also, ensure that your virtual environment is active before running python scripts within this repository.
+Follow the instructions below to set up your virtual environment. It is important to note that you should never install any project specific python dependencies outside of your virtual environment. Also, ensure that your virtual environment has been activated before running python scripts within this repository.
 
 ## Install virtualenv
 
@@ -38,7 +38,7 @@ $ source ~/.virtualenvs/aida-interchange-format/bin/activate
 $ pip install -r requirements.txt
 ```
 
-Your virtual environment will be automatically activated after running the virutalenv command.  The following sections describe deactivating and re-activating the virtual environment.
+Your virtual environment will be activated after running these commands.  The following sections describe deactivating and re-activating the virtual environment.
 
 ## Deactivate virtual environment
 
