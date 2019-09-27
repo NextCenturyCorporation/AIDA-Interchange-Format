@@ -6,9 +6,9 @@ The basic steps are:
 1. Install virtualenv (done once)
 2. Create a virtual environment (done once per development effort)
 3. Repeat as needed:
-  1. Activate a virtual environment
-  2. Install libraries and develop code
-  3. Deactivate a virtual environment
+    1. Activate a virtual environment
+    2. Install libraries and develop code
+    3. Deactivate a virtual environment
 
 Follow the instructions below to set up your virtual environment. It is important to note that you should never install any project specific python dependencies outside of your virtual environment. Also, ensure that your virtual environment has been activated before running python scripts within this repository.
 
@@ -28,7 +28,7 @@ $ which virtualenv
 
 ## Create virtual environment
 
-When you are starting the development on a python project, you need to first create a virtual environment.  The name of your virtual environent in the example below, `aida-interchange-format`, assumes you are making changes or testing the AIF library.  Feel free to use a name specific to your application if you are just using the AIF library.
+When you are starting development of a python project, you first need to create a virtual environment.  The name of the virtual environent in the example below, `aida-interchange-format`, assumes you are making changes or testing the AIF library.  Feel free to use a name specific to your application if you are just using the AIF library.
 
 Navigate inside the `AIDA-Interchange-Format/python` directory and run the following
 
