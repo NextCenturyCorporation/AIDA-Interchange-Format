@@ -4,7 +4,7 @@ To use the `aida_interchange` package within your project, you must first instal
 
 ## Install setup.py
 
-To install `aida_interchange`, make sure a [Python Virtual Environment](VIRTUAL-README.md) is activated, navigate to the `AIDA-Interchange-Format\python` directory, and run the following command:
+To install `aida_interchange`, make sure a [Python Virtual Environment](VIRTUAL-README.md) is activated, navigate to the `AIDA-Interchange-Format/python` directory, and run the following command:
 
 ```bash
 $ python3 setup.py install

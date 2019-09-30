@@ -23,13 +23,14 @@ class LDCTimeComponent:
 
     def add_literal(self, g, time_component, time_property, value, literal_type):
         """
-        creates and adds a Literal to the model if a value exists
+        Creates and adds a Literal to the model if a value exists
 
-        param self: contains the time component information when LDCTimeComponent is istantiated
-        param g: The underlying RDF model for the operation
-        param time_component: The resource created to contain time information
-        param value: the string value of month, day, or year
-        param literal_type: the datatype that corrisponds to the given value
+        :param LDCTimeComponent self: contains the time component information when LDCTimeComponent is instantiated
+        :param rdflib.graph.Graph g: The underlying RDF model for the operation
+        :param rdflib.term.BNode time_component: The resource created to contain time information
+        :param time_property: AIDA_ANNOTATION.year, AIDA_ANNOTATION.month, or AIDA_ANNOTATION.day
+        :param str value: the string value of month, day, or year
+        :param literal_type: the datatype that corresponds to the given value
         """
         if value is not None:
             temp_literal = Literal(value)
@@ -39,11 +40,11 @@ class LDCTimeComponent:
 
     def make_aif_time_component(self, g):
         """
-        creates a time component containing a Year, Month, and Day as well as a Type to clarify relative time
+        Creates a time component containing a Year, Month, and Day as well as a Type to clarify relative time
         
-        param self: contains the time component information when LDCTimeComponent is istantiated
-        param g: The underlying RDF model for the operation
-        return: time_component node
+        :param LDCTimeComponent self: contains the time component information when LDCTimeComponent is instantiated
+        :param rdflib.graph.Graph g: The underlying RDF model for the operation
+        :returns: time_component node
         """
         time_component = aifutils._make_aif_resource(g, None, AIDA_ANNOTATION.LDCTimeComponent, None)
         g.add((time_component, AIDA_ANNOTATION.timeType, Literal(self.time_type.name, datatype=XSD.string)))
