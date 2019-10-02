@@ -24,9 +24,9 @@ readability) but N-Triples for working with large KBs (for speed).
 
 # Installation
 
-For instructions on installing the Java code, see the [AIF Java README](https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/tree/master/java)
+For instructions on installing the Java code, see the [AIF Java README](/java)
 
-For instructions on installing the Python code, see the [AIF Python README](https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/tree/master/python)
+For instructions on installing the Python code, see the [AIF Python README](/python)
 
 # The AIF Validator
 The AIF validator is an extension of the validator written by Ryan Gabbard (USC ISI)
@@ -35,7 +35,7 @@ ontology files, can validate against NIST requirements (restricted AIF), and can
 validate N files or all files in a specified directory.
 
 ### Running the Java AIF validator
-In order to run the Java AIF validator, you must first install the AIF Java validator code. Instructions to install the Java AIF Validator code can be found in the [AIF Java README](https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/tree/master/java).
+In order to run the Java AIF validator, you must first install the AIF Java validator code. Instructions to install the Java AIF Validator code can be found in the [AIF Java README](/java).
 
 To run the validator from the command line, run `target/appassembler/bin/validateAIF`
 with a series of command-line arguments (in any order) honoring the following usage:  <br>

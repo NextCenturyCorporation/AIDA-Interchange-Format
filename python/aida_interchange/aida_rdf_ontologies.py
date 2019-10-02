@@ -5,9 +5,8 @@ from rdflib.namespace import ClosedNamespace
 # TODO: temporarily extend these to include all ColdStart entity types - #2
 # TODO: long-term, we need to make the program ontology configurable
 
-"""
-Seedling Ontology. Currently Hardcoded
-"""
+
+# Seedling Ontology. Currently Hardcoded
 SEEDLING_TYPES_NIST = ClosedNamespace(
     uri=URIRef("https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#"),
     terms=["Person", "Organization", "Location", "Facility", "GeopoliticalEntity", "FillerType",
@@ -38,11 +37,8 @@ SEEDLING_TYPES_NIST = ClosedNamespace(
            "Physical.LocatedNear", "Physical.OrganizationHeadquarter", "Physical.OrganizationLocationOrigin",
            "Physical.Resident", "Weapon"])
 
-"""
-The domain ontology.
 
-For the moment, this is hard-coded to match ColdStart
-"""
+# The domain ontology. For the moment, this is hard-coded to match ColdStart
 AIDA_PROGRAM_ONTOLOGY = ClosedNamespace(
     uri=URIRef("http://nist.gov/ontologies/ColdstartOntology#"),
     terms=["Person", "Organization", "Location", "Facility", "GeopoliticalEntity", "String",
