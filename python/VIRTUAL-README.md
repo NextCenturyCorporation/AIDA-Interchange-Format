@@ -28,7 +28,7 @@ $ which virtualenv
 
 ## Create virtual environment
 
-When you are starting development of a python project, you first need to create a virtual environment.  The name of the virtual environent in the example below, `aida-interchange-format`, assumes you are making changes or testing the AIF library.  Feel free to use a name specific to your application if you are just using the AIF library.
+When you are starting development of a python project, you first need to create a virtual environment.  The name of the virtual environment in the example below, `aida-interchange-format`, assumes you are making changes or testing the AIF library.  Feel free to use a name specific to your application if you are just using the AIF library.
 
 Navigate inside the `AIDA-Interchange-Format/python` directory and run the following
 
