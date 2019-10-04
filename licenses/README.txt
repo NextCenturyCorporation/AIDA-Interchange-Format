@@ -13,6 +13,6 @@ MIT License. 	mit_license.txt
 	SLF4J:		https://www.slf4j.org/license.html
 	PyCQA flake8	https://gitlab.com/pycqa/flake8
 
-Eclipse Publice License.	eclipse_public_license_1.0.txt
+Eclipse Public License.	eclipse_public_license_1.0.txt
 	JUnit Jupiter	https://junit.org/junit5
 	qos-ch logback	http://logback.qos.ch
