@@ -1,0 +1,243 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix aida: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#> .
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# restricted_aif.shacl
+#
+# Add-on to aida_ontology.shacl used to enforce NIST-restricted-AIF.
+# Requires aida_ontology.shacl to be loaded
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+
+#########################
+# Each edge justification is limited to one or two spans
+#------------------------
+# Can have 1 or 2 containedJustification properties
+aida:EdgeJustificationCount
+    a sh:SPARQLConstraint ;
+    sh:message "Exactly 1 or 2 contained justifications required for an edge" ;
+    sh:select """
+        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+        SELECT $this (COUNT(DISTINCT ?source) AS $value)
+        WHERE {
+            $this aida:justifiedBy ?x .
+            ?x a aida:CompoundJustification .
+            OPTIONAL { ?x aida:containedJustification ?source }
+        }
+        GROUP BY $this ?x
+        HAVING (COUNT(?source) > 2 || COUNT(?source) < 1)
+    """
+    .
+
+#########################
+# Each edge justification must be represented uniformly in AIF by
+# aida:CompoundJustification, even if only one span is provided
+# Edges are assumed to be relation and event arguments
+#------------------------
+# Define restriction where justification can only be compound justification
+aida:EdgeJustificationCompound
+    a sh:PropertyShape ;
+    sh:path aida:justifiedBy ;
+    sh:class aida:CompoundJustification ;
+    sh:message "Edge justification must be of type aida:CompoundJustification" .
+
+# Enforce edge justification restrictions on event and relation arguments
+aida:EventArgumentShape
+    sh:property aida:EdgeJustificationCompound ;
+    sh:sparql aida:EdgeJustificationCount
+    .
+aida:RelationArgumentShape
+    sh:property aida:EdgeJustificationCompound ;
+    sh:sparql aida:EdgeJustificationCount
+    .
+
+#########################
+# CompoundJustification must be used only for justifications of argument assertions,
+# and not for justifications for entities, events, or relation KEs
+#------------------------
+aida:RestrictCompoundJustificationPropertyShape
+   a sh:PropertyShape ;
+   sh:path aida:justifiedBy ;
+   sh:not [sh:class aida:CompoundJustification] ;
+   sh:message "CompoundJustification must be used only for justifications of argument assertions" .
+
+aida:EventRelationShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:EntityShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:SentimentShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:SharedTypeShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:LinkAssertionShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:ClusterMembershipShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+aida:MutualExclusionConstraintShape
+    # may not provide compound justification
+    sh:property aida:RestrictCompoundJustificationPropertyShape .
+
+#########################
+# Video must use aida:KeyFrameVideoJustification. Remove ShotVideoJustification
+#------------------------
+# Restrict normal Justification types globally
+aida:JustificationPropertyShape
+    sh:not [sh:class aida:ShotVideoJustification] .
+
+# Restrict CompoundJustificationTypes globally
+aida:CompoundJustificationTypes
+    sh:not [sh:class aida:ShotVideoJustification] .
+
+#########################
+# 4.3 #2 Each cluster must have an IRI
+#------------------------
+aida:ClusterShape sh:nodeKind sh:IRI .
+
+#########################
+# Members of clusters are entity objects, relation objects, and event objects (not clusters)
+#------------------------
+aida:ClusterMembershipShape
+    sh:property [
+        a sh:PropertyShape ;
+        sh:path aida:clusterMember ;
+        sh:xone (
+            [sh:class aida:Entity]
+            [sh:class aida:Event]
+            [sh:class aida:Relation]
+        ) ;
+        sh:message "Cluster member type not allowed to be part of cluster"
+    ] .
+
+#########################
+# Entity, Relation, and Event object is required to be part of at least one cluster.
+# This is true even if there is nothing else in the cluster
+#------------------------
+aida:EntityShape
+    sh:sparql [
+        sh:message "Entities must be clustered" ;
+        sh:select """
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+            SELECT $this
+            WHERE {
+                FILTER NOT EXISTS {
+                    ?membership a aida:ClusterMembership .
+                    ?membership aida:clusterMember $this .
+                }
+            }
+        """ ;
+    ] .
+
+aida:EventRelationShape
+    sh:sparql [
+        sh:message "Events and Relations must be clustered" ;
+        sh:select """
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+            SELECT $this
+            WHERE {
+                FILTER NOT EXISTS {
+                    ?membership a aida:ClusterMembership .
+                    ?membership aida:clusterMember $this .
+                }
+            }
+        """ ;
+    ] .
+
+#########################
+# Each confidence value must be between 0 and 1
+#------------------------
+aida:ConfidenceValueRange
+    a sh:NodeShape ;
+    sh:targetClass aida:Confidence ;
+    sh:property [
+        sh:path aida:confidenceValue ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1;
+        sh:message "Confidence value must be between 0 and 1"]
+    .
+
+#########################
+# Each entity/relation/event type statement must have at least one justification
+#------------------------
+aida:SharedTypeShape
+	sh:property aida:RequiredJustificationPropertyShape .
+
+# Use this instead of aida:JustificationPropertyShape when you wish to force justifications to be present
+aida:RequiredJustificationPropertyShape
+   a sh:PropertyShape ;
+   sh:path aida:justifiedBy ;
+   sh:propertyShape aida:JustificationPropertyShape ;
+   sh:minCount 1 ;
+   sh:message "Type assertions must have at least one justification" .
+
+#########################
+# Justifications require a source document and a source
+# The source restriction is defined on the aida:SharedJustificationShape in the aida_ontology.shacl
+#------------------------
+aida:JustificationSourceDocumentShape
+    a sh:NodeShape ;
+    sh:targetClass aida:Justification ;
+    sh:property [
+        sh:path aida:sourceDocument ;
+        sh:minCount 1 ;
+        sh:message "Justifications require a sourceDocument" ;
+    ]
+    .
+
+#########################
+# Each entity/filler name, text value, and numeric value is limited to 256 UTF-8 characters
+#------------------------
+aida:NamePropertyShape
+  sh:maxLength 256 .
+
+aida:TextPropertyShape
+  sh:maxLength 256 .
+
+aida:NumericPropertyShape
+  sh:maxLength 256 .
+
+#########################
+# Each Cluster, Entity, Event, or Relation can specify up to one informative mention per document as long as each
+# informative mention points to a different sourceDocument
+#------------------------
+aida:InformativeJustificationMembersUniqueParentDoc
+    a sh:SPARQLConstraint ;
+    sh:message "Each Cluster, Entity, Event, or Relation can specify up to one informative mention per document as long as each informative mention points to a different sourceDocument" ;
+    sh:select """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+      	SELECT $this
+      	WHERE {
+      	    $this aida:informativeJustification ?mentions .
+      	    ?mentions aida:sourceDocument ?parentDoc
+      	}
+      	GROUP BY $this
+      	HAVING (COUNT(DISTINCT ?parentDoc) < COUNT(DISTINCT ?mentions))
+    """
+    .
+
+aida:InformativeJustificationMembersShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf aida:informativeJustification ;
+    sh:sparql aida:InformativeJustificationMembersUniqueParentDoc .
+
+#########################
+# 4.3 #10: Each aida:linkAssertion must have exactly one aida:confidence
+#------------------------
+# Add to pre-existing LinkAssertionShape
+aida:LinkAssertionShape
+    sh:property [
+        sh:path aida:confidence ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] .

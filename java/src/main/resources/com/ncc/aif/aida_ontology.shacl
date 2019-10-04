@@ -1,0 +1,1295 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#> .
+@prefix aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#> .
+
+# This document is a specification for validating knowledge graphs for the interchange
+# format for the DARPA AIDA program. This format is called AIF (AIDA Interchange Format)
+#
+# The graph representation is in RDF. You can think of RDF in terms of a directed graph.
+# For AIFs, there are basically two kinds of nodes:
+#  (a) "content nodes" give the core information about the world we are trying to express.  These
+#     will be either (i) entities (people, places, organizations, etc,), (ii) events (attacks,
+#     marriages, etc.), (iii) relations (e.g. "Jack is married to Sophie"), (iv) assertions that
+#     an entity participated in an event in some way, or (v) assertions that someone holds some
+#     sentiment about some entity or event.
+#  (b) "annotation nodes" corresponding to structures encoding information like confidence,
+#        mutual exclusion constraints, metadata, etc.
+#  The edges of an RDF graph are called "properties".
+#
+#  All nodes can either have an "IRI", which is a unique global identifier, or they can be blank,
+#  meaning no identifier is specified.  Content nodes in a GKG *must have an IRI*. Annotation nodes
+# *may* have an IRI but will typically be blank unless they need to be referred to from other places
+#  in the graph.
+#
+# There are two RDF ontologies to be concerned with. What is described and validated here is the
+# "interchange ontology".  The domain working group is also specifying a "domain ontology" (e.g.
+# entity types, event types, etc.).  The AIDA program domain ontology has not yet been specified.
+# We currently have two available domain ontologies, but for LDC and LDC Seedling, both of
+# which have OWL files in the src/main/resources/com/ncc/aif/ontologies directory of this repository.
+# We assume all domain ontologies
+# derive their entity, event, and relation types from aidaDomainCommon:EntityType, etc.
+#
+# The explanation of the format will be interleaved with code for performing validation. The
+# validation constraints are written in the "Shapes Constraint Language"
+# ( https://www.w3.org/TR/shacl/ ).  It will define "node shapes" which constrain the nodes of the
+# graph in various ways.  It will also define reusable "property shapes" which can capture common
+# property patterns across node types.  You will frequently see that node shapes refer to property
+# shapes which will be defined later in the document.
+#
+# You may wonder why we don't use shape inheritance, even though SHACL supports it. The reason
+# is that inheritance interacts badly with sh:closed, which sees only locally defined properties.
+# Since the closed property is useful for validation purposes, we put up with the duplication.
+
+# the first type of content node is an entity, which represents some non-event thing in the world
+# (e.g. a person, place, thing, etc.)
+# Each entity must have at least one assertion giving it a type which is a sub-class of
+# aidaDomainCommon:EntityType (see type assertions below)
+aida:EntityShape
+    a sh:NodeShape ;
+    sh:targetClass aida:Entity ;
+
+    # Ensure that entity has type
+    sh:sparql [
+        sh:message "Entity must have type assertion or be non-prototype member of cluster" ;
+        sh:select """
+            PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+            SELECT $this
+            WHERE {
+                FILTER ( NOT EXISTS {
+                        ?typeAssertion a rdf:Statement .
+                        ?typeAssertion rdf:predicate rdf:type .
+                        ?typeAssertion rdf:subject $this .
+                    } && ( NOT EXISTS { ?membership aida:clusterMember $this . } ||
+                            EXISTS { ?cluster aida:prototype $this . } )
+                )
+            }
+        """ ;
+    ] ;
+
+    # entities must have unique identifiers
+    sh:nodeKind sh:IRI ;
+
+    # may provide an informative justification
+    sh:property aida:InformativeJustificationPropertyShape ;
+
+    # may be linked to one or more things in an external KB
+    sh:property aida:LinkPropertyShape ;
+
+    # allow name, text, and numeric
+    sh:property aida:NamePropertyShape ;
+    sh:property aida:TextPropertyShape ;
+    sh:property aida:NumericPropertyShape ;
+
+    # may provide a confidence
+    sh:property aida:ConfidencePropertyShape ;
+
+    # may provide an one or more source systems
+    sh:property aida:SystemPropertyShape ;
+
+    # may provide justifications for its existence
+    sh:property aida:JustificationPropertyShape ;
+
+    # may depend on a hypothesis
+    sh:property aida:DependsOnHypothesisPropertyShape ;
+
+    # may bear system-private data
+    sh:property aida:PrivateDataPropertyShape ;
+
+    # no other properties are allowed
+    sh:closed true ;
+    # except rdf:type
+    sh:ignoredProperties (rdf:type)
+    .
+
+# the second type of content node is an event, which represents something which happens in the world
+# (e.g. an attack, a marriage, a business acquisition)
+# Each event must have at least one assertion giving it a type which is a sub-class of
+# aidaDomainCommon:eventType
+aida:EventRelationShape
+    a sh:NodeShape ;
+    sh:targetClass aida:Event, aida:Relation ;
+
+    # Ensure that event/relation has type
+    sh:sparql [
+        sh:message "Events and Relations must have type assertion or be non-prototype member of cluster" ;
+        sh:select """
+            PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+            SELECT $this
+            WHERE {
+                FILTER ( NOT EXISTS {
+                        ?typeAssertion a rdf:Statement .
+                        ?typeAssertion rdf:predicate rdf:type .
+                        ?typeAssertion rdf:subject $this .
+                    } && ( NOT EXISTS { ?membership aida:clusterMember $this . } ||
+                            EXISTS { ?cluster aida:prototype $this . } )
+                )
+            }
+        """ ;
+    ] ;
+
+    # must have unique identifiers
+    sh:nodeKind sh:IRI ;
+
+    # may provide an informative justification
+    sh:property aida:InformativeJustificationPropertyShape ;
+
+    # may provide a confidence
+    sh:property aida:ConfidencePropertyShape ;
+
+    # may provide an one or more source systems
+    sh:property aida:SystemPropertyShape ;
+
+    # may provide one or more justifications for its existence
+    sh:property aida:JustificationPropertyShape ;
+
+    # may depend on a hypothesis
+    sh:property aida:DependsOnHypothesisPropertyShape ;
+
+    # may bear system-private data
+    sh:property aida:PrivateDataPropertyShape ;
+
+    # may have ldc time representation
+    sh:property aida:LDCTimePropertyShape ;
+
+    # no other properties are allowed
+    sh:closed true ;
+    # except rdf:type
+    sh:ignoredProperties (rdf:type)
+    .
+
+# the third type of content node is an event argument assertion. This is the claim that some
+# entity is involved in an event in some way.
+aida:EventArgumentShape
+   a sh:NodeShape ;
+
+  # this shape only applies when the predicate is an event argument type from the ontology
+  sh:target [
+    a sh:SPARQLTarget ;
+    sh:select """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
+        SELECT ?this
+        WHERE {
+            ?this a rdf:Statement .
+            ?pred rdfs:subClassOf+|rdf:type/rdfs:subClassOf* aidaDomainCommon:EventArgumentType .
+            ?this rdf:predicate ?pred .
+        }
+        """ ;
+  ];
+
+  # the subject is the event some entity is participating in
+  sh:property [
+    sh:path rdf:subject ;
+    sh:class aida:Event ;
+    sh:message "The subject of an event argument must be an event"
+  ] ;
+
+  # the object is the argument of the event role
+  sh:property [
+    sh:path rdf:object ;
+    sh:xone ( [sh:class aida:Entity ]
+              [sh:class aida:Event ]
+              [sh:class aida:Relation ] )
+  ] ;
+   # TODO: handle temporal or string values
+
+  # may provide a confidence
+  sh:property aida:ConfidencePropertyShape ;
+
+  # may provide an importance
+  sh:property aida:ImportancePropertyShape ;
+
+  # may provide an one or more source systems
+  sh:property aida:SystemPropertyShape ;
+
+  # may provide one or more justifications for its existence
+  sh:property aida:JustificationPropertyShape ;
+
+  # may depend on a hypothesis
+  sh:property aida:DependsOnHypothesisPropertyShape ;
+
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
+
+  # no other properties are allowed
+  sh:closed true ;
+  # except rdf:type
+  sh:ignoredProperties (rdf:type rdf:predicate)
+  .
+
+# It was decided that Relations should be represented similarly to Events.
+# This is the claim that some entity has a particular role in a relation
+aida:RelationArgumentShape
+   a sh:NodeShape ;
+
+  # this shape only applies when the predicate is an event argument type from the ontology
+  sh:target [
+    a sh:SPARQLTarget ;
+    sh:select """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
+        SELECT ?this
+        WHERE {
+            ?this a rdf:Statement .
+            ?pred rdfs:subClassOf+|rdf:type/rdfs:subClassOf* aidaDomainCommon:RelationArgumentType .
+            ?this rdf:predicate ?pred .
+        }
+        """ ;
+  ] ;
+
+  # the subject is the event some entity is participating in
+  sh:property [
+    sh:path rdf:subject ;
+    sh:class aida:Relation ;
+    sh:message "The subject of a relation argument must be a relation"
+  ] ;
+
+  # the object is the argument of the relation role
+  sh:property [
+    sh:path rdf:object ;
+    sh:xone ( [sh:class aida:Entity ]
+              [sh:class aida:Event ]
+              [sh:class aida:Relation ] ) ;
+  ] ;
+  # TODO: handle temporal or string values
+
+  # may provide a confidence
+  sh:property aida:ConfidencePropertyShape ;
+
+  # may provide an importance
+  sh:property aida:ImportancePropertyShape ;
+
+  # may provide an one or more source systems
+  sh:property aida:SystemPropertyShape ;
+
+  # may provide one or more justifications for its existence
+  sh:property aida:JustificationPropertyShape ;
+
+  # may depend on a hypothesis
+  sh:property aida:DependsOnHypothesisPropertyShape ;
+
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
+
+  # no other properties are allowed
+  sh:closed true ;
+  # except rdf:type
+  sh:ignoredProperties (rdf:type rdf:predicate)
+  .
+
+# the fifth type of content node is a sentiment assertion.
+aida:SentimentShape
+   a sh:NodeShape ;
+
+  # this shape only applies when the predicate is a sentiment from
+  # the ontology
+  sh:SPARQLTarget [
+    sh:select """
+        SELECT ?this
+        WHERE {
+            ?this a rdf:Statement .
+            ?pred a aidaDomainCommon:Sentiment .
+            ?this rdf:predicate ?pred .
+        }
+        """ ;
+  ];
+
+  # sentiment must be held by some entity
+  sh:property [
+    sh:path rdf:subject ;
+    sh:class aida:Entity ] ;
+
+  # sentiment can be held about an entity or event
+  sh:property [
+    sh:path rdf:object ;
+    sh:xone ( [sh:class aida:Entity ]
+              [sh:class aida:Event ] ) ] ;
+   # TODO: handle temporal or string values
+
+  # may provide a confidence
+  sh:property aida:ConfidencePropertyShape ;
+
+  # may provide an one or more source systems
+  sh:property aida:SystemPropertyShape ;
+
+  # may provide one or more justifications for its existence
+  sh:property aida:JustificationPropertyShape ;
+
+  # may depend on a hypothesis
+  sh:property aida:DependsOnHypothesisPropertyShape ;
+
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
+
+  # no other properties are allowed
+  sh:closed true ;
+  # except rdf:type
+  sh:ignoredProperties (rdf:type rdf:predicate)
+  .
+
+# Allow for EntityType instances, subclasses, and instances of subclasses
+aida:EntitySubclass
+    a sh:PropertyShape ;
+    sh:path [
+        sh:alternativePath (
+            [ sh:oneOrMorePath rdfs:subClassOf ]
+            (rdf:type [ sh:zeroOrMorePath rdfs:subClassOf ] ) ) ] ;
+    sh:hasValue aidaDomainCommon:EntityType ;
+    sh:minCount 1
+    .
+
+# Allow for EventType instances, subclasses, and instances of subclasses
+aida:EventSubclass
+    a sh:PropertyShape ;
+    sh:path [
+        sh:alternativePath (
+            [ sh:oneOrMorePath rdfs:subClassOf ]
+            (rdf:type [ sh:zeroOrMorePath rdfs:subClassOf ] ) ) ] ;
+    sh:hasValue aidaDomainCommon:EventType ;
+    sh:minCount 1
+    .
+
+# Allow for RelationType instances, subclasses, and instances of subclasses
+aida:RelationSubclass
+    a sh:PropertyShape ;
+    sh:path [
+        sh:alternativePath (
+            [ sh:oneOrMorePath rdfs:subClassOf ]
+            (rdf:type [ sh:zeroOrMorePath rdfs:subClassOf ] ) ) ] ;
+    sh:hasValue aidaDomainCommon:RelationType ;
+    sh:minCount 1
+    .
+
+# Allow for EventArgumentType instances, subclasses, and instances of subclasses
+aida:EventArgumentSubclass
+    a sh:PropertyShape ;
+    sh:path [
+        sh:alternativePath (
+            [ sh:oneOrMorePath rdfs:subClassOf ]
+            (rdf:type [ sh:zeroOrMorePath rdfs:subClassOf ] ) ) ] ;
+    sh:hasValue aidaDomainCommon:EventArgumentType ;
+    sh:minCount 1
+    .
+
+# Allow for RelationArgumentType instances, subclasses, and instances of subclasses
+aida:RelationArgumentSubclass
+    a sh:PropertyShape ;
+    sh:path [
+        sh:alternativePath (
+            [ sh:oneOrMorePath rdfs:subClassOf ]
+            (rdf:type [ sh:zeroOrMorePath rdfs:subClassOf ] ) ) ] ;
+    sh:hasValue aidaDomainCommon:RelationArgumentType ;
+    sh:minCount 1
+    .
+
+# Shared type shape properties
+aida:SharedTypeShape
+    a sh:NodeShape ;
+
+    # this shape applies when the predicate of the RDF statement is rdf:type
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+            SELECT ?this
+            WHERE {
+                ?this a rdf:Statement .
+                ?this rdf:predicate rdf:type .
+            }
+        """
+    ] ;
+
+    # may provide a confidence
+    sh:property aida:ConfidencePropertyShape ;
+
+    # may provide an one or more source systems
+    sh:property aida:SystemPropertyShape ;
+
+    # may provide one or more justifications for its existence
+    sh:property aida:JustificationPropertyShape ;
+
+    # may depend on a hypothesis
+    sh:property aida:DependsOnHypothesisPropertyShape ;
+
+    # may bear system-private data
+    sh:property aida:PrivateDataPropertyShape ;
+
+    # allow type, subject, predicate, and object. prevent all others
+    sh:ignoredProperties (rdf:type rdf:subject rdf:predicate rdf:object) ;
+    sh:closed true
+    .
+
+aida:EntityTypeShape
+    a sh:NodeShape ;
+
+    # this shape only applies when the predicate of the RDF statement is rdf:type
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+            SELECT ?this
+            WHERE {
+                ?this a rdf:Statement .
+                ?this rdf:predicate rdf:type .
+                ?this rdf:subject/rdf:type aida:Entity
+            }
+        """
+    ] ;
+    sh:property [
+        sh:path rdf:object ;
+        sh:property aida:EntitySubclass
+    ] ;
+    sh:message "Cannot assign a non-Entity type to an Entity"
+    .
+
+aida:EventTypeShape
+    a sh:NodeShape ;
+
+    # this shape only applies when the predicate of the RDF statement is rdf:type
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+            SELECT ?this
+            WHERE {
+                ?this a rdf:Statement .
+                ?this rdf:predicate rdf:type .
+                ?this rdf:subject/rdf:type aida:Event
+            }
+        """
+    ] ;
+    sh:property [
+        sh:path rdf:object ;
+        sh:property aida:EventSubclass
+    ] ;
+    sh:message "Cannot assign a non-Event type to an Event"
+    .
+
+aida:RelationTypeShape
+    a sh:NodeShape ;
+
+    # this shape only applies when the predicate of the RDF statement is rdf:type
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+            SELECT ?this
+            WHERE {
+                ?this a rdf:Statement .
+                ?this rdf:predicate rdf:type .
+                ?this rdf:subject/rdf:type aida:Relation
+            }
+        """
+    ] ;
+    sh:property [
+        sh:path rdf:object ;
+        sh:property aida:RelationSubclass
+    ] ;
+    sh:message "Cannot assign a non-Relation type to a Relation"
+    .
+
+# Most things may be annotated with a confidence structure.
+# A confidence structure is an annotation node. It is not simply a property because we want to
+# be able to annotate confidence structures with what systems produced them, etc.
+# By convention, TA1s should attach their confidences to justification objects only.  TA2 should
+# then synthesize these and attach confidences directly to primary KB objects (e.g. relations,
+# events, etc.)
+aida:ConfidenceShape
+  a sh:NodeShape ;
+  sh:targetClass aida:Confidence ;
+  # every confidence node must have exactly one numeric confidence value
+  # no constraints are placed on what these confidence values are, except that higher is better
+  sh:property [
+    sh:path aida:confidenceValue ;
+    sh:datatype xsd:double ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ] ;
+
+    # may specify what system(s) this confidence came from
+    sh:property aida:SystemPropertyShape ;
+
+    # may depend on a hypothesis
+    sh:property aida:DependsOnHypothesisPropertyShape ;
+
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
+
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type)
+    .
+
+aida:ConfidencePropertyShape
+   a sh:PropertyShape ;
+   sh:path aida:confidence ;
+   sh:nodeShape aida:ConfidenceShape .
+
+# use this instead of aida:ConfidencePropertyShape when you wish to force confidences to be present
+aida:RequiredConfidencePropertyShape
+   a sh:PropertyShape ;
+   sh:path aida:confidence ;
+   sh:nodeShape aida:ConfidenceShape ;
+   sh:minCount 1 .
+
+# Most things may be annotated with what system produced them
+# To do this, we need to declare nodes which represent the systems
+aida:SystemShape
+   a sh:NodeShape ;
+   sh:targetClass aida:System ;
+   # a system must have an explicit identifier
+   sh:nodeKind sh:IRI ;
+   # these nodes are not allowed to have any other properties
+   sh:closed true ;
+   # except rdf:type
+   sh:ignoredProperties (rdf:type)
+   .
+
+# once we have declared the system nodes, other nodes may be linked to a system via a property
+# which points to a system
+aida:SystemPropertyShape
+   a sh:PropertyShape ;
+   sh:path aida:system ;
+   sh:class aida:System .
+
+# Shape to enforce properties shared by all justifications
+aida:SharedJustificationShape
+    a sh:NodeShape ;
+    sh:targetClass aida:Justification ;
+
+    # each justification must have exactly one document element (child) ID
+    sh:property [
+        sh:path aida:source ;
+        sh:datatype xsd:string ;
+        sh:minCount 1;
+        sh:maxCount 1 ] ;
+
+    # allow sourceDocument property for document (parent) ID
+    sh:property [
+        sh:path aida:sourceDocument ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ] ;
+
+    # justifications must provide confidences
+    sh:property aida:RequiredConfidencePropertyShape ;
+
+    # may provide an optional source system
+    sh:property aida:SystemPropertyShape ;
+
+    # may depend on a hypothesis
+    sh:property aida:DependsOnHypothesisPropertyShape ;
+
+    # may bear system-private data
+    sh:property aida:PrivateDataPropertyShape .
+
+aida:SharedJustificationProperties
+    a rdf:List ;
+    rdf:first aida:confidence ;
+    rdf:rest (
+        aida:dependsOnHypothesis
+        aida:privateData
+        aida:source
+        aida:sourceDocument
+        aida:system
+        rdf:type
+    ) .
+
+# Systems need to provide justifications from text, image, video, etc. for the assertions they make
+aida:TextJustificationShape
+    a sh:NodeShape ;
+    sh:targetClass aida:TextJustification ;
+
+    # exactly one start character offset within the document
+    sh:property [
+        sh:path aida:startOffset ;
+        sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )  ;
+        sh:minCount 1;
+        sh:maxCount 1 ];
+
+    # and exactly one inclusive end offset within the document
+    sh:property [
+        sh:path aida:endOffsetInclusive ;
+        sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )  ;
+        sh:minCount 1;
+        sh:maxCount 1 ] ;
+
+    # no other properties are allowed
+    sh:closed true ;
+
+    # except shared properties and rdf:type
+    sh:ignoredProperties aida:SharedJustificationProperties
+    .
+
+aida:AudioJustificationShape
+    a sh:NodeShape ;
+    sh:targetClass aida:AudioJustification ;
+
+    # exactly one start timestamp
+    sh:property [
+        sh:path aida:startTimestamp ;
+        sh:datatype xsd:double ;
+        sh:minCount 1;
+        sh:maxCount 1 ];
+
+    # and exactly one end timestamp
+    sh:property [
+        sh:path aida:endTimestamp ;
+        sh:datatype xsd:double ;
+        sh:minCount 1;
+        sh:maxCount 1 ] ;
+
+    # no other properties are allowed
+    sh:closed true ;
+
+    # except shared properties and rdf:type
+    sh:ignoredProperties aida:SharedJustificationProperties
+    .
+
+# bounding boxes are used by both image and video justifications
+aida:BoundingBoxShape
+   a sh:NodeShape ;
+   sh:targetClass aida:BoundingBox ;
+
+   sh:property [
+    sh:path aida:boundingBoxUpperLeftX ;
+    sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )  ;
+    sh:minCount 1;
+    sh:maxCount 1] ;
+
+   sh:property [
+    sh:path aida:boundingBoxUpperLeftY ;
+    sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )  ;
+    sh:minCount 1;
+    sh:maxCount 1] ;
+
+   sh:property [
+    sh:path aida:boundingBoxLowerRightX ;
+    sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )  ;
+    sh:minCount 1;
+    sh:maxCount 1] ;
+
+   sh:property [
+    sh:path aida:boundingBoxLowerRightY ;
+    sh:or ( [sh:datatype xsd:int] [sh:datatype xsd:integer] )  ;
+    sh:minCount 1;
+    sh:maxCount 1] ;
+
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type)
+    .
+
+aida:BoundingBoxPropertyShape
+   a sh:PropertyShape ;
+   sh:path aida:boundingBox ;
+   sh:class aida:BoundingBox ;
+   sh:minCount 1 ;
+   sh:maxCount 1 .
+
+aida:ImageJustificationShape
+    a sh:NodeShape ;
+    sh:targetClass aida:ImageJustification ;
+
+    # must include a bounding box
+    sh:property aida:BoundingBoxPropertyShape ;
+
+    # no other properties are allowed
+    sh:closed true ;
+
+    # except shared properties and rdf:type
+    sh:ignoredProperties aida:SharedJustificationProperties
+    .
+
+# According to NIST, there are two types of video justifications.
+# If an entity/event is shown in a key-frame, it is identified with the key frame ID
+# and bounding box (a KeyFrameVideoJustification). If it occurs outside a key-frame,
+# it is identified by the shot ID with no bounding box (and there should only be one
+# such justification, even if it appears many times in the shot)
+aida:KeyFrameVideoJustificationShape
+    a sh:NodeShape ;
+    sh:targetClass aida:KeyFrameVideoJustification ;
+
+    # must include a bounding box
+    sh:property aida:BoundingBoxPropertyShape ;
+
+    # must include a key frame
+    sh:property [
+        sh:path aida:keyFrame ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ] ;
+
+    # no other properties are allowed
+    sh:closed true ;
+
+    # except shared properties and rdf:type
+    sh:ignoredProperties aida:SharedJustificationProperties
+    .
+
+aida:ShotVideoJustificationShape
+    a sh:NodeShape ;
+    sh:targetClass aida:ShotVideoJustification ;
+
+    # to justify entities/events in videos which do not occur at keyframes, bounding boxes
+    # are not used - only the ID of the shot they appear somewhere in (per NIST)
+    sh:property [
+        sh:path aida:shot ;
+        sh:datatype xsd:string ;
+        sh:minCount 1;
+        sh:maxCount 1 ] ;
+
+    # no other properties are allowed
+    sh:closed true ;
+
+    # except shared properties and rdf:type
+    sh:ignoredProperties aida:SharedJustificationProperties
+    .
+
+aida:CompoundJustificationShape
+   a sh:NodeShape ;
+   sh:targetClass aida:CompoundJustification ;
+
+   # must have at least two contained justifications of specified types
+   sh:property
+     aida:CompoundJustificationMinimum,
+     aida:CompoundJustificationTypes ;
+
+   # justification must provide confidence
+   sh:property aida:RequiredConfidencePropertyShape ;
+
+   # may provide an optional source system
+   sh:property aida:SystemPropertyShape ;
+
+   # no other properties are allowed
+   sh:closed true ;
+
+   # except shared properties and rdf:type
+   sh:ignoredProperties ( rdf:type)
+   .
+
+aida:CompoundJustificationMinimum
+   a sh:PropertyShape ;
+   sh:path aida:containedJustification ;
+   sh:minCount 1 ;
+   sh:message "aida:CompoundJustification requires at least 1 justification" .
+
+aida:CompoundJustificationTypes
+   a sh:PropertyShape ;
+   sh:path aida:containedJustification ;
+   sh:xone aida:JustificationTypeList ;
+   sh:message "Contained justification must be exactly one of the allowed types" .
+
+aida:JustificationTypeList
+    a rdf:List ;
+    rdf:first [ sh:class aida:TextJustification ] ;
+    rdf:rest (
+        [ sh:class aida:AudioJustification ]
+        [ sh:class aida:ImageJustification ]
+        [ sh:class aida:KeyFrameVideoJustification ]
+        [ sh:class aida:ShotVideoJustification ]
+    ) .
+
+aida:InformativeJustificationPropertyShape
+    a sh:PropertyShape ;
+    sh:path aida:informativeJustification ;
+    sh:xone aida:JustificationTypeList ;
+    sh:message "Informative justification must be exactly one of the allowed types" .
+
+aida:JustificationPropertyShape
+    a sh:PropertyShape ;
+    sh:path aida:justifiedBy ;
+    sh:xone [
+        a rdf:List ;
+        rdf:first [sh:class aida:CompoundJustification] ;
+        rdf:rest aida:JustificationTypeList ] ;
+    sh:message "Justification must be exactly one of the allowed types" .
+
+#########################
+# LDC Time Representation
+#------------------------
+# LDC Time Property definition
+aida:LDCTimePropertyShape
+    a sh:PropertyShape ;
+    sh:path aida:ldcTime ;
+    sh:class aida:LDCTime .
+
+# LDC Time Node definition
+aida:LDCTimeShape
+    a sh:NodeShape ;
+    sh:targetClass aida:LDCTime ;
+    sh:property [
+        sh:path aida:start ;
+        sh:class aida:LDCTimeComponent
+    ] ;
+    sh:property [
+        sh:path aida:end ;
+        sh:class aida:LDCTimeComponent
+    ] ;
+
+    sh:property aida:JustificationPropertyShape ;
+
+    # may provide an optional source system
+    sh:property aida:SystemPropertyShape ;
+
+    # no other properties are allowed
+    sh:closed true ;
+
+    # except rdf:type
+    sh:ignoredProperties (rdf:type) .
+
+# LDC Time Component Node definition
+aida:LDCTimeComponentShape
+    a sh:NodeShape ;
+    sh:targetClass aida:LDCTimeComponent ;
+    sh:property [
+        sh:path aida:year ;
+        sh:datatype xsd:gYear
+    ] ;
+    sh:property [
+        sh:path aida:month ;
+        sh:datatype xsd:gMonth
+    ] ;
+    sh:property [
+        sh:path aida:day ;
+        sh:datatype xsd:gDay
+    ] ;
+    sh:property [
+        sh:path aida:timeType ;
+        sh:dataType xsd:string
+    ] ;
+
+    # no other properties are allowed
+    sh:closed true ;
+
+    # except rdf:type
+    sh:ignoredProperties (rdf:type) .
+
+#########################
+# Link to external KB
+#------------------------
+# use to express that an AIDA Entity is the same thing as something in an external knowledge base
+aida:LinkAssertionShape
+  a sh:NodeShape ;
+  sh:targetClass aida:LinkAssertion ;
+
+  # must have a single link target with the identifier of the thing in an external KB it is linked
+  # to. Currently the external DB reference must be a string, but IRIs might be allowed in the
+  # future
+  sh:property [
+     a sh:PropertyShape ;
+     sh:path aida:linkTarget ;
+     sh:value xsd:string ;
+     sh:minCount 1 ;
+     sh:maxCount 1] ;
+
+   # may provide a confidence
+   sh:property aida:ConfidencePropertyShape ;
+
+   # may provide an one or more source systems
+   sh:property aida:SystemPropertyShape ;
+
+   # may provide one or more justifications for the link
+   sh:property aida:JustificationPropertyShape ;
+
+  # may depend on a hypothesis
+  sh:property aida:DependsOnHypothesisPropertyShape ;
+
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
+
+  # no other properties are allowed
+  sh:closed true ;
+
+  # except rdf:type
+  sh:ignoredProperties (rdf:type) .
+
+aida:LinkPropertyShape
+  a sh:PropertyShape ;
+  sh:path aida:link ;
+  sh:class aida:LinkAssertion .
+
+# Find all nodes with aida:hasName and ensure their types are subclasses of CanHaveName
+aida:RestrictNameProperty
+    a sh:NodeShape ;
+    sh:targetSubjectsOf aida:hasName ;
+    sh:sparql [
+        sh:message "Node has name but no type subclass of CanHaveName" ;
+        sh:select """
+            PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
+            SELECT $this
+            WHERE {
+                ?typeAssertion rdf:subject $this .
+                ?typeAssertion rdf:predicate rdf:type .
+                ?typeAssertion rdf:object ?type .
+                FILTER NOT EXISTS {
+                    ?type rdfs:subClassOf+|rdf:type/rdfs:subClassOf* aidaDomainCommon:CanHaveName .
+                }
+            }
+        """ ;
+    ] .
+
+aida:NamePropertyShape
+  a sh:PropertyShape ;
+  sh:path aida:hasName ;
+  sh:datatype xsd:string .
+
+# Find all nodes with aida:textValue and ensure their types are subclasses of CanHaveTextValue
+aida:RestrictTextProperty
+    a sh:NodeShape ;
+    sh:targetSubjectsOf aida:textValue ;
+    sh:sparql [
+        sh:message "Node has text value but no type subclass of CanHaveTextValue" ;
+        sh:select """
+            PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
+            SELECT $this
+            WHERE {
+                ?typeAssertion rdf:subject $this .
+                ?typeAssertion rdf:predicate rdf:type .
+                ?typeAssertion rdf:object ?type .
+                FILTER NOT EXISTS {
+                    ?type rdfs:subClassOf+|rdf:type/rdfs:subClassOf* aidaDomainCommon:CanHaveTextValue .
+                }
+            }
+        """ ;
+    ] .
+
+aida:TextPropertyShape
+  a sh:PropertyShape ;
+  sh:path aida:textValue ;
+  sh:datatype xsd:string  .
+
+# Find all nodes with aida:numericValue and ensure their types are subclasses of CanHaveNumericValue
+aida:RestrictNumericProperty
+    a sh:NodeShape ;
+    sh:targetSubjectsOf aida:numericValue ;
+    sh:sparql [
+        sh:message "Node has numeric value, but no type subclass of CanHaveNumericValue" ;
+        sh:select """
+            PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
+            SELECT $this
+            WHERE {
+                ?typeAssertion rdf:subject $this .
+                ?typeAssertion rdf:predicate rdf:type .
+                ?typeAssertion rdf:object ?type .
+                FILTER NOT EXISTS {
+                    ?type rdfs:subClassOf+|rdf:type/rdfs:subClassOf* aidaDomainCommon:CanHaveNumericValue .
+                }
+            }
+        """ ;
+    ] .
+
+aida:NumericPropertyShape
+  a sh:PropertyShape ;
+  sh:path aida:numericValue ;
+  sh:xone (
+    [ sh:datatype xsd:string ]
+    [ sh:datatype xsd:double ]
+    [ sh:datatype xsd:long ] ) .
+
+# we use RDF statements for four things: relations, type assertions, event argument, and
+# sentiment assertions. Each of these has already been described above. We want to forbid any other
+# use of RDF statement.
+aida:RdfStatementShape
+    a sh:NodeShape ;
+    sh:targetClass rdf:Statement ;
+
+    # subject/predicate/object must exist exactly once
+    sh:property [
+        sh:path rdf:subject ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Number of subjects specified for edge must be 1"
+    ] ;
+
+    sh:property [
+        sh:path rdf:predicate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Number of predicates specified for edge must be 1"
+    ] ;
+
+    sh:property [
+        sh:path rdf:object ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Number of objects specified for edge must be 1"
+    ] ;
+
+    sh:property [
+        sh:path rdf:predicate ;
+        sh:xone (
+            [ sh:hasValue rdf:type ]
+            aida:EventArgumentSubclass
+            aida:RelationArgumentSubclass ) ;
+        sh:message "All rdf:Statements must be type declarations or have predicates from the domain relation or event argument types. This error is often caused by using a value outside the domain ontology"
+    ] .
+
+# Sometimes there is uncertainty about whether or not two entities or events are the same.
+# In such cases, we make "cluster" objects which can link together the possibly identical
+# entities or events
+# TODO: validate clusters are homogeneous (e.g. can't mix entities and events)
+aida:ClusterShape
+   a sh:NodeShape ;
+   sh:targetClass aida:SameAsCluster ;
+
+   # every cluster must have a single prototype - the item we are absolutely sure is, by definition,
+   # in the cluster
+   sh:property [
+      a sh:PropertyShape ;
+      sh:path aida:prototype ;
+      sh:xone ( [sh:class aida:Entity]
+                [sh:class aida:Event]
+                [sh:class aida:Relation] ) ;
+      sh:minCount 1 ;
+      sh:maxCount 1  ] ;
+
+   # allow clusters to have handle property
+   sh:property [
+      sh:path aida:handle ;
+      sh:datatype xsd:string ;
+      sh:maxCount 1 ;
+   ] ;
+
+   # may provide an importance
+   sh:property aida:ImportancePropertyShape ;
+
+   # may provide an informative justification
+   sh:property aida:InformativeJustificationPropertyShape ;
+
+   # may provide an one or more source systems
+   sh:property aida:SystemPropertyShape ;
+
+   # may depend on a hypothesis
+   sh:property aida:DependsOnHypothesisPropertyShape ;
+
+   # may bear system-private data
+   sh:property aida:PrivateDataPropertyShape ;
+
+   # may be linked to one or more things in an external KB
+   sh:property aida:LinkPropertyShape ;
+
+   sh:closed true ;
+   sh:ignoredProperties (rdf:type).
+
+# we declare that other entities might be in the cluster by using ClusterMembership assertions
+aida:ClusterMembershipShape
+   a sh:NodeShape ;
+   sh:targetClass aida:ClusterMembership ;
+
+   # the cluster property points to the cluster
+   sh:property [
+      a sh:PropertyShape ;
+      sh:path aida:cluster ;
+      sh:class aida:SameAsCluster ;
+      sh:minCount 1 ;
+      sh:maxCount 1  ] ;
+
+   # the clusterMember property points to the thing which might be in the cluster
+   # the clusterMember could itself be another cluster, allowing hierarchical coreference
+   sh:property [
+      a sh:PropertyShape ;
+      sh:path aida:clusterMember ;
+      sh:xone ( [sh:class aida:Entity]
+                [sh:class aida:Event]
+                [sh:class aida:Relation]
+                [sh:class aida:SameAsCluster] )  ;
+      sh:minCount 1 ;
+      sh:maxCount 1 ;
+      sh:message "Cluster member type not allowed to be part of cluster"
+  ] ;
+
+   # may provide a confidence
+   sh:property aida:ConfidencePropertyShape ;
+
+   # may provide an one or more source systems
+   sh:property aida:SystemPropertyShape ;
+
+   # may provide one or more justifications for the link
+   sh:property aida:JustificationPropertyShape ;
+
+  # may depend on a hypothesis
+  sh:property aida:DependsOnHypothesisPropertyShape ;
+
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
+
+   sh:closed true ;
+   sh:ignoredProperties (rdf:type).
+
+# A Subgraph is a collection of content and annotation nodes.  They are used to talk about
+# sub-graphs of the full knowledge graph for when we need to specify confidences or mutual
+# exclusion constraints over large structures
+aida:ContentGraphShape
+    # note this is a declaration of a set of node constraints
+    a sh:NodeShape ;
+
+    # and that these contains apply to nodes of type aida:KnowledgeGraph
+    sh:targetClass aida:Subgraph ;
+
+    # a Subgraph must have a property (=outgoing labelled edge)
+    sh:property [
+        # which is called "subgraphContains"
+        sh:path aida:subgraphContains ;
+
+        # every content graph must contain at least one content assertion
+        sh:minCount 1 ;
+        sh:message "Content graph must contain at least one content assertion" ;
+    ] ;
+
+    # a Subgraph can only be composed of the following types
+    sh:property [
+        # Disabled: This shape is not implemented correctly. A KE should consist of cluster, all membership nodes,
+        #           all member nodes, all type assertions for member nodes, and all justifications for type assertions for member nodes
+        sh:deactivated true ;
+
+        sh:path aida:subgraphContains ;
+
+        # the contained nodes must be of the content node types
+        sh:xone (
+            [sh:class aida:Entity]
+            [sh:class aida:Event]
+            [sh:class aida:Relation]
+            [sh:class aida:SentimentAssertion]
+            [sh:class aida:ClusterMembership]
+            [sh:class aida:SameAsCluster]
+            [sh:class rdf:Statement] ) ;
+        sh:message "Content graph cannot contain this type of node"
+    ] ;
+
+    # may provide an one or more source systems
+    sh:property aida:SystemPropertyShape ;
+
+    # may depend on a hypothesis
+    sh:property aida:DependsOnHypothesisPropertyShape ;
+
+    # may bear system-private data
+    sh:property aida:PrivateDataPropertyShape ;
+
+    # and can't contain anything else
+    sh:closed true ;
+    # (except the rdf:type assertion)
+    sh:ignoredProperties (rdf:type) .
+
+# Sometimes we need to indicate that either one set of assertions about the world should be
+# included in a graph *or* some other set of assertions should. In these cases we use a
+# MutualExclusionConstraints
+aida:MutualExclusionConstraintShape
+   a sh:NodeShape ;
+   sh:targetClass aida:MutualExclusion ;
+
+   # the different options are given by alternative properties.
+   # there may be at least one alternative specified, but there may be many
+   sh:property [
+      a sh:PropertyShape;
+      sh:path aida:alternative;
+      sh:class aida:MutualExclusionAlternative ;
+      sh:minCount 1 ];
+
+   # optionally, a confidence value may be given to the "none of the above" option
+   sh:property [
+      a sh:PropertyShape ;
+      sh:path aida:noneOfTheAbove;
+      sh:datatype xsd:double ;
+      sh:maxCount 1 ] ;
+
+   # may provide an one or more source systems
+   sh:property aida:SystemPropertyShape ;
+
+   # may provide one or more justifications for the link
+   sh:property aida:JustificationPropertyShape ;
+
+  # may depend on a hypothesis
+  sh:property aida:DependsOnHypothesisPropertyShape ;
+
+  # may bear system-private data
+  sh:property aida:PrivateDataPropertyShape ;
+
+    sh:closed true ;
+
+    sh:ignoredProperties ( rdf:type ).
+
+aida:MutualExclusionAlternativeShape
+   a sh:NodeShape ;
+   sh:targetClass aida:MutualExclusionAlternative ;
+
+   # there must be at least one graph edge in this alternative
+   # each edge is included by making it the object of a alternate_graph property
+   sh:property [
+      a sh:PropertyShape ;
+      sh:path aida:alternativeGraph ;
+      sh:class aida:Subgraph ;
+      sh:minCount 1 ] ;
+
+    # each alternative must specify confidence
+    sh:property aida:ConfidencePropertyShape ;
+
+    sh:closed true ;
+    sh:ignoredProperties ( rdf:type )
+    .
+
+aida:ImportancePropertyShape
+  a sh:PropertyShape ;
+  sh:path aida:importance ;
+  sh:datatype xsd:double .
+
+aida:HypothesisShape
+    a sh:NodeShape ;
+    sh:targetClass aida:Hypothesis ;
+
+    # all elements in a hypothesis sub-graph are assumed to be asserted (that is, they are
+    # interpreted as a conjunction)
+    sh:property [
+        a sh:PropertyShape ;
+        sh:path aida:hypothesisContent ;
+        sh:class aida:Subgraph ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ] ;
+
+    # a hypothesis can specify confidence
+    sh:property aida:ConfidencePropertyShape ;
+
+    # may provide an importance
+    sh:property aida:ImportancePropertyShape ;
+
+    sh:property aida:SystemPropertyShape ;
+
+    # may bear system-private data
+    sh:property aida:PrivateDataPropertyShape ;
+
+    sh:closed true ;
+    sh:ignoredProperties ( rdf:type ) .
+
+aida:DependsOnHypothesisPropertyShape
+  a sh:PropertyShape ;
+  sh:path aida:dependsOnHypothesis ;
+  sh:class aida:Hypothesis .
+
+aida:PrivateDataShape
+   sh:targetClass aida:PrivateData ;
+   sh:property aida:JsonContentPropertyShape ;
+   # this class is not closed, so you can stick whatever else you want here
+   .
+
+aida:PrivateDataPropertyShape
+   a sh:PropertyShape ;
+   sh:path aida:privateData ;
+   sh:class aida:PrivateData .
+
+aida:JsonContentPropertyShape
+   a sh:PropertyShape ;
+   sh:path aida:jsonContent ;
+   sh:datatype xsd:string .
