@@ -1,0 +1,8 @@
+#!/bin/bash
+
+docker build --no-cache \
+	--build-arg GIT_REPO=github.com \
+	--build-arg VALIDATOR_REPO=NextCenturyCorporation/AIDA-Interchange-Format.git \
+	--build-arg VALIDATOR_BRANCH=master \
+	--squash \
+	-t batch-single .

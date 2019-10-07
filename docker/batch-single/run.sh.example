@@ -1,0 +1,32 @@
+#!/bin/bash
+
+AWS_ACCESS_KEY_ID=$(aws --profile default configure get aws_access_key_id)
+AWS_SECRET_ACCESS_KEY=$(aws --profile default configure get aws_secret_access_key)
+AWS_DEFAULT_REGION=$(aws --profile default configure get region)
+
+docker run --rm -it \
+        -e S3_VALIDATION_BUCKET='' \
+	-e S3_VALIDATION_PREFIX='' \
+        -e S3_SUBMISSION_ARCHIVE='' \
+        -e S3_SUBMISSION_TASK='' \
+        -e S3_SUBMISSION_EXTRACTED='' \
+        -e S3_SUBMISSION_BUCKET='' \
+        -e S3_SUBMISSION_PREFIX='' \
+        -e S3_SUBMISSION_VALIDATION_DESCR='' \
+        -e AWS_BATCH_JOB_ID='' \
+        -e AWS_BATCH_JOB_NODE_INDEX='' \
+        -e MAIN_SLEEP_INTERVAL='' \
+        -e WORKER_INIT_TIMEOUT='' \
+        -e AWS_SNS_TOPIC_ARN='' \
+        -e DEBUG='' \
+        -e DEBUG_TIMEOUT='' \
+        -e DEBUG_SLEEP_INTERVAL='' \
+        -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+        -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+        -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION \
+        -e QUEUE_INIT_TIMEOUT='' \
+        -e VALIDATION_TIMEOUT='' \
+        -e VALIDATION_HOME='' \
+        -e VALIDATION_FLAGS='' \
+        --name batch-single \
+        batch-single

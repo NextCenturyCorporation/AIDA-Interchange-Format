@@ -1,0 +1,482 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Creates AIF Validation VPC with six private subnets, one public subnet and a NAT gateway",
+     "Outputs": {
+        "VpcCidr": {
+            "Value": {
+                "Ref": "VpcCidr"
+            },
+            "Export": {
+      			"Name": "aida-validation-vpc-cidr"
+        	}
+        },
+        "VpcId": {
+        	"Value": {
+                "Ref": "VPC"
+            },
+            "Export": {
+      			"Name": "aida-validation-vpc-id"
+        	}
+        },
+        "AvailabilityZone": {
+        	"Value": {
+        		"Ref": "AvailabilityZone"
+        	},
+        	"Export": {
+        		"Name": "aida-validation-availability-zone"
+        	}
+        },
+        "PublicSubnetA": {
+            "Value": {
+                "Ref": "PublicSubnetA"
+            },
+            "Export": {
+      			"Name": "aida-validation-public-subnet-a"
+        	}
+        },
+        "PrivateSubnetA": {
+            "Value": {
+                "Ref": "PrivateSubnetA"
+            },
+            "Export": {
+      			"Name": "aida-validation-private-subnet-a"
+        	}
+        },
+        "PrivateSubnetB": {
+            "Value": {
+                "Ref": "PrivateSubnetB"
+            },
+            "Export": {
+      			"Name": "aida-validation-private-subnet-b"
+        	}
+        },
+        "PrivateSubnetC": {
+            "Value": {
+                "Ref": "PrivateSubnetC"
+            },
+            "Export": {
+      			"Name": "aida-validation-private-subnet-c"
+        	}
+        },
+        "PrivateSubnetD": {
+            "Value": {
+                "Ref": "PrivateSubnetD"
+            },
+            "Export": {
+      			"Name": "aida-validation-private-subnet-d"
+        	}
+        },
+        "PrivateSubnetE": {
+            "Value": {
+                "Ref": "PrivateSubnetE"
+            },
+           	"Export": {
+      			"Name": "aida-validation-private-subnet-e"
+        	}
+        },
+        "PrivateSubnetF": {
+            "Value": {
+                "Ref": "PrivateSubnetF"
+            },
+           	"Export": {
+      			"Name": "aida-validation-private-subnet-f"
+        	}
+        }
+    },
+    "Parameters": {
+        "VpcCidr": {
+            "Type": "String",
+            "Description": "CIDR Block of the AIDA-Validation VPC, allows for ssh access",
+            "Default": "10.0.0.0/16",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "Must be valid CIDR notation (e.g. x.x.x.x/x)."
+        },
+        "AvailabilityZone" : {
+        	"Type": "String",
+        	"Description": "The availability zone where the subnets will be created",
+        	"Default": "us-east-1a"
+        },
+        "PublicSubnetACidr": {
+        	"Type": "String",
+        	"Description": "AIDA Validation CIDR block for Public Subnet A (e.g. 10.0.0.0/24)",
+        	"Default": "10.0.0.0/24",
+        	"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+        	"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "PrivateSubnetACidr": {
+        	"Type": "String",
+        	"Description": "AIDA Validation CIDR block for Private Subnet A (e.g. 10.0.1.0/24)",
+        	"Default": "10.0.1.0/24",
+        	"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+        	"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "PrivateSubnetBCidr": {
+        	"Type": "String",
+        	"Description": "AIDA Validation CIDR block for Private Subnet B (e.g. 10.0.2.0/24)",
+        	"Default": "10.0.2.0/24",
+        	"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+        	"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "PrivateSubnetCCidr": {
+        	"Type": "String",
+        	"Description": "AIDA Validation CIDR block for Private Subnet C (e.g. 10.0.3.0/24)",
+        	"Default": "10.0.3.0/24",
+        	"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+        	"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+       	"PrivateSubnetDCidr": {
+        	"Type": "String",
+        	"Description": "AIDA Validation CIDR block for Private Subnet D (e.g. 10.0.4.0/24)",
+        	"Default": "10.0.4.0/24",
+        	"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+        	"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "PrivateSubnetECidr": {
+        	"Type": "String",
+        	"Description": "AIDA Validation CIDR block for Private Subnet E (e.g. 10.0.5.0/24)",
+        	"Default": "10.0.5.0/24",
+        	"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+        	"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "PrivateSubnetFCidr": {
+        	"Type": "String",
+        	"Description": "AIDA Validation CIDR block for Private Subnet F (e.g. 10.0.6.0/24)",
+        	"Default": "10.0.6.0/24",
+        	"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+        	"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        }
+    },
+	"Resources": {
+		"VPC": {
+		  	"Type" : "AWS::EC2::VPC",
+		  	"Properties" : {
+		    	"CidrBlock" : {
+		    		"Ref": "VpcCidr"
+		      	},
+		      	"EnableDnsHostnames" : true,
+		      	"EnableDnsSupport" : true,
+		      	"InstanceTenancy" : "default",
+		      	"Tags" : [ 
+		      		{
+		      			"Key": "Name",
+		      			"Value": "aida-validation vpc"
+		      		}
+		      	]
+		    }
+		},
+		"InternetGateway": {
+			"Type" : "AWS::EC2::InternetGateway",
+			"Properties" : {
+		    	"Tags" : [ 
+		    		{
+		    			"Key": "Name",
+		    			"Value": "aida-validation Internet Gateway"
+		    		}
+		    	]
+			}
+		},
+		"AttachGateway": {
+			"Type" : "AWS::EC2::VPCGatewayAttachment",
+			"Properties" : {
+		    	"InternetGatewayId" : {
+		    		"Ref": "InternetGateway"
+		    	},
+		    	"VpcId" : {
+		    		"Ref": "VPC"
+		    	}
+			}
+		},
+		"PublicSubnetA": {
+			"Type": "AWS::EC2::Subnet",
+			"Properties": {
+				"AvailabilityZone": { "Ref": "AvailabilityZone" },
+				"VpcId": {
+					"Ref": "VPC"
+				},
+				"CidrBlock": {
+					"Ref": "PublicSubnetACidr"
+				},
+				"MapPublicIpOnLaunch": true,
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "aida-validation-public-subnet-a"
+					}
+				]
+			}
+        },
+		"PublicSubnetRouteTable": {
+			"Type" : "AWS::EC2::RouteTable",
+			"Properties" : {
+				"Tags" : [ 
+					{
+						"Key": "Name",
+						"Value": "aida-validation public route table"
+					} 
+				],
+			     "VpcId" : {
+			     	"Ref": "VPC"
+			     }
+			 }
+		},
+		"PrivateSubnetRouteTable": {
+			"Type" : "AWS::EC2::RouteTable",
+			"Properties" : {
+				"Tags" : [ 
+					{
+						"Key": "Name",
+						"Value": "aida-validation private route table"
+					} 
+				],
+			     "VpcId" : {
+			     	"Ref": "VPC"
+			     }
+			 }
+		},
+		"PublicInternetRoute": {
+			"Type" : "AWS::EC2::Route",
+			"DependsOn": "InternetGateway",
+  			"Properties" : {
+      			"DestinationCidrBlock" : "0.0.0.0/0",
+			    "GatewayId" : {
+			    	"Ref": "InternetGateway"
+			    },
+			    "RouteTableId" : {
+			    	"Ref": "PublicSubnetRouteTable"
+			    }
+    		}
+		},
+		"PublicSubnetARouteTableAssociation": {
+  			"Type" : "AWS::EC2::SubnetRouteTableAssociation",
+  			"Properties" : {
+      			"RouteTableId" : {
+      				"Ref": "PublicSubnetRouteTable"
+      			},
+      			"SubnetId" : {
+      				"Ref": "PublicSubnetA"
+      			}
+   			}
+		},
+		"NatGatewayEIP": {
+			"Type": "AWS::EC2::EIP",
+			"Properties": {
+				"Domain": "vpc"
+			}
+		},
+		"NatGateway": {
+			"Type" : "AWS::EC2::NatGateway",
+  			"Properties" : {
+	      		"AllocationId" : {
+	            	"Fn::GetAtt": [
+	                	"NatGatewayEIP",
+	                    "AllocationId"
+	                ]
+	           },
+	      		"SubnetId" : {
+	      			"Ref": "PublicSubnetA"
+	      		},
+	      		"Tags" : [ 
+	      			{
+	      				"Key": "Name",
+	      				"Value": "aida-validation NAT Gateway"
+	      			}
+	      		]
+	      	}
+		},
+		"PrivateSubnetA": {
+			"Type": "AWS::EC2::Subnet",
+			"Properties": {
+				"AvailabilityZone": { "Ref": "AvailabilityZone" },
+				"VpcId": {
+					"Ref": "VPC"
+				},
+				"CidrBlock": {
+					"Ref": "PrivateSubnetACidr"
+				},
+				"MapPublicIpOnLaunch": false,
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "aida-validation-private-subnet-a"
+					}
+				]
+			}
+		},
+		"PrivateSubnetB": {
+			"Type": "AWS::EC2::Subnet",
+			"Properties": {
+				"AvailabilityZone": { "Ref": "AvailabilityZone" },
+				"VpcId": {
+					"Ref": "VPC"
+				},
+				"CidrBlock": {
+					"Ref": "PrivateSubnetBCidr"
+				},
+				"MapPublicIpOnLaunch": false,
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "aida-validation-private-subnet-b"
+					}
+				]
+			}
+		},
+		"PrivateSubnetC": {
+			"Type": "AWS::EC2::Subnet",
+			"Properties": {
+				"AvailabilityZone": { "Ref": "AvailabilityZone" },
+				"VpcId": {
+					"Ref": "VPC"
+				},
+				"CidrBlock": {
+					"Ref": "PrivateSubnetCCidr"
+				},
+				"MapPublicIpOnLaunch": false,
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "aida-validation-private-subnet-c"
+					}
+				]
+			}
+		},
+		"PrivateSubnetD": {
+			"Type": "AWS::EC2::Subnet",
+			"Properties": {
+				"AvailabilityZone": { "Ref": "AvailabilityZone" },
+				"VpcId": {
+					"Ref": "VPC"
+				},
+				"CidrBlock": {
+					"Ref": "PrivateSubnetDCidr"
+				},
+				"MapPublicIpOnLaunch": false,
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "aida-validation-private-subnet-d"
+					}
+				]
+			}
+		},
+		"PrivateSubnetE": {
+			"Type": "AWS::EC2::Subnet",
+			"Properties": {
+				"AvailabilityZone": { "Ref": "AvailabilityZone" },
+				"VpcId": {
+					"Ref": "VPC"
+				},
+				"CidrBlock": {
+					"Ref": "PrivateSubnetECidr"
+				},
+				"MapPublicIpOnLaunch": false,
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "aida-validation-private-subnet-e"
+					}
+				]
+			}
+		},
+		"PrivateSubnetF": {
+			"Type": "AWS::EC2::Subnet",
+			"Properties": {
+				"AvailabilityZone": { "Ref": "AvailabilityZone" },
+				"VpcId": {
+					"Ref": "VPC"
+				},
+				"CidrBlock": {
+					"Ref": "PrivateSubnetFCidr"
+				},
+				"MapPublicIpOnLaunch": false,
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "aida-validation-private-subnet-f"
+					}
+				]
+			}
+		},
+		"PrivateSubnetARouteTableAssociation": {
+  			"Type" : "AWS::EC2::SubnetRouteTableAssociation",
+  			"Properties" : {
+      			"RouteTableId" : {
+      				"Ref": "PrivateSubnetRouteTable"
+      			},
+      			"SubnetId" : {
+      				"Ref": "PrivateSubnetA"
+      			}
+   			}
+		},
+		"PrivateSubnetBRouteTableAssociation": {
+  			"Type" : "AWS::EC2::SubnetRouteTableAssociation",
+  			"Properties" : {
+      			"RouteTableId" : {
+      				"Ref": "PrivateSubnetRouteTable"
+      			},
+      			"SubnetId" : {
+      				"Ref": "PrivateSubnetB"
+      			}
+   			}
+		},
+		"PrivateSubnetCRouteTableAssociation": {
+  			"Type" : "AWS::EC2::SubnetRouteTableAssociation",
+  			"Properties" : {
+      			"RouteTableId" : {
+      				"Ref": "PrivateSubnetRouteTable"
+      			},
+      			"SubnetId" : {
+      				"Ref": "PrivateSubnetC"
+      			}
+   			}
+		},
+		"PrivateSubnetDRouteTableAssociation": {
+  			"Type" : "AWS::EC2::SubnetRouteTableAssociation",
+  			"Properties" : {
+      			"RouteTableId" : {
+      				"Ref": "PrivateSubnetRouteTable"
+      			},
+      			"SubnetId" : {
+      				"Ref": "PrivateSubnetD"
+      			}
+   			}
+		},
+		"PrivateSubnetERouteTableAssociation": {
+  			"Type" : "AWS::EC2::SubnetRouteTableAssociation",
+  			"Properties" : {
+      			"RouteTableId" : {
+      				"Ref": "PrivateSubnetRouteTable"
+      			},
+      			"SubnetId" : {
+      				"Ref": "PrivateSubnetE"
+      			}
+   			}
+		},
+		"PrivateSubnetFRouteTableAssociation": {
+  			"Type" : "AWS::EC2::SubnetRouteTableAssociation",
+  			"Properties" : {
+      			"RouteTableId" : {
+      				"Ref": "PrivateSubnetRouteTable"
+      			},
+      			"SubnetId" : {
+      				"Ref": "PrivateSubnetF"
+      			}
+   			}
+		},
+		"PrivateNatGatewayRoute": {
+			"Type" : "AWS::EC2::Route",
+			"DependsOn": "NatGateway",
+  			"Properties" : {
+      			"DestinationCidrBlock" : "0.0.0.0/0",
+			    "NatGatewayId" : {
+			    	"Ref": "NatGateway"
+			    },
+			    "RouteTableId" : {
+			    	"Ref": "PrivateSubnetRouteTable"
+			    }
+    		}
+		}
+	}
+}
