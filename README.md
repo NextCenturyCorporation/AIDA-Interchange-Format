@@ -8,7 +8,7 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
 
 *    utilities to make it easier to work with this format.  Java utilities are
      in `java/src/main/java/com/ncc/aif/AIFUtils.java`, which can be used by adding
-     a Maven dependency on `com.ncc:aida-interchange:1.0.4`.  A
+     a Maven dependency on `com.ncc:aida-interchange:1.1.0-SNAPSHOT`.  A
      Python translation of these utilities is in
      `python/aida_interchange/aifutils.py`.
 
