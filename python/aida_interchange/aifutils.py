@@ -569,7 +569,7 @@ def mark_shot_video_justification(g, things_to_justify, doc_id, shot_id, system,
     :param str shot_id: The string Id of the shot of the specified video document
     :param str doc_id: A string containing the document element (child) ID of the
         source of the justification
-    :param rdflib.term.URIRef system: The system object for the system which made 
+    :param rdflib.term.URIRef system: The system object for the system which made
         this justification
     :param float confidence: The confidence with which to mark the justification
     :param str uri_ref: A string URI representation of the video justification (Default is None)
