@@ -29,4 +29,4 @@ added.
 
 ### How do I migrate from the GAIA/Kotlin version of AIF to the Java version?
 
-Refer to the [AIF v1.0.4 FAQ](https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/blob/tag/v1.0.4/FAQ.md)
+Refer to the [AIF v1.0.5 FAQ](https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/blob/tag/v1.0.5/FAQ.md)
