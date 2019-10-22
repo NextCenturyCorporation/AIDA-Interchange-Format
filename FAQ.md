@@ -26,7 +26,3 @@ relation 2 or relation 3") since we assume that such cases should expressed as t
 distinct hypotheses (e.g. one hypothesis for "relation 1 and relation 2" and another for
 "relation 1 and relation 3").  However, if expressing such disjunctions is desired, it can be
 added.
-
-### How do I migrate from the GAIA/Kotlin version of AIF to the Java version?
-
-Refer to the [AIF v1.0.4 FAQ](https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/blob/tag/v1.0.4/FAQ.md)
