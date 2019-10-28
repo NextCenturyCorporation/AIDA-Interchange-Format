@@ -141,9 +141,9 @@
               <artifactId>maven-compiler-plugin</artifactId>
               <version>3.8.1</version>
               <configuration>
-                <release>12</release>
+                <release>11</release>
                 <compilerArgs>
-                  <!-- ErrorProne disabled until https://github.com/google/error-prone/pull/1344 is merged and released -->
+                  <!-- ErrorProne disabled until https://github.com/google/error-prone/issues/1158 (and 1157) are addressed and released -->
                   <!--
                   <arg>-Xplugin:ErrorProne</arg>
                   <arg>-XDcompilePolicy=byfile</arg>
