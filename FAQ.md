@@ -21,6 +21,8 @@ asserts the hypothesis that relations 1, 2, and 3 are all true.
 An example of constructing two distinct hypotheses is given
 in the `twoSeedlingHypotheses` test in `src/test/java/com/ncc/aif/ExamplesAndValidationTest.java`.
 
+TEST TEST REMOVE
+
 Currently a hypothesis cannot express disjunctions (e.g. "relation 1 holds true and either
 relation 2 or relation 3") since we assume that such cases should expressed as two (or more)
 distinct hypotheses (e.g. one hypothesis for "relation 1 and relation 2" and another for
