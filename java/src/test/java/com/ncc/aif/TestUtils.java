@@ -333,6 +333,13 @@ class TestUtils {
     }
 
     /**
+     * Return the current validator for this test
+     */
+    ValidateAIF getValidator() {
+        return validator;
+    }
+
+    /**
      * Return calling method name from test class.
      * Looks at the calling stack for the calling test.
      * Converts class/method from something like:
@@ -385,14 +392,15 @@ class TestUtils {
     }
 
     /**
-     * This method dumps the model either to stdout or to a file
+     * This method writes the specified model to a file ({@link #getCallingMethodName()}
+     * if {@link #dumpToFile} is true, o/w writes to System.out
      *
-     * @param testDescription {@link String} containing the description of the test
+     * @param model {@link Model} of RDF to output
+     * @param header {@link String} containing header information for model
      */
-    private void dumpModel(String testDescription) {
+    void dumpModelWithHeader(Model model, String header) {
         if (dumpToFile) {
             String outputFilename = getCallingMethodName() + ".ttl";
-
             try {
                 Path path = createDirectoryForPath(outputFilename);
                 logger.info("Dump to " + path);
@@ -401,9 +409,18 @@ class TestUtils {
                 logger.error("---> Could not dump model to " + outputFilename);
             }
         } else {
-            System.out.println("\n----------------------------------------------\n" + testDescription + "\n\nAIF Model:");
+            System.out.println("\n" + header);
             RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
         }
+    }
+
+    /**
+     * This method dumps the model either to stdout or to a file
+     *
+     * @param testDescription {@link String} containing the description of the test
+     */
+    void dumpModel(String testDescription) {
+        dumpModelWithHeader(model, "----------------------------------------------\n" + testDescription + "\n\nAIF Model:");
     }
 
     /**
@@ -411,20 +428,8 @@ class TestUtils {
      *
      * @param report  validation report
      */
-    private void dumpReport(Resource report) {
-        if (dumpToFile) {
-            String outputReportFilename = getCallingMethodName() + "-report.txt";
-            try {
-                Path path = createDirectoryForPath(outputReportFilename);
-                logger.info("Dump to " + path);
-                RDFDataMgr.write(java.nio.file.Files.newOutputStream(path), report.getModel(), RDFFormat.TURTLE_PRETTY);
-            } catch (IOException ioe) {
-                logger.error("---> Could not dump report to " + outputReportFilename);
-            }
-        } else {
-            System.out.println("\nFailure:");
-            RDFDataMgr.write(System.out, report.getModel(), RDFFormat.TURTLE_PRETTY);
-        }
+    void dumpReport(Resource report) {
+        dumpModelWithHeader(report.getModel(), "Failure:");
     }
 
     /**
@@ -438,24 +443,20 @@ class TestUtils {
     private Resource assertAndDump(String testDescription, boolean expected) {
         final Resource report = validator.validateKBAndReturnReport(model);
         final boolean valid = ValidateAIF.isValidReport(report);
+        final boolean unexpected = valid != expected;
 
         // dump model if result is unexpected or if forced
-        if (dumpAlways || valid != expected) {
+        if (dumpAlways || unexpected) {
             dumpModel(testDescription);
-        }
 
-
-        // dump report if forced to and model isn't valid OR result is unexpected
-        if (!valid) {   // There is a report that could be dumped.
-
-            // Dump the report if forced to, or if the result is unexpected
-            if (dumpAlways || valid != expected) {
+            // dump report if should dump AND report is invalid
+            if (!valid) {
                 dumpReport(report);
             }
         }
 
         // fail if result is unexpected
-        if (valid != expected) {
+        if (unexpected) {
             fail("Validation was expected to " + (expected ? "pass" : "fail") + " but did not");
         }
         return report;

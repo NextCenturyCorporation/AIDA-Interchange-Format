@@ -35,7 +35,7 @@ SEEDLING_TYPES_NIST = ClosedNamespace(
            "PersonalSocial.Business", "PersonalSocial.Family", "PersonalSocial.RoleTitle",
            "PersonalSocial.Unspecified",
            "Physical.LocatedNear", "Physical.OrganizationHeadquarter", "Physical.OrganizationLocationOrigin",
-           "Physical.Resident", "Weapon"])
+           "Physical.Resident", "Weapon", "Vehicle"])
 
 
 # The domain ontology. For the moment, this is hard-coded to match ColdStart
