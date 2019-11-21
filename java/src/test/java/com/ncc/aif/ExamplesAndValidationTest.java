@@ -33,7 +33,6 @@ import java.util.Comparator;
 
 import static com.ncc.aif.AIFUtils.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class ExamplesAndValidationTest {
@@ -343,7 +342,7 @@ public class ExamplesAndValidationTest {
             markDependsOnHypothesis(bobWorksForGoogle, bobLivesInCaliforniaHypothesis);
 
             // As model is now not valid AIF, must validate using both model and hypoModel
-            testHypothesisModels(hypoModel, model, "relation based on pre-existing hypothesis");
+            utils.testValidWithHypothesis("relation based on pre-existing hypothesis", hypoModel);
         }
 
         private Resource addBukIsRussianHypothesisToModel(Model model, String bukUri, String russiaUri) {
@@ -388,28 +387,7 @@ public class ExamplesAndValidationTest {
             markConfidence(model, bukIsRussianHypothesis, 0.75, system);
 
             // As model is now not valid AIF, must validate using both model and hypoModel
-            testHypothesisModels(hypoModel, model, "event argument based on pre-existing hypothesis");
-        }
-
-        private void testHypothesisModels(Model hypoModel, Model normalModel, String testDescription) {
-            Model model = ModelFactory.createDefaultModel();
-            model.add(hypoModel).add(normalModel);
-
-            final Resource report = utils.getValidator().validateKBAndReturnReport(model);
-            final boolean valid = ValidateAIF.isValidReport(report);
-
-            if (DUMP_ALWAYS || !valid) {
-                if (!DUMP_TO_FILE) {
-                    System.out.println("\n----------------------------------------------\n" + testDescription);
-                }
-                utils.dumpModelWithHeader(hypoModel, "Hypothesis Model:");
-                utils.dumpModelWithHeader(normalModel, "Normal Model:");
-
-                if (!valid) {
-                    utils.dumpReport(report);
-                    fail("Validation was expected to pass but did not");
-                }
-            }
+            utils.testValidWithHypothesis("event argument based on pre-existing hypothesis", hypoModel);
         }
 
         @Test

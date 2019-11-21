@@ -333,6 +333,13 @@ class TestUtils {
     }
 
     /**
+     * Assert that the test with the specified description is valid based on the current model, the supplied hypothesis,
+     * and the current validator.
+     */
+    void testValidWithHypothesis(String testDescription, @Nullable Model hypothesisModel) {
+        assertAndDumpWithHypothesis(testDescription, true, hypothesisModel);
+    }
+    /**
      * Return the current validator for this test
      */
     ValidateAIF getValidator() {
@@ -398,7 +405,7 @@ class TestUtils {
      * @param model {@link Model} of RDF to output
      * @param header {@link String} containing header information for model
      */
-    void dumpModelWithHeader(Model model, String header) {
+    private void dumpModelWithHeader(Model model, String header) {
         if (dumpToFile) {
             String outputFilename = getCallingMethodName() + ".ttl";
             try {
@@ -419,8 +426,19 @@ class TestUtils {
      *
      * @param testDescription {@link String} containing the description of the test
      */
-    void dumpModel(String testDescription) {
+    private void dumpModel(String testDescription) {
         dumpModelWithHeader(model, "----------------------------------------------\n" + testDescription + "\n\nAIF Model:");
+    }
+
+    /**
+     * This method dumps the hypothesis and model either to stdout or to a file
+     *
+     * @param testDescription {@link String} containing the description of the test
+     * @param hypothesis {@link Model} containing the hypothesis
+     */
+    private void dumpHypothesisAndModel(String testDescription, Model hypothesis) {
+        dumpModelWithHeader(hypothesis, "----------------------------------------------\n" + testDescription + "\n\nHypothesis:");
+        dumpModelWithHeader(model, "AIF Model:");
     }
 
     /**
@@ -428,7 +446,7 @@ class TestUtils {
      *
      * @param report  validation report
      */
-    void dumpReport(Resource report) {
+    private void dumpReport(Resource report) {
         dumpModelWithHeader(report.getModel(), "Failure:");
     }
 
@@ -441,13 +459,40 @@ class TestUtils {
      * @param expected        true if validation is expected to pass, false o/w
      */
     private Resource assertAndDump(String testDescription, boolean expected) {
-        final Resource report = validator.validateKBAndReturnReport(model);
+        return assertAndDumpWithHypothesis(testDescription, expected, null);
+    }
+
+    /**
+     * This method will validate the model in conjunction with the provided {@code hypothesisModel} using the
+     * provided validator and will dump the model as TURTLE if either the validation result is unexpected or
+     * if the model is valid and forceDump is true. Thus, forceDump can be used to write all the valid examples to
+     * console or file.
+     * @param testDescription {@link String} containing the description of the test
+     * @param expected        true if validation is expected to pass, false o/w
+     * @param hypothesisModel {@link Model} containing a hypothesis in AIF. If null, only model is validated+dumped
+     */
+    private Resource assertAndDumpWithHypothesis(String testDescription, boolean expected, @Nullable Model hypothesisModel) {
+        // test model if no hypothesis is specified, o/w combine and test
+        boolean hasHypothesis = hypothesisModel != null;
+        Model toTest;
+        if (hasHypothesis) {
+            toTest = ModelFactory.createDefaultModel();
+            toTest.add(model).add(hypothesisModel);
+        } else {
+            toTest = model;
+        }
+
+        final Resource report = validator.validateKBAndReturnReport(toTest);
         final boolean valid = ValidateAIF.isValidReport(report);
         final boolean unexpected = valid != expected;
 
         // dump model if result is unexpected or if forced
         if (dumpAlways || unexpected) {
-            dumpModel(testDescription);
+            if (hasHypothesis) {
+                dumpHypothesisAndModel(testDescription, hypothesisModel);
+            } else {
+                dumpModel(testDescription);
+            }
 
             // dump report if should dump AND report is invalid
             if (!valid) {
@@ -459,6 +504,7 @@ class TestUtils {
         if (unexpected) {
             fail("Validation was expected to " + (expected ? "pass" : "fail") + " but did not");
         }
+
         return report;
     }
 }
