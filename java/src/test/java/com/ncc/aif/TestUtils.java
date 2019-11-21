@@ -339,12 +339,6 @@ class TestUtils {
     void testValidWithHypothesis(String testDescription, @Nullable Model hypothesisModel) {
         assertAndDumpWithHypothesis(testDescription, true, hypothesisModel);
     }
-    /**
-     * Return the current validator for this test
-     */
-    ValidateAIF getValidator() {
-        return validator;
-    }
 
     /**
      * Return calling method name from test class.
