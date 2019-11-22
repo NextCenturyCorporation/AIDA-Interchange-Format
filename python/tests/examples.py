@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../'
 import unittest
 
 from io import BytesIO
-from rdflib import URIRef
+from rdflib import URIRef, Graph
 from aida_interchange import aifutils
 from aida_interchange.bounding_box import Bounding_Box
 from aida_interchange.aida_rdf_ontologies import SEEDLING_TYPES_NIST
@@ -15,9 +15,10 @@ from aida_interchange.ldc_time_component import LDCTimeComponent, LDCTimeType
 
 # Running these tests will output the examples to the console
 class Examples(unittest.TestCase):
+    test_dir_path = None
 
     def new_file(self, g, test_name):
-        if self.test_dir_path is not None:
+        if self.test_dir_path:
             f = open(self.test_dir_path + "/" + test_name, "wb+")
             f.write(g.serialize(format='turtle'))
             f.close()
@@ -176,6 +177,113 @@ class Examples(unittest.TestCase):
         self.dump_graph(g, "Relation between two entities with uncertainty about id of one")
 
 
+    def _add_buk_hypothesis(self, g: Graph, buk: URIRef, russia: URIRef, system: URIRef) -> URIRef:
+        apora_relation_type = SEEDLING_TYPES_NIST['GeneralAffiliation.APORA']
+
+        buk_is_russian = aifutils.make_relation(g, "http://www.test.org/relations/buk_is_russian", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/buk_russia_relation_type", buk_is_russian, apora_relation_type, system, 1.0)
+        aifutils.mark_as_argument(g, buk_is_russian, apora_relation_type + '_Affiliate', buk, system, 1.0, "http://www.test.edu/arguments/affiliate_buk")
+        aifutils.mark_as_argument(g, buk_is_russian, apora_relation_type + '_Affiliation', russia, system, 1.0, "http://www.test.edu/arguments/affiliation_russia")
+        return aifutils.make_hypothesis(g, "http://www.test.edu/hypotheses/buk_is_russian", [buk_is_russian], system)
+
+    def test_event_argument_based_on_preexisting_hypothesis(self):
+        g = aifutils.make_graph()
+        g.bind('ldcOnt', SEEDLING_TYPES_NIST.uri)
+
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
+
+        # there is a BUK missile launcher
+        buk = aifutils.make_entity(g, "http://www.test.edu/entites/Buk", system)
+        aifutils.mark_type(g, "http://www.test.org/assertions/buk_type", buk, SEEDLING_TYPES_NIST.Weapon, system, 1.0)
+        # there is a country (Russia)
+        russia = aifutils.make_entity(g, "http://www.test.edu/entities/Russia", system)
+        aifutils.mark_type(g, "http://www.test.org/assertions/russia_type", russia, SEEDLING_TYPES_NIST.GeopoliticalEntity, system, 1.0)
+
+        # add buk_is_russian hypothesis to another model to simulate pre-existence
+        hypo_g = aifutils.make_graph()
+        hypo_g += g
+        buk_is_russian_hypothesis = self._add_buk_hypothesis(hypo_g, buk, russia, system)
+
+        # there is a plane (MH17)
+        mh17 = aifutils.make_entity(g, "http://www.test.edu/entites/MH-17", system)
+        aifutils.mark_type(g, "http://www.test.org/assertions/mh17_type", mh17, SEEDLING_TYPES_NIST.Vehicle, system, 1.0)
+        # the BUK missile launcher was used to attack MH17
+        attack_event_type = SEEDLING_TYPES_NIST['Conflict.Attack']
+        attack_on_mh17 = aifutils.make_event(g, "http://www.test.edu/events/AttackOnMH-17", system)
+        aifutils.mark_type(g, "http://www.test.org/assertions/attck_on_mh17_type", attack_on_mh17, attack_event_type, system, 1.0)
+        aifutils.mark_as_argument(g, attack_on_mh17, attack_event_type + '_Target', mh17, system, 1.0, "http://www.test.org/arguments/mh_17_is_the_target")
+        aifutils.mark_as_argument(g, attack_on_mh17, attack_event_type + '_Instrument', buk, system, 1.0, "http://www.test.org/arguments/buk_is_the_instrument")
+
+        # Mark the attacker argument as dependent on the hypothesis that bob lives in california
+        russia_shot_mh17 = aifutils.mark_as_argument(g, attack_on_mh17, attack_event_type + '_Attacker', russia, system, 1.0, "http://www.test.org/arguments/russia_is_the_attacker")
+        aifutils.mark_depends_on_hypothesis(g, russia_shot_mh17, buk_is_russian_hypothesis)
+
+        # print hypothesis
+        self.new_file(hypo_g, "test_event_argument_based_on_preexisting_hypothesis__hypothesis.ttl")
+        self.dump_graph(hypo_g, "Example of event argument based on pre-existing hypothesis (hypothesis)")
+
+        # print normal graph
+        self.new_file(g, "test_event_argument_based_on_preexisting_hypothesis.ttl")
+        self.dump_graph(g, "Example of event argument based on pre-existing hypothesis")
+
+
+    def _add_bob_hypothesis(self, g: Graph, bob: URIRef, system: URIRef) -> URIRef:
+        california = aifutils.make_entity(g, "http://www.test.edu/entites/California", system)
+        aifutils.mark_type(g, "http://www.test.org/assertions/California_type", california, SEEDLING_TYPES_NIST.GeopoliticalEntity, system, 1.0)
+
+        resident_relation_type = SEEDLING_TYPES_NIST['Physical.Resident']
+
+        bob_lives_in_california = aifutils.make_relation(g, "http://www.test.org/relations/Bob_lives_in_California", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/Bob_California_relation_type", bob_lives_in_california, resident_relation_type, system, 1.0)
+        aifutils.mark_as_argument(g, bob_lives_in_california, resident_relation_type + '_Resident', bob, system, 1.0, "http://www.test.edu/arguments/resident_bob")
+        aifutils.mark_as_argument(g, bob_lives_in_california, resident_relation_type + '_Place', california, system, 1.0, "http://www.test.edu/arguments/place_california")
+        return aifutils.make_hypothesis(g, "http://www.test.edu/hypotheses/Bob_lives_in_California", [bob_lives_in_california], system)
+
+    def test_relation_based_on_preexisting_hypothesis(self):
+        g = aifutils.make_graph()
+        g.bind('ldcOnt', SEEDLING_TYPES_NIST.uri)
+
+        # Every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
+
+        # There is a person, Bob
+        bob = aifutils.make_entity(g, "http://www.test.edu/entites/Bob", system)
+        aifutils.mark_type(g, "http://www.test.org/assertions/Bob_type", bob, SEEDLING_TYPES_NIST.Person, system, 1.0)
+
+        # add bob_lives_in_california hypothesis to another model to simulate pre-existence
+        hypo_g = aifutils.make_graph()
+        hypo_g += g
+        bob_lives_in_california = self._add_bob_hypothesis(hypo_g, bob, system)
+
+        # There is a GPE, California
+        google = aifutils.make_entity(g, "http://www.test.edu/entities/Google", system)
+        aifutils.mark_type(g, "http://www.test.org/assertions/google_type", google, SEEDLING_TYPES_NIST.Organization, system, 1.0)
+
+        # Create a relation stating tha bob works for google
+        bob_works_for_google = aifutils.make_relation(g, "http://www.test.edu/relations/bob_works_for_google", system)
+        aifutils.mark_type(g, "http://www.test.org/assertions/relation_type", bob_works_for_google, SEEDLING_TYPES_NIST['OrganizationAffiliation.EmploymentMembership'], system, 1.0)
+
+        # Add bob and google as arguments to the relation
+        aifutils.mark_as_argument(g, bob_works_for_google,
+            SEEDLING_TYPES_NIST['OrganizationAffiliation.EmploymentMembership'] + '_Employee', bob, system, 1.0,
+            "http://www.test.org/arguments/bob_is_the_employee")
+        aifutils.mark_as_argument(g, bob_works_for_google,
+            SEEDLING_TYPES_NIST['OrganizationAffiliation.EmploymentMembership'] + '_Organization', google, system, 1.0,
+            "http://www.test.org/arguments/google_is_the_organization")
+
+        # Mark the relation as dependent on the hypothesis that bob lives in california
+        aifutils.mark_depends_on_hypothesis(g, bob_works_for_google, bob_lives_in_california)
+
+        # print hypothesis graph
+        self.new_file(hypo_g, "test_relation_based_on_preexisting_hypothesis__hypothesis.ttl")
+        self.dump_graph(hypo_g, "Example of relation based on pre-existing hypothesis (hypothesis)")
+
+        # print normal graph
+        self.new_file(g, "test_relation_based_on_preexisting_hypothesis.ttl")
+        self.dump_graph(g, "Example of relation based on pre-existing hypothesis")
+
+
     def test_two_hypotheses(self):
         g = aifutils.make_graph()
         g.bind('ldcOnt', SEEDLING_TYPES_NIST.uri)
@@ -200,7 +308,6 @@ class Examples(unittest.TestCase):
         city_relation_object = SEEDLING_TYPES_NIST['Physical.Resident'] + '_Place'
         employee_relation_subject = SEEDLING_TYPES_NIST['OrganizationAffiliation.EmploymentMembership'] + '_Employee'
         employee_relation_object = SEEDLING_TYPES_NIST['OrganizationAffiliation.EmploymentMembership'] + '_Organization'
-
 
         # under the background hypothesis that Bob lives in Seattle, we believe he works for Amazon
         bob_lives_in_seattle = aifutils.make_relation_in_event_form(g, "http://www.test.edu/relations/1",

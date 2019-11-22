@@ -11,6 +11,7 @@ import com.google.common.io.Resources;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
@@ -302,6 +303,93 @@ public class ExamplesAndValidationTest {
             utils.testValid("seedling sub-graph confidences");
         }
 
+        private Resource addBobLivesInCaliforniaHypothesisToModel(Model model, String bobUri) {
+            // assume model already has bob
+            final Resource bob = model.createResource(bobUri);
+            final Resource california = makeEntity(model, "http://www.test.edu/entites/California", system);
+            markType(model, "http://www.test.org/assertions/California_type", california, SeedlingOntology.GeopoliticalEntity, system, 1.0);
+            final Resource boblLivesInCalifornia = makeRelation(model, "http://www.test.org/relations/Bob_lives_in_California", system);
+            markType(model, "http://www.test.edu/assertions/bob_california_relation_type", boblLivesInCalifornia, SeedlingOntology.Physical_Resident, system, 1.0);
+            markAsArgument(model, boblLivesInCalifornia, SeedlingOntology.Physical_Resident_Resident, bob, system, 1.0, "http://www.test.org/arguments/resident_Bob");
+            markAsArgument(model, boblLivesInCalifornia, SeedlingOntology.Physical_Resident_Place, california, system, 1.0, "http://www.test.org/arguments/place_California");
+            return makeHypothesis(model, "http://www.test.edu/hypotheses/Bob_lives_in_California", ImmutableSet.of(boblLivesInCalifornia), system);
+        }
+
+        @Test
+        void relationBasedOnPreexistingHypothesis() {
+            // bob is required for the relation model and hypothesis model
+            String bobUri = "http://www.test.edu/entites/Bob";
+            final Resource bob = makeEntity(model, bobUri, system);
+            markType(model, "http://www.test.org/assertions/bob_type", bob, SeedlingOntology.Person, system, 1.0);
+
+            // add hypothesis to another model to simulate pre-existence
+            Model hypoModel = ModelFactory.createDefaultModel().add(model);
+            final Resource bobLivesInCaliforniaHypothesis = addBobLivesInCaliforniaHypothesisToModel(hypoModel, bobUri);
+
+            // create Google resource
+            final Resource google = makeEntity(model, "http://www.test.edu/entites/Google", system);
+            markType(model, "http://www.test.org/assertions/google_type", google, SeedlingOntology.Organization, system, 1.0);
+
+            // create a relation stating tha bob works for google
+            final Resource bobWorksForGoogle = makeRelation(model, "http://www.test.edu/relations/bob_works_for_google", system);
+            markType(model, "http://www.test.edu/assertions/bob_google_relation_type", bobWorksForGoogle, SeedlingOntology.OrganizationAffiliation_EmploymentMembership, system, 1.0);
+
+            // add bob and google as arguments to the relation
+            markAsArgument(model, bobWorksForGoogle, SeedlingOntology.OrganizationAffiliation_EmploymentMembership_Employee, bob, system, 1.0, "http://www.test.org/arguments/employee_Bob");
+            markAsArgument(model, bobWorksForGoogle, SeedlingOntology.OrganizationAffiliation_EmploymentMembership_Organization, google, system, 1.0, "http://www.test.org/arguments/organization_Google");
+
+            // mark the relation as dependent on the hypothesis that bob lives in california
+            markDependsOnHypothesis(bobWorksForGoogle, bobLivesInCaliforniaHypothesis);
+
+            // As model is now not valid AIF, must validate using both model and hypoModel
+            utils.testValidWithHypothesis("relation based on pre-existing hypothesis", hypoModel);
+        }
+
+        private Resource addBukIsRussianHypothesisToModel(Model model, String bukUri, String russiaUri) {
+            // assume model already has buk and russia
+            final Resource buk = model.createResource(bukUri);
+            final Resource russia = model.createResource(russiaUri);
+            final Resource bukIsRussian = makeRelation(model, russiaOwnsBukDocumentRelationUri, system);
+            markType(model, utils.getAssertionUri(), bukIsRussian, SeedlingOntology.GeneralAffiliation_APORA, system, 1.0);
+            markAsArgument(model, bukIsRussian, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, buk, system, 1.0);
+            markAsArgument(model, bukIsRussian, SeedlingOntology.GeneralAffiliation_APORA_Affiliation, russia, system, 1.0);
+            return makeHypothesis(model, utils.getHypothesisUri(), ImmutableSet.of(bukIsRussian), system);
+        }
+
+        @Test
+        void eventArgumentBasedOnPreexistingHypothesis() {
+            // Both the BUK and Russia are required for both hypothesis and event
+            final Resource buk = makeEntity(model, bukDocumentEntityUri, system);
+            markType(model, utils.getAssertionUri(), buk, SeedlingOntology.Weapon, system, 1.0);
+
+            final Resource russia = makeEntity(model, russiaDocumentEntityUri, system);
+            markType(model, utils.getAssertionUri(), russia, SeedlingOntology.GeopoliticalEntity, system, 1.0);
+
+            // Add hypothesis to another model to simulate pre-existence
+            Model hypoModel = ModelFactory.createDefaultModel().add(model);
+            final Resource bukIsRussianHypothesis = addBukIsRussianHypothesisToModel(hypoModel, bukDocumentEntityUri, russiaDocumentEntityUri);
+
+            // Create event and event arguments
+            final Resource mh17 = makeEntity(model, mh17DocumentEntityUri, system);
+            markType(model, utils.getAssertionUri(), mh17, SeedlingOntology.Vehicle, system, 1.0);
+
+            final Resource attackOnMH17 = makeEvent(model, mh17AttackDocumentEventUri, system);
+            markType(model, utils.getAssertionUri(), attackOnMH17, SeedlingOntology.Conflict_Attack,
+                    system, 1.0);
+            markAsArgument(model, attackOnMH17, SeedlingOntology.Conflict_Attack_Target,
+                    mh17, system, null);
+            markAsArgument(model, attackOnMH17, SeedlingOntology.Conflict_Attack_Instrument,
+                    buk, system, null);
+
+            // Mark attacker argument as dependent on hypothesis
+            final Resource russiaShotMH17 = markAsArgument(model, attackOnMH17, SeedlingOntology.Conflict_Attack_Attacker, russia, system, 1.0);
+            markDependsOnHypothesis(russiaShotMH17, bukIsRussianHypothesis);
+            markConfidence(model, bukIsRussianHypothesis, 0.75, system);
+
+            // As model is now not valid AIF, must validate using both model and hypoModel
+            utils.testValidWithHypothesis("event argument based on pre-existing hypothesis", hypoModel);
+        }
+
         @Test
         void twoSeedlingHypotheses() {
             // we want to represent that we know, regardless of hypothesis, that there is a BUK missile launcher,
@@ -329,13 +417,7 @@ public class ExamplesAndValidationTest {
             final Resource isAttacker = SeedlingOntology.Conflict_Attack_Attacker;
 
             // under the background hypothesis that the BUK is Russian, we believe Russia attacked MH17
-            final Resource bukIsRussian = makeRelation(model, russiaOwnsBukDocumentRelationUri, system);
-            markType(model, utils.getAssertionUri(), bukIsRussian, SeedlingOntology.GeneralAffiliation_APORA, system, 1.0);
-            markAsArgument(model, bukIsRussian, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, buk, system, 1.0);
-            markAsArgument(model, bukIsRussian, SeedlingOntology.GeneralAffiliation_APORA_Affiliation, russia, system, 1.0);
-
-            final Resource bukIsRussianHypothesis = makeHypothesis(model, utils.getHypothesisUri(),
-                    ImmutableSet.of(bukIsRussian), system);
+            final Resource bukIsRussianHypothesis = addBukIsRussianHypothesisToModel(model, bukDocumentEntityUri, russiaDocumentEntityUri);
             final Resource russiaShotMH17 = markAsArgument(model, attackOnMH17, isAttacker, russia, system, 1.0);
             markDependsOnHypothesis(russiaShotMH17, bukIsRussianHypothesis);
             markConfidence(model, bukIsRussianHypothesis, 0.75, system);
