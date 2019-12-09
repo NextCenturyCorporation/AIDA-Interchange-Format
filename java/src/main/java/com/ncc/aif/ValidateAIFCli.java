@@ -83,6 +83,9 @@ public class ValidateAIFCli implements Callable<Integer> {
     private static final int DEFAULT_DEPTH = 50;
     private static final int MINIMUM_DEPTH = 1;
 
+    //Hypothesis
+    private static final String DEAFULT_HYPOTHESIS_SIZE = "5"; //MB
+
     // Profiling
     private static final int LONG_QUERY_THRESH = 2000;
     // Threading
@@ -114,7 +117,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     @Option(names = "--nist-ta3", description = "Validate against the NIST hypothesis restrictions (implies --nist)")
     private boolean useNISTTA3Rescriction;
 
-    @Option(names = "--hypothesis-max-size", defaultValue = "5", description = "The maximum size of a hypothesis file in MB, default is 5",
+    @Option(names = "--hypothesis-max-size", defaultValue = DEAFULT_HYPOTHESIS_SIZE, description = "The maximum size of a hypothesis file in MB, default is 5",
             arity = "1", converter = HypothesisMaxSizeConverter.class)
     private int hypothesisMaxSize;
 
@@ -122,9 +125,14 @@ public class ValidateAIFCli implements Callable<Integer> {
         @Override
         public Integer convert(String value) {
             try {
-                return "".equals(value) ? DEFAULT_DEPTH : Integer.parseInt(value);
+                Integer size = "".equals(value) ? Integer.valueOf(DEAFULT_HYPOTHESIS_SIZE) : Integer.parseInt(value);
+
+                if (size < 0 ) {
+                    throw new IllegalArgumentException();
+                }
+                return size;
             } catch (Exception ex) {
-                throw new CommandLine.TypeConversionException(String.format(ERR_BAD_ARGTYPE, value, Integer.TYPE.getSimpleName()));
+                throw new CommandLine.TypeConversionException(String.format(ERR_BAD_ARGTYPE, value, "positive integer"));
             }
         }
     }
