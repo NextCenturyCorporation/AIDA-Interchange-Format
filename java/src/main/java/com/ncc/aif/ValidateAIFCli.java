@@ -110,6 +110,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     @Option(names = "--nist", description = "Validate against the NIST restrictions")
     private boolean useNISTRestriction;
 
+    //TODO: When picocli 4.0 is stable, make this an ArgGroup to enforce mutual exclusivity
     @Option(names = "--nist-ta3", description = "Validate against the NIST hypothesis restrictions (implies --nist)")
     private boolean useNISTTA3Rescriction;
 
