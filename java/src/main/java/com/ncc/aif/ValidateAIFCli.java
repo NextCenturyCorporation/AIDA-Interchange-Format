@@ -114,7 +114,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     private boolean useNISTTA3Rescriction;
 
     @Option(names = "--hypothesis-max-size", defaultValue = "5", description = "The maximum size of a hypothesis file in MB, default is 5",
-            converter = HypothesisMaxSizeConverter.class)
+            arity = "1", converter = HypothesisMaxSizeConverter.class)
     private int hypothesisMaxSize;
 
     private static class HypothesisMaxSizeConverter implements CommandLine.ITypeConverter<Integer> {
