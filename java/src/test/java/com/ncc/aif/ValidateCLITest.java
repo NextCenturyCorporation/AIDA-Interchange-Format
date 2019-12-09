@@ -139,6 +139,19 @@ public class ValidateCLITest {
     }
 
     @Nested
+    class HypothesisMaxSizeArgument {
+        @Test
+        void hypothesisMaxSizeBadType() {
+            expectUsageError(ValidateAIFCli.ERR_BAD_ARGTYPE.replaceAll("%.", ""),
+                    "--ldc", "--hypothesis-max-size", "s", "-t", "2", "-f", "tmp.ttl");
+        }
+        @Test
+        void hypothesisMaxSizeValid() {
+            expectCorrect("--ldc", "--hypothesis-max-size", "10", "-t=2", "-f", "tmp.ttl");
+        }
+    }
+
+    @Nested
     class ThreadArgument {
         @Test
         void threadsTooLow() {
