@@ -113,6 +113,21 @@ public class ValidateAIFCli implements Callable<Integer> {
     @Option(names = "--nist-ta3", description = "Validate against the NIST hypothesis restrictions (implies --nist)")
     private boolean useNISTTA3Rescriction;
 
+    @Option(names = "--hypothesis-max-size", defaultValue = "5", description = "The maximum size of a hypothesis file in MB, default is 5MB",
+            converter = HypothesisMaxSizeConverter.class)
+    private int hypothesisMaxSize;
+
+    private static class HypothesisMaxSizeConverter implements CommandLine.ITypeConverter<Integer> {
+        @Override
+        public Integer convert(String value) {
+            try {
+                return "".equals(value) ? DEFAULT_DEPTH : Integer.parseInt(value);
+            } catch (Exception ex) {
+                throw new CommandLine.TypeConversionException(String.format(ERR_BAD_ARGTYPE, value, Integer.TYPE.getSimpleName()));
+            }
+        }
+    }
+
     @Option(names = "--abort", description = "Abort validation after [num] SHACL violations (num > 2), or 3 violations if [num] is omitted.",
             paramLabel = "num", arity = "0..1", converter = MaxErrorConverter.class)
     private int maxValidationErrors = Integer.MIN_VALUE; // Don't fail-fast by default
@@ -134,7 +149,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     private int depth = Integer.MIN_VALUE; // Don't perform shallow validation by default
 
     private static class DepthConverter implements CommandLine.ITypeConverter<Integer> {
-        @Override
+        @Overridegit
         public Integer convert(String value) {
             try {
                 return "".equals(value) ? DEFAULT_DEPTH : Integer.parseInt(value);
@@ -364,7 +379,7 @@ public class ValidateAIFCli implements Callable<Integer> {
             } else {
                 dataToBeValidated = ModelFactory.createDefaultModel();
             }
-            boolean notSkipped = ((restriction != ValidateAIF.Restriction.NIST_TA3) || checkHypothesisSize(fileToValidate))
+            boolean notSkipped = ((restriction != ValidateAIF.Restriction.NIST_TA3) || checkHypothesisSize(fileToValidate, hypothesisMaxSize))
                     && loadFile(dataToBeValidated, fileToValidate);
             if (notSkipped) {
                 if (profiling) {
@@ -527,12 +542,12 @@ public class ValidateAIFCli implements Callable<Integer> {
     }
 
     // Return false if file is > 5MB or size couldn't be determined, otherwise true
-    private static boolean checkHypothesisSize(File fileToValidate) {
+    private static boolean checkHypothesisSize(File fileToValidate, int maxHypothesisSize) {
         try {
             final Path path = Paths.get(fileToValidate.toURI());
             final long fileSize = Files.size(path);
-            if (fileSize > 1024 * 1024 * 5) { // 5MB
-                logger.warn("---> Hypothesis KB " + fileToValidate + " is more than 5MB (" + fileSize + " bytes); skipping.");
+            if (fileSize > (1024 * 1024 * maxHypothesisSize)) {
+                logger.warn("---> Hypothesis KB " + fileToValidate + " is more than " + maxHypothesisSize + "MB (" + fileSize + " bytes); skipping.");
                 return false;
             } else {
                 return true;
