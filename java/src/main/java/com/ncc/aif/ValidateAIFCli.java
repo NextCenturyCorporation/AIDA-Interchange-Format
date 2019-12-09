@@ -113,7 +113,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     @Option(names = "--nist-ta3", description = "Validate against the NIST hypothesis restrictions (implies --nist)")
     private boolean useNISTTA3Rescriction;
 
-    @Option(names = "--hypothesis-max-size", defaultValue = "5", description = "The maximum size of a hypothesis file in MB, default is 5MB",
+    @Option(names = "--hypothesis-max-size", defaultValue = "5", description = "The maximum size of a hypothesis file in MB, default is 5",
             converter = HypothesisMaxSizeConverter.class)
     private int hypothesisMaxSize;
 
