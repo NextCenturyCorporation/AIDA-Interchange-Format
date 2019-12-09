@@ -149,7 +149,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     private int depth = Integer.MIN_VALUE; // Don't perform shallow validation by default
 
     private static class DepthConverter implements CommandLine.ITypeConverter<Integer> {
-        @Overridegit
+        @Override
         public Integer convert(String value) {
             try {
                 return "".equals(value) ? DEFAULT_DEPTH : Integer.parseInt(value);
