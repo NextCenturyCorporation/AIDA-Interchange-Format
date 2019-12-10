@@ -83,6 +83,9 @@ public class ValidateAIFCli implements Callable<Integer> {
     private static final int DEFAULT_DEPTH = 50;
     private static final int MINIMUM_DEPTH = 1;
 
+    //Hypothesis
+    private static final String DEFAULT_HYPOTHESIS_SIZE = "5"; //MB
+
     // Profiling
     private static final int LONG_QUERY_THRESH = 2000;
     // Threading
@@ -110,8 +113,29 @@ public class ValidateAIFCli implements Callable<Integer> {
     @Option(names = "--nist", description = "Validate against the NIST restrictions")
     private boolean useNISTRestriction;
 
+    //TODO: When picocli 4.0 is stable, make this an ArgGroup to enforce mutual exclusivity
     @Option(names = "--nist-ta3", description = "Validate against the NIST hypothesis restrictions (implies --nist)")
     private boolean useNISTTA3Rescriction;
+
+    @Option(names = "--hypothesis-max-size", defaultValue = DEFAULT_HYPOTHESIS_SIZE, description = "The maximum size of a hypothesis file in MB, default is 5",
+            arity = "1", converter = HypothesisMaxSizeConverter.class)
+    private int hypothesisMaxSize;
+
+    private static class HypothesisMaxSizeConverter implements CommandLine.ITypeConverter<Integer> {
+        @Override
+        public Integer convert(String value) {
+            try {
+                Integer size = "".equals(value) ? Integer.parseInt(DEFAULT_HYPOTHESIS_SIZE) : Integer.parseInt(value);
+
+                if (size < 0 ) {
+                    throw new IllegalArgumentException();
+                }
+                return size;
+            } catch (Exception ex) {
+                throw new CommandLine.TypeConversionException(String.format(ERR_BAD_ARGTYPE, value, "positive integer"));
+            }
+        }
+    }
 
     @Option(names = "--abort", description = "Abort validation after [num] SHACL violations (num > 2), or 3 violations if [num] is omitted.",
             paramLabel = "num", arity = "0..1", converter = MaxErrorConverter.class)
@@ -364,7 +388,7 @@ public class ValidateAIFCli implements Callable<Integer> {
             } else {
                 dataToBeValidated = ModelFactory.createDefaultModel();
             }
-            boolean notSkipped = ((restriction != ValidateAIF.Restriction.NIST_TA3) || checkHypothesisSize(fileToValidate))
+            boolean notSkipped = ((restriction != ValidateAIF.Restriction.NIST_TA3) || checkHypothesisSize(fileToValidate, hypothesisMaxSize))
                     && loadFile(dataToBeValidated, fileToValidate);
             if (notSkipped) {
                 if (profiling) {
@@ -527,12 +551,12 @@ public class ValidateAIFCli implements Callable<Integer> {
     }
 
     // Return false if file is > 5MB or size couldn't be determined, otherwise true
-    private static boolean checkHypothesisSize(File fileToValidate) {
+    private static boolean checkHypothesisSize(File fileToValidate, int maxHypothesisSize) {
         try {
             final Path path = Paths.get(fileToValidate.toURI());
             final long fileSize = Files.size(path);
-            if (fileSize > 1024 * 1024 * 5) { // 5MB
-                logger.warn("---> Hypothesis KB " + fileToValidate + " is more than 5MB (" + fileSize + " bytes); skipping.");
+            if (fileSize > (1024 * 1024 * maxHypothesisSize)) {
+                logger.warn("---> Hypothesis KB " + fileToValidate + " is more than " + maxHypothesisSize + "MB (" + fileSize + " bytes); skipping.");
                 return false;
             } else {
                 return true;
