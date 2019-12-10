@@ -49,7 +49,7 @@ Usage:  <br>
 |`--ont=FILE ...` | validate against the OWL-formatted ontolog(ies) at the specified filename(s) |
 |`--nist` | validate against the NIST restrictions |
 |`--nist-ta3` | validate against the NIST hypothesis restrictions (implies `--nist`) |
-|`--hypothesis-max-size=num` | Specify the maximum size of a hypothesis file in MB when validating against the NIST hypothesis restrictions (`--nist-ta3`). Default is 5 |
+|`--hypothesis-max-size=<hypothesisMaxSize>` | Specify the maximum size of a hypothesis file in MB when validating against the NIST hypothesis restrictions (`--nist-ta3`). Default is 5 |
 |`--abort[=num]` | Abort validation after `[num]` SHACL violations (num > 2), or three violations if `[num]` is omitted. |
 |`--depth[=num]` | Perform shallow validation in which each SHACL rule (shape) is only applied to `[num]` target nodes, or 50 nodes if `[num]` is omitted (requires -t). |
 |`--pm` | Enable progress monitor that shows ongoing validation progress.  If `-t` is specified, then thread metrics are provided post-validation instead. |

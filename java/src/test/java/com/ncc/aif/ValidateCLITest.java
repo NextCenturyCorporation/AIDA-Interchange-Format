@@ -148,7 +148,7 @@ public class ValidateCLITest {
         @Test
         void hypothesisMaxSizeNegative() {
             expectUsageError(ValidateAIFCli.ERR_BAD_ARGTYPE.replaceAll("%.", ""),
-                    "--ldc", "--hypothesis-max-size", "s", "-10", "2", "-f", "tmp.ttl");
+                    "--ldc", "--hypothesis-max-size", "-10", "2", "-f", "tmp.ttl");
         }
         @Test
         void hypothesisMaxSizeValid() {
