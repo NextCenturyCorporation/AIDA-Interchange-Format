@@ -79,7 +79,12 @@ $ chmod +x run.sh
 $ ./run.sh
 ```
 
+### Compute Environment AMI
+
+There is the possibility that the default AMI used to deploy the Batch Single Docker container via AWS Batch does not meet your specific requirements. In the event that this occurs, you must [create a custom resource AMI](https://docs.aws.amazon.com/batch/latest/userguide/create-batch-ami.html) and configure your AWS Batch job to use it. This can be achieved by creating a new AWS Batch compute environment and specifying the AMI ID for the `imageId` configuration. A common use case for a custom AMI is if you require a larger root volume than the default AMI which set to 10 GB.
+
 ## Batch Initializer
 
 The Batch Initializer Docker image is responsible for taking in a single AIF Validation archive submission, running validation on the submission format and contents, and submitting jobs to AWS Batch for validation. Once the Batch Initializer has submitted the job, AWS Batch will automatically start the Batch Single Docker image with the appropriately populated information. More information about the Batch Initializer Docker image see [Batch Initialization Docker](https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/blob/master/docker/batch-init/README.md)
+
 
