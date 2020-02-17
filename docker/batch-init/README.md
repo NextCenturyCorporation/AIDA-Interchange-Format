@@ -60,9 +60,12 @@ To run the Batch Initializer Docker container, copy the `run.sh.example` script 
 | `S3_VALIDATION_BUCKET`       | The S3 bucket where the validation results should be uploaded to | 
 | `S3_VALIDATION_PREFIX`       | The directory to place the validation results in the `S3_VALIDATION_BUCKET` |    
 | `BATCH_NUM_NODES`        	 | The number of nodes to deploy the AWS Batch job on. *This must match the number of nodes entered when deploying the AWS Batch infrastructure via CloudFormation |  
-| `BATCH_JOB_DEFINITION`       | The AWS Batch job definition to use when executing the validation job |  
-| `BATCH_JOB_QUEUE`     		 | The AWS Batch job queue to use when executing the validation job |  
-| `AWS_SNS_TOPIC_ARN`     	 | The AWS SNS topic to push notifications to during the AWS Batch validation job |  
+| `BATCH_JOB_DEFINITION`       | The AWS Batch job definition to use when executing the validation job |
+| `BATCH_JOB_QUEUE`     		 | The AWS Batch job queue to use when executing the validation job |
+| `AWS_SNS_TOPIC_ARN`     	 | The AWS SNS topic to push notifications to during the AWS Batch validation job |
+| `AWS_DEFAULT_REGION`       | The default AWS region to use during the AWS Batch validation job |
+| `NIST_VALIDATION_FLAG`     | The validation flags to pass to the validator, e.g., `--ldc --nist -o --disk` |
+| `JAVA_OPTS`                | The Java options to pass to the AWS Batch validation job, e.g, `-Xmx10G'` |
 
 Execute the run script with:
 
@@ -99,7 +102,10 @@ To run the Batch Scheduler Docker container, copy the `run-scheduler.sh.example`
 | `BATCH_NUM_NODES`        	 | The number of nodes to deploy the AWS Batch job on. *This must match the number of nodes entered when deploying the AWS Batch infrastructure via CloudFormation |  
 | `BATCH_JOB_DEFINITION`       | The AWS Batch job definition to use when executing the validation job |  
 | `BATCH_JOB_QUEUE`     		 | The AWS Batch job queue to use when executing the validation job |  
-| `AWS_SNS_TOPIC_ARN`     	 | The AWS SNS topic to push notifications to during the AWS Batch validation job |  
+| `AWS_SNS_TOPIC_ARN`     	 | The AWS SNS topic to push notifications to during the AWS Batch validation job |
+| `AWS_DEFAULT_REGION`       | The default AWS region to use during the AWS Batch validation job |
+| `NIST_VALIDATION_FLAG`     | The validation flags to pass to the validator, e.g., `--ldc --nist -o --disk` |
+| `JAVA_OPTS`                | The Java options to pass to the AWS Batch validation job, e.g, `-Xmx10G'` |
 
 Execute the run script with:
 ```bash
@@ -115,7 +121,7 @@ The Batch Scheduler Docker container can be set up to run via cron job at a spec
 crontab -e
 ```
 
-Once the crontab editor has opened, add the following line and save. You will need to replace `<your-path>` with the the full path to the `run-scheduler.sh` script on your machine. By default, the log of the cron job will be placed in `/tmp/run-scheduler.log`. You can update this path to write the logs to any valid path on your machine. 
+Once the crontab editor has opened, add the following line and save. You will need to replace `<your-path>` with the full path to the `run-scheduler.sh` script on your machine. By default, the log of the cron job will be placed in `/tmp/run-scheduler.log`. You can update this path to write the logs to any valid path on your machine. 
 
 Cron is driven by a time specification denoted by the five `*` at the beginning of the command. To specify a time when you would like your `run-scheduler.sh` script to be executed you will need to modify this command. More information on this specification can be found on the [Cron](https://en.wikipedia.org/wiki/Cron) wiki.
 
