@@ -121,7 +121,7 @@ The Batch Scheduler Docker container can be set up to run via cron job at a spec
 crontab -e
 ```
 
-Once the crontab editor has opened, add the following line and save. You will need to replace `<your-path>` with the the full path to the `run-scheduler.sh` script on your machine. By default, the log of the cron job will be placed in `/tmp/run-scheduler.log`. You can update this path to write the logs to any valid path on your machine. 
+Once the crontab editor has opened, add the following line and save. You will need to replace `<your-path>` with the full path to the `run-scheduler.sh` script on your machine. By default, the log of the cron job will be placed in `/tmp/run-scheduler.log`. You can update this path to write the logs to any valid path on your machine. 
 
 Cron is driven by a time specification denoted by the five `*` at the beginning of the command. To specify a time when you would like your `run-scheduler.sh` script to be executed you will need to modify this command. More information on this specification can be found on the [Cron](https://en.wikipedia.org/wiki/Cron) wiki.
 
