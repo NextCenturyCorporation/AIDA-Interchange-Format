@@ -68,13 +68,13 @@ To run the Batch Single Docker container, copy the `run.sh.example` script to a 
 | `AWS_BATCH_JOB_NODE_INDEX`       | The node ID assigned to current node from AWS Batch |  
 | `AWS_SNS_TOPIC_ARN`       | The AWS SNS topic to push notifications to during the AWS Batch validation job |   
 | `AWS_DEFAULT_REGION`       | The default AWS region |        
-| `MAIN_SLEEP_INTERVAL`        	 | Interval for the main to monitor the SQS queue for depletion |  
+| `MAIN_SLEEP_INTERVAL`        	 | Interval for main to monitor the SQS queue for depletion |  
 | `QUEUE_INIT_TIMEOUT`       | The time in seconds to wait for an SQS queue to become available |  
 | `VALIDATION_TIMEOUT`     		 | 	The time in seconds to wait for AIF Validation to complete on a single file |  
 | `WORKER_INIT_TIMEOUT`     	 | The time in seconds to wait for the worker to initialize |
 | `DEBUG` | Runs Batch Single in debug  mode | 
 | `DEBUG_TIMEOUT`     	 | The time in seconds to wait for AIF Validation to complete in debug mode | 
-| `DEBUG_SLEEP_INTERVAL` | Interval for the main to monitor the SQS queue for depletion in debug mode | 
+| `DEBUG_SLEEP_INTERVAL` | Interval for main to monitor the SQS queue for depletion in debug mode | 
 | `VALIDATION_HOME`     	 | The default local path of the AIF Validator java executable |  
 | `VALIDATION_FLAGS`     	 | The validation flags that will be passed to the AIF Validator upon execution |
 
