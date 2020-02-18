@@ -1,5 +1,6 @@
 package com.ncc.aif;
 
+import ch.qos.logback.classic.Logger;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.*;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
  */
 public class ThreadedValidationEngine extends ValidationEngine {
     private static boolean initialized = false;
+    private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
     private static void initializeSHComponents() {
         if (!initialized) {
             FunctionRegistry.get().put(TOSH.hasShape.getURI(), ThreadSafeHasShapeFunction.class);
@@ -98,6 +100,8 @@ public class ThreadedValidationEngine extends ValidationEngine {
         }
 
         public void add(ConstraintTaskMetadata cmd) {
+            logger.debug("Completed " + shapeName + ":" + cmd.constraintName +
+                    ", t=" + cmd.threadName + ", d=" + cmd.duration);
             totalDuration += cmd.duration;
             violations += cmd.violations;
             reports.add(cmd.report);
@@ -207,7 +211,7 @@ public class ThreadedValidationEngine extends ValidationEngine {
 //        if (monitor != null) {
 //            monitor.beginTask("Validating " + rootShapes.size() + " shapes", rootShapes.size());
 //        }
-
+            logger.debug("Validating " + rootShapes.size() + " shapes.");
             int i = 0;
             for (Shape shape : rootShapes) {
                 validationMetadata.add(executor.submit(getShapeTask(shape, i++, executor)));
@@ -310,14 +314,22 @@ public class ThreadedValidationEngine extends ValidationEngine {
             if (!ignored) {
                 List<RDFNode> focusNodes = SHACLUtil.getTargetNodes(shape.getShapeResource(), dataset);
                 smd.targetCount = focusNodes.size();
+                if (smd.targetCount > 0) {
+                    logger.debug("Collected " + smd.targetCount + " target node(s) for " +
+                            shape.getShapeResource().getLocalName() + ", d=" + (System.currentTimeMillis() - start));
+                }
 
                 List<RDFNode> filtered = focusNodeFilter != null ?
                         focusNodes.stream().filter(focusNodeFilter).collect(Collectors.toList()) :
                         focusNodes;
                 smd.filteredTargetCount = filtered.size();
+                if (smd.targetCount != smd.filteredTargetCount) {
+                    logger.debug("--> After filter, " + smd.filteredTargetCount + " node(s) remain.");
+                }
 
                 if (maxDepth > 0 && smd.filteredTargetCount > maxDepth) {
                     filtered = filtered.subList(0, maxDepth-1);
+                    logger.debug("--> Shallow validation truncating to " + maxDepth + " nodes.");
                 }
 
                 if (!filtered.isEmpty()) {
@@ -337,6 +349,7 @@ public class ThreadedValidationEngine extends ValidationEngine {
             threadViolations.set(0);
             try {
                 if (!isStopped) {
+                    logger.debug("Validating " + focusNodes.size() + " node(s) against " + constraint.toString());
                     validateNodesAgainstConstraint(focusNodes, constraint);
                 }
             } catch (MaximumNumberViolations e) {
