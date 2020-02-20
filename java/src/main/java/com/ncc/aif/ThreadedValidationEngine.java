@@ -100,8 +100,6 @@ public class ThreadedValidationEngine extends ValidationEngine {
         }
 
         public void add(ConstraintTaskMetadata cmd) {
-            logger.debug("Completed " + shapeName + ":" + cmd.constraintName +
-                    ", t=" + cmd.threadName + ", d=" + cmd.duration);
             totalDuration += cmd.duration;
             violations += cmd.violations;
             reports.add(cmd.report);
@@ -356,10 +354,12 @@ public class ThreadedValidationEngine extends ValidationEngine {
                 isStopped = true;
             }
 
+            final long duration = System.currentTimeMillis() - start;
+            logger.debug("Completed " + constraint.toString() + ", d=" + duration);
             return new ConstraintTaskMetadata(
                     Thread.currentThread().getName(),
                     ConstraintTaskMetadata.getName(constraint),
-                    System.currentTimeMillis() - start,
+                    duration,
                     threadReport.get(),
                     threadViolations.get());
         };
