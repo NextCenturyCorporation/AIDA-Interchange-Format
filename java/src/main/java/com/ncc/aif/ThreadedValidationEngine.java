@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  */
 public class ThreadedValidationEngine extends ValidationEngine {
     private static boolean initialized = false;
-    private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
+    private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(ThreadedValidationEngine.class));
     private static void initializeSHComponents() {
         if (!initialized) {
             FunctionRegistry.get().put(TOSH.hasShape.getURI(), ThreadSafeHasShapeFunction.class);

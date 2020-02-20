@@ -23,7 +23,6 @@ import picocli.CommandLine;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
-import javax.security.auth.login.LoginException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -74,7 +73,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     // Internal Constants
     // ----------------------------
     // Logger
-    public static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
+    private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME));
     // ViolationThreshold
     private static final String ABORT_PARAMETER_STRING = "Abort parameter";
     private static final int DEFAULT_MAX_VIOLATIONS = 3;
@@ -343,9 +342,8 @@ public class ValidateAIFCli implements Callable<Integer> {
             validator.setThreadCount(threads);
         }
         if (debugOutput) {
-            logger.setLevel(Level.DEBUG);
-            // Suppress hundreds of thousands of Jena LockMRSW lock messages.
-            ((Logger) (org.slf4j.LoggerFactory.getLogger(org.apache.jena.shared.LockMRSW.class))).setLevel(Level.INFO);;
+            logger.info("-> Multi-threaded validation debugging output enabled.");
+            ((Logger) (org.slf4j.LoggerFactory.getLogger(ThreadedValidationEngine.class))).setLevel(Level.DEBUG);;
         }
         if (depthSet) {
             logger.info("-> Performing shallow validation on " + depth + " target node(s) per rule.");
