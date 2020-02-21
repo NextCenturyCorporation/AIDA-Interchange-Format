@@ -209,7 +209,7 @@ public class ThreadedValidationEngine extends ValidationEngine {
 //        if (monitor != null) {
 //            monitor.beginTask("Validating " + rootShapes.size() + " shapes", rootShapes.size());
 //        }
-            logger.debug("Validating " + rootShapes.size() + " shapes.");
+            logger.debug("Validating {} shapes.", rootShapes.size());
             int i = 0;
             for (Shape shape : rootShapes) {
                 validationMetadata.add(executor.submit(getShapeTask(shape, i++, executor)));
@@ -312,22 +312,21 @@ public class ThreadedValidationEngine extends ValidationEngine {
             if (!ignored) {
                 List<RDFNode> focusNodes = SHACLUtil.getTargetNodes(shape.getShapeResource(), dataset);
                 smd.targetCount = focusNodes.size();
-                if (smd.targetCount > 0) {
-                    logger.debug("Collected " + smd.targetCount + " target node(s) for " +
-                            shape.getShapeResource().getLocalName() + ", d=" + (System.currentTimeMillis() - start));
-                }
 
                 List<RDFNode> filtered = focusNodeFilter != null ?
                         focusNodes.stream().filter(focusNodeFilter).collect(Collectors.toList()) :
                         focusNodes;
                 smd.filteredTargetCount = filtered.size();
-                if (smd.targetCount != smd.filteredTargetCount) {
-                    logger.debug("--> After filter, " + smd.filteredTargetCount + " node(s) remain.");
+
+                if (smd.targetCount > 0) {
+                    logger.debug("Collected {} target node(s) {}for {}, d={}", smd.targetCount,
+                            (smd.targetCount == smd.filteredTargetCount) ? "" : "(" + smd.filteredTargetCount + " after filter) ",
+                            shape.getShapeResource().getLocalName(), (System.currentTimeMillis() - start));
                 }
 
                 if (maxDepth > 0 && smd.filteredTargetCount > maxDepth) {
-                    filtered = filtered.subList(0, maxDepth-1);
-                    logger.debug("--> Shallow validation truncating to " + maxDepth + " nodes.");
+                    filtered = filtered.subList(0, maxDepth);
+                    logger.debug("--> Shallow validation truncating to {} nodes.", maxDepth);
                 }
 
                 if (!filtered.isEmpty()) {
@@ -347,7 +346,9 @@ public class ThreadedValidationEngine extends ValidationEngine {
             threadViolations.set(0);
             try {
                 if (!isStopped) {
-                    logger.debug("Validating " + focusNodes.size() + " node(s) against " + constraint.toString());
+                    logger.debug("Validating {} node(s) against {}, r={}", focusNodes.size(), constraint.toString(),
+                            constraint.getParameterValue() != null && constraint.getParameterValue().isResource() ?
+                                    constraint.getParameterValue().asResource().getLocalName() : "");
                     validateNodesAgainstConstraint(focusNodes, constraint);
                 }
             } catch (MaximumNumberViolations e) {
@@ -355,7 +356,10 @@ public class ThreadedValidationEngine extends ValidationEngine {
             }
 
             final long duration = System.currentTimeMillis() - start;
-            logger.debug("Completed " + constraint.toString() + ", d=" + duration);
+            logger.debug("Completed {}, r={}, d={}", constraint.toString(),
+                    constraint.getParameterValue() != null && constraint.getParameterValue().isResource() ?
+                            constraint.getParameterValue().asResource().getLocalName() : "", duration);
+
             return new ConstraintTaskMetadata(
                     Thread.currentThread().getName(),
                     ConstraintTaskMetadata.getName(constraint),
