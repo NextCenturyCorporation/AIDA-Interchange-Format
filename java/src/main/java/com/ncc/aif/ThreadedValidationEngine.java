@@ -1,5 +1,6 @@
 package com.ncc.aif;
 
+import ch.qos.logback.classic.Logger;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.*;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
  */
 public class ThreadedValidationEngine extends ValidationEngine {
     private static boolean initialized = false;
+    private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger(ThreadedValidationEngine.class));
     private static void initializeSHComponents() {
         if (!initialized) {
             FunctionRegistry.get().put(TOSH.hasShape.getURI(), ThreadSafeHasShapeFunction.class);
@@ -207,7 +209,7 @@ public class ThreadedValidationEngine extends ValidationEngine {
 //        if (monitor != null) {
 //            monitor.beginTask("Validating " + rootShapes.size() + " shapes", rootShapes.size());
 //        }
-
+            logger.debug("Validating {} shapes.", rootShapes.size());
             int i = 0;
             for (Shape shape : rootShapes) {
                 validationMetadata.add(executor.submit(getShapeTask(shape, i++, executor)));
@@ -316,8 +318,15 @@ public class ThreadedValidationEngine extends ValidationEngine {
                         focusNodes;
                 smd.filteredTargetCount = filtered.size();
 
+                if (smd.targetCount > 0) {
+                    logger.debug("Collected {} target node(s) ({} after filter) for {}, d={}",
+                            smd.targetCount, smd.filteredTargetCount,
+                            shape.getShapeResource().getLocalName(), (System.currentTimeMillis() - start));
+                }
+
                 if (maxDepth > 0 && smd.filteredTargetCount > maxDepth) {
-                    filtered = filtered.subList(0, maxDepth-1);
+                    filtered = filtered.subList(0, maxDepth);
+                    logger.debug("--> Shallow validation truncating to {} nodes.", maxDepth);
                 }
 
                 if (!filtered.isEmpty()) {
@@ -337,16 +346,24 @@ public class ThreadedValidationEngine extends ValidationEngine {
             threadViolations.set(0);
             try {
                 if (!isStopped) {
+                    logger.debug("Validating {} node(s) against {}, r={}", focusNodes.size(), constraint.toString(),
+                            constraint.getParameterValue() != null && constraint.getParameterValue().isResource() ?
+                                    constraint.getParameterValue().asResource().getLocalName() : "");
                     validateNodesAgainstConstraint(focusNodes, constraint);
                 }
             } catch (MaximumNumberViolations e) {
                 isStopped = true;
             }
 
+            final long duration = System.currentTimeMillis() - start;
+            logger.debug("Completed {}, r={}, d={}", constraint.toString(),
+                    constraint.getParameterValue() != null && constraint.getParameterValue().isResource() ?
+                            constraint.getParameterValue().asResource().getLocalName() : "", duration);
+
             return new ConstraintTaskMetadata(
                     Thread.currentThread().getName(),
                     ConstraintTaskMetadata.getName(constraint),
-                    System.currentTimeMillis() - start,
+                    duration,
                     threadReport.get(),
                     threadViolations.get());
         };

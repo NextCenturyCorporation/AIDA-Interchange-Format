@@ -175,6 +175,9 @@ public class ValidateAIFCli implements Callable<Integer> {
     @Option(names = "--disk", description = "Use disk-based model for validating very large files")
     private boolean useDiskModel;
 
+    @Option(names = "--debug", description = "Enable debugging", hidden = true)
+    private boolean debugOutput;
+
     @Option(names = "-p", description = "Enable profiling", hidden = true)
     private boolean useProfiling;
 
@@ -338,6 +341,10 @@ public class ValidateAIFCli implements Callable<Integer> {
             logger.info("-> Validation will use " + threads + " threads.");
             validator.setThreadCount(threads);
         }
+        if (debugOutput) {
+            logger.info("-> Validation debugging output enabled.");
+            validator.setDebugging(true);
+        }
         if (depthSet) {
             logger.info("-> Performing shallow validation on " + depth + " target node(s) per rule.");
             validator.setDepth(depth);
@@ -353,8 +360,13 @@ public class ValidateAIFCli implements Callable<Integer> {
         if (profiling) {
             logger.info("-> Saving slow queries (> " + LONG_QUERY_THRESH + " ms) to <kbname>-stats.txt.");
         }
-        if (useProgressMonitor && !threadSet) {
-            logger.info("-> Saving ongoing validation progress to <kbname>-progress.tab.");
+        if (useProgressMonitor) {
+            if (threadSet) {
+                logger.info("-> Saving thread metrics to <kbname>-performance.txt.");
+            }
+            else {
+                logger.info("-> Saving ongoing validation progress to <kbname>-progress.tab.");
+            }
         }
         logger.info("*** Beginning validation of " + filesToValidate.size() + " file(s). ***");
 
@@ -394,7 +406,7 @@ public class ValidateAIFCli implements Callable<Integer> {
                 if (profiling) {
                     stats.startCollection();
                 }
-                if (useProgressMonitor) {
+                if (useProgressMonitor && !threadSet) {
                     String filename = fileToValidate.getName().replace(".ttl", "") + "-progress.tab";
                     ProgressMonitor pm;
                     try {
@@ -431,7 +443,6 @@ public class ValidateAIFCli implements Callable<Integer> {
                 // TODO: replace this when multi-threaded progress monitor exists
                 if (useProgressMonitor && threadSet) {
                     String outputFilename = fileToValidate.toString().replace(".ttl", "-performance.txt");
-                    logger.info("---> Saving thread metrics to " + outputFilename + ".");
                     try (PrintStream ps = new PrintStream(Files.newOutputStream(Paths.get(outputFilename)))) {
                         validator.printMetrics(ps);
                     } catch (IOException e) {
