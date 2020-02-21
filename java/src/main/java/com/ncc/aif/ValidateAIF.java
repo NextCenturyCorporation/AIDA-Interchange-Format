@@ -1,5 +1,7 @@
 package com.ncc.aif;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
@@ -71,6 +73,7 @@ public final class ValidateAIF {
     private Model domainModel;
     private Restriction restriction;
     private int abortThreshold = -1; // by default, do not abort on SHACL violation
+    private boolean debugging = false;
     private int depth = 0; // by default, do not perform shallow validation
     private ProgressMonitor progressMonitor = null; // by default, do not monitor progress
     private ThreadPoolExecutor executor;
@@ -184,6 +187,16 @@ public final class ValidateAIF {
             throw new IllegalArgumentException("Abort threshold must be greater than 0, or 0 to disable.");
         }
         this.abortThreshold = abortThreshold == 0 ? -1 : abortThreshold;
+    }
+
+    /**
+     * Tells the validator to log debug-level output during validation.  Note that debug output is limited by what
+     * the validation engine chooses to debug.
+     *
+     * @param debugging whether or not to produce debugging output
+     */
+    public void setDebugging(boolean debugging) {
+        this.debugging = debugging;
     }
 
     /**
@@ -381,6 +394,9 @@ public final class ValidateAIF {
                 .setValidateShapes(true)
                 .setValidationErrorBatch(abortThreshold);
         if (executor != null) {
+            if (debugging) {
+                ((Logger) (org.slf4j.LoggerFactory.getLogger(ThreadedValidationEngine.class))).setLevel(Level.DEBUG);
+            }
             ThreadedValidationEngine engine = ThreadedValidationEngine.createValidationEngine(unionModel, shacl, config);
             engine.setProgressMonitor(progressMonitor);
             engine.setMaxDepth(depth);
@@ -395,6 +411,9 @@ public final class ValidateAIF {
                 return null;
             }
         } else {
+            if (debugging) {
+                ((Logger) (org.slf4j.LoggerFactory.getLogger(ValidationEngine.class))).setLevel(Level.DEBUG);
+            }
             ValidationEngine engine = ValidationUtil.createValidationEngine(unionModel, shacl, config);
             engine.setProgressMonitor(progressMonitor);
             try {

@@ -319,8 +319,8 @@ public class ThreadedValidationEngine extends ValidationEngine {
                 smd.filteredTargetCount = filtered.size();
 
                 if (smd.targetCount > 0) {
-                    logger.debug("Collected {} target node(s) {}for {}, d={}", smd.targetCount,
-                            (smd.targetCount == smd.filteredTargetCount) ? "" : "(" + smd.filteredTargetCount + " after filter) ",
+                    logger.debug("Collected {} target node(s) ({} after filter) for {}, d={}",
+                            smd.targetCount, smd.filteredTargetCount,
                             shape.getShapeResource().getLocalName(), (System.currentTimeMillis() - start));
                 }
 

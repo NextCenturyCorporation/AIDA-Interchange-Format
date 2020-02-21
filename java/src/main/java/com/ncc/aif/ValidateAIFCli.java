@@ -342,8 +342,8 @@ public class ValidateAIFCli implements Callable<Integer> {
             validator.setThreadCount(threads);
         }
         if (debugOutput) {
-            logger.info("-> Multi-threaded validation debugging output enabled.");
-            ((Logger) (org.slf4j.LoggerFactory.getLogger(ThreadedValidationEngine.class))).setLevel(Level.DEBUG);;
+            logger.info("-> Validation debugging output enabled.");
+            validator.setDebugging(true);
         }
         if (depthSet) {
             logger.info("-> Performing shallow validation on " + depth + " target node(s) per rule.");
