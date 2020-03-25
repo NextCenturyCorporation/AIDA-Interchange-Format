@@ -698,7 +698,6 @@ public class ExamplesAndValidationTest {
             final Resource newPresident = makeEntity(model, utils.getEntityUri(), system);
             markName(newPresident, "the newly-inaugurated president");
 
-            // but clustered entities may have a type
             final Resource president45 = makeEntity(model, utils.getEntityUri(), system);
             markType(model, utils.getAssertionUri(), president45, SeedlingOntology.GeopoliticalEntity, system, 1.0);
             markName(president45, "the 45th president");
@@ -1356,24 +1355,6 @@ public class ExamplesAndValidationTest {
             utils.testInvalid("Invalid: relation of unknown type");
         }
 
-        @Test
-        void clusterPrototypeMissingTypeAssertion() {
-            // cluster prototypes must have a type assertion, but this one doesn't
-            final Resource presidentUSA = makeEntity(model, utils.getEntityUri(), system);
-            markName(presidentUSA, "the president");
-
-            // and it doesn't matter if non-prototype clustered entities have a type
-            final Resource newPresident = makeEntity(model, utils.getEntityUri(), system);
-            markType(model, utils.getAssertionUri(), newPresident, SeedlingOntology.GeopoliticalEntity, system, 1.0);
-            markName(newPresident, "the newly-inaugurated president");
-
-            // cluster president entities
-            final Resource presidentCluster = makeClusterWithPrototype(model, utils.getClusterUri(), presidentUSA, system);
-            markAsPossibleClusterMember(model, newPresident, presidentCluster, .8, system);
-
-            utils.expect(ShaclShapes.EntityShape, SH.SPARQLConstraintComponent, null);
-            utils.testInvalid("Invalid: cluster prototype of unknown type");
-        }
 
         @Test
         void justificationMissingConfidence() {
