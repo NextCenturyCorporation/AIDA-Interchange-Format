@@ -60,11 +60,9 @@ aida:EntityShape
             SELECT $this
             WHERE {
                 FILTER ( NOT EXISTS {
-                        ?typeAssertion a rdf:Statement .
-                        ?typeAssertion rdf:predicate rdf:type .
-                        ?typeAssertion rdf:subject $this .
-                    } && ( NOT EXISTS { ?membership aida:clusterMember $this . } ||
-                            EXISTS { ?cluster aida:prototype $this . } )
+                        $this ^rdf:subject / rdf:predicate rdf:type .
+                    } && ( NOT EXISTS { $this ^aida:clusterMember ?membership . } ||
+                           EXISTS { $this ^aida:prototype ?cluster . } )
                 )
             }
         """ ;
@@ -122,11 +120,9 @@ aida:EventRelationShape
             SELECT $this
             WHERE {
                 FILTER ( NOT EXISTS {
-                        ?typeAssertion a rdf:Statement .
-                        ?typeAssertion rdf:predicate rdf:type .
-                        ?typeAssertion rdf:subject $this .
-                    } && ( NOT EXISTS { ?membership aida:clusterMember $this . } ||
-                            EXISTS { ?cluster aida:prototype $this . } )
+                        $this ^rdf:subject / rdf:predicate rdf:type .
+                    } && ( NOT EXISTS { $this ^aida:clusterMember ?membership . } ||
+                           EXISTS { $this ^aida:prototype ?cluster . } )
                 )
             }
         """ ;
@@ -195,7 +191,8 @@ aida:EventArgumentShape
     sh:path rdf:object ;
     sh:xone ( [sh:class aida:Entity ]
               [sh:class aida:Event ]
-              [sh:class aida:Relation ] )
+              [sh:class aida:Relation ] ) ;
+			sh:message "The object is not the argument of the event role"
   ] ;
    # TODO: handle temporal or string values
 
@@ -257,6 +254,7 @@ aida:RelationArgumentShape
     sh:xone ( [sh:class aida:Entity ]
               [sh:class aida:Event ]
               [sh:class aida:Relation ] ) ;
+			sh:message "The object is not the argument of the relation role"
   ] ;
   # TODO: handle temporal or string values
 
@@ -998,7 +996,8 @@ aida:NumericPropertyShape
   sh:xone (
     [ sh:datatype xsd:string ]
     [ sh:datatype xsd:double ]
-    [ sh:datatype xsd:long ] ) .
+    [ sh:datatype xsd:long ] ) ;
+  sh:message "Numeric value is not a string, double, or long" .
 
 # we use RDF statements for four things: relations, type assertions, event argument, and
 # sentiment assertions. Each of these has already been described above. We want to forbid any other
@@ -1055,13 +1054,16 @@ aida:ClusterShape
                 [sh:class aida:Event]
                 [sh:class aida:Relation] ) ;
       sh:minCount 1 ;
-      sh:maxCount 1  ] ;
+      sh:maxCount 1 ;
+      sh:message "Every cluster must have a single prototype"
+	  ] ;
 
    # allow clusters to have handle property
    sh:property [
       sh:path aida:handle ;
       sh:datatype xsd:string ;
       sh:maxCount 1 ;
+      sh:message "Clusters must have at most a single handle"
    ] ;
 
    # may provide an importance
