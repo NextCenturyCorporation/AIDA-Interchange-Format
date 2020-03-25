@@ -1355,7 +1355,6 @@ public class ExamplesAndValidationTest {
             utils.testInvalid("Invalid: relation of unknown type");
         }
 
-
         @Test
         void justificationMissingConfidence() {
             final Resource entity = utils.makeValidAIFEntity(SeedlingOntology.Person);
