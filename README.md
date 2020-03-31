@@ -8,7 +8,7 @@ This repository contains resources to support the AIDA Interchange Format (AIF).
 
 *    utilities to make it easier to work with this format.  Java utilities are
      in `java/src/main/java/com/ncc/aif/AIFUtils.java`, which can be used by adding
-     a Maven dependency on `com.ncc:aida-interchange:1.0.5`.  A
+     a Maven dependency on `com.ncc:aida-interchange:1.1.0`.  A
      Python translation of these utilities is in
      `python/aida_interchange/aifutils.py`.
 
@@ -49,6 +49,7 @@ Usage:  <br>
 |`--ont=FILE ...` | validate against the OWL-formatted ontolog(ies) at the specified filename(s) |
 |`--nist` | validate against the NIST restrictions |
 |`--nist-ta3` | validate against the NIST hypothesis restrictions (implies `--nist`) |
+|`--hypothesis-max-size=<hypothesisMaxSize>` | Specify the maximum size of a hypothesis file in MB when validating against the NIST hypothesis restrictions (`--nist-ta3`). Default is 5 |
 |`--abort[=num]` | Abort validation after `[num]` SHACL violations (num > 2), or three violations if `[num]` is omitted. |
 |`--depth[=num]` | Perform shallow validation in which each SHACL rule (shape) is only applied to `[num]` target nodes, or 50 nodes if `[num]` is omitted (requires -t). |
 |`--pm` | Enable progress monitor that shows ongoing validation progress.  If `-t` is specified, then thread metrics are provided post-validation instead. |

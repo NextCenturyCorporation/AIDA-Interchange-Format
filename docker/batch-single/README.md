@@ -31,7 +31,7 @@ $ docker version -f '{{.Server.Experimental}}'
 
 ## Batch Single
 
-The Batch Single Docker image is responsible for running a single AIF Validation job within an AWS Batch environment. The The Batch Single Docker image is composed of three scripts; initializer, main, and worker. The initializer script is responsible for determining if the current AWS Batch node is the main node or the worker node. This is determined by the ID assigned to the node from AWS Batch. Based on this information the initializer will call the appropriate main or worker script. The main script is initially responsible for preparing the submission data in S3 for validation. This includes setting up the SQS queue with all of the .ttl files that need validation and moving the files to the appropriate locations in S3. Once validation has completed, the main script is responsible for verifying that the validation was successful, generating the validation report, and creating a final archive of the results. The worker node is responsible for reading the S3 object paths off of the SQS queue and running the AIF Validatior against each .ttl file. The worker captures the results as well as any associated logs and AIF Validator reports and places them in the appropriate location on S3. 
+The Batch Single Docker image is responsible for running a single AIF Validation job within an AWS Batch environment. The Batch Single Docker image is composed of three scripts; initializer, main, and worker. The initializer script is responsible for determining if the current AWS Batch node is the main node or the worker node. This is determined by the ID assigned to the node from AWS Batch. Based on this information the initializer will call the appropriate main or worker script. The main script is initially responsible for preparing the submission data in S3 for validation. This includes setting up the SQS queue with all of the .ttl files that need validation and moving the files to the appropriate locations in S3. Once validation has completed, the main script is responsible for verifying that the validation was successful, generating the validation report, and creating a final archive of the results. The worker node is responsible for reading the S3 object paths off of the SQS queue and running the AIF Validator against each .ttl file. The worker captures the results as well as any associated logs and AIF Validator reports and places them in the appropriate location on S3. 
 
 ### Building Batch Single Docker image
 
@@ -65,12 +65,18 @@ To run the Batch Single Docker container, copy the `run.sh.example` script to a 
 | `S3_SUBMISSION_PREFIX`     	 | The prefix (directory) where the extracted submission ttl files are located | 
 | `S3_SUBMISSION_VALIDATION_DESCR` | The description of the validation type that will be performed on the submission |       
 | `AWS_BATCH_JOB_ID`       | The job ID assigned for this validation from AWS Batch | 
-| `AWS_BATCH_JOB_NODE_INDEX`       | The node ID assigned to current node from AWS Batch |    
-| `MAIN_SLEEP_INTERVAL`        	 | Interval for the main to monitor the SQS queue for depletion |  
+| `AWS_BATCH_JOB_NODE_INDEX`       | The node ID assigned to current node from AWS Batch |  
+| `AWS_SNS_TOPIC_ARN`       | The AWS SNS topic to push notifications to during the AWS Batch validation job |   
+| `AWS_DEFAULT_REGION`       | The default AWS region |        
+| `MAIN_SLEEP_INTERVAL`        	 | Interval for main to monitor the SQS queue for depletion |  
 | `QUEUE_INIT_TIMEOUT`       | The time in seconds to wait for an SQS queue to become available |  
 | `VALIDATION_TIMEOUT`     		 | 	The time in seconds to wait for AIF Validation to complete on a single file |  
+| `WORKER_INIT_TIMEOUT`     	 | The time in seconds to wait for the worker to initialize |
+| `DEBUG` | Runs Batch Single in debug  mode | 
+| `DEBUG_TIMEOUT`     	 | The time in seconds to wait for AIF Validation to complete in debug mode | 
+| `DEBUG_SLEEP_INTERVAL` | Interval for main to monitor the SQS queue for depletion in debug mode | 
 | `VALIDATION_HOME`     	 | The default local path of the AIF Validator java executable |  
-| `VALIDATION_FLAGS`     	 | The validation flags that will be passed to the AIF Validator upon execution |   
+| `VALIDATION_FLAGS`     	 | The validation flags that will be passed to the AIF Validator upon execution |
 
 Execute the run script with:
 
@@ -79,7 +85,10 @@ $ chmod +x run.sh
 $ ./run.sh
 ```
 
+### Compute Environment AMI
+
+There is the possibility that the default AMI used to deploy the Batch Single Docker container via AWS Batch does not meet your specific requirements. In the event that this occurs, you must [create a custom resource AMI](https://docs.aws.amazon.com/batch/latest/userguide/create-batch-ami.html) and configure your AWS Batch job to use it. This can be achieved by creating a new AWS Batch compute environment and specifying the AMI ID for the `imageId` configuration. A common use case for a custom AMI is if you require a larger root volume than the default AMI which set to 10 GB.
+
 ## Batch Initializer
 
 The Batch Initializer Docker image is responsible for taking in a single AIF Validation archive submission, running validation on the submission format and contents, and submitting jobs to AWS Batch for validation. Once the Batch Initializer has submitted the job, AWS Batch will automatically start the Batch Single Docker image with the appropriately populated information. More information about the Batch Initializer Docker image see [Batch Initialization Docker](https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/blob/master/docker/batch-init/README.md)
-
