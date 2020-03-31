@@ -83,6 +83,9 @@ public class ValidateAIFCli implements Callable<Integer> {
     private static final int DEFAULT_DEPTH = 50;
     private static final int MINIMUM_DEPTH = 1;
 
+    //Hypothesis
+    private static final String DEFAULT_HYPOTHESIS_SIZE = "5"; //MB
+
     // Profiling
     private static final int LONG_QUERY_THRESH = 2000;
     // Threading
@@ -110,8 +113,29 @@ public class ValidateAIFCli implements Callable<Integer> {
     @Option(names = "--nist", description = "Validate against the NIST restrictions")
     private boolean useNISTRestriction;
 
+    //TODO: When picocli 4.0 is stable, make this an ArgGroup to enforce mutual exclusivity
     @Option(names = "--nist-ta3", description = "Validate against the NIST hypothesis restrictions (implies --nist)")
     private boolean useNISTTA3Rescriction;
+
+    @Option(names = "--hypothesis-max-size", defaultValue = DEFAULT_HYPOTHESIS_SIZE, description = "The maximum size of a hypothesis file in MB, default is 5",
+            arity = "1", converter = HypothesisMaxSizeConverter.class)
+    private int hypothesisMaxSize;
+
+    private static class HypothesisMaxSizeConverter implements CommandLine.ITypeConverter<Integer> {
+        @Override
+        public Integer convert(String value) {
+            try {
+                Integer size = "".equals(value) ? Integer.parseInt(DEFAULT_HYPOTHESIS_SIZE) : Integer.parseInt(value);
+
+                if (size < 0 ) {
+                    throw new IllegalArgumentException();
+                }
+                return size;
+            } catch (Exception ex) {
+                throw new CommandLine.TypeConversionException(String.format(ERR_BAD_ARGTYPE, value, "positive integer"));
+            }
+        }
+    }
 
     @Option(names = "--abort", description = "Abort validation after [num] SHACL violations (num > 2), or 3 violations if [num] is omitted.",
             paramLabel = "num", arity = "0..1", converter = MaxErrorConverter.class)
@@ -150,6 +174,9 @@ public class ValidateAIFCli implements Callable<Integer> {
 
     @Option(names = "--disk", description = "Use disk-based model for validating very large files")
     private boolean useDiskModel;
+
+    @Option(names = "--debug", description = "Enable debugging", hidden = true)
+    private boolean debugOutput;
 
     @Option(names = "-p", description = "Enable profiling", hidden = true)
     private boolean useProfiling;
@@ -314,6 +341,10 @@ public class ValidateAIFCli implements Callable<Integer> {
             logger.info("-> Validation will use " + threads + " threads.");
             validator.setThreadCount(threads);
         }
+        if (debugOutput) {
+            logger.info("-> Validation debugging output enabled.");
+            validator.setDebugging(true);
+        }
         if (depthSet) {
             logger.info("-> Performing shallow validation on " + depth + " target node(s) per rule.");
             validator.setDepth(depth);
@@ -329,8 +360,13 @@ public class ValidateAIFCli implements Callable<Integer> {
         if (profiling) {
             logger.info("-> Saving slow queries (> " + LONG_QUERY_THRESH + " ms) to <kbname>-stats.txt.");
         }
-        if (useProgressMonitor && !threadSet) {
-            logger.info("-> Saving ongoing validation progress to <kbname>-progress.tab.");
+        if (useProgressMonitor) {
+            if (threadSet) {
+                logger.info("-> Saving thread metrics to <kbname>-performance.txt.");
+            }
+            else {
+                logger.info("-> Saving ongoing validation progress to <kbname>-progress.tab.");
+            }
         }
         logger.info("*** Beginning validation of " + filesToValidate.size() + " file(s). ***");
 
@@ -364,13 +400,13 @@ public class ValidateAIFCli implements Callable<Integer> {
             } else {
                 dataToBeValidated = ModelFactory.createDefaultModel();
             }
-            boolean notSkipped = ((restriction != ValidateAIF.Restriction.NIST_TA3) || checkHypothesisSize(fileToValidate))
+            boolean notSkipped = ((restriction != ValidateAIF.Restriction.NIST_TA3) || checkHypothesisSize(fileToValidate, hypothesisMaxSize))
                     && loadFile(dataToBeValidated, fileToValidate);
             if (notSkipped) {
                 if (profiling) {
                     stats.startCollection();
                 }
-                if (useProgressMonitor) {
+                if (useProgressMonitor && !threadSet) {
                     String filename = fileToValidate.getName().replace(".ttl", "") + "-progress.tab";
                     ProgressMonitor pm;
                     try {
@@ -407,7 +443,6 @@ public class ValidateAIFCli implements Callable<Integer> {
                 // TODO: replace this when multi-threaded progress monitor exists
                 if (useProgressMonitor && threadSet) {
                     String outputFilename = fileToValidate.toString().replace(".ttl", "-performance.txt");
-                    logger.info("---> Saving thread metrics to " + outputFilename + ".");
                     try (PrintStream ps = new PrintStream(Files.newOutputStream(Paths.get(outputFilename)))) {
                         validator.printMetrics(ps);
                     } catch (IOException e) {
@@ -527,12 +562,12 @@ public class ValidateAIFCli implements Callable<Integer> {
     }
 
     // Return false if file is > 5MB or size couldn't be determined, otherwise true
-    private static boolean checkHypothesisSize(File fileToValidate) {
+    private static boolean checkHypothesisSize(File fileToValidate, int maxHypothesisSize) {
         try {
             final Path path = Paths.get(fileToValidate.toURI());
             final long fileSize = Files.size(path);
-            if (fileSize > 1024 * 1024 * 5) { // 5MB
-                logger.warn("---> Hypothesis KB " + fileToValidate + " is more than 5MB (" + fileSize + " bytes); skipping.");
+            if (fileSize > (1024 * 1024 * maxHypothesisSize)) {
+                logger.warn("---> Hypothesis KB " + fileToValidate + " is more than " + maxHypothesisSize + "MB (" + fileSize + " bytes); skipping.");
                 return false;
             } else {
                 return true;
