@@ -26,25 +26,3 @@ relation 2 or relation 3") since we assume that such cases should expressed as t
 distinct hypotheses (e.g. one hypothesis for "relation 1 and relation 2" and another for
 "relation 1 and relation 3").  However, if expressing such disjunctions is desired, it can be
 added.
-
-### How do I migrate from the GAIA/Kotlin version of AIF to the Java version?
-
-First, if you haven't already, you'll need to change your build script or tool to import
-`aida-interchange-1.0.5.jar` (changed from `gaia-interchange-kotlin-1.0-SNAPSHOT.jar`).
-For gradle, for example, include the following in the dependencies in your `build.gradle` file:
-
-`dependencies {
-    compile 'com.ncc:aida-interchange:1.0.5'
-}`
-
-Next, update any source files that import the `edu.isi.gaia` package to use the `com.ncc.aif` package instead.
-For example, change:
-```
-import edu.isi.gaia.AIFUtils;
-```
-to
-```
-import com.ncc.aif.AIFUtils;
-```
-You may also wish to clean out any vestiges of the Kotlin version (class files, libraries) from build
-tool caches (e.g., the `edu/isi/gaia-interchange-kotlin/` directory in Maven's repository).
