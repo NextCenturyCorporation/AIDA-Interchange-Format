@@ -21,7 +21,7 @@ installation above into your build script or tool.  For gradle, for
 example, include the following in the dependencies in your `build.gradle` file:
 
 `dependencies {
-    compile 'com.ncc:aida-interchange:1.1.0'
+    compile 'com.ncc:aida-interchange:1.1.1-SNAPSHOT'
 }`
 
 In your code, import classes from the `com.ncc.aif` package.
