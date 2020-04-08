@@ -1170,33 +1170,30 @@ public class ExamplesAndValidationTest {
         @Test
         void createEventsWithLDCTimeRanges() {
             // Create a arrest jail event that started in first quarter of 2013 and ended on April 15, 2013
-            final Resource eventAttack1 = utils.makeValidAIFEvent(SeedlingOntology.Justice_ArrestJail);
+            final Resource event1 = utils.makeValidAIFEvent(SeedlingOntology.Justice_ArrestJail);
             LDCTimeComponent startRangeEarliest, startRangeLatest;
             LDCTimeComponent endRangeEarliest, endRangeLatest;
             startRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2013", "--01", "---01");
-            startRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2013", "--03", "---31");
-            endRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2013", "--04", "---15");
-            endRangeLatest = endRangeEarliest;
-            markLDCTime(model, eventAttack1, startRangeEarliest, endRangeEarliest, system);
-            markLDCTime(model, eventAttack1, startRangeLatest, endRangeLatest, system);
+            startRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2013", "--03", "---31");
+            endRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2013", "--04", "---15");
+            endRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2013", "--04", "---15");
+            markLDCTimeRange(model, event1, startRangeEarliest, startRangeLatest, endRangeEarliest, endRangeLatest, system);
 
             // Create a transfer money event that started in March 2010 and ended sometime after 2010
-            final Resource eventAttack2 = utils.makeValidAIFEvent(SeedlingOntology.Transaction_TransferMoney);
+            final Resource event2 = utils.makeValidAIFEvent(SeedlingOntology.Transaction_TransferMoney);
             startRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2010", "--02", "---01");
-            startRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2010", "--02", "---28");
-            endRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2010", "--12", "---31");
+            startRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2010", "--02", "---28");
+            endRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2010", "--12", "---31");
             endRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "9999", "--12", "---31");
-            markLDCTime(model, eventAttack2, startRangeEarliest, endRangeEarliest, system);
-            markLDCTime(model, eventAttack2, startRangeLatest, endRangeLatest, system);
+            markLDCTimeRange(model, event2, startRangeEarliest, startRangeLatest, endRangeEarliest, endRangeLatest, system);
 
             // Create a conflict attack event with that started in March 2010 and ended sometime after 2010
-            final Resource eventAttack3 = utils.makeValidAIFEvent(SeedlingOntology.Conflict_Attack);
+            final Resource event3 = utils.makeValidAIFEvent(SeedlingOntology.Conflict_Attack);
             startRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "-9999", "--01", "---01");
-            startRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2016", "--02", "---01");
-            endRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2017", "--01", "---01");
+            startRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2016", "--02", "---01");
+            endRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2017", "--01", "---01");
             endRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2017", "--12", "---31");
-            markLDCTime(model, eventAttack3, startRangeEarliest, endRangeEarliest, system);
-            markLDCTime(model, eventAttack3, startRangeLatest, endRangeLatest, system);
+            markLDCTimeRange(model, event3, startRangeEarliest, startRangeLatest, endRangeEarliest, endRangeLatest, system);
 
             utils.testValid("create events with LDCTime ranges");
         }
