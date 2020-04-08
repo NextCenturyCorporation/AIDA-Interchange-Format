@@ -39,10 +39,10 @@ public class ExamplesAndValidationTest {
     // Modify these flags to control how tests output their models/reports and if so, how they output them
     // When DUMP_ALWAYS is false, the model is only dumped when the result is unexpected (and if invalid, the report is also dumped)
     // When DUMP_ALWAYS is true, the model is always dumped, and the report is always dumped if invalid
-    private static final boolean DUMP_ALWAYS = false;
+    private static final boolean DUMP_ALWAYS = true;
     // When DUMP_TO_FILE is false, if a model or report is dumped, it goes to stdout
     // WHen DUMP_TO_FILE is true, if a model or report is dumped, it goes to a file in target/test-dump-output
-    private static final boolean DUMP_TO_FILE = false;
+    private static final boolean DUMP_TO_FILE = true;
 
     private static final String NIST_ROOT = "https://tac.nist.gov/tracks/SM-KBP/";
     private static final String LDC_NS = NIST_ROOT + "2019/LdcAnnotations#";
@@ -1165,6 +1165,40 @@ public class ExamplesAndValidationTest {
             markJustification(time, utils.makeValidJustification());
 
             utils.testValid("create an event with LDCTime");
+        }
+
+        @Test
+        void createEventsWithLDCTimeRanges() {
+            // Create a arrest jail event that started in first quarter of 2013 and ended on April 15, 2013
+            final Resource eventAttack1 = utils.makeValidAIFEvent(SeedlingOntology.Justice_ArrestJail);
+            LDCTimeComponent startRangeEarliest, startRangeLatest;
+            LDCTimeComponent endRangeEarliest, endRangeLatest;
+            startRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2013", "--01", "---01");
+            startRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2013", "--03", "---31");
+            endRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2013", "--04", "---15");
+            endRangeLatest = endRangeEarliest;
+            markLDCTime(model, eventAttack1, startRangeEarliest, endRangeEarliest, system);
+            markLDCTime(model, eventAttack1, startRangeLatest, endRangeLatest, system);
+
+            // Create a transfer money event that started in March 2010 and ended sometime after 2010
+            final Resource eventAttack2 = utils.makeValidAIFEvent(SeedlingOntology.Transaction_TransferMoney);
+            startRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2010", "--02", "---01");
+            startRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2010", "--02", "---28");
+            endRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2010", "--12", "---31");
+            endRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "9999", "--12", "---31");
+            markLDCTime(model, eventAttack2, startRangeEarliest, endRangeEarliest, system);
+            markLDCTime(model, eventAttack2, startRangeLatest, endRangeLatest, system);
+
+            // Create a conflict attack event with that started in March 2010 and ended sometime after 2010
+            final Resource eventAttack3 = utils.makeValidAIFEvent(SeedlingOntology.Conflict_Attack);
+            startRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "-9999", "--01", "---01");
+            startRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2016", "--02", "---01");
+            endRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2017", "--01", "---01");
+            endRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2017", "--12", "---31");
+            markLDCTime(model, eventAttack3, startRangeEarliest, endRangeEarliest, system);
+            markLDCTime(model, eventAttack3, startRangeLatest, endRangeLatest, system);
+
+            utils.testValid("create events with LDCTime ranges");
         }
 
         /**
