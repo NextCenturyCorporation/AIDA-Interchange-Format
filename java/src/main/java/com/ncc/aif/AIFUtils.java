@@ -1507,7 +1507,10 @@ public class AIFUtils {
      * @param system The system object for the system which marks the time
      * @return
      */
-    public static Resource markLDCTimeRange(Model model, Resource toMark, LDCTimeComponent startEarliest, LDCTimeComponent startLatest, LDCTimeComponent endEarliest, LDCTimeComponent endLatest, Resource system) {
+    public static Resource markLDCTimeRange(Model model, Resource toMark,
+                                            LDCTimeComponent startEarliest, LDCTimeComponent startLatest,
+                                            LDCTimeComponent endEarliest, LDCTimeComponent endLatest,
+                                            Resource system) {
         final Resource ldcTime = makeAIFResource(model, null, AidaAnnotationOntology.LDC_TIME_CLASS, system);
         if (endLatest != null) {
             ldcTime.addProperty(AidaAnnotationOntology.LDC_TIME_END, endLatest.makeAIFTimeComponent(model));
