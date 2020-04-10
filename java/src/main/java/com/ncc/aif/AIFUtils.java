@@ -1495,6 +1495,40 @@ public class AIFUtils {
         return ldcTime;
     }
 
+    /**
+     * Add LDC start and end time ranges representation to an Event or Relation
+     *
+     * @param model  The underlying RDF model for the operation
+     * @param toMark The Event or Relation to add the LDC time data to
+     * @param startEarliest  {@link LDCTimeComponent} containing the earliest start time in the range
+     * @param startLatest    {@link LDCTimeComponent} containing the latest start time in the range
+     * @param endEarliest    {@link LDCTimeComponent} containing the earliest end time in the range
+     * @param endLatest      {@link LDCTimeComponent} containing the latest end time in the range
+     * @param system The system object for the system which marks the time
+     * @return
+     */
+    public static Resource markLDCTimeRange(Model model, Resource toMark,
+                                            LDCTimeComponent startEarliest, LDCTimeComponent startLatest,
+                                            LDCTimeComponent endEarliest, LDCTimeComponent endLatest,
+                                            Resource system) {
+        final Resource ldcTime = makeAIFResource(model, null, AidaAnnotationOntology.LDC_TIME_CLASS, system);
+        if (endLatest != null) {
+            ldcTime.addProperty(AidaAnnotationOntology.LDC_TIME_END, endLatest.makeAIFTimeComponent(model));
+        }
+        if (endEarliest != null) {
+            ldcTime.addProperty(AidaAnnotationOntology.LDC_TIME_END, endEarliest.makeAIFTimeComponent(model));
+        }
+        if (startLatest != null) {
+            ldcTime.addProperty(AidaAnnotationOntology.LDC_TIME_START, startLatest.makeAIFTimeComponent(model));
+        }
+        if (startEarliest != null) {
+            ldcTime.addProperty(AidaAnnotationOntology.LDC_TIME_START, startEarliest.makeAIFTimeComponent(model));
+        }
+
+        toMark.addProperty(AidaAnnotationOntology.LDC_TIME_PROPERTY, ldcTime);
+        return ldcTime;
+    }
+
     // Helper function to create an event, relation, justification, etc. in the system.
     private static Resource makeAIFResource(@Nonnull Model model, @Nullable String uri, @Nonnull Resource classType, @Nullable Resource system) {
         Resource resource = (uri == null ? model.createResource() : model.createResource(uri));
