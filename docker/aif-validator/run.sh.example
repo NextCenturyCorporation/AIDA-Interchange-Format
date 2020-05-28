@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Mount the current directory to the container
+# Validate all TTL in the current directory as a TA1
+# Save the output in a log file in the current directory
+docker run --rm -it \
+       -v $(pwd):/v \
+       -e VALIDATION_HOME='/opt/aif-validator' \
+       -e VALIDATION_FLAGS='--TA1' \
+       -e VALIDATION_LOG='/v/validate_log.out' \
+       -e VALIDATE_DIR_OR_FILES='directory' \
+       -e TARGET_TO_VALIDATE='/v' \
+       --name aif-validator \
+       aif-validator
+
