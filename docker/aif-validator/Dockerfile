@@ -39,24 +39,20 @@ ENV VALIDATION_HOME /opt/aif-validator
 RUN mkdir $VALIDATION_HOME
 
 # Define default arguments if nothing is supplied using --build-args
-ARG GIT_REPO
-ARG VALIDATOR_REPO
-ARG VALIDATOR_BRANCH
+ARG GIT_REPO=github.com
+ARG VALIDATOR_REPO=NextCenturyCorporation/AIDA-Interchange-Format.git
+ARG VALIDATOR_BRANCH=master
 
 # Pull Git Repository
-WORKDIR /tmp
-RUN git clone https://$GIT_REPO/$VALIDATOR_REPO -b $VALIDATOR_BRANCH
+WORKDIR $VALIDATION_HOME
+RUN git clone https://$GIT_REPO/$VALIDATOR_REPO -b $VALIDATOR_BRANCH .
 
 # Run Maven Build
-WORKDIR /tmp/AIDA-Interchange-Format/java
+WORKDIR $VALIDATION_HOME/java
 RUN mvn clean -Dmaven.test.skip=true package
-
-# Copy repo to aif validation directory
-RUN cp -R /tmp/AIDA-Interchange-Format/* $VALIDATION_HOME
 
 # clean up set working directory to home
 RUN yum clean all && \
-    rm -rf /tmp/AIDA-Interchange-Format && \
     rm -rf /var/cache/yum
 WORKDIR $HOME
 
