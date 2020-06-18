@@ -371,7 +371,7 @@ public final class ValidateAIF {
         // entity type" will know what types are in fact entity types.
         final Model unionModel = (union == null) ? ModelFactory.createUnion(dataToBeValidated, domainModel) : union;
         unionModel.setNsPrefix("sh", "http://www.w3.org/ns/shacl#");
-        unionModel.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
+        unionModel.setNsPrefix("aida", InterchangeOntology.NAMESPACE);
         unionModel.setNsPrefix("aidaDomainCommon", AidaDomainOntologiesCommon.CanHaveName.getNameSpace());
 
         // Apply appropriate SHACL restrictions

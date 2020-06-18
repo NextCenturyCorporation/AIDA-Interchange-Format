@@ -1393,15 +1393,15 @@ public class ExamplesAndValidationTest {
             // below is just the content of AIFUtils.markTextJustification, except without the required
             // confidence
             final Resource justification = model.createResource();
-            justification.addProperty(RDF.type, AidaAnnotationOntology.TEXT_JUSTIFICATION_CLASS);
+            justification.addProperty(RDF.type, InterchangeOntology.TextJustification);
             // the document ID for the justifying source document
-            justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral("FOO"));
-            justification.addProperty(AidaAnnotationOntology.START_OFFSET,
+            justification.addProperty(InterchangeOntology.source, model.createTypedLiteral("FOO"));
+            justification.addProperty(InterchangeOntology.startOffset,
                     model.createTypedLiteral(14));
-            justification.addProperty(AidaAnnotationOntology.END_OFFSET_INCLUSIVE,
+            justification.addProperty(InterchangeOntology.endOffsetInclusive,
                     model.createTypedLiteral(56));
-            justification.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
-            entity.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification);
+            justification.addProperty(InterchangeOntology.system, system);
+            entity.addProperty(InterchangeOntology.justifiedBy, justification);
 
             utils.expect(ShaclShapes.RequiredConfidencePropertyShape, SH.MinCountConstraintComponent, null);
             utils.testInvalid("Invalid: justification missing confidence");
@@ -1413,7 +1413,7 @@ public class ExamplesAndValidationTest {
         void missingRdfTypeOnNamedNode() {
             // below we copy the code from AIFUtils.makeEntity but forget to mark it as an entity
             final Resource entity = model.createResource("http://www.test.edu/entity/1");
-            entity.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
+            entity.addProperty(InterchangeOntology.system, system);
             utils.testInvalid("Invalid: missing rdf type");
         }
     }

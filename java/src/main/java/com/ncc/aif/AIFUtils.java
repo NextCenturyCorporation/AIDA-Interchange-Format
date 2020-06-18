@@ -38,7 +38,7 @@ public class AIFUtils {
     public static void addStandardNamespaces(Model model) {
         model.setNsPrefix("rdf", RDF.uri);
         model.setNsPrefix("xsd", XSD.getURI());
-        model.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
+        model.setNsPrefix("aida", InterchangeOntology.NAMESPACE);
     }
 
     /**
@@ -55,7 +55,7 @@ public class AIFUtils {
      */
     public static Resource makeSystemWithURI(Model model, String systemURI) {
         final Resource system = model.createResource(systemURI);
-        system.addProperty(RDF.type, AidaAnnotationOntology.SYSTEM_CLASS);
+        system.addProperty(RDF.type, InterchangeOntology.System);
         return system;
     }
 
@@ -66,7 +66,7 @@ public class AIFUtils {
      * @param system   The system with which to mark the specified resource
      */
     public static void markSystem(Resource toMarkOn, Resource system) {
-        toMarkOn.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
+        toMarkOn.addProperty(InterchangeOntology.system, system);
     }
 
     /**
@@ -76,7 +76,7 @@ public class AIFUtils {
      * @param name   The String name with which to mark the specified Resource
      */
     public static void markName(Resource entity, String name) {
-        entity.addLiteral(AidaAnnotationOntology.NAME_PROPERTY, name);
+        entity.addLiteral(InterchangeOntology.hasName, name);
     }
 
     /**
@@ -86,7 +86,7 @@ public class AIFUtils {
      * @param textValue The String text value with which to mark the specified Resource
      */
     public static void markTextValue(Resource entity, String textValue) {
-        entity.addLiteral(AidaAnnotationOntology.TEXT_VALUE_PROPERTY, textValue);
+        entity.addLiteral(InterchangeOntology.textValue, textValue);
     }
 
     /**
@@ -97,7 +97,7 @@ public class AIFUtils {
      *                     mark the specified Resource
      */
     public static void markNumericValueAsString(Resource entity, String numericValue) {
-        entity.addLiteral(AidaAnnotationOntology.NUMERIC_VALUE_PROPERTY, numericValue);
+        entity.addLiteral(InterchangeOntology.numericValue, numericValue);
     }
 
     /**
@@ -108,7 +108,7 @@ public class AIFUtils {
      *                     mark the specified Resource
      */
     public static void markNumericValueAsDouble(Resource entity, Double numericValue) {
-        entity.addLiteral(AidaAnnotationOntology.NUMERIC_VALUE_PROPERTY, numericValue.doubleValue());
+        entity.addLiteral(InterchangeOntology.numericValue, numericValue.doubleValue());
     }
 
     /**
@@ -119,7 +119,7 @@ public class AIFUtils {
      *                     mark the specified Resource
      */
     public static void markNumericValueAsLong(Resource entity, Long numericValue) {
-        entity.addLiteral(AidaAnnotationOntology.NUMERIC_VALUE_PROPERTY, numericValue.longValue());
+        entity.addLiteral(InterchangeOntology.numericValue, numericValue.longValue());
     }
 
     /**
@@ -131,7 +131,7 @@ public class AIFUtils {
      * @return The created entity resource
      */
     public static Resource makeEntity(Model model, String entityUri, Resource system) {
-        return makeAIFResource(model, entityUri, AidaAnnotationOntology.ENTITY_CLASS, system);
+        return makeAIFResource(model, entityUri, InterchangeOntology.Entity, system);
     }
 
     /**
@@ -143,7 +143,7 @@ public class AIFUtils {
      * @return The created relation resource
      */
     public static Resource makeRelation(Model model, String relationUri, Resource system) {
-        return makeAIFResource(model, relationUri, AidaAnnotationOntology.RELATION_CLASS, system);
+        return makeAIFResource(model, relationUri, InterchangeOntology.Relation, system);
     }
 
     /**
@@ -187,7 +187,7 @@ public class AIFUtils {
      * @return The created event resource
      */
     public static Resource makeEvent(Model model, String eventUri, Resource system) {
-        return makeAIFResource(model, eventUri, AidaAnnotationOntology.EVENT_CLASS, system);
+        return makeAIFResource(model, eventUri, InterchangeOntology.Event, system);
     }
 
     /**
@@ -259,7 +259,7 @@ public class AIFUtils {
         typeAssertion.addProperty(RDF.subject, entityOrEventOrRelation);
         typeAssertion.addProperty(RDF.predicate, RDF.type);
         typeAssertion.addProperty(RDF.object, type);
-        typeAssertion.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
+        typeAssertion.addProperty(InterchangeOntology.system, system);
         if (confidence != null) {
             markConfidence(model, typeAssertion, confidence, system);
         }
@@ -270,7 +270,7 @@ public class AIFUtils {
     private static Resource makeAIFJustification(Model model, String docId, Resource classType,
                                                  Resource system, Double confidence, String uri) {
         final Resource justification = makeAIFResource(model, uri, classType, system);
-        justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral(docId));
+        justification.addProperty(InterchangeOntology.source, model.createTypedLiteral(docId));
         markConfidence(model, justification, confidence, system);
         return justification;
     }
@@ -282,7 +282,7 @@ public class AIFUtils {
      * @param justification The justification to be marked onto the specified resource
      */
     public static void markJustification(Resource toMarkOn, Resource justification) {
-        toMarkOn.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification);
+        toMarkOn.addProperty(InterchangeOntology.justifiedBy, justification);
     }
 
     /**
@@ -332,12 +332,12 @@ public class AIFUtils {
             throw new IllegalArgumentException("Start offset must be non-negative but got " + startOffset);
         }
 
-        final Resource justification = makeAIFJustification(model, docId, AidaAnnotationOntology.TEXT_JUSTIFICATION_CLASS,
+        final Resource justification = makeAIFJustification(model, docId, InterchangeOntology.TextJustification,
                 system, confidence, uri);
         // the document ID for the justifying source document
-        justification.addProperty(AidaAnnotationOntology.START_OFFSET,
+        justification.addProperty(InterchangeOntology.startOffset,
                 model.createTypedLiteral(startOffset));
-        justification.addProperty(AidaAnnotationOntology.END_OFFSET_INCLUSIVE,
+        justification.addProperty(InterchangeOntology.endOffsetInclusive,
                 model.createTypedLiteral(endOffsetInclusive));
 
         return justification;
@@ -429,7 +429,7 @@ public class AIFUtils {
      * @return The modified justification resource
      */
     public static Resource addSourceDocumentToJustification(Resource justification, String sourceDocument) {
-        justification.addProperty(AidaAnnotationOntology.SOURCE_DOCUMENT, sourceDocument);
+        justification.addProperty(InterchangeOntology.sourceDocument, sourceDocument);
         return justification;
     }
 
@@ -542,17 +542,17 @@ public class AIFUtils {
     private static Resource markBoundingBox(Model model, Resource toMarkOn, BoundingBox boundingBox) {
 
         final Resource boundingBoxResource = model.createResource();
-        boundingBoxResource.addProperty(RDF.type, AidaAnnotationOntology.BOUNDING_BOX_CLASS);
-        boundingBoxResource.addProperty(AidaAnnotationOntology.BOUNDING_BOX_UPPER_LEFT_X,
+        boundingBoxResource.addProperty(RDF.type, InterchangeOntology.BoundingBox);
+        boundingBoxResource.addProperty(InterchangeOntology.boundingBoxUpperLeftX,
                 model.createTypedLiteral(boundingBox.upperLeft.x));
-        boundingBoxResource.addProperty(AidaAnnotationOntology.BOUNDING_BOX_UPPER_LEFT_Y,
+        boundingBoxResource.addProperty(InterchangeOntology.boundingBoxUpperLeftY,
                 model.createTypedLiteral(boundingBox.upperLeft.y));
-        boundingBoxResource.addProperty(AidaAnnotationOntology.BOUNDING_BOX_LOWER_RIGHT_X,
+        boundingBoxResource.addProperty(InterchangeOntology.boundingBoxLowerRightX,
                 model.createTypedLiteral(boundingBox.lowerRight.x));
-        boundingBoxResource.addProperty(AidaAnnotationOntology.BOUNDING_BOX_LOWER_RIGHT_Y,
+        boundingBoxResource.addProperty(InterchangeOntology.boundingBoxLowerRightY,
                 model.createTypedLiteral(boundingBox.lowerRight.y));
 
-        toMarkOn.addProperty(AidaAnnotationOntology.BOUNDING_BOX_PROPERTY, boundingBoxResource);
+        toMarkOn.addProperty(InterchangeOntology.boundingBox, boundingBoxResource);
 
         return boundingBoxResource;
     }
@@ -585,7 +585,7 @@ public class AIFUtils {
      */
     public static Resource makeImageJustification(Model model, String docId, BoundingBox boundingBox, Resource system,
                                                   Double confidence, String uri) {
-        final Resource justification = makeAIFJustification(model, docId, AidaAnnotationOntology.IMAGE_JUSTIFICATION_CLASS,
+        final Resource justification = makeAIFJustification(model, docId, InterchangeOntology.ImageJustification,
                 system, confidence, uri);
         markBoundingBox(model, justification, boundingBox);
         return justification;
@@ -689,9 +689,9 @@ public class AIFUtils {
      */
     public static Resource makeKeyFrameVideoJustification(Model model, String docId, String keyFrame, BoundingBox boundingBox,
                                                           Resource system, Double confidence, String uri) {
-        final Resource justification = makeAIFJustification(model, docId, AidaAnnotationOntology.KEYFRAME_VIDEO_JUSTIFICATION_CLASS,
+        final Resource justification = makeAIFJustification(model, docId, InterchangeOntology.KeyFrameVideoJustification,
                 system, confidence, uri);
-        justification.addProperty(AidaAnnotationOntology.KEY_FRAME, model.createTypedLiteral(keyFrame));
+        justification.addProperty(InterchangeOntology.keyFrame, model.createTypedLiteral(keyFrame));
         markBoundingBox(model, justification, boundingBox);
         return justification;
     }
@@ -798,9 +798,9 @@ public class AIFUtils {
      */
     public static Resource makeShotVideoJustification(Model model, String docId, String shotId, Resource system,
                                                       Double confidence, String uri) {
-        final Resource justification = makeAIFJustification(model, docId, AidaAnnotationOntology.SHOT_VIDEO_JUSTIFICATION_CLASS,
+        final Resource justification = makeAIFJustification(model, docId, InterchangeOntology.ShotVideoJustification,
                 system, confidence, uri);
-        justification.addProperty(AidaAnnotationOntology.SHOT, model.createTypedLiteral(shotId));
+        justification.addProperty(InterchangeOntology.shot, model.createTypedLiteral(shotId));
         return justification;
     }
 
@@ -906,12 +906,12 @@ public class AIFUtils {
             throw new IllegalArgumentException("End timestamp " + endTimestamp
                     + " does not follow start timestamp " + startTimestamp);
         }
-        final Resource justification = makeAIFJustification(model, docId, AidaAnnotationOntology.AUDIO_JUSTIFICATION_CLASS,
+        final Resource justification = makeAIFJustification(model, docId, InterchangeOntology.AudioJustification,
                 system, confidence, uri);
 
-        justification.addProperty(AidaAnnotationOntology.START_TIMESTAMP,
+        justification.addProperty(InterchangeOntology.startTimestamp,
                 model.createTypedLiteral(startTimestamp));
-        justification.addProperty(AidaAnnotationOntology.END_TIMESTAMP,
+        justification.addProperty(InterchangeOntology.endTimestamp,
                 model.createTypedLiteral(endTimestamp));
 
         return justification;
@@ -1009,9 +1009,9 @@ public class AIFUtils {
                                                      Collection<Resource> justifications,
                                                      Resource system, Double confidence) {
         final Resource compoundJustification = makeAIFResource(model, null,
-                AidaAnnotationOntology.COMPOUND_JUSTIFICATION_CLASS, system);
+                InterchangeOntology.CompoundJustification, system);
         markConfidence(model, compoundJustification, confidence, system);
-        justifications.forEach(j -> compoundJustification.addProperty(AidaAnnotationOntology.CONTAINED_JUSTIFICATION, j));
+        justifications.forEach(j -> compoundJustification.addProperty(InterchangeOntology.containedJustification, j));
         markJustification(toMarkOn, compoundJustification);
         return compoundJustification;
     }
@@ -1026,10 +1026,10 @@ public class AIFUtils {
      */
     public static void markConfidence(Model model, Resource toMarkOn, Double confidence, Resource system) {
         Resource confidenceBlankNode = model.createResource();
-        confidenceBlankNode.addProperty(RDF.type, AidaAnnotationOntology.CONFIDENCE_CLASS);
-        confidenceBlankNode.addProperty(AidaAnnotationOntology.CONFIDENCE_VALUE, model.createTypedLiteral(confidence));
+        confidenceBlankNode.addProperty(RDF.type, InterchangeOntology.Confidence);
+        confidenceBlankNode.addProperty(InterchangeOntology.confidenceValue, model.createTypedLiteral(confidence));
         markSystem(confidenceBlankNode, system);
-        toMarkOn.addProperty(AidaAnnotationOntology.CONFIDENCE, confidenceBlankNode);
+        toMarkOn.addProperty(InterchangeOntology.confidence, confidenceBlankNode);
     }
 
     /**
@@ -1069,26 +1069,26 @@ public class AIFUtils {
                     "things when making a mutual exclusion constraint, but got " + alternatives.size());
         }
         final Resource mutualExclusionAssertion =
-                makeAIFResource(model, null, AidaAnnotationOntology.MUTUAL_EXCLUSION_CLASS, system);
+                makeAIFResource(model, null, InterchangeOntology.MutualExclusion, system);
 
         // Iterate through each subgraph (collection of edges)
         for (Collection<Resource> edges : alternatives.keySet()) {
             final Resource alternative = model.createResource();
-            alternative.addProperty(RDF.type, AidaAnnotationOntology.MUTUAL_EXCLUSION_ALTERNATIVE_CLASS);
+            alternative.addProperty(RDF.type, InterchangeOntology.MutualExclusionAlternative);
             final Resource alternativeGraph = model.createResource();
-            alternativeGraph.addProperty(RDF.type, AidaAnnotationOntology.SUBGRAPH_CLASS);
+            alternativeGraph.addProperty(RDF.type, InterchangeOntology.Subgraph);
 
             for (Resource edge : edges) {
-                alternativeGraph.addProperty(AidaAnnotationOntology.GRAPH_CONTAINS, edge);
+                alternativeGraph.addProperty(InterchangeOntology.subgraphContains, edge);
             }
 
-            alternative.addProperty(AidaAnnotationOntology.ALTERNATIVE_GRAPH_PROPERTY, alternativeGraph);
+            alternative.addProperty(InterchangeOntology.alternativeGraph, alternativeGraph);
             markConfidence(model, alternative, alternatives.get(edges), system);
-            mutualExclusionAssertion.addProperty(AidaAnnotationOntology.ALTERNATIVE_PROPERTY, alternative);
+            mutualExclusionAssertion.addProperty(InterchangeOntology.alternative, alternative);
         }
 
         if (noneOfTheAboveProb != null) {
-            mutualExclusionAssertion.addProperty(AidaAnnotationOntology.NONE_OF_THE_ABOVE_PROPERTY,
+            mutualExclusionAssertion.addProperty(InterchangeOntology.noneOfTheAbove,
                     model.createTypedLiteral(noneOfTheAboveProb));
         }
 
@@ -1133,10 +1133,10 @@ public class AIFUtils {
      */
     public static Resource makeClusterWithPrototype(Model model, String clusterUri, Resource prototype,
                                                     @Nullable String handle, Resource system) {
-        final Resource cluster = makeAIFResource(model, clusterUri, AidaAnnotationOntology.SAME_AS_CLUSTER_CLASS, system);
-        cluster.addProperty(AidaAnnotationOntology.PROTOTYPE, prototype);
+        final Resource cluster = makeAIFResource(model, clusterUri, InterchangeOntology.SameAsCluster, system);
+        cluster.addProperty(InterchangeOntology.prototype, prototype);
         if (handle != null) {
-            cluster.addProperty(AidaAnnotationOntology.HANDLE, handle);
+            cluster.addProperty(InterchangeOntology.handle, handle);
         }
         markAsPossibleClusterMember(model, prototype, cluster, 1.0, system);
         return cluster;
@@ -1173,9 +1173,9 @@ public class AIFUtils {
                                                        Resource cluster, Double confidence,
                                                        Resource system, String uri) {
         final Resource clusterMemberAssertion = makeAIFResource(model, uri,
-                AidaAnnotationOntology.CLUSTER_MEMBERSHIP_CLASS, system);
-        clusterMemberAssertion.addProperty(AidaAnnotationOntology.CLUSTER_PROPERTY, cluster);
-        clusterMemberAssertion.addProperty(AidaAnnotationOntology.CLUSTER_MEMBER, possibleClusterMember);
+                InterchangeOntology.ClusterMembership, system);
+        clusterMemberAssertion.addProperty(InterchangeOntology.cluster, cluster);
+        clusterMemberAssertion.addProperty(InterchangeOntology.clusterMember, possibleClusterMember);
         markConfidence(model, clusterMemberAssertion, confidence, system);
         return clusterMemberAssertion;
     }
@@ -1198,15 +1198,15 @@ public class AIFUtils {
         if (hypothesisContent.isEmpty()) {
             throw new IllegalArgumentException("A hypothesis must have content");
         }
-        final Resource hypothesis = makeAIFResource(model, hypothesisURI, AidaAnnotationOntology.HYPOTHESIS_CLASS, system);
+        final Resource hypothesis = makeAIFResource(model, hypothesisURI, InterchangeOntology.Hypothesis, system);
         final Resource subgraph = model.createResource();
-        subgraph.addProperty(RDF.type, AidaAnnotationOntology.SUBGRAPH_CLASS);
+        subgraph.addProperty(RDF.type, InterchangeOntology.Subgraph);
 
         for (Resource h : hypothesisContent) {
-            subgraph.addProperty(AidaAnnotationOntology.GRAPH_CONTAINS, h);
+            subgraph.addProperty(InterchangeOntology.subgraphContains, h);
         }
 
-        hypothesis.addProperty(AidaAnnotationOntology.HYPOTHESIS_CONTENT_PROPERTY, subgraph);
+        hypothesis.addProperty(InterchangeOntology.hypothesisContent, subgraph);
 
         if (confidence != null) {
             markConfidence(model, hypothesis, confidence, system);
@@ -1239,7 +1239,7 @@ public class AIFUtils {
      * @param importance The importance value with which to mark the specified Resource
      */
     public static void markImportance(Resource resource, Double importance) {
-        resource.addLiteral(AidaAnnotationOntology.IMPORTANCE_PROPERTY, importance);
+        resource.addLiteral(InterchangeOntology.importance, importance);
     }
 
     /**
@@ -1249,7 +1249,7 @@ public class AIFUtils {
      * @param informativeJustification The justification which will be considered informative
      */
     public static void markInformativeJustification(Resource resource, Resource informativeJustification) {
-        resource.addProperty(AidaAnnotationOntology.INFORMATIVE_JUSTIFICATION, informativeJustification);
+        resource.addProperty(InterchangeOntology.informativeJustification, informativeJustification);
     }
 
     /**
@@ -1259,7 +1259,7 @@ public class AIFUtils {
      * @param hypothesis The hypothesis upon which to depend
      */
     public static void markDependsOnHypothesis(Resource depender, Resource hypothesis) {
-        depender.addProperty(AidaAnnotationOntology.DEPENDS_ON_HYPOTHESIS, hypothesis);
+        depender.addProperty(InterchangeOntology.dependsOnHypothesis, hypothesis);
     }
 
     /**
@@ -1286,10 +1286,10 @@ public class AIFUtils {
      */
     public static Resource markPrivateData(Model model, Resource resource, String jsonContent,
                                            Resource system) {
-        final Resource privateData = makeAIFResource(model, null, AidaAnnotationOntology.PRIVATE_DATA_CLASS, system);
-        privateData.addProperty(AidaAnnotationOntology.JSON_CONTENT_PROPERTY, model.createTypedLiteral(jsonContent));
+        final Resource privateData = makeAIFResource(model, null, InterchangeOntology.PrivateData, system);
+        privateData.addProperty(InterchangeOntology.jsonContent, model.createTypedLiteral(jsonContent));
 
-        resource.addProperty(AidaAnnotationOntology.PRIVATE_DATA_PROPERTY, privateData);
+        resource.addProperty(InterchangeOntology.privateData, privateData);
 
         return privateData;
     }
@@ -1338,9 +1338,9 @@ public class AIFUtils {
      */
     public static Resource linkToExternalKB(Model model, Resource toLink, String externalKbId, Resource system,
                                             Double confidence) {
-        final Resource linkAssertion = makeAIFResource(model, null, AidaAnnotationOntology.LINK_ASSERTION_CLASS, system);
-        toLink.addProperty(AidaAnnotationOntology.LINK, linkAssertion);
-        linkAssertion.addProperty(AidaAnnotationOntology.LINK_TARGET, model.createTypedLiteral(externalKbId));
+        final Resource linkAssertion = makeAIFResource(model, null, InterchangeOntology.LinkAssertion, system);
+        toLink.addProperty(InterchangeOntology.link, linkAssertion);
+        linkAssertion.addProperty(InterchangeOntology.linkTarget, model.createTypedLiteral(externalKbId));
         if (confidence != null) {
             markConfidence(model, linkAssertion, confidence, system);
         }
@@ -1393,7 +1393,7 @@ public class AIFUtils {
      */
     public static ImmutableSet<Resource> getConfidenceAssertions(Model model, Resource confidencedObject) {
         NodeIterator iter =
-                model.listObjectsOfProperty(confidencedObject, AidaAnnotationOntology.CONFIDENCE);
+                model.listObjectsOfProperty(confidencedObject, InterchangeOntology.confidence);
         HashSet<Resource> matchSet = new HashSet<>();
         while (iter.hasNext()) {
             matchSet.add(iter.nextNode().asResource());
@@ -1425,11 +1425,11 @@ public class AIFUtils {
         }
 
         private Resource makeAIFTimeComponent(Model model) {
-            final Resource timeComponent = makeAIFResource(model, null, AidaAnnotationOntology.LDC_TIME_COMPONENT, null);
-            timeComponent.addProperty(AidaAnnotationOntology.LDC_TIME_TYPE, type.toString());
-            addLiteral(model, timeComponent, AidaAnnotationOntology.LDC_TIME_YEAR, year, XSD.gYear);
-            addLiteral(model, timeComponent, AidaAnnotationOntology.LDC_TIME_MONTH, month, XSD.gMonth);
-            addLiteral(model, timeComponent, AidaAnnotationOntology.LDC_TIME_DAY, day, XSD.gDay);
+            final Resource timeComponent = makeAIFResource(model, null, InterchangeOntology.LDCTimeComponent, null);
+            timeComponent.addProperty(InterchangeOntology.timeType, type.toString());
+            addLiteral(model, timeComponent, InterchangeOntology.year, year, XSD.gYear);
+            addLiteral(model, timeComponent, InterchangeOntology.month, month, XSD.gMonth);
+            addLiteral(model, timeComponent, InterchangeOntology.day, day, XSD.gDay);
             return timeComponent;
         }
 
@@ -1483,15 +1483,15 @@ public class AIFUtils {
      * @return
      */
     public static Resource markLDCTime(Model model, Resource toMark, LDCTimeComponent start, LDCTimeComponent end, Resource system) {
-        final Resource ldcTime = makeAIFResource(model, null, AidaAnnotationOntology.LDC_TIME_CLASS, system);
+        final Resource ldcTime = makeAIFResource(model, null, InterchangeOntology.LDCTime, system);
         if (start != null) {
-            ldcTime.addProperty(AidaAnnotationOntology.LDC_TIME_START, start.makeAIFTimeComponent(model));
+            ldcTime.addProperty(InterchangeOntology.start, start.makeAIFTimeComponent(model));
         }
         if (end != null) {
-            ldcTime.addProperty(AidaAnnotationOntology.LDC_TIME_END, end.makeAIFTimeComponent(model));
+            ldcTime.addProperty(InterchangeOntology.end, end.makeAIFTimeComponent(model));
         }
 
-        toMark.addProperty(AidaAnnotationOntology.LDC_TIME_PROPERTY, ldcTime);
+        toMark.addProperty(InterchangeOntology.ldcTime, ldcTime);
         return ldcTime;
     }
 
@@ -1511,21 +1511,21 @@ public class AIFUtils {
                                             LDCTimeComponent startEarliest, LDCTimeComponent startLatest,
                                             LDCTimeComponent endEarliest, LDCTimeComponent endLatest,
                                             Resource system) {
-        final Resource ldcTime = makeAIFResource(model, null, AidaAnnotationOntology.LDC_TIME_CLASS, system);
+        final Resource ldcTime = makeAIFResource(model, null, InterchangeOntology.LDCTime, system);
         if (endLatest != null) {
-            ldcTime.addProperty(AidaAnnotationOntology.LDC_TIME_END, endLatest.makeAIFTimeComponent(model));
+            ldcTime.addProperty(InterchangeOntology.end, endLatest.makeAIFTimeComponent(model));
         }
         if (endEarliest != null) {
-            ldcTime.addProperty(AidaAnnotationOntology.LDC_TIME_END, endEarliest.makeAIFTimeComponent(model));
+            ldcTime.addProperty(InterchangeOntology.end, endEarliest.makeAIFTimeComponent(model));
         }
         if (startLatest != null) {
-            ldcTime.addProperty(AidaAnnotationOntology.LDC_TIME_START, startLatest.makeAIFTimeComponent(model));
+            ldcTime.addProperty(InterchangeOntology.start, startLatest.makeAIFTimeComponent(model));
         }
         if (startEarliest != null) {
-            ldcTime.addProperty(AidaAnnotationOntology.LDC_TIME_START, startEarliest.makeAIFTimeComponent(model));
+            ldcTime.addProperty(InterchangeOntology.start, startEarliest.makeAIFTimeComponent(model));
         }
 
-        toMark.addProperty(AidaAnnotationOntology.LDC_TIME_PROPERTY, ldcTime);
+        toMark.addProperty(InterchangeOntology.ldcTime, ldcTime);
         return ldcTime;
     }
 

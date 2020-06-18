@@ -37,7 +37,7 @@ class NistTA3TestUtils extends NistTestUtils {
      */
     ImmutablePair<Resource, Resource> makeValidNistTA3Entity(Resource type, String clusterHandle) {
         ImmutablePair<Resource, Resource> pair = makeValidNistEntity(type);
-        pair.getValue().addProperty(AidaAnnotationOntology.HANDLE, clusterHandle);
+        pair.getValue().addProperty(InterchangeOntology.handle, clusterHandle);
         return pair;
     }
 
