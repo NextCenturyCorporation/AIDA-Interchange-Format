@@ -67,7 +67,7 @@
    rdfs:comment "The evidence in a speech or other audio for some KB assertion" .
 
 :VideoJustification a owl:Class ;
-   rdfs:subClassOf :AudioJustification ;
+   rdfs:subClassOf :Justification ;
    rdfs:label "Video Justification" ;
    rdfs:comment "The evidence in a video with start and end time for some KB assertion" .
 

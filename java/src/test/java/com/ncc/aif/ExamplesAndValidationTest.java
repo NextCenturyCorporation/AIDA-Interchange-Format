@@ -646,10 +646,13 @@ public class ExamplesAndValidationTest {
             final Resource audioJustification = makeAudioJustification(model, "NYT_ENG_201181231",
                     4.566, 9.876, system, 0.789);
 
+            final Resource videoJustification = makeVideoJustification(model, "SOME_OTHER_VIDEO",
+                    4.566, 9.876, InterchangeOntology.VideoJustificationChannelBoth, system, 0.789);
+
             // combine all justifications into single justifiedBy triple with new confidence
             markCompoundJustification(model, ImmutableSet.of(electeeArgument),
                     ImmutableSet.of(textJustification, imageJustification, keyFrameVideoJustification,
-                            shotVideoJustification, audioJustification), system, 0.321);
+                            shotVideoJustification, audioJustification, videoJustification), system, 0.321);
 
             markCompoundJustification(model, ImmutableSet.of(placeArgument), ImmutableSet.of(textJustification, imageJustification),
                     system, 0.543);
@@ -1309,6 +1312,22 @@ public class ExamplesAndValidationTest {
                 markAudioJustification(model, gpeCollection, utils.getDocumentName(), startTimestamp*1.5, endTimestamp*1.5, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
 
                 utils.testValid("audioJustification with and without optional URI argument");
+            }
+            
+            /**
+             * Create video justifications with and without optional URIs.  Without a URI, a blank node is created.
+             */
+            @Test
+            void videoJustification() {
+                final Double startTimestamp = 5.0;
+                final Double endTimestamp = 10.0;
+
+                Resource justification = makeVideoJustification(model, utils.getDocumentName(), startTimestamp, endTimestamp, InterchangeOntology.VideoJustificationChannelBoth, system, confidence);
+                makeVideoJustification(model, utils.getDocumentName(), startTimestamp*1.1, endTimestamp*1.1, InterchangeOntology.VideoJustificationChannelSound, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+                markJustification(person1, justification);
+                markJustification(personCollection, justification);
+
+                utils.testValid("videoJustification with and without optional URI argument");
             }
 
             /**

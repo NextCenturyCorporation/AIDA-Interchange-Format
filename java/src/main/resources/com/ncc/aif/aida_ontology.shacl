@@ -652,6 +652,39 @@ aida:AudioJustificationShape
     sh:ignoredProperties aida:SharedJustificationProperties
     .
 
+#TODO: combine this and AudioJustificationShape
+aida:VideoJustificationShape
+    a sh:NodeShape ;
+    sh:targetClass aida:VideoJustification ;
+
+    # exactly one start timestamp
+    sh:property [
+        sh:path aida:startTimestamp ;
+        sh:datatype xsd:double ;
+        sh:minCount 1;
+        sh:maxCount 1 ];
+
+    # and exactly one end timestamp
+    sh:property [
+        sh:path aida:endTimestamp ;
+        sh:datatype xsd:double ;
+        sh:minCount 1;
+        sh:maxCount 1 ] ;
+    
+    # and exactly one channel
+    sh:property [
+        sh:path aida:channel ;
+        sh:class aida:VideoJustificationChannel ;
+        sh:minCount 1;
+        sh:maxCount 1 ] ;
+
+    # no other properties are allowed
+    sh:closed true ;
+
+    # except shared properties and rdf:type
+    sh:ignoredProperties aida:SharedJustificationProperties
+    .
+
 # bounding boxes are used by both image and video justifications
 aida:BoundingBoxShape
    a sh:NodeShape ;
@@ -793,6 +826,7 @@ aida:JustificationTypeList
         [ sh:class aida:ImageJustification ]
         [ sh:class aida:KeyFrameVideoJustification ]
         [ sh:class aida:ShotVideoJustification ]
+        [ sh:class aida:VideoJustification ]
     ) .
 
 aida:InformativeJustificationPropertyShape

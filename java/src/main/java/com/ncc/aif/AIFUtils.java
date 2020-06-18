@@ -996,6 +996,52 @@ public class AIFUtils {
     }
 
     /**
+     * Make an video justification.
+     *
+     * @param model          The underlying RDF model for the operation
+     * @param docId          A string containing the document element (child) ID of the source of the justification
+     * @param startTimestamp A timestamp within the video document where the justification starts
+     * @param endTimestamp   A timestamp within the video document where the justification ends
+     * @param channel        The channel of the video that the mention appears in. See: InterchangeOntology.VideoJustificationChannel
+     * @param system         The system object for the system which made this justification
+     * @param confidence     The confidence with which to mark the justification
+     * @param uri            A String uri representation of the justification
+     * @return The created video justification resource
+     */
+    public static Resource makeVideoJustification(Model model, String docId, Double startTimestamp, Double endTimestamp,
+                                                  Resource channel, Resource system, Double confidence, String uri) {
+        if (endTimestamp <= startTimestamp) {
+            throw new IllegalArgumentException("End timestamp " + endTimestamp
+                    + " does not follow start timestamp " + startTimestamp);
+        }
+        final Resource justification = makeAIFJustification(model, docId, InterchangeOntology.VideoJustification,
+                system, confidence, uri);
+
+        justification.addProperty(InterchangeOntology.startTimestamp, model.createTypedLiteral(startTimestamp));
+        justification.addProperty(InterchangeOntology.endTimestamp, model.createTypedLiteral(endTimestamp));
+        justification.addProperty(InterchangeOntology.channel, channel);
+
+        return justification;
+    }
+    
+    /**
+     * Make an video justification.
+     *
+     * @param model          The underlying RDF model for the operation
+     * @param docId          A string containing the document element (child) ID of the source of the justification
+     * @param startTimestamp A timestamp within the video document where the justification starts
+     * @param endTimestamp   A timestamp within the video document where the justification ends
+     * @param channel        The channel of the video that the mention appears in. See: InterchangeOntology.VideoJustificationChannel
+     * @param system         The system object for the system which made this justification
+     * @param confidence     The confidence with which to mark the justification
+     * @return The created video justification resource
+     */
+    public static Resource makeVideoJustification(Model model, String docId, Double startTimestamp, Double endTimestamp,
+                                                  Resource channel, Resource system, Double confidence) {
+        return makeVideoJustification(model, docId, startTimestamp, endTimestamp, channel, system, confidence, null);
+    }
+
+    /**
      * Combine justifications into single justifiedBy triple with new confidence.
      *
      * @param model          The underlying RDF model for the operation
