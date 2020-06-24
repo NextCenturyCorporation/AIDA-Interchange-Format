@@ -130,10 +130,8 @@ aida:EntityShape
             PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
             SELECT $this
             WHERE {
-                FILTER NOT EXISTS {
-                    ?membership a aida:ClusterMembership .
-                    ?membership aida:clusterMember $this .
-                }
+                FILTER ( NOT EXISTS { $this ^aida:clusterMember ?clusterMembership } &&
+                    NOT EXISTS { $this ^aida:prototype ?cluster } ) .
             }
         """ ;
     ] .
@@ -145,10 +143,8 @@ aida:EventRelationShape
             PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
             SELECT $this
             WHERE {
-                FILTER NOT EXISTS {
-                    ?membership a aida:ClusterMembership .
-                    ?membership aida:clusterMember $this .
-                }
+                FILTER ( NOT EXISTS { $this ^aida:clusterMember ?clusterMembership } &&
+                    NOT EXISTS { $this ^aida:prototype ?cluster } ) .
             }
         """ ;
     ] .
@@ -214,7 +210,6 @@ aida:InformativeJustificationMembersUniqueParentDoc
     a sh:SPARQLConstraint ;
     sh:message "Each Cluster, Entity, Event, or Relation can specify up to one informative mention per document as long as each informative mention points to a different sourceDocument" ;
     sh:select """
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
       	SELECT $this
       	WHERE {
@@ -241,3 +236,35 @@ aida:LinkAssertionShape
         sh:minCount 1 ;
         sh:maxCount 1
     ] .
+
+#########################
+# Prevent prototype from being member of cluster not prototype of and prototype of mulitple clusters
+#------------------------
+aida:PrototypeShape
+    a sh:NodeShape ;
+    sh:targetObjectsOf aida:prototype ;
+    sh:property aida:MultiClusterPrototypeShape ;
+    sh:sparql aida:NonClusterPrototypeMemberShape .
+
+# Prototype can't be prototype of multiple clusters
+aida:MultiClusterPrototypeShape
+    a sh:PropertyShape ;
+    sh:path [ sh:inversePath aida:prototype ] ;
+    sh:maxCount 1 ;
+    sh:message "Prototype can't be prototype of multiple clusters" .
+
+# Prototype can't be member of different cluster
+aida:NonClusterPrototypeMemberShape
+    # Using SPARQL because unable to use sh:inversePath in sh:equals
+    a sh:SPARQLConstraint ;
+    sh:select """
+        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+      	SELECT $this $value
+      	WHERE {
+      	    $this ^aida:clusterMember / aida:cluster $value .
+            $this ^aida:prototype ?cluster .
+            FILTER ($value != ?cluster) .
+      	}
+    """ ;
+
+    sh:message "Prototype can't be member of cluster it's not prototype of" .

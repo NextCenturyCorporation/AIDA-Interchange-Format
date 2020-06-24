@@ -199,9 +199,15 @@
   rdfs:subPropertyOf owl:topObjectProperty ; .
 
 :handle rdf:type owl:DatatypeProperty ;
-  rdfs:label "cluster handle" ;
-  rdfs:comment "Simple string description/reference of cluster" ;
-  rdfs:domain :SameAsCluster ;
+  rdfs:label "handle" ;
+  rdfs:comment "Simple string description/reference of real-world object" ;
+  rdfs:domain [
+        rdf:type owl:Class ;
+        owl:unionOf (
+            :Entity
+            :Event
+            :Relation
+            :SameAsCluster ) ] ;
   rdfs:range xsd:string ;
   rdfs:subPropertyOf owl:topDataProperty .
 

@@ -6,7 +6,7 @@ import org.apache.jena.rdf.model.ResourceFactory;
 // WARNING. This is a Generated File.  Please do not edit.
 // This class contains variables generated from SHACL files using the OntologyGeneration class
 // Please refer to the README at src/main/java/com/ncc/aif/ont2javagen for more information
-// Last Generated On: 06/18/2020 12:22:35
+// Last Generated On: 06/24/2020 09:24:54
 public final class ShaclShapes {
     public static final String NS = InterchangeOntology.NAMESPACE;
     public static final Resource AllKEsReferencedShape = ResourceFactory.createResource(NS + "AllKEsReferencedShape");
@@ -33,6 +33,7 @@ public final class ShaclShapes {
     public static final Resource EventRelationShape = ResourceFactory.createResource(NS + "EventRelationShape");
     public static final Resource EventSubclass = ResourceFactory.createResource(NS + "EventSubclass");
     public static final Resource EventTypeShape = ResourceFactory.createResource(NS + "EventTypeShape");
+    public static final Resource HandlePropertyShape = ResourceFactory.createResource(NS + "HandlePropertyShape");
     public static final Resource HypothesisClusterMembersSameAsBaseClass = ResourceFactory.createResource(NS + "HypothesisClusterMembersSameAsBaseClass");
     public static final Resource HypothesisClusterMembersShape = ResourceFactory.createResource(NS + "HypothesisClusterMembersShape");
     public static final Resource HypothesisEntityClusterRequireHandle = ResourceFactory.createResource(NS + "HypothesisEntityClusterRequireHandle");
@@ -54,11 +55,14 @@ public final class ShaclShapes {
     public static final Resource LDCTimeShape = ResourceFactory.createResource(NS + "LDCTimeShape");
     public static final Resource LinkAssertionShape = ResourceFactory.createResource(NS + "LinkAssertionShape");
     public static final Resource LinkPropertyShape = ResourceFactory.createResource(NS + "LinkPropertyShape");
+    public static final Resource MultiClusterPrototypeShape = ResourceFactory.createResource(NS + "MultiClusterPrototypeShape");
     public static final Resource MutualExclusionAlternativeShape = ResourceFactory.createResource(NS + "MutualExclusionAlternativeShape");
     public static final Resource MutualExclusionConstraintShape = ResourceFactory.createResource(NS + "MutualExclusionConstraintShape");
     public static final Resource NamePropertyShape = ResourceFactory.createResource(NS + "NamePropertyShape");
+    public static final Resource NonClusterPrototypeMemberShape = ResourceFactory.createResource(NS + "NonClusterPrototypeMemberShape");
     public static final Resource NumericPropertyShape = ResourceFactory.createResource(NS + "NumericPropertyShape");
     public static final Resource PrivateDataPropertyShape = ResourceFactory.createResource(NS + "PrivateDataPropertyShape");
+    public static final Resource PrototypeShape = ResourceFactory.createResource(NS + "PrototypeShape");
     public static final Resource RdfStatementShape = ResourceFactory.createResource(NS + "RdfStatementShape");
     public static final Resource RelationArgumentShape = ResourceFactory.createResource(NS + "RelationArgumentShape");
     public static final Resource RelationArgumentSubclass = ResourceFactory.createResource(NS + "RelationArgumentSubclass");
@@ -78,4 +82,5 @@ public final class ShaclShapes {
     public static final Resource SystemShape = ResourceFactory.createResource(NS + "SystemShape");
     public static final Resource TextJustificationShape = ResourceFactory.createResource(NS + "TextJustificationShape");
     public static final Resource TextPropertyShape = ResourceFactory.createResource(NS + "TextPropertyShape");
+    public static final Resource VideoJustificationShape = ResourceFactory.createResource(NS + "VideoJustificationShape");
 }

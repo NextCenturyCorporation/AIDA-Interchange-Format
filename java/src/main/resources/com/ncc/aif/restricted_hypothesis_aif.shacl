@@ -61,7 +61,8 @@ aida:ImportanceRequiredShape
     a sh:PropertyShape ;
     sh:path aida:importance ;
     sh:minCount 1 ;
-    sh:maxCount 1 .
+    sh:maxCount 1 ;
+    sh:message "Focus node requires importance".
 
 aida:HypothesisShape
     sh:property aida:ImportanceRequiredShape .

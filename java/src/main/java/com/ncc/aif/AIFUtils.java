@@ -1142,6 +1142,17 @@ public class AIFUtils {
     }
 
     /**
+     * Add {@code handle} to resource.
+     * 
+     * @param toMark an resource to add handle to
+     * @param handle a simple string description/reference of real-world object
+     * @return
+     */
+    public static Resource markHandle(Resource toMark, @Nullable String handle) {
+        return handle != null ? toMark.addProperty(InterchangeOntology.handle, handle) : toMark;
+    }
+
+    /**
      * Create a "same-as" cluster.
      * <p>
      * A same-as cluster is used to represent multiple entities which might be the same, but we
@@ -1179,12 +1190,34 @@ public class AIFUtils {
      */
     public static Resource makeClusterWithPrototype(Model model, String clusterUri, Resource prototype,
                                                     @Nullable String handle, Resource system) {
+        return markHandle(makeClusterWithPrototype(model, clusterUri, prototype, true, system), handle);
+    }
+
+    /**
+     * Create a "same-as" cluster.
+     * <p>
+     * A same-as cluster is used to represent multiple entities which might be the same, but we
+     * aren't sure. (If we were sure, they would just be a single node).
+     * <p>
+     * Every cluster requires a [prototype] - an entity, event, or relation that we are <b>certain</b> is in the
+     * cluster. This also conditionally adds a membership relation with the prototype with confidence 1.0.
+     *
+     * @param model      The underlying RDF model for the operation
+     * @param clusterUri A unique String URI for the cluster
+     * @param prototype  an entity, event, or relation that we are certain is in the cluster
+     * @param isMember   indicate whether {@code prototype} should be added as a member as well
+     * @param system     The system object for the system which created the specified cluster
+     * @return The created cluster resource
+     */
+    public static Resource makeClusterWithPrototype(Model model, String clusterUri, Resource prototype, boolean isMember,
+                                                    Resource system) {
         final Resource cluster = makeAIFResource(model, clusterUri, InterchangeOntology.SameAsCluster, system);
         cluster.addProperty(InterchangeOntology.prototype, prototype);
-        if (handle != null) {
-            cluster.addProperty(InterchangeOntology.handle, handle);
+        
+        if (isMember) {
+            markAsPossibleClusterMember(model, prototype, cluster, 1.0, system);
         }
-        markAsPossibleClusterMember(model, prototype, cluster, 1.0, system);
+
         return cluster;
     }
 

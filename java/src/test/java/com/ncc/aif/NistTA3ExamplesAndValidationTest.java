@@ -53,6 +53,7 @@ public class NistTA3ExamplesAndValidationTest {
         Resource entity;
         Resource entityCluster;
         Resource event;
+        Resource eventCluster;
         Resource eventEdge;
 
         @BeforeEach
@@ -66,6 +67,7 @@ public class NistTA3ExamplesAndValidationTest {
                     LDCOntology.Conflict_Attack,
                     104.0);
             event = aPair.getKey();
+            eventCluster = aPair.getValue();
             eventEdge = utils.makeValidTA3Edge(event,
                     LDCOntology.Conflict_Attack_Attacker,
                     entity, 101.0);
@@ -123,7 +125,7 @@ public class NistTA3ExamplesAndValidationTest {
                 cluster.addProperty(InterchangeOntology.handle, "handle3");
                 utils.makeValidTA3Hypothesis(entity, newEntity, event, eventEdge);
 
-                utils.expect(null, SH.MaxCountConstraintComponent, null);
+                utils.expect(ShaclShapes.HandlePropertyShape, SH.MaxCountConstraintComponent, null);
                 utils.testInvalid("NISTHypothesis.invalid (multiple handles exist): Each entity cluster in the " +
                         "hypothesis graph must have exactly one handle");
             }
@@ -162,7 +164,6 @@ public class NistTA3ExamplesAndValidationTest {
         @Nested
         class HypothesisEventRelationClusterImportanceValue {
             Resource relation;
-            Resource eventCluster;
             Resource relationCluster;
             Resource relationEdge;
 
@@ -172,7 +173,6 @@ public class NistTA3ExamplesAndValidationTest {
                         LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation);
                 relation = relationPair.getKey();
                 relationCluster = relationPair.getValue();
-                eventCluster = makeClusterWithPrototype(model, utils.getClusterUri(), event, system);
 
                 // This isn't strictly needed to be valid, but it's here because the example looks incomplete if an
                 // entity has a relationship without a relation edge defining that relationship.
@@ -186,6 +186,7 @@ public class NistTA3ExamplesAndValidationTest {
             @Test
             void invalidEvent() {
                 //invalid event cluster, no importance value
+                model.removeAll(eventCluster, InterchangeOntology.importance, null);
                 markImportance(relationCluster, 99.0);
                 utils.expect(ShaclShapes.ImportanceRequiredShape, SH.MinCountConstraintComponent, null);
                 utils.testInvalid("NISTHypothesis.invalid (event cluster has no importance value): Each event or " +
@@ -195,7 +196,6 @@ public class NistTA3ExamplesAndValidationTest {
             @Test
             void invalidRelation() {
                 //invalid relation cluster, no importance value
-                markImportance(eventCluster, 88.0);
                 utils.expect(ShaclShapes.ImportanceRequiredShape, SH.MinCountConstraintComponent, null);
                 utils.testInvalid("NISTHypothesis.invalid (relation cluster has no importance value): Each event or " +
                         "relation (cluster) in the hypothesis must have exactly one importance value");
@@ -203,7 +203,6 @@ public class NistTA3ExamplesAndValidationTest {
 
             @Test
             void valid() {
-                markImportance(eventCluster, 88.0);
                 markImportance(relationCluster, 99.0);
                 utils.testValid("NISTHypothesis.valid: Each event or relation (cluster) in the hypothesis must " +
                         "have exactly one importance value");
@@ -434,14 +433,15 @@ public class NistTA3ExamplesAndValidationTest {
             @Test
             void invalid() {
                 // create event cluster member to add to relation cluster
-                final Resource eventMember = utils.makeValidNistTA3Event(
-                        LDCOntology.Conflict_Attack,
-                        103.0).getKey();
+                final Resource newEvent = makeEvent(model, utils.getEventUri(), system);
+                markJustification(utils.addType(newEvent,
+                        LDCOntology.Conflict_Attack),
+                        utils.makeValidJustification());
 
                 //add invalid event cluster member to relation cluster
-                markAsPossibleClusterMember(model, eventMember, relationCluster, 1.0, system);
+                markAsPossibleClusterMember(model, newEvent, relationCluster, 1.0, system);
 
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge, eventMember, relation, relationEdge);
+                utils.makeValidTA3Hypothesis(entity, event, eventEdge, newEvent, relation, relationEdge);
                 utils.expect(ShaclShapes.HypothesisClusterMembersShape,
                         SH.SPARQLConstraintComponent,
                         ShaclShapes.HypothesisClusterMembersSameAsBaseClass);
