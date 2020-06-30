@@ -32,12 +32,12 @@ class NistTA3TestUtils extends NistTestUtils {
      * cluster handle.
      *
      * @param type          entity type
-     * @param clusterHandle cluster handle for the entity cluster
+     * @param prototypeHandle cluster handle for the entity cluster
      * @return a key-value Pair of the entity Resource (key) and its associated cluster Resource (value)
      */
-    ImmutablePair<Resource, Resource> makeValidNistTA3Entity(Resource type, String clusterHandle) {
+    ImmutablePair<Resource, Resource> makeValidNistTA3Entity(Resource type, String prototypeHandle) {
         ImmutablePair<Resource, Resource> pair = makeValidNistEntity(type);
-        pair.getValue().addProperty(InterchangeOntology.handle, clusterHandle);
+        AIFUtils.markHandle(pair.getKey(), prototypeHandle);
         return pair;
     }
 

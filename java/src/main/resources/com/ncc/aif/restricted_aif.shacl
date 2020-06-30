@@ -268,3 +268,15 @@ aida:NonClusterPrototypeMemberShape
     """ ;
 
     sh:message "Prototype can't be member of cluster it's not prototype of" .
+
+#########################
+# Prevent handle on cluster
+#------------------------
+aida:PreventHandleOnCluster
+    a sh:NodeShape ;
+    sh:targetClass aida:SameAsCluster ;
+    sh:not [
+        sh:path aida:handle ;
+        sh:minCount 1 
+    ] ;
+    sh:message "Handle is not allowed on cluster"

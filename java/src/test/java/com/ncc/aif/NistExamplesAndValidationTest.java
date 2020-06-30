@@ -1,25 +1,6 @@
 package com.ncc.aif;
 
-import static com.ncc.aif.AIFUtils.addSourceDocumentToJustification;
-import static com.ncc.aif.AIFUtils.makeClusterWithPrototype;
-import static com.ncc.aif.AIFUtils.makeEntity;
-import static com.ncc.aif.AIFUtils.makeEvent;
-import static com.ncc.aif.AIFUtils.makeRelation;
-import static com.ncc.aif.AIFUtils.makeSystemWithURI;
-import static com.ncc.aif.AIFUtils.makeTextJustification;
-import static com.ncc.aif.AIFUtils.markAsArgument;
-import static com.ncc.aif.AIFUtils.markAsPossibleClusterMember;
-import static com.ncc.aif.AIFUtils.markCompoundJustification;
-import static com.ncc.aif.AIFUtils.markConfidence;
-import static com.ncc.aif.AIFUtils.markInformativeJustification;
-import static com.ncc.aif.AIFUtils.markJustification;
-import static com.ncc.aif.AIFUtils.markKeyFrameVideoJustification;
-import static com.ncc.aif.AIFUtils.markName;
-import static com.ncc.aif.AIFUtils.markNumericValueAsString;
-import static com.ncc.aif.AIFUtils.markShotVideoJustification;
-import static com.ncc.aif.AIFUtils.markSystem;
-import static com.ncc.aif.AIFUtils.markTextJustification;
-import static com.ncc.aif.AIFUtils.markTextValue;
+import static com.ncc.aif.AIFUtils.*;
 
 import com.google.common.collect.ImmutableSet;
 import com.ncc.aif.AIFUtils.BoundingBox;
@@ -790,6 +771,22 @@ public class NistExamplesAndValidationTest {
                 
                 utils.expect(ShaclShapes.PrototypeShape, SH.SPARQLConstraintComponent, ShaclShapes.NonClusterPrototypeMemberShape);
                 utils.testInvalid("Prototype.invalid: prototype member of other cluster");
+            }
+        }
+
+        @Nested
+        class Handle {
+            @Test
+            void invalidHandle() {
+                markHandle(entityCluster, "handle");
+                utils.expect(ShaclShapes.PreventHandleOnCluster, SH.NotConstraintComponent, null);
+                utils.testInvalid("Prototype.invalid: prototype of multiple clusters");
+            }
+            
+            @Test
+            void valid() {
+                markHandle(entity, "handle");
+                utils.testValid("Handle.valid");
             }
         }
     }

@@ -98,43 +98,39 @@ public class NistTA3ExamplesAndValidationTest {
             }
         }
 
-        // Each entity (cluster) in the hypothesis graph must have exactly one handle
+        // Each entity (prototype) in the hypothesis graph must have exactly one handle
         @Nested
-        class EntityClusterRequiredHandle {
+        class EntityPrototypeRequiredHandle {
 
             @Test
-            // No handle property on entity cluster in hypothesis
+            // No handle property on entity prototype in hypothesis
             void invalidNoHandle() {
                 final Resource newEntity = utils.makeValidNistEntity(
                         LDCOntology.PER).getKey();
                 utils.makeValidTA3Hypothesis(entity, newEntity, event, eventEdge);
 
                 utils.expect(null, SH.MinCountConstraintComponent, null);
-                utils.testInvalid("NISTHypothesis.invalid (no handle exists): Each entity cluster in the hypothesis " +
+                utils.testInvalid("NISTHypothesis.invalid (no handle exists): Each entity prototype in the hypothesis " +
                         "graph must have exactly one handle");
             }
 
             @Test
-            // Two handle properties on entity cluster in hypothesis
+            // Two handle properties on entity prototype in hypothesis
             void invalidMultipleHandles() {
-                final ImmutablePair<Resource, Resource> entityPair = utils.makeValidNistTA3Entity(
-                        LDCOntology.PER,
-                        "handle2");
-                final Resource newEntity = entityPair.getKey();
-                final Resource cluster = entityPair.getValue();
-                cluster.addProperty(InterchangeOntology.handle, "handle3");
+                final Resource newEntity = utils.makeValidNistTA3Entity(LDCOntology.PER,"handle2").getKey();
+                newEntity.addProperty(InterchangeOntology.handle, "handle3");
                 utils.makeValidTA3Hypothesis(entity, newEntity, event, eventEdge);
 
                 utils.expect(ShaclShapes.HandlePropertyShape, SH.MaxCountConstraintComponent, null);
-                utils.testInvalid("NISTHypothesis.invalid (multiple handles exist): Each entity cluster in the " +
+                utils.testInvalid("NISTHypothesis.invalid (multiple handles exist): Each entity prototype in the " +
                         "hypothesis graph must have exactly one handle");
             }
 
             @Test
-            // One handle on entity cluster in hypothesis
+            // One handle on entity prototype in hypothesis
             void valid() {
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge);
-                utils.testValid("NISTHypothesis.valid: Each entity cluster in the hypothesis graph must have " +
+                utils.testValid("NISTHypothesis.valid: Each entity prototype in the hypothesis graph must have " +
                         "exactly one handle");
             }
         }
