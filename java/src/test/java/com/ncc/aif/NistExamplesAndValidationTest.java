@@ -117,7 +117,7 @@ public class NistExamplesAndValidationTest {
             void invalidCompoundJustificationWithNoJustification() {
 
                 Resource compoundJustification = model.createResource();
-                compoundJustification.addProperty(RDF.type, AidaAnnotationOntology.COMPOUND_JUSTIFICATION_CLASS);
+                compoundJustification.addProperty(RDF.type, InterchangeOntology.CompoundJustification);
                 markSystem(compoundJustification, system);
 
                 markConfidence(model, compoundJustification, 1.0, system);
@@ -531,15 +531,15 @@ public class NistExamplesAndValidationTest {
             void setup() {
                 // create justification from scratch
                 newJustification = model.createResource();
-                newJustification.addProperty(RDF.type, AidaAnnotationOntology.TEXT_JUSTIFICATION_CLASS);
+                newJustification.addProperty(RDF.type, InterchangeOntology.TextJustification);
                 if (system != null) {
                     markSystem(newJustification, system);
                 }
 
                 markConfidence(model, newJustification, 0.973, system);
-                newJustification.addProperty(AidaAnnotationOntology.START_OFFSET,
+                newJustification.addProperty(InterchangeOntology.startOffset,
                         model.createTypedLiteral(41));
-                newJustification.addProperty(AidaAnnotationOntology.END_OFFSET_INCLUSIVE,
+                newJustification.addProperty(InterchangeOntology.endOffsetInclusive,
                         model.createTypedLiteral(143));
 
                 final Resource newEvent = makeEvent(model, utils.getEventUri(), system);
@@ -560,7 +560,7 @@ public class NistExamplesAndValidationTest {
             @Test
             void invalidNoSourceDocument() {
                 // include the source but not the source document
-                newJustification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral("XP043002ZO"));
+                newJustification.addProperty(InterchangeOntology.source, model.createTypedLiteral("XP043002ZO"));
                 utils.expect(null, SH.MinCountConstraintComponent, null);
                 utils.testInvalid("NIST.invalid (missing justification source document): justifications require a source document and source");
             }
@@ -568,7 +568,7 @@ public class NistExamplesAndValidationTest {
             @Test
             void valid() {
                 // include the source and source document
-                newJustification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral("XP043002ZO"));
+                newJustification.addProperty(InterchangeOntology.source, model.createTypedLiteral("XP043002ZO"));
                 addSourceDocumentToJustification(newJustification, "HC00002ZO");
                 utils.testValid("NIST.valid: justifications require a source document and a source");
             }
@@ -659,11 +659,11 @@ public class NistExamplesAndValidationTest {
             Resource linkAssertion;
 
             void link(Resource toLink) {
-                toLink.addProperty(AidaAnnotationOntology.LINK, linkAssertion);
+                toLink.addProperty(InterchangeOntology.link, linkAssertion);
             }
 
             void target(String externalKbId) {
-                linkAssertion.addProperty(AidaAnnotationOntology.LINK_TARGET, model.createTypedLiteral(externalKbId));
+                linkAssertion.addProperty(InterchangeOntology.linkTarget, model.createTypedLiteral(externalKbId));
             }
 
             @BeforeEach
@@ -672,7 +672,7 @@ public class NistExamplesAndValidationTest {
                 system = makeSystemWithURI(model, utils.getTestSystemUri());
 
                 linkAssertion = model.createResource();
-                linkAssertion.addProperty(RDF.type, AidaAnnotationOntology.LINK_ASSERTION_CLASS);
+                linkAssertion.addProperty(RDF.type, InterchangeOntology.LinkAssertion);
                 markSystem(linkAssertion, system);
 
                 entity = makeEntity(model, utils.getEntityUri(), system);
@@ -686,7 +686,7 @@ public class NistExamplesAndValidationTest {
             @Test
             void invalidLinkToNonAssertion() {
                 linkAssertion.listProperties().toList().forEach(model::remove);
-                entity.addProperty(AidaAnnotationOntology.LINK, utils.makeValidJustification());
+                entity.addProperty(InterchangeOntology.link, utils.makeValidJustification());
                 utils.expect(ShaclShapes.LinkPropertyShape, SH.ClassConstraintComponent, null);
                 utils.testInvalid("LinkAssertion.invalid: Link to non-LinkAssertion");
             }

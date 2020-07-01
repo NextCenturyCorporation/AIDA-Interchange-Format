@@ -4,11 +4,11 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 
 // WARNING. This is a Generated File.  Please do not edit.
-// This class contains variables generated from SHACL files using the OntologyGeneration Class
+// This class contains variables generated from SHACL files using the OntologyGeneration class
 // Please refer to the README at src/main/java/com/ncc/aif/ont2javagen for more information
-// Last Generated On: 05/30/2019 21:58:01
+// Last Generated On: 06/18/2020 12:22:35
 public final class ShaclShapes {
-    public static final String NS = AidaAnnotationOntology.NAMESPACE;
+    public static final String NS = InterchangeOntology.NAMESPACE;
     public static final Resource AllKEsReferencedShape = ResourceFactory.createResource(NS + "AllKEsReferencedShape");
     public static final Resource AudioJustificationShape = ResourceFactory.createResource(NS + "AudioJustificationShape");
     public static final Resource BoundingBoxPropertyShape = ResourceFactory.createResource(NS + "BoundingBoxPropertyShape");

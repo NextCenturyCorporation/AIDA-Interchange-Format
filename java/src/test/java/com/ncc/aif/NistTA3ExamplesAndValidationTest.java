@@ -120,7 +120,7 @@ public class NistTA3ExamplesAndValidationTest {
                         "handle2");
                 final Resource newEntity = entityPair.getKey();
                 final Resource cluster = entityPair.getValue();
-                cluster.addProperty(AidaAnnotationOntology.HANDLE, "handle3");
+                cluster.addProperty(InterchangeOntology.handle, "handle3");
                 utils.makeValidTA3Hypothesis(entity, newEntity, event, eventEdge);
 
                 utils.expect(null, SH.MaxCountConstraintComponent, null);
@@ -330,7 +330,7 @@ public class NistTA3ExamplesAndValidationTest {
 
             @Test
             void validWithClusterAndMembership() {
-                ResIterator it = model.listSubjectsWithProperty(AidaAnnotationOntology.CLUSTER_PROPERTY, relationCluster);
+                ResIterator it = model.listSubjectsWithProperty(InterchangeOntology.cluster, relationCluster);
                 Assertions.assertTrue(it.hasNext(), "Unable to find expected cluster membership");
                 utils.makeValidTA3Hypothesis(entity, relation, relationEdge, event, eventEdge, relationCluster, it.nextResource());
                 utils.testValid("NISTHypothesis.validWithClusterAndMembership: All KEs in model must be referenced by hypothesis");

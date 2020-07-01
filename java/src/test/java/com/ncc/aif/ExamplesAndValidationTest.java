@@ -646,10 +646,13 @@ public class ExamplesAndValidationTest {
             final Resource audioJustification = makeAudioJustification(model, "NYT_ENG_201181231",
                     4.566, 9.876, system, 0.789);
 
+            final Resource videoJustification = makeVideoJustification(model, "SOME_OTHER_VIDEO",
+                    4.566, 9.876, InterchangeOntology.VideoJustificationChannelBoth, system, 0.789);
+
             // combine all justifications into single justifiedBy triple with new confidence
             markCompoundJustification(model, ImmutableSet.of(electeeArgument),
                     ImmutableSet.of(textJustification, imageJustification, keyFrameVideoJustification,
-                            shotVideoJustification, audioJustification), system, 0.321);
+                            shotVideoJustification, audioJustification, videoJustification), system, 0.321);
 
             markCompoundJustification(model, ImmutableSet.of(placeArgument), ImmutableSet.of(textJustification, imageJustification),
                     system, 0.543);
@@ -1310,6 +1313,22 @@ public class ExamplesAndValidationTest {
 
                 utils.testValid("audioJustification with and without optional URI argument");
             }
+            
+            /**
+             * Create video justifications with and without optional URIs.  Without a URI, a blank node is created.
+             */
+            @Test
+            void videoJustification() {
+                final Double startTimestamp = 5.0;
+                final Double endTimestamp = 10.0;
+
+                Resource justification = makeVideoJustification(model, utils.getDocumentName(), startTimestamp, endTimestamp, InterchangeOntology.VideoJustificationChannelBoth, system, confidence);
+                makeVideoJustification(model, utils.getDocumentName(), startTimestamp*1.1, endTimestamp*1.1, InterchangeOntology.VideoJustificationChannelSound, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+                markJustification(person1, justification);
+                markJustification(personCollection, justification);
+
+                utils.testValid("videoJustification with and without optional URI argument");
+            }
 
             /**
              * Create cluster memberships with and without optional URIs.  Without a URI, a blank node is created.
@@ -1393,15 +1412,15 @@ public class ExamplesAndValidationTest {
             // below is just the content of AIFUtils.markTextJustification, except without the required
             // confidence
             final Resource justification = model.createResource();
-            justification.addProperty(RDF.type, AidaAnnotationOntology.TEXT_JUSTIFICATION_CLASS);
+            justification.addProperty(RDF.type, InterchangeOntology.TextJustification);
             // the document ID for the justifying source document
-            justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral("FOO"));
-            justification.addProperty(AidaAnnotationOntology.START_OFFSET,
+            justification.addProperty(InterchangeOntology.source, model.createTypedLiteral("FOO"));
+            justification.addProperty(InterchangeOntology.startOffset,
                     model.createTypedLiteral(14));
-            justification.addProperty(AidaAnnotationOntology.END_OFFSET_INCLUSIVE,
+            justification.addProperty(InterchangeOntology.endOffsetInclusive,
                     model.createTypedLiteral(56));
-            justification.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
-            entity.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification);
+            justification.addProperty(InterchangeOntology.system, system);
+            entity.addProperty(InterchangeOntology.justifiedBy, justification);
 
             utils.expect(ShaclShapes.RequiredConfidencePropertyShape, SH.MinCountConstraintComponent, null);
             utils.testInvalid("Invalid: justification missing confidence");
@@ -1413,7 +1432,7 @@ public class ExamplesAndValidationTest {
         void missingRdfTypeOnNamedNode() {
             // below we copy the code from AIFUtils.makeEntity but forget to mark it as an entity
             final Resource entity = model.createResource("http://www.test.edu/entity/1");
-            entity.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
+            entity.addProperty(InterchangeOntology.system, system);
             utils.testInvalid("Invalid: missing rdf type");
         }
     }
