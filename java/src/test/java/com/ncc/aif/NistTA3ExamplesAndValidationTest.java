@@ -158,7 +158,7 @@ public class NistTA3ExamplesAndValidationTest {
 
         // Each event or relation (cluster) in the hypothesis must have exactly one importance value
         @Nested
-        class HypothesisEventRelationClusterImportanceValue {
+        class HypothesisEventRelationPrototypeImportanceValue {
             Resource relation;
             Resource relationCluster;
             Resource relationEdge;
@@ -182,8 +182,8 @@ public class NistTA3ExamplesAndValidationTest {
             @Test
             void invalidEvent() {
                 //invalid event cluster, no importance value
-                model.removeAll(eventCluster, InterchangeOntology.importance, null);
-                markImportance(relationCluster, 99.0);
+                model.removeAll(event, InterchangeOntology.importance, null);
+                markImportance(relation, 99.0);
                 utils.expect(ShaclShapes.ImportanceRequiredShape, SH.MinCountConstraintComponent, null);
                 utils.testInvalid("NISTHypothesis.invalid (event cluster has no importance value): Each event or " +
                         "relation (cluster) in the hypothesis must have exactly one importance value");
@@ -199,7 +199,7 @@ public class NistTA3ExamplesAndValidationTest {
 
             @Test
             void valid() {
-                markImportance(relationCluster, 99.0);
+                markImportance(relation, 99.0);
                 utils.testValid("NISTHypothesis.valid: Each event or relation (cluster) in the hypothesis must " +
                         "have exactly one importance value");
             }

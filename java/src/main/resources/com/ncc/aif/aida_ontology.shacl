@@ -87,6 +87,9 @@ aida:EntityShape
 
     # may provide a confidence
     sh:property aida:ConfidencePropertyShape ;
+    
+    # may provide an importance
+    sh:property aida:ImportancePropertyShape ;
 
     # may provide an one or more source systems
     sh:property aida:SystemPropertyShape ;
@@ -142,6 +145,9 @@ aida:EventRelationShape
 
     # may provide a confidence
     sh:property aida:ConfidencePropertyShape ;
+    
+    # may provide an importance
+    sh:property aida:ImportancePropertyShape ;
 
     # may provide an one or more source systems
     sh:property aida:SystemPropertyShape ;
@@ -1108,9 +1114,6 @@ aida:ClusterShape
 
    # allow clusters to have handle property
    sh:property aida:HandlePropertyShape ;
-
-   # may provide an importance
-   sh:property aida:ImportancePropertyShape ;
 
    # may provide an informative justification
    sh:property aida:InformativeJustificationPropertyShape ;
