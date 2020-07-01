@@ -38,7 +38,7 @@ def make_system_with_uri(graph, system_uri):
     :param str system_uri: A string URI representation of the system
     :returns: The created system resource
     :rtype: rdflib.term.URIRef
-        
+
     """
     system = URIRef(system_uri)
     graph.add((system, RDF.type, AIDA_ANNOTATION.System))
@@ -86,7 +86,7 @@ def mark_numeric_value_as_string(g, entity, numeric_value):
 
     :param rdflib.graph.Graph g: The underlying RDF model
     :param rdflib.term.URIRef entity: The resource to mark as having the specified numeric value
-    :param str numeric_value: A string representation of a numeric value with which to 
+    :param str numeric_value: A string representation of a numeric value with which to
          mark the specified resource
     """
     g.add((entity, AIDA_ANNOTATION.numericValue,
@@ -99,7 +99,7 @@ def mark_numeric_value_as_double(g, entity, numeric_value):
 
     :param rdflib.graph.Graph g: The underlying RDF model
     :param rdflib.term.URIRef entity: The Resource to mark as having the specified numeric value
-    :param str numeric_value: A double representation of a numeric value with which to mark the 
+    :param str numeric_value: A double representation of a numeric value with which to mark the
         specified resource
     """
     g.add((entity, AIDA_ANNOTATION.numericValue,
@@ -112,7 +112,7 @@ def mark_numeric_value_as_long(g, entity, numeric_value):
 
     :param rdflib.graph.Graph g: The underlying RDF model
     :param rdflib.term.URIRef entity: The resource to mark as having the specified numeric value
-    :param str numeric_value: A long representation of a numeric value with which to mark the 
+    :param str numeric_value: A long representation of a numeric value with which to mark the
         specified resource
     """
     g.add((entity, AIDA_ANNOTATION.numericValue,
@@ -135,21 +135,21 @@ def make_entity(g, entity_uri, system):
 def mark_type(g, type_assertion_uri, entity_or_event, _type, system, confidence):
     """
     Mark an entity, event, or relation as having a specified type.
-    
+
     This is marked with a separate assertion so that uncertainty about type can be expressed.
     In such a case, bundle together the type assertion resources returned by this method with
     [mark_as_mutually_exclusive].
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param rdflib.term.URIRef type_assertion_uri: The string URI of a type assertion 
+    :param rdflib.term.URIRef type_assertion_uri: The string URI of a type assertion
         resource with which to mark the entity or event
-    :param rdflib.term.URIRef entity_or_event: The entity, event, or relation to mark 
+    :param rdflib.term.URIRef entity_or_event: The entity, event, or relation to mark
         as having the specified type
     :param rdflib.term.URIRef _type: The type of the entity, event, or relation being asserted
     :param rdflib.term.URIRef system: The system object for the system which created this entity
     :param float confidence: If not None, the confidence with which to mark the specified type
     :returns: The created type assertion resource
-    :rtype: rdflib.term.URIRef 
+    :rtype: rdflib.term.URIRef
     """
     type_assertion = _make_aif_resource(g, type_assertion_uri, RDF.Statement, system)
     g.add((type_assertion, RDF.subject, entity_or_event))
@@ -165,7 +165,7 @@ def mark_justification(g, things_to_justify, justification):
 
     :param rdflib.graph.Graph g: The underlying RDF model
     :param list things_to_justify: The resource to be marked by the specified justification
-    :param rdflib.term.BNode justification: The justification to be marked onto the 
+    :param rdflib.term.BNode justification: The justification to be marked onto the
         specified resource
     """
     if isinstance(things_to_justify, URIRef):
@@ -181,13 +181,13 @@ def make_text_justification(g, doc_id, start_offset, end_offset_inclusive,
     Create a justification from a particular snippet of text.
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param str doc_id: A string containing the document element (child) ID of the source 
+    :param str doc_id: A string containing the document element (child) ID of the source
         of the justification
-    :param int start_offset: An integer offset within the document for the start of 
+    :param int start_offset: An integer offset within the document for the start of
         the justification
-    :param int end_offset_inclusive: An integer offset within the document for the end of 
+    :param int end_offset_inclusive: An integer offset within the document for the end of
         the justification
-    :param rdflib.term.URIRef system: The system object for the system which made this 
+    :param rdflib.term.URIRef system: The system object for the system which made this
         justification
     :param float confidence: The confidence with which to mark the justification
     :param str uri_ref: A string URI representation of the justification (Default is None)
@@ -215,13 +215,13 @@ def mark_text_justification(g, things_to_justify, doc_id, start_offset,
     :param rdflib.graph.Graph g: The underlying RDF model
     :param list things_to_justify: A list of resources to be marked by the specified text
         document
-    :param str doc_id: A string containing the document element (child) ID of the source of 
+    :param str doc_id: A string containing the document element (child) ID of the source of
         the justification
-    :param int start_offset: An integer offset within the document for the start of 
+    :param int start_offset: An integer offset within the document for the start of
         the justification
-    :param int end_offset_inclusive: An integer offset within the document for the end of 
+    :param int end_offset_inclusive: An integer offset within the document for the end of
         the justification
-    :param rdflib.term.URIRef system: The system object for the system which made this 
+    :param rdflib.term.URIRef system: The system object for the system which made this
         justification
     :param float confidence: The confidence with which to mark the justification
     :param str uri_ref: A string URI representation of the justification (Default is None)
@@ -241,7 +241,7 @@ def mark_confidence(g, to_mark_on, confidence, system):
     :param rdflib.graph.Graph g: The underlying RDF model
     :param to_mark_on: The resource to mark with the specified confidence
     :param float confidence: The confidence with which to mark the resource
-    :param rdflib.term.URIRef system: The system object for the system which marked this 
+    :param rdflib.term.URIRef system: The system object for the system which marked this
         confidence
     """
     confidence_blank_node = _make_aif_resource(g, None, AIDA_ANNOTATION.Confidence, system)
@@ -256,10 +256,10 @@ def make_relation(g, relation_uri, system):
 
     :param rdflib.graph.Graph g: The underlying RDF model
     :param str relation_uri: A unique string URI for the relation
-    :param rdflib.term.URIRef system: The system object for the system which created the 
+    :param rdflib.term.URIRef system: The system object for the system which created the
         specified relation
     :returns: The relation object
-    :rtype: rdflib.term.URIRef  
+    :rtype: rdflib.term.URIRef
     """
     return _make_aif_resource(g, relation_uri, AIDA_ANNOTATION.Relation, system)
 
@@ -267,8 +267,8 @@ def make_relation(g, relation_uri, system):
 def make_relation_in_event_form(g, relation_uri, relation_type, subject_role, subject_resource, object_role,
                                 object_resource, type_assertion_uri, system, confidence):
     """
-    Make a relation of type [relation_type] between [subject_resource] and [object_resource] 
-    in a form similar to that of an event: subjects and objects are explicitly linked to 
+    Make a relation of type [relation_type] between [subject_resource] and [object_resource]
+    in a form similar to that of an event: subjects and objects are explicitly linked to
     relation via [subject_role] and [object_role], respectively.
 
     If [confidence] is not None the relation is marked with the given [confidence]
@@ -276,19 +276,19 @@ def make_relation_in_event_form(g, relation_uri, relation_type, subject_role, su
     :param rdflib.graph.Graph g: The underlying RDF model
     :param str relation_uri: A unique string URI for the specified relation
     :param rdflib.term.URIRef relation_type: The type of relation to make
-    :param rdflib.term.URIRef subject_role: The role to link the specified subject to 
+    :param rdflib.term.URIRef subject_role: The role to link the specified subject to
         the specified relation
-    :param rdflib.term.URIRef subject_resource: The subject to which to link the specified 
+    :param rdflib.term.URIRef subject_resource: The subject to which to link the specified
         relation via the specified role
-    :param rdflib.term.URIRef object_role: The role to link the specified object to 
+    :param rdflib.term.URIRef object_role: The role to link the specified object to
         the specified relation
-    :param rdflib.term.URIRef object_resource: The object to which to link the specified 
+    :param rdflib.term.URIRef object_resource: The object to which to link the specified
         relation via the specified role
-    :param str type_assertion_uri: The string URI of a type assertion resource with which 
+    :param str type_assertion_uri: The string URI of a type assertion resource with which
         to mark the relation
-    :param rdflib.term.URIRef system: The system object for the system which created 
+    :param rdflib.term.URIRef system: The system object for the system which created
         the specified relation
-    :param float confidence: If not None, the confidence with which to mark the specified 
+    :param float confidence: If not None, the confidence with which to mark the specified
         relation
     :returns: The created relation resource
     :rtype: rdflib.term.URIRef
@@ -306,13 +306,13 @@ def mark_as_argument(g, event_or_relation, argument_type, argument_filler, syste
     will be a blank node.
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param rdflib.term.URIRef event_or_relation: The event or relation for which to mark 
+    :param rdflib.term.URIRef event_or_relation: The event or relation for which to mark
         the specified argument role
     :param rdflib.term.URIRef argument_type: The type (predicate) of the argument
     :param rdflib.term.URIRef argument_filler: The filler (object) of the argument
-    :param rdflib.term.URIRef system: The system object for the system which created this 
+    :param rdflib.term.URIRef system: The system object for the system which created this
         argument
-    :param float confidence: If not None, the confidence with which to mark the specified 
+    :param float confidence: If not None, the confidence with which to mark the specified
         argument
     :param str uri: A unique string URI for the argument (Default is None)
     :returns: The created event or relation argument assertion
@@ -334,7 +334,7 @@ def make_event(g, event_uri, system):
 
     :param rdflib.graph.Graph g: The underlying RDF model
     :param str event_uri: A unique string URI for the event
-    :param rdflib.term.URIRef system: The system object for the system which created 
+    :param rdflib.term.URIRef system: The system object for the system which created
         this event
     :returns: The created event resource
     :rtype: rdflib.term.URIRef
@@ -374,14 +374,14 @@ def make_image_justification(g, doc_id, boundingbox, system, confidence,
     Marks a justification for something appearing in an image.
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param str doc_id: A string containing the document element (child) ID of 
+    :param str doc_id: A string containing the document element (child) ID of
         the source of the justification
-    :param Bounding_Box boundingbox: A rectangular box 
+    :param Bounding_Box boundingbox: A rectangular box
         within the image that bounds the justification
-    :param rdflib.term.URIRef system: The system object for the system which made 
+    :param rdflib.term.URIRef system: The system object for the system which made
         this justification
     :param float confidence: The confidence with which to mark the justification
-    :param str uri_ref: A string URI representation of the image justification 
+    :param str uri_ref: A string URI representation of the image justification
         (Default is None)
     :returns: The created image justification resource
     :rtype: rdflib.term.BNode
@@ -399,16 +399,16 @@ def mark_image_justification(g, things_to_justify, doc_id, boundingbox, system,
     Mark multiple things as being justified by a particular image.
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param list things_to_justify: A list of resources to be marked by the 
+    :param list things_to_justify: A list of resources to be marked by the
         specified image document
-    :param str doc_id: A string containing the document element (child) ID of 
+    :param str doc_id: A string containing the document element (child) ID of
         the source of the justification
-    :param Bounding_Box boundingbox: A rectangular box 
+    :param Bounding_Box boundingbox: A rectangular box
         within the image that bounds the justification
     :param rdflib.term.URIRef system: The system object for the system which marked
         this justification
     :param float confidence: The confidence with which to mark the justification
-    :param str uri_ref: A string URI representation of the image justification 
+    :param str uri_ref: A string URI representation of the image justification
         (Default is None)
     :returns: The created image justification resource
     :rtype: rdflib.term.BNode
@@ -426,13 +426,13 @@ def make_audio_justification(g, doc_id, start_timestamp, end_timestamp, system,
     Make an audio justification.
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param str doc_id: A string containing the document element (child) ID of 
+    :param str doc_id: A string containing the document element (child) ID of
         the source of the justification
-    :param float start_timestamp: A timestamp within the audio document where the 
+    :param float start_timestamp: A timestamp within the audio document where the
         justification starts
-    :param float end_timestamp: A timestamp within the audio document where the 
+    :param float end_timestamp: A timestamp within the audio document where the
         justification ends
-    :param rdflib.term.URIRef system: The system object for the system which made this 
+    :param rdflib.term.URIRef system: The system object for the system which made this
         justification
     :param float confidence: The confidence with which to mark the justification
     :param str uri_ref: (Default is None)
@@ -458,18 +458,18 @@ def mark_audio_justification(g, things_to_justify, doc_id, start_timestamp,
     Mark multiple things as being justified by appearing in an audio document.
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param list things_to_justify: A list of resources to be marked by the 
+    :param list things_to_justify: A list of resources to be marked by the
         specified audio document
-    :param str doc_id: A string containing the document element (child) ID of 
+    :param str doc_id: A string containing the document element (child) ID of
         the source of the justification
-    :param float start_timestamp: A timestamp within the audio document where the 
+    :param float start_timestamp: A timestamp within the audio document where the
         justification starts
-    :param float end_timestamp: A timestamp within the audio document where the 
+    :param float end_timestamp: A timestamp within the audio document where the
         justification ends
     :param rdflib.term.URIRef system: The system object for the system which marked
         this justification
     :param float confidence: The confidence with which to mark the justification
-    :param str uri_ref: A string URI representation of the audio justification 
+    :param str uri_ref: A string URI representation of the audio justification
         (Default is None)
     :returns: The created audio justification resource
     :rtype: rdflib.term.BNode
@@ -486,10 +486,10 @@ def make_keyframe_video_justification(g, doc_id, key_frame, boundingbox, system,
     Create a justification from something appearing in a key frame of a video.
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param str doc_id: A string containing the document element (child) ID of 
+    :param str doc_id: A string containing the document element (child) ID of
         the source of the justification
     :param str key_frame: The string Id of the key frame of the specified video document
-    :param Bounding_Box boundingbox: A rectangular box within 
+    :param Bounding_Box boundingbox: A rectangular box within
         the key frame that bounds the justification
     :param rdflib.term.URIRef system: The system object for the system which marked
         this justification
@@ -513,12 +513,12 @@ def mark_keyframe_video_justification(g, things_to_justify, doc_id, key_frame, b
     Mark multiple things as being justified by appearing in a key frame of a video.
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param list things_to_justify: A list of resources to be marked by the specified 
+    :param list things_to_justify: A list of resources to be marked by the specified
         video document
-    :param str doc_id: A string containing the document element (child) ID of 
+    :param str doc_id: A string containing the document element (child) ID of
         the source of the justification
     :param str key_frame: The string Id of the key frame of the specified video document
-    :param Bounding_Box boundingbox: A rectangular box within 
+    :param Bounding_Box boundingbox: A rectangular box within
         the key frame that bounds the justification
     :param rdflib.term.URIRef system: The system object for the system which marked
         this justification
@@ -539,7 +539,7 @@ def make_shot_video_justification(g, doc_id, shot_id, system, confidence,
     Create a justification from something appearing in a video but not in a key frame.
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param str doc_id: A string containing the document element (child) ID of the 
+    :param str doc_id: A string containing the document element (child) ID of the
         source of the justification
     :param str shot_id: The string Id of the shot of the specified video document
     :param rdflib.term.URIRef system: The system object for the system which made
@@ -564,7 +564,7 @@ def mark_shot_video_justification(g, things_to_justify, doc_id, shot_id, system,
     Mark multiple things as being justified by appearing in a video but not in a key frame
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param list things_to_justify: A list of resources to be marked by the specified 
+    :param list things_to_justify: A list of resources to be marked by the specified
         video document
     :param str shot_id: The string Id of the shot of the specified video document
     :param str doc_id: A string containing the document element (child) ID of the
@@ -648,7 +648,7 @@ def mark_as_possible_cluster_member(g, possible_cluster_member, cluster, confide
     Mark an entity or event as a possible member of a cluster.
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param rdflib.term.URIRef possible_cluster_member: The entity or event to mark as a possible 
+    :param rdflib.term.URIRef possible_cluster_member: The entity or event to mark as a possible
         member of the specified cluster
     :param rdflib.term.URIRef cluster: The cluster to associate with the possible cluster member
     :param float confidence: The confidence with which to mark the cluster membership
@@ -672,7 +672,7 @@ def make_hypothesis(g, hypothesis_uri, hypothesis_content, system):
 
     :param rdflib.graph.Graph g: The underlying RDF model
     :param str hypothesis_uri: A unique String URI for the hypothesis
-    :param list hypothesis_content: A list of entities, relations, and arguments that contribute 
+    :param list hypothesis_content: A list of entities, relations, and arguments that contribute
         to the hypothesis
     :param rdflib.term.URIRef system: The system object for the system which made the hypothesis
     :return: The hypothesis resource
@@ -730,14 +730,14 @@ def mark_as_mutually_exclusive(g, alternatives, system, none_of_the_above_prob):
     """
     Mark the given resources as mutually exclusive.
 
-    This is a special case of [mark_as_mutually_exclusive] where the alternatives are 
-    each single edges, so we simply wrap each edge in a collection and pass to 
+    This is a special case of [mark_as_mutually_exclusive] where the alternatives are
+    each single edges, so we simply wrap each edge in a collection and pass to
     mark_as_mutually_exclusive.
 
     :param rdflib.graph.Graph g: The underlying RDF model
     :param dict alternatives: a dictionary of edges which form a sub-graph for
         an alternative to the confidence associated with an alternative.
-    :param rdflib.term.URIRef system: The system object for the system which contains the 
+    :param rdflib.term.URIRef system: The system object for the system which contains the
         mutual exclusion
     :param float none_of_the_above_prob: if not None, the given confidence will be applied for
         the "none of the above" option.
@@ -834,7 +834,8 @@ def mark_private_data_with_vector(g, resource, system, vector):
     return private_data
 
 
-def link_to_external_kb(g, to_link, external_kb_id, system, confidence):
+def link_to_external_kb(g, to_link, external_kb_id, system, confidence,
+                        uri_ref=None):
     """
     Link an entity to something in an external KB.
 
@@ -843,10 +844,14 @@ def link_to_external_kb(g, to_link, external_kb_id, system, confidence):
     :param str external_kb_id: A unique String URI of the external KB
     :param rdflib.term.URIRef system: The system object for the system which make the link
     :param float confidence: If not None, the confidence with which to mark the linkage
+    :param str uri_ref: A string URI representation of the link (Default is None)
     :returns: The created link assertion resource
     :rtype: rdflib.term.BNode
     """
-    link_assertion = BNode()
+    if uri_ref is None:
+        link_assertion = BNode()
+    else:
+        link_assertion = URIRef(uri_ref)
     g.add((to_link, AIDA_ANNOTATION.link, link_assertion))
     g.add((link_assertion, RDF.type, AIDA_ANNOTATION.LinkAssertion))
     g.add((link_assertion, AIDA_ANNOTATION.linkTarget,
@@ -883,10 +888,10 @@ def _make_aif_justification(g, doc_id, class_type, system, confidence,
     Helper function to create a justification (text, image, audio, etc.) in the system.
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param str doc_id: A string containing the document element (child) ID of the source 
+    :param str doc_id: A string containing the document element (child) ID of the source
         of the justification
     :param rdflib.term.URIRef class_type: The class type of the resource
-    :param rdflib.term.URIRef system: The system object for the system which marks the 
+    :param rdflib.term.URIRef system: The system object for the system which marks the
         justification
     :param float confidence: If not None, the confidence with which to mark the linkage
     :param str uri_ref: A string URI representation of the justification (Default is None)
@@ -913,7 +918,7 @@ def get_type_assertions(g, typed_object):
     Retrieve all type assertions from an entity.
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param rdflib.term.URIRef typed_object: The entity from which to retrieve 
+    :param rdflib.term.URIRef typed_object: The entity from which to retrieve
         type assertions
     :returns: A list of type assertions for the specified entity
     :rtype: list
@@ -929,7 +934,7 @@ def get_confidences(g, confidenced_object):
     This does not get confidences attached to sub-graphs containing the object.
 
     :param rdflib.graph.Graph g: The underlying RDF model
-    :param rdflib.term.URIRef confidenced_object: The entity from which to retrieve 
+    :param rdflib.term.URIRef confidenced_object: The entity from which to retrieve
         confidence assertions
     :returns: A list of confidence assertions describing this object.
     :rtype: list
@@ -954,5 +959,5 @@ def mark_ldc_time(g, to_mark, start, end, system):
     g.add((ldc_time, AIDA_ANNOTATION.end, end.make_aif_time_component(g)))
 
     g.add((to_mark, AIDA_ANNOTATION.ldcTime, ldc_time))
-    
+
     return ldc_time
