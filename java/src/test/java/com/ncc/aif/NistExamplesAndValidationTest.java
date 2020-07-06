@@ -1,17 +1,26 @@
 package com.ncc.aif;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
+import static com.ncc.aif.AIFUtils.*;
+
 import com.google.common.collect.ImmutableSet;
+import com.ncc.aif.AIFUtils.BoundingBox;
+import com.ncc.aif.AIFUtils.Point;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDF;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.topbraid.shacl.vocabulary.SH;
 
-import static com.ncc.aif.AIFUtils.*;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class NistExamplesAndValidationTest {
@@ -396,12 +405,12 @@ public class NistExamplesAndValidationTest {
         class ClusterHasIRI {
             @Test
             void invalid() {
-                // Test entity, relation, and event. Correct other than being clustered
-                makeClusterWithPrototype(model, null, entity, system);
-                makeClusterWithPrototype(model, null, relation, system);
-                makeClusterWithPrototype(model, null, event, system);
-
-                utils.expect(ShaclShapes.ClusterShape, SH.NodeKindConstraintComponent, null, 3);
+                // Correct other than being clustered
+                Resource entity1 = makeEntity(model, utils.getEntityUri(), system);
+                markJustification(utils.addType(entity1, LDCOntology.PER), utils.makeValidJustification());
+                makeClusterWithPrototype(model, null, entity1, false, system);
+                
+                utils.expect(ShaclShapes.ClusterShape, SH.NodeKindConstraintComponent, null);
                 utils.testInvalid("NIST.invalid: Cluster has IRI");
             }
 
@@ -733,6 +742,51 @@ public class NistExamplesAndValidationTest {
                 markConfidence(model, linkAssertion, 1.0, system);
                 target("SomeExternalKBId-1");
                 utils.testValid("LinkAssertion.valid");
+            }
+        }
+         
+        @Nested
+        class Prototype {
+            @Test
+            void invalidPrototypeOfMultipleClusters() {
+                // create second cluster with same prototype
+                Resource entity1 = makeEntity(model, utils.getEntityUri(), system);
+                markJustification(utils.addType(entity1, LDCOntology.PER), utils.makeValidJustification());
+                makeClusterWithPrototype(model, utils.getClusterUri(), entity1, false, system);
+                makeClusterWithPrototype(model, utils.getClusterUri(), entity1, false, system);
+    
+                utils.expect(ShaclShapes.MultiClusterPrototypeShape, SH.MaxCountConstraintComponent, null);
+                utils.testInvalid("Prototype.invalid: prototype of multiple clusters");
+            }
+            
+            @Test
+            void invalidPrototypeMemberOfOther() {
+                // create sample entities
+                ImmutablePair<Resource, Resource> aPair = utils.makeValidNistEntity(
+                    LDCOntology.PER);
+                final Resource entity2 = aPair.getKey();
+                
+                // create two clusters with different prototypes
+                markAsPossibleClusterMember(model, entity2, entityCluster, 1d, system);
+                
+                utils.expect(ShaclShapes.PrototypeShape, SH.SPARQLConstraintComponent, ShaclShapes.NonClusterPrototypeMemberShape);
+                utils.testInvalid("Prototype.invalid: prototype member of other cluster");
+            }
+        }
+
+        @Nested
+        class Handle {
+            @Test
+            void invalidHandle() {
+                markHandle(entityCluster, "handle");
+                utils.expect(ShaclShapes.PreventHandleOnCluster, SH.NotConstraintComponent, null);
+                utils.testInvalid("Prototype.invalid: prototype of multiple clusters");
+            }
+            
+            @Test
+            void valid() {
+                markHandle(entity, "handle");
+                utils.testValid("Handle.valid");
             }
         }
     }

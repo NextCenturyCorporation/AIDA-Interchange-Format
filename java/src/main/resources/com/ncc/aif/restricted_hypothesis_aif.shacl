@@ -61,7 +61,8 @@ aida:ImportanceRequiredShape
     a sh:PropertyShape ;
     sh:path aida:importance ;
     sh:minCount 1 ;
-    sh:maxCount 1 .
+    sh:maxCount 1 ;
+    sh:message "Focus node requires importance".
 
 aida:HypothesisShape
     sh:property aida:ImportanceRequiredShape .
@@ -98,20 +99,20 @@ aida:RelationArgumentShape
     sh:property aida:ImportanceRequiredShape .
 
 ########################
-# 4.3 TA3 #7 Each entity (cluster) in the hypothesis graph must
+# 1.4.1 TA3 #5 Each entity (prototype) in the hypothesis graph must
 # have exactly one text description (called a "handle")
 #------------------------
-aida:HypothesisEntityClusterRequireHandle
+aida:HypothesisEntityPrototypeRequireHandle
     a sh:NodeShape ;
 
     sh:target [
         a sh:SPARQLTarget ;
         sh:select """
             PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
-            SELECT ?entityCluster
+            SELECT ?entity
             WHERE {
-                ?entityCluster a aida:SameAsCluster .
-                ?entityCluster aida:prototype/a aida:Entity .
+                ?entity a aida:Entity .
+                ?entity ^aida:prototype / a aida:SameAsCluster .
             }
         """ ;
     ];
@@ -121,6 +122,7 @@ aida:HypothesisEntityClusterRequireHandle
         a sh:PropertyShape ;
         sh:path aida:handle ;
         sh:minCount 1 ;
+        sh:message "Entity prototype requires handle"
     ] .
 
 ########################
@@ -132,12 +134,11 @@ aida:HypothesisClusterMembersSameAsBaseClass
     sh:select """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
-        SELECT $this (?member AS $value)
+        SELECT $this $value
         WHERE {
-      	    ?membership aida:cluster $this .
-            ?membership aida:clusterMember ?member .
-            ?member rdf:type ?memberType .
-            $this aida:prototype/rdf:type ?prototypeType .
+      	    $this ^aida:cluster / aida:clusterMember $value .
+            $value rdf:type ?memberType .
+            $this aida:prototype / rdf:type ?prototypeType .
             FILTER ( ?memberType != ?prototypeType )
         }
     """

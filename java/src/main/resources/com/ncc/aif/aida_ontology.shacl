@@ -74,6 +74,9 @@ aida:EntityShape
     # may provide an informative justification
     sh:property aida:InformativeJustificationPropertyShape ;
 
+    # may have handle
+    sh:property aida:HandlePropertyShape ;
+
     # may be linked to one or more things in an external KB
     sh:property aida:LinkPropertyShape ;
 
@@ -133,6 +136,9 @@ aida:EventRelationShape
 
     # may provide an informative justification
     sh:property aida:InformativeJustificationPropertyShape ;
+
+    # may have handle
+    sh:property aida:HandlePropertyShape ;
 
     # may provide a confidence
     sh:property aida:ConfidencePropertyShape ;
@@ -1071,10 +1077,18 @@ aida:RdfStatementShape
         sh:message "All rdf:Statements must be type declarations or have predicates from the domain relation or event argument types. This error is often caused by using a value outside the domain ontology"
     ] .
 
+# Handle
+aida:HandlePropertyShape
+    a sh:PropertyShape ;
+    sh:path aida:handle ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:message "Objects may have at most a single handle" .
+
 # Sometimes there is uncertainty about whether or not two entities or events are the same.
 # In such cases, we make "cluster" objects which can link together the possibly identical
 # entities or events
-# TODO: validate clusters are homogeneous (e.g. can't mix entities and events)
+# To enforce homogenous members, see aida:HypothesisClusterMembersSameAsBaseClass in restricted_hypothesis_aif.shacl
 aida:ClusterShape
    a sh:NodeShape ;
    sh:targetClass aida:SameAsCluster ;
@@ -1093,12 +1107,7 @@ aida:ClusterShape
 	  ] ;
 
    # allow clusters to have handle property
-   sh:property [
-      sh:path aida:handle ;
-      sh:datatype xsd:string ;
-      sh:maxCount 1 ;
-      sh:message "Clusters must have at most a single handle"
-   ] ;
+   sh:property aida:HandlePropertyShape ;
 
    # may provide an importance
    sh:property aida:ImportancePropertyShape ;
