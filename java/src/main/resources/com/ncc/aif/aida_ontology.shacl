@@ -683,11 +683,10 @@ aida:VideoJustificationShape
         sh:minCount 1;
         sh:maxCount 1 ] ;
     
-    # and exactly one channel
+    # and one optional channel
     sh:property [
         sh:path aida:channel ;
         sh:class aida:VideoJustificationChannel ;
-        sh:minCount 1;
         sh:maxCount 1 ] ;
 
     # no other properties are allowed
