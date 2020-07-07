@@ -13,24 +13,27 @@ class Main:
         self.validation_log = envs['VALIDATION_LOG']
         self.validate_dir_or_files = envs['VALIDATE_DIR_OR_FILES']
         self.target_to_validate = envs['TARGET_TO_VALIDATE']
+        self.use_m36_ont = os.environ.get('USE_M36_ONTOLOGY', False)
 
     def run(self):
+        ont = '--ldc' if not self.use_m36_ont else '--ont ' + self.validation_home + '/src/main/resources/com/ncc/aif/ontologies/LDCOntologyM36'
+
         # If validation flags contains one of TA1, TA2, or TA3, then expand the flags to the optimal set of flags 
         # for that use case.  Only one of these will run since the environment variables were validated 
-        #before they get here
-        self.validation_flags = self.validation_flags.replace("--TA1", "--ldc --nist -o")
-        self.validation_flags = self.validation_flags.replace("--TA2", "--ldc --nist --disk -o")
-        self.validation_flags = self.validation_flags.replace("--TA3", "--ldc --nist-ta3 -o")
+        # before they get here
+        self.validation_flags = self.validation_flags.replace("--TA1", ont + " --nist -o")
+        self.validation_flags = self.validation_flags.replace("--TA2", ont + " --nist --disk -o")
+        self.validation_flags = self.validation_flags.replace("--TA3", ont + " --nist-ta3 -o")
 
-        logging.info("Validation flags = [%s]", self.validation_flags);
-        logging.info("Validation home = [%s]", self.validation_home);
+        logging.info("Validation flags = [%s]", self.validation_flags)
+        logging.info("Validation home = [%s]", self.validation_home)
         if self.validation_log == 'stdout':
-            logging.info("Validation output will be sent to stdout");
+            logging.info("Validation output will be sent to stdout")
         else:
-            logging.info("Validation output will be captured in log file = [%s]", self.validation_log);
-        logging.info("Validate directory or files = [%s]", self.validate_dir_or_files);
-        logging.info("Target to validate = [%s]", self.target_to_validate);
-        self._execute_validation();
+            logging.info("Validation output will be captured in log file = [%s]", self.validation_log)
+        logging.info("Validate directory or files = [%s]", self.validate_dir_or_files)
+        logging.info("Target to validate = [%s]", self.target_to_validate)
+        self._execute_validation()
 
     def _execute_validation(self):
         """Executes the AIF Validator as a sub-process for the turtle files

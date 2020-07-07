@@ -1,5 +1,5 @@
 ######################################################
-# Created by com.ncc.verdi.messages.ldc.LDCOntology on 2020-07-02T20:39:08.932444Z
+# Created by com.ncc.verdi.messages.ldc.LDCOntology on 2020-07-07T01:10:13.353793Z
 # For more information about this file, refer to:
 # https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/tree/master/src/main/resources/com/ncc/aif/ontologies/README.md
 ######################################################
@@ -1711,24 +1711,24 @@ ldcOnt:Transaction.TransferOwnership.Purchase
 ######################################################
 # Event argument types
 ######################################################
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#ArtifactExistence.ArtifactFailure.MechanicalFailure_Instrument >
+ldcOnt:ArtifactExistence.ArtifactFailure.MechanicalFailure_Instrument
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:ArtifactExistence.ArtifactFailure.MechanicalFailure ;
-        rdfs:label            "Instrument " ;
+        rdfs:label            "Instrument" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:COM , ldcOnt:WEA .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#ArtifactExistence.ArtifactFailure.MechanicalFailure_MechanicalArtifact >
+ldcOnt:ArtifactExistence.ArtifactFailure.MechanicalFailure_MechanicalArtifact
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:ArtifactExistence.ArtifactFailure.MechanicalFailure ;
-        rdfs:label            "MechanicalArtifact " ;
+        rdfs:label            "MechanicalArtifact" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:COM , ldcOnt:VEH , ldcOnt:WEA .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#ArtifactExistence.ArtifactFailure.MechanicalFailure_Place >
+ldcOnt:ArtifactExistence.ArtifactFailure.MechanicalFailure_Place
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:ArtifactExistence.ArtifactFailure.MechanicalFailure ;
-        rdfs:label            "Place " ;
+        rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC .
 
@@ -1816,24 +1816,24 @@ ldcOnt:ArtifactExistence.DamageDestroy_Place
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#ArtifactExistence.Shortage.Shortage_Experiencer >
+ldcOnt:ArtifactExistence.Shortage.Shortage_Experiencer
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:ArtifactExistence.Shortage.Shortage ;
-        rdfs:label            "Experiencer " ;
+        rdfs:label            "Experiencer" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#ArtifactExistence.Shortage.Shortage_Place >
+ldcOnt:ArtifactExistence.Shortage.Shortage_Place
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:ArtifactExistence.Shortage.Shortage ;
-        rdfs:label            "Place " ;
+        rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#ArtifactExistence.Shortage.Shortage_Supply >
+ldcOnt:ArtifactExistence.Shortage.Shortage_Supply
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:ArtifactExistence.Shortage.Shortage ;
-        rdfs:label            "Supply " ;
+        rdfs:label            "Supply" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:MON , ldcOnt:VEH , ldcOnt:WEA .
 
@@ -2180,24 +2180,24 @@ ldcOnt:Conflict.Attack_Target
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC , ldcOnt:PER , ldcOnt:SID , ldcOnt:VEH , ldcOnt:WEA .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Conflict.Coup.Coup_DeposedEntity >
+ldcOnt:Conflict.Coup.Coup_DeposedEntity
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Conflict.Coup.Coup ;
-        rdfs:label            "DeposedEntity " ;
+        rdfs:label            "DeposedEntity" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:ORG , ldcOnt:PER .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Conflict.Coup.Coup_DeposingEntity >
+ldcOnt:Conflict.Coup.Coup_DeposingEntity
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Conflict.Coup.Coup ;
-        rdfs:label            "DeposingEntity " ;
+        rdfs:label            "DeposingEntity" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Conflict.Coup.Coup_Place >
+ldcOnt:Conflict.Coup.Coup_Place
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Conflict.Coup.Coup ;
-        rdfs:label            "Place " ;
+        rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC .
 
@@ -3153,24 +3153,24 @@ ldcOnt:Disaster.AccidentCrash.AccidentCrash_Vehicle
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:VEH .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Disaster.DiseaseOutbreak.DiseaseOutbreak_Disease >
+ldcOnt:Disaster.DiseaseOutbreak.DiseaseOutbreak_Disease
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Disaster.DiseaseOutbreak.DiseaseOutbreak ;
-        rdfs:label            "Disease " ;
+        rdfs:label            "Disease" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:MHI .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Disaster.DiseaseOutbreak.DiseaseOutbreak_Place >
+ldcOnt:Disaster.DiseaseOutbreak.DiseaseOutbreak_Place
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Disaster.DiseaseOutbreak.DiseaseOutbreak ;
-        rdfs:label            "Place " ;
+        rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC , ldcOnt:VEH .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Disaster.DiseaseOutbreak.DiseaseOutbreak_Victim >
+ldcOnt:Disaster.DiseaseOutbreak.DiseaseOutbreak_Victim
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Disaster.DiseaseOutbreak.DiseaseOutbreak ;
-        rdfs:label            "Victim " ;
+        rdfs:label            "Victim" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
 
@@ -3195,24 +3195,24 @@ ldcOnt:Disaster.FireExplosion.FireExplosion_Place
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#GenericCrime.GenericCrime.GenericCrime_Perpetrator >
+ldcOnt:GenericCrime.GenericCrime.GenericCrime_Perpetrator
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:GenericCrime.GenericCrime.GenericCrime ;
-        rdfs:label            "Perpetrator " ;
+        rdfs:label            "Perpetrator" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#GenericCrime.GenericCrime.GenericCrime_Place >
+ldcOnt:GenericCrime.GenericCrime.GenericCrime_Place
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:GenericCrime.GenericCrime.GenericCrime ;
-        rdfs:label            "Place " ;
+        rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#GenericCrime.GenericCrime.GenericCrime_Victim >
+ldcOnt:GenericCrime.GenericCrime.GenericCrime_Victim
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:GenericCrime.GenericCrime.GenericCrime ;
-        rdfs:label            "Victim " ;
+        rdfs:label            "Victim" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
 
@@ -3286,24 +3286,24 @@ ldcOnt:Government.Agreements_Place
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Government.Convene.Convene_ConvenedThing >
+ldcOnt:Government.Convene.Convene_ConvenedThing
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Government.Convene.Convene ;
-        rdfs:label            "ConvenedThing " ;
+        rdfs:label            "ConvenedThing" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:ORG .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Government.Convene.Convene_Convener >
+ldcOnt:Government.Convene.Convene_Convener
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Government.Convene.Convene ;
-        rdfs:label            "Convener " ;
+        rdfs:label            "Convener" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Government.Convene.Convene_Place >
+ldcOnt:Government.Convene.Convene_Place
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Government.Convene.Convene ;
-        rdfs:label            "Place " ;
+        rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC .
 
@@ -3601,31 +3601,31 @@ ldcOnt:Inspection.SensoryObserve_Place
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Inspection.TargetAimAt.TargetAimAt_Instrument >
+ldcOnt:Inspection.TargetAimAt.TargetAimAt_Instrument
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Inspection.TargetAimAt.TargetAimAt ;
-        rdfs:label            "Instrument " ;
+        rdfs:label            "Instrument" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:COM , ldcOnt:VEH , ldcOnt:WEA .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Inspection.TargetAimAt.TargetAimAt_Place >
+ldcOnt:Inspection.TargetAimAt.TargetAimAt_Place
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Inspection.TargetAimAt.TargetAimAt ;
-        rdfs:label            "Place " ;
+        rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Inspection.TargetAimAt.TargetAimAt_Target >
+ldcOnt:Inspection.TargetAimAt.TargetAimAt_Target
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Inspection.TargetAimAt.TargetAimAt ;
-        rdfs:label            "Target " ;
+        rdfs:label            "Target" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID , ldcOnt:VEH , ldcOnt:WEA .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Inspection.TargetAimAt.TargetAimAt_Targeter >
+ldcOnt:Inspection.TargetAimAt.TargetAimAt_Targeter
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Inspection.TargetAimAt.TargetAimAt ;
-        rdfs:label            "Targeter " ;
+        rdfs:label            "Targeter" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
 
@@ -4077,31 +4077,31 @@ ldcOnt:Life.Injure.IllnessDegradationPhysical_Victim
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:PER .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Life.Injure.IllnessDegredationSickness_Disease >
+ldcOnt:Life.Injure.IllnessDegredationSickness_Disease
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Life.Injure.IllnessDegredationSickness ;
-        rdfs:label            "Disease " ;
+        rdfs:label            "Disease" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:MHI .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Life.Injure.IllnessDegredationSickness_Injurer >
+ldcOnt:Life.Injure.IllnessDegredationSickness_Injurer
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Life.Injure.IllnessDegredationSickness ;
-        rdfs:label            "Injurer " ;
+        rdfs:label            "Injurer" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Life.Injure.IllnessDegredationSickness_Place >
+ldcOnt:Life.Injure.IllnessDegredationSickness_Place
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Life.Injure.IllnessDegredationSickness ;
-        rdfs:label            "Place " ;
+        rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Life.Injure.IllnessDegredationSickness_Victim >
+ldcOnt:Life.Injure.IllnessDegredationSickness_Victim
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Life.Injure.IllnessDegredationSickness ;
-        rdfs:label            "Victim " ;
+        rdfs:label            "Victim" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:PER .
 
@@ -4280,38 +4280,38 @@ ldcOnt:Manufacture.Artifact_Place
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Medical.Intervention.Intervention_Instrument >
+ldcOnt:Medical.Intervention.Intervention_Instrument
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Medical.Intervention.Intervention ;
-        rdfs:label            "Instrument " ;
+        rdfs:label            "Instrument" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:COM .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Medical.Intervention.Intervention_MedicalIssue >
+ldcOnt:Medical.Intervention.Intervention_MedicalIssue
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Medical.Intervention.Intervention ;
-        rdfs:label            "MedicalIssue " ;
+        rdfs:label            "MedicalIssue" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:MHI .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Medical.Intervention.Intervention_Patient >
+ldcOnt:Medical.Intervention.Intervention_Patient
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Medical.Intervention.Intervention ;
-        rdfs:label            "Patient " ;
+        rdfs:label            "Patient" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:PER .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Medical.Intervention.Intervention_Place >
+ldcOnt:Medical.Intervention.Intervention_Place
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Medical.Intervention.Intervention ;
-        rdfs:label            "Place " ;
+        rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Medical.Intervention.Intervention_Treater >
+ldcOnt:Medical.Intervention.Intervention_Treater
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Medical.Intervention.Intervention ;
-        rdfs:label            "Treater " ;
+        rdfs:label            "Treater" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
 
@@ -4469,24 +4469,24 @@ ldcOnt:Movement.TransportArtifact.Hide_Vehicle
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:VEH .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Movement.TransportArtifact.LossOfControl_ControlledThing >
+ldcOnt:Movement.TransportArtifact.LossOfControl_ControlledThing
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Movement.TransportArtifact.LossOfControl ;
-        rdfs:label            "ControlledThing " ;
+        rdfs:label            "ControlledThing" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:COM , ldcOnt:VEH , ldcOnt:WEA .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Movement.TransportArtifact.LossOfControl_Controller >
+ldcOnt:Movement.TransportArtifact.LossOfControl_Controller
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Movement.TransportArtifact.LossOfControl ;
-        rdfs:label            "Controller " ;
+        rdfs:label            "Controller" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Movement.TransportArtifact.LossOfControl_Place >
+ldcOnt:Movement.TransportArtifact.LossOfControl_Place
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Movement.TransportArtifact.LossOfControl ;
-        rdfs:label            "Place " ;
+        rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
         schema:rangeIncludes  ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC .
 
