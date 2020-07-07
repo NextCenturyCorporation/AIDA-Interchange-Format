@@ -51,7 +51,7 @@ class NistTA3TestUtils extends NistTestUtils {
      */
     ImmutablePair<Resource, Resource> makeValidNistTA3Event(Resource type, double importance) {
         ImmutablePair<Resource, Resource> pair = makeValidNistEvent(type);
-        markImportance(pair.getValue(), importance);
+        markImportance(pair.getKey(), importance);
         return pair;
     }
 
@@ -65,7 +65,7 @@ class NistTA3TestUtils extends NistTestUtils {
      */
     ImmutablePair<Resource, Resource> makeValidNistTA3Relation(Resource type, double importance) {
         ImmutablePair<Resource, Resource> pair = makeValidNistRelation(type);
-        markImportance(pair.getValue(), importance);
+        markImportance(pair.getKey(), importance);
         return pair;
     }
 

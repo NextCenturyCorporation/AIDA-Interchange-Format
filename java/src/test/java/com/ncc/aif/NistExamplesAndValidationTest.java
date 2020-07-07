@@ -361,8 +361,8 @@ public class NistExamplesAndValidationTest {
                         LDCOntology.Life_Die),
                         utils.makeValidJustification());
 
-                utils.expect(ShaclShapes.EntityShape, SH.SPARQLConstraintComponent, null);
-                utils.expect(ShaclShapes.EventRelationShape, SH.SPARQLConstraintComponent, null, 2);
+                utils.expect(ShaclShapes.EntityShape, SH.SPARQLConstraintComponent, ShaclShapes.ObjectMustBeClustered);
+                utils.expect(ShaclShapes.EventRelationShape, SH.SPARQLConstraintComponent, ShaclShapes.ObjectMustBeClustered, 2);
                 utils.testInvalid("NIST.invalid: Everything has cluster");
             }
 
@@ -370,7 +370,11 @@ public class NistExamplesAndValidationTest {
             void valid() {
                 // setup() already creates an entity, event, and relation
                 // object, and adds them to a cluster.
-
+                final Resource newEntity = makeEntity(model, utils.getEntityUri(), system);
+                markJustification(utils.addType(newEntity,
+                        LDCOntology.WEA),
+                        utils.makeValidJustification());
+                makeClusterWithPrototype(model, utils.getClusterUri(), newEntity, false, system);
                 utils.testValid("NIST.valid: Everything has cluster");
             }
         }

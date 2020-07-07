@@ -123,31 +123,23 @@ aida:ClusterMembershipShape
 # Entity, Relation, and Event object is required to be part of at least one cluster.
 # This is true even if there is nothing else in the cluster
 #------------------------
+aida:ObjectMustBeClustered
+    a sh:SPARQLConstraint ;
+    sh:message "Object must be clustered" ;
+    sh:select """
+        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+        SELECT $this
+        WHERE {
+            FILTER ( NOT EXISTS { $this ^aida:clusterMember ?clusterMembership } &&
+                NOT EXISTS { $this ^aida:prototype ?cluster } ) .
+        }
+    """ .
+
 aida:EntityShape
-    sh:sparql [
-        sh:message "Entities must be clustered" ;
-        sh:select """
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
-            SELECT $this
-            WHERE {
-                FILTER ( NOT EXISTS { $this ^aida:clusterMember ?clusterMembership } &&
-                    NOT EXISTS { $this ^aida:prototype ?cluster } ) .
-            }
-        """ ;
-    ] .
+    sh:sparql aida:ObjectMustBeClustered .
 
 aida:EventRelationShape
-    sh:sparql [
-        sh:message "Events and Relations must be clustered" ;
-        sh:select """
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
-            SELECT $this
-            WHERE {
-                FILTER ( NOT EXISTS { $this ^aida:clusterMember ?clusterMembership } &&
-                    NOT EXISTS { $this ^aida:prototype ?cluster } ) .
-            }
-        """ ;
-    ] .
+    sh:sparql aida:ObjectMustBeClustered .
 
 #########################
 # Each confidence value must be between 0 and 1

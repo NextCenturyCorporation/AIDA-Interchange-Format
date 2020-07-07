@@ -181,7 +181,9 @@
         owl:unionOf (
             :rdf:Statement
             :Hypothesis
-            :SameAsCluster ) ] ;
+            :Entity
+            :Event
+            :Relation ) ] ;
   rdfs:label "importance" ;
   rdfs:range xsd:double ;
   rdfs:subPropertyOf owl:topDataProperty ; .

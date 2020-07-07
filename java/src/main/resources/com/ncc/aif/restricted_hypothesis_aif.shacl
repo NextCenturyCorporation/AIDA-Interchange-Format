@@ -70,7 +70,7 @@ aida:HypothesisShape
 #########################
 # 4.3 TA3 #5 Each event or relation (cluster) in the hypothesis must have exactly one event/relation importance value
 #------------------------
-aida:HypothesisEventRelationClusterImportanceRequiredShape
+aida:HypothesisEventRelationPrototypeImportanceRequiredShape
     a sh:NodeShape ;
 
     sh:target [
@@ -79,8 +79,8 @@ aida:HypothesisEventRelationClusterImportanceRequiredShape
             PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
             SELECT ?prototype
             WHERE {
-                ?prototype a aida:SameAsCluster .
-                ?prototype aida:prototype/a ?type .
+                aida:SameAsCluster ^a / aida:prototype ?prototype.
+                ?prototype a ?type .
                 FILTER( ?type = aida:Event || ?type = aida:Relation )
             }
         """ ;
