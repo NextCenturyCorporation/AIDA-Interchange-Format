@@ -1,5 +1,5 @@
 ######################################################
-# Created by com.ncc.verdi.messages.ldc.LDCOntology on 2020-07-02T20:39:08.784935Z
+# Created by com.ncc.verdi.messages.ldc.LDCOntology on 2020-07-07T01:10:13.212381Z
 # For more information about this file, refer to:
 # https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/tree/master/src/main/resources/com/ncc/aif/ontologies/README.md
 ######################################################
@@ -1122,24 +1122,24 @@ ldcOnt:ArtifactExistence.ArtifactFailure.MechanicalFailure
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "MechanicalArtifact " ;
-                                                owl:unionOf  ( ldcOnt:COM ldcOnt:VEH ldcOnt:WEA )
-                                              ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#ArtifactExistence.ArtifactFailure.MechanicalFailure_MechanicalArtifact >
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Place " ;
-                                                owl:unionOf  ( ldcOnt:FAC ldcOnt:GPE ldcOnt:LOC )
-                                              ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#ArtifactExistence.ArtifactFailure.MechanicalFailure_Place >
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Instrument " ;
+                                                rdfs:label   "Instrument" ;
                                                 owl:unionOf  ( ldcOnt:COM ldcOnt:WEA )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#ArtifactExistence.ArtifactFailure.MechanicalFailure_Instrument >
+                           owl:onProperty     ldcOnt:ArtifactExistence.ArtifactFailure.MechanicalFailure_Instrument
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:FAC ldcOnt:GPE ldcOnt:LOC )
+                                              ] ;
+                           owl:onProperty     ldcOnt:ArtifactExistence.ArtifactFailure.MechanicalFailure_Place
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "MechanicalArtifact" ;
+                                                owl:unionOf  ( ldcOnt:COM ldcOnt:VEH ldcOnt:WEA )
+                                              ] ;
+                           owl:onProperty     ldcOnt:ArtifactExistence.ArtifactFailure.MechanicalFailure_MechanicalArtifact
                          ] .
 
 ldcOnt:ArtifactExistence.DamageDestroy
@@ -1243,24 +1243,24 @@ ldcOnt:ArtifactExistence.Shortage.Shortage
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Supply " ;
-                                                owl:unionOf  ( ldcOnt:BAL ldcOnt:COM ldcOnt:FAC ldcOnt:MON ldcOnt:VEH ldcOnt:WEA )
-                                              ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#ArtifactExistence.Shortage.Shortage_Supply >
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Place " ;
+                                                rdfs:label   "Place" ;
                                                 owl:unionOf  ( ldcOnt:FAC ldcOnt:GPE ldcOnt:LOC )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#ArtifactExistence.Shortage.Shortage_Place >
+                           owl:onProperty     ldcOnt:ArtifactExistence.Shortage.Shortage_Place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Experiencer " ;
+                                                rdfs:label   "Supply" ;
+                                                owl:unionOf  ( ldcOnt:BAL ldcOnt:COM ldcOnt:FAC ldcOnt:MON ldcOnt:VEH ldcOnt:WEA )
+                                              ] ;
+                           owl:onProperty     ldcOnt:ArtifactExistence.Shortage.Shortage_Supply
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Experiencer" ;
                                                 owl:unionOf  ( ldcOnt:GPE ldcOnt:ORG ldcOnt:PER ldcOnt:SID )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#ArtifactExistence.Shortage.Shortage_Experiencer >
+                           owl:onProperty     ldcOnt:ArtifactExistence.Shortage.Shortage_Experiencer
                          ] .
 
 ldcOnt:Conflict.Attack
@@ -1659,24 +1659,24 @@ ldcOnt:Conflict.Coup.Coup
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "DeposedEntity " ;
+                                                rdfs:label   "DeposedEntity" ;
                                                 owl:unionOf  ( ldcOnt:ORG ldcOnt:PER )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Conflict.Coup.Coup_DeposedEntity >
+                           owl:onProperty     ldcOnt:Conflict.Coup.Coup_DeposedEntity
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Place " ;
+                                                rdfs:label   "Place" ;
                                                 owl:unionOf  ( ldcOnt:FAC ldcOnt:GPE ldcOnt:LOC )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Conflict.Coup.Coup_Place >
+                           owl:onProperty     ldcOnt:Conflict.Coup.Coup_Place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "DeposingEntity " ;
+                                                rdfs:label   "DeposingEntity" ;
                                                 owl:unionOf  ( ldcOnt:GPE ldcOnt:ORG ldcOnt:PER ldcOnt:SID )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Conflict.Coup.Coup_DeposingEntity >
+                           owl:onProperty     ldcOnt:Conflict.Coup.Coup_DeposingEntity
                          ] .
 
 ldcOnt:Conflict.Demonstrate
@@ -2877,24 +2877,24 @@ ldcOnt:Disaster.DiseaseOutbreak.DiseaseOutbreak
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Disease " ;
-                                                owl:unionOf  ( ldcOnt:MHI )
-                                              ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Disaster.DiseaseOutbreak.DiseaseOutbreak_Disease >
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Place " ;
-                                                owl:unionOf  ( ldcOnt:FAC ldcOnt:GPE ldcOnt:LOC ldcOnt:VEH )
-                                              ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Disaster.DiseaseOutbreak.DiseaseOutbreak_Place >
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Victim " ;
+                                                rdfs:label   "Victim" ;
                                                 owl:unionOf  ( ldcOnt:ORG ldcOnt:PER ldcOnt:SID )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Disaster.DiseaseOutbreak.DiseaseOutbreak_Victim >
+                           owl:onProperty     ldcOnt:Disaster.DiseaseOutbreak.DiseaseOutbreak_Victim
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Disease" ;
+                                                owl:unionOf  ( ldcOnt:MHI )
+                                              ] ;
+                           owl:onProperty     ldcOnt:Disaster.DiseaseOutbreak.DiseaseOutbreak_Disease
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:FAC ldcOnt:GPE ldcOnt:LOC ldcOnt:VEH )
+                                              ] ;
+                           owl:onProperty     ldcOnt:Disaster.DiseaseOutbreak.DiseaseOutbreak_Place
                          ] .
 
 ldcOnt:Disaster.FireExplosion.FireExplosion
@@ -2927,24 +2927,24 @@ ldcOnt:GenericCrime.GenericCrime.GenericCrime
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Victim " ;
-                                                owl:unionOf  ( ldcOnt:GPE ldcOnt:ORG ldcOnt:PER ldcOnt:SID )
-                                              ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#GenericCrime.GenericCrime.GenericCrime_Victim >
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Place " ;
+                                                rdfs:label   "Place" ;
                                                 owl:unionOf  ( ldcOnt:FAC ldcOnt:GPE ldcOnt:LOC )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#GenericCrime.GenericCrime.GenericCrime_Place >
+                           owl:onProperty     ldcOnt:GenericCrime.GenericCrime.GenericCrime_Place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Perpetrator " ;
+                                                rdfs:label   "Perpetrator" ;
                                                 owl:unionOf  ( ldcOnt:GPE ldcOnt:ORG ldcOnt:PER ldcOnt:SID )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#GenericCrime.GenericCrime.GenericCrime_Perpetrator >
+                           owl:onProperty     ldcOnt:GenericCrime.GenericCrime.GenericCrime_Perpetrator
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Victim" ;
+                                                owl:unionOf  ( ldcOnt:GPE ldcOnt:ORG ldcOnt:PER ldcOnt:SID )
+                                              ] ;
+                           owl:onProperty     ldcOnt:GenericCrime.GenericCrime.GenericCrime_Victim
                          ] .
 
 ldcOnt:Government.Agreements
@@ -3052,24 +3052,24 @@ ldcOnt:Government.Convene.Convene
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Convener " ;
-                                                owl:unionOf  ( ldcOnt:GPE ldcOnt:ORG ldcOnt:PER ldcOnt:SID )
-                                              ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Government.Convene.Convene_Convener >
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Place " ;
+                                                rdfs:label   "Place" ;
                                                 owl:unionOf  ( ldcOnt:FAC ldcOnt:GPE ldcOnt:LOC )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Government.Convene.Convene_Place >
+                           owl:onProperty     ldcOnt:Government.Convene.Convene_Place
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "ConvenedThing " ;
+                                                rdfs:label   "ConvenedThing" ;
                                                 owl:unionOf  ( ldcOnt:ORG )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Government.Convene.Convene_ConvenedThing >
+                           owl:onProperty     ldcOnt:Government.Convene.Convene_ConvenedThing
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Convener" ;
+                                                owl:unionOf  ( ldcOnt:GPE ldcOnt:ORG ldcOnt:PER ldcOnt:SID )
+                                              ] ;
+                           owl:onProperty     ldcOnt:Government.Convene.Convene_Convener
                          ] .
 
 ldcOnt:Government.Formation
@@ -3426,31 +3426,31 @@ ldcOnt:Inspection.TargetAimAt.TargetAimAt
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Targeter " ;
-                                                owl:unionOf  ( ldcOnt:GPE ldcOnt:ORG ldcOnt:PER ldcOnt:SID )
-                                              ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Inspection.TargetAimAt.TargetAimAt_Targeter >
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Target " ;
-                                                owl:unionOf  ( ldcOnt:BAL ldcOnt:COM ldcOnt:FAC ldcOnt:GPE ldcOnt:LOC ldcOnt:MON ldcOnt:ORG ldcOnt:PER ldcOnt:SID ldcOnt:VEH ldcOnt:WEA )
-                                              ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Inspection.TargetAimAt.TargetAimAt_Target >
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Instrument " ;
-                                                owl:unionOf  ( ldcOnt:COM ldcOnt:VEH ldcOnt:WEA )
-                                              ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Inspection.TargetAimAt.TargetAimAt_Instrument >
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Place " ;
+                                                rdfs:label   "Place" ;
                                                 owl:unionOf  ( ldcOnt:FAC ldcOnt:GPE ldcOnt:LOC )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Inspection.TargetAimAt.TargetAimAt_Place >
+                           owl:onProperty     ldcOnt:Inspection.TargetAimAt.TargetAimAt_Place
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Targeter" ;
+                                                owl:unionOf  ( ldcOnt:GPE ldcOnt:ORG ldcOnt:PER ldcOnt:SID )
+                                              ] ;
+                           owl:onProperty     ldcOnt:Inspection.TargetAimAt.TargetAimAt_Targeter
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Target" ;
+                                                owl:unionOf  ( ldcOnt:BAL ldcOnt:COM ldcOnt:FAC ldcOnt:GPE ldcOnt:LOC ldcOnt:MON ldcOnt:ORG ldcOnt:PER ldcOnt:SID ldcOnt:VEH ldcOnt:WEA )
+                                              ] ;
+                           owl:onProperty     ldcOnt:Inspection.TargetAimAt.TargetAimAt_Target
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Instrument" ;
+                                                owl:unionOf  ( ldcOnt:COM ldcOnt:VEH ldcOnt:WEA )
+                                              ] ;
+                           owl:onProperty     ldcOnt:Inspection.TargetAimAt.TargetAimAt_Instrument
                          ] .
 
 ldcOnt:Justice.ArrestJailDetain.ArrestJailDetain
@@ -3996,31 +3996,31 @@ ldcOnt:Life.Injure.IllnessDegredationSickness
         rdfs:subClassOf  ldcOnt:Life.Injure ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Disease " ;
+                                                rdfs:label   "Disease" ;
                                                 owl:unionOf  ( ldcOnt:MHI )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Life.Injure.IllnessDegredationSickness_Disease >
+                           owl:onProperty     ldcOnt:Life.Injure.IllnessDegredationSickness_Disease
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Victim " ;
+                                                rdfs:label   "Victim" ;
                                                 owl:unionOf  ( ldcOnt:PER )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Life.Injure.IllnessDegredationSickness_Victim >
+                           owl:onProperty     ldcOnt:Life.Injure.IllnessDegredationSickness_Victim
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Injurer " ;
+                                                rdfs:label   "Injurer" ;
                                                 owl:unionOf  ( ldcOnt:GPE ldcOnt:ORG ldcOnt:PER ldcOnt:SID )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Life.Injure.IllnessDegredationSickness_Injurer >
+                           owl:onProperty     ldcOnt:Life.Injure.IllnessDegredationSickness_Injurer
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Place " ;
+                                                rdfs:label   "Place" ;
                                                 owl:unionOf  ( ldcOnt:FAC ldcOnt:GPE ldcOnt:LOC )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Life.Injure.IllnessDegredationSickness_Place >
+                           owl:onProperty     ldcOnt:Life.Injure.IllnessDegredationSickness_Place
                          ] .
 
 ldcOnt:Life.Injure.InjuryCausedByViolentEvents
@@ -4195,38 +4195,38 @@ ldcOnt:Medical.Intervention.Intervention
         rdfs:subClassOf  aidaDomainCommon:EventType ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Place " ;
-                                                owl:unionOf  ( ldcOnt:FAC ldcOnt:GPE ldcOnt:LOC )
-                                              ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Medical.Intervention.Intervention_Place >
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "MedicalIssue " ;
-                                                owl:unionOf  ( ldcOnt:MHI )
-                                              ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Medical.Intervention.Intervention_MedicalIssue >
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Patient " ;
-                                                owl:unionOf  ( ldcOnt:PER )
-                                              ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Medical.Intervention.Intervention_Patient >
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Treater " ;
-                                                owl:unionOf  ( ldcOnt:GPE ldcOnt:ORG ldcOnt:PER ldcOnt:SID )
-                                              ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Medical.Intervention.Intervention_Treater >
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Instrument " ;
+                                                rdfs:label   "Instrument" ;
                                                 owl:unionOf  ( ldcOnt:COM )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Medical.Intervention.Intervention_Instrument >
+                           owl:onProperty     ldcOnt:Medical.Intervention.Intervention_Instrument
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
+                                                owl:unionOf  ( ldcOnt:FAC ldcOnt:GPE ldcOnt:LOC )
+                                              ] ;
+                           owl:onProperty     ldcOnt:Medical.Intervention.Intervention_Place
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "MedicalIssue" ;
+                                                owl:unionOf  ( ldcOnt:MHI )
+                                              ] ;
+                           owl:onProperty     ldcOnt:Medical.Intervention.Intervention_MedicalIssue
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Patient" ;
+                                                owl:unionOf  ( ldcOnt:PER )
+                                              ] ;
+                           owl:onProperty     ldcOnt:Medical.Intervention.Intervention_Patient
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Treater" ;
+                                                owl:unionOf  ( ldcOnt:GPE ldcOnt:ORG ldcOnt:PER ldcOnt:SID )
+                                              ] ;
+                           owl:onProperty     ldcOnt:Medical.Intervention.Intervention_Treater
                          ] .
 
 ldcOnt:Movement.TransportArtifact
@@ -4447,24 +4447,24 @@ ldcOnt:Movement.TransportArtifact.LossOfControl
         rdfs:subClassOf  ldcOnt:Movement.TransportArtifact ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Controller " ;
-                                                owl:unionOf  ( ldcOnt:GPE ldcOnt:ORG ldcOnt:PER ldcOnt:SID )
-                                              ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Movement.TransportArtifact.LossOfControl_Controller >
-                         ] ;
-        rdfs:subClassOf  [ a                  owl:Restriction ;
-                           owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "ControlledThing " ;
+                                                rdfs:label   "ControlledThing" ;
                                                 owl:unionOf  ( ldcOnt:COM ldcOnt:VEH ldcOnt:WEA )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Movement.TransportArtifact.LossOfControl_ControlledThing >
+                           owl:onProperty     ldcOnt:Movement.TransportArtifact.LossOfControl_ControlledThing
                          ] ;
         rdfs:subClassOf  [ a                  owl:Restriction ;
                            owl:allValuesFrom  [ a            owl:Class ;
-                                                rdfs:label   "Place " ;
+                                                rdfs:label   "Controller" ;
+                                                owl:unionOf  ( ldcOnt:GPE ldcOnt:ORG ldcOnt:PER ldcOnt:SID )
+                                              ] ;
+                           owl:onProperty     ldcOnt:Movement.TransportArtifact.LossOfControl_Controller
+                         ] ;
+        rdfs:subClassOf  [ a                  owl:Restriction ;
+                           owl:allValuesFrom  [ a            owl:Class ;
+                                                rdfs:label   "Place" ;
                                                 owl:unionOf  ( ldcOnt:FAC ldcOnt:GPE ldcOnt:LOC )
                                               ] ;
-                           owl:onProperty     <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Movement.TransportArtifact.LossOfControl_Place >
+                           owl:onProperty     ldcOnt:Movement.TransportArtifact.LossOfControl_Place
                          ] .
 
 ldcOnt:Movement.TransportArtifact.NonviolentThrowLaunch
@@ -5858,19 +5858,19 @@ ldcOnt:Transaction.TransferOwnership.Purchase
 ######################################################
 # Relation/Event arguments
 ######################################################
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#ArtifactExistence.ArtifactFailure.MechanicalFailure_Instrument >
+ldcOnt:ArtifactExistence.ArtifactFailure.MechanicalFailure_Instrument
         a                   owl:ObjectProperty ;
-        rdfs:label          "Instrument " ;
+        rdfs:label          "Instrument" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#ArtifactExistence.ArtifactFailure.MechanicalFailure_MechanicalArtifact >
+ldcOnt:ArtifactExistence.ArtifactFailure.MechanicalFailure_MechanicalArtifact
         a                   owl:ObjectProperty ;
-        rdfs:label          "MechanicalArtifact " ;
+        rdfs:label          "MechanicalArtifact" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#ArtifactExistence.ArtifactFailure.MechanicalFailure_Place >
+ldcOnt:ArtifactExistence.ArtifactFailure.MechanicalFailure_Place
         a                   owl:ObjectProperty ;
-        rdfs:label          "Place " ;
+        rdfs:label          "Place" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
 ldcOnt:ArtifactExistence.DamageDestroy.Damage_Artifact
@@ -5933,19 +5933,19 @@ ldcOnt:ArtifactExistence.DamageDestroy_Place
         rdfs:label          "Place" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#ArtifactExistence.Shortage.Shortage_Experiencer >
+ldcOnt:ArtifactExistence.Shortage.Shortage_Experiencer
         a                   owl:ObjectProperty ;
-        rdfs:label          "Experiencer " ;
+        rdfs:label          "Experiencer" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#ArtifactExistence.Shortage.Shortage_Place >
+ldcOnt:ArtifactExistence.Shortage.Shortage_Place
         a                   owl:ObjectProperty ;
-        rdfs:label          "Place " ;
+        rdfs:label          "Place" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#ArtifactExistence.Shortage.Shortage_Supply >
+ldcOnt:ArtifactExistence.Shortage.Shortage_Supply
         a                   owl:ObjectProperty ;
-        rdfs:label          "Supply " ;
+        rdfs:label          "Supply" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
 ldcOnt:Conflict.Attack.AirstrikeMissileStrike_Attacker
@@ -6193,19 +6193,19 @@ ldcOnt:Conflict.Attack_Target
         rdfs:label          "Target" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Conflict.Coup.Coup_DeposedEntity >
+ldcOnt:Conflict.Coup.Coup_DeposedEntity
         a                   owl:ObjectProperty ;
-        rdfs:label          "DeposedEntity " ;
+        rdfs:label          "DeposedEntity" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Conflict.Coup.Coup_DeposingEntity >
+ldcOnt:Conflict.Coup.Coup_DeposingEntity
         a                   owl:ObjectProperty ;
-        rdfs:label          "DeposingEntity " ;
+        rdfs:label          "DeposingEntity" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Conflict.Coup.Coup_Place >
+ldcOnt:Conflict.Coup.Coup_Place
         a                   owl:ObjectProperty ;
-        rdfs:label          "Place " ;
+        rdfs:label          "Place" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
 ldcOnt:Conflict.Demonstrate.MarchProtestPoliticalGathering_Demonstrator
@@ -6888,19 +6888,19 @@ ldcOnt:Disaster.AccidentCrash.AccidentCrash_Vehicle
         rdfs:label          "Vehicle" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Disaster.DiseaseOutbreak.DiseaseOutbreak_Disease >
+ldcOnt:Disaster.DiseaseOutbreak.DiseaseOutbreak_Disease
         a                   owl:ObjectProperty ;
-        rdfs:label          "Disease " ;
+        rdfs:label          "Disease" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Disaster.DiseaseOutbreak.DiseaseOutbreak_Place >
+ldcOnt:Disaster.DiseaseOutbreak.DiseaseOutbreak_Place
         a                   owl:ObjectProperty ;
-        rdfs:label          "Place " ;
+        rdfs:label          "Place" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Disaster.DiseaseOutbreak.DiseaseOutbreak_Victim >
+ldcOnt:Disaster.DiseaseOutbreak.DiseaseOutbreak_Victim
         a                   owl:ObjectProperty ;
-        rdfs:label          "Victim " ;
+        rdfs:label          "Victim" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
 ldcOnt:Disaster.FireExplosion.FireExplosion_FireExplosionObject
@@ -7008,19 +7008,19 @@ ldcOnt:GeneralAffiliation.Sponsorship.HelpSupport_Sponsor
         rdfs:label          "Sponsor" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#GenericCrime.GenericCrime.GenericCrime_Perpetrator >
+ldcOnt:GenericCrime.GenericCrime.GenericCrime_Perpetrator
         a                   owl:ObjectProperty ;
-        rdfs:label          "Perpetrator " ;
+        rdfs:label          "Perpetrator" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#GenericCrime.GenericCrime.GenericCrime_Place >
+ldcOnt:GenericCrime.GenericCrime.GenericCrime_Place
         a                   owl:ObjectProperty ;
-        rdfs:label          "Place " ;
+        rdfs:label          "Place" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#GenericCrime.GenericCrime.GenericCrime_Victim >
+ldcOnt:GenericCrime.GenericCrime.GenericCrime_Victim
         a                   owl:ObjectProperty ;
-        rdfs:label          "Victim " ;
+        rdfs:label          "Victim" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
 ldcOnt:Government.Agreements.AcceptAgreementContractCeasefire_Participant
@@ -7073,19 +7073,19 @@ ldcOnt:Government.Agreements_Place
         rdfs:label          "Place" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Government.Convene.Convene_ConvenedThing >
+ldcOnt:Government.Convene.Convene_ConvenedThing
         a                   owl:ObjectProperty ;
-        rdfs:label          "ConvenedThing " ;
+        rdfs:label          "ConvenedThing" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Government.Convene.Convene_Convener >
+ldcOnt:Government.Convene.Convene_Convener
         a                   owl:ObjectProperty ;
-        rdfs:label          "Convener " ;
+        rdfs:label          "Convener" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Government.Convene.Convene_Place >
+ldcOnt:Government.Convene.Convene_Place
         a                   owl:ObjectProperty ;
-        rdfs:label          "Place " ;
+        rdfs:label          "Place" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
 ldcOnt:Government.Formation.MergeGPE_Participant
@@ -7318,24 +7318,24 @@ ldcOnt:Inspection.SensoryObserve_Place
         rdfs:label          "Place" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Inspection.TargetAimAt.TargetAimAt_Instrument >
+ldcOnt:Inspection.TargetAimAt.TargetAimAt_Instrument
         a                   owl:ObjectProperty ;
-        rdfs:label          "Instrument " ;
+        rdfs:label          "Instrument" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Inspection.TargetAimAt.TargetAimAt_Place >
+ldcOnt:Inspection.TargetAimAt.TargetAimAt_Place
         a                   owl:ObjectProperty ;
-        rdfs:label          "Place " ;
+        rdfs:label          "Place" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Inspection.TargetAimAt.TargetAimAt_Target >
+ldcOnt:Inspection.TargetAimAt.TargetAimAt_Target
         a                   owl:ObjectProperty ;
-        rdfs:label          "Target " ;
+        rdfs:label          "Target" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Inspection.TargetAimAt.TargetAimAt_Targeter >
+ldcOnt:Inspection.TargetAimAt.TargetAimAt_Targeter
         a                   owl:ObjectProperty ;
-        rdfs:label          "Targeter " ;
+        rdfs:label          "Targeter" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
 ldcOnt:Justice.ArrestJailDetain.ArrestJailDetain_Crime
@@ -7658,24 +7658,24 @@ ldcOnt:Life.Injure.IllnessDegradationPhysical_Victim
         rdfs:label          "Victim" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Life.Injure.IllnessDegredationSickness_Disease >
+ldcOnt:Life.Injure.IllnessDegredationSickness_Disease
         a                   owl:ObjectProperty ;
-        rdfs:label          "Disease " ;
+        rdfs:label          "Disease" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Life.Injure.IllnessDegredationSickness_Injurer >
+ldcOnt:Life.Injure.IllnessDegredationSickness_Injurer
         a                   owl:ObjectProperty ;
-        rdfs:label          "Injurer " ;
+        rdfs:label          "Injurer" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Life.Injure.IllnessDegredationSickness_Place >
+ldcOnt:Life.Injure.IllnessDegredationSickness_Place
         a                   owl:ObjectProperty ;
-        rdfs:label          "Place " ;
+        rdfs:label          "Place" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Life.Injure.IllnessDegredationSickness_Victim >
+ldcOnt:Life.Injure.IllnessDegredationSickness_Victim
         a                   owl:ObjectProperty ;
-        rdfs:label          "Victim " ;
+        rdfs:label          "Victim" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
 ldcOnt:Life.Injure.InjuryCausedByViolentEvents_Injurer
@@ -7813,29 +7813,29 @@ ldcOnt:Measurement.Size.Weight_Measurement
         rdfs:label          "Measurement" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Medical.Intervention.Intervention_Instrument >
+ldcOnt:Medical.Intervention.Intervention_Instrument
         a                   owl:ObjectProperty ;
-        rdfs:label          "Instrument " ;
+        rdfs:label          "Instrument" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Medical.Intervention.Intervention_MedicalIssue >
+ldcOnt:Medical.Intervention.Intervention_MedicalIssue
         a                   owl:ObjectProperty ;
-        rdfs:label          "MedicalIssue " ;
+        rdfs:label          "MedicalIssue" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Medical.Intervention.Intervention_Patient >
+ldcOnt:Medical.Intervention.Intervention_Patient
         a                   owl:ObjectProperty ;
-        rdfs:label          "Patient " ;
+        rdfs:label          "Patient" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Medical.Intervention.Intervention_Place >
+ldcOnt:Medical.Intervention.Intervention_Place
         a                   owl:ObjectProperty ;
-        rdfs:label          "Place " ;
+        rdfs:label          "Place" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Medical.Intervention.Intervention_Treater >
+ldcOnt:Medical.Intervention.Intervention_Treater
         a                   owl:ObjectProperty ;
-        rdfs:label          "Treater " ;
+        rdfs:label          "Treater" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
 ldcOnt:Movement.TransportArtifact.BringCarryUnload_Artifact
@@ -7948,19 +7948,19 @@ ldcOnt:Movement.TransportArtifact.Hide_Vehicle
         rdfs:label          "Vehicle" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Movement.TransportArtifact.LossOfControl_ControlledThing >
+ldcOnt:Movement.TransportArtifact.LossOfControl_ControlledThing
         a                   owl:ObjectProperty ;
-        rdfs:label          "ControlledThing " ;
+        rdfs:label          "ControlledThing" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Movement.TransportArtifact.LossOfControl_Controller >
+ldcOnt:Movement.TransportArtifact.LossOfControl_Controller
         a                   owl:ObjectProperty ;
-        rdfs:label          "Controller " ;
+        rdfs:label          "Controller" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntologyM36#Movement.TransportArtifact.LossOfControl_Place >
+ldcOnt:Movement.TransportArtifact.LossOfControl_Place
         a                   owl:ObjectProperty ;
-        rdfs:label          "Place " ;
+        rdfs:label          "Place" ;
         rdfs:subPropertyOf  owl:topObjectProperty .
 
 ldcOnt:Movement.TransportArtifact.NonviolentThrowLaunch_Artifact
