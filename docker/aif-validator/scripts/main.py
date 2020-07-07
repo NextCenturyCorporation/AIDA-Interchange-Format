@@ -16,7 +16,7 @@ class Main:
         self.use_m36_ont = os.environ.get('USE_M36_ONTOLOGY', False)
 
     def run(self):
-        ont = '--ldc' if not self.use_m36_ont else '--ont ' + self.validation_home + 'java/src/main/resources/com/ncc/aif/ontologies/LDCOntologyM36'
+        ont = '--ldc' if not self.use_m36_ont else '--ont ' + self.validation_home + '/java/src/main/resources/com/ncc/aif/ontologies/LDCOntologyM36'
 
         # If validation flags contains one of TA1, TA2, or TA3, then expand the flags to the optimal set of flags 
         # for that use case.  Only one of these will run since the environment variables were validated 
