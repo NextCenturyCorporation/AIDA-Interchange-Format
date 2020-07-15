@@ -2,11 +2,10 @@ package com.ncc.aif;
 
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
-
-// WARNING. This is a Generated File.  Please do not edit.
+// WARNING. This is a Generated File. Please do not edit.
 // This class contains variables generated from SHACL files using the OntologyGeneration class
-// Please refer to the README at src/main/java/com/ncc/aif/ont2javagen for more information
-// Last Generated On: 07/01/2020 13:48:49
+// Please refer to the README at java/src/main/java/com/ncc/aif/ont2javagen for more information
+// Last generated on: 07/14/2020 09:07:19
 public final class ShaclShapes {
     public static final String NS = InterchangeOntology.NAMESPACE;
     public static final Resource AllKEsReferencedShape = ResourceFactory.createResource(NS + "AllKEsReferencedShape");

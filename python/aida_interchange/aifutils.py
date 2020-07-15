@@ -1,10 +1,10 @@
 import json
-import uuid
 
-from abc import ABCMeta, abstractmethod
-from rdflib import URIRef, RDF, Graph, BNode, Literal, XSD
-from aida_interchange.aida_rdf_ontologies import AIDA_ANNOTATION
+from rdflib import RDF, XSD, BNode, Graph, Literal, URIRef
 from rdflib.plugins.sparql import prepareQuery
+
+from aida_interchange.rdf_ontologies import interchange_ontology
+
 
 """
 A convenient interface for creating simple AIF graphs.
@@ -21,7 +21,7 @@ def make_graph():
     :rtype: rdflib.graph.Graph
     """
     g = Graph()
-    g.bind('aida', AIDA_ANNOTATION.uri)
+    g.bind('aida', interchange_ontology.NAMESPACE)
     return g
 
 
@@ -41,7 +41,7 @@ def make_system_with_uri(graph, system_uri):
 
     """
     system = URIRef(system_uri)
-    graph.add((system, RDF.type, AIDA_ANNOTATION.System))
+    graph.add((system, RDF.type, interchange_ontology.System))
     return system
 
 
@@ -53,7 +53,7 @@ def mark_system(g, to_mark_on, system):
     :param rdflib.term.BNode to_mark_on: The resource to mark as coming from the specified system
     :param rdflib.term.URIRef system: The system with which to mark the specified resource
     """
-    g.add((to_mark_on, AIDA_ANNOTATION.system, system))
+    g.add((to_mark_on, interchange_ontology.system, system))
 
 
 def mark_name(g, entity, name):
@@ -64,7 +64,7 @@ def mark_name(g, entity, name):
     :param rdflib.term.URIRef entity: The resource to mark on
     :param str name: The string name with which to mark the specified resource
     """
-    g.add((entity, AIDA_ANNOTATION.hasName,
+    g.add((entity, interchange_ontology.hasName,
            Literal(name, datatype=XSD.string)))
 
 
@@ -76,7 +76,7 @@ def mark_text_value(g, entity, text_value):
     :param rdflib.term.URIRef entity: The resource to mark as having the specified text value
     :param str text_value: The string text value with which to mark the specified resource
     """
-    g.add((entity, AIDA_ANNOTATION.textValue,
+    g.add((entity, interchange_ontology.textValue,
            Literal(text_value, datatype=XSD.string)))
 
 
@@ -89,7 +89,7 @@ def mark_numeric_value_as_string(g, entity, numeric_value):
     :param str numeric_value: A string representation of a numeric value with which to
          mark the specified resource
     """
-    g.add((entity, AIDA_ANNOTATION.numericValue,
+    g.add((entity, interchange_ontology.numericValue,
            Literal(numeric_value, datatype=XSD.string)))
 
 
@@ -102,7 +102,7 @@ def mark_numeric_value_as_double(g, entity, numeric_value):
     :param str numeric_value: A double representation of a numeric value with which to mark the
         specified resource
     """
-    g.add((entity, AIDA_ANNOTATION.numericValue,
+    g.add((entity, interchange_ontology.numericValue,
            Literal(numeric_value, datatype=XSD.double)))
 
 
@@ -115,7 +115,7 @@ def mark_numeric_value_as_long(g, entity, numeric_value):
     :param str numeric_value: A long representation of a numeric value with which to mark the
         specified resource
     """
-    g.add((entity, AIDA_ANNOTATION.numericValue,
+    g.add((entity, interchange_ontology.numericValue,
            Literal(numeric_value, datatype=XSD.long)))
 
 
@@ -129,7 +129,7 @@ def make_entity(g, entity_uri, system):
     :returns: The created entity resource
     :rtype: rdflib.term.URIRef
     """
-    return _make_aif_resource(g, entity_uri, AIDA_ANNOTATION.Entity, system)
+    return _make_aif_resource(g, entity_uri, interchange_ontology.Entity, system)
 
 
 def mark_type(g, type_assertion_uri, entity_or_event, _type, system, confidence):
@@ -172,7 +172,7 @@ def mark_justification(g, things_to_justify, justification):
         things_to_justify = [things_to_justify]
 
     for thing in things_to_justify:
-        g.add((thing, AIDA_ANNOTATION.justifiedBy, justification))
+        g.add((thing, interchange_ontology.justifiedBy, justification))
 
 
 def make_text_justification(g, doc_id, start_offset, end_offset_inclusive,
@@ -197,11 +197,11 @@ def make_text_justification(g, doc_id, start_offset, end_offset_inclusive,
     if start_offset < 0:
         raise RuntimeError('start_offset must be a non-negative number')
     justification = _make_aif_justification(
-        g, doc_id, AIDA_ANNOTATION.TextJustification, system, confidence,
+        g, doc_id, interchange_ontology.TextJustification, system, confidence,
         uri_ref)
-    g.add((justification, AIDA_ANNOTATION.startOffset,
+    g.add((justification, interchange_ontology.startOffset,
            Literal(start_offset, datatype=XSD.int)))
-    g.add((justification, AIDA_ANNOTATION.endOffsetInclusive,
+    g.add((justification, interchange_ontology.endOffsetInclusive,
            Literal(end_offset_inclusive, datatype=XSD.int)))
     return justification
 
@@ -244,10 +244,10 @@ def mark_confidence(g, to_mark_on, confidence, system):
     :param rdflib.term.URIRef system: The system object for the system which marked this
         confidence
     """
-    confidence_blank_node = _make_aif_resource(g, None, AIDA_ANNOTATION.Confidence, system)
-    g.add((confidence_blank_node, AIDA_ANNOTATION.confidenceValue,
+    confidence_blank_node = _make_aif_resource(g, None, interchange_ontology.Confidence, system)
+    g.add((confidence_blank_node, interchange_ontology.confidenceValue,
            Literal(confidence, datatype=XSD.double)))
-    g.add((to_mark_on, AIDA_ANNOTATION.confidence, confidence_blank_node))
+    g.add((to_mark_on, interchange_ontology.confidence, confidence_blank_node))
 
 
 def make_relation(g, relation_uri, system):
@@ -261,7 +261,7 @@ def make_relation(g, relation_uri, system):
     :returns: The relation object
     :rtype: rdflib.term.URIRef
     """
-    return _make_aif_resource(g, relation_uri, AIDA_ANNOTATION.Relation, system)
+    return _make_aif_resource(g, relation_uri, interchange_ontology.Relation, system)
 
 
 def make_relation_in_event_form(g, relation_uri, relation_type, subject_role, subject_resource, object_role,
@@ -339,7 +339,7 @@ def make_event(g, event_uri, system):
     :returns: The created event resource
     :rtype: rdflib.term.URIRef
     """
-    return _make_aif_resource(g, event_uri, AIDA_ANNOTATION.Event, system)
+    return _make_aif_resource(g, event_uri, interchange_ontology.Event, system)
 
 
 def mark_boundingbox(g, to_mark_on, boundingbox):
@@ -353,17 +353,17 @@ def mark_boundingbox(g, to_mark_on, boundingbox):
         within the image that bounds the justification
     """
     bounding_box_resource = BNode()
-    g.add((bounding_box_resource, RDF.type, AIDA_ANNOTATION.BoundingBox))
-    g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxUpperLeftX,
+    g.add((bounding_box_resource, RDF.type, interchange_ontology.BoundingBox))
+    g.add((bounding_box_resource, interchange_ontology.boundingBoxUpperLeftX,
            Literal(boundingbox.upper_left[0], datatype=XSD.int)))
-    g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxUpperLeftY,
+    g.add((bounding_box_resource, interchange_ontology.boundingBoxUpperLeftY,
            Literal(boundingbox.upper_left[1], datatype=XSD.int)))
-    g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxLowerRightX,
+    g.add((bounding_box_resource, interchange_ontology.boundingBoxLowerRightX,
            Literal(boundingbox.lower_right[0], datatype=XSD.int)))
-    g.add((bounding_box_resource, AIDA_ANNOTATION.boundingBoxLowerRightY,
+    g.add((bounding_box_resource, interchange_ontology.boundingBoxLowerRightY,
            Literal(boundingbox.lower_right[1], datatype=XSD.int)))
 
-    g.add((to_mark_on, AIDA_ANNOTATION.boundingBox, bounding_box_resource))
+    g.add((to_mark_on, interchange_ontology.boundingBox, bounding_box_resource))
 
     return bounding_box_resource
 
@@ -387,7 +387,7 @@ def make_image_justification(g, doc_id, boundingbox, system, confidence,
     :rtype: rdflib.term.BNode
     """
     justification = _make_aif_justification(
-        g, doc_id, AIDA_ANNOTATION.ImageJustification, system, confidence,
+        g, doc_id, interchange_ontology.ImageJustification, system, confidence,
         uri_ref)
     mark_boundingbox(g, justification, boundingbox)
     return justification
@@ -442,11 +442,11 @@ def make_audio_justification(g, doc_id, start_timestamp, end_timestamp, system,
     if start_timestamp > end_timestamp:
         raise RuntimeError("start_timestamp cannot be larger than end_timestamp")
     justification = _make_aif_justification(
-        g, doc_id, AIDA_ANNOTATION.AudioJustification, system, confidence,
+        g, doc_id, interchange_ontology.AudioJustification, system, confidence,
         uri_ref)
-    g.add((justification, AIDA_ANNOTATION.startTimestamp,
+    g.add((justification, interchange_ontology.startTimestamp,
            Literal(start_timestamp, datatype=XSD.double)))
-    g.add((justification, AIDA_ANNOTATION.endTimestamp,
+    g.add((justification, interchange_ontology.endTimestamp,
            Literal(end_timestamp, datatype=XSD.double)))
 
     return justification
@@ -499,9 +499,9 @@ def make_keyframe_video_justification(g, doc_id, key_frame, boundingbox, system,
     :rtype: rdflib.term.BNode
     """
     justification = _make_aif_justification(
-        g, doc_id, AIDA_ANNOTATION.KeyFrameVideoJustification, system,
+        g, doc_id, interchange_ontology.KeyFrameVideoJustification, system,
         confidence, uri_ref)
-    g.add((justification, AIDA_ANNOTATION.keyFrame,
+    g.add((justification, interchange_ontology.keyFrame,
            Literal(key_frame, datatype=XSD.string)))
     mark_boundingbox(g, justification, boundingbox)
 
@@ -550,9 +550,9 @@ def make_shot_video_justification(g, doc_id, shot_id, system, confidence,
     :rtype: rdflib.term.BNode
     """
     justification = _make_aif_justification(
-        g, doc_id, AIDA_ANNOTATION.ShotVideoJustification, system, confidence,
+        g, doc_id, interchange_ontology.ShotVideoJustification, system, confidence,
         uri_ref)
-    g.add((justification, AIDA_ANNOTATION.shot,
+    g.add((justification, interchange_ontology.shot,
            Literal(shot_id, datatype=XSD.string)))
 
     return justification
@@ -595,15 +595,15 @@ def mark_compound_justification(g, things_to_justify, justifications, system, co
     :returns: The created compound justification resource
     :rtype: rdflib.term.BNode
     """
-    compound_justification = _make_aif_resource(g, None, AIDA_ANNOTATION.CompoundJustification, system)
+    compound_justification = _make_aif_resource(g, None, interchange_ontology.CompoundJustification, system)
     mark_confidence(g, compound_justification, confidence, system)
     for justification in justifications:
-        g.add((compound_justification, AIDA_ANNOTATION.containedJustification, justification))
+        g.add((compound_justification, interchange_ontology.containedJustification, justification))
     mark_justification(g, things_to_justify, compound_justification)
     return compound_justification
 
 
-def add_source_document_to_justification(g, justification, source_document) :
+def add_source_document_to_justification(g, justification, source_document):
     """
     Add a sourceDocument to a pre-existing justification
 
@@ -613,10 +613,23 @@ def add_source_document_to_justification(g, justification, source_document) :
     :returns: The modified justification
     :rtype: rdflib.term.BNode
     """
-    g.add((justification, AIDA_ANNOTATION.sourceDocument,
+    g.add((justification, interchange_ontology.sourceDocument,
             Literal(source_document, datatype=XSD.string)))
     return justification
 
+def mark_handle(g, to_mark, handle) -> URIRef:
+    """
+    Add a handle to an existing resource
+
+    :param rdflib.graph.Graph g: The underlying RDF model
+    :param rdflib.term.URIRef to_mark: Reference to mark with a handle
+    :param str handle: A string containing the handle
+    :returns: The marked reference
+    :rtype: rdflib.term.URIRef
+    """
+    if handle is not None:
+        g.add((to_mark, interchange_ontology.handle, Literal(handle, datatype=XSD.string)))
+    return to_mark
 
 def make_cluster_with_prototype(g, cluster_uri, prototype, system, handle=None):
     """
@@ -636,11 +649,9 @@ def make_cluster_with_prototype(g, cluster_uri, prototype, system, handle=None):
     :returns: The cluster created
     :rtype: rdflib.term.URIRef
     """
-    cluster = _make_aif_resource(g, cluster_uri, AIDA_ANNOTATION.SameAsCluster, system)
-    g.add((cluster, AIDA_ANNOTATION.prototype, prototype))
-    if handle is not None:
-        g.add((cluster, AIDA_ANNOTATION.handle, Literal(handle, datatype=XSD.string)))
-    return cluster
+    cluster = _make_aif_resource(g, cluster_uri, interchange_ontology.SameAsCluster, system)
+    g.add((cluster, interchange_ontology.prototype, prototype))
+    return mark_handle(g, cluster, handle)
 
 
 def mark_as_possible_cluster_member(g, possible_cluster_member, cluster, confidence, system, uri_ref=None):
@@ -657,9 +668,9 @@ def mark_as_possible_cluster_member(g, possible_cluster_member, cluster, confide
     :returns: The cluster membership assertion
     :rtype: rdflib.term.BNode
     """
-    cluster_member_assertion = _make_aif_resource(g, uri_ref, AIDA_ANNOTATION.ClusterMembership, system)
-    g.add((cluster_member_assertion, AIDA_ANNOTATION.cluster, cluster))
-    g.add((cluster_member_assertion, AIDA_ANNOTATION.clusterMember, possible_cluster_member))
+    cluster_member_assertion = _make_aif_resource(g, uri_ref, interchange_ontology.ClusterMembership, system)
+    g.add((cluster_member_assertion, interchange_ontology.cluster, cluster))
+    g.add((cluster_member_assertion, interchange_ontology.clusterMember, possible_cluster_member))
     mark_confidence(g, cluster_member_assertion, confidence, system)
     return cluster_member_assertion
 
@@ -681,15 +692,15 @@ def make_hypothesis(g, hypothesis_uri, hypothesis_content, system):
     if not hypothesis_content:
         raise RuntimeError("hypothesis_content cannot be empty")
 
-    hypothesis = _make_aif_resource(g, hypothesis_uri, AIDA_ANNOTATION.Hypothesis, system)
+    hypothesis = _make_aif_resource(g, hypothesis_uri, interchange_ontology.Hypothesis, system)
 
     subgraph = BNode()
-    g.add((subgraph, RDF.type, AIDA_ANNOTATION.Subgraph))
+    g.add((subgraph, RDF.type, interchange_ontology.Subgraph))
 
     for content in hypothesis_content:
-        g.add((subgraph, AIDA_ANNOTATION.subgraphContains, content))
+        g.add((subgraph, interchange_ontology.subgraphContains, content))
 
-    g.add((hypothesis, AIDA_ANNOTATION.hypothesisContent, subgraph))
+    g.add((hypothesis, interchange_ontology.hypothesisContent, subgraph))
     return hypothesis
 
 
@@ -701,7 +712,7 @@ def mark_importance(g, resource, importance):
     :param rdflib.term.URIRef resource: The resource to mark with the specified importance
     :param float importance: The importance value with which to mark the specified Resource
     """
-    g.add((resource, AIDA_ANNOTATION.importance, Literal(importance, datatype=XSD.double)))
+    g.add((resource, interchange_ontology.importance, Literal(importance, datatype=XSD.double)))
 
 
 def mark_informative_justification(g, resource, informative_justification):
@@ -712,7 +723,7 @@ def mark_informative_justification(g, resource, informative_justification):
     :param resource: the resource to mark with the specified importance
     :param informative_justification: the justification which will be considered informative
     """
-    g.add((resource, AIDA_ANNOTATION.informativeJustification, informative_justification))
+    g.add((resource, interchange_ontology.informativeJustification, informative_justification))
 
 
 def mark_depends_on_hypothesis(g, depender, hypothesis):
@@ -723,7 +734,7 @@ def mark_depends_on_hypothesis(g, depender, hypothesis):
     :param rdflib.term.URIRef depender: the argument that depends on the specified hypothesis
     :param rdflib.term.URIRef hypothesis: The hypothesis upon which to depend
     """
-    g.add((depender, AIDA_ANNOTATION.dependsOnHypothesis, hypothesis))
+    g.add((depender, interchange_ontology.dependsOnHypothesis, hypothesis))
 
 
 def mark_as_mutually_exclusive(g, alternatives, system, none_of_the_above_prob):
@@ -747,24 +758,24 @@ def mark_as_mutually_exclusive(g, alternatives, system, none_of_the_above_prob):
     if len(alternatives) < 2:
         raise RuntimeError("alternatives cannot have less than 2 mutually exclusive things")
 
-    mutual_exclusion_assertion = _make_aif_resource(g, None, AIDA_ANNOTATION.MutualExclusion, system)
+    mutual_exclusion_assertion = _make_aif_resource(g, None, interchange_ontology.MutualExclusion, system)
 
     for (edges_for_alternative, confidence) in alternatives.items():
         alternative = BNode()
-        g.add((alternative, RDF.type, AIDA_ANNOTATION.MutualExclusionAlternative))
+        g.add((alternative, RDF.type, interchange_ontology.MutualExclusionAlternative))
 
         alternative_graph = BNode()
-        g.add((alternative_graph, RDF.type, AIDA_ANNOTATION.Subgraph))
+        g.add((alternative_graph, RDF.type, interchange_ontology.Subgraph))
         for alt in edges_for_alternative:
-            g.add((alternative_graph, AIDA_ANNOTATION.subgraphContains, alt))
+            g.add((alternative_graph, interchange_ontology.subgraphContains, alt))
 
-        g.add((alternative, AIDA_ANNOTATION.alternativeGraph, alternative_graph))
+        g.add((alternative, interchange_ontology.alternativeGraph, alternative_graph))
         mark_confidence(g, alternative, confidence, system)
 
-        g.add((mutual_exclusion_assertion, AIDA_ANNOTATION.alternative, alternative))
+        g.add((mutual_exclusion_assertion, interchange_ontology.alternative, alternative))
 
     if none_of_the_above_prob is not None:
-        g.add((mutual_exclusion_assertion, AIDA_ANNOTATION.noneOfTheAbove,
+        g.add((mutual_exclusion_assertion, interchange_ontology.noneOfTheAbove,
                Literal(none_of_the_above_prob, datatype=XSD.double)))
 
     return mutual_exclusion_assertion
@@ -793,11 +804,11 @@ def mark_private_data(g, resource, json_content, system):
     :returns: The created private data resource
     :rtype: rdflib.term.BNode
     """
-    private_data = _make_aif_resource(g, None, AIDA_ANNOTATION.PrivateData, system)
-    g.add((private_data, AIDA_ANNOTATION.jsonContent,
+    private_data = _make_aif_resource(g, None, interchange_ontology.PrivateData, system)
+    g.add((private_data, interchange_ontology.jsonContent,
            Literal(json_content, datatype=XSD.string)))
 
-    g.add((resource, AIDA_ANNOTATION.privateData, private_data))
+    g.add((resource, interchange_ontology.privateData, private_data))
 
     return private_data
 
@@ -852,9 +863,9 @@ def link_to_external_kb(g, to_link, external_kb_id, system, confidence,
         link_assertion = BNode()
     else:
         link_assertion = URIRef(uri_ref)
-    g.add((to_link, AIDA_ANNOTATION.link, link_assertion))
-    g.add((link_assertion, RDF.type, AIDA_ANNOTATION.LinkAssertion))
-    g.add((link_assertion, AIDA_ANNOTATION.linkTarget,
+    g.add((to_link, interchange_ontology.link, link_assertion))
+    g.add((link_assertion, RDF.type, interchange_ontology.LinkAssertion))
+    g.add((link_assertion, interchange_ontology.linkTarget,
            Literal(external_kb_id, datatype=XSD.string)))
     mark_system(g, link_assertion, system)
     mark_confidence(g, link_assertion, confidence, system)
@@ -899,7 +910,7 @@ def _make_aif_justification(g, doc_id, class_type, system, confidence,
     :rtype: rdflib.term.BNode
     """
     justification = _make_aif_resource(g, uri_ref, class_type, system)
-    g.add((justification, AIDA_ANNOTATION.source,
+    g.add((justification, interchange_ontology.source,
            Literal(doc_id, datatype=XSD.string)))
     mark_confidence(g, justification, confidence, system)
     return justification
@@ -939,7 +950,7 @@ def get_confidences(g, confidenced_object):
     :returns: A list of confidence assertions describing this object.
     :rtype: list
     """
-    return list(g.objects(confidenced_object, AIDA_ANNOTATION.confidence))
+    return list(g.objects(confidenced_object, interchange_ontology.confidence))
 
 
 def mark_ldc_time(g, to_mark, start, end, system):
@@ -954,10 +965,10 @@ def mark_ldc_time(g, to_mark, start, end, system):
     :returns: The LDCTimeComponent resource
     :rtype: rdflib.term.BNode
     """
-    ldc_time = _make_aif_resource(g, None, AIDA_ANNOTATION.LDCTime, system)
-    g.add((ldc_time, AIDA_ANNOTATION.start, start.make_aif_time_component(g)))
-    g.add((ldc_time, AIDA_ANNOTATION.end, end.make_aif_time_component(g)))
+    ldc_time = _make_aif_resource(g, None, interchange_ontology.LDCTime, system)
+    g.add((ldc_time, interchange_ontology.start, start.make_aif_time_component(g)))
+    g.add((ldc_time, interchange_ontology.end, end.make_aif_time_component(g)))
 
-    g.add((to_mark, AIDA_ANNOTATION.ldcTime, ldc_time))
+    g.add((to_mark, interchange_ontology.ldcTime, ldc_time))
 
     return ldc_time

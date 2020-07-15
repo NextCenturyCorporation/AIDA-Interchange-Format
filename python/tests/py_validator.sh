@@ -7,9 +7,9 @@ set -e
 test_directory=test_`date +%s`
 mkdir $test_directory
 
-# save location of SeedlingOntology (validateAIF requires absolute path)
-pushd ../../../src/main/resources/com/ncc/aif/ontologies
-ontology_dir=`pwd`/SeedlingOntology
+# save location of LDCOntology (validateAIF requires absolute path)
+pushd ../../java/src/main/resources/com/ncc/aif/ontologies
+ontology=`pwd`/LDCOntology
 popd
 
 # run examples.py
@@ -18,7 +18,7 @@ DIR_PATH=$test_directory python3 examples.py
 
 # validate test file directory
 # if return value is non zero, this script will exit
-../../target/appassembler/bin/validateAIF --ont $ontology_dir -d $test_directory
+../../target/appassembler/bin/validateAIF --ont $ontology -o -d $test_directory
 
 # if all files are valid, delete the test file directory
 rm -r $test_directory
