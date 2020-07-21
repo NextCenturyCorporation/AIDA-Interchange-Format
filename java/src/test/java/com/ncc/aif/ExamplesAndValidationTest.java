@@ -104,32 +104,33 @@ public class ExamplesAndValidationTest {
             final Resource typeAssertion = markType(model, utils.getAssertionUri(), putinMentionResource,
                     SeedlingOntology.Person, system, 1.0);
 
+            final ImmutableSet<Resource> toMark = ImmutableSet.of(putinMentionResource, typeAssertion);
+
             // the justification provides the evidence for our claim about the entity's type
             // we attach this justification to both the type assertion and the entity object
             // itself, since it provides evidence both for the entity's existence and its type.
             // in TA1 -> TA2 communications, we attach confidences at the level of justifications
-            markTextJustification(model, ImmutableSet.of(putinMentionResource, typeAssertion),
-                    "HC000T6IV", 1029, 1033, system, 0.973);
+            markTextJustification(model, toMark, "HC000T6IV", 1029, 1033, system, 0.973);
 
             // let's suppose we also have evidence from an image
-            markImageJustification(model, ImmutableSet.of(putinMentionResource, typeAssertion),
-                    "NYT_ENG_20181231_03",
+            markImageJustification(model, toMark, "NYT_ENG_20181231_03",
                     new BoundingBox(new Point(123, 45), new Point(167, 98)),
                     system, 0.123);
 
             // and also a video where the entity appears in a keyframe
-            markKeyFrameVideoJustification(model, ImmutableSet.of(putinMentionResource, typeAssertion),
-                    "NYT_ENG_20181231_03", "keyframe ID",
+            markKeyFrameVideoJustification(model, toMark, "NYT_ENG_20181231_03", "keyframe ID",
                     new BoundingBox(new Point(234, 56), new Point(345, 101)),
                     system, 0.234);
 
             // and also a video where the entity does not appear in a keyframe
-            markShotVideoJustification(model, ImmutableSet.of(putinMentionResource, typeAssertion),
-                    "SOME_VIDEO", "some shot ID", system, 0.487);
+            markShotVideoJustification(model, toMark, "SOME_VIDEO", "some shot ID", system, 0.487);
 
             // and even audio!
-            markAudioJustification(model, ImmutableSet.of(putinMentionResource, typeAssertion),
-                    "NYT_ENG_201181231", 4.566, 9.876, system, 0.789);
+            markAudioJustification(model, toMark, "NYT_ENG_201181231", 4.566, 9.876, system, 0.789);
+            
+            // time-bounded video
+            markJustification(toMark, makeVideoJustification(model, "OTHER_VIDEO", 1.1, 1.5, 
+                InterchangeOntology.VideoJustificationChannelBoth, system, .93));
 
             // also we can link this entity to something in an external KB
             linkToExternalKB(model, putinMentionResource, "freebase:FOO", system, .398);

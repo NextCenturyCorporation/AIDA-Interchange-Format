@@ -18,7 +18,7 @@ DIR_PATH=$test_directory python3 examples.py
 
 # validate test file directory
 # if return value is non zero, this script will exit
-../../target/appassembler/bin/validateAIF --ont $ontology -o -d $test_directory
+ ../../java/target/appassembler/bin/validateAIF --ont $ontology -o -d $test_directory
 
 # if all files are valid, delete the test file directory
 rm -r $test_directory

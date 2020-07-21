@@ -481,6 +481,40 @@ def mark_audio_justification(g, things_to_justify, doc_id, start_timestamp,
     return justification
 
 
+def make_video_justification(g, doc_id, start_timestamp, end_timestamp, channel,
+                             system, confidence, uri_ref=None):
+    """
+    Make a video justification.
+
+    :param rdflib.graph.Graph g: The underlying RDF model
+    :param str doc_id: A string containing the document element (child) ID of
+        the source of the justification
+    :param float start_timestamp: A timestamp within the video document where the
+        justification starts
+    :param float end_timestamp: A timestamp within the video document where the
+        justification ends
+    :param rdflib.term.URIRef channel: The channel of the video that the mention
+        appears in. See: InterchangeOntology.VideoJustificationChannel
+    :param rdflib.term.URIRef system: The system object for the system which made this
+        justification
+    :param float confidence: The confidence with which to mark the justification
+    :param str uri_ref: (Default is None)
+    :returns: The created video justification resource
+    :rtype: rdflib.term.BNode
+    """
+    if start_timestamp > end_timestamp:
+        raise RuntimeError("start_timestamp cannot be larger than end_timestamp")
+    justification = _make_aif_justification(
+        g, doc_id, interchange_ontology.VideoJustification, system, confidence,
+        uri_ref)
+    g.add((justification, interchange_ontology.startTimestamp,
+           Literal(start_timestamp, datatype=XSD.double)))
+    g.add((justification, interchange_ontology.endTimestamp,
+           Literal(end_timestamp, datatype=XSD.double)))
+    g.add((justification, interchange_ontology.channel, channel))
+
+    return justification
+
 def make_keyframe_video_justification(g, doc_id, key_frame, boundingbox, system, confidence, uri_ref=None):
     """
     Create a justification from something appearing in a key frame of a video.

@@ -10,7 +10,7 @@ from rdflib import Graph, URIRef, RDF
 from aida_interchange import aifutils
 from aida_interchange.bounding_box import Bounding_Box
 from aida_interchange.ldc_time_component import LDCTimeComponent, LDCTimeType
-from aida_interchange.rdf_ontologies import ldc_ontology
+from aida_interchange.rdf_ontologies import ldc_ontology, interchange_ontology
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
@@ -577,11 +577,15 @@ class Examples(unittest.TestCase):
         shot_video_justification = aifutils.make_shot_video_justification(g, "SOME_VIDEO", "some shot ID", system, 0.487)
         # and even audio!
         audio_justification = aifutils.make_audio_justification(g, "NYT_ENG_201181231", 4.566, 9.876, system, 0.789)
+        # and time-bound video
+        video_justification = aifutils.make_video_justification(g, "OTHER_VIDEO", 1.0, 1.5,
+            interchange_ontology.VideoJustificationChannelBoth, system, 0.93)
 
         # combine all justifications into single justifiedBy triple with new confidence
         aifutils.mark_compound_justification(g, [electee_argument],
-                                            [text_justification, image_justification, keyframe_video_justification, shot_video_justification, audio_justification],
-                                            system, .321)
+                                             [text_justification, image_justification, keyframe_video_justification,
+                                              shot_video_justification, audio_justification, video_justification],
+                                             system, .321)
 
         aifutils.mark_compound_justification(g, [place_argument], [text_justification, image_justification], system, 0.543)
 
@@ -697,7 +701,7 @@ class Examples(unittest.TestCase):
         buk_cluster = aifutils.make_cluster_with_prototype(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#cluster-1", buk_kb_entity, system)
         buk_is_clustered = aifutils.mark_as_possible_cluster_member(g, buk, buk_cluster, .9, system)
         # add importance to the cluster - test negative importance
-        aifutils.mark_importance(g, buk_cluster, -70.234)
+        aifutils.mark_importance(g, buk_kb_entity, -70.234)
 
         # Russia owns buk relation
         buk_is_russian = aifutils.make_relation(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#R779959.00004", system)
