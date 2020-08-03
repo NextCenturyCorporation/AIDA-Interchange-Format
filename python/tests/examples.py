@@ -223,8 +223,7 @@ class Examples(unittest.TestCase):
         self.dump_graph(g, "Example of event argument based on pre-existing hypothesis")
 
         # when validating, need both graphs
-        for s, p, o in hypo_g:
-            g.add((s, p, o))
+        g += hypo_g
         self.new_file(g, "test_event_argument_based_on_preexisting_hypothesis.ttl")
 
     def _add_bob_hypothesis(self, g: Graph, bob: URIRef, system: URIRef) -> URIRef:
@@ -280,10 +279,8 @@ class Examples(unittest.TestCase):
         self.dump_graph(g, "Example of relation based on pre-existing hypothesis")
 
         # when validating, need both graphs
-        for s, p, o in hypo_g:
-            g.add((s, p, o))
+        g += hypo_g
         self.new_file(g, "test_relation_based_on_preexisting_hypothesis.ttl")
-
 
     def test_two_hypotheses(self):
         g = get_initialized_graph()
