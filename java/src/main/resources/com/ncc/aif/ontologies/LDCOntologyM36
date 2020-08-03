@@ -1,5 +1,5 @@
 ######################################################
-# Created by com.ncc.verdi.messages.ldc.LDCOntology on 2020-07-07T01:10:13.353793Z
+# Created by com.ncc.verdi.messages.ldc.LDCOntology on 2020-08-03T19:56:53.799111Z
 # For more information about this file, refer to:
 # https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/tree/master/src/main/resources/com/ncc/aif/ontologies/README.md
 ######################################################
@@ -502,7 +502,7 @@ ldcOnt:SID.Sports.Sports
         rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:SID .
 
 ldcOnt:TTL  a            owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , aidaDomainCommon:EntityType .
 
 ldcOnt:VAL  a            owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , aidaDomainCommon:EntityType .
@@ -701,11 +701,23 @@ ldcOnt:WEA.ThrownProjectile.Rock
 ######################################################
 # Relation types
 ######################################################
+ldcOnt:Evaluate.Deliberateness.Accidental
+        a                owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
 ldcOnt:Evaluate.Deliberateness.Deliberate
         a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
+ldcOnt:Evaluate.Legitimacy.Illegitimate
+        a                owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
 ldcOnt:Evaluate.Legitimacy.Legitimate
+        a                owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+ldcOnt:Evaluate.Sentiment.Negative
         a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
@@ -717,25 +729,61 @@ ldcOnt:Evaluate.Status.HoaxFraud
         a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.OwnershipPossession
+ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation
         a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
+ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.ControlTerritory
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation .
+
+ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.NationalityCitizen
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation .
+
+ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.OwnershipPossession
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation .
+
+ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity
+        a                owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.Ethnicity
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity .
+
 ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.NationalityCitizen
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity .
+
+ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation
         a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation.NationalityCitizen
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation .
 
 ldcOnt:GeneralAffiliation.OrganizationWebsite.OrganizationWebsite
         a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:GeneralAffiliation.Sponsorship.HelpSupport
+ldcOnt:GeneralAffiliation.Sponsorship
         a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+ldcOnt:GeneralAffiliation.Sponsorship.AdvisePlanOrganize
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:GeneralAffiliation.Sponsorship .
+
+ldcOnt:GeneralAffiliation.Sponsorship.Affiliated
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:GeneralAffiliation.Sponsorship .
+
+ldcOnt:GeneralAffiliation.Sponsorship.HelpSupport
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:GeneralAffiliation.Sponsorship .
 
 ldcOnt:Information.Color.Color
         a                owl:Class ;
@@ -745,37 +793,97 @@ ldcOnt:Information.Make.Make
         a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:Measurement.Size.Weight
+ldcOnt:Measurement.Size
         a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:OrganizationAffiliation.EmploymentMembership.Membership
+ldcOnt:Measurement.Size.Count
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:Measurement.Size .
+
+ldcOnt:Measurement.Size.HeightLengthWidth
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:Measurement.Size .
+
+ldcOnt:Measurement.Size.Percentage
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:Measurement.Size .
+
+ldcOnt:Measurement.Size.Weight
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:Measurement.Size .
+
+ldcOnt:OrganizationAffiliation.EmploymentMembership
         a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+ldcOnt:OrganizationAffiliation.EmploymentMembership.Employment
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:OrganizationAffiliation.EmploymentMembership .
+
+ldcOnt:OrganizationAffiliation.EmploymentMembership.Membership
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:OrganizationAffiliation.EmploymentMembership .
 
 ldcOnt:OrganizationAffiliation.Founder.Founder
         a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
-ldcOnt:OrganizationAffiliation.Leadership.MilitaryPolice
+ldcOnt:OrganizationAffiliation.Leadership
         a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
+ldcOnt:OrganizationAffiliation.Leadership.Government
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:OrganizationAffiliation.Leadership .
+
+ldcOnt:OrganizationAffiliation.Leadership.HeadOfState
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:OrganizationAffiliation.Leadership .
+
+ldcOnt:OrganizationAffiliation.Leadership.MilitaryPolice
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:OrganizationAffiliation.Leadership .
+
+ldcOnt:PartWhole.Subsidiary
+        a                owl:Class ;
+        rdfs:subClassOf  aidaDomainCommon:RelationType .
+
+ldcOnt:PartWhole.Subsidiary.NationalityCitizen
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:PartWhole.Subsidiary .
+
 ldcOnt:PartWhole.Subsidiary.OrganizationSubsidiary
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:PartWhole.Subsidiary .
+
+ldcOnt:PersonalSocial.Relationship
         a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:PersonalSocial.Relationship.Political
         a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:PersonalSocial.Relationship .
+
+ldcOnt:PersonalSocial.Role
+        a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
+ldcOnt:PersonalSocial.Role.ProfessionalRole
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:PersonalSocial.Role .
+
 ldcOnt:PersonalSocial.Role.TitleFormOfAddress
+        a                owl:Class ;
+        rdfs:subClassOf  ldcOnt:PersonalSocial.Role .
+
+ldcOnt:Physical.LocatedNear
         a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:RelationType .
 
 ldcOnt:Physical.LocatedNear.Surround
         a                owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:RelationType .
+        rdfs:subClassOf  ldcOnt:Physical.LocatedNear .
 
 ldcOnt:Physical.OrganizationHeadquarters.OrganizationHeadquarters
         a                owl:Class ;
@@ -796,6 +904,20 @@ ldcOnt:ResponsibilityBlame.ClaimResponsibility.ClaimResponsibility
 ######################################################
 # Relation argument types
 ######################################################
+ldcOnt:Evaluate.Deliberateness.Accidental_Event
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:Evaluate.Deliberateness.Accidental ;
+        rdfs:label            "Event" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  aidaDomainCommon:EventType .
+
+ldcOnt:Evaluate.Deliberateness.Accidental_Holder
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:Evaluate.Deliberateness.Accidental ;
+        rdfs:label            "Holder" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
+
 ldcOnt:Evaluate.Deliberateness.Deliberate_Event
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Evaluate.Deliberateness.Deliberate ;
@@ -806,6 +928,20 @@ ldcOnt:Evaluate.Deliberateness.Deliberate_Event
 ldcOnt:Evaluate.Deliberateness.Deliberate_Holder
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Evaluate.Deliberateness.Deliberate ;
+        rdfs:label            "Holder" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
+
+ldcOnt:Evaluate.Legitimacy.Illegitimate_Event
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:Evaluate.Legitimacy.Illegitimate ;
+        rdfs:label            "Event" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  aidaDomainCommon:EventType .
+
+ldcOnt:Evaluate.Legitimacy.Illegitimate_Holder
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:Evaluate.Legitimacy.Illegitimate ;
         rdfs:label            "Holder" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
@@ -823,6 +959,20 @@ ldcOnt:Evaluate.Legitimacy.Legitimate_Holder
         rdfs:label            "Holder" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
+
+ldcOnt:Evaluate.Sentiment.Negative_Holder
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:Evaluate.Sentiment.Negative ;
+        rdfs:label            "Holder" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
+
+ldcOnt:Evaluate.Sentiment.Negative_SentimentTarget
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:Evaluate.Sentiment.Negative ;
+        rdfs:label            "SentimentTarget" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID .
 
 ldcOnt:Evaluate.Sentiment.Positive_Holder
         a                     owl:ObjectProperty ;
@@ -852,6 +1002,34 @@ ldcOnt:Evaluate.Status.HoaxFraud_Holder
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
 
+ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.ControlTerritory_Controller
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.ControlTerritory ;
+        rdfs:label            "Controller" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE , ldcOnt:LOC , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
+
+ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.ControlTerritory_Territory
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.ControlTerritory ;
+        rdfs:label            "Territory" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC .
+
+ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.NationalityCitizen_Artifact
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.NationalityCitizen ;
+        rdfs:label            "Artifact" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:MON , ldcOnt:VEH , ldcOnt:WEA .
+
+ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.NationalityCitizen_Nationality
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.NationalityCitizen ;
+        rdfs:label            "Nationality" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE .
+
 ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.OwnershipPossession_Artifact
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.OwnershipPossession ;
@@ -865,6 +1043,34 @@ ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation.Owne
         rdfs:label            "Owner" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:GPE , ldcOnt:LOC , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
+
+ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation_Artifact
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation ;
+        rdfs:label            "Artifact" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:MON , ldcOnt:VEH , ldcOnt:WEA .
+
+ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:GeneralAffiliation.ArtifactPoliticalOrganizationReligiousAffiliation ;
+        rdfs:label            "EntityOrFiller" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE , ldcOnt:LOC , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
+
+ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.Ethnicity_Ethnicity
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.Ethnicity ;
+        rdfs:label            "Ethnicity" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE , ldcOnt:LOC , ldcOnt:PER , ldcOnt:SID .
+
+ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.Ethnicity_Person
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.Ethnicity ;
+        rdfs:label            "Person" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:PER .
 
 ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.NationalityCitizen_Citizen
         a                     owl:ObjectProperty ;
@@ -880,6 +1086,20 @@ ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity.NationalityCitizen_Natio
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:GPE .
 
+ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity_EntityOrFiller
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity ;
+        rdfs:label            "EntityOrFiller" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE , ldcOnt:LOC , ldcOnt:PER , ldcOnt:SID .
+
+ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity_Person
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:GeneralAffiliation.MemberOriginReligionEthnicity ;
+        rdfs:label            "Person" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:PER .
+
 ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation.NationalityCitizen_Nationality
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation.NationalityCitizen ;
@@ -890,6 +1110,20 @@ ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation.NationalityC
 ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation.NationalityCitizen_Organization
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation.NationalityCitizen ;
+        rdfs:label            "Organization" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:ORG .
+
+ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation_EntityOrFiller
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation ;
+        rdfs:label            "EntityOrFiller" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
+
+ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation_Organization
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:GeneralAffiliation.OrganizationPoliticalReligiousAffiliation ;
         rdfs:label            "Organization" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:ORG .
@@ -908,6 +1142,34 @@ ldcOnt:GeneralAffiliation.OrganizationWebsite.OrganizationWebsite_Website
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:VAL .
 
+ldcOnt:GeneralAffiliation.Sponsorship.AdvisePlanOrganize_ActorOrEvent
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:GeneralAffiliation.Sponsorship.AdvisePlanOrganize ;
+        rdfs:label            "ActorOrEvent" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:GPE , ldcOnt:LOC , ldcOnt:ORG .
+
+ldcOnt:GeneralAffiliation.Sponsorship.AdvisePlanOrganize_Sponsor
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:GeneralAffiliation.Sponsorship.AdvisePlanOrganize ;
+        rdfs:label            "Sponsor" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
+
+ldcOnt:GeneralAffiliation.Sponsorship.Affiliated_ActorOrEvent
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:GeneralAffiliation.Sponsorship.Affiliated ;
+        rdfs:label            "ActorOrEvent" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:GPE , ldcOnt:LOC , ldcOnt:ORG .
+
+ldcOnt:GeneralAffiliation.Sponsorship.Affiliated_Sponsor
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:GeneralAffiliation.Sponsorship.Affiliated ;
+        rdfs:label            "Sponsor" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
+
 ldcOnt:GeneralAffiliation.Sponsorship.HelpSupport_ActorOrEvent
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:GeneralAffiliation.Sponsorship.HelpSupport ;
@@ -918,6 +1180,20 @@ ldcOnt:GeneralAffiliation.Sponsorship.HelpSupport_ActorOrEvent
 ldcOnt:GeneralAffiliation.Sponsorship.HelpSupport_Sponsor
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:GeneralAffiliation.Sponsorship.HelpSupport ;
+        rdfs:label            "Sponsor" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
+
+ldcOnt:GeneralAffiliation.Sponsorship_ActorOrEvent
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:GeneralAffiliation.Sponsorship ;
+        rdfs:label            "ActorOrEvent" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:GPE , ldcOnt:LOC , ldcOnt:ORG .
+
+ldcOnt:GeneralAffiliation.Sponsorship_Sponsor
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:GeneralAffiliation.Sponsorship ;
         rdfs:label            "Sponsor" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG , ldcOnt:PER , ldcOnt:SID .
@@ -950,6 +1226,48 @@ ldcOnt:Information.Make.Make_EntityOrFiller
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:VEH , ldcOnt:WEA .
 
+ldcOnt:Measurement.Size.Count_EntityOrFiller
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:Measurement.Size.Count ;
+        rdfs:label            "EntityOrFiller" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VEH , ldcOnt:WEA .
+
+ldcOnt:Measurement.Size.Count_Measurement
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:Measurement.Size.Count ;
+        rdfs:label            "Measurement" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:VAL .
+
+ldcOnt:Measurement.Size.HeightLengthWidth_EntityOrFiller
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:Measurement.Size.HeightLengthWidth ;
+        rdfs:label            "EntityOrFiller" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:PER , ldcOnt:VEH , ldcOnt:WEA .
+
+ldcOnt:Measurement.Size.HeightLengthWidth_Measurement
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:Measurement.Size.HeightLengthWidth ;
+        rdfs:label            "Measurement" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:VAL .
+
+ldcOnt:Measurement.Size.Percentage_EntityOrFiller
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:Measurement.Size.Percentage ;
+        rdfs:label            "EntityOrFiller" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VEH , ldcOnt:WEA .
+
+ldcOnt:Measurement.Size.Percentage_Measurement
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:Measurement.Size.Percentage ;
+        rdfs:label            "Measurement" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:VAL .
+
 ldcOnt:Measurement.Size.Weight_EntityOrFiller
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Measurement.Size.Weight ;
@@ -964,6 +1282,34 @@ ldcOnt:Measurement.Size.Weight_Measurement
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:VAL .
 
+ldcOnt:Measurement.Size_EntityOrFiller
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:Measurement.Size ;
+        rdfs:label            "EntityOrFiller" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:PER , ldcOnt:VEH , ldcOnt:WEA .
+
+ldcOnt:Measurement.Size_Measurement
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:Measurement.Size ;
+        rdfs:label            "Measurement" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:VAL .
+
+ldcOnt:OrganizationAffiliation.EmploymentMembership.Employment_Employee
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:OrganizationAffiliation.EmploymentMembership.Employment ;
+        rdfs:label            "Employee" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:PER .
+
+ldcOnt:OrganizationAffiliation.EmploymentMembership.Employment_PlaceOfEmployment
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:OrganizationAffiliation.EmploymentMembership.Employment ;
+        rdfs:label            "PlaceOfEmployment" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG .
+
 ldcOnt:OrganizationAffiliation.EmploymentMembership.Membership_Member
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:OrganizationAffiliation.EmploymentMembership.Membership ;
@@ -975,6 +1321,20 @@ ldcOnt:OrganizationAffiliation.EmploymentMembership.Membership_PlaceOfMembership
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:OrganizationAffiliation.EmploymentMembership.Membership ;
         rdfs:label            "PlaceOfMembership" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG .
+
+ldcOnt:OrganizationAffiliation.EmploymentMembership_EmployeeMember
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:OrganizationAffiliation.EmploymentMembership ;
+        rdfs:label            "EmployeeMember" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:PER .
+
+ldcOnt:OrganizationAffiliation.EmploymentMembership_PlaceOfEmploymentMembership
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:OrganizationAffiliation.EmploymentMembership ;
+        rdfs:label            "PlaceOfEmploymentMembership" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG .
 
@@ -992,6 +1352,34 @@ ldcOnt:OrganizationAffiliation.Founder.Founder_Organization
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:ORG .
 
+ldcOnt:OrganizationAffiliation.Leadership.Government_GovernmentBodyOrGPE
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:OrganizationAffiliation.Leadership.Government ;
+        rdfs:label            "GovernmentBodyOrGPE" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG .
+
+ldcOnt:OrganizationAffiliation.Leadership.Government_Leader
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:OrganizationAffiliation.Leadership.Government ;
+        rdfs:label            "Leader" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:PER .
+
+ldcOnt:OrganizationAffiliation.Leadership.HeadOfState_Country
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:OrganizationAffiliation.Leadership.HeadOfState ;
+        rdfs:label            "Country" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE .
+
+ldcOnt:OrganizationAffiliation.Leadership.HeadOfState_Leader
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:OrganizationAffiliation.Leadership.HeadOfState ;
+        rdfs:label            "Leader" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:PER .
+
 ldcOnt:OrganizationAffiliation.Leadership.MilitaryPolice_Leader
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:OrganizationAffiliation.Leadership.MilitaryPolice ;
@@ -1003,6 +1391,34 @@ ldcOnt:OrganizationAffiliation.Leadership.MilitaryPolice_MilitaryPoliceORG
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:OrganizationAffiliation.Leadership.MilitaryPolice ;
         rdfs:label            "MilitaryPoliceORG" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:ORG .
+
+ldcOnt:OrganizationAffiliation.Leadership_Leader
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:OrganizationAffiliation.Leadership ;
+        rdfs:label            "Leader" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:PER .
+
+ldcOnt:OrganizationAffiliation.Leadership_Organization
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:OrganizationAffiliation.Leadership ;
+        rdfs:label            "Organization" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG .
+
+ldcOnt:PartWhole.Subsidiary.NationalityCitizen_Parent
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:PartWhole.Subsidiary.NationalityCitizen ;
+        rdfs:label            "Parent" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE .
+
+ldcOnt:PartWhole.Subsidiary.NationalityCitizen_Subsidiary
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:PartWhole.Subsidiary.NationalityCitizen ;
+        rdfs:label            "Subsidiary" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:ORG .
 
@@ -1020,9 +1436,44 @@ ldcOnt:PartWhole.Subsidiary.OrganizationSubsidiary_Subsidiary
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:ORG .
 
+ldcOnt:PartWhole.Subsidiary_Parent
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:PartWhole.Subsidiary ;
+        rdfs:label            "Parent" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG .
+
+ldcOnt:PartWhole.Subsidiary_Subsidiary
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:PartWhole.Subsidiary ;
+        rdfs:label            "Subsidiary" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:GPE , ldcOnt:ORG .
+
 ldcOnt:PersonalSocial.Relationship.Political_Person
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:PersonalSocial.Relationship.Political ;
+        rdfs:label            "Person" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:PER .
+
+ldcOnt:PersonalSocial.Relationship_Person
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:PersonalSocial.Relationship ;
+        rdfs:label            "Person" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:PER .
+
+ldcOnt:PersonalSocial.Role.ProfessionalRole_JobRole
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:PersonalSocial.Role.ProfessionalRole ;
+        rdfs:label            "JobRole" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:TTL .
+
+ldcOnt:PersonalSocial.Role.ProfessionalRole_Person
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:PersonalSocial.Role.ProfessionalRole ;
         rdfs:label            "Person" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:PER .
@@ -1041,6 +1492,20 @@ ldcOnt:PersonalSocial.Role.TitleFormOfAddress_Title
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:TTL .
 
+ldcOnt:PersonalSocial.Role_Person
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:PersonalSocial.Role ;
+        rdfs:label            "Person" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:PER .
+
+ldcOnt:PersonalSocial.Role_Role
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:PersonalSocial.Role ;
+        rdfs:label            "Role" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:TTL .
+
 ldcOnt:Physical.LocatedNear.Surround_EntityOrFiller
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Physical.LocatedNear.Surround ;
@@ -1051,6 +1516,20 @@ ldcOnt:Physical.LocatedNear.Surround_EntityOrFiller
 ldcOnt:Physical.LocatedNear.Surround_Place
         a                     owl:ObjectProperty ;
         rdfs:domain           ldcOnt:Physical.LocatedNear.Surround ;
+        rdfs:label            "Place" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC .
+
+ldcOnt:Physical.LocatedNear_EntityOrFiller
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:Physical.LocatedNear ;
+        rdfs:label            "EntityOrFiller" ;
+        rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
+        schema:rangeIncludes  ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:PER , ldcOnt:VEH , ldcOnt:WEA .
+
+ldcOnt:Physical.LocatedNear_Place
+        a                     owl:ObjectProperty ;
+        rdfs:domain           ldcOnt:Physical.LocatedNear ;
         rdfs:label            "Place" ;
         rdfs:subClassOf       aidaDomainCommon:RelationArgumentType ;
         schema:rangeIncludes  ldcOnt:FAC , ldcOnt:GPE , ldcOnt:LOC .
