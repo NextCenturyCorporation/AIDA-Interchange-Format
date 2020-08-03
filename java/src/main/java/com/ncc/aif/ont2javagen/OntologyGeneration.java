@@ -67,7 +67,7 @@ public class OntologyGeneration {
                     "EventOntology",
                     "InterchangeOntology",
                     "LDCOntology",
-                    "LDCOwlOntology",
+                    "LDCOntologyM36",
                     "RelationOntology")
                 .map(file -> ontRoot + file)
                 .forEach(OntologyGeneration::writeJavaFile);
