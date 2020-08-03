@@ -793,6 +793,45 @@ public class NistExamplesAndValidationTest {
                 utils.testValid("Handle.valid");
             }
         }
+
+        @Nested
+        class Time {
+            @Test
+            void invalidTimeExtraneous() {
+                Resource time = addCorrectTime();
+                Resource unknown = LDCTimeComponent.createTime("unknown", null).makeAIFTimeComponent(model);
+                Resource extra = LDCTimeComponent.createTime("after", "1900-xx-xx").makeAIFTimeComponent(model);
+                time.addProperty(InterchangeOntology.start, unknown);
+                time.addProperty(InterchangeOntology.end, extra);
+                utils.expect(null, SH.MaxCountConstraintComponent, null);
+                utils.testInvalid("Time.invalid: extraneous time types");
+            }
+
+            @Test
+            void invalidTimeInsufficient() {
+                markLDCTime(model, event, 
+                    LDCTimeComponent.createTime("AFTER", "1901-01-01"),
+                    LDCTimeComponent.createTime("BEFORE", "1901-02-xx"), system);
+                utils.expect(null, SH.MinCountConstraintComponent, null, 2);
+                utils.expect(null, SH.HasValueConstraintComponent, null, 2);
+                utils.testInvalid("Time.invalid: not enough time types");
+            }
+
+            @Test
+            void validTime() {
+                addCorrectTime();
+                utils.testValid("Time.valid");
+            }
+            
+            private Resource addCorrectTime() {
+                return markLDCTimeRange(model, event, 
+                    LDCTimeComponent.createTime("AFTER", "1901-01-01"),
+                    LDCTimeComponent.createTime("BEFORE", "1901-02-xx"),
+                    LDCTimeComponent.createTime("AFTER", "1902-01-01"),
+                    LDCTimeComponent.createTime("BEFORE", "1902-xx-xx"),
+                    system);
+            }
+        }
     }
 
     private void addNamespacesToModel(Model model) {

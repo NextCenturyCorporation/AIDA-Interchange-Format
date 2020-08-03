@@ -1,5 +1,5 @@
 ######################################################
-# Created by com.ncc.verdi.messages.ldc.LDCOntology on 2020-07-07T01:10:13.353793Z
+# Created by com.ncc.verdi.messages.ldc.LDCOntology on 2020-07-30T16:00:45.805758Z
 # For more information about this file, refer to:
 # https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/tree/master/src/main/resources/com/ncc/aif/ontologies/README.md
 ######################################################
@@ -502,7 +502,7 @@ ldcOnt:SID.Sports.Sports
         rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:SID .
 
 ldcOnt:TTL  a            owl:Class ;
-        rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
+        rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , aidaDomainCommon:EntityType .
 
 ldcOnt:VAL  a            owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveTextValue , aidaDomainCommon:EntityType .
