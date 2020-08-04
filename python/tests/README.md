@@ -9,9 +9,7 @@ Prerequisites:
 * The python version of AIF must be installed. It is recommended that this is installed in a virtual environment:
 
       pip install -e ..
-* The java version of AIF must be installed to your local maven repo.
-    1. Go to the [java directory](../../java)
-    1. Type `mvn install`
+* The java version of AIF must be installed to your local maven repo. See the [Java README](../../java/README.md)
 
 To execute the script, run: `./py_validator.sh`
 
