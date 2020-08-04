@@ -427,6 +427,7 @@ public class NistExamplesAndValidationTest {
 
         // Each entity/relation/event type statement must have at least one justification
         @Nested
+        @Disabled("Restriction removed for M36")
         class JustifyTypeAssertions {
             @Test
             void invalid() {

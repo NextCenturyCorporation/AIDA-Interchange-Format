@@ -1366,6 +1366,7 @@ public class ExamplesAndValidationTest {
     class InvalidExamples {
 
         @Test
+        @Disabled("Types no longer required for mentions")
         void entityMissingType() {
             // having multiple type assertions in case of uncertainty is ok, but there must always
             // be at least one type assertion
@@ -1375,6 +1376,7 @@ public class ExamplesAndValidationTest {
         }
 
         @Test
+        @Disabled("Types no longer required for mentions")
         void eventMissingType() {
             // having multiple type assertions in case of uncertainty is ok, but there must always
             // be at least one type assertion
