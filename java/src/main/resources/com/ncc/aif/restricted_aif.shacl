@@ -230,23 +230,24 @@ aida:LinkAssertionShape
     ] .
 
 #########################
-# Prevent prototype from being member of cluster not prototype of and prototype of mulitple clusters
+# Prevent prototype from being member of a cluster it is not the prototype of and 
+# prevent it from being prototype of mulitple clusters
 #------------------------
 aida:PrototypeShape
     a sh:NodeShape ;
     sh:targetObjectsOf aida:prototype ;
-    sh:property aida:MultiClusterPrototypeShape ;
-    sh:sparql aida:NonClusterPrototypeMemberShape .
+    sh:property aida:PreventMultiClusterPrototypeShape ;
+    sh:sparql aida:PreventNonClusterPrototypeMemberShape .
 
 # Prototype can't be prototype of multiple clusters
-aida:MultiClusterPrototypeShape
+aida:PreventMultiClusterPrototypeShape
     a sh:PropertyShape ;
     sh:path [ sh:inversePath aida:prototype ] ;
     sh:maxCount 1 ;
     sh:message "Prototype can't be prototype of multiple clusters" .
 
 # Prototype can't be member of different cluster
-aida:NonClusterPrototypeMemberShape
+aida:PreventNonClusterPrototypeMemberShape
     # Using SPARQL because unable to use sh:inversePath in sh:equals
     a sh:SPARQLConstraint ;
     sh:select """
