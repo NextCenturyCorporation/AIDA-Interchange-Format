@@ -51,22 +51,23 @@ aida:EntityShape
     a sh:NodeShape ;
     sh:targetClass aida:Entity ;
 
+    # For M36, mentions no longer require types, thus this is being removed.
     # Ensure that entity has type
-    sh:sparql [
-        sh:message "Entity must have type assertion or be non-prototype member of cluster" ;
-        sh:select """
-            PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
-            SELECT $this
-            WHERE {
-                FILTER ( NOT EXISTS {
-                        $this ^rdf:subject / rdf:predicate rdf:type .
-                    } && ( NOT EXISTS { $this ^aida:clusterMember ?membership . } ||
-                           EXISTS { $this ^aida:prototype ?cluster . } )
-                )
-            }
-        """ ;
-    ] ;
+    # sh:sparql [
+    #     sh:message "Entity must have type assertion or be non-prototype member of cluster" ;
+    #     sh:select """
+    #         PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    #         PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+    #         SELECT $this
+    #         WHERE {
+    #             FILTER ( NOT EXISTS {
+    #                     $this ^rdf:subject / rdf:predicate rdf:type .
+    #                 } && ( NOT EXISTS { $this ^aida:clusterMember ?membership . } ||
+    #                        EXISTS { $this ^aida:prototype ?cluster . } )
+    #             )
+    #         }
+    #     """ ;
+    # ] ;
 
     # entities must have unique identifiers
     sh:nodeKind sh:IRI ;
@@ -117,22 +118,23 @@ aida:EventRelationShape
     a sh:NodeShape ;
     sh:targetClass aida:Event, aida:Relation ;
 
+    # For M36, mentions no longer require types, thus this is being removed.
     # Ensure that event/relation has type
-    sh:sparql [
-        sh:message "Events and Relations must have type assertion or be non-prototype member of cluster" ;
-        sh:select """
-            PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
-            SELECT $this
-            WHERE {
-                FILTER ( NOT EXISTS {
-                        $this ^rdf:subject / rdf:predicate rdf:type .
-                    } && ( NOT EXISTS { $this ^aida:clusterMember ?membership . } ||
-                           EXISTS { $this ^aida:prototype ?cluster . } )
-                )
-            }
-        """ ;
-    ] ;
+    # sh:sparql [
+    #     sh:message "Events and Relations must have type assertion or be non-prototype member of cluster" ;
+    #     sh:select """
+    #         PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    #         PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+    #         SELECT $this
+    #         WHERE {
+    #             FILTER ( NOT EXISTS {
+    #                     $this ^rdf:subject / rdf:predicate rdf:type .
+    #                 } && ( NOT EXISTS { $this ^aida:clusterMember ?membership . } ||
+    #                        EXISTS { $this ^aida:prototype ?cluster . } )
+    #             )
+    #         }
+    #     """ ;
+    # ] ;
 
     # must have unique identifiers
     sh:nodeKind sh:IRI ;

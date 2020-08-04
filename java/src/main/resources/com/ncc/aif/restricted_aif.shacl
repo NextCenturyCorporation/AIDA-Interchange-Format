@@ -156,17 +156,18 @@ aida:ConfidenceValueRange
 
 #########################
 # Each entity/relation/event type statement must have at least one justification
+# Removed for M36
 #------------------------
-aida:SharedTypeShape
-	sh:property aida:RequiredJustificationPropertyShape .
+#aida:SharedTypeShape
+#	sh:property aida:RequiredJustificationPropertyShape .
 
 # Use this instead of aida:JustificationPropertyShape when you wish to force justifications to be present
-aida:RequiredJustificationPropertyShape
-   a sh:PropertyShape ;
-   sh:path aida:justifiedBy ;
-   sh:propertyShape aida:JustificationPropertyShape ;
-   sh:minCount 1 ;
-   sh:message "Type assertions must have at least one justification" .
+# aida:RequiredJustificationPropertyShape
+#    a sh:PropertyShape ;
+#    sh:path aida:justifiedBy ;
+#    sh:propertyShape aida:JustificationPropertyShape ;
+#    sh:minCount 1 ;
+#    sh:message "Type assertions must have at least one justification" .
 
 #########################
 # Justifications require a source document and a source
