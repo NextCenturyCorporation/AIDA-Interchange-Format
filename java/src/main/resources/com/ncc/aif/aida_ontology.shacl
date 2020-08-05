@@ -177,27 +177,26 @@ aida:EventRelationShape
 aida:EventArgumentShape
    a sh:NodeShape ;
 
-  # this shape only applies when the predicate is an event argument type from the ontology
+  # this shape only applies when the subject is an event and the statement is not a type statement
   sh:target [
     a sh:SPARQLTarget ;
     sh:select """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
+        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
         SELECT ?this
         WHERE {
             ?this a rdf:Statement .
-            ?pred rdfs:subClassOf+|rdf:type/rdfs:subClassOf* aidaDomainCommon:EventArgumentType .
-            ?this rdf:predicate ?pred .
+            ?this rdf:subject / a aida:Event .
+            FILTER NOT EXISTS { ?this rdf:predicate rdf:type . }
         }
         """ ;
   ];
 
-  # the subject is the event some entity is participating in
+  # the predicate must be an event argument subclass
   sh:property [
-    sh:path rdf:subject ;
-    sh:class aida:Event ;
-    sh:message "The subject of an event argument must be an event"
+    sh:path rdf:predicate ;
+    sh:property aida:EventArgumentSubclass ;
+    sh:message "The predicate of an event argument must be an event argument subclass"
   ] ;
 
   # the object is the argument of the event role
@@ -231,7 +230,7 @@ aida:EventArgumentShape
   # no other properties are allowed
   sh:closed true ;
   # except rdf:type
-  sh:ignoredProperties (rdf:type rdf:predicate)
+  sh:ignoredProperties (rdf:type rdf:subject)
   .
 
 # It was decided that Relations should be represented similarly to Events.
@@ -239,27 +238,26 @@ aida:EventArgumentShape
 aida:RelationArgumentShape
    a sh:NodeShape ;
 
-  # this shape only applies when the predicate is an event argument type from the ontology
+  # this shape only applies when the subject is a relation and the statement is not a type statement
   sh:target [
     a sh:SPARQLTarget ;
     sh:select """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
+        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
         SELECT ?this
         WHERE {
             ?this a rdf:Statement .
-            ?pred rdfs:subClassOf+|rdf:type/rdfs:subClassOf* aidaDomainCommon:RelationArgumentType .
-            ?this rdf:predicate ?pred .
+            ?this rdf:subject / a aida:Relation .
+            FILTER NOT EXISTS { ?this rdf:predicate rdf:type . }
         }
         """ ;
   ] ;
 
   # the subject is the event some entity is participating in
   sh:property [
-    sh:path rdf:subject ;
-    sh:class aida:Relation ;
-    sh:message "The subject of a relation argument must be a relation"
+    sh:path rdf:predicate ;
+    sh:property aida:RelationArgumentSubclass ;
+    sh:message "The predicate of a relation argument must be a relation argument subclass"
   ] ;
 
   # the object is the argument of the relation role
@@ -293,7 +291,7 @@ aida:RelationArgumentShape
   # no other properties are allowed
   sh:closed true ;
   # except rdf:type
-  sh:ignoredProperties (rdf:type rdf:predicate)
+  sh:ignoredProperties (rdf:type rdf:subject)
   .
 
 # the fifth type of content node is a sentiment assertion.

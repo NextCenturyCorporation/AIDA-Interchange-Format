@@ -362,9 +362,9 @@ public class NistTA3ExamplesAndValidationTest {
                         LDCOntology.Conflict_Attack_Attacker,
                         entity, 102.0);
 
-                utils.expect(null, SH.ClassConstraintComponent, null);
+                utils.expect(ShaclShapes.RelationArgumentSubclass, SH.HasValueConstraintComponent, null);
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, invalidRelationEdge);
-                utils.testInvalid("NISTHypothesis.invalid (event has invalid relation edge): Each hypothesis graph " +
+                utils.testInvalid("NISTHypothesis.invalid (relation has invalid event edge): Each hypothesis graph " +
                         "must have at least one event or relation with at least one edge.");
             }
 
