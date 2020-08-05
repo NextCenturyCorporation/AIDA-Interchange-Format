@@ -2,11 +2,10 @@ package com.ncc.aif;
 
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
-
-// WARNING. This is a Generated File.  Please do not edit.
+// WARNING. This is a Generated File. Please do not edit.
 // This class contains variables generated from SHACL files using the OntologyGeneration class
-// Please refer to the README at src/main/java/com/ncc/aif/ont2javagen for more information
-// Last Generated On: 07/01/2020 13:48:49
+// Please refer to the README at java/src/main/java/com/ncc/aif/ont2javagen for more information
+// Last generated on: 07/22/2020 09:28:20
 public final class ShaclShapes {
     public static final String NS = InterchangeOntology.NAMESPACE;
     public static final Resource AllKEsReferencedShape = ResourceFactory.createResource(NS + "AllKEsReferencedShape");
@@ -55,14 +54,14 @@ public final class ShaclShapes {
     public static final Resource LDCTimeShape = ResourceFactory.createResource(NS + "LDCTimeShape");
     public static final Resource LinkAssertionShape = ResourceFactory.createResource(NS + "LinkAssertionShape");
     public static final Resource LinkPropertyShape = ResourceFactory.createResource(NS + "LinkPropertyShape");
-    public static final Resource MultiClusterPrototypeShape = ResourceFactory.createResource(NS + "MultiClusterPrototypeShape");
     public static final Resource MutualExclusionAlternativeShape = ResourceFactory.createResource(NS + "MutualExclusionAlternativeShape");
     public static final Resource MutualExclusionConstraintShape = ResourceFactory.createResource(NS + "MutualExclusionConstraintShape");
     public static final Resource NamePropertyShape = ResourceFactory.createResource(NS + "NamePropertyShape");
-    public static final Resource NonClusterPrototypeMemberShape = ResourceFactory.createResource(NS + "NonClusterPrototypeMemberShape");
     public static final Resource NumericPropertyShape = ResourceFactory.createResource(NS + "NumericPropertyShape");
     public static final Resource ObjectMustBeClustered = ResourceFactory.createResource(NS + "ObjectMustBeClustered");
     public static final Resource PreventHandleOnCluster = ResourceFactory.createResource(NS + "PreventHandleOnCluster");
+    public static final Resource PreventMultiClusterPrototypeShape = ResourceFactory.createResource(NS + "PreventMultiClusterPrototypeShape");
+    public static final Resource PreventNonClusterPrototypeMemberShape = ResourceFactory.createResource(NS + "PreventNonClusterPrototypeMemberShape");
     public static final Resource PrivateDataPropertyShape = ResourceFactory.createResource(NS + "PrivateDataPropertyShape");
     public static final Resource PrototypeShape = ResourceFactory.createResource(NS + "PrototypeShape");
     public static final Resource RdfStatementShape = ResourceFactory.createResource(NS + "RdfStatementShape");

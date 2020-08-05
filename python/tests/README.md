@@ -1,8 +1,15 @@
 # Python Examples Validator
 
-pyValidator.sh creates a directory for Examples.py to write the generated example turtle files to, and validates it.
-If all files are valid, the directory will be deleted. If at least one file fails validation, the directory will remain.
+py_validator.sh does the following:
+1. Create a directory into which examples.py will write the generated example turtle files
+1. Execute examples.py
+1. If all files are valid, delete the previously created directory; o/w the directory will remain.
 
-* Before running, be sure to mvn install AIF.
-* To execute the script, run ./pyValidator.sh
+Prerequisites:
+* The python version of AIF must be installed. It is recommended that this is installed in a virtual environment:
+
+      pip install -e ..
+* The java version of AIF must be installed to your local maven repo. See the [Java README](../../java/README.md)
+
+To execute the script, run: `./py_validator.sh`
 

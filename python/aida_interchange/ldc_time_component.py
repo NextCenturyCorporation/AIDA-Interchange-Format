@@ -1,9 +1,15 @@
 from enum import Enum
-from rdflib import Graph, Literal, XSD, URIRef
+
+from rdflib import XSD, Literal, URIRef
+
 from aida_interchange import aifutils
-from aida_interchange.aida_rdf_ontologies import AIDA_ANNOTATION
+from aida_interchange.rdf_ontologies import interchange_ontology
+
 
 class LDCTimeType(Enum):
+    """
+    Enumeration of time types
+    """
     ON = 1
     BEFORE = 2
     AFTER = 3
@@ -46,9 +52,9 @@ class LDCTimeComponent:
         :param rdflib.graph.Graph g: The underlying RDF model for the operation
         :returns: time_component node
         """
-        time_component = aifutils._make_aif_resource(g, None, AIDA_ANNOTATION.LDCTimeComponent, None)
-        g.add((time_component, AIDA_ANNOTATION.timeType, Literal(self.time_type.name, datatype=XSD.string)))
-        self.add_literal(g, time_component, AIDA_ANNOTATION.year, self.year, XSD.gYear)
-        self.add_literal(g, time_component, AIDA_ANNOTATION.month, self.month, XSD.gMonth)
-        self.add_literal(g, time_component, AIDA_ANNOTATION.day, self.day, XSD.gDay)
+        time_component = aifutils._make_aif_resource(g, None, interchange_ontology.LDCTimeComponent, None)
+        g.add((time_component, interchange_ontology.timeType, Literal(self.time_type.name, datatype=XSD.string)))
+        self.add_literal(g, time_component, interchange_ontology.year, self.year, XSD.gYear)
+        self.add_literal(g, time_component, interchange_ontology.month, self.month, XSD.gMonth)
+        self.add_literal(g, time_component, interchange_ontology.day, self.day, XSD.gDay)
         return time_component

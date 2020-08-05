@@ -760,7 +760,7 @@ public class NistExamplesAndValidationTest {
                 makeClusterWithPrototype(model, utils.getClusterUri(), entity1, false, system);
                 makeClusterWithPrototype(model, utils.getClusterUri(), entity1, false, system);
     
-                utils.expect(ShaclShapes.MultiClusterPrototypeShape, SH.MaxCountConstraintComponent, null);
+                utils.expect(ShaclShapes.PreventMultiClusterPrototypeShape, SH.MaxCountConstraintComponent, null);
                 utils.testInvalid("Prototype.invalid: prototype of multiple clusters");
             }
             
@@ -774,7 +774,7 @@ public class NistExamplesAndValidationTest {
                 // create two clusters with different prototypes
                 markAsPossibleClusterMember(model, entity2, entityCluster, 1d, system);
                 
-                utils.expect(ShaclShapes.PrototypeShape, SH.SPARQLConstraintComponent, ShaclShapes.NonClusterPrototypeMemberShape);
+                utils.expect(ShaclShapes.PrototypeShape, SH.SPARQLConstraintComponent, ShaclShapes.PreventNonClusterPrototypeMemberShape);
                 utils.testInvalid("Prototype.invalid: prototype member of other cluster");
             }
         }
@@ -785,7 +785,7 @@ public class NistExamplesAndValidationTest {
             void invalidHandle() {
                 markHandle(entityCluster, "handle");
                 utils.expect(ShaclShapes.PreventHandleOnCluster, SH.NotConstraintComponent, null);
-                utils.testInvalid("Prototype.invalid: prototype of multiple clusters");
+                utils.testInvalid("Handle.invalid: handle not allowed on cluster");
             }
             
             @Test

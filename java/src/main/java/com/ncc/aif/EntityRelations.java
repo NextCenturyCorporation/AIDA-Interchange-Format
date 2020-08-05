@@ -3,11 +3,10 @@ package com.ncc.aif;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
-
-// WARNING. This is a Generated File.  Please do not edit.
+// WARNING. This is a Generated File. Please do not edit.
 // This class contains variables generated from ontologies using the OntologyGeneration class
-// Please refer to the README at src/main/java/com/ncc/aif/ont2javagen for more information
-// Last Generated On: 06/18/2020 12:22:35
+// Please refer to the README at java/src/main/java/com/ncc/aif/ont2javagen for more information
+// Last generated on: 07/14/2020 09:07:18
 public final class EntityRelations {
     public static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/EntityRelations#";
     // Classes
