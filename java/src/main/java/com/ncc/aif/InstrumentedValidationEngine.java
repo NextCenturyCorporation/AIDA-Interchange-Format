@@ -1,9 +1,7 @@
 package com.ncc.aif;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -12,6 +10,7 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
+import org.slf4j.LoggerFactory;
 import org.topbraid.jenax.util.ARQFactory;
 import org.topbraid.shacl.arq.SHACLFunctions;
 import org.topbraid.shacl.engine.Constraint;
@@ -25,11 +24,14 @@ import org.topbraid.shacl.validation.ValidationEngine;
 import org.topbraid.shacl.validation.ValidationEngineConfiguration;
 import org.topbraid.shacl.validation.ValidationUtil;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.FileAppender;
 
 public class InstrumentedValidationEngine extends ValidationEngine {
-    private static final Logger logger = (Logger) (org.slf4j.LoggerFactory.getLogger("InstrumentedValidationEngine"));
-
     private Predicate<RDFNode> focusNodeFilter;
 
     protected InstrumentedValidationEngine(Dataset dataset, URI shapesGraphURI, ShapesGraph shapesGraph, Resource report) {
@@ -38,11 +40,11 @@ public class InstrumentedValidationEngine extends ValidationEngine {
 
     @Override
     public Resource validateAll() throws InterruptedException {
+		final Logger logger = getLogger("validation_times.tsv");
+
 		boolean nested = SHACLScriptEngineManager.begin();
 		try {
             List<Shape> rootShapes = shapesGraph.getRootShapes();
-            
-            logger.debug(String.format("Validating %d shapes", rootShapes.size()));
             
             if(monitor != null) {
 				monitor.beginTask("Validating " + rootShapes.size() + " shapes", rootShapes.size());
@@ -111,6 +113,30 @@ public class InstrumentedValidationEngine extends ValidationEngine {
 
 	private static String getShapeString(Shape shape, int count) {
 		return String.format("%d-%s", count, shape.toString());
+	}
+
+	private static Logger logger;
+	private Logger getLogger(String filename) {
+		if (logger == null) {
+			LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+			PatternLayoutEncoder ple = new PatternLayoutEncoder();
+
+			ple.setPattern("%msg%n");
+			ple.setContext(lc);
+			ple.start();
+			FileAppender<ILoggingEvent> fileAppender = new FileAppender<ILoggingEvent>();
+			fileAppender.setFile(filename);
+			fileAppender.setEncoder(ple);
+			fileAppender.setContext(lc);
+			fileAppender.start();
+
+			logger = (Logger) LoggerFactory.getLogger("InstrumentedValidationEngine");
+			logger.addAppender(fileAppender);
+			logger.setLevel(Level.DEBUG);
+			logger.setAdditive(false);
+		}
+		
+		return logger;
 	}
 
     @Override

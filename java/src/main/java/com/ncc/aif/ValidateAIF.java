@@ -414,7 +414,9 @@ public final class ValidateAIF {
             if (debugging) {
                 ((Logger) (org.slf4j.LoggerFactory.getLogger(ValidationEngine.class))).setLevel(Level.DEBUG);
             }
-            ValidationEngine engine = ValidationUtil.createValidationEngine(unionModel, shacl, config);
+            ValidationEngine engine = debugging ?
+                InstrumentedValidationEngine.createValidationEngine(unionModel, shacl, config) :
+                ValidationUtil.createValidationEngine(unionModel, shacl, config);
             engine.setProgressMonitor(progressMonitor);
             try {
                 engine.applyEntailments();
