@@ -1,22 +1,43 @@
 package com.ncc.aif;
 
-import ch.qos.logback.classic.Logger;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.apache.commons.lang3.tuple.Triple;
-import org.apache.jena.rdf.model.*;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.RDFFormat;
-import org.topbraid.shacl.vocabulary.SH;
+import static com.ncc.aif.AIFUtils.addStandardNamespaces;
+import static com.ncc.aif.AIFUtils.makeEntity;
+import static com.ncc.aif.AIFUtils.makeEvent;
+import static com.ncc.aif.AIFUtils.makeHypothesis;
+import static com.ncc.aif.AIFUtils.makeRelation;
+import static com.ncc.aif.AIFUtils.makeSystemWithURI;
+import static com.ncc.aif.AIFUtils.makeTextJustification;
+import static com.ncc.aif.AIFUtils.markAsArgument;
+import static com.ncc.aif.AIFUtils.markType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import static com.ncc.aif.AIFUtils.*;
-import static org.junit.jupiter.api.Assertions.*;
+import javax.annotation.Nullable;
+
+import com.ncc.aif.util.AIFOrderedTurtleWriter;
+
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
+import org.topbraid.shacl.vocabulary.SH;
+
+import ch.qos.logback.classic.Logger;
 
 /**
  * Utilities for testing AIF functionality and/or creating examples.
@@ -37,6 +58,7 @@ class TestUtils {
     private final String annotationNamespace;
     private final boolean dumpAlways;
     private final boolean dumpToFile;
+    private final AIFOrderedTurtleWriter writer;
 
     private static final String DUMP_DIRECTORY = "test-dump-output";
 
@@ -69,6 +91,7 @@ class TestUtils {
         this.dumpToFile = dumpToFile;
         this.logger = (Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         this.expectedCounts = new HashMap<>();
+        writer = new AIFOrderedTurtleWriter();
     }
 
     /**
@@ -405,13 +428,13 @@ class TestUtils {
             try {
                 Path path = createDirectoryForPath(outputFilename);
                 logger.info("Dump to " + path);
-                RDFDataMgr.write(java.nio.file.Files.newOutputStream(path), model, RDFFormat.TURTLE_PRETTY);
+                writer.write(Files.newOutputStream(path), model);
             } catch (IOException ioe) {
                 logger.error("---> Could not dump model to " + outputFilename);
             }
         } else {
             System.out.println("\n" + header);
-            RDFDataMgr.write(System.out, model, RDFFormat.TURTLE_PRETTY);
+            writer.write(System.out, model);
         }
     }
 

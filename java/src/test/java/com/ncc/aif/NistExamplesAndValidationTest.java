@@ -630,11 +630,19 @@ public class NistExamplesAndValidationTest {
             }
 
             @Test
+            @Disabled("Informative mentions are not allowed on clusters for M36")
             void validClusterInformativeJustification() {
                 markInformativeJustification(entityCluster, utils.makeValidJustification());
                 utils.testValid("NIST.valid: (cluster) Each Cluster, Entity, Event, or Relation can specify up to one " +
                         "informative mention per document as each informative mention points to a different " +
                         "sourceDocument");
+            }
+
+            @Test
+            void invalidClusterInformativeJustification() {
+                markInformativeJustification(entityCluster, utils.makeValidJustification());
+                utils.expect(ShaclShapes.PreventInformativeJustificationCluster, SH.NotConstraintComponent, null);
+                utils.testInvalid("NIST.invalid: Informative mentions are not allowed on clusters");
             }
 
             @Test
@@ -647,24 +655,23 @@ public class NistExamplesAndValidationTest {
                 utils.testValid("NIST.valid: (multiple informative justifications on relation) Each Cluster," +
                         "Entity, Event, or Relation can specify up to one informative mention per document as long " +
                         "as each informative mention points to a different sourceDocument");
-
             }
 
             @Test
-            void validEntityClusterSeparateInformativeJustificationsWithSameParentDoc() {
+            void validEntitySeparateInformativeJustificationsWithSameParentDoc() {
                 // Add more than one informative justification to entity KE
                 markInformativeJustification(entity, utils.makeValidJustification("20181231"));
                 markInformativeJustification(entity, utils.makeValidJustification("3822029"));
 
+                // For M36, informative mentions are no longer allowed on clusters
                 // Add more than one informative justification to entity cluster KE.
                 // One of the informative justifications contains same parent doc as entity KE
-                markInformativeJustification(entityCluster, utils.makeValidJustification("20181231"));
-                markInformativeJustification(entityCluster, utils.makeValidJustification("3298329"));
+                // markInformativeJustification(entityCluster, utils.makeValidJustification("20181231"));
+                // markInformativeJustification(entityCluster, utils.makeValidJustification("3298329"));
 
                 utils.testValid("NIST.valid: (Two KE's with informative justifications with same parent doc) Each " +
-                        "Cluster, Entity, Event, or Relation can specify up to one informative mention per document " +
+                        "Entity, Event, or Relation can specify up to one informative mention per document " +
                         "as long as each informative mention points to a different sourceDocument");
-
             }
         }
 

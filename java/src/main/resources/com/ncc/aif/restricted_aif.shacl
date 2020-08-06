@@ -162,12 +162,12 @@ aida:ConfidenceValueRange
 #	sh:property aida:RequiredJustificationPropertyShape .
 
 # Use this instead of aida:JustificationPropertyShape when you wish to force justifications to be present
-# aida:RequiredJustificationPropertyShape
-#    a sh:PropertyShape ;
-#    sh:path aida:justifiedBy ;
-#    sh:propertyShape aida:JustificationPropertyShape ;
-#    sh:minCount 1 ;
-#    sh:message "Type assertions must have at least one justification" .
+aida:RequiredJustificationPropertyShape
+   a sh:PropertyShape ;
+   sh:path aida:justifiedBy ;
+   sh:propertyShape aida:JustificationPropertyShape ;
+   sh:minCount 1 ;
+   sh:message "Type assertions must have at least one justification" .
 
 #########################
 # Justifications require a source document and a source
@@ -274,6 +274,18 @@ aida:PreventHandleOnCluster
         sh:minCount 1 
     ] ;
     sh:message "Handle is not allowed on cluster" .
+
+#########################
+# Prevent informative justification on cluster
+#------------------------
+aida:PreventInformativeJustificationCluster
+    a sh:NodeShape ;
+    sh:targetClass aida:SameAsCluster ;
+    sh:not [
+        sh:path aida:informativeJustification ;
+        sh:minCount 1 
+    ] ;
+    sh:message "Informative justification is not allowed on cluster" .
 
 #########################
 # LDC time restrictions. Extends aida_ontology aida:LDCTimeShape
