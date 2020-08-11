@@ -1503,7 +1503,7 @@ public class AIFUtils {
             this.day = day;
         }
 
-        private Resource makeAIFTimeComponent(Model model) {
+        public Resource makeAIFTimeComponent(Model model) {
             final Resource timeComponent = makeAIFResource(model, null, InterchangeOntology.LDCTimeComponent, null);
             timeComponent.addProperty(InterchangeOntology.timeType, type.toString());
             addLiteral(model, timeComponent, InterchangeOntology.year, year, XSD.gYear);
@@ -1528,7 +1528,7 @@ public class AIFUtils {
          */
         public static LDCTimeComponent createTime(String type, String date) {
             if (type.toLowerCase().contains("unk")) {
-                return new AIFUtils.LDCTimeComponent(AIFUtils.LDCTimeComponent.LDCTimeType.UNKNOWN, null, null, null);
+                return new LDCTimeComponent(LDCTimeComponent.LDCTimeType.UNKNOWN, null, null, null);
             } else if (date.contains(dateDelimiter)) {
                 String[] dateParts = date.toLowerCase().split(dateDelimiter);
                 for (int i = 0; i < dateParts.length; i++) {
@@ -1541,9 +1541,9 @@ public class AIFUtils {
                     }
                 }
                 String typeCompare = type.toUpperCase();
-                for (AIFUtils.LDCTimeComponent.LDCTimeType timeType : AIFUtils.LDCTimeComponent.LDCTimeType.values()) {
+                for (LDCTimeComponent.LDCTimeType timeType : LDCTimeComponent.LDCTimeType.values()) {
                     if (typeCompare.contains(timeType.toString())) {
-                        return new AIFUtils.LDCTimeComponent(timeType, dateParts[0], dateParts[1], dateParts[2]);
+                        return new LDCTimeComponent(timeType, dateParts[0], dateParts[1], dateParts[2]);
                     }
                 }
             }

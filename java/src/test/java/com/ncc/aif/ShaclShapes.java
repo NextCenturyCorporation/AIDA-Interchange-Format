@@ -5,7 +5,7 @@ import org.apache.jena.rdf.model.ResourceFactory;
 // WARNING. This is a Generated File. Please do not edit.
 // This class contains variables generated from SHACL files using the OntologyGeneration class
 // Please refer to the README at java/src/main/java/com/ncc/aif/ont2javagen for more information
-// Last generated on: 07/22/2020 09:28:20
+// Last generated on: 08/06/2020 13:43:36
 public final class ShaclShapes {
     public static final String NS = InterchangeOntology.NAMESPACE;
     public static final Resource AllKEsReferencedShape = ResourceFactory.createResource(NS + "AllKEsReferencedShape");
@@ -60,6 +60,7 @@ public final class ShaclShapes {
     public static final Resource NumericPropertyShape = ResourceFactory.createResource(NS + "NumericPropertyShape");
     public static final Resource ObjectMustBeClustered = ResourceFactory.createResource(NS + "ObjectMustBeClustered");
     public static final Resource PreventHandleOnCluster = ResourceFactory.createResource(NS + "PreventHandleOnCluster");
+    public static final Resource PreventInformativeJustificationCluster = ResourceFactory.createResource(NS + "PreventInformativeJustificationCluster");
     public static final Resource PreventMultiClusterPrototypeShape = ResourceFactory.createResource(NS + "PreventMultiClusterPrototypeShape");
     public static final Resource PreventNonClusterPrototypeMemberShape = ResourceFactory.createResource(NS + "PreventNonClusterPrototypeMemberShape");
     public static final Resource PrivateDataPropertyShape = ResourceFactory.createResource(NS + "PrivateDataPropertyShape");

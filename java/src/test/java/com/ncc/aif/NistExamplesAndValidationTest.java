@@ -427,6 +427,7 @@ public class NistExamplesAndValidationTest {
 
         // Each entity/relation/event type statement must have at least one justification
         @Nested
+        @Disabled("Restriction removed for M36")
         class JustifyTypeAssertions {
             @Test
             void invalid() {
@@ -629,11 +630,19 @@ public class NistExamplesAndValidationTest {
             }
 
             @Test
+            @Disabled("Informative mentions are not allowed on clusters for M36")
             void validClusterInformativeJustification() {
                 markInformativeJustification(entityCluster, utils.makeValidJustification());
                 utils.testValid("NIST.valid: (cluster) Each Cluster, Entity, Event, or Relation can specify up to one " +
                         "informative mention per document as each informative mention points to a different " +
                         "sourceDocument");
+            }
+
+            @Test
+            void invalidClusterInformativeJustification() {
+                markInformativeJustification(entityCluster, utils.makeValidJustification());
+                utils.expect(ShaclShapes.PreventInformativeJustificationCluster, SH.NotConstraintComponent, null);
+                utils.testInvalid("NIST.invalid: Informative mentions are not allowed on clusters");
             }
 
             @Test
@@ -646,24 +655,23 @@ public class NistExamplesAndValidationTest {
                 utils.testValid("NIST.valid: (multiple informative justifications on relation) Each Cluster," +
                         "Entity, Event, or Relation can specify up to one informative mention per document as long " +
                         "as each informative mention points to a different sourceDocument");
-
             }
 
             @Test
-            void validEntityClusterSeparateInformativeJustificationsWithSameParentDoc() {
+            void validEntitySeparateInformativeJustificationsWithSameParentDoc() {
                 // Add more than one informative justification to entity KE
                 markInformativeJustification(entity, utils.makeValidJustification("20181231"));
                 markInformativeJustification(entity, utils.makeValidJustification("3822029"));
 
+                // For M36, informative mentions are no longer allowed on clusters
                 // Add more than one informative justification to entity cluster KE.
                 // One of the informative justifications contains same parent doc as entity KE
-                markInformativeJustification(entityCluster, utils.makeValidJustification("20181231"));
-                markInformativeJustification(entityCluster, utils.makeValidJustification("3298329"));
+                // markInformativeJustification(entityCluster, utils.makeValidJustification("20181231"));
+                // markInformativeJustification(entityCluster, utils.makeValidJustification("3298329"));
 
                 utils.testValid("NIST.valid: (Two KE's with informative justifications with same parent doc) Each " +
-                        "Cluster, Entity, Event, or Relation can specify up to one informative mention per document " +
+                        "Entity, Event, or Relation can specify up to one informative mention per document " +
                         "as long as each informative mention points to a different sourceDocument");
-
             }
         }
 
@@ -791,6 +799,45 @@ public class NistExamplesAndValidationTest {
             void valid() {
                 markHandle(entity, "handle");
                 utils.testValid("Handle.valid");
+            }
+        }
+
+        @Nested
+        class Time {
+            @Test
+            void invalidTimeExtraneous() {
+                Resource time = addCorrectTime();
+                Resource unknown = LDCTimeComponent.createTime("unknown", null).makeAIFTimeComponent(model);
+                Resource extra = LDCTimeComponent.createTime("after", "1900-xx-xx").makeAIFTimeComponent(model);
+                time.addProperty(InterchangeOntology.start, unknown);
+                time.addProperty(InterchangeOntology.end, extra);
+                utils.expect(null, SH.MaxCountConstraintComponent, null);
+                utils.testInvalid("Time.invalid: extraneous time types");
+            }
+
+            @Test
+            void invalidTimeInsufficient() {
+                markLDCTime(model, event, 
+                    LDCTimeComponent.createTime("AFTER", "1901-01-01"),
+                    LDCTimeComponent.createTime("BEFORE", "1901-02-xx"), system);
+                utils.expect(null, SH.MinCountConstraintComponent, null, 2);
+                utils.expect(null, SH.HasValueConstraintComponent, null, 2);
+                utils.testInvalid("Time.invalid: not enough time types");
+            }
+
+            @Test
+            void validTime() {
+                addCorrectTime();
+                utils.testValid("Time.valid");
+            }
+            
+            private Resource addCorrectTime() {
+                return markLDCTimeRange(model, event, 
+                    LDCTimeComponent.createTime("AFTER", "1901-01-01"),
+                    LDCTimeComponent.createTime("BEFORE", "1901-02-xx"),
+                    LDCTimeComponent.createTime("AFTER", "1902-01-01"),
+                    LDCTimeComponent.createTime("BEFORE", "1902-xx-xx"),
+                    system);
             }
         }
     }

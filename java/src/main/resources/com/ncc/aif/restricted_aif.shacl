@@ -156,9 +156,10 @@ aida:ConfidenceValueRange
 
 #########################
 # Each entity/relation/event type statement must have at least one justification
+# Removed for M36
 #------------------------
-aida:SharedTypeShape
-	sh:property aida:RequiredJustificationPropertyShape .
+#aida:SharedTypeShape
+#	sh:property aida:RequiredJustificationPropertyShape .
 
 # Use this instead of aida:JustificationPropertyShape when you wish to force justifications to be present
 aida:RequiredJustificationPropertyShape
@@ -272,4 +273,37 @@ aida:PreventHandleOnCluster
         sh:path aida:handle ;
         sh:minCount 1 
     ] ;
-    sh:message "Handle is not allowed on cluster"
+    sh:message "Handle is not allowed on cluster" .
+
+#########################
+# Prevent informative justification on cluster
+#------------------------
+aida:PreventInformativeJustificationCluster
+    a sh:NodeShape ;
+    sh:targetClass aida:SameAsCluster ;
+    sh:not [
+        sh:path aida:informativeJustification ;
+        sh:minCount 1 
+    ] ;
+    sh:message "Informative justification is not allowed on cluster" .
+
+#########################
+# LDC time restrictions. Extends aida_ontology aida:LDCTimeShape
+# LDCTime must have 1 "AFTER" and 1 "BEFORE" aida:start
+# LDCTime must have 1 "AFTER" and 1 "BEFORE" aida:end
+#------------------------
+aida:LDCTimeShape
+    sh:property [
+        sh:path ( aida:start aida:timeType );
+        sh:minCount 2;
+        sh:maxCount 2;
+        sh:hasValue "AFTER", "BEFORE" ;
+        sh:message "LDCTime must have 1 BEFORE and 1 AFTER for aida:start"
+    ] ;
+    sh:property [
+        sh:path ( aida:end aida:timeType );
+        sh:minCount 2;
+        sh:maxCount 2;
+        sh:hasValue "AFTER", "BEFORE" ;
+        sh:message "LDCTime must have 1 BEFORE and 1 AFTER for aida:end"
+    ] .
