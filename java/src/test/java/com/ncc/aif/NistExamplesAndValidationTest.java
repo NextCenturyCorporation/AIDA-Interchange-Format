@@ -832,12 +832,7 @@ public class NistExamplesAndValidationTest {
             }
             
             private Resource addCorrectTime() {
-                return markLDCTimeRange(model, event, 
-                    LDCTimeComponent.createTime("AFTER", "1901-01-01"),
-                    LDCTimeComponent.createTime("BEFORE", "1901-02-xx"),
-                    LDCTimeComponent.createTime("AFTER", "1902-01-01"),
-                    LDCTimeComponent.createTime("BEFORE", "1902-xx-xx"),
-                    system);
+                return markLDCTimeRange(model, event, "1901-01-01", "1901-02-xx", "1902-01-01", "1902-xx-xx", system);
             }
         }
     }
