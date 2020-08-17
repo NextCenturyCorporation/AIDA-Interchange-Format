@@ -188,7 +188,7 @@ ldcOnt:GPE.UrbanArea.Village
         a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveName , ldcOnt:GPE.UrbanArea .
 
-ldcOnt:INF.TopicFIller.TopicFIller
+ldcOnt:INF.TopicFiller.TopicFiller
         a                owl:Class ;
         rdfs:subClassOf  aidaDomainCommon:CanHaveName , aidaDomainCommon:EntityType .
 
@@ -2839,7 +2839,7 @@ ldcOnt:Contact.CommandOrder.Broadcast_Topic
         rdfs:domain           ldcOnt:Contact.CommandOrder.Broadcast ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.CommandOrder.Correspondence_Communicator
         a                     owl:ObjectProperty ;
@@ -2867,7 +2867,7 @@ ldcOnt:Contact.CommandOrder.Correspondence_Topic
         rdfs:domain           ldcOnt:Contact.CommandOrder.Correspondence ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.CommandOrder.Meet_Communicator
         a                     owl:ObjectProperty ;
@@ -2895,7 +2895,7 @@ ldcOnt:Contact.CommandOrder.Meet_Topic
         rdfs:domain           ldcOnt:Contact.CommandOrder.Meet ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.CommandOrder_Communicator
         a                     owl:ObjectProperty ;
@@ -2923,7 +2923,7 @@ ldcOnt:Contact.CommandOrder_Topic
         rdfs:domain           ldcOnt:Contact.CommandOrder ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.CommitmentPromiseExpressIntent.Broadcast_Communicator
         a                     owl:ObjectProperty ;
@@ -2951,7 +2951,7 @@ ldcOnt:Contact.CommitmentPromiseExpressIntent.Broadcast_Topic
         rdfs:domain           ldcOnt:Contact.CommitmentPromiseExpressIntent.Broadcast ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.CommitmentPromiseExpressIntent.Correspondence_Communicator
         a                     owl:ObjectProperty ;
@@ -2979,7 +2979,7 @@ ldcOnt:Contact.CommitmentPromiseExpressIntent.Correspondence_Topic
         rdfs:domain           ldcOnt:Contact.CommitmentPromiseExpressIntent.Correspondence ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.CommitmentPromiseExpressIntent.Meet_Communicator
         a                     owl:ObjectProperty ;
@@ -3007,7 +3007,7 @@ ldcOnt:Contact.CommitmentPromiseExpressIntent.Meet_Topic
         rdfs:domain           ldcOnt:Contact.CommitmentPromiseExpressIntent.Meet ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.CommitmentPromiseExpressIntent_Communicator
         a                     owl:ObjectProperty ;
@@ -3035,7 +3035,7 @@ ldcOnt:Contact.CommitmentPromiseExpressIntent_Topic
         rdfs:domain           ldcOnt:Contact.CommitmentPromiseExpressIntent ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.Discussion.Correspondence_Participant
         a                     owl:ObjectProperty ;
@@ -3182,7 +3182,7 @@ ldcOnt:Contact.Negotiate.Correspondence_Topic
         rdfs:domain           ldcOnt:Contact.Negotiate.Correspondence ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.Negotiate.Meet_Participant
         a                     owl:ObjectProperty ;
@@ -3203,7 +3203,7 @@ ldcOnt:Contact.Negotiate.Meet_Topic
         rdfs:domain           ldcOnt:Contact.Negotiate.Meet ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.Negotiate_Participant
         a                     owl:ObjectProperty ;
@@ -3224,7 +3224,7 @@ ldcOnt:Contact.Negotiate_Topic
         rdfs:domain           ldcOnt:Contact.Negotiate ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.Prevarication.Broadcast_Communicator
         a                     owl:ObjectProperty ;
@@ -3252,7 +3252,7 @@ ldcOnt:Contact.Prevarication.Broadcast_Topic
         rdfs:domain           ldcOnt:Contact.Prevarication.Broadcast ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.Prevarication.Correspondence_Communicator
         a                     owl:ObjectProperty ;
@@ -3280,7 +3280,7 @@ ldcOnt:Contact.Prevarication.Correspondence_Topic
         rdfs:domain           ldcOnt:Contact.Prevarication.Correspondence ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.Prevarication.Meet_Communicator
         a                     owl:ObjectProperty ;
@@ -3308,7 +3308,7 @@ ldcOnt:Contact.Prevarication.Meet_Topic
         rdfs:domain           ldcOnt:Contact.Prevarication.Meet ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.Prevarication_Communicator
         a                     owl:ObjectProperty ;
@@ -3336,7 +3336,7 @@ ldcOnt:Contact.Prevarication_Topic
         rdfs:domain           ldcOnt:Contact.Prevarication ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.PublicStatementInPerson.Broadcast_Communicator
         a                     owl:ObjectProperty ;
@@ -3406,7 +3406,7 @@ ldcOnt:Contact.RequestAdvise.Broadcast_Topic
         rdfs:domain           ldcOnt:Contact.RequestAdvise.Broadcast ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.RequestAdvise.Correspondence_Communicator
         a                     owl:ObjectProperty ;
@@ -3434,7 +3434,7 @@ ldcOnt:Contact.RequestAdvise.Correspondence_Topic
         rdfs:domain           ldcOnt:Contact.RequestAdvise.Correspondence ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.RequestAdvise.Meet_Communicator
         a                     owl:ObjectProperty ;
@@ -3462,7 +3462,7 @@ ldcOnt:Contact.RequestAdvise.Meet_Topic
         rdfs:domain           ldcOnt:Contact.RequestAdvise.Meet ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.RequestAdvise_Communicator
         a                     owl:ObjectProperty ;
@@ -3490,7 +3490,7 @@ ldcOnt:Contact.RequestAdvise_Topic
         rdfs:domain           ldcOnt:Contact.RequestAdvise ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.ThreatenCoerce.Broadcast_Communicator
         a                     owl:ObjectProperty ;
@@ -3518,7 +3518,7 @@ ldcOnt:Contact.ThreatenCoerce.Broadcast_Topic
         rdfs:domain           ldcOnt:Contact.ThreatenCoerce.Broadcast ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.ThreatenCoerce.Correspondence_Communicator
         a                     owl:ObjectProperty ;
@@ -3546,7 +3546,7 @@ ldcOnt:Contact.ThreatenCoerce.Correspondence_Topic
         rdfs:domain           ldcOnt:Contact.ThreatenCoerce.Correspondence ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.ThreatenCoerce.Meet_Communicator
         a                     owl:ObjectProperty ;
@@ -3574,7 +3574,7 @@ ldcOnt:Contact.ThreatenCoerce.Meet_Topic
         rdfs:domain           ldcOnt:Contact.ThreatenCoerce.Meet ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Contact.ThreatenCoerce_Communicator
         a                     owl:ObjectProperty ;
@@ -3602,7 +3602,7 @@ ldcOnt:Contact.ThreatenCoerce_Topic
         rdfs:domain           ldcOnt:Contact.ThreatenCoerce ;
         rdfs:label            "Topic" ;
         rdfs:subClassOf       aidaDomainCommon:EventArgumentType ;
-        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFIller.TopicFIller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
+        schema:rangeIncludes  aidaDomainCommon:EventType , ldcOnt:BAL , ldcOnt:COM , ldcOnt:FAC , ldcOnt:GPE , ldcOnt:INF.TopicFiller.TopicFiller , ldcOnt:LAW , ldcOnt:LOC , ldcOnt:MHI , ldcOnt:MON , ldcOnt:ORG , ldcOnt:PER , ldcOnt:RES , ldcOnt:SID , ldcOnt:VAL , ldcOnt:VEH , ldcOnt:WEA .
 
 ldcOnt:Disaster.AccidentCrash.AccidentCrash_CrashObject
         a                     owl:ObjectProperty ;
