@@ -809,7 +809,6 @@ class Examples(unittest.TestCase):
         self.new_file(g, "test_create_a_cluster_with_link_and_confidence.ttl")
         self.dump_graph(g, "create a cluster with link and confidence")
 
-
     def test_create_an_event_with_ldc_time(self):
         g = get_initialized_graph()
 
@@ -833,6 +832,23 @@ class Examples(unittest.TestCase):
         self.new_file(g, "test_create_an_event_with_ldc_time.ttl")
         self.dump_graph(g, "create an event with LDCTime")
 
+    def test_create_an_event_with_ldc_time_range(self):
+        g = get_initialized_graph()
+
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
+
+        # create an attack event with an unknown start date range, but definite end date range
+        event_attack_unknown = aifutils.make_event(g, "http://www.test.edu/event/2", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/2", event_attack_unknown, ldc_ontology.Conflict_Attack, system, 1.0)
+        startE = LDCTimeComponent(LDCTimeType.AFTER, "2014", "--02", None)
+        startL = LDCTimeComponent(LDCTimeType.BEFORE, "2014", "--03", None)
+        endE = LDCTimeComponent(LDCTimeType.AFTER, "2015", "--02", "---21")
+        endL = LDCTimeComponent(LDCTimeType.BEFORE, "2015", "--02", "---26")
+        aifutils.mark_ldc_time_range(g, event_attack_unknown, startE, startL, endE, endL, system)
+
+        self.new_file(g, "test_create_an_event_with_ldc_time_range.ttl")
+        self.dump_graph(g, "create an event with LDCTime range")
 
     def dump_graph(self, g, description):
         print("\n\n======================================\n"

@@ -1000,8 +1000,38 @@ def mark_ldc_time(g, to_mark, start, end, system):
     :rtype: rdflib.term.BNode
     """
     ldc_time = _make_aif_resource(g, None, interchange_ontology.LDCTime, system)
-    g.add((ldc_time, interchange_ontology.start, start.make_aif_time_component(g)))
-    g.add((ldc_time, interchange_ontology.end, end.make_aif_time_component(g)))
+    if start:
+        g.add((ldc_time, interchange_ontology.start, start.make_aif_time_component(g)))
+    if end:
+        g.add((ldc_time, interchange_ontology.end, end.make_aif_time_component(g)))
+
+    g.add((to_mark, interchange_ontology.ldcTime, ldc_time))
+
+    return ldc_time
+
+def mark_ldc_time_range(g, to_mark, startEarliest, startLatest, endEarliest, endLatest, system):
+    """
+    Add LDC start and end time representation to an Event or Relation
+
+    :param rdflib.graph.Graph g: The underlying RDF model
+    :param rdflib.term.URIRef to_mark: The Event or Relation to add the LDC time data to
+    :param LDCTimeComponent startEarliest: containing the earliest start time information
+    :param LDCTimeComponent startLatest: containing the latest start time information
+    :param LDCTimeComponent endEarliest: containing the earliest end time information
+    :param LDCTimeComponent endLatest: containing the latest end time information
+    :param rdflib.term.URIRef  system: The system object for the system which marks the time
+    :returns: The LDCTimeComponent resource
+    :rtype: rdflib.term.BNode
+    """
+    ldc_time = _make_aif_resource(g, None, interchange_ontology.LDCTime, system)
+    if startEarliest:
+        g.add((ldc_time, interchange_ontology.start, startEarliest.make_aif_time_component(g)))
+    if startLatest:
+        g.add((ldc_time, interchange_ontology.start, startLatest.make_aif_time_component(g)))
+    if endEarliest:
+        g.add((ldc_time, interchange_ontology.end, endEarliest.make_aif_time_component(g)))
+    if endLatest:
+        g.add((ldc_time, interchange_ontology.end, endLatest.make_aif_time_component(g)))
 
     g.add((to_mark, interchange_ontology.ldcTime, ldc_time))
 

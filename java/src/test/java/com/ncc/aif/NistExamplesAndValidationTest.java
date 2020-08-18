@@ -383,7 +383,7 @@ public class NistExamplesAndValidationTest {
         @Nested
         class ConfidenceValueRange {
             @Test
-            void invalid() {
+            void invalidTooLarge() {
                 final Resource newEntity = makeEntity(model, utils.getEntityUri(), system);
                 markJustification(utils.addType(newEntity,
                         LDCOntology.PER),
@@ -391,6 +391,17 @@ public class NistExamplesAndValidationTest {
                 markAsPossibleClusterMember(model, newEntity, entityCluster, 1.2, system);
                 utils.expect(null, SH.MaxInclusiveConstraintComponent, null);
                 utils.testInvalid("NIST.invalid: confidence must be between 0 and 1");
+            }
+
+            @Test
+            void invalidZero() {
+                final Resource newEntity = makeEntity(model, utils.getEntityUri(), system);
+                markJustification(utils.addType(newEntity,
+                        LDCOntology.PER),
+                        utils.makeValidJustification());
+                markAsPossibleClusterMember(model, newEntity, entityCluster, 0d, system);
+                utils.expect(null, SH.MinExclusiveConstraintComponent, null);
+                utils.testInvalid("NIST.invalid: confidence cannot be 0");
             }
 
             @Test
@@ -832,12 +843,7 @@ public class NistExamplesAndValidationTest {
             }
             
             private Resource addCorrectTime() {
-                return markLDCTimeRange(model, event, 
-                    LDCTimeComponent.createTime("AFTER", "1901-01-01"),
-                    LDCTimeComponent.createTime("BEFORE", "1901-02-xx"),
-                    LDCTimeComponent.createTime("AFTER", "1902-01-01"),
-                    LDCTimeComponent.createTime("BEFORE", "1902-xx-xx"),
-                    system);
+                return markLDCTimeRange(model, event, "1901-01-01", "1901-02-xx", "1902-01-01", "1902-xx-xx", system);
             }
         }
     }
