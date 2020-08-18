@@ -383,7 +383,7 @@ public class NistExamplesAndValidationTest {
         @Nested
         class ConfidenceValueRange {
             @Test
-            void invalid() {
+            void invalidTooLarge() {
                 final Resource newEntity = makeEntity(model, utils.getEntityUri(), system);
                 markJustification(utils.addType(newEntity,
                         LDCOntology.PER),
@@ -391,6 +391,17 @@ public class NistExamplesAndValidationTest {
                 markAsPossibleClusterMember(model, newEntity, entityCluster, 1.2, system);
                 utils.expect(null, SH.MaxInclusiveConstraintComponent, null);
                 utils.testInvalid("NIST.invalid: confidence must be between 0 and 1");
+            }
+
+            @Test
+            void invalidZero() {
+                final Resource newEntity = makeEntity(model, utils.getEntityUri(), system);
+                markJustification(utils.addType(newEntity,
+                        LDCOntology.PER),
+                        utils.makeValidJustification());
+                markAsPossibleClusterMember(model, newEntity, entityCluster, 0d, system);
+                utils.expect(null, SH.MinExclusiveConstraintComponent, null);
+                utils.testInvalid("NIST.invalid: confidence cannot be 0");
             }
 
             @Test
