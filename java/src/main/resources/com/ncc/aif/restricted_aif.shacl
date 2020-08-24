@@ -308,3 +308,28 @@ aida:LDCTimeShape
         sh:hasValue "AFTER", "BEFORE" ;
         sh:message "LDCTime must have 1 BEFORE and 1 AFTER for aida:end"
     ] .
+
+########################
+# 4.3 TA3 #7  Clusters must be homogeneous by base class (Entity, Event, or Relation)
+# Moved from hypotheses
+#------------------------
+aida:ClusterMembersSameAsBaseClass
+    a sh:SPARQLConstraint ;
+    sh:message "All Clusters must have homogeneous members by base class (Entity, Event, or Relation)" ;
+    sh:select """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
+        SELECT $this $value
+        WHERE {
+      	    $this ^aida:cluster / aida:clusterMember $value .
+            $value rdf:type ?memberType .
+            $this aida:prototype / rdf:type ?prototypeType .
+            FILTER ( ?memberType != ?prototypeType )
+        }
+    """
+    .
+
+aida:ClusterMembersShape
+    a sh:NodeShape ;
+    sh:targetClass aida:SameAsCluster;
+    sh:sparql aida:ClusterMembersSameAsBaseClass .

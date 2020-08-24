@@ -1093,7 +1093,7 @@ aida:HandlePropertyShape
 # Sometimes there is uncertainty about whether or not two entities or events are the same.
 # In such cases, we make "cluster" objects which can link together the possibly identical
 # entities or events
-# To enforce homogenous members, see aida:HypothesisClusterMembersSameAsBaseClass in restricted_hypothesis_aif.shacl
+# To enforce homogenous members, see aida:HypothesisClusterMembersSameAsBaseClass in restricted_aif.shacl
 aida:ClusterShape
    a sh:NodeShape ;
    sh:targetClass aida:SameAsCluster ;
