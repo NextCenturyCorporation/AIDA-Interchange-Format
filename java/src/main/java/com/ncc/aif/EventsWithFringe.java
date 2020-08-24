@@ -5,9 +5,9 @@ import org.apache.jena.rdf.model.ResourceFactory;
 // WARNING. This is a Generated File. Please do not edit.
 // This class contains variables generated from ontologies using the OntologyGeneration class
 // Please refer to the README at java/src/main/java/com/ncc/aif/ont2javagen for more information
-// Last generated on: 07/14/2020 09:07:18
+// Last generated on: 08/24/2020 11:09:20
 public final class EventsWithFringe {
-    public static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/EventsWithFringe#";
+    public static final String NAMESPACE = "https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/EventsWithFringe#";
     // Classes
     public static final Resource ACT_AS_LEGAL_AUTHORITY_ADJUDICATOR = ResourceFactory.createResource(NAMESPACE + "ACT_AS_LEGAL_AUTHORITY_ADJUDICATOR");
     public static final Resource ACT_AS_LEGAL_AUTHORITY_AGENT = ResourceFactory.createResource(NAMESPACE + "ACT_AS_LEGAL_AUTHORITY_AGENT");

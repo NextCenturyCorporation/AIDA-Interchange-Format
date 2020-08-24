@@ -2,8 +2,8 @@
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
-@prefix aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#> .
-@prefix aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#> .
+@prefix aidaDomainCommon: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/AidaDomainOntologiesCommon#> .
+@prefix aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#> .
 
 # This document is a specification for validating knowledge graphs for the interchange
 # format for the DARPA AIDA program. This format is called AIF (AIDA Interchange Format)
@@ -57,7 +57,7 @@ aida:EntityShape
     #     sh:message "Entity must have type assertion or be non-prototype member of cluster" ;
     #     sh:select """
     #         PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    #         PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+    #         PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
     #         SELECT $this
     #         WHERE {
     #             FILTER ( NOT EXISTS {
@@ -124,7 +124,7 @@ aida:EventRelationShape
     #     sh:message "Events and Relations must have type assertion or be non-prototype member of cluster" ;
     #     sh:select """
     #         PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    #         PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+    #         PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
     #         SELECT $this
     #         WHERE {
     #             FILTER ( NOT EXISTS {
@@ -182,7 +182,7 @@ aida:EventArgumentShape
     a sh:SPARQLTarget ;
     sh:select """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
         SELECT ?this
         WHERE {
             ?this a rdf:Statement .
@@ -243,7 +243,7 @@ aida:RelationArgumentShape
     a sh:SPARQLTarget ;
     sh:select """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
         SELECT ?this
         WHERE {
             ?this a rdf:Statement .
@@ -408,7 +408,7 @@ aida:SharedTypeShape
         a sh:SPARQLTarget ;
         sh:select """
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
             SELECT ?this
             WHERE {
                 ?this a rdf:Statement .
@@ -445,7 +445,7 @@ aida:EntityTypeShape
         a sh:SPARQLTarget ;
         sh:select """
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
             SELECT ?this
             WHERE {
                 ?this a rdf:Statement .
@@ -469,7 +469,7 @@ aida:EventTypeShape
         a sh:SPARQLTarget ;
         sh:select """
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
             SELECT ?this
             WHERE {
                 ?this a rdf:Statement .
@@ -493,7 +493,7 @@ aida:RelationTypeShape
         a sh:SPARQLTarget ;
         sh:select """
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
             SELECT ?this
             WHERE {
                 ?this a rdf:Statement .
@@ -968,7 +968,7 @@ aida:RestrictNameProperty
         sh:select """
             PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
+            PREFIX aidaDomainCommon: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/AidaDomainOntologiesCommon#>
             SELECT $this
             WHERE {
                 ?typeAssertion rdf:subject $this .
@@ -995,7 +995,7 @@ aida:RestrictTextProperty
         sh:select """
             PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
+            PREFIX aidaDomainCommon: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/AidaDomainOntologiesCommon#>
             SELECT $this
             WHERE {
                 ?typeAssertion rdf:subject $this .
@@ -1022,7 +1022,7 @@ aida:RestrictNumericProperty
         sh:select """
             PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
+            PREFIX aidaDomainCommon: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/AidaDomainOntologiesCommon#>
             SELECT $this
             WHERE {
                 ?typeAssertion rdf:subject $this .

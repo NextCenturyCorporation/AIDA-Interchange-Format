@@ -1,11 +1,11 @@
-@prefix : <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#> .
+@prefix : <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology> rdf:type owl:Ontology ;
+<https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology> rdf:type owl:Ontology ;
     rdfs:label "AIDA Interchange Format Ontology" ;
     rdfs:comment "This ontology is designed to represent information exchanged between TA1, TA2 and TA3 in the AIDA program" ;
     owl:versionInfo "Version 1.0.2" .

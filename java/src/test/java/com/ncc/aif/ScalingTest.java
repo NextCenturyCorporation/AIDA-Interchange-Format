@@ -83,7 +83,7 @@ public class ScalingTest {
     private int assertionIndex = 1;
     private int clusterCount = 0;
 
-    private static final String NAMESPACE = "https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/LDCOntology#";
+    private static final String NAMESPACE = "https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/LDCOntology#";
     private static final boolean ALLOW_NUMERIC_TYPES = false;
 
     private final Random r = new Random();

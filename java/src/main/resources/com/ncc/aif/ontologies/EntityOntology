@@ -1,19 +1,19 @@
-@prefix ext:   <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/ExtendedEntity#> .
+@prefix ext:   <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/ExtendedEntity#> .
 @prefix schema: <http://schema.org/> .
 @prefix olia:  <http://purl.org/olia/system.owl#> .
-@prefix aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#> .
-@prefix evt:   <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/EventsWithFringe#> .
+@prefix aidaDomainCommon: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/AidaDomainOntologiesCommon#> .
+@prefix evt:   <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/EventsWithFringe#> .
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix owl:   <http://www.w3.org/2002/07/owl#> .
-@prefix rel:   <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/EntityRelations#> .
-@prefix aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#> .
+@prefix rel:   <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/EntityRelations#> .
+@prefix aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/ExtendedEntity>
+<https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/ExtendedEntity>
         a                owl:Ontology ;
         rdfs:comment     "An ontology for creating messages from LDC data to describe entities" ;
         rdfs:label       "AIDA Entity Ontology" ;
-        owl:imports      <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon> ;
+        owl:imports      <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/AidaDomainOntologiesCommon> ;
         owl:versionInfo  "Version 1.0" .
 
 ext:ActivityField  a      owl:Class ;
