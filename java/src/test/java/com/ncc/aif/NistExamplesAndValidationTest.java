@@ -32,7 +32,7 @@ public class NistExamplesAndValidationTest {
     // WHen DUMP_TO_FILE is true, if a model or report is dumped, it goes to a file in target/test-dump-output
     private static final boolean DUMP_TO_FILE = false;
 
-    private static final String NIST_ROOT = "https://tac.nist.gov/tracks/SM-KBP/2019/";
+    private static final String NIST_ROOT = "https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/";
     private static final String LDC_NS = NIST_ROOT + "LdcAnnotations#";
     private static final String ONTOLOGY_NS = NIST_ROOT + "ontologies/LDCOntology#";
     private static NistTestUtils utils;
@@ -327,6 +327,9 @@ public class NistExamplesAndValidationTest {
             void invalid() {
                 markAsPossibleClusterMember(model, eventCluster, entityCluster, .5, system);
                 utils.expect(null, SH.XoneConstraintComponent, null);
+                utils.expect(ShaclShapes.ClusterMembersShape,
+                SH.SPARQLConstraintComponent,
+                ShaclShapes.ClusterMembersSameAsBaseClass);
                 utils.testInvalid("NIST.invalid: Flat clusters");
             }
 
@@ -844,6 +847,58 @@ public class NistExamplesAndValidationTest {
             
             private Resource addCorrectTime() {
                 return markLDCTimeRange(model, event, "1901-01-01", "1901-02-xx", "1902-01-01", "1902-xx-xx", system);
+            }
+        }
+
+        // Clusters must be homogeneous by base class (Entity, Event, or Relation)
+        @Nested
+        class ClustersMustBeHomogeneous {
+            Resource relation;
+            Resource relationEdge;
+            Resource relationCluster;
+
+            @BeforeEach
+            void setup() {
+                ImmutablePair<Resource, Resource> relationPair = utils.makeValidNistRelation(
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation);
+                relation = relationPair.getKey();
+                relationCluster = relationPair.getValue();
+                relationEdge = utils.makeValidAIFEdge(relation,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
+                        entity);
+            }
+
+            @Test
+            void invalid() {
+                // create event cluster member to add to relation cluster
+                final Resource newEvent = makeEvent(model, utils.getEventUri(), system);
+                markJustification(utils.addType(newEvent,
+                        LDCOntology.Conflict_Attack),
+                        utils.makeValidJustification());
+
+                //add invalid event cluster member to relation cluster
+                markAsPossibleClusterMember(model, newEvent, relationCluster, 1.0, system);
+
+                utils.expect(ShaclShapes.ClusterMembersShape,
+                        SH.SPARQLConstraintComponent,
+                        ShaclShapes.ClusterMembersSameAsBaseClass);
+                utils.testInvalid("HomogeneousClusters.invalid (event exists in relation cluster): Clusters must be " +
+                        "homogeneous by base class (Entity, Event, or Relation).");
+            }
+
+            @Test
+            void valid() {
+                // create relation cluster member to add to relation cluster
+                final Resource relationMember = makeRelation(model, utils.getRelationUri(), system);
+                markJustification(utils.addType(relationMember,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation),
+                        utils.makeValidJustification());
+
+                //add valid relation cluster member to relation cluster
+                markAsPossibleClusterMember(model, relationMember, relationCluster, 1.0, system);
+
+                utils.testValid("HomogeneousClusters.valid: Clusters must be homogeneous by base class " +
+                        "(Entity, Event, or Relation)");
             }
         }
     }

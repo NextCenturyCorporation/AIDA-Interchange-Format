@@ -23,7 +23,7 @@ public class NistTA3ExamplesAndValidationTest {
     // WHen DUMP_TO_FILE is true, if a model or report is dumped, it goes to a file in target/test-dump-output
     private static final boolean DUMP_TO_FILE = false;
 
-    private static final String NIST_ROOT = "https://tac.nist.gov/tracks/SM-KBP/2019/";
+    private static final String NIST_ROOT = "https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/";
     private static final String LDC_NS = NIST_ROOT + "LdcAnnotations#";
     private static final String ONTOLOGY_NS = NIST_ROOT + "ontologies/LDCOntology#";
     private static NistTA3TestUtils utils;
@@ -404,61 +404,6 @@ public class NistTA3ExamplesAndValidationTest {
                 utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, relationEdge);
                 utils.testValid("NISTHypothesis.valid (event has event edge and relation has relation edge): Each " +
                         "hypothesis graph must have at least one event or relation with at least one edge.");
-            }
-        }
-
-        // Clusters must be homogeneous by base class (Entity, Event, or Relation)
-        @Nested
-        class HypothesisClustersMustBeHomogeneous {
-            Resource relation;
-            Resource relationEdge;
-            Resource relationCluster;
-
-            @BeforeEach
-            void setup() {
-                ImmutablePair<Resource, Resource> relationPair = utils.makeValidNistTA3Relation(
-                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation,
-                        103.0);
-                relation = relationPair.getKey();
-                relationCluster = relationPair.getValue();
-                relationEdge = utils.makeValidTA3Edge(relation,
-                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
-                        entity, 102.0);
-            }
-
-            @Test
-            void invalid() {
-                // create event cluster member to add to relation cluster
-                final Resource newEvent = makeEvent(model, utils.getEventUri(), system);
-                markJustification(utils.addType(newEvent,
-                        LDCOntology.Conflict_Attack),
-                        utils.makeValidJustification());
-
-                //add invalid event cluster member to relation cluster
-                markAsPossibleClusterMember(model, newEvent, relationCluster, 1.0, system);
-
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge, newEvent, relation, relationEdge);
-                utils.expect(ShaclShapes.HypothesisClusterMembersShape,
-                        SH.SPARQLConstraintComponent,
-                        ShaclShapes.HypothesisClusterMembersSameAsBaseClass);
-                utils.testInvalid("NISTHypothesis.invalid (event exists in relation cluster): Clusters must be " +
-                        "homogeneous by base class (Entity, Event, or Relation).");
-            }
-
-            @Test
-            void valid() {
-                // create relation cluster member to add to relation cluster
-                final Resource relationMember = makeRelation(model, utils.getRelationUri(), system);
-                markJustification(utils.addType(relationMember,
-                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation),
-                        utils.makeValidJustification());
-
-                //add valid relation cluster member to relation cluster
-                markAsPossibleClusterMember(model, relationMember, relationCluster, 1.0, system);
-
-                utils.makeValidTA3Hypothesis(entity, event, eventEdge, relation, relationEdge, relationMember);
-                utils.testValid("NISTHypothesis.valid: Clusters must be homogeneous by base class " +
-                        "(Entity, Event, or Relation)");
             }
         }
     }
