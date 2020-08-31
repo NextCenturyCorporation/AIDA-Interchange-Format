@@ -41,7 +41,7 @@ public final class ValidateAIF {
     private static final String ONT_ROOT = AIF_ROOT + "ontologies/";
     private static final String INTERCHANGE_RESNAME = ONT_ROOT + "InterchangeOntology";
     private static final String AIDA_DOMAIN_COMMON_RESNAME = ONT_ROOT + "AidaDomainOntologiesCommon";
-    private static final String LDC_RESNAME = ONT_ROOT + "LDCOntology";
+    private static final String LDC_RESNAME = ONT_ROOT + "LDCOntologyM36";
     private static final String AO_ENTITIES_RESNAME = ONT_ROOT + "EntityOntology";
     private static final String AO_EVENTS_RESNAME = ONT_ROOT + "EventOntology";
     private static final String AO_RELATIONS_RESNAME = ONT_ROOT + "RelationOntology";

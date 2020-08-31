@@ -44,9 +44,8 @@ public class ExamplesAndValidationTest {
     // WHen DUMP_TO_FILE is true, if a model or report is dumped, it goes to a file in target/test-dump-output
     private static final boolean DUMP_TO_FILE = false;
 
-    private static final String NIST_ROOT = "https://tac.nist.gov/tracks/SM-KBP/";
-    private static final String LDC_NS = NIST_ROOT + "2019/LdcAnnotations#";
-    private static final String ONTOLOGY_NS = NIST_ROOT + "2018/ontologies/SeedlingOntology#";
+    private static final String LDC_NS = "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#";
+    private static final String ONTOLOGY_NS = "https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/SeedlingOntology#";
     private static final String DISKBASED_MODEL_PATH = System.getProperty("java.io.tmpdir") + "/diskbased-models/tests";
     private static final CharSource SEEDLING_ONTOLOGY = Resources.asCharSource(
             Resources.getResource("com/ncc/aif/ontologies/SeedlingOntology"),
@@ -1438,6 +1437,69 @@ public class ExamplesAndValidationTest {
             entity.addProperty(InterchangeOntology.system, system);
             utils.testInvalid("Invalid: missing rdf type");
         }
+    }
+
+    @Nested
+    class OtherOntologies {
+        @Test
+        void createM36EntityOfTypePersonWithAllJustificationTypesAndConfidence() {
+            CharSource m36 = Resources.asCharSource(Resources.getResource("com/ncc/aif/ontologies/LDCOntologyM36"),
+                StandardCharsets.UTF_8);
+            TestUtils m36Utils = new TestUtils(LDC_NS, ValidateAIF.createForDomainOntologySource(m36),
+                DUMP_ALWAYS, DUMP_TO_FILE);
+
+            Model m36Model = m36Utils.startNewTest();
+            addNamespacesToModel(m36Model);
+            Resource m36System = m36Utils.getSystem();
+
+            // it doesn't matter what URI we give entities, events, etc. so long as they are
+            // unique
+            final Resource someEntityMention = makeEntity(m36Model, m36Utils.getEntityUri(), m36System);
+
+            // in order to allow uncertainty about the type of an entity, we don't mark an
+            // entity's type directly on the entity, but rather make a separate assertion for it
+            // its URI doesn't matter either
+            final Resource typeAssertion = markType(m36Model, m36Utils.getAssertionUri(), someEntityMention,
+                    LDCOntologyM36.PER, m36System, 1.0);
+
+            final ImmutableSet<Resource> toMark = ImmutableSet.of(someEntityMention, typeAssertion);
+
+            // the justification provides the evidence for our claim about the entity's type
+            // we attach this justification to both the type assertion and the entity object
+            // itself, since it provides evidence both for the entity's existence and its type.
+            // in TA1 -> TA2 communications, we attach confidences at the level of justifications
+            markTextJustification(m36Model, toMark, "HC000T6IV", 1029, 1033, m36System, 0.973);
+
+            // let's suppose we also have evidence from an image
+            markImageJustification(m36Model, toMark, "NYT_ENG_20181231_03",
+                    new BoundingBox(new Point(123, 45), new Point(167, 98)),
+                    m36System, 0.123);
+
+            // and also a video where the entity appears in a keyframe
+            markKeyFrameVideoJustification(m36Model, toMark, "NYT_ENG_20181231_03", "keyframe ID",
+                    new BoundingBox(new Point(234, 56), new Point(345, 101)),
+                    m36System, 0.234);
+
+            // and also a video where the entity does not appear in a keyframe
+            markShotVideoJustification(m36Model, toMark, "SOME_VIDEO", "some shot ID", m36System, 0.487);
+
+            // and even audio!
+            markAudioJustification(m36Model, toMark, "NYT_ENG_201181231", 4.566, 9.876, m36System, 0.789);
+            
+            // time-bounded video
+            markJustification(toMark, makeVideoJustification(m36Model, "OTHER_VIDEO", 1.1, 1.5, 
+                InterchangeOntology.VideoJustificationChannelBoth, m36System, .93));
+
+            // also we can link this entity to something in an external KB
+            linkToExternalKB(m36Model, someEntityMention, "freebase:FOO", m36System, .398);
+
+            // let's mark our entity with some arbitrary system-private data. You can attach such data
+            // to nearly anything
+            markPrivateData(m36Model, someEntityMention, "{ 'privateKey' : 'privateValue' }", m36System);
+
+            m36Utils.testValid("create an M36 entity of type person with textual justification and confidence");
+        }
+        
     }
 
     private Path writeModelToDisk(Model model) {

@@ -5,13 +5,13 @@ import time
 import random
 
 from aida_interchange import aifutils
-from aida_interchange.aida_rdf_ontologies import SEEDLING_TYPES_NIST
+from aida_interchange.rdf_ontologies import seedling_ontology
 from rdflib import URIRef
 
 
 class ScalingTest():
     filename = "scalingdata.ttl"
-    LDC_NS = "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#"
+    LDC_NS = "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#"
     g = aifutils.make_graph()
     system = aifutils.make_system_with_uri(g, 'http://www.test.edu/testSystem')
 
@@ -89,15 +89,14 @@ class ScalingTest():
         event_resource = aifutils.make_event(self.g, self.get_event_uri(), self.system)
 
         # add the type
-        event_type_string = self.EVENT_TYPES[random.randint(0, len(self.EVENT_TYPES)) - 1]
-        type_resource = SEEDLING_TYPES_NIST[event_type_string]
+        type_resource = self.EVENT_TYPES[random.randint(0, len(self.EVENT_TYPES)) - 1]
         type_assertion = aifutils.mark_type(self.g, self.get_assertion_uri(), event_resource, type_resource, self.system, 1.0)
 
         self.add_justification_and_private_data(type_assertion)
 
         # make two arguments
         for i in range(2):
-            arg = URIRef(SEEDLING_TYPES_NIST[event_type_string] + self.get_random_suffix())
+            arg = URIRef(type_resource + self.get_random_suffix())
             argument = aifutils.mark_as_argument(self.g, event_resource, arg, self.get_random_entity(), self.system,
                                                                          0.785, self.get_assertion_uri())
             self.add_justification_and_private_data(argument)
@@ -168,8 +167,7 @@ class ScalingTest():
 
 
     def get_random_entity(self):
-        return URIRef("https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#" + \
-               self.ENTITY_TYPES[random.randint(0, len(self.ENTITY_TYPES) - 1)])
+        return self.ENTITY_TYPES[random.randint(0, len(self.ENTITY_TYPES) - 1)]
 
 
     def get_random_suffix(self):
@@ -183,62 +181,183 @@ class ScalingTest():
         file.write(str(self.g.serialize(format='turtle')))
         file.close()
 
-    ENTITY_TYPES = ["Person", "Organization", "Location", "Facility", "GeopoliticalEntity", "FillerType",
-                       "Business.DeclareBankruptcy", "Business.End", "Business.Merge", "Business.Start",
-                       "Conflict.Attack", "Conflict.Demonstrate",
-                       "Contact.Broadcast", "Contact.Contact", "Contact.Correspondence", "Contact.Meet",
-                       "Existence.DamageDestroy",
-                       "Government.Agreements", "Government.Legislate", "Government.Spy", "Government.Vote",
-                       "Inspection.Artifact", "Inspection.People",
-                       "Justice.Acquit", "Justice.Appeal", "Justice.ArrestJail", "Justice.ChargeIndict", "Justice.Convict",
-                       "Justice.Execute", "Justice.Extradite", "Justice.Fine", "Justice.Investigate", "Justice.Pardon",
-                       "Justice.ReleaseParole", "Justice.Sentence", "Justice.Sue", "Justice.TrialHearing",
-                       "Life.BeBorn", "Life.Die", "Life.Divorce", "Life.Injure", "Life.Marry",
-                       "Manufacture.Artifact",
-                       "Movement.TransportArtifact", "Movement.TransportPerson",
-                       "Personnel.Elect", "Personnel.EndPosition", "Personnel.Nominate", "Personnel.StartPosition",
-                       "Transaction.Transaction", "Transaction.TransferControl", "Transaction.TransferMoney",
-                       "Transaction.TransferOwnership",
-                       "GeneralAffiliation.APORA", "GeneralAffiliation.MORE", "GeneralAffiliation.OPRA",
-                       "GeneralAffiliation.OrganizationWebsite", "GeneralAffiliation.PersonAge", "GeneralAffiliation.Sponsorship",
-                       "Measurement.Count",
-                       "OrganizationAffiliation.EmploymentMembership", "OrganizationAffiliation.Founder",
-                       "OrganizationAffiliation.InvestorShareholder", "OrganizationAffiliation.Leadership",
-                       "OrganizationAffiliation.Ownership", "OrganizationAffiliation.StudentAlum",
-                       "PartWhole.Membership", "PartWhole.Subsidiary",
-                       "PersonalSocial.Business", "PersonalSocial.Family", "PersonalSocial.RoleTitle",
-                       "PersonalSocial.Unspecified",
-                       "Physical.LocatedNear", "Physical.OrganizationHeadquarter", "Physical.OrganizationLocationOrigin",
-                       "Physical.Resident"]
-
+    ENTITY_TYPES = [
+        seedling_ontology.Person,
+        seedling_ontology.Organization,
+        seedling_ontology.Location,
+        seedling_ontology.Facility,
+        seedling_ontology.GeopoliticalEntity,
+        seedling_ontology.FillerType,
+        seedling_ontology.Business_DeclareBankruptcy,
+        seedling_ontology.Business_End,
+        seedling_ontology.Business_Merge,
+        seedling_ontology.Business_Start,
+        seedling_ontology.Conflict_Attack,
+        seedling_ontology.Conflict_Demonstrate,
+        seedling_ontology.Contact_Broadcast,
+        seedling_ontology.Contact_Contact,
+        seedling_ontology.Contact_Correspondence,
+        seedling_ontology.Contact_Meet,
+        seedling_ontology.Existence_DamageDestroy,
+        seedling_ontology.Government_Agreements,
+        seedling_ontology.Government_Legislate,
+        seedling_ontology.Government_Spy,
+        seedling_ontology.Government_Vote,
+        seedling_ontology.Inspection_Artifact,
+        seedling_ontology.Inspection_People,
+        seedling_ontology.Justice_Acquit,
+        seedling_ontology.Justice_Appeal,
+        seedling_ontology.Justice_ArrestJail,
+        seedling_ontology.Justice_ChargeIndict,
+        seedling_ontology.Justice_Convict,
+        seedling_ontology.Justice_Execute,
+        seedling_ontology.Justice_Extradite,
+        seedling_ontology.Justice_Fine,
+        seedling_ontology.Justice_Investigate,
+        seedling_ontology.Justice_Pardon,
+        seedling_ontology.Justice_ReleaseParole,
+        seedling_ontology.Justice_Sentence,
+        seedling_ontology.Justice_Sue,
+        seedling_ontology.Justice_TrialHearing,
+        seedling_ontology.Life_BeBorn,
+        seedling_ontology.Life_Die,
+        seedling_ontology.Life_Divorce,
+        seedling_ontology.Life_Injure,
+        seedling_ontology.Life_Marry,
+        seedling_ontology.Manufacture_Artifact,
+        seedling_ontology.Movement_TransportArtifact,
+        seedling_ontology.Movement_TransportPerson,
+        seedling_ontology.Personnel_Elect,
+        seedling_ontology.Personnel_EndPosition,
+        seedling_ontology.Personnel_Nominate,
+        seedling_ontology.Personnel_StartPosition,
+        seedling_ontology.Transaction_Transaction,
+        seedling_ontology.Transaction_TransferControl,
+        seedling_ontology.Transaction_TransferMoney,
+        seedling_ontology.Transaction_TransferOwnership,
+        seedling_ontology.GeneralAffiliation_APORA,
+        seedling_ontology.GeneralAffiliation_MORE,
+        seedling_ontology.GeneralAffiliation_OPRA,
+        seedling_ontology.GeneralAffiliation_OrganizationWebsite,
+        seedling_ontology.GeneralAffiliation_PersonAge,
+        seedling_ontology.GeneralAffiliation_Sponsorship,
+        seedling_ontology.Measurement_Count,
+        seedling_ontology.OrganizationAffiliation_EmploymentMembership,
+        seedling_ontology.OrganizationAffiliation_Founder,
+        seedling_ontology.OrganizationAffiliation_InvestorShareholder,
+        seedling_ontology.OrganizationAffiliation_Leadership,
+        seedling_ontology.OrganizationAffiliation_Ownership,
+        seedling_ontology.OrganizationAffiliation_StudentAlum,
+        seedling_ontology.PartWhole_Membership,
+        seedling_ontology.PartWhole_Subsidiary,
+        seedling_ontology.PersonalSocial_Business,
+        seedling_ontology.PersonalSocial_Family,
+        seedling_ontology.PersonalSocial_RoleTitle,
+        seedling_ontology.PersonalSocial_Unspecified,
+        seedling_ontology.Physical_LocatedNear,
+        seedling_ontology.Physical_OrganizationHeadquarter,
+        seedling_ontology.Physical_OrganizationLocationOrigin,
+        seedling_ontology.Physical_Resident]
 
     EVENT_TYPES = [
-        "Business.DeclareBankruptcy", "Business.End", "Business.Merge", "Business.Start",
-        "Conflict.Attack", "Conflict.Demonstrate",
-        "Contact.Broadcast", "Contact.Contact", "Contact.Correspondence", "Contact.Meet",
-        "Existence.DamageDestroy",
-        "Government.Agreements", "Government.Legislate", "Government.Spy", "Government.Vote",
-        "Inspection.Artifact", "Inspection.People",
-        "Justice.Acquit", "Justice.Appeal", "Justice.ArrestJail", "Justice.ChargeIndict", "Justice.Convict",
-        "Justice.Execute", "Justice.Extradite", "Justice.Fine", "Justice.Investigate", "Justice.Pardon",
-        "Justice.ReleaseParole", "Justice.Sentence", "Justice.Sue", "Justice.TrialHearing",
-        "Life.BeBorn", "Life.Die", "Life.Divorce", "Life.Injure", "Life.Marry",
-        "Manufacture.Artifact",
-        "Movement.TransportArtifact", "Movement.TransportPerson",
-        "Personnel.Elect", "Personnel.EndPosition", "Personnel.Nominate", "Personnel.StartPosition",
-        "Transaction.Transaction", "Transaction.TransferControl", "Transaction.TransferMoney",
-        "Transaction.TransferOwnership"]
+        seedling_ontology.Business_DeclareBankruptcy,
+        seedling_ontology.Business_End,
+        seedling_ontology.Business_Merge,
+        seedling_ontology.Business_Start,
+        seedling_ontology.Conflict_Attack,
+        seedling_ontology.Conflict_Demonstrate,
+        seedling_ontology.Contact_Broadcast,
+        seedling_ontology.Contact_Contact,
+        seedling_ontology.Contact_Correspondence,
+        seedling_ontology.Contact_Meet,
+        seedling_ontology.Existence_DamageDestroy,
+        seedling_ontology.Government_Agreements,
+        seedling_ontology.Government_Legislate,
+        seedling_ontology.Government_Spy,
+        seedling_ontology.Government_Vote,
+        seedling_ontology.Inspection_Artifact,
+        seedling_ontology.Inspection_People,
+        seedling_ontology.Justice_Acquit,
+        seedling_ontology.Justice_Appeal,
+        seedling_ontology.Justice_ArrestJail,
+        seedling_ontology.Justice_ChargeIndict,
+        seedling_ontology.Justice_Convict,
+        seedling_ontology.Justice_Execute,
+        seedling_ontology.Justice_Extradite,
+        seedling_ontology.Justice_Fine,
+        seedling_ontology.Justice_Investigate,
+        seedling_ontology.Justice_Pardon,
+        seedling_ontology.Justice_ReleaseParole,
+        seedling_ontology.Justice_Sentence,
+        seedling_ontology.Justice_Sue,
+        seedling_ontology.Justice_TrialHearing,
+        seedling_ontology.Life_BeBorn,
+        seedling_ontology.Life_Die,
+        seedling_ontology.Life_Divorce,
+        seedling_ontology.Life_Injure,
+        seedling_ontology.Life_Marry,
+        seedling_ontology.Manufacture_Artifact,
+        seedling_ontology.Movement_TransportArtifact,
+        seedling_ontology.Movement_TransportPerson,
+        seedling_ontology.Personnel_Elect,
+        seedling_ontology.Personnel_EndPosition,
+        seedling_ontology.Personnel_Nominate,
+        seedling_ontology.Personnel_StartPosition,
+        seedling_ontology.Transaction_Transaction,
+        seedling_ontology.Transaction_TransferControl,
+        seedling_ontology.Transaction_TransferMoney,
+        seedling_ontology.Transaction_TransferOwnership]
 
-
-    ROLES = ["Attacker", "Instrument", "Place", "Target", "Time", "Broadcaster",
-             "Place", "Time", "Participant", "Place", "Participant", "Time",
-             "Participant", "Affiliate", "Affiliation", "Affiliation", "Person",
-             "Entity", "Sponsor", "Defendant", "Prosecutor", "Adjudicator",
-             "Defendant", "Agent", "Instrument", "Victim", "Artifact",
-             "Manufacturer", "Agent", "Artifact", "Destination", "Instrument",
-             "Origin", "Time", "Agent", "Destination", "Instrument", "Origin",
-             "Person", "Employee", "Organization", "Person", "Entity", "Place",
-             "Beneficiary", "Giver", "Recipient", "Thing", "Time"];
+    ROLES = [
+        "Attacker",
+        "Instrument",
+        "Place",
+        "Target",
+        "Time",
+        "Broadcaster",
+        "Place",
+        "Time",
+        "Participant",
+        "Place",
+        "Participant",
+        "Time",
+        "Participant",
+        "Affiliate",
+        "Affiliation",
+        "Affiliation",
+        "Person",
+        "Entity",
+        "Sponsor",
+        "Defendant",
+        "Prosecutor",
+        "Adjudicator",
+        "Defendant",
+        "Agent",
+        "Instrument",
+        "Victim",
+        "Artifact",
+        "Manufacturer",
+        "Agent",
+        "Artifact",
+        "Destination",
+        "Instrument",
+        "Origin",
+        "Time",
+        "Agent",
+        "Destination",
+        "Instrument",
+        "Origin",
+        "Person",
+        "Employee",
+        "Organization",
+        "Person",
+        "Entity",
+        "Place",
+        "Beneficiary",
+        "Giver",
+        "Recipient",
+        "Thing",
+        "Time"]
 
 if __name__ == "__main__":
     ScalingTest().run_scaling_test()
