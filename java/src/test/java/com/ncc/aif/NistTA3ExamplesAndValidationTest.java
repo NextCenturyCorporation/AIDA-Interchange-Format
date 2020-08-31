@@ -3,6 +3,9 @@ package com.ncc.aif;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.io.CharSource;
+import com.google.common.io.Resources;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ResIterator;
@@ -12,6 +15,8 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.topbraid.shacl.vocabulary.SH;
 
 import static com.ncc.aif.AIFUtils.*;
+
+import java.nio.charset.StandardCharsets;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class NistTA3ExamplesAndValidationTest {
@@ -32,7 +37,9 @@ public class NistTA3ExamplesAndValidationTest {
     static void initTest() {
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
-        utils = new NistTA3TestUtils(LDC_NS, ValidateAIF.createForLDCOntology(ValidateAIF.Restriction.NIST_TA3), DUMP_ALWAYS, DUMP_TO_FILE);
+        ImmutableSet<CharSource> ont = ImmutableSet.of(Resources.asCharSource(
+                Resources.getResource("com/ncc/aif/ontologies/LDCOntology"), StandardCharsets.UTF_8));
+        utils = new NistTA3TestUtils(LDC_NS, ValidateAIF.create(ont, ValidateAIF.Restriction.NIST_TA3), DUMP_ALWAYS, DUMP_TO_FILE);
     }
 
     private Model model;

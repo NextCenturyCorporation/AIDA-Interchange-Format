@@ -2,7 +2,11 @@ package com.ncc.aif;
 
 import static com.ncc.aif.AIFUtils.*;
 
+import java.nio.charset.StandardCharsets;
+
 import com.google.common.collect.ImmutableSet;
+import com.google.common.io.CharSource;
+import com.google.common.io.Resources;
 import com.ncc.aif.AIFUtils.BoundingBox;
 import com.ncc.aif.AIFUtils.Point;
 
@@ -41,7 +45,9 @@ public class NistExamplesAndValidationTest {
     static void initTest() {
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
-        utils = new NistTestUtils(LDC_NS, ValidateAIF.createForLDCOntology(ValidateAIF.Restriction.NIST), DUMP_ALWAYS, DUMP_TO_FILE);
+        ImmutableSet<CharSource> ont = ImmutableSet.of(Resources.asCharSource(
+                Resources.getResource("com/ncc/aif/ontologies/LDCOntology"),StandardCharsets.UTF_8));
+        utils = new NistTestUtils(LDC_NS, ValidateAIF.create(ont, ValidateAIF.Restriction.NIST), DUMP_ALWAYS, DUMP_TO_FILE);
     }
 
     private Model model;

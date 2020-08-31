@@ -13,10 +13,10 @@ class Main:
         self.validation_log = envs['VALIDATION_LOG']
         self.validate_dir_or_files = envs['VALIDATE_DIR_OR_FILES']
         self.target_to_validate = envs['TARGET_TO_VALIDATE']
-        self.use_m36_ont = os.environ.get('USE_M36_ONTOLOGY', False)
+        self.use_m18_ont = os.environ.get('USE_M18_ONTOLOGY', False)
 
     def run(self):
-        ont = '--ldc' if not self.use_m36_ont else '--ont ' + self.validation_home + '/java/src/main/resources/com/ncc/aif/ontologies/LDCOntologyM36'
+        ont = '--ldc' if not self.use_m18_ont else '--ont ' + self.validation_home + '/java/src/main/resources/com/ncc/aif/ontologies/LDCOntology'
 
         # If validation flags contains one of TA1, TA2, or TA3, then expand the flags to the optimal set of flags 
         # for that use case.  Only one of these will run since the environment variables were validated 

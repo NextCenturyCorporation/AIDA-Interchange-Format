@@ -537,19 +537,19 @@ class Examples(unittest.TestCase):
 
         system = aifutils.make_system_with_uri(g, "http://www.test.edu/system")
 
-        event = aifutils.make_event(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#V779961.00010", system)
-        event_type_assertion = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-1", event, ldc_ontology.Personnel_Elect, system, 1.0)
+        event = aifutils.make_event(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#V779961.00010", system)
+        event_type_assertion = aifutils.mark_type(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#assertion-1", event, ldc_ontology.Personnel_Elect, system, 1.0)
 
         # create the two entities involved in the event
-        putin = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#E781167.00398", system)
-        person_type_assertion = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-2", putin, ldc_ontology.PER, system, 1.0)
+        putin = aifutils.make_entity(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#E781167.00398", system)
+        person_type_assertion = aifutils.mark_type(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#assertion-2", putin, ldc_ontology.PER, system, 1.0)
 
-        russia = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#E779954.00004", system)
-        gpe_type_assertion = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-3", russia, ldc_ontology.GPE, system, 1.0)
+        russia = aifutils.make_entity(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#E779954.00004", system)
+        gpe_type_assertion = aifutils.mark_type(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#assertion-3", russia, ldc_ontology.GPE, system, 1.0)
 
         # link those entities to the event
-        electee_argument = aifutils.mark_as_argument(g, event, ldc_ontology.Personnel_Elect_Candidate, putin, system, 0.785, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-4")
-        place_argument = aifutils.mark_as_argument(g, event, ldc_ontology.Personnel_Elect_Place, russia, system, 0.589, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-5")
+        electee_argument = aifutils.mark_as_argument(g, event, ldc_ontology.Personnel_Elect_Candidate, putin, system, 0.785, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#assertion-4")
+        place_argument = aifutils.mark_as_argument(g, event, ldc_ontology.Personnel_Elect_Place, russia, system, 0.589, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#assertion-5")
 
 
         # the justification provides the evidence for our claim about the entity's type
@@ -647,23 +647,23 @@ class Examples(unittest.TestCase):
         system = aifutils.make_system_with_uri(g, 'http://www.test.edu/testSystem')
         # buk document entity
         buk = aifutils.make_entity(g, "E779954.00005", system)
-        buk_is_weapon = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-1", buk, ldc_ontology.WEA, system, 1.0)
+        buk_is_weapon = aifutils.mark_type(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#assertion-1", buk, ldc_ontology.WEA, system, 1.0)
 
         # buk cross-document-entity
-        buk_kb_entity = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#E0084", system)
-        buk_kb_is_weapon = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-2", buk_kb_entity, ldc_ontology.WEA, system, 1.0)
+        buk_kb_entity = aifutils.make_entity(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#E0084", system)
+        buk_kb_is_weapon = aifutils.mark_type(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#assertion-2", buk_kb_entity, ldc_ontology.WEA, system, 1.0)
 
         # russia document entity
-        russia = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#E779954.00004", system)
-        russia_is_gpe = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-3", russia, ldc_ontology.GPE, system, 1.0)
+        russia = aifutils.make_entity(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#E779954.00004", system)
+        russia_is_gpe = aifutils.mark_type(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#assertion-3", russia, ldc_ontology.GPE, system, 1.0)
 
         # cluster buk
-        buk_cluster = aifutils.make_cluster_with_prototype(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#cluster-1", buk_kb_entity, system)
+        buk_cluster = aifutils.make_cluster_with_prototype(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#cluster-1", buk_kb_entity, system)
         buk_is_clustered = aifutils.mark_as_possible_cluster_member(g, buk, buk_cluster, .9, system)
 
         # Russia owns buk relation
-        buk_is_russian = aifutils.make_relation(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#R779959.00004", system)
-        aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-4",
+        buk_is_russian = aifutils.make_relation(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#R779959.00004", system)
+        aifutils.mark_type(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#assertion-4",
             buk_is_russian, ldc_ontology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_OwnershipPossession, system, 1.0)
         buk_argument = aifutils.mark_as_argument(g, buk_is_russian,
             ldc_ontology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_OwnershipPossession_Artifact, buk, system, 1.0)
@@ -671,7 +671,7 @@ class Examples(unittest.TestCase):
             ldc_ontology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_OwnershipPossession_Owner, russia, system, 1.0)
 
         # Russia owns buk hypothesis
-        buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#hypothesis-1",
+        buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#hypothesis-1",
                                                             [buk, buk_is_weapon, buk_is_clustered, buk_is_russian, buk_argument, russia_argument], system)
 
         self.new_file(g, "test_simple_hypothesis_with_cluster.ttl")
@@ -684,25 +684,25 @@ class Examples(unittest.TestCase):
         system = aifutils.make_system_with_uri(g, 'http://www.test.edu/testSystem')
         # buk document entity
         buk = aifutils.make_entity(g, "E779954.00005", system)
-        buk_is_weapon = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-1", buk, ldc_ontology.WEA, system, 1.0)
+        buk_is_weapon = aifutils.mark_type(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#assertion-1", buk, ldc_ontology.WEA, system, 1.0)
 
         # buk cross-document-entity
-        buk_kb_entity = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#E0084", system)
-        buk_kb_is_weapon = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-2", buk_kb_entity, ldc_ontology.WEA, system, 1.0)
+        buk_kb_entity = aifutils.make_entity(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#E0084", system)
+        buk_kb_is_weapon = aifutils.mark_type(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#assertion-2", buk_kb_entity, ldc_ontology.WEA, system, 1.0)
 
         # russia document entity
-        russia = aifutils.make_entity(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#E779954.00004", system)
-        russia_is_gpe = aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-3", russia, ldc_ontology.GPE, system, 1.0)
+        russia = aifutils.make_entity(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#E779954.00004", system)
+        russia_is_gpe = aifutils.mark_type(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#assertion-3", russia, ldc_ontology.GPE, system, 1.0)
 
         # cluster buk
-        buk_cluster = aifutils.make_cluster_with_prototype(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#cluster-1", buk_kb_entity, system)
+        buk_cluster = aifutils.make_cluster_with_prototype(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#cluster-1", buk_kb_entity, system)
         buk_is_clustered = aifutils.mark_as_possible_cluster_member(g, buk, buk_cluster, .9, system)
         # add importance to the cluster - test negative importance
         aifutils.mark_importance(g, buk_kb_entity, -70.234)
 
         # Russia owns buk relation
-        buk_is_russian = aifutils.make_relation(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#R779959.00004", system)
-        aifutils.mark_type(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#assertion-4", buk_is_russian, ldc_ontology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_OwnershipPossession, system, 1.0)
+        buk_is_russian = aifutils.make_relation(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#R779959.00004", system)
+        aifutils.mark_type(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#assertion-4", buk_is_russian, ldc_ontology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_OwnershipPossession, system, 1.0)
         buk_argument = aifutils.mark_as_argument(g, buk_is_russian, ldc_ontology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_OwnershipPossession_Artifact, buk, system, 1.0)
         russia_argument = aifutils.mark_as_argument(g, buk_is_russian, ldc_ontology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_OwnershipPossession_Owner, russia, system, 1.0)
         # add importance to the statements
@@ -711,7 +711,7 @@ class Examples(unittest.TestCase):
         aifutils.mark_importance(g, russia_argument, 9.999999e6)
 
         # Russia owns buk hypothesis
-        buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://tac.nist.gov/tracks/SM-KBP/2019/LdcAnnotations#hypothesis-1",
+        buk_is_russian_hypothesis = aifutils.make_hypothesis(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#hypothesis-1",
                                                             [buk, buk_is_weapon, buk_is_clustered, buk_is_russian, buk_argument, russia_argument], system)
         # test highest possible importance value
         aifutils.mark_importance(g, buk_is_russian_hypothesis, sys.float_info.max)

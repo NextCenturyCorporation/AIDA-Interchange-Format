@@ -70,7 +70,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 public class ScalingTest {
 
-    private static final String LDC_NS = "https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/LdcAnnotations#";
+    private static final String LDC_NS = "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#";
     private Model model;
     private Resource system;
 
