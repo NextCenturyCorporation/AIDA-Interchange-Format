@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='aida-interchange',
-      version='1.1.1.dev1',
+      version='1.2.0.dev1',
       author='Ryan Gabbard',
       author_email='gabbard@isi.edu',
       description='AIDA Interchange Format tools',
