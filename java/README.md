@@ -4,7 +4,7 @@ To use the library in Java, mark the AIF library as a dependency in your build s
 example, include the following in the dependencies in your `build.gradle` file:
 
 `dependencies {
-    compile 'com.github.nextcenturycorporation:aida-interchange:1.2.0'
+    compile 'com.github.nextcenturycorporation:aida-interchange:x.x.x'
 }`
 
 In your code, import classes from the `com.ncc.aif` package.
@@ -18,7 +18,7 @@ to write the model out.
 
 # Installation (No longer required)
 
-As of version 1.2.0, the library no longer needs to be installed as it is served through OSSRH. However, these instructions are still applicable should you want to build a non-released version.
+As of version 1.2.1, the library no longer needs to be installed as it is served through OSSRH. However, these instructions are still applicable should you want to build a non-released version.
 
 AIF is built with Java version 11.  You can download JDL 11 from several places:
 * [Oracle JDK 11](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
