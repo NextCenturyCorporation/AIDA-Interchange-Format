@@ -1,5 +1,5 @@
 @prefix sh:   <http://www.w3.org/ns/shacl#> .
-@prefix aida: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#> .
+@prefix aida: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#> .
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # restricted_hypothesis_aif.shacl
@@ -16,7 +16,7 @@ aida:SystemShape
     sh:sparql [
         sh:message "Exactly 1 Hypothesis should exist. Found {$this}" ;
         sh:select """
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
             SELECT (COUNT(?x) AS $this)
             WHERE {
                 ?x a aida:Hypothesis .
@@ -37,7 +37,7 @@ aida:SystemShape
         sh:select """
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
+            PREFIX aidaDomainCommon: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/AidaDomainOntologiesCommon#>
             SELECT (COUNT(?pred) AS $this)
             WHERE {
                 ?argumentAssertion a rdf:Statement .
@@ -61,7 +61,8 @@ aida:ImportanceRequiredShape
     a sh:PropertyShape ;
     sh:path aida:importance ;
     sh:minCount 1 ;
-    sh:maxCount 1 .
+    sh:maxCount 1 ;
+    sh:message "Focus node requires importance".
 
 aida:HypothesisShape
     sh:property aida:ImportanceRequiredShape .
@@ -69,17 +70,17 @@ aida:HypothesisShape
 #########################
 # 4.3 TA3 #5 Each event or relation (cluster) in the hypothesis must have exactly one event/relation importance value
 #------------------------
-aida:HypothesisEventRelationClusterImportanceRequiredShape
+aida:HypothesisEventRelationPrototypeImportanceRequiredShape
     a sh:NodeShape ;
 
     sh:target [
         a sh:SPARQLTarget ;
         sh:select """
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
             SELECT ?prototype
             WHERE {
-                ?prototype a aida:SameAsCluster .
-                ?prototype aida:prototype/a ?type .
+                aida:SameAsCluster ^a / aida:prototype ?prototype.
+                ?prototype a ?type .
                 FILTER( ?type = aida:Event || ?type = aida:Relation )
             }
         """ ;
@@ -98,20 +99,20 @@ aida:RelationArgumentShape
     sh:property aida:ImportanceRequiredShape .
 
 ########################
-# 4.3 TA3 #7 Each entity (cluster) in the hypothesis graph must
+# 1.4.1 TA3 #5 Each entity (prototype) in the hypothesis graph must
 # have exactly one text description (called a "handle")
 #------------------------
-aida:HypothesisEntityClusterRequireHandle
+aida:HypothesisEntityPrototypeRequireHandle
     a sh:NodeShape ;
 
     sh:target [
         a sh:SPARQLTarget ;
         sh:select """
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
-            SELECT ?entityCluster
+            PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
+            SELECT ?entity
             WHERE {
-                ?entityCluster a aida:SameAsCluster .
-                ?entityCluster aida:prototype/a aida:Entity .
+                ?entity a aida:Entity .
+                ?entity ^aida:prototype / a aida:SameAsCluster .
             }
         """ ;
     ];
@@ -121,32 +122,8 @@ aida:HypothesisEntityClusterRequireHandle
         a sh:PropertyShape ;
         sh:path aida:handle ;
         sh:minCount 1 ;
+        sh:message "Entity prototype requires handle"
     ] .
-
-########################
-# 4.3 TA3 #7  Clusters must be homogeneous by base class (Entity, Event, or Relation)
-#------------------------
-aida:HypothesisClusterMembersSameAsBaseClass
-    a sh:SPARQLConstraint ;
-    sh:message "All Clusters must have homogeneous members by base class (Entity, Event, or Relation)" ;
-    sh:select """
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
-        SELECT $this (?member AS $value)
-        WHERE {
-      	    ?membership aida:cluster $this .
-            ?membership aida:clusterMember ?member .
-            ?member rdf:type ?memberType .
-            $this aida:prototype/rdf:type ?prototypeType .
-            FILTER ( ?memberType != ?prototypeType )
-        }
-    """
-    .
-
-aida:HypothesisClusterMembersShape
-    a sh:NodeShape ;
-    sh:targetClass aida:SameAsCluster;
-    sh:sparql aida:HypothesisClusterMembersSameAsBaseClass .
 
 ########################
 # 4.3 TA3 #1.a All KEs in model should be referenced by hypothesis
@@ -156,7 +133,7 @@ aida:KEsMustBeReferenced
     a sh:SPARQLConstraint ;
     sh:message "This KE is unreferenced by the hypothesis" ;
     sh:select """
-        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
         SELECT $this
         WHERE {
             ?hypothesis a aida:Hypothesis .
@@ -177,7 +154,7 @@ aida:AllKEsReferencedShape
         sh:select """
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
+            PREFIX aidaDomainCommon: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/AidaDomainOntologiesCommon#>
             SELECT ?argumentAssertion
             WHERE {
                 ?argumentAssertion a rdf:Statement .

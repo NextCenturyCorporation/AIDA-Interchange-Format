@@ -23,6 +23,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+//TODO: consider removing this now that InterchangeOntology.java can be generated.
 @TestInstance(Lifecycle.PER_CLASS)
 public class OntologyTest {
 
@@ -41,15 +42,15 @@ public class OntologyTest {
 
         Set<Class> classesToCheck = new HashSet<>(Arrays.asList(Property.class, Resource.class));
         boolean invalid = false;
-        for (Field field : AidaAnnotationOntology.class.getDeclaredFields()) {
+        for (Field field : InterchangeOntology.class.getDeclaredFields()) {
             if (classesToCheck.contains(field.getType())) {
-                Resource toTest = (Resource)field.get(AidaAnnotationOntology.class);
+                Resource toTest = (Resource)field.get(InterchangeOntology.class);
                 if (!model.contains(toTest, RDF.type)) {
                     System.out.println(toTest.getURI());
                     invalid = true;
                 }
             }
         }
-        assertFalse(invalid, "Members from AidaAnnotationOntology.java are undefined in InterchangeOntology");
+        assertFalse(invalid, "Members from InterchangeOntology.java are undefined in InterchangeOntology");
     }
 }

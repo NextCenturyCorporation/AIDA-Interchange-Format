@@ -1,0 +1,9 @@
+#!/bin/bash
+
+docker build --no-cache \
+`# Default arguments defined in Dockerfile. Uncomment to override.` \
+`#	--build-arg GIT_REPO=github.com `\
+`#	--build-arg VALIDATOR_REPO=NextCenturyCorporation/AIDA-Interchange-Format.git `\
+`#	--build-arg VALIDATOR_BRANCH=master `\
+	--squash \
+	-t aif-validator .

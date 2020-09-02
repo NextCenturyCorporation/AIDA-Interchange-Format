@@ -1,5 +1,5 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
-@prefix aida: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#> .
+@prefix aida: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#> .
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # restricted_aif.shacl
@@ -16,7 +16,7 @@ aida:EdgeJustificationCount
     a sh:SPARQLConstraint ;
     sh:message "Exactly 1 or 2 contained justifications required for an edge" ;
     sh:select """
-        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
         SELECT $this (COUNT(DISTINCT ?source) AS $value)
         WHERE {
             $this aida:justifiedBy ?x .
@@ -107,6 +107,7 @@ aida:ClusterShape sh:nodeKind sh:IRI .
 #########################
 # Members of clusters are entity objects, relation objects, and event objects (not clusters)
 #------------------------
+# TODO: make this sh:not
 aida:ClusterMembershipShape
     sh:property [
         a sh:PropertyShape ;
@@ -123,35 +124,23 @@ aida:ClusterMembershipShape
 # Entity, Relation, and Event object is required to be part of at least one cluster.
 # This is true even if there is nothing else in the cluster
 #------------------------
+aida:ObjectMustBeClustered
+    a sh:SPARQLConstraint ;
+    sh:message "Object must be clustered" ;
+    sh:select """
+        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
+        SELECT $this
+        WHERE {
+            FILTER ( NOT EXISTS { $this ^aida:clusterMember ?clusterMembership } &&
+                NOT EXISTS { $this ^aida:prototype ?cluster } ) .
+        }
+    """ .
+
 aida:EntityShape
-    sh:sparql [
-        sh:message "Entities must be clustered" ;
-        sh:select """
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
-            SELECT $this
-            WHERE {
-                FILTER NOT EXISTS {
-                    ?membership a aida:ClusterMembership .
-                    ?membership aida:clusterMember $this .
-                }
-            }
-        """ ;
-    ] .
+    sh:sparql aida:ObjectMustBeClustered .
 
 aida:EventRelationShape
-    sh:sparql [
-        sh:message "Events and Relations must be clustered" ;
-        sh:select """
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
-            SELECT $this
-            WHERE {
-                FILTER NOT EXISTS {
-                    ?membership a aida:ClusterMembership .
-                    ?membership aida:clusterMember $this .
-                }
-            }
-        """ ;
-    ] .
+    sh:sparql aida:ObjectMustBeClustered .
 
 #########################
 # Each confidence value must be between 0 and 1
@@ -161,16 +150,17 @@ aida:ConfidenceValueRange
     sh:targetClass aida:Confidence ;
     sh:property [
         sh:path aida:confidenceValue ;
-        sh:minInclusive 0 ;
+        sh:minExclusive 0 ;
         sh:maxInclusive 1;
-        sh:message "Confidence value must be between 0 and 1"]
+        sh:message "Confidence value must be between 0 and 1 (0 < c <= 1)"]
     .
 
 #########################
 # Each entity/relation/event type statement must have at least one justification
+# Removed for M36
 #------------------------
-aida:SharedTypeShape
-	sh:property aida:RequiredJustificationPropertyShape .
+#aida:SharedTypeShape
+#	sh:property aida:RequiredJustificationPropertyShape .
 
 # Use this instead of aida:JustificationPropertyShape when you wish to force justifications to be present
 aida:RequiredJustificationPropertyShape
@@ -214,8 +204,7 @@ aida:InformativeJustificationMembersUniqueParentDoc
     a sh:SPARQLConstraint ;
     sh:message "Each Cluster, Entity, Event, or Relation can specify up to one informative mention per document as long as each informative mention points to a different sourceDocument" ;
     sh:select """
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
       	SELECT $this
       	WHERE {
       	    $this aida:informativeJustification ?mentions .
@@ -241,3 +230,106 @@ aida:LinkAssertionShape
         sh:minCount 1 ;
         sh:maxCount 1
     ] .
+
+#########################
+# Prevent prototype from being member of a cluster it is not the prototype of and 
+# prevent it from being prototype of mulitple clusters
+#------------------------
+aida:PrototypeShape
+    a sh:NodeShape ;
+    sh:targetObjectsOf aida:prototype ;
+    sh:property aida:PreventMultiClusterPrototypeShape ;
+    sh:sparql aida:PreventNonClusterPrototypeMemberShape .
+
+# Prototype can't be prototype of multiple clusters
+aida:PreventMultiClusterPrototypeShape
+    a sh:PropertyShape ;
+    sh:path [ sh:inversePath aida:prototype ] ;
+    sh:maxCount 1 ;
+    sh:message "Prototype can't be prototype of multiple clusters" .
+
+# Prototype can't be member of different cluster
+aida:PreventNonClusterPrototypeMemberShape
+    # Using SPARQL because unable to use sh:inversePath in sh:equals
+    a sh:SPARQLConstraint ;
+    sh:select """
+        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
+      	SELECT $this $value
+      	WHERE {
+      	    $this ^aida:clusterMember / aida:cluster $value .
+            $this ^aida:prototype ?cluster .
+            FILTER ($value != ?cluster) .
+      	}
+    """ ;
+
+    sh:message "Prototype can't be member of cluster it's not prototype of" .
+
+#########################
+# Prevent handle on cluster
+#------------------------
+aida:PreventHandleOnCluster
+    a sh:NodeShape ;
+    sh:targetClass aida:SameAsCluster ;
+    sh:not [
+        sh:path aida:handle ;
+        sh:minCount 1 
+    ] ;
+    sh:message "Handle is not allowed on cluster" .
+
+#########################
+# Prevent informative justification on cluster
+#------------------------
+aida:PreventInformativeJustificationCluster
+    a sh:NodeShape ;
+    sh:targetClass aida:SameAsCluster ;
+    sh:not [
+        sh:path aida:informativeJustification ;
+        sh:minCount 1 
+    ] ;
+    sh:message "Informative justification is not allowed on cluster" .
+
+#########################
+# LDC time restrictions. Extends aida_ontology aida:LDCTimeShape
+# LDCTime must have 1 "AFTER" and 1 "BEFORE" aida:start
+# LDCTime must have 1 "AFTER" and 1 "BEFORE" aida:end
+#------------------------
+aida:LDCTimeShape
+    sh:property [
+        sh:path ( aida:start aida:timeType );
+        sh:minCount 2;
+        sh:maxCount 2;
+        sh:hasValue "AFTER", "BEFORE" ;
+        sh:message "LDCTime must have 1 BEFORE and 1 AFTER for aida:start"
+    ] ;
+    sh:property [
+        sh:path ( aida:end aida:timeType );
+        sh:minCount 2;
+        sh:maxCount 2;
+        sh:hasValue "AFTER", "BEFORE" ;
+        sh:message "LDCTime must have 1 BEFORE and 1 AFTER for aida:end"
+    ] .
+
+########################
+# 4.3 TA3 #7  Clusters must be homogeneous by base class (Entity, Event, or Relation)
+# Moved from hypotheses
+#------------------------
+aida:ClusterMembersSameAsBaseClass
+    a sh:SPARQLConstraint ;
+    sh:message "All Clusters must have homogeneous members by base class (Entity, Event, or Relation)" ;
+    sh:select """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
+        SELECT $this $value
+        WHERE {
+      	    $this ^aida:cluster / aida:clusterMember $value .
+            $value rdf:type ?memberType .
+            $this aida:prototype / rdf:type ?prototypeType .
+            FILTER ( ?memberType != ?prototypeType )
+        }
+    """
+    .
+
+aida:ClusterMembersShape
+    a sh:NodeShape ;
+    sh:targetClass aida:SameAsCluster;
+    sh:sparql aida:ClusterMembersSameAsBaseClass .

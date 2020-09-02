@@ -1,4 +1,4 @@
-@prefix : <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#> .
+@prefix : <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/AidaDomainOntologiesCommon#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -8,7 +8,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon> rdf:type owl:Ontology ;
+<https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/AidaDomainOntologiesCommon> rdf:type owl:Ontology ;
     rdfs:label "Common classes across AIDA domain-specific ontologies"^^xsd:string ;
     owl:versionInfo "Version 1.1"^^xsd:string .
 

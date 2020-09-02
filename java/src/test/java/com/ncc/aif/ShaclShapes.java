@@ -2,17 +2,18 @@ package com.ncc.aif;
 
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
-
-// WARNING. This is a Generated File.  Please do not edit.
-// This class contains variables generated from SHACL files using the OntologyGeneration Class
-// Please refer to the README at src/main/java/com/ncc/aif/ont2javagen for more information
-// Last Generated On: 05/30/2019 21:58:01
+// WARNING. This is a Generated File. Please do not edit.
+// This class contains variables generated from SHACL files using the OntologyGeneration class
+// Please refer to the README at java/src/main/java/com/ncc/aif/ont2javagen for more information
+// Last generated on: 08/24/2020 13:51:34
 public final class ShaclShapes {
-    public static final String NS = AidaAnnotationOntology.NAMESPACE;
+    public static final String NS = InterchangeOntology.NAMESPACE;
     public static final Resource AllKEsReferencedShape = ResourceFactory.createResource(NS + "AllKEsReferencedShape");
     public static final Resource AudioJustificationShape = ResourceFactory.createResource(NS + "AudioJustificationShape");
     public static final Resource BoundingBoxPropertyShape = ResourceFactory.createResource(NS + "BoundingBoxPropertyShape");
     public static final Resource BoundingBoxShape = ResourceFactory.createResource(NS + "BoundingBoxShape");
+    public static final Resource ClusterMembersSameAsBaseClass = ResourceFactory.createResource(NS + "ClusterMembersSameAsBaseClass");
+    public static final Resource ClusterMembersShape = ResourceFactory.createResource(NS + "ClusterMembersShape");
     public static final Resource ClusterMembershipShape = ResourceFactory.createResource(NS + "ClusterMembershipShape");
     public static final Resource ClusterShape = ResourceFactory.createResource(NS + "ClusterShape");
     public static final Resource CompoundJustificationMinimum = ResourceFactory.createResource(NS + "CompoundJustificationMinimum");
@@ -33,10 +34,9 @@ public final class ShaclShapes {
     public static final Resource EventRelationShape = ResourceFactory.createResource(NS + "EventRelationShape");
     public static final Resource EventSubclass = ResourceFactory.createResource(NS + "EventSubclass");
     public static final Resource EventTypeShape = ResourceFactory.createResource(NS + "EventTypeShape");
-    public static final Resource HypothesisClusterMembersSameAsBaseClass = ResourceFactory.createResource(NS + "HypothesisClusterMembersSameAsBaseClass");
-    public static final Resource HypothesisClusterMembersShape = ResourceFactory.createResource(NS + "HypothesisClusterMembersShape");
-    public static final Resource HypothesisEntityClusterRequireHandle = ResourceFactory.createResource(NS + "HypothesisEntityClusterRequireHandle");
-    public static final Resource HypothesisEventRelationClusterImportanceRequiredShape = ResourceFactory.createResource(NS + "HypothesisEventRelationClusterImportanceRequiredShape");
+    public static final Resource HandlePropertyShape = ResourceFactory.createResource(NS + "HandlePropertyShape");
+    public static final Resource HypothesisEntityPrototypeRequireHandle = ResourceFactory.createResource(NS + "HypothesisEntityPrototypeRequireHandle");
+    public static final Resource HypothesisEventRelationPrototypeImportanceRequiredShape = ResourceFactory.createResource(NS + "HypothesisEventRelationPrototypeImportanceRequiredShape");
     public static final Resource HypothesisShape = ResourceFactory.createResource(NS + "HypothesisShape");
     public static final Resource ImageJustificationShape = ResourceFactory.createResource(NS + "ImageJustificationShape");
     public static final Resource ImportancePropertyShape = ResourceFactory.createResource(NS + "ImportancePropertyShape");
@@ -58,7 +58,13 @@ public final class ShaclShapes {
     public static final Resource MutualExclusionConstraintShape = ResourceFactory.createResource(NS + "MutualExclusionConstraintShape");
     public static final Resource NamePropertyShape = ResourceFactory.createResource(NS + "NamePropertyShape");
     public static final Resource NumericPropertyShape = ResourceFactory.createResource(NS + "NumericPropertyShape");
+    public static final Resource ObjectMustBeClustered = ResourceFactory.createResource(NS + "ObjectMustBeClustered");
+    public static final Resource PreventHandleOnCluster = ResourceFactory.createResource(NS + "PreventHandleOnCluster");
+    public static final Resource PreventInformativeJustificationCluster = ResourceFactory.createResource(NS + "PreventInformativeJustificationCluster");
+    public static final Resource PreventMultiClusterPrototypeShape = ResourceFactory.createResource(NS + "PreventMultiClusterPrototypeShape");
+    public static final Resource PreventNonClusterPrototypeMemberShape = ResourceFactory.createResource(NS + "PreventNonClusterPrototypeMemberShape");
     public static final Resource PrivateDataPropertyShape = ResourceFactory.createResource(NS + "PrivateDataPropertyShape");
+    public static final Resource PrototypeShape = ResourceFactory.createResource(NS + "PrototypeShape");
     public static final Resource RdfStatementShape = ResourceFactory.createResource(NS + "RdfStatementShape");
     public static final Resource RelationArgumentShape = ResourceFactory.createResource(NS + "RelationArgumentShape");
     public static final Resource RelationArgumentSubclass = ResourceFactory.createResource(NS + "RelationArgumentSubclass");
@@ -78,4 +84,5 @@ public final class ShaclShapes {
     public static final Resource SystemShape = ResourceFactory.createResource(NS + "SystemShape");
     public static final Resource TextJustificationShape = ResourceFactory.createResource(NS + "TextJustificationShape");
     public static final Resource TextPropertyShape = ResourceFactory.createResource(NS + "TextPropertyShape");
+    public static final Resource VideoJustificationShape = ResourceFactory.createResource(NS + "VideoJustificationShape");
 }

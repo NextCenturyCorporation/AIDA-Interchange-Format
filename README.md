@@ -139,8 +139,7 @@ Please see `FAQ.md` for frequently asked questions.
 AIF was designed by Ryan Gabbard (gabbard@isi.edu) and Pedro Szekely
 (pszekeley@isi.edu) of USC ISI.  Gabbard also wrote the initial
 implementations of the associated tools.  The tools are now supported
-and extended by Next Century. For questions related to AIF, please contact Craig 
-Warsaw (craig.warsaw@nextcentury.com). 
+and extended by Next Century. For questions related to AIF, please contact AIF Support (aif-support@nextcentury.com).
 
 The open repository will support an open NIST evaluation. For
 questions related to this evaluation, please contact Hoa Dang

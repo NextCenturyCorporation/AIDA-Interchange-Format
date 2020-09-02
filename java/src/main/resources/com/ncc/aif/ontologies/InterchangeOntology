@@ -1,21 +1,18 @@
-@prefix : <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#> .
-@prefix dc: <http://purl.org/dc/elements/1.1/> .
-@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix : <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
-<https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology> rdf:type owl:Ontology ;
+<https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology> rdf:type owl:Ontology ;
     rdfs:label "AIDA Interchange Format Ontology" ;
     rdfs:comment "This ontology is designed to represent information exchanged between TA1, TA2 and TA3 in the AIDA program" ;
     owl:versionInfo "Version 1.0.2" .
 
 
 #################################################################
-#    Classes
+# Classes
 #################################################################
 
 ########## Data Representation Classes ##########
@@ -69,6 +66,14 @@
    rdfs:label "Audio Justification" ;
    rdfs:comment "The evidence in a speech or other audio for some KB assertion" .
 
+:VideoJustification a owl:Class ;
+   rdfs:subClassOf :Justification ;
+   rdfs:label "Video Justification" ;
+   rdfs:comment "The evidence in a video with start and end time for some KB assertion" .
+
+:VideoJustificationChannel a owl:Class ;
+  owl:oneOf (:VideoJustificationChannelBoth :VideoJustificationChannelPicture :VideoJustificationChannelSound) .
+
 :ImageJustification a owl:Class ;
    rdfs:subClassOf :Justification ;
    rdfs:label "Image Justification" ;
@@ -119,6 +124,7 @@
         :TextJustification
         :ImageJustification
         :AudioJustification
+        :VideoJustification
         :KeyFrameVideoJustification
         :ShotVideoJustification ) .
 
@@ -131,7 +137,7 @@
     rdfs:comment "Components that make up a single LDC Time" .
 
 #################################################################
-#        Properties
+# Properties
 #################################################################
 
 :alternativeGraph rdf:type owl:ObjectProperty ;
@@ -175,7 +181,9 @@
         owl:unionOf (
             :rdf:Statement
             :Hypothesis
-            :SameAsCluster ) ] ;
+            :Entity
+            :Event
+            :Relation ) ] ;
   rdfs:label "importance" ;
   rdfs:range xsd:double ;
   rdfs:subPropertyOf owl:topDataProperty ; .
@@ -193,9 +201,15 @@
   rdfs:subPropertyOf owl:topObjectProperty ; .
 
 :handle rdf:type owl:DatatypeProperty ;
-  rdfs:label "cluster handle" ;
-  rdfs:comment "Simple string description/reference of cluster" ;
-  rdfs:domain :SameAsCluster ;
+  rdfs:label "handle" ;
+  rdfs:comment "Simple string description/reference of real-world object" ;
+  rdfs:domain [
+        rdf:type owl:Class ;
+        owl:unionOf (
+            :Entity
+            :Event
+            :Relation
+            :SameAsCluster ) ] ;
   rdfs:range xsd:string ;
   rdfs:subPropertyOf owl:topDataProperty .
 
@@ -312,6 +326,13 @@
   rdfs:domain :AudioJustification ;
   rdfs:range xsd:double ;
   rdfs:subPropertyOf owl:topDataProperty .
+
+:channel a owl:ObjectProperty ;
+  rdfs:label "video justification channel" ;
+  rdfs:comment "Indicate which channel in the video the justification refers to" ;
+  rdfs:domain :VideoJustification ;
+  rdfs:range :VideoJustificationChannel ;
+  rdfs:subPropertyOf owl:topObjectProperty .
 
 :boundingBox rdf:type owl:ObjectProperty ;
   rdfs:label "bounding box" ;
@@ -478,3 +499,19 @@
   rdfs:domain :LDCTimeComponent ;
   rdfs:range xsd:gDay ;
   rdfs:subPropertyOf owl:topDataProperty .
+
+#################################################################
+# Constants
+#################################################################
+
+:VideoJustificationChannelSound a owl:NamedIndividual, :VideoJustificationChannel ;
+  rdfs:label "Sound Video Channel" ;
+  rdfs:comment "Constant used to indicate the sound channel of a VideoJustification" .
+
+:VideoJustificationChannelPicture a owl:NamedIndividual, :VideoJustificationChannel ;
+  rdfs:label "Picture Video Channel" ;
+  rdfs:comment "Constant used to indicate the picture channel of a VideoJustification" .
+
+:VideoJustificationChannelBoth a owl:NamedIndividual, :VideoJustificationChannel ;
+  rdfs:label "Both Video Channels" ;
+  rdfs:comment "Constant used to indicate both (sound and picture) channels of a VideoJustification" .

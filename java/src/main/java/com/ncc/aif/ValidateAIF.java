@@ -41,7 +41,7 @@ public final class ValidateAIF {
     private static final String ONT_ROOT = AIF_ROOT + "ontologies/";
     private static final String INTERCHANGE_RESNAME = ONT_ROOT + "InterchangeOntology";
     private static final String AIDA_DOMAIN_COMMON_RESNAME = ONT_ROOT + "AidaDomainOntologiesCommon";
-    private static final String LDC_RESNAME = ONT_ROOT + "LDCOntology";
+    private static final String LDC_RESNAME = ONT_ROOT + "LDCOntologyM36";
     private static final String AO_ENTITIES_RESNAME = ONT_ROOT + "EntityOntology";
     private static final String AO_EVENTS_RESNAME = ONT_ROOT + "EventOntology";
     private static final String AO_RELATIONS_RESNAME = ONT_ROOT + "RelationOntology";
@@ -371,7 +371,7 @@ public final class ValidateAIF {
         // entity type" will know what types are in fact entity types.
         final Model unionModel = (union == null) ? ModelFactory.createUnion(dataToBeValidated, domainModel) : union;
         unionModel.setNsPrefix("sh", "http://www.w3.org/ns/shacl#");
-        unionModel.setNsPrefix("aida", AidaAnnotationOntology.NAMESPACE);
+        unionModel.setNsPrefix("aida", InterchangeOntology.NAMESPACE);
         unionModel.setNsPrefix("aidaDomainCommon", AidaDomainOntologiesCommon.CanHaveName.getNameSpace());
 
         // Apply appropriate SHACL restrictions
@@ -414,7 +414,9 @@ public final class ValidateAIF {
             if (debugging) {
                 ((Logger) (org.slf4j.LoggerFactory.getLogger(ValidationEngine.class))).setLevel(Level.DEBUG);
             }
-            ValidationEngine engine = ValidationUtil.createValidationEngine(unionModel, shacl, config);
+            ValidationEngine engine = debugging ?
+                InstrumentedValidationEngine.createValidationEngine(unionModel, shacl, config) :
+                ValidationUtil.createValidationEngine(unionModel, shacl, config);
             engine.setProgressMonitor(progressMonitor);
             try {
                 engine.applyEntailments();

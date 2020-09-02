@@ -1,17 +1,30 @@
 package com.ncc.aif;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
+import static com.ncc.aif.AIFUtils.*;
+
+import java.nio.charset.StandardCharsets;
+
 import com.google.common.collect.ImmutableSet;
+import com.google.common.io.CharSource;
+import com.google.common.io.Resources;
+import com.ncc.aif.AIFUtils.BoundingBox;
+import com.ncc.aif.AIFUtils.Point;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDF;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.topbraid.shacl.vocabulary.SH;
 
-import static com.ncc.aif.AIFUtils.*;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class NistExamplesAndValidationTest {
@@ -23,7 +36,7 @@ public class NistExamplesAndValidationTest {
     // WHen DUMP_TO_FILE is true, if a model or report is dumped, it goes to a file in target/test-dump-output
     private static final boolean DUMP_TO_FILE = false;
 
-    private static final String NIST_ROOT = "https://tac.nist.gov/tracks/SM-KBP/2019/";
+    private static final String NIST_ROOT = "https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/";
     private static final String LDC_NS = NIST_ROOT + "LdcAnnotations#";
     private static final String ONTOLOGY_NS = NIST_ROOT + "ontologies/LDCOntology#";
     private static NistTestUtils utils;
@@ -32,7 +45,9 @@ public class NistExamplesAndValidationTest {
     static void initTest() {
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
-        utils = new NistTestUtils(LDC_NS, ValidateAIF.createForLDCOntology(ValidateAIF.Restriction.NIST), DUMP_ALWAYS, DUMP_TO_FILE);
+        ImmutableSet<CharSource> ont = ImmutableSet.of(Resources.asCharSource(
+                Resources.getResource("com/ncc/aif/ontologies/LDCOntology"),StandardCharsets.UTF_8));
+        utils = new NistTestUtils(LDC_NS, ValidateAIF.create(ont, ValidateAIF.Restriction.NIST), DUMP_ALWAYS, DUMP_TO_FILE);
     }
 
     private Model model;
@@ -117,7 +132,7 @@ public class NistExamplesAndValidationTest {
             void invalidCompoundJustificationWithNoJustification() {
 
                 Resource compoundJustification = model.createResource();
-                compoundJustification.addProperty(RDF.type, AidaAnnotationOntology.COMPOUND_JUSTIFICATION_CLASS);
+                compoundJustification.addProperty(RDF.type, InterchangeOntology.CompoundJustification);
                 markSystem(compoundJustification, system);
 
                 markConfidence(model, compoundJustification, 1.0, system);
@@ -318,6 +333,9 @@ public class NistExamplesAndValidationTest {
             void invalid() {
                 markAsPossibleClusterMember(model, eventCluster, entityCluster, .5, system);
                 utils.expect(null, SH.XoneConstraintComponent, null);
+                utils.expect(ShaclShapes.ClusterMembersShape,
+                SH.SPARQLConstraintComponent,
+                ShaclShapes.ClusterMembersSameAsBaseClass);
                 utils.testInvalid("NIST.invalid: Flat clusters");
             }
 
@@ -352,8 +370,8 @@ public class NistExamplesAndValidationTest {
                         LDCOntology.Life_Die),
                         utils.makeValidJustification());
 
-                utils.expect(ShaclShapes.EntityShape, SH.SPARQLConstraintComponent, null);
-                utils.expect(ShaclShapes.EventRelationShape, SH.SPARQLConstraintComponent, null, 2);
+                utils.expect(ShaclShapes.EntityShape, SH.SPARQLConstraintComponent, ShaclShapes.ObjectMustBeClustered);
+                utils.expect(ShaclShapes.EventRelationShape, SH.SPARQLConstraintComponent, ShaclShapes.ObjectMustBeClustered, 2);
                 utils.testInvalid("NIST.invalid: Everything has cluster");
             }
 
@@ -361,7 +379,11 @@ public class NistExamplesAndValidationTest {
             void valid() {
                 // setup() already creates an entity, event, and relation
                 // object, and adds them to a cluster.
-
+                final Resource newEntity = makeEntity(model, utils.getEntityUri(), system);
+                markJustification(utils.addType(newEntity,
+                        LDCOntology.WEA),
+                        utils.makeValidJustification());
+                makeClusterWithPrototype(model, utils.getClusterUri(), newEntity, false, system);
                 utils.testValid("NIST.valid: Everything has cluster");
             }
         }
@@ -370,7 +392,7 @@ public class NistExamplesAndValidationTest {
         @Nested
         class ConfidenceValueRange {
             @Test
-            void invalid() {
+            void invalidTooLarge() {
                 final Resource newEntity = makeEntity(model, utils.getEntityUri(), system);
                 markJustification(utils.addType(newEntity,
                         LDCOntology.PER),
@@ -378,6 +400,17 @@ public class NistExamplesAndValidationTest {
                 markAsPossibleClusterMember(model, newEntity, entityCluster, 1.2, system);
                 utils.expect(null, SH.MaxInclusiveConstraintComponent, null);
                 utils.testInvalid("NIST.invalid: confidence must be between 0 and 1");
+            }
+
+            @Test
+            void invalidZero() {
+                final Resource newEntity = makeEntity(model, utils.getEntityUri(), system);
+                markJustification(utils.addType(newEntity,
+                        LDCOntology.PER),
+                        utils.makeValidJustification());
+                markAsPossibleClusterMember(model, newEntity, entityCluster, 0d, system);
+                utils.expect(null, SH.MinExclusiveConstraintComponent, null);
+                utils.testInvalid("NIST.invalid: confidence cannot be 0");
             }
 
             @Test
@@ -396,12 +429,12 @@ public class NistExamplesAndValidationTest {
         class ClusterHasIRI {
             @Test
             void invalid() {
-                // Test entity, relation, and event. Correct other than being clustered
-                makeClusterWithPrototype(model, null, entity, system);
-                makeClusterWithPrototype(model, null, relation, system);
-                makeClusterWithPrototype(model, null, event, system);
-
-                utils.expect(ShaclShapes.ClusterShape, SH.NodeKindConstraintComponent, null, 3);
+                // Correct other than being clustered
+                Resource entity1 = makeEntity(model, utils.getEntityUri(), system);
+                markJustification(utils.addType(entity1, LDCOntology.PER), utils.makeValidJustification());
+                makeClusterWithPrototype(model, null, entity1, false, system);
+                
+                utils.expect(ShaclShapes.ClusterShape, SH.NodeKindConstraintComponent, null);
                 utils.testInvalid("NIST.invalid: Cluster has IRI");
             }
 
@@ -414,6 +447,7 @@ public class NistExamplesAndValidationTest {
 
         // Each entity/relation/event type statement must have at least one justification
         @Nested
+        @Disabled("Restriction removed for M36")
         class JustifyTypeAssertions {
             @Test
             void invalid() {
@@ -531,15 +565,15 @@ public class NistExamplesAndValidationTest {
             void setup() {
                 // create justification from scratch
                 newJustification = model.createResource();
-                newJustification.addProperty(RDF.type, AidaAnnotationOntology.TEXT_JUSTIFICATION_CLASS);
+                newJustification.addProperty(RDF.type, InterchangeOntology.TextJustification);
                 if (system != null) {
                     markSystem(newJustification, system);
                 }
 
                 markConfidence(model, newJustification, 0.973, system);
-                newJustification.addProperty(AidaAnnotationOntology.START_OFFSET,
+                newJustification.addProperty(InterchangeOntology.startOffset,
                         model.createTypedLiteral(41));
-                newJustification.addProperty(AidaAnnotationOntology.END_OFFSET_INCLUSIVE,
+                newJustification.addProperty(InterchangeOntology.endOffsetInclusive,
                         model.createTypedLiteral(143));
 
                 final Resource newEvent = makeEvent(model, utils.getEventUri(), system);
@@ -560,7 +594,7 @@ public class NistExamplesAndValidationTest {
             @Test
             void invalidNoSourceDocument() {
                 // include the source but not the source document
-                newJustification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral("XP043002ZO"));
+                newJustification.addProperty(InterchangeOntology.source, model.createTypedLiteral("XP043002ZO"));
                 utils.expect(null, SH.MinCountConstraintComponent, null);
                 utils.testInvalid("NIST.invalid (missing justification source document): justifications require a source document and source");
             }
@@ -568,7 +602,7 @@ public class NistExamplesAndValidationTest {
             @Test
             void valid() {
                 // include the source and source document
-                newJustification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral("XP043002ZO"));
+                newJustification.addProperty(InterchangeOntology.source, model.createTypedLiteral("XP043002ZO"));
                 addSourceDocumentToJustification(newJustification, "HC00002ZO");
                 utils.testValid("NIST.valid: justifications require a source document and a source");
             }
@@ -616,11 +650,19 @@ public class NistExamplesAndValidationTest {
             }
 
             @Test
+            @Disabled("Informative mentions are not allowed on clusters for M36")
             void validClusterInformativeJustification() {
                 markInformativeJustification(entityCluster, utils.makeValidJustification());
                 utils.testValid("NIST.valid: (cluster) Each Cluster, Entity, Event, or Relation can specify up to one " +
                         "informative mention per document as each informative mention points to a different " +
                         "sourceDocument");
+            }
+
+            @Test
+            void invalidClusterInformativeJustification() {
+                markInformativeJustification(entityCluster, utils.makeValidJustification());
+                utils.expect(ShaclShapes.PreventInformativeJustificationCluster, SH.NotConstraintComponent, null);
+                utils.testInvalid("NIST.invalid: Informative mentions are not allowed on clusters");
             }
 
             @Test
@@ -633,24 +675,23 @@ public class NistExamplesAndValidationTest {
                 utils.testValid("NIST.valid: (multiple informative justifications on relation) Each Cluster," +
                         "Entity, Event, or Relation can specify up to one informative mention per document as long " +
                         "as each informative mention points to a different sourceDocument");
-
             }
 
             @Test
-            void validEntityClusterSeparateInformativeJustificationsWithSameParentDoc() {
+            void validEntitySeparateInformativeJustificationsWithSameParentDoc() {
                 // Add more than one informative justification to entity KE
                 markInformativeJustification(entity, utils.makeValidJustification("20181231"));
                 markInformativeJustification(entity, utils.makeValidJustification("3822029"));
 
+                // For M36, informative mentions are no longer allowed on clusters
                 // Add more than one informative justification to entity cluster KE.
                 // One of the informative justifications contains same parent doc as entity KE
-                markInformativeJustification(entityCluster, utils.makeValidJustification("20181231"));
-                markInformativeJustification(entityCluster, utils.makeValidJustification("3298329"));
+                // markInformativeJustification(entityCluster, utils.makeValidJustification("20181231"));
+                // markInformativeJustification(entityCluster, utils.makeValidJustification("3298329"));
 
                 utils.testValid("NIST.valid: (Two KE's with informative justifications with same parent doc) Each " +
-                        "Cluster, Entity, Event, or Relation can specify up to one informative mention per document " +
+                        "Entity, Event, or Relation can specify up to one informative mention per document " +
                         "as long as each informative mention points to a different sourceDocument");
-
             }
         }
 
@@ -659,11 +700,11 @@ public class NistExamplesAndValidationTest {
             Resource linkAssertion;
 
             void link(Resource toLink) {
-                toLink.addProperty(AidaAnnotationOntology.LINK, linkAssertion);
+                toLink.addProperty(InterchangeOntology.link, linkAssertion);
             }
 
             void target(String externalKbId) {
-                linkAssertion.addProperty(AidaAnnotationOntology.LINK_TARGET, model.createTypedLiteral(externalKbId));
+                linkAssertion.addProperty(InterchangeOntology.linkTarget, model.createTypedLiteral(externalKbId));
             }
 
             @BeforeEach
@@ -672,7 +713,7 @@ public class NistExamplesAndValidationTest {
                 system = makeSystemWithURI(model, utils.getTestSystemUri());
 
                 linkAssertion = model.createResource();
-                linkAssertion.addProperty(RDF.type, AidaAnnotationOntology.LINK_ASSERTION_CLASS);
+                linkAssertion.addProperty(RDF.type, InterchangeOntology.LinkAssertion);
                 markSystem(linkAssertion, system);
 
                 entity = makeEntity(model, utils.getEntityUri(), system);
@@ -686,7 +727,7 @@ public class NistExamplesAndValidationTest {
             @Test
             void invalidLinkToNonAssertion() {
                 linkAssertion.listProperties().toList().forEach(model::remove);
-                entity.addProperty(AidaAnnotationOntology.LINK, utils.makeValidJustification());
+                entity.addProperty(InterchangeOntology.link, utils.makeValidJustification());
                 utils.expect(ShaclShapes.LinkPropertyShape, SH.ClassConstraintComponent, null);
                 utils.testInvalid("LinkAssertion.invalid: Link to non-LinkAssertion");
             }
@@ -733,6 +774,137 @@ public class NistExamplesAndValidationTest {
                 markConfidence(model, linkAssertion, 1.0, system);
                 target("SomeExternalKBId-1");
                 utils.testValid("LinkAssertion.valid");
+            }
+        }
+         
+        @Nested
+        class Prototype {
+            @Test
+            void invalidPrototypeOfMultipleClusters() {
+                // create second cluster with same prototype
+                Resource entity1 = makeEntity(model, utils.getEntityUri(), system);
+                markJustification(utils.addType(entity1, LDCOntology.PER), utils.makeValidJustification());
+                makeClusterWithPrototype(model, utils.getClusterUri(), entity1, false, system);
+                makeClusterWithPrototype(model, utils.getClusterUri(), entity1, false, system);
+    
+                utils.expect(ShaclShapes.PreventMultiClusterPrototypeShape, SH.MaxCountConstraintComponent, null);
+                utils.testInvalid("Prototype.invalid: prototype of multiple clusters");
+            }
+            
+            @Test
+            void invalidPrototypeMemberOfOther() {
+                // create sample entities
+                ImmutablePair<Resource, Resource> aPair = utils.makeValidNistEntity(
+                    LDCOntology.PER);
+                final Resource entity2 = aPair.getKey();
+                
+                // create two clusters with different prototypes
+                markAsPossibleClusterMember(model, entity2, entityCluster, 1d, system);
+                
+                utils.expect(ShaclShapes.PrototypeShape, SH.SPARQLConstraintComponent, ShaclShapes.PreventNonClusterPrototypeMemberShape);
+                utils.testInvalid("Prototype.invalid: prototype member of other cluster");
+            }
+        }
+
+        @Nested
+        class Handle {
+            @Test
+            void invalidHandle() {
+                markHandle(entityCluster, "handle");
+                utils.expect(ShaclShapes.PreventHandleOnCluster, SH.NotConstraintComponent, null);
+                utils.testInvalid("Handle.invalid: handle not allowed on cluster");
+            }
+            
+            @Test
+            void valid() {
+                markHandle(entity, "handle");
+                utils.testValid("Handle.valid");
+            }
+        }
+
+        @Nested
+        class Time {
+            @Test
+            void invalidTimeExtraneous() {
+                Resource time = addCorrectTime();
+                Resource unknown = LDCTimeComponent.createTime("unknown", null).makeAIFTimeComponent(model);
+                Resource extra = LDCTimeComponent.createTime("after", "1900-xx-xx").makeAIFTimeComponent(model);
+                time.addProperty(InterchangeOntology.start, unknown);
+                time.addProperty(InterchangeOntology.end, extra);
+                utils.expect(null, SH.MaxCountConstraintComponent, null);
+                utils.testInvalid("Time.invalid: extraneous time types");
+            }
+
+            @Test
+            void invalidTimeInsufficient() {
+                markLDCTime(model, event, 
+                    LDCTimeComponent.createTime("AFTER", "1901-01-01"),
+                    LDCTimeComponent.createTime("BEFORE", "1901-02-xx"), system);
+                utils.expect(null, SH.MinCountConstraintComponent, null, 2);
+                utils.expect(null, SH.HasValueConstraintComponent, null, 2);
+                utils.testInvalid("Time.invalid: not enough time types");
+            }
+
+            @Test
+            void validTime() {
+                addCorrectTime();
+                utils.testValid("Time.valid");
+            }
+            
+            private Resource addCorrectTime() {
+                return markLDCTimeRange(model, event, "1901-01-01", "1901-02-xx", "1902-01-01", "1902-xx-xx", system);
+            }
+        }
+
+        // Clusters must be homogeneous by base class (Entity, Event, or Relation)
+        @Nested
+        class ClustersMustBeHomogeneous {
+            Resource relation;
+            Resource relationEdge;
+            Resource relationCluster;
+
+            @BeforeEach
+            void setup() {
+                ImmutablePair<Resource, Resource> relationPair = utils.makeValidNistRelation(
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation);
+                relation = relationPair.getKey();
+                relationCluster = relationPair.getValue();
+                relationEdge = utils.makeValidAIFEdge(relation,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation_EntityOrFiller,
+                        entity);
+            }
+
+            @Test
+            void invalid() {
+                // create event cluster member to add to relation cluster
+                final Resource newEvent = makeEvent(model, utils.getEventUri(), system);
+                markJustification(utils.addType(newEvent,
+                        LDCOntology.Conflict_Attack),
+                        utils.makeValidJustification());
+
+                //add invalid event cluster member to relation cluster
+                markAsPossibleClusterMember(model, newEvent, relationCluster, 1.0, system);
+
+                utils.expect(ShaclShapes.ClusterMembersShape,
+                        SH.SPARQLConstraintComponent,
+                        ShaclShapes.ClusterMembersSameAsBaseClass);
+                utils.testInvalid("HomogeneousClusters.invalid (event exists in relation cluster): Clusters must be " +
+                        "homogeneous by base class (Entity, Event, or Relation).");
+            }
+
+            @Test
+            void valid() {
+                // create relation cluster member to add to relation cluster
+                final Resource relationMember = makeRelation(model, utils.getRelationUri(), system);
+                markJustification(utils.addType(relationMember,
+                        LDCOntology.GeneralAffiliation_ArtifactPoliticalOrganizationReligiousAffiliation),
+                        utils.makeValidJustification());
+
+                //add valid relation cluster member to relation cluster
+                markAsPossibleClusterMember(model, relationMember, relationCluster, 1.0, system);
+
+                utils.testValid("HomogeneousClusters.valid: Clusters must be homogeneous by base class " +
+                        "(Entity, Event, or Relation)");
             }
         }
     }

@@ -44,9 +44,8 @@ public class ExamplesAndValidationTest {
     // WHen DUMP_TO_FILE is true, if a model or report is dumped, it goes to a file in target/test-dump-output
     private static final boolean DUMP_TO_FILE = false;
 
-    private static final String NIST_ROOT = "https://tac.nist.gov/tracks/SM-KBP/";
-    private static final String LDC_NS = NIST_ROOT + "2019/LdcAnnotations#";
-    private static final String ONTOLOGY_NS = NIST_ROOT + "2018/ontologies/SeedlingOntology#";
+    private static final String LDC_NS = "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#";
+    private static final String ONTOLOGY_NS = "https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/SeedlingOntology#";
     private static final String DISKBASED_MODEL_PATH = System.getProperty("java.io.tmpdir") + "/diskbased-models/tests";
     private static final CharSource SEEDLING_ONTOLOGY = Resources.asCharSource(
             Resources.getResource("com/ncc/aif/ontologies/SeedlingOntology"),
@@ -104,32 +103,33 @@ public class ExamplesAndValidationTest {
             final Resource typeAssertion = markType(model, utils.getAssertionUri(), putinMentionResource,
                     SeedlingOntology.Person, system, 1.0);
 
+            final ImmutableSet<Resource> toMark = ImmutableSet.of(putinMentionResource, typeAssertion);
+
             // the justification provides the evidence for our claim about the entity's type
             // we attach this justification to both the type assertion and the entity object
             // itself, since it provides evidence both for the entity's existence and its type.
             // in TA1 -> TA2 communications, we attach confidences at the level of justifications
-            markTextJustification(model, ImmutableSet.of(putinMentionResource, typeAssertion),
-                    "HC000T6IV", 1029, 1033, system, 0.973);
+            markTextJustification(model, toMark, "HC000T6IV", 1029, 1033, system, 0.973);
 
             // let's suppose we also have evidence from an image
-            markImageJustification(model, ImmutableSet.of(putinMentionResource, typeAssertion),
-                    "NYT_ENG_20181231_03",
+            markImageJustification(model, toMark, "NYT_ENG_20181231_03",
                     new BoundingBox(new Point(123, 45), new Point(167, 98)),
                     system, 0.123);
 
             // and also a video where the entity appears in a keyframe
-            markKeyFrameVideoJustification(model, ImmutableSet.of(putinMentionResource, typeAssertion),
-                    "NYT_ENG_20181231_03", "keyframe ID",
+            markKeyFrameVideoJustification(model, toMark, "NYT_ENG_20181231_03", "keyframe ID",
                     new BoundingBox(new Point(234, 56), new Point(345, 101)),
                     system, 0.234);
 
             // and also a video where the entity does not appear in a keyframe
-            markShotVideoJustification(model, ImmutableSet.of(putinMentionResource, typeAssertion),
-                    "SOME_VIDEO", "some shot ID", system, 0.487);
+            markShotVideoJustification(model, toMark, "SOME_VIDEO", "some shot ID", system, 0.487);
 
             // and even audio!
-            markAudioJustification(model, ImmutableSet.of(putinMentionResource, typeAssertion),
-                    "NYT_ENG_201181231", 4.566, 9.876, system, 0.789);
+            markAudioJustification(model, toMark, "NYT_ENG_201181231", 4.566, 9.876, system, 0.789);
+            
+            // time-bounded video
+            markJustification(toMark, makeVideoJustification(model, "OTHER_VIDEO", 1.1, 1.5, 
+                InterchangeOntology.VideoJustificationChannelBoth, system, .93));
 
             // also we can link this entity to something in an external KB
             linkToExternalKB(model, putinMentionResource, "freebase:FOO", system, .398);
@@ -501,7 +501,7 @@ public class ExamplesAndValidationTest {
             final Resource bukIsClustered = markAsPossibleClusterMember(model, buk, bukCluster, .9, system);
 
             // add importance to the cluster - test negative importance
-            markImportance(bukCluster, -70.234);
+            markImportance(bukKBEntity, -70.234);
 
             // Russia owns buk relation
             final Resource bukIsRussian = makeRelation(model, russiaOwnsBukDocumentRelationUri, system);
@@ -646,10 +646,13 @@ public class ExamplesAndValidationTest {
             final Resource audioJustification = makeAudioJustification(model, "NYT_ENG_201181231",
                     4.566, 9.876, system, 0.789);
 
+            final Resource videoJustification = makeVideoJustification(model, "SOME_OTHER_VIDEO",
+                    4.566, 9.876, InterchangeOntology.VideoJustificationChannelBoth, system, 0.789);
+
             // combine all justifications into single justifiedBy triple with new confidence
             markCompoundJustification(model, ImmutableSet.of(electeeArgument),
                     ImmutableSet.of(textJustification, imageJustification, keyFrameVideoJustification,
-                            shotVideoJustification, audioJustification), system, 0.321);
+                            shotVideoJustification, audioJustification, videoJustification), system, 0.321);
 
             markCompoundJustification(model, ImmutableSet.of(placeArgument), ImmutableSet.of(textJustification, imageJustification),
                     system, 0.543);
@@ -1167,6 +1170,37 @@ public class ExamplesAndValidationTest {
             utils.testValid("create an event with LDCTime");
         }
 
+        @Test
+        void createEventsWithLDCTimeRanges() {
+            // Create a arrest jail event that started in first quarter of 2013 and ended on April 15, 2013
+            final Resource event1 = utils.makeValidAIFEvent(SeedlingOntology.Justice_ArrestJail);
+            LDCTimeComponent startRangeEarliest, startRangeLatest;
+            LDCTimeComponent endRangeEarliest, endRangeLatest;
+            startRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2013", "--01", "---01");
+            startRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2013", "--03", "---31");
+            endRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2013", "--04", "---15");
+            endRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2013", "--04", "---15");
+            markLDCTimeRange(model, event1, startRangeEarliest, startRangeLatest, endRangeEarliest, endRangeLatest, system);
+
+            // Create a transfer money event that started in March 2010 and ended sometime after 2010
+            final Resource event2 = utils.makeValidAIFEvent(SeedlingOntology.Transaction_TransferMoney);
+            startRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2010", "--02", "---01");
+            startRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2010", "--02", "---28");
+            endRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2010", "--12", "---31");
+            endRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "9999", "--12", "---31");
+            markLDCTimeRange(model, event2, startRangeEarliest, startRangeLatest, endRangeEarliest, endRangeLatest, system);
+
+            // Create a conflict attack event with that started in March 2010 and ended sometime after 2010
+            final Resource event3 = utils.makeValidAIFEvent(SeedlingOntology.Conflict_Attack);
+            startRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "-9999", "--01", "---01");
+            startRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2016", "--02", "---01");
+            endRangeEarliest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.AFTER, "2017", "--01", "---01");
+            endRangeLatest = new LDCTimeComponent(LDCTimeComponent.LDCTimeType.BEFORE, "2017", "--12", "---31");
+            markLDCTimeRange(model, event3, startRangeEarliest, startRangeLatest, endRangeEarliest, endRangeLatest, system);
+
+            utils.testValid("create events with LDCTime ranges");
+        }
+
         /**
          * Create justifications and cluster memberships with and without optional URIs.
          * Without a URI, justifications and cluster memberships will be blank nodes.
@@ -1279,6 +1313,22 @@ public class ExamplesAndValidationTest {
 
                 utils.testValid("audioJustification with and without optional URI argument");
             }
+            
+            /**
+             * Create video justifications with and without optional URIs.  Without a URI, a blank node is created.
+             */
+            @Test
+            void videoJustification() {
+                final Double startTimestamp = 5.0;
+                final Double endTimestamp = 10.0;
+
+                Resource justification = makeVideoJustification(model, utils.getDocumentName(), startTimestamp, endTimestamp, InterchangeOntology.VideoJustificationChannelBoth, system, confidence);
+                makeVideoJustification(model, utils.getDocumentName(), startTimestamp*1.1, endTimestamp*1.1, InterchangeOntology.VideoJustificationChannelSound, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+                markJustification(person1, justification);
+                markJustification(personCollection, justification);
+
+                utils.testValid("videoJustification with and without optional URI argument");
+            }
 
             /**
              * Create cluster memberships with and without optional URIs.  Without a URI, a blank node is created.
@@ -1316,6 +1366,7 @@ public class ExamplesAndValidationTest {
     class InvalidExamples {
 
         @Test
+        @Disabled("Types no longer required for mentions")
         void entityMissingType() {
             // having multiple type assertions in case of uncertainty is ok, but there must always
             // be at least one type assertion
@@ -1325,6 +1376,7 @@ public class ExamplesAndValidationTest {
         }
 
         @Test
+        @Disabled("Types no longer required for mentions")
         void eventMissingType() {
             // having multiple type assertions in case of uncertainty is ok, but there must always
             // be at least one type assertion
@@ -1362,15 +1414,15 @@ public class ExamplesAndValidationTest {
             // below is just the content of AIFUtils.markTextJustification, except without the required
             // confidence
             final Resource justification = model.createResource();
-            justification.addProperty(RDF.type, AidaAnnotationOntology.TEXT_JUSTIFICATION_CLASS);
+            justification.addProperty(RDF.type, InterchangeOntology.TextJustification);
             // the document ID for the justifying source document
-            justification.addProperty(AidaAnnotationOntology.SOURCE, model.createTypedLiteral("FOO"));
-            justification.addProperty(AidaAnnotationOntology.START_OFFSET,
+            justification.addProperty(InterchangeOntology.source, model.createTypedLiteral("FOO"));
+            justification.addProperty(InterchangeOntology.startOffset,
                     model.createTypedLiteral(14));
-            justification.addProperty(AidaAnnotationOntology.END_OFFSET_INCLUSIVE,
+            justification.addProperty(InterchangeOntology.endOffsetInclusive,
                     model.createTypedLiteral(56));
-            justification.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
-            entity.addProperty(AidaAnnotationOntology.JUSTIFIED_BY, justification);
+            justification.addProperty(InterchangeOntology.system, system);
+            entity.addProperty(InterchangeOntology.justifiedBy, justification);
 
             utils.expect(ShaclShapes.RequiredConfidencePropertyShape, SH.MinCountConstraintComponent, null);
             utils.testInvalid("Invalid: justification missing confidence");
@@ -1382,9 +1434,72 @@ public class ExamplesAndValidationTest {
         void missingRdfTypeOnNamedNode() {
             // below we copy the code from AIFUtils.makeEntity but forget to mark it as an entity
             final Resource entity = model.createResource("http://www.test.edu/entity/1");
-            entity.addProperty(AidaAnnotationOntology.SYSTEM_PROPERTY, system);
+            entity.addProperty(InterchangeOntology.system, system);
             utils.testInvalid("Invalid: missing rdf type");
         }
+    }
+
+    @Nested
+    class OtherOntologies {
+        @Test
+        void createM36EntityOfTypePersonWithAllJustificationTypesAndConfidence() {
+            CharSource m36 = Resources.asCharSource(Resources.getResource("com/ncc/aif/ontologies/LDCOntologyM36"),
+                StandardCharsets.UTF_8);
+            TestUtils m36Utils = new TestUtils(LDC_NS, ValidateAIF.createForDomainOntologySource(m36),
+                DUMP_ALWAYS, DUMP_TO_FILE);
+
+            Model m36Model = m36Utils.startNewTest();
+            addNamespacesToModel(m36Model);
+            Resource m36System = m36Utils.getSystem();
+
+            // it doesn't matter what URI we give entities, events, etc. so long as they are
+            // unique
+            final Resource someEntityMention = makeEntity(m36Model, m36Utils.getEntityUri(), m36System);
+
+            // in order to allow uncertainty about the type of an entity, we don't mark an
+            // entity's type directly on the entity, but rather make a separate assertion for it
+            // its URI doesn't matter either
+            final Resource typeAssertion = markType(m36Model, m36Utils.getAssertionUri(), someEntityMention,
+                    LDCOntologyM36.PER, m36System, 1.0);
+
+            final ImmutableSet<Resource> toMark = ImmutableSet.of(someEntityMention, typeAssertion);
+
+            // the justification provides the evidence for our claim about the entity's type
+            // we attach this justification to both the type assertion and the entity object
+            // itself, since it provides evidence both for the entity's existence and its type.
+            // in TA1 -> TA2 communications, we attach confidences at the level of justifications
+            markTextJustification(m36Model, toMark, "HC000T6IV", 1029, 1033, m36System, 0.973);
+
+            // let's suppose we also have evidence from an image
+            markImageJustification(m36Model, toMark, "NYT_ENG_20181231_03",
+                    new BoundingBox(new Point(123, 45), new Point(167, 98)),
+                    m36System, 0.123);
+
+            // and also a video where the entity appears in a keyframe
+            markKeyFrameVideoJustification(m36Model, toMark, "NYT_ENG_20181231_03", "keyframe ID",
+                    new BoundingBox(new Point(234, 56), new Point(345, 101)),
+                    m36System, 0.234);
+
+            // and also a video where the entity does not appear in a keyframe
+            markShotVideoJustification(m36Model, toMark, "SOME_VIDEO", "some shot ID", m36System, 0.487);
+
+            // and even audio!
+            markAudioJustification(m36Model, toMark, "NYT_ENG_201181231", 4.566, 9.876, m36System, 0.789);
+            
+            // time-bounded video
+            markJustification(toMark, makeVideoJustification(m36Model, "OTHER_VIDEO", 1.1, 1.5, 
+                InterchangeOntology.VideoJustificationChannelBoth, m36System, .93));
+
+            // also we can link this entity to something in an external KB
+            linkToExternalKB(m36Model, someEntityMention, "freebase:FOO", m36System, .398);
+
+            // let's mark our entity with some arbitrary system-private data. You can attach such data
+            // to nearly anything
+            markPrivateData(m36Model, someEntityMention, "{ 'privateKey' : 'privateValue' }", m36System);
+
+            m36Utils.testValid("create an M36 entity of type person with textual justification and confidence");
+        }
+        
     }
 
     private Path writeModelToDisk(Model model) {

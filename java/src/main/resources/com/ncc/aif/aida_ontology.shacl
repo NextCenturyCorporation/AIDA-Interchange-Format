@@ -2,8 +2,8 @@
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
-@prefix aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#> .
-@prefix aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#> .
+@prefix aidaDomainCommon: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/AidaDomainOntologiesCommon#> .
+@prefix aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#> .
 
 # This document is a specification for validating knowledge graphs for the interchange
 # format for the DARPA AIDA program. This format is called AIF (AIDA Interchange Format)
@@ -51,28 +51,32 @@ aida:EntityShape
     a sh:NodeShape ;
     sh:targetClass aida:Entity ;
 
+    # For M36, mentions no longer require types, thus this is being removed.
     # Ensure that entity has type
-    sh:sparql [
-        sh:message "Entity must have type assertion or be non-prototype member of cluster" ;
-        sh:select """
-            PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
-            SELECT $this
-            WHERE {
-                FILTER ( NOT EXISTS {
-                        $this ^rdf:subject / rdf:predicate rdf:type .
-                    } && ( NOT EXISTS { $this ^aida:clusterMember ?membership . } ||
-                           EXISTS { $this ^aida:prototype ?cluster . } )
-                )
-            }
-        """ ;
-    ] ;
+    # sh:sparql [
+    #     sh:message "Entity must have type assertion or be non-prototype member of cluster" ;
+    #     sh:select """
+    #         PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    #         PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
+    #         SELECT $this
+    #         WHERE {
+    #             FILTER ( NOT EXISTS {
+    #                     $this ^rdf:subject / rdf:predicate rdf:type .
+    #                 } && ( NOT EXISTS { $this ^aida:clusterMember ?membership . } ||
+    #                        EXISTS { $this ^aida:prototype ?cluster . } )
+    #             )
+    #         }
+    #     """ ;
+    # ] ;
 
     # entities must have unique identifiers
     sh:nodeKind sh:IRI ;
 
     # may provide an informative justification
     sh:property aida:InformativeJustificationPropertyShape ;
+
+    # may have handle
+    sh:property aida:HandlePropertyShape ;
 
     # may be linked to one or more things in an external KB
     sh:property aida:LinkPropertyShape ;
@@ -84,6 +88,9 @@ aida:EntityShape
 
     # may provide a confidence
     sh:property aida:ConfidencePropertyShape ;
+    
+    # may provide an importance
+    sh:property aida:ImportancePropertyShape ;
 
     # may provide an one or more source systems
     sh:property aida:SystemPropertyShape ;
@@ -111,22 +118,23 @@ aida:EventRelationShape
     a sh:NodeShape ;
     sh:targetClass aida:Event, aida:Relation ;
 
+    # For M36, mentions no longer require types, thus this is being removed.
     # Ensure that event/relation has type
-    sh:sparql [
-        sh:message "Events and Relations must have type assertion or be non-prototype member of cluster" ;
-        sh:select """
-            PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
-            SELECT $this
-            WHERE {
-                FILTER ( NOT EXISTS {
-                        $this ^rdf:subject / rdf:predicate rdf:type .
-                    } && ( NOT EXISTS { $this ^aida:clusterMember ?membership . } ||
-                           EXISTS { $this ^aida:prototype ?cluster . } )
-                )
-            }
-        """ ;
-    ] ;
+    # sh:sparql [
+    #     sh:message "Events and Relations must have type assertion or be non-prototype member of cluster" ;
+    #     sh:select """
+    #         PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    #         PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
+    #         SELECT $this
+    #         WHERE {
+    #             FILTER ( NOT EXISTS {
+    #                     $this ^rdf:subject / rdf:predicate rdf:type .
+    #                 } && ( NOT EXISTS { $this ^aida:clusterMember ?membership . } ||
+    #                        EXISTS { $this ^aida:prototype ?cluster . } )
+    #             )
+    #         }
+    #     """ ;
+    # ] ;
 
     # must have unique identifiers
     sh:nodeKind sh:IRI ;
@@ -134,8 +142,14 @@ aida:EventRelationShape
     # may provide an informative justification
     sh:property aida:InformativeJustificationPropertyShape ;
 
+    # may have handle
+    sh:property aida:HandlePropertyShape ;
+
     # may provide a confidence
     sh:property aida:ConfidencePropertyShape ;
+    
+    # may provide an importance
+    sh:property aida:ImportancePropertyShape ;
 
     # may provide an one or more source systems
     sh:property aida:SystemPropertyShape ;
@@ -163,27 +177,26 @@ aida:EventRelationShape
 aida:EventArgumentShape
    a sh:NodeShape ;
 
-  # this shape only applies when the predicate is an event argument type from the ontology
+  # this shape only applies when the subject is an event and the statement is not a type statement
   sh:target [
     a sh:SPARQLTarget ;
     sh:select """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
+        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
         SELECT ?this
         WHERE {
             ?this a rdf:Statement .
-            ?pred rdfs:subClassOf+|rdf:type/rdfs:subClassOf* aidaDomainCommon:EventArgumentType .
-            ?this rdf:predicate ?pred .
+            ?this rdf:subject / a aida:Event .
+            FILTER NOT EXISTS { ?this rdf:predicate rdf:type . }
         }
         """ ;
   ];
 
-  # the subject is the event some entity is participating in
+  # the predicate must be an event argument subclass
   sh:property [
-    sh:path rdf:subject ;
-    sh:class aida:Event ;
-    sh:message "The subject of an event argument must be an event"
+    sh:path rdf:predicate ;
+    sh:property aida:EventArgumentSubclass ;
+    sh:message "The predicate of an event argument must be an event argument subclass"
   ] ;
 
   # the object is the argument of the event role
@@ -217,7 +230,7 @@ aida:EventArgumentShape
   # no other properties are allowed
   sh:closed true ;
   # except rdf:type
-  sh:ignoredProperties (rdf:type rdf:predicate)
+  sh:ignoredProperties (rdf:type rdf:subject)
   .
 
 # It was decided that Relations should be represented similarly to Events.
@@ -225,27 +238,26 @@ aida:EventArgumentShape
 aida:RelationArgumentShape
    a sh:NodeShape ;
 
-  # this shape only applies when the predicate is an event argument type from the ontology
+  # this shape only applies when the subject is a relation and the statement is not a type statement
   sh:target [
     a sh:SPARQLTarget ;
     sh:select """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
+        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
         SELECT ?this
         WHERE {
             ?this a rdf:Statement .
-            ?pred rdfs:subClassOf+|rdf:type/rdfs:subClassOf* aidaDomainCommon:RelationArgumentType .
-            ?this rdf:predicate ?pred .
+            ?this rdf:subject / a aida:Relation .
+            FILTER NOT EXISTS { ?this rdf:predicate rdf:type . }
         }
         """ ;
   ] ;
 
   # the subject is the event some entity is participating in
   sh:property [
-    sh:path rdf:subject ;
-    sh:class aida:Relation ;
-    sh:message "The subject of a relation argument must be a relation"
+    sh:path rdf:predicate ;
+    sh:property aida:RelationArgumentSubclass ;
+    sh:message "The predicate of a relation argument must be a relation argument subclass"
   ] ;
 
   # the object is the argument of the relation role
@@ -279,7 +291,7 @@ aida:RelationArgumentShape
   # no other properties are allowed
   sh:closed true ;
   # except rdf:type
-  sh:ignoredProperties (rdf:type rdf:predicate)
+  sh:ignoredProperties (rdf:type rdf:subject)
   .
 
 # the fifth type of content node is a sentiment assertion.
@@ -396,7 +408,7 @@ aida:SharedTypeShape
         a sh:SPARQLTarget ;
         sh:select """
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
             SELECT ?this
             WHERE {
                 ?this a rdf:Statement .
@@ -433,7 +445,7 @@ aida:EntityTypeShape
         a sh:SPARQLTarget ;
         sh:select """
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
             SELECT ?this
             WHERE {
                 ?this a rdf:Statement .
@@ -457,7 +469,7 @@ aida:EventTypeShape
         a sh:SPARQLTarget ;
         sh:select """
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
             SELECT ?this
             WHERE {
                 ?this a rdf:Statement .
@@ -481,7 +493,7 @@ aida:RelationTypeShape
         a sh:SPARQLTarget ;
         sh:select """
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/InterchangeOntology#>
+            PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
             SELECT ?this
             WHERE {
                 ?this a rdf:Statement .
@@ -652,6 +664,38 @@ aida:AudioJustificationShape
     sh:ignoredProperties aida:SharedJustificationProperties
     .
 
+#TODO: combine this and AudioJustificationShape
+aida:VideoJustificationShape
+    a sh:NodeShape ;
+    sh:targetClass aida:VideoJustification ;
+
+    # exactly one start timestamp
+    sh:property [
+        sh:path aida:startTimestamp ;
+        sh:datatype xsd:double ;
+        sh:minCount 1;
+        sh:maxCount 1 ];
+
+    # and exactly one end timestamp
+    sh:property [
+        sh:path aida:endTimestamp ;
+        sh:datatype xsd:double ;
+        sh:minCount 1;
+        sh:maxCount 1 ] ;
+    
+    # and one optional channel
+    sh:property [
+        sh:path aida:channel ;
+        sh:class aida:VideoJustificationChannel ;
+        sh:maxCount 1 ] ;
+
+    # no other properties are allowed
+    sh:closed true ;
+
+    # except shared properties and rdf:type
+    sh:ignoredProperties aida:SharedJustificationProperties
+    .
+
 # bounding boxes are used by both image and video justifications
 aida:BoundingBoxShape
    a sh:NodeShape ;
@@ -793,6 +837,7 @@ aida:JustificationTypeList
         [ sh:class aida:ImageJustification ]
         [ sh:class aida:KeyFrameVideoJustification ]
         [ sh:class aida:ShotVideoJustification ]
+        [ sh:class aida:VideoJustification ]
     ) .
 
 aida:InformativeJustificationPropertyShape
@@ -923,7 +968,7 @@ aida:RestrictNameProperty
         sh:select """
             PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
+            PREFIX aidaDomainCommon: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/AidaDomainOntologiesCommon#>
             SELECT $this
             WHERE {
                 ?typeAssertion rdf:subject $this .
@@ -950,7 +995,7 @@ aida:RestrictTextProperty
         sh:select """
             PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
+            PREFIX aidaDomainCommon: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/AidaDomainOntologiesCommon#>
             SELECT $this
             WHERE {
                 ?typeAssertion rdf:subject $this .
@@ -977,7 +1022,7 @@ aida:RestrictNumericProperty
         sh:select """
             PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX aidaDomainCommon: <https://tac.nist.gov/tracks/SM-KBP/2019/ontologies/AidaDomainOntologiesCommon#>
+            PREFIX aidaDomainCommon: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/AidaDomainOntologiesCommon#>
             SELECT $this
             WHERE {
                 ?typeAssertion rdf:subject $this .
@@ -1037,10 +1082,18 @@ aida:RdfStatementShape
         sh:message "All rdf:Statements must be type declarations or have predicates from the domain relation or event argument types. This error is often caused by using a value outside the domain ontology"
     ] .
 
+# Handle
+aida:HandlePropertyShape
+    a sh:PropertyShape ;
+    sh:path aida:handle ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:message "Objects may have at most a single handle" .
+
 # Sometimes there is uncertainty about whether or not two entities or events are the same.
 # In such cases, we make "cluster" objects which can link together the possibly identical
 # entities or events
-# TODO: validate clusters are homogeneous (e.g. can't mix entities and events)
+# To enforce homogenous members, see aida:HypothesisClusterMembersSameAsBaseClass in restricted_aif.shacl
 aida:ClusterShape
    a sh:NodeShape ;
    sh:targetClass aida:SameAsCluster ;
@@ -1059,15 +1112,7 @@ aida:ClusterShape
 	  ] ;
 
    # allow clusters to have handle property
-   sh:property [
-      sh:path aida:handle ;
-      sh:datatype xsd:string ;
-      sh:maxCount 1 ;
-      sh:message "Clusters must have at most a single handle"
-   ] ;
-
-   # may provide an importance
-   sh:property aida:ImportancePropertyShape ;
+   sh:property aida:HandlePropertyShape ;
 
    # may provide an informative justification
    sh:property aida:InformativeJustificationPropertyShape ;
