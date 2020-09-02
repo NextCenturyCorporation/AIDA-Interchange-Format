@@ -1,11 +1,15 @@
 # Using the AIF Library
 
-To use the library in Java, mark the AIF library as a dependency in your build script or tool. For gradle, for
-example, include the following in the dependencies in your `build.gradle` file:
+As of version 1.2.1, the AIF library is available via [OSSRH](https://search.maven.org/search?q=g:com.github.nextcenturycorporation) (Maven Central). To use the library, mark the AIF library as a dependency in your build script or tool. As an example, Gradle requires the following to be added to your `build.gradle` file:
 
-`dependencies {
-    compile 'com.github.nextcenturycorporation:aida-interchange:x.x.x'
-}`
+    repositories {
+      mavenCentral()
+    }
+    dependencies {
+        compile 'com.github.nextcenturycorporation:aida-interchange:latest.release'
+    }
+
+The above will add the latest release to your project.
 
 In your code, import classes from the `com.ncc.aif` package.
 Then, create a model, add entities, relations, and events to the
@@ -18,7 +22,7 @@ to write the model out.
 
 # Installation (No longer required)
 
-As of version 1.2.1, the library no longer needs to be installed as it is served through OSSRH. However, these instructions are still applicable should you want to build a non-released version.
+As of version 1.2.1, the library no longer needs to be installed. However, these instructions are still applicable should you want to build a non-released version.
 
 AIF is built with Java version 11.  You can download JDL 11 from several places:
 * [Oracle JDK 11](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)

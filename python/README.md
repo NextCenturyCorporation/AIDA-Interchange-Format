@@ -7,7 +7,7 @@ To use the `aida_interchange` package within your project, you must first instal
 To install `aida_interchange`, make sure a [Python Virtual Environment](#virtualenv) is activated and run the following command:
 
 ```bash
-$ pip install aida-interchange==x.x.x
+$ pip install aida-interchange
 ```
 The `aida_interchange` modules can now be imported into your project.
 
