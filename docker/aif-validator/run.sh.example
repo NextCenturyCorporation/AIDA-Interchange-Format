@@ -11,5 +11,4 @@ docker run --rm -it \
        -e VALIDATE_DIR_OR_FILES='directory' \
        -e TARGET_TO_VALIDATE='/v' \
        --name aif-validator \
-       aif-validator
-
+       nextcenturycorp/aif_validator:1.2.2-SNAPSHOT
