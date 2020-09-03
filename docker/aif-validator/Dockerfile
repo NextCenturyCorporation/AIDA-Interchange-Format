@@ -1,5 +1,4 @@
 FROM amazonlinux:latest
-MAINTAINER craig.warsaw@caci.com
 
 # Update system packages and remove any downloaded files
 RUN yum update --assumeyes --skip-broken && \
