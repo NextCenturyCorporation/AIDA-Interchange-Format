@@ -481,7 +481,7 @@ def mark_audio_justification(g, things_to_justify, doc_id, start_timestamp,
     return justification
 
 
-def make_video_justification(g, doc_id, start_timestamp, end_timestamp, channel,
+def make_video_justification(g, doc_id, start_timestamp, end_timestamp, channels,
                              system, confidence, uri_ref=None):
     """
     Make a video justification.
@@ -493,7 +493,7 @@ def make_video_justification(g, doc_id, start_timestamp, end_timestamp, channel,
         justification starts
     :param float end_timestamp: A timestamp within the video document where the
         justification ends
-    :param rdflib.term.URIRef channel: The channel of the video that the mention
+    :param list channels: The rdflib.term.URIRef channels of the video that the mention
         appears in. See: InterchangeOntology.VideoJustificationChannel
     :param rdflib.term.URIRef system: The system object for the system which made this
         justification
@@ -511,7 +511,8 @@ def make_video_justification(g, doc_id, start_timestamp, end_timestamp, channel,
            Literal(start_timestamp, datatype=XSD.double)))
     g.add((justification, interchange_ontology.endTimestamp,
            Literal(end_timestamp, datatype=XSD.double)))
-    g.add((justification, interchange_ontology.channel, channel))
+    for channel in channels:
+        g.add((justification, interchange_ontology.channel, channel))
 
     return justification
 

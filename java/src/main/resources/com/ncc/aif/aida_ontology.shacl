@@ -687,7 +687,7 @@ aida:VideoJustificationShape
     sh:property [
         sh:path aida:channel ;
         sh:class aida:VideoJustificationChannel ;
-        sh:maxCount 1 ] ;
+        sh:minCount 1 ] ;
 
     # no other properties are allowed
     sh:closed true ;

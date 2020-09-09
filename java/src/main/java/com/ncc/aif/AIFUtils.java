@@ -996,20 +996,20 @@ public class AIFUtils {
     }
 
     /**
-     * Make an video justification.
+     * Make a video justification.
      *
      * @param model          The underlying RDF model for the operation
      * @param docId          A string containing the document element (child) ID of the source of the justification
      * @param startTimestamp A timestamp within the video document where the justification starts
      * @param endTimestamp   A timestamp within the video document where the justification ends
-     * @param channel        The channel of the video that the mention appears in. See: InterchangeOntology.VideoJustificationChannel
+     * @param channels       {@link Collection} containing channels of the video that the mention appears in. See: InterchangeOntology.VideoJustificationChannel
      * @param system         The system object for the system which made this justification
      * @param confidence     The confidence with which to mark the justification
      * @param uri            A String uri representation of the justification
      * @return The created video justification resource
      */
     public static Resource makeVideoJustification(Model model, String docId, Double startTimestamp, Double endTimestamp,
-                                                  Resource channel, Resource system, Double confidence, String uri) {
+                                                  Collection<Resource> channels, Resource system, Double confidence, String uri) {
         if (endTimestamp <= startTimestamp) {
             throw new IllegalArgumentException("End timestamp " + endTimestamp
                     + " does not follow start timestamp " + startTimestamp);
@@ -1019,25 +1019,39 @@ public class AIFUtils {
 
         justification.addProperty(InterchangeOntology.startTimestamp, model.createTypedLiteral(startTimestamp));
         justification.addProperty(InterchangeOntology.endTimestamp, model.createTypedLiteral(endTimestamp));
-        justification.addProperty(InterchangeOntology.channel, channel);
+        if (channels != null) {
+            channels.stream().forEach(channel -> justification.addProperty(InterchangeOntology.channel, channel));
+        }
 
         return justification;
     }
     
     /**
-     * Make an video justification.
+     * Make a video justification.
      *
      * @param model          The underlying RDF model for the operation
      * @param docId          A string containing the document element (child) ID of the source of the justification
      * @param startTimestamp A timestamp within the video document where the justification starts
      * @param endTimestamp   A timestamp within the video document where the justification ends
-     * @param channel        The channel of the video that the mention appears in. See: InterchangeOntology.VideoJustificationChannel
+     * @param channels       {@link Collection} containing channels of the video that the mention appears in. See: InterchangeOntology.VideoJustificationChannel
      * @param system         The system object for the system which made this justification
      * @param confidence     The confidence with which to mark the justification
      * @return The created video justification resource
      */
     public static Resource makeVideoJustification(Model model, String docId, Double startTimestamp, Double endTimestamp,
-                                                  Resource channel, Resource system, Double confidence) {
+                                                  Collection<Resource> channels, Resource system, Double confidence) {
+        return makeVideoJustification(model, docId, startTimestamp, endTimestamp, channels, system, confidence, null);
+    }
+
+    @Deprecated(forRemoval = true, since = "1.2.2")
+    public static Resource makeVideoJustification(Model model, String docId, Double startTimestamp, Double endTimestamp,
+    Resource channel, Resource system, Double confidence, String uri) {
+        return makeVideoJustification(model, docId, startTimestamp, endTimestamp, Collections.singleton(channel),
+        system, confidence, uri);
+    }
+    @Deprecated(forRemoval = true, since = "1.2.2")
+    public static Resource makeVideoJustification(Model model, String docId, Double startTimestamp, Double endTimestamp,
+            Resource channel, Resource system, Double confidence) {
         return makeVideoJustification(model, docId, startTimestamp, endTimestamp, channel, system, confidence, null);
     }
 

@@ -29,6 +29,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 
 import static com.ncc.aif.AIFUtils.*;
@@ -51,6 +53,7 @@ public class ExamplesAndValidationTest {
             Resources.getResource("com/ncc/aif/ontologies/SeedlingOntology"),
             StandardCharsets.UTF_8);
     private static TestUtils utils;
+    private static Collection<Resource> BOTH_CHANNELS = Arrays.asList(InterchangeOntology.VideoJustificationChannelPicture, InterchangeOntology.VideoJustificationChannelSound);
 
     @BeforeAll
     static void initTest() {
@@ -129,7 +132,7 @@ public class ExamplesAndValidationTest {
             
             // time-bounded video
             markJustification(toMark, makeVideoJustification(model, "OTHER_VIDEO", 1.1, 1.5, 
-                InterchangeOntology.VideoJustificationChannelBoth, system, .93));
+                BOTH_CHANNELS, system, .93));
 
             // also we can link this entity to something in an external KB
             linkToExternalKB(model, putinMentionResource, "freebase:FOO", system, .398);
@@ -647,7 +650,7 @@ public class ExamplesAndValidationTest {
                     4.566, 9.876, system, 0.789);
 
             final Resource videoJustification = makeVideoJustification(model, "SOME_OTHER_VIDEO",
-                    4.566, 9.876, InterchangeOntology.VideoJustificationChannelBoth, system, 0.789);
+                    4.566, 9.876, BOTH_CHANNELS, system, 0.789);
 
             // combine all justifications into single justifiedBy triple with new confidence
             markCompoundJustification(model, ImmutableSet.of(electeeArgument),
@@ -1322,8 +1325,9 @@ public class ExamplesAndValidationTest {
                 final Double startTimestamp = 5.0;
                 final Double endTimestamp = 10.0;
 
-                Resource justification = makeVideoJustification(model, utils.getDocumentName(), startTimestamp, endTimestamp, InterchangeOntology.VideoJustificationChannelBoth, system, confidence);
-                makeVideoJustification(model, utils.getDocumentName(), startTimestamp*1.1, endTimestamp*1.1, InterchangeOntology.VideoJustificationChannelSound, system, confidence, utils.getUri("custom-uri-" + ++uriCount));
+                Resource justification = makeVideoJustification(model, utils.getDocumentName(), startTimestamp, endTimestamp, BOTH_CHANNELS, system, confidence);
+                makeVideoJustification(model, utils.getDocumentName(), startTimestamp*1.1, endTimestamp*1.1, 
+                        Collections.singleton(InterchangeOntology.VideoJustificationChannelSound), system, confidence, utils.getUri("custom-uri-" + ++uriCount));
                 markJustification(person1, justification);
                 markJustification(personCollection, justification);
 
@@ -1488,7 +1492,7 @@ public class ExamplesAndValidationTest {
             
             // time-bounded video
             markJustification(toMark, makeVideoJustification(m36Model, "OTHER_VIDEO", 1.1, 1.5, 
-                InterchangeOntology.VideoJustificationChannelBoth, m36System, .93));
+                BOTH_CHANNELS, m36System, .93));
 
             // also we can link this entity to something in an external KB
             linkToExternalKB(m36Model, someEntityMention, "freebase:FOO", m36System, .398);

@@ -38,7 +38,6 @@ public final class InterchangeOntology {
     public static final Resource VideoJustificationChannel = ResourceFactory.createResource(NAMESPACE + "VideoJustificationChannel");
 
     // Individuals
-    public static final Resource VideoJustificationChannelBoth = ResourceFactory.createResource(NAMESPACE + "VideoJustificationChannelBoth");
     public static final Resource VideoJustificationChannelPicture = ResourceFactory.createResource(NAMESPACE + "VideoJustificationChannelPicture");
     public static final Resource VideoJustificationChannelSound = ResourceFactory.createResource(NAMESPACE + "VideoJustificationChannelSound");
 

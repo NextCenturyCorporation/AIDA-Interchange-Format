@@ -72,7 +72,7 @@
    rdfs:comment "The evidence in a video with start and end time for some KB assertion" .
 
 :VideoJustificationChannel a owl:Class ;
-  owl:oneOf (:VideoJustificationChannelBoth :VideoJustificationChannelPicture :VideoJustificationChannelSound) .
+  owl:oneOf (:VideoJustificationChannelPicture :VideoJustificationChannelSound) .
 
 :ImageJustification a owl:Class ;
    rdfs:subClassOf :Justification ;
@@ -511,7 +511,3 @@
 :VideoJustificationChannelPicture a owl:NamedIndividual, :VideoJustificationChannel ;
   rdfs:label "Picture Video Channel" ;
   rdfs:comment "Constant used to indicate the picture channel of a VideoJustification" .
-
-:VideoJustificationChannelBoth a owl:NamedIndividual, :VideoJustificationChannel ;
-  rdfs:label "Both Video Channels" ;
-  rdfs:comment "Constant used to indicate both (sound and picture) channels of a VideoJustification" .

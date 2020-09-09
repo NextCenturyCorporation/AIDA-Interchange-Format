@@ -576,7 +576,8 @@ class Examples(unittest.TestCase):
         audio_justification = aifutils.make_audio_justification(g, "NYT_ENG_201181231", 4.566, 9.876, system, 0.789)
         # and time-bound video
         video_justification = aifutils.make_video_justification(g, "OTHER_VIDEO", 1.0, 1.5,
-            interchange_ontology.VideoJustificationChannelBoth, system, 0.93)
+            [interchange_ontology.VideoJustificationChannelPicture, interchange_ontology.VideoJustificationChannelSound],
+            system, 0.93)
 
         # combine all justifications into single justifiedBy triple with new confidence
         aifutils.mark_compound_justification(g, [electee_argument],

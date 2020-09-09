@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='aida-interchange',
-      version='1.2.1',
+      version='1.2.2',
       author='Next Century Corporation',
       author_email='aif-support@nextcentury.com',
       description='AIDA Interchange Format',

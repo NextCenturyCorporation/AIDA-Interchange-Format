@@ -6,7 +6,7 @@
 
     <groupId>com.github.nextcenturycorporation</groupId>
     <artifactId>aida-interchange</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
 
     <name>AIDA-Interchange-Format</name>
     <description>Library containing resources to support the AIDA Interchange Format (AIF)</description>

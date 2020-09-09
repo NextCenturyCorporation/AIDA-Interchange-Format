@@ -34,7 +34,6 @@ VideoJustification = URIRef(NAMESPACE + 'VideoJustification')
 VideoJustificationChannel = URIRef(NAMESPACE + 'VideoJustificationChannel')
 
 # Individuals
-VideoJustificationChannelBoth = URIRef(NAMESPACE + 'VideoJustificationChannelBoth')
 VideoJustificationChannelPicture = URIRef(NAMESPACE + 'VideoJustificationChannelPicture')
 VideoJustificationChannelSound = URIRef(NAMESPACE + 'VideoJustificationChannelSound')
 
