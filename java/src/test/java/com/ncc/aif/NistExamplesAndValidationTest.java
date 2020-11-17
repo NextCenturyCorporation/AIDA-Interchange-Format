@@ -792,6 +792,7 @@ public class NistExamplesAndValidationTest {
             }
             
             @Test
+            @Disabled("NIST has stated that this is not a requirement")
             void invalidPrototypeMemberOfOther() {
                 // create sample entities
                 ImmutablePair<Resource, Resource> aPair = utils.makeValidNistEntity(

@@ -239,7 +239,8 @@ aida:PrototypeShape
     a sh:NodeShape ;
     sh:targetObjectsOf aida:prototype ;
     sh:property aida:PreventMultiClusterPrototypeShape ;
-    sh:sparql aida:PreventNonClusterPrototypeMemberShape .
+    # sh:sparql aida:PreventNonClusterPrototypeMemberShape 
+    .
 
 # Prototype can't be prototype of multiple clusters
 aida:PreventMultiClusterPrototypeShape
