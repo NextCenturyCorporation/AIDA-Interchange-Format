@@ -1437,6 +1437,14 @@ public class ExamplesAndValidationTest {
             entity.addProperty(InterchangeOntology.system, system);
             utils.testInvalid("Invalid: missing rdf type");
         }
+        
+        @Test
+        void confidenceIsNotObject() {
+            final Resource person = utils.makeValidAIFEntity(SeedlingOntology.Person);
+            person.addLiteral(InterchangeOntology.confidence, 0.5);
+            utils.expect(ShaclShapes.ConfidencePropertyShape, SH.ClassConstraintComponent, null);
+            utils.testInvalid("Invalid: confidence object is not aida:Confidence");
+        }
     }
 
     @Nested

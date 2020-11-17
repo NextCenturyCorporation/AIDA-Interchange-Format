@@ -1,13 +1,13 @@
 from setuptools import setup, find_packages
 
 setup(name='aida-interchange',
-      version='1.2.0.dev1',
-      author='Ryan Gabbard',
-      author_email='gabbard@isi.edu',
-      description='AIDA Interchange Format tools',
+      version='1.2.2.dev',
+      author='Next Century Corporation',
+      author_email='aif-support@nextcentury.com',
+      description='AIDA Interchange Format',
       long_description=open('README.md').read(),
       long_description_content_type='text/markdown',
-      url='https://github.com/NextCenturyCorporation/AIDA-Interchange-Format.git',
+      url='https://github.com/NextCenturyCorporation/AIDA-Interchange-Format',
       packages=find_packages(exclude=['tests']),
       python_requires='~=3.0',
       install_requires=[

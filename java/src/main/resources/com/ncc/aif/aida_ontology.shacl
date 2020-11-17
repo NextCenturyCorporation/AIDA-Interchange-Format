@@ -542,13 +542,14 @@ aida:ConfidenceShape
 aida:ConfidencePropertyShape
    a sh:PropertyShape ;
    sh:path aida:confidence ;
-   sh:nodeShape aida:ConfidenceShape .
+   sh:class aida:Confidence .
 
 # use this instead of aida:ConfidencePropertyShape when you wish to force confidences to be present
+# TODO: figure out some way to combine this with ConfidencePropertyShape
 aida:RequiredConfidencePropertyShape
    a sh:PropertyShape ;
    sh:path aida:confidence ;
-   sh:nodeShape aida:ConfidenceShape ;
+   sh:class aida:Confidence ;
    sh:minCount 1 .
 
 # Most things may be annotated with what system produced them

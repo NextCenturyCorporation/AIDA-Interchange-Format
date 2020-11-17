@@ -1,4 +1,0 @@
-rdflib
-sphinx>=2.0.1
-attrs>=17.4.0
-typing_extensions
