@@ -104,8 +104,12 @@ aida:EntityShape
     # may bear system-private data
     sh:property aida:PrivateDataPropertyShape ;
 
+    # may bear Semantic Attribute
+    sh:property aida:Attribute (aida:Generic) ;
+
     # no other properties are allowed
     sh:closed true ;
+
     # except rdf:type
     sh:ignoredProperties (rdf:type)
     .
@@ -165,6 +169,9 @@ aida:EventRelationShape
 
     # may have ldc time representation
     sh:property aida:LDCTimePropertyShape ;
+
+    # may bear Semantic Attribute
+    sh:property aida:Attribute ;
 
     # no other properties are allowed
     sh:closed true ;
@@ -226,6 +233,9 @@ aida:EventArgumentShape
 
   # may bear system-private data
   sh:property aida:PrivateDataPropertyShape ;
+
+  # may bear Semantic Attribute
+  sh:property aida:Attribute (aida:Negated aida:Hedged);
 
   # no other properties are allowed
   sh:closed true ;
@@ -290,6 +300,7 @@ aida:RelationArgumentShape
 
   # no other properties are allowed
   sh:closed true ;
+  
   # except rdf:type
   sh:ignoredProperties (rdf:type rdf:subject)
   .

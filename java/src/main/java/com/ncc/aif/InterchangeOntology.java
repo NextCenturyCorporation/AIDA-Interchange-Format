@@ -88,4 +88,10 @@ public final class InterchangeOntology {
     public static final Property textValue = ResourceFactory.createProperty(NAMESPACE + "textValue");
     public static final Property timeType = ResourceFactory.createProperty(NAMESPACE + "timeType");
     public static final Property year = ResourceFactory.createProperty(NAMESPACE + "year");
+    // Semantic Attributes
+    public static final Resource Attribute = ResourceFactory.createResource(NAMESPACE + "Attribute");
+    public static final Resource Negated = ResourceFactory.createResource(NAMESPACE + "Negated");
+    public static final Resource Hedged = ResourceFactory.createResource(NAMESPACE + "Hedged");
+    public static final Resource Irrealis = ResourceFactory.createResource(NAMESPACE + "Irrealis");
+    public static final Resource Generic = ResourceFactory.createResource(NAMESPACE + "Generic");
 }

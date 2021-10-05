@@ -737,3 +737,40 @@
 :SentimentNeutralUnknown a owl:NamedIndividual, :Sentiment ;
     rdfs:label "Sentiment Neutral-Unknown" ;
     rdfs:comment "Denotes that a claimer does not have sentiment about the inner claim or the sentiment is unknown" .
+
+#################################################################
+# Attributes
+#################################################################
+
+# Annotation Class
+:Attribute a owl:Class ;
+  owl:oneOf (:Negated :Hedged :Irrealis :Generic) .
+
+# Properties
+:Attribute rdf:type owl:ObjectProperty ;
+    rdfs:label "Attribute" ;
+    rdfs:comment "What sematic attribute the claimer has regarding the mention" ;
+    rdfs:domain [
+          rdf:type owl:Class ;
+          owl:unionOf (
+            :Entity
+            :Event
+            :Relation) ] ;
+    rdfs:subPropertyOf owl:topObjectProperty .
+
+#Constants
+:Negated a owl:NamedIndividual, :Attribute ;
+    rdfs:label "Negated" ;
+    rdfs:comment "The negation attribute identifies a part of a sentence as expressing negation. Can apply to whole event or relation mentions, or to an individual event argument within an event mention (cannot apply to an individual relation argument)" .
+
+:Hedged a owl:NamedIndividual, :Attribute ;
+    rdfs:label "Hedged" ;
+    rdfs:comment "The hedged attribute indicates the the sentence is expressing ambiguity, probability, caution, or indecisiveness. Can apply to whole event or relation mentions, or to an individual event argument within an event mention (cannot apply to an individual relation argument)" .
+
+:Irrealis a owl:NamedIndividual, :Attribute ;
+    rdfs:label "Irrealis" ;
+    rdfs:comment "The Irrealis attribute indicates that a certain situation or action is not known to have happened at the moment the speaker is talking. Can apply to whole event or relation mentions" .
+
+:Generic a owl:NamedIndividual, :Attribute ;
+    rdfs:label "Generic" ;
+    rdfs:comment "The generic attribute express unquantified/unqualified statements. Can apply to a whole event or relation mentions, or to an entity (applied to clusters of coreferential entity mentions, could be represented as a property of each mention in the cluster or the cluster as a whole)" .

@@ -85,4 +85,6 @@ public final class ShaclShapes {
     public static final Resource TextJustificationShape = ResourceFactory.createResource(NS + "TextJustificationShape");
     public static final Resource TextPropertyShape = ResourceFactory.createResource(NS + "TextPropertyShape");
     public static final Resource VideoJustificationShape = ResourceFactory.createResource(NS + "VideoJustificationShape");
+    //Semantic Argument
+    public static final Resource AttributeShape = ResourceFactory.createResource(NS + "AttributeShape");
 }
