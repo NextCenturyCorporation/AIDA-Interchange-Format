@@ -107,7 +107,7 @@
 
 :LinkAssertion a owl:Class ;
    rdfs:label "Link Assertion" ;
-   rdfs:comment "Represents the claim that an entity or event is the same as the prototype of a cluster".
+   rdfs:comment "Represents the claim that an entity or event is the same as the prototype of a cluster" .
 
 :CompoundJustification a owl:Class ;
     rdfs:label "Compound Justification" ;
@@ -142,7 +142,7 @@
 
 :ClaimComponent a owl:Class ;
     rdfs:label "Claim Component" ;
-    rdfs:comment "Entity involved in claim" ;
+    rdfs:comment "Entity involved in claim" .
 
 :EpistemicStatus a owl:Class ;
     owl:oneOf (:EpistemicTrueCertain :EpistemicTrueUncertain :EpistemicFalseCertain :EpistemicFalseUncertain :EpistemicUnknown) ;
@@ -538,7 +538,7 @@
     rdfs:label "topic" ;
     rdfs:comment: "Topic of claim" ;
     rdfs:domain :Claim ;
-    rdfs:range xsd:string
+    rdfs:range xsd:string ;
     rdfs:subPropertyOf owl:topDataProperty .
 
 :subtopic rdf:type owl:DatatypeProperty ;
@@ -573,9 +573,9 @@
     rdfs:label "claim semantics" ;
     rdfs:comment "Event/Relation KEs that describe inner claim" ;
     rdfs:domain :Claim ;
-    rdfs:range owl:unionOf (
+    rdfs:range [ owl:unionOf (
         :Event
-        :Relation ) ;
+        :Relation ) ] ;
     rdfs:subPropertyOf owl:topObjectProperty .
 
 :claimer rdf:type owl:ObjectProperty ;
@@ -624,10 +624,10 @@
     rdfs:label "associated KEs" ;
     rdfs:comment "Event/Relation/Entity KEs that support claim" ;
     rdfs:domain :Claim ;
-    rdfs:range owl:unionOf (
+    rdfs:range [ owl:unionOf (
         :Event
         :Relation
-        :Entity ) ;
+        :Entity ) ];
     rdfs:subPropertyOf owl:topObjectProperty .
 
 :identicalClaims rdf:type owl:ObjectProperty ;
@@ -744,18 +744,21 @@
 
 # Annotation Class
 :Attribute a owl:Class ;
-  owl:oneOf (:Negated :Hedged :Irrealis :Generic) .
+  owl:oneOf (:Negated :Hedged :Irrealis :Generic) ;
+  rdfs:label "Attribute" ;
+  rdfs:comment "Class of individuals to denote how a claimer interprets the semantic attribute of a mention" .
 
 # Properties
-:Attribute rdf:type owl:ObjectProperty ;
-    rdfs:label "Attribute" ;
-    rdfs:comment "What sematic attribute the claimer has regarding the mention" ;
+:attribute rdf:type owl:ObjectProperty ;
+    rdfs:label "attribute" ;
+    rdfs:comment "The sematic attribute the claimer has for the mention" ;
     rdfs:domain [
           rdf:type owl:Class ;
           owl:unionOf (
             :Entity
             :Event
             :Relation) ] ;
+    rdfs:range :Attribute ;            
     rdfs:subPropertyOf owl:topObjectProperty .
 
 #Constants

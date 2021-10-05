@@ -105,7 +105,11 @@ aida:EntityShape
     sh:property aida:PrivateDataPropertyShape ;
 
     # may bear Semantic Attribute
-    sh:property aida:Attribute (aida:Generic) ;
+    sh:property [
+        sh:path aida:Attribute ;
+        sh:xone ( [sh:property aida:Generic ] ) ;
+                sh:message "Entity mention can only be Generic"
+    ] ;
 
     # no other properties are allowed
     sh:closed true ;
@@ -235,7 +239,12 @@ aida:EventArgumentShape
   sh:property aida:PrivateDataPropertyShape ;
 
   # may bear Semantic Attribute
-  sh:property aida:Attribute (aida:Negated aida:Hedged);
+  sh:property [
+    sh:path aida:Attribute ;
+    sh:xone ( [sh:property aida:Negated ]
+              [sh:class aida:Hedged ] ) ;
+			sh:message "Event argument mention can only be Negated or Hedged"
+  ] ;
 
   # no other properties are allowed
   sh:closed true ;

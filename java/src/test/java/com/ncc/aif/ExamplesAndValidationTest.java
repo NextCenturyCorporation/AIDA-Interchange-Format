@@ -39,10 +39,10 @@ public class ExamplesAndValidationTest {
     // Modify these flags to control how tests output their models/reports and if so, how they output them
     // When DUMP_ALWAYS is false, the model is only dumped when the result is unexpected (and if invalid, the report is also dumped)
     // When DUMP_ALWAYS is true, the model is always dumped, and the report is always dumped if invalid
-    private static final boolean DUMP_ALWAYS = false;
+    private static final boolean DUMP_ALWAYS = true;
     // When DUMP_TO_FILE is false, if a model or report is dumped, it goes to stdout
     // WHen DUMP_TO_FILE is true, if a model or report is dumped, it goes to a file in target/test-dump-output
-    private static final boolean DUMP_TO_FILE = false;
+    private static final boolean DUMP_TO_FILE = true;
 
     private static final String LDC_NS = "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#";
     private static final String ONTOLOGY_NS = "https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/SeedlingOntology#";

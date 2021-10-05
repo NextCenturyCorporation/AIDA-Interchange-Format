@@ -5,7 +5,7 @@ import org.apache.jena.rdf.model.ResourceFactory;
 // WARNING. This is a Generated File. Please do not edit.
 // This class contains variables generated from SHACL files using the OntologyGeneration class
 // Please refer to the README at java/src/main/java/com/ncc/aif/ont2javagen for more information
-// Last generated on: 08/24/2020 13:51:34
+// Last generated on: 10/05/2021 17:54:30
 public final class ShaclShapes {
     public static final String NS = InterchangeOntology.NAMESPACE;
     public static final Resource AllKEsReferencedShape = ResourceFactory.createResource(NS + "AllKEsReferencedShape");
@@ -85,6 +85,4 @@ public final class ShaclShapes {
     public static final Resource TextJustificationShape = ResourceFactory.createResource(NS + "TextJustificationShape");
     public static final Resource TextPropertyShape = ResourceFactory.createResource(NS + "TextPropertyShape");
     public static final Resource VideoJustificationShape = ResourceFactory.createResource(NS + "VideoJustificationShape");
-    //Semantic Argument
-    public static final Resource AttributeShape = ResourceFactory.createResource(NS + "AttributeShape");
 }
