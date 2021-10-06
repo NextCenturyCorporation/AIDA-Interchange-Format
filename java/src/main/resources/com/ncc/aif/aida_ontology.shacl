@@ -106,8 +106,8 @@ aida:EntityShape
 
     # may bear Semantic Attribute
     sh:property [
-        sh:path aida:Attribute ;
-        sh:xone ( [sh:property aida:Generic ] ) ;
+        sh:path aida:attribute ;
+        sh:in ( aida:Generic ) ;
                 sh:message "Entity mention can only be Generic"
     ] ;
 
@@ -175,7 +175,11 @@ aida:EventRelationShape
     sh:property aida:LDCTimePropertyShape ;
 
     # may bear Semantic Attribute
-    sh:property aida:Attribute ;
+    sh:property [
+        sh:path aida:attribute ;
+        sh:in ( aida:Negated aida:Hedged aida:Irrealis aida:Generic ) ;
+                sh:message "Event argument mention can only be Negated, Hedged, Irrealis, Generic"
+    ] ;
 
     # no other properties are allowed
     sh:closed true ;
@@ -240,9 +244,8 @@ aida:EventArgumentShape
 
   # may bear Semantic Attribute
   sh:property [
-    sh:path aida:Attribute ;
-    sh:xone ( [sh:property aida:Negated ]
-              [sh:class aida:Hedged ] ) ;
+    sh:path aida:attribute ;
+    sh:in ( aida:Negated aida:Hedged  ) ;
 			sh:message "Event argument mention can only be Negated or Hedged"
   ] ;
 
@@ -1101,7 +1104,16 @@ aida:RdfStatementShape
             aida:EventArgumentSubclass
             aida:RelationArgumentSubclass ) ;
         sh:message "All rdf:Statements must be type declarations or have predicates from the domain relation or event argument types. This error is often caused by using a value outside the domain ontology"
-    ] .
+    ] ;
+    
+    # may bear Semantic Attribute
+    sh:property [
+        sh:path aida:attribute ;
+        sh:in ( aida:Negated aida:Hedged aida:Irrealis aida:Generic ) ;
+                sh:message "Event argument mention can only be Negated, Hedged, Irrealis, Generic"
+    ] ;
+    
+    .
 
 # Handle
 aida:HandlePropertyShape
