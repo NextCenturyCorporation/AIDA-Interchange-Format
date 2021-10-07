@@ -562,6 +562,13 @@
     rdfs:range :Attribute ;            
     rdfs:subPropertyOf owl:topObjectProperty .
 
+#:attributeValue rdf:type owl:DatatypeProperty ;
+#  rdfs:comment "Attribute instances might have named individuals associated with them" ;
+#  rdfs:domain :Attribute ;
+#  rdfs:label "Attrubute value" ;
+#  rdfs:range xsd:float ;
+#  rdfs:subPropertyOf owl:topDataProperty ; .
+
 #Constants
 :Negated a owl:NamedIndividual, :Attribute ;
     rdfs:label "Negated" ;

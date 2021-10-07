@@ -190,6 +190,9 @@ public class AIFUtils {
         return makeAIFResource(model, eventUri, InterchangeOntology.Event, system);
     }
 
+
+    //TODO: Phi - should I just combine these overrides?
+
     /**
      * Mark an entity as filling an argument role for an event or relation.
      * The argument assertion will be a blank node.
@@ -206,8 +209,30 @@ public class AIFUtils {
                                           Resource argumentFiller, Resource system,
                                           Double confidence) {
 
-        return markAsArgument(model, eventOrRelation, argumentType, argumentFiller, system, confidence, null);
+        return markAsArgument(model, eventOrRelation, argumentType, argumentFiller, system, confidence, null, null);
     }
+
+
+    /**
+     * Mark an entity as filling an argument role for an event or relation.
+     * The argument assertion will be a blank node.
+     *
+     * @param model           The underlying RDF model for the operation
+     * @param eventOrRelation The event or relation for which to mark the specified argument role
+     * @param argumentType    The type (predicate) of the argument
+     * @param argumentFiller  The filler (object) of the argument
+     * @param system          The system object for the system which created this argument
+     * @param confidence      If non-null, the confidence with which to mark the specified argument
+     * @param uri             A String URI for the argument assertion
+     * @return The created event or relation argument assertion
+     */
+    public static Resource markAsArgument(Model model, Resource eventOrRelation, Resource argumentType,
+                                          Resource argumentFiller, Resource system,
+                                          Double confidence, String uri) {
+
+        return markAsArgument(model, eventOrRelation, argumentType, argumentFiller, system, confidence, uri, null);
+    }
+
 
     /**
      * Mark an entity as filling an argument role for an event or relation.
@@ -220,11 +245,12 @@ public class AIFUtils {
      * @param system          The system object for the system which created this argument
      * @param confidence      If non-null, the confidence with which to mark the specified argument
      * @param uri             A String URI for the argument assertion
+     * @param attribute       Semantic Attribute for the argument assertion
      * @return The created event or relation argument assertion with uri
      */
     public static Resource markAsArgument(Model model, Resource eventOrRelation, Resource argumentType,
                                           Resource argumentFiller, Resource system,
-                                          Double confidence, String uri) {
+                                          Double confidence, String uri, Resource attribute) {
 
         final Resource argAssertion = makeAIFResource(model, uri, RDF.Statement, system);
 
@@ -234,6 +260,11 @@ public class AIFUtils {
         if (confidence != null) {
             markConfidence(model, argAssertion, confidence, system);
         }
+
+        if (attribute != null) {
+            markAttribute(model, argAssertion, attribute, system);
+        }
+        
         return argAssertion;
     }
 
@@ -1076,6 +1107,25 @@ public class AIFUtils {
         confidenceBlankNode.addProperty(InterchangeOntology.confidenceValue, model.createTypedLiteral(confidence));
         markSystem(confidenceBlankNode, system);
         toMarkOn.addProperty(InterchangeOntology.confidence, confidenceBlankNode);
+    }
+
+    /**
+     * Mark a confidence value on a resource.
+     *
+     * @param model      The underlying RDF model for the operation
+     * @param toMarkOn   The Resource to mark with the specified confidence
+     * @param attribute The semantic attribute with which to mark the resource
+     * @param system     The system object for the system which marked this confidence
+     */
+    public static void markAttribute(Model model, Resource toMarkOn, Resource attribute, Resource system) {
+        // Resource attributeNode = model.createResource();
+        // attributeNode.addProperty(RDF.type, InterchangeOntology.Attribute);
+        // attributeNode.addProperty(InterchangeOntology.attribute, attribute);
+        // markSystem(attributeNode, system);
+        // toMarkOn.addProperty(InterchangeOntology.attribute, attributeNode);
+
+        toMarkOn.addProperty(InterchangeOntology.attribute, attribute);
+
     }
 
     /**

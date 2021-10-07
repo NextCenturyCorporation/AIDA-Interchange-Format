@@ -91,6 +91,91 @@ public class ExamplesAndValidationTest {
         private final String mh17AttackDocumentEventUri = utils.getUri("V779961.00012");
         private final String mh17DocumentEntityUri = utils.getUri("E779961.00032");
 
+
+
+
+        /**
+         * Test Valid Attributes for Event Arguments
+         */
+        @Test
+        void createEventWithEventArgumentAddValidSemanticAttribute() {
+            // we make a resource for the event itself
+            // mark the event as a Personnel.Elect event; type is encoded separately so we can express
+            // uncertainty about type
+            final Resource event = makeEvent(model, putinElectedDocumentEventUri, system);
+            markType(model, utils.getAssertionUri(), event, SeedlingOntology.Personnel_Elect, system, 1.0);
+
+            // create the two entities involved in the event
+            final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
+            markType(model, utils.getAssertionUri(), putin, SeedlingOntology.Person, system, 1.0);
+
+            final Resource russia = makeEntity(model, russiaDocumentEntityUri, system);
+            markType(model, utils.getAssertionUri(), russia, SeedlingOntology.GeopoliticalEntity, system, 1.0);
+
+            // link those entities to the event and add semantic attribute
+            markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Elect,
+                    putin, system, 0.785, utils.getUri("eventArgument-1"), InterchangeOntology.Negated);
+            markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Place,
+                    russia, system, 0.589, utils.getUri("eventArgument-2"), InterchangeOntology.Hedged);
+
+            utils.testValid("Create Event Argument and add valid semantic attributes: Negated and Hedged");
+        }
+
+
+        @Test
+        void createEntityMentionAddValidSemanticAttribute() {
+                String bobUri = "http://www.test.edu/entites/Bob";
+                final Resource bob = model.createResource(bobUri);
+                final Resource california = makeEntity(model, "http://www.test.edu/entites/California", system);
+                markType(model, "http://www.test.org/assertions/California_type", california, SeedlingOntology.GeopoliticalEntity, system, 1.0);
+                final Resource boblLivesInCalifornia = makeRelation(model, "http://www.test.org/relations/Bob_lives_in_California", system);
+                markType(model, "http://www.test.edu/assertions/bob_california_relation_type", boblLivesInCalifornia, SeedlingOntology.Physical_Resident, system, 1.0);
+                
+                markAttribute(model, california,  InterchangeOntology.Generic, system);
+                utils.testValid("Create Entity and add a valid semantic attribute: Generic");
+        }        
+
+        @Test
+        void createEventAddValidSemanticAttribute() {
+            // we make a resource for the event itself
+            // mark the event as a Personnel.Elect event; type is encoded separately so we can express
+            // uncertainty about type
+            final Resource event = makeEvent(model, putinElectedDocumentEventUri, system);
+            markType(model, utils.getAssertionUri(), event, SeedlingOntology.Personnel_Elect, system, 1.0);
+
+            // create the two entities involved in the event
+            final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
+            markType(model, utils.getAssertionUri(), putin, SeedlingOntology.Person, system, 1.0);
+
+            final Resource russia = makeEntity(model, russiaDocumentEntityUri, system);
+            markType(model, utils.getAssertionUri(), russia, SeedlingOntology.GeopoliticalEntity, system, 1.0);
+
+            markAttribute(model, event, InterchangeOntology.Negated, system);
+            markAttribute(model, event, InterchangeOntology.Hedged, system);
+            markAttribute(model, event, InterchangeOntology.Irrealis, system);
+            markAttribute(model, event, InterchangeOntology.Generic, system);
+
+            utils.testValid("Create Event Mention and add valid semantic attributes: Negated, Hedged, Irrealis, Generic");
+        }
+
+
+        @Test
+        void createARelationAddValidSemanticAttribute() {
+
+            // whatever this place turns out to refer to, we're sure it's where they live
+            final Resource relation = makeRelation(model, putinResidesDocumentRelationUri, system);
+
+            markAttribute(model, relation, InterchangeOntology.Negated, system);
+            markAttribute(model, relation, InterchangeOntology.Hedged, system);
+            markAttribute(model, relation, InterchangeOntology.Irrealis, system);
+            markAttribute(model, relation, InterchangeOntology.Generic, system);
+
+            utils.testValid("Create Relation mention and add valid semantic attributes: Negated, Hedged, Irrealis, Generic");
+        }
+
+
+/////////////////////////////////////////////////////////
+
         @Test
         void createSeedlingEntityOfTypePersonWithAllJustificationTypesAndConfidence() {
             // it doesn't matter what URI we give entities, events, etc. so long as they are
@@ -1364,6 +1449,17 @@ public class ExamplesAndValidationTest {
      */
     @Nested
     class InvalidExamples {
+        private final String putinDocumentEntityUri = utils.getUri("E781167.00398");
+        private final String putinResidesDocumentRelationUri = utils.getUri("R779959.00000");
+        private final String putinElectedDocumentEventUri = utils.getUri("V779961.00010");
+        private final String russiaDocumentEntityUri = utils.getUri("E779954.00004");
+        private final String russiaOwnsBukDocumentRelationUri = utils.getUri("R779959.00004");
+        private final String ukraineDocumentEntityUri = utils.getUri("E779959.00021");
+        private final String ukraineOwnsBukDocumentRelationUri = utils.getUri("R779959.00002");
+        private final String bukDocumentEntityUri = utils.getUri("E779954.00005");
+        private final String bukKBEntityUri = utils.getUri("E0084");
+        private final String mh17AttackDocumentEventUri = utils.getUri("V779961.00012");
+        private final String mh17DocumentEntityUri = utils.getUri("E779961.00032");            
 
         @Test
         @Disabled("Types no longer required for mentions")
@@ -1445,6 +1541,45 @@ public class ExamplesAndValidationTest {
             utils.expect(ShaclShapes.ConfidencePropertyShape, SH.ClassConstraintComponent, null);
             utils.testInvalid("Invalid: confidence object is not aida:Confidence");
         }
+
+        @Test
+        void invalidAttributeEventArgument() {
+            // we make a resource for the event itself
+            // mark the event as a Personnel.Elect event; type is encoded separately so we can express
+            // uncertainty about type
+            final Resource event = makeEvent(model, putinElectedDocumentEventUri, system);
+            markType(model, utils.getAssertionUri(), event, SeedlingOntology.Personnel_Elect, system, 1.0);
+
+            // create the two entities involved in the event
+            final Resource putin = makeEntity(model, putinDocumentEntityUri, system);
+            markType(model, utils.getAssertionUri(), putin, SeedlingOntology.Person, system, 1.0);
+
+            final Resource russia = makeEntity(model, russiaDocumentEntityUri, system);
+            markType(model, utils.getAssertionUri(), russia, SeedlingOntology.GeopoliticalEntity, system, 1.0);
+
+            // link those entities to the event
+            markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Elect,
+                    putin, system, 0.785, utils.getUri("eventArgument-1"), InterchangeOntology.Irrealis);
+        //     markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Place,
+        //             russia, system, 0.589, utils.getUri("eventArgument-2"));
+
+            utils.expect(event, SH.Violation, null);
+            //utils.testInvalid("Invalid: For an Event argument, Attribute can only be Negated or Hedged");
+        }
+        // @Test
+        // void invalidAttributeEntity() {
+        //     final Resource person = utils.makeValidAIFEntity(SeedlingOntology.Person);
+        //     person.addLiteral(InterchangeOntology.confidence, 0.5);
+        //     utils.expect(ShaclShapes.ConfidencePropertyShape, SH.ClassConstraintComponent, null);
+        //     utils.testInvalid("Invalid: confidence object is not aida:Confidence");
+        // }
+        // @Test
+        // void invalidAttributeEventRelationMention() {
+        //     final Resource person = utils.makeValidAIFEntity(SeedlingOntology.Person);
+        //     person.addLiteral(InterchangeOntology.confidence, 0.5);
+        //     utils.expect(ShaclShapes.ConfidencePropertyShape, SH.ClassConstraintComponent, null);
+        //     utils.testInvalid("Invalid: confidence object is not aida:Confidence");
+        // }        
     }
 
     @Nested
