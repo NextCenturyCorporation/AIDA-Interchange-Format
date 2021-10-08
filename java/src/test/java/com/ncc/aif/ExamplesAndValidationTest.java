@@ -100,10 +100,10 @@ public class ExamplesAndValidationTest {
             final Resource event = makeEvent(model, putinElectedDocumentEventUri, system);
             markType(model, utils.getAssertionUri(), event, SeedlingOntology.Personnel_Elect, system, 1.0);
 
-            markAttribute(model, event, InterchangeOntology.Negated, system);
-            markAttribute(model, event, InterchangeOntology.Hedged, system);
-            markAttribute(model, event, InterchangeOntology.Irrealis, system);
-            markAttribute(model, event, InterchangeOntology.Generic, system);
+            markAttribute(event, InterchangeOntology.Negated);
+            markAttribute(event, InterchangeOntology.Hedged);
+            markAttribute(event, InterchangeOntology.Irrealis);
+            markAttribute(event, InterchangeOntology.Generic);
 
             utils.testValid("Create Event and add valid semantic attributes: Negated, Hedged, Irrealis, Generic");
         }
@@ -112,10 +112,10 @@ public class ExamplesAndValidationTest {
         void createARelationAddValidSemanticAttribute() {
             final Resource relation = makeRelation(model, putinResidesDocumentRelationUri, system);
 
-            markAttribute(model, relation, InterchangeOntology.Negated, system);
-            markAttribute(model, relation, InterchangeOntology.Hedged, system);
-            markAttribute(model, relation, InterchangeOntology.Irrealis, system);
-            markAttribute(model, relation, InterchangeOntology.Generic, system);
+            markAttribute(relation, InterchangeOntology.Negated);
+            markAttribute(relation, InterchangeOntology.Hedged);
+            markAttribute(relation, InterchangeOntology.Irrealis);
+            markAttribute(relation, InterchangeOntology.Generic);
 
             utils.testValid("Create Relation and add valid semantic attributes: Negated, Hedged, Irrealis, Generic");
         }
@@ -131,16 +131,11 @@ public class ExamplesAndValidationTest {
             final Resource russia = makeEntity(model, russiaDocumentEntityUri, system);
             markType(model, utils.getAssertionUri(), russia, SeedlingOntology.GeopoliticalEntity, system, 1.0);
 
-        //     markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Elect,
-        //             putin, system, 0.785, utils.getUri("eventArgument-1"), InterchangeOntology.Negated);
-        //     markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Place,
-        //             russia, system, 0.589, utils.getUri("eventArgument-2"), InterchangeOntology.Hedged);
-
             final Resource argument = markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Elect,
                     putin, system, 0.785, utils.getUri("eventArgument-1"));
 
-            markAttribute(model, argument, InterchangeOntology.Negated, system);
-            markAttribute(model, argument, InterchangeOntology.Hedged, system);
+            markAttribute(argument, InterchangeOntology.Negated);
+            markAttribute(argument, InterchangeOntology.Hedged);
 
             utils.testValid("Create Event Argument and add valid semantic attributes: Negated and Hedged");
         }
@@ -148,7 +143,7 @@ public class ExamplesAndValidationTest {
         @Test
         void createEntityMentionAddValidSemanticAttribute() {
                 final Resource testGeoLocationEntity = makeEntity(model, "https://www.nextcentury.com/entites/test/testLocation", system);
-                markAttribute(model, testGeoLocationEntity,  InterchangeOntology.Generic, system);
+                markAttribute(testGeoLocationEntity,  InterchangeOntology.Generic);
                 utils.testValid("Create Entity and add a valid semantic attribute: aida:Generic");
         }        
 
@@ -158,10 +153,10 @@ public class ExamplesAndValidationTest {
                 String assertString = utils.getAssertionUri();
                 final Resource typeAssertion = markType(model, assertString, event, SeedlingOntology.Personnel_Elect, system, 1.0);
 
-                markAttribute(model, typeAssertion,  InterchangeOntology.Hedged, system);
-                markAttribute(model, typeAssertion,  InterchangeOntology.Negated, system);
-                markAttribute(model, typeAssertion,  InterchangeOntology.Irrealis, system);
-                markAttribute(model, typeAssertion,  InterchangeOntology.Generic, system);
+                markAttribute(typeAssertion,  InterchangeOntology.Hedged);
+                markAttribute(typeAssertion,  InterchangeOntology.Negated);
+                markAttribute(typeAssertion,  InterchangeOntology.Irrealis);
+                markAttribute(typeAssertion,  InterchangeOntology.Generic);
 
                 utils.testValid("Create rdf:Statement and add valid semantic attributes: aida:Hedged, aida:Negated, aida:Irrealis, aida:Generic");
         }        
@@ -1548,7 +1543,7 @@ public class ExamplesAndValidationTest {
             final Resource argument = markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Elect,
                 putin, system, 0.785, utils.getUri("eventArgument-1"));
 
-            markAttribute(model, argument, InterchangeOntology.VideoJustificationChannelBoth, system);
+            markAttribute(argument, InterchangeOntology.VideoJustificationChannelBoth);
     
             utils.expect(null, SH.InConstraintComponent, null, 2);
             utils.testInvalid("Invalid Semantic Attribute for Event mention - aida:attribute must be : aida:Negated and/or aida:Hedged");
@@ -1558,7 +1553,7 @@ public class ExamplesAndValidationTest {
         @Test
         void invalidAttributeForEventMention() {
             final Resource event = makeEvent(model, putinElectedDocumentEventUri, system);
-            markAttribute(model, event, InterchangeOntology.VideoJustificationChannelPicture, system);
+            markAttribute(event, InterchangeOntology.VideoJustificationChannelPicture);
 
             utils.expect(null, SH.InConstraintComponent, null);
             utils.testInvalid("Invalid Semantic Attribute for Event mention - aida:attribute must be : aida:Negated, aida:Hedged, aida:Irrealis, or aida:Generic");
@@ -1568,7 +1563,7 @@ public class ExamplesAndValidationTest {
         @Test
         void invalidAttributeForRelationMention() {
             final Resource relation = makeRelation(model, putinResidesDocumentRelationUri, system);
-            markAttribute(model, relation, InterchangeOntology.VideoJustificationChannelPicture, system);
+            markAttribute(relation, InterchangeOntology.VideoJustificationChannelPicture);
 
             utils.expect(null, SH.InConstraintComponent, null);
             utils.testInvalid("Invalid Semantic Attribute for Relation mention - aida:attribute must be : aida:Negated, aida:Hedged, aida:Irrealis, or aida:Generic");
@@ -1589,7 +1584,7 @@ public class ExamplesAndValidationTest {
             final Resource argument = markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Elect,
                 putin, system, 0.785, utils.getUri("eventArgument-1"));
 
-            markAttribute(model, argument, InterchangeOntology.Irrealis, system);
+            markAttribute(argument, InterchangeOntology.Irrealis);
 
             utils.expect(null, SH.InConstraintComponent, null);
             utils.testInvalid("Invalid Semantic Attribute for an Event argument, Attribute can only be aida:Negated or aida:Hedged");
@@ -1609,7 +1604,7 @@ public class ExamplesAndValidationTest {
             final Resource argument = markAsArgument(model, event, SeedlingOntology.Personnel_Elect_Elect,
                 putin, system, 0.785, utils.getUri("eventArgument-1"));
 
-            markAttribute(model, argument, InterchangeOntology.Generic, system);
+            markAttribute(argument, InterchangeOntology.Generic);
 
             utils.expect(null, SH.InConstraintComponent, null);
             utils.testInvalid("Invalid Semantic Attribute for an Event argument: aida:Generic ;  aida:attribute can only be aida:Negated and/or aida:Hedged");
@@ -1620,7 +1615,7 @@ public class ExamplesAndValidationTest {
         void invalidAttributeForEntityNegated() {
                 final Resource testGeopoliticalEntity = makeEntity(model, "https://www.nextcentury.com/entites/test/testLocation", system);
                 markType(model, "https://www.nextcentury.com/assertions/Location_type", testGeopoliticalEntity, SeedlingOntology.GeopoliticalEntity, system, 1.0);
-                markAttribute(model, testGeopoliticalEntity,  InterchangeOntology.Negated, system);
+                markAttribute(testGeopoliticalEntity,  InterchangeOntology.Negated);
         
                 utils.expect(null, SH.InConstraintComponent, null);
                 utils.testInvalid("Invalid Semantic Attribute for Entity: aida:Negated; can only be aida:Generic");
@@ -1630,7 +1625,7 @@ public class ExamplesAndValidationTest {
         void invalidAttributeForEntityHedged() {
                 final Resource testGeopoliticalEntity = makeEntity(model, "https://www.nextcentury.com/entites/test/testLocation", system);
                 markType(model, "https://www.nextcentury.com/assertions/Location_type", testGeopoliticalEntity, SeedlingOntology.GeopoliticalEntity, system, 1.0);
-                markAttribute(model, testGeopoliticalEntity,  InterchangeOntology.Hedged, system);
+                markAttribute(testGeopoliticalEntity,  InterchangeOntology.Hedged);
         
                 utils.expect(null, SH.InConstraintComponent, null);
                 utils.testInvalid("Invalid Semantic Attribute for Entity: aida:Hedged; can only be aida:Generic");
@@ -1640,7 +1635,7 @@ public class ExamplesAndValidationTest {
         void invalidAttributeForEntityIrrealis() {
                 final Resource testGeopoliticalEntity = makeEntity(model, "https://www.nextcentury.com/entites/test/testLocation", system);
                 markType(model, "https://www.nextcentury.com/assertions/Location_type", testGeopoliticalEntity, SeedlingOntology.GeopoliticalEntity, system, 1.0);
-                markAttribute(model, testGeopoliticalEntity,  InterchangeOntology.Irrealis, system);
+                markAttribute(testGeopoliticalEntity,  InterchangeOntology.Irrealis);
         
                 utils.expect(null, SH.InConstraintComponent, null);
                 utils.testInvalid("Invalid Semantic Attribute for Entity: aida:Irrealis; can only be aida:Generic");

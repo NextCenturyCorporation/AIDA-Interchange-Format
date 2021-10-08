@@ -1080,22 +1080,13 @@ public class AIFUtils {
     }
 
     /**
-     * Mark a confidence value on a resource.
+     * Mark a semantic attribute value on a resource.
      *
-     * @param model      The underlying RDF model for the operation
      * @param toMarkOn   The Resource to mark with the specified confidence
      * @param attribute The semantic attribute with which to mark the resource
-     * @param system     The system object for the system which marked this confidence
      */
-    public static void markAttribute(Model model, Resource toMarkOn, Resource attribute, Resource system) {
-        // Resource attributeNode = model.createResource();
-        // attributeNode.addProperty(RDF.type, InterchangeOntology.Attribute);
-        // attributeNode.addProperty(InterchangeOntology.attribute, attribute);
-        // markSystem(attributeNode, system);
-        // toMarkOn.addProperty(InterchangeOntology.attribute, attributeNode);
-
+    public static void markAttribute(Resource toMarkOn, Resource attribute) {
         toMarkOn.addProperty(InterchangeOntology.attribute, attribute);
-
     }
 
     /**
