@@ -5,7 +5,7 @@ import org.apache.jena.rdf.model.ResourceFactory;
 // WARNING. This is a Generated File. Please do not edit.
 // This class contains variables generated from ontologies using the OntologyGeneration class
 // Please refer to the README at java/src/main/java/com/ncc/aif/ont2javagen for more information
-// Last generated on: 10/07/2021 12:45:02
+// Last generated on: 10/08/2021 15:33:21
 public final class EventsWithFringe {
     public static final String NAMESPACE = "https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/EventsWithFringe#";
     // Classes

@@ -108,7 +108,7 @@ aida:EntityShape
     sh:property [
         sh:path aida:attribute ;
         sh:in ( aida:Generic ) ;
-                sh:message "Entity mention can only be Generic"
+                sh:message "Semantic Attribute for Entity can only be aida:Generic"
     ] ;
 
     # no other properties are allowed
@@ -178,7 +178,7 @@ aida:EventRelationShape
     sh:property [
         sh:path aida:attribute ;
         sh:in ( aida:Negated aida:Hedged aida:Irrealis aida:Generic ) ;
-                sh:message "Event argument mention can only be Negated, Hedged, Irrealis, Generic"
+                sh:message "Semantic Attribute for Event Relation can only be aida:Negated, aida:Hedged, aida:Irrealis, aida:Generic"
     ] ;
 
     # no other properties are allowed
@@ -246,7 +246,7 @@ aida:EventArgumentShape
   sh:property [
     sh:path aida:attribute ;
     sh:in ( aida:Negated aida:Hedged  ) ;
-			sh:message "Event argument mention can only be Negated or Hedged"
+			sh:message "Semantic Attribute for Event argument can only be aida:Negated or aida:Hedged"
   ] ;
 
   # no other properties are allowed
@@ -442,6 +442,13 @@ aida:SharedTypeShape
 
     # may provide a confidence
     sh:property aida:ConfidencePropertyShape ;
+
+    # may bear Semantic Attribute
+    sh:property [
+        sh:path aida:attribute ;
+        sh:in ( aida:Negated aida:Hedged aida:Irrealis aida:Generic ) ;
+                sh:message "Semantic Attribute for Statement can only be aida:Negated, aida:Hedged, aida:Irrealis, aida:Generic"
+    ] ;
 
     # may provide an one or more source systems
     sh:property aida:SystemPropertyShape ;
@@ -1110,7 +1117,7 @@ aida:RdfStatementShape
     sh:property [
         sh:path aida:attribute ;
         sh:in ( aida:Negated aida:Hedged aida:Irrealis aida:Generic ) ;
-                sh:message "Event argument mention can only be Negated, Hedged, Irrealis, Generic"
+                sh:message "Semantic Attribute for Statement can only be aida:Negated, aida:Hedged, aida:Irrealis, aida:Generic"
     ] ;
     
     .

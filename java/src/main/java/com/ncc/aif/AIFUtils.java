@@ -190,9 +190,6 @@ public class AIFUtils {
         return makeAIFResource(model, eventUri, InterchangeOntology.Event, system);
     }
 
-
-    //TODO: Phi - should I just combine these overrides?
-
     /**
      * Mark an entity as filling an argument role for an event or relation.
      * The argument assertion will be a blank node.
@@ -209,30 +206,8 @@ public class AIFUtils {
                                           Resource argumentFiller, Resource system,
                                           Double confidence) {
 
-        return markAsArgument(model, eventOrRelation, argumentType, argumentFiller, system, confidence, null, null);
+        return markAsArgument(model, eventOrRelation, argumentType, argumentFiller, system, confidence, null);
     }
-
-
-    /**
-     * Mark an entity as filling an argument role for an event or relation.
-     * The argument assertion will be a blank node.
-     *
-     * @param model           The underlying RDF model for the operation
-     * @param eventOrRelation The event or relation for which to mark the specified argument role
-     * @param argumentType    The type (predicate) of the argument
-     * @param argumentFiller  The filler (object) of the argument
-     * @param system          The system object for the system which created this argument
-     * @param confidence      If non-null, the confidence with which to mark the specified argument
-     * @param uri             A String URI for the argument assertion
-     * @return The created event or relation argument assertion
-     */
-    public static Resource markAsArgument(Model model, Resource eventOrRelation, Resource argumentType,
-                                          Resource argumentFiller, Resource system,
-                                          Double confidence, String uri) {
-
-        return markAsArgument(model, eventOrRelation, argumentType, argumentFiller, system, confidence, uri, null);
-    }
-
 
     /**
      * Mark an entity as filling an argument role for an event or relation.
@@ -245,12 +220,11 @@ public class AIFUtils {
      * @param system          The system object for the system which created this argument
      * @param confidence      If non-null, the confidence with which to mark the specified argument
      * @param uri             A String URI for the argument assertion
-     * @param attribute       Semantic Attribute for the argument assertion
      * @return The created event or relation argument assertion with uri
      */
     public static Resource markAsArgument(Model model, Resource eventOrRelation, Resource argumentType,
                                           Resource argumentFiller, Resource system,
-                                          Double confidence, String uri, Resource attribute) {
+                                          Double confidence, String uri) {
 
         final Resource argAssertion = makeAIFResource(model, uri, RDF.Statement, system);
 
@@ -260,15 +234,11 @@ public class AIFUtils {
         if (confidence != null) {
             markConfidence(model, argAssertion, confidence, system);
         }
-
-        if (attribute != null) {
-            markAttribute(model, argAssertion, attribute, system);
-        }
         
         return argAssertion;
     }
 
-    /**
+     /**
      * Mark an entity, event, or relation as having a specified type.
      * <p>
      * This is marked with a separate assertion so that uncertainty about type can be expressed.
