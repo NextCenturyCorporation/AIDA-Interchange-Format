@@ -7,7 +7,7 @@ setup(name='aida-interchange',
       description='AIDA Interchange Format',
       long_description=open('README.md').read(),
       long_description_content_type='text/markdown',
-      url='https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/tree/AIDA-1932',
+      url='https://github.com/NextCenturyCorporation/AIDA-Interchange-Format',
       packages=find_packages(exclude=['tests']),
       python_requires='~=3.0',
       install_requires=[
