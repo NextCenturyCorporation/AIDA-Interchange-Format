@@ -263,6 +263,17 @@ def make_relation(g, relation_uri, system):
     """
     return _make_aif_resource(g, relation_uri, interchange_ontology.Relation, system)
 
+def mark_attribute(g, to_mark_on, attribute):
+    """
+    Add Semantic Attrobute to Event. TEST 
+
+    :param rdflib.graph.Graph g: The underlying RDF model
+    :param to_mark_on: The resource to mark with the specified confidence
+    :param attribute: Attribute resource from interchange_ontology (Negated, Hedged, Irrealis, Generic)
+
+    """
+    g.add((to_mark_on, interchange_ontology.attribute, attribute))
+
 
 def make_relation_in_event_form(g, relation_uri, relation_type, subject_role, subject_resource, object_role,
                                 object_resource, type_assertion_uri, system, confidence):
