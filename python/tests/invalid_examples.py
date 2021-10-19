@@ -120,7 +120,6 @@ class InvalidExamples(unittest.TestCase):
 
         aifutils.mark_attribute(g, relation, interchange_ontology.VideoJustificationChannelPicture)
 
-
         self.new_file(g, "test_create_a_relation_add_invalid_attribute.ttl")
         self.dump_graph(g, "Invalid: Semantic Attribute for Relation, must be aida:Negated, aida:Hedged, aida:Irrealis, aida:Generic")
 
@@ -178,6 +177,29 @@ class InvalidExamples(unittest.TestCase):
 
         self.new_file(g, "test_create_an_entity_with_add_invalid_attribute.ttl")
         self.dump_graph(g, "Invalid: Semantic Attribute for Entity can only be must be aida:Generic")
+
+    def test_create_a_relation_argument_add_attribute(self):
+        #g = get_initialized_graph()
+        g = aifutils.make_graph()
+
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
+
+        bob = aifutils.make_entity(g, "http://www.test.edu/entites/person/Bob", system)
+        maryland = aifutils.make_entity(g, "http://www.test.edu/entites/place/Maryland", system)
+
+        aifutils.mark_type(g, "http://www.test.edu/assertions/bobIsAPerson", bob, ldc_ontology.PER, system, 1.0)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/marylandIsALocation", maryland, ldc_ontology.LOC_Position_Region, system, 1.0)
+
+        # we make a resource for the event itself
+        relationBobLiveInMD = aifutils.make_relation(g, "http://www.test.edu/relationss/bobLivesInMaryland", system)
+
+        argument1 = aifutils.mark_as_argument(g, relationBobLiveInMD, ldc_ontology.Physical_Resident_Resident, bob, system, 1)
+
+        aifutils.mark_attribute(g, argument1, interchange_ontology.Generic)
+
+        self.new_file(g, "test_create_a_relation_argument_add_attribute.ttl")
+        self.dump_graph(g, "Invalid: Relation Argument cannot have aida:Attribute")     
 
     def dump_graph(self, g, description):
         print("\n\n======================================\n"
