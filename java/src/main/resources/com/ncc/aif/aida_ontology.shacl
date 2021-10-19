@@ -1116,8 +1116,6 @@ aida:RdfStatementShape
     # may bear Semantic Attribute
     sh:property [
         sh:path aida:attribute ;
-        sh:in ( aida:Negated aida:Hedged aida:Irrealis aida:Generic ) ;
-                sh:message "Semantic Attribute for Statement can only be aida:Negated, aida:Hedged, aida:Irrealis, aida:Generic"
     ] ;
     
     .
