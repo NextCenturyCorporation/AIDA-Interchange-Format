@@ -104,8 +104,16 @@ aida:EntityShape
     # may bear system-private data
     sh:property aida:PrivateDataPropertyShape ;
 
+    # may bear Semantic Attribute
+    sh:property [
+        sh:path aida:attribute ;
+        sh:in ( aida:Generic ) ;
+                sh:message "Semantic Attribute for Entity can only be aida:Generic"
+    ] ;
+
     # no other properties are allowed
     sh:closed true ;
+
     # except rdf:type
     sh:ignoredProperties (rdf:type)
     .
@@ -165,6 +173,13 @@ aida:EventRelationShape
 
     # may have ldc time representation
     sh:property aida:LDCTimePropertyShape ;
+
+    # may bear Semantic Attribute
+    sh:property [
+        sh:path aida:attribute ;
+        sh:in ( aida:Negated aida:Hedged aida:Irrealis aida:Generic ) ;
+                sh:message "Semantic Attribute for Event Relation can only be aida:Negated, aida:Hedged, aida:Irrealis, aida:Generic"
+    ] ;
 
     # no other properties are allowed
     sh:closed true ;
@@ -226,6 +241,13 @@ aida:EventArgumentShape
 
   # may bear system-private data
   sh:property aida:PrivateDataPropertyShape ;
+
+  # may bear Semantic Attribute
+  sh:property [
+    sh:path aida:attribute ;
+    sh:in ( aida:Negated aida:Hedged  ) ;
+			sh:message "Semantic Attribute for Event argument can only be aida:Negated or aida:Hedged"
+  ] ;
 
   # no other properties are allowed
   sh:closed true ;
@@ -290,6 +312,7 @@ aida:RelationArgumentShape
 
   # no other properties are allowed
   sh:closed true ;
+  
   # except rdf:type
   sh:ignoredProperties (rdf:type rdf:subject)
   .
@@ -1081,7 +1104,14 @@ aida:RdfStatementShape
             aida:EventArgumentSubclass
             aida:RelationArgumentSubclass ) ;
         sh:message "All rdf:Statements must be type declarations or have predicates from the domain relation or event argument types. This error is often caused by using a value outside the domain ontology"
-    ] .
+    ] ;
+    
+    # may bear Semantic Attribute
+    sh:property [
+        sh:path aida:attribute ;
+    ] ;
+    
+    .
 
 # Handle
 aida:HandlePropertyShape

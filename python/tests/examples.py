@@ -21,7 +21,7 @@ def get_initialized_graph():
 
 # Running these tests will output the examples to the console
 class Examples(unittest.TestCase):
-    test_dir_path = None
+    test_dir_path = "./output"
 
     def new_file(self, g, test_name):
         if self.test_dir_path:
@@ -849,6 +849,96 @@ class Examples(unittest.TestCase):
 
         self.new_file(g, "test_create_an_event_with_ldc_time_range.ttl")
         self.dump_graph(g, "create an event with LDCTime range")
+
+
+    def test_create_an_event_add_attribute(self):
+        g = get_initialized_graph()
+
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
+
+        # we make a resource for the event itself
+        event = aifutils.make_event(g, "http://www.test.edu/events/1", system)
+
+        aifutils.mark_attribute(g, event, interchange_ontology.Negated)
+        aifutils.mark_attribute(g, event, interchange_ontology.Hedged)
+        aifutils.mark_attribute(g, event, interchange_ontology.Irrealis)
+        aifutils.mark_attribute(g, event, interchange_ontology.Generic)
+
+
+        self.new_file(g, "test_create_an_event_add_Attribute.ttl")
+        self.dump_graph(g, "Example of creating an event and adding valid semantic attributes")
+
+
+    def test_create_a_relation_add_attribute(self):
+        g = get_initialized_graph()
+
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
+
+        # we make a resource for the event itself
+        relation = aifutils.make_relation(g, "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#R779959.00004", system)
+
+        aifutils.mark_attribute(g, relation, interchange_ontology.Negated)
+        aifutils.mark_attribute(g, relation, interchange_ontology.Hedged)
+        aifutils.mark_attribute(g, relation, interchange_ontology.Irrealis)
+        aifutils.mark_attribute(g, relation, interchange_ontology.Generic)
+
+
+        self.new_file(g, "test_create_a_relation_add_attribute.ttl")
+        self.dump_graph(g, "Example of creating a relation and adding valid semantic attributes")
+
+    def test_create_an_event_argument_add_attribute(self):
+        g = get_initialized_graph()
+
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
+
+        # we make a resource for the event itself
+        event = aifutils.make_event(g, "http://www.test.edu/events/1", system)
+
+        # mark the event as a Personnel.Elect event; type is encoded separately so we can express
+        # uncertainty about type
+        aifutils.mark_type(g, "http://www.test.edu/assertions/5", event,
+                           ldc_ontology.Personnel_Elect, system, 1.0)
+
+        # create the two entities involved in the event
+        electee = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/6", electee, ldc_ontology.PER, system, 1.0)
+
+        election_country = aifutils.make_entity(g, "http://www.test.edu/entities/2", system)
+        aifutils.mark_type(g, "http://www.test.edu/assertions/7", election_country,
+                           ldc_ontology.GPE, system, 1.0)
+
+        # link those entities to the event
+        argument1 = aifutils.mark_as_argument(g, event, ldc_ontology.Personnel_Elect_Candidate, electee, system, 0.785)
+        argument2 = aifutils.mark_as_argument(g, event, ldc_ontology.Personnel_Elect_Place, election_country, system, 0.589)
+
+        aifutils.mark_attribute(g, argument1, interchange_ontology.Negated)
+        aifutils.mark_attribute(g, argument1, interchange_ontology.Hedged)
+
+        aifutils.mark_attribute(g, argument2, interchange_ontology.Negated)
+        aifutils.mark_attribute(g, argument2, interchange_ontology.Hedged)
+
+
+        self.new_file(g, "test_create_a_relation_add_attribute.ttl")
+        self.dump_graph(g, "Example of creating an event argument and addeding valid semantic attributes")
+
+    def test_create_an_entity_with_add_attribute(self):
+        g = get_initialized_graph()
+
+        # every AIF needs an object for the system responsible for creating it
+        system = aifutils.make_system_with_uri(g, "http://www.test.edu/testSystem")
+
+        # it doesn't matter what URI we give entities, events, etc. so long as they are
+        # unique
+        entity = aifutils.make_entity(g, "http://www.test.edu/entities/1", system)
+
+
+        aifutils.mark_attribute(g, entity, interchange_ontology.Generic)
+
+        self.new_file(g, "test_create_an_entity_with_add_attribute.ttl")
+        self.dump_graph(g, "Example of creating an entity and adding valid semantic attributes")
 
     def dump_graph(self, g, description):
         print("\n\n======================================\n"

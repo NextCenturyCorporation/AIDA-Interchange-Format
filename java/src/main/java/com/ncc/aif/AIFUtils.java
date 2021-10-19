@@ -234,10 +234,11 @@ public class AIFUtils {
         if (confidence != null) {
             markConfidence(model, argAssertion, confidence, system);
         }
+        
         return argAssertion;
     }
 
-    /**
+     /**
      * Mark an entity, event, or relation as having a specified type.
      * <p>
      * This is marked with a separate assertion so that uncertainty about type can be expressed.
@@ -1076,6 +1077,16 @@ public class AIFUtils {
         confidenceBlankNode.addProperty(InterchangeOntology.confidenceValue, model.createTypedLiteral(confidence));
         markSystem(confidenceBlankNode, system);
         toMarkOn.addProperty(InterchangeOntology.confidence, confidenceBlankNode);
+    }
+
+    /**
+     * Mark a semantic attribute value on a resource.
+     *
+     * @param toMarkOn   The Resource to mark with the specified confidence
+     * @param attribute The semantic attribute with which to mark the resource
+     */
+    public static void markAttribute(Resource toMarkOn, Resource attribute) {
+        toMarkOn.addProperty(InterchangeOntology.attribute, attribute);
     }
 
     /**
