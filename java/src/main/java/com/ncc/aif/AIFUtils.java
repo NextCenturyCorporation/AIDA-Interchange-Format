@@ -1,22 +1,37 @@
 package com.ncc.aif;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.query.*;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.QuerySolutionMap;
+import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.NodeIterator;
 import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.XSD;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
 
 /**
  * A convenient interface for creating simple AIF graphs.
@@ -234,7 +249,7 @@ public class AIFUtils {
         if (confidence != null) {
             markConfidence(model, argAssertion, confidence, system);
         }
-        
+
         return argAssertion;
     }
 
@@ -1024,7 +1039,7 @@ public class AIFUtils {
 
         return justification;
     }
-    
+
     /**
      * Make an video justification.
      *
@@ -1154,7 +1169,7 @@ public class AIFUtils {
 
     /**
      * Add {@code handle} to resource.
-     * 
+     *
      * @param toMark an resource to add handle to
      * @param handle a simple string description/reference of real-world object
      * @return
@@ -1224,7 +1239,7 @@ public class AIFUtils {
                                                     Resource system) {
         final Resource cluster = makeAIFResource(model, clusterUri, InterchangeOntology.SameAsCluster, system);
         cluster.addProperty(InterchangeOntology.prototype, prototype);
-        
+
         if (isMember) {
             markAsPossibleClusterMember(model, prototype, cluster, 1.0, system);
         }
@@ -1623,7 +1638,7 @@ public class AIFUtils {
         toMark.addProperty(InterchangeOntology.ldcTime, ldcTime);
         return ldcTime;
     }
-    
+
     /**
      * Add LDC start and end time ranges representation to an Event or Relation
      *
@@ -1640,19 +1655,73 @@ public class AIFUtils {
                                             String startEarliest, String startLatest,
                                             String endEarliest, String endLatest,
                                             Resource system) {
-        return markLDCTimeRange(model, toMark, 
-            LDCTimeComponent.createTime("AFTER", startEarliest), 
-            LDCTimeComponent.createTime("BEFORE", startLatest), 
-            LDCTimeComponent.createTime("AFTER", endEarliest), 
+        return markLDCTimeRange(model, toMark,
+            LDCTimeComponent.createTime("AFTER", startEarliest),
+            LDCTimeComponent.createTime("BEFORE", startLatest),
+            LDCTimeComponent.createTime("AFTER", endEarliest),
             LDCTimeComponent.createTime("BEFORE", endLatest), system);
     }
 
+    /**
+     * Add LDC start and end time ranges representation to model
+     *
+     * @param model  The underlying RDF model for the operation
+     * @param startEarliest  {@link String} containing the earliest start time in the range
+     * @param startLatest    {@link String} containing the latest start time in the range
+     * @param endEarliest    {@link String} containing the earliest end time in the range
+     * @param endLatest      {@link String} containing the latest end time in the range
+     * @param system The system object for the system which marks the time
+     * @return
+     */
+    public static Resource makeLDCTimeRange(Model model,
+                                            String startEarliest, String startLatest,
+                                            String endEarliest, String endLatest,
+                                            Resource system) {
+        final Resource ldcTime = makeAIFResource(model, null, InterchangeOntology.LDCTime, system);
+        ldcTime.addProperty(InterchangeOntology.end,
+            LDCTimeComponent.createTime("BEFORE", endLatest).makeAIFTimeComponent(model));
+        ldcTime.addProperty(InterchangeOntology.end,
+            LDCTimeComponent.createTime("AFTER", endEarliest).makeAIFTimeComponent(model));
+        ldcTime.addProperty(InterchangeOntology.start,
+            LDCTimeComponent.createTime("BEFORE", startLatest).makeAIFTimeComponent(model));
+        ldcTime.addProperty(InterchangeOntology.start,
+            LDCTimeComponent.createTime("AFTER", startEarliest).makeAIFTimeComponent(model));
+        return ldcTime;
+    }
+
     // Helper function to create an event, relation, justification, etc. in the system.
-    private static Resource makeAIFResource(@Nonnull Model model, @Nullable String uri, @Nonnull Resource classType, @Nullable Resource system) {
-        Resource resource = (uri == null ? model.createResource() : model.createResource(uri));
-        resource.addProperty(RDF.type, classType);
+    static Resource makeAIFResource(@Nonnull Model model, @Nullable String uri, @Nonnull Resource classType, @Nullable Resource system) {
+        // Model automatically creates blank node if uri is null
+        Resource resource = model.createResource(uri).addProperty(RDF.type, classType);
         if (system != null) {
             markSystem(resource, system);
+        }
+        return resource;
+    }
+
+    /**
+     * Add items from {@code collection} to {@code property} of {@code resource}
+     *
+     * @param <T>        expected to extend {@link RDFNode} or {@link Object}
+     * @param resource   {@link Resource} to add property to
+     * @param property   {@link Property} to add to {@code resource}
+     * @param collection {@link Collection} of objects to add to {@code resource}
+     * @return provided {@code resource} for chaining
+     */
+    static <T> Resource addProperties(Resource resource, Property property, Collection<T> collection) {
+        if (collection != null) {
+            collection.stream().forEach(toAdd -> addOptionalProperty(resource, property, toAdd));
+        }
+        return resource;
+    }
+
+    static <T> Resource addOptionalProperty(Resource resource, Property property, T object) {
+        if (object != null) {
+            if (object instanceof RDFNode) {
+                resource.addProperty(property, (RDFNode)object);
+            } else {
+                resource.addProperty(property, object.toString());
+            }
         }
         return resource;
     }
