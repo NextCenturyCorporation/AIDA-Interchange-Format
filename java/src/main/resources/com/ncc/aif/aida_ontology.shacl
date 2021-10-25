@@ -443,13 +443,6 @@ aida:SharedTypeShape
     # may provide a confidence
     sh:property aida:ConfidencePropertyShape ;
 
-    # may bear Semantic Attribute
-    sh:property [
-        sh:path aida:attribute ;
-        sh:in ( aida:Negated aida:Hedged aida:Irrealis aida:Generic ) ;
-                sh:message "Semantic Attribute for Statement can only be aida:Negated, aida:Hedged, aida:Irrealis, aida:Generic"
-    ] ;
-
     # may provide an one or more source systems
     sh:property aida:SystemPropertyShape ;
 

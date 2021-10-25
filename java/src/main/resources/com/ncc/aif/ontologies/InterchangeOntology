@@ -759,7 +759,7 @@
     rdfs:domain [
           rdf:type owl:Class ;
           owl:unionOf (
-            :rdf:Statement
+            rdf:Statement
             :Entity
             :Event
             :Relation) ] ;
