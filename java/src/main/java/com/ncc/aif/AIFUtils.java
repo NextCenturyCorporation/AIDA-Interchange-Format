@@ -249,7 +249,6 @@ public class AIFUtils {
         if (confidence != null) {
             markConfidence(model, argAssertion, confidence, system);
         }
-
         return argAssertion;
     }
 
