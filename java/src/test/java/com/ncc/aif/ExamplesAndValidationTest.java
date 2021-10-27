@@ -43,7 +43,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -55,11 +54,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.CharSource;
-import com.google.common.io.Resources;
 import com.ncc.aif.AIFUtils.BoundingBox;
 import com.ncc.aif.AIFUtils.LDCTimeComponent;
 import com.ncc.aif.AIFUtils.Point;
+import com.ncc.aif.ValidateAIF.Restriction;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.jena.query.Dataset;
@@ -96,9 +94,7 @@ public class ExamplesAndValidationTest {
     private static final String LDC_NS = "https://github.com/NextCenturyCorporation/AIDA-Interchange-Format/LdcAnnotations#";
     private static final String ONTOLOGY_NS = "https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/SeedlingOntology#";
     private static final String DISKBASED_MODEL_PATH = System.getProperty("java.io.tmpdir") + "/diskbased-models/tests";
-    private static final CharSource SEEDLING_ONTOLOGY = Resources.asCharSource(
-            Resources.getResource("com/ncc/aif/ontologies/SeedlingOntology"),
-            StandardCharsets.UTF_8);
+    private static final String SEEDLING_ONTOLOGY = "com/ncc/aif/ontologies/SeedlingOntology";
     private static TestUtils utils;
 
     @BeforeAll
@@ -188,9 +184,9 @@ public class ExamplesAndValidationTest {
 
         @Test
         void createEntityMentionAddValidSemanticAttribute() {
-                final Resource testGeoLocationEntity = makeEntity(model, "https://www.nextcentury.com/entites/test/testLocation", system);
-                markAttribute(testGeoLocationEntity,  InterchangeOntology.Generic);
-                utils.testValid("Create Entity and add a valid semantic attribute: aida:Generic");
+            final Resource testGeoLocationEntity = makeEntity(model, "https://www.nextcentury.com/entites/test/testLocation", system);
+            markAttribute(testGeoLocationEntity,  InterchangeOntology.Generic);
+            utils.testValid("Create Entity and add a valid semantic attribute: aida:Generic");
         }
 
         /**
@@ -1769,8 +1765,7 @@ public class ExamplesAndValidationTest {
     class OtherOntologies {
         @Test
         void createM36EntityOfTypePersonWithAllJustificationTypesAndConfidence() {
-            CharSource m36 = Resources.asCharSource(Resources.getResource("com/ncc/aif/ontologies/LDCOntologyM36"),
-                StandardCharsets.UTF_8);
+            String m36 = "com/ncc/aif/ontologies/LDCOntologyM36";
             TestUtils m36Utils = new TestUtils(LDC_NS, ValidateAIF.createForDomainOntologySource(m36),
                 DUMP_ALWAYS, DUMP_TO_FILE);
 
@@ -1825,7 +1820,94 @@ public class ExamplesAndValidationTest {
 
             m36Utils.testValid("create an M36 entity of type person with textual justification and confidence");
         }
+    }
 
+    @Nested
+    class DWDRestrictions {
+        TestUtils dwdUtils;
+        Model dwdModel;
+        Resource dwdSystem;
+        @BeforeEach
+        void init() {
+            dwdUtils = new TestUtils(LDC_NS, ValidateAIF.createForDWD(Restriction.NONE), DUMP_ALWAYS, DUMP_TO_FILE);
+
+            dwdModel = dwdUtils.startNewTest();
+            addNamespacesToModel(dwdModel);
+            dwdSystem = dwdUtils.getSystem();
+        }
+
+        @Test
+        void createDWDPersonEntityWithJustifications() {
+
+            // it doesn't matter what URI we give entities, events, etc. so long as they are
+            // unique
+            final Resource someEntityMention = makeEntity(dwdModel, dwdUtils.getEntityUri(), dwdSystem);
+
+            // in order to allow uncertainty about the type of an entity, we don't mark an
+            // entity's type directly on the entity, but rather make a separate assertion for it
+            // its URI doesn't matter either
+            final Resource typeAssertion = markType(dwdModel, dwdUtils.getAssertionUri(), someEntityMention,
+                    "Q5", dwdSystem, 1.0);
+
+            final ImmutableSet<Resource> toMark = ImmutableSet.of(someEntityMention, typeAssertion);
+
+            // the justification provides the evidence for our claim about the entity's type
+            // we attach this justification to both the type assertion and the entity object
+            // itself, since it provides evidence both for the entity's existence and its type.
+            // in TA1 -> TA2 communications, we attach confidences at the level of justifications
+            markTextJustification(dwdModel, toMark, "HC000T6IV", 1029, 1033, dwdSystem, 0.973);
+
+            // let's suppose we also have evidence from an image
+            markImageJustification(dwdModel, toMark, "NYT_ENG_20181231_03",
+                    new BoundingBox(new Point(123, 45), new Point(167, 98)),
+                    dwdSystem, 0.123);
+
+            // and also a video where the entity appears in a keyframe
+            markKeyFrameVideoJustification(dwdModel, toMark, "NYT_ENG_20181231_03", "keyframe ID",
+                    new BoundingBox(new Point(234, 56), new Point(345, 101)),
+                    dwdSystem, 0.234);
+
+            // and also a video where the entity does not appear in a keyframe
+            markShotVideoJustification(dwdModel, toMark, "SOME_VIDEO", "some shot ID", dwdSystem, 0.487);
+
+            // and even audio!
+            markAudioJustification(dwdModel, toMark, "NYT_ENG_201181231", 4.566, 9.876, dwdSystem, 0.789);
+
+            // time-bounded video
+            markJustification(toMark, makeVideoJustification(dwdModel, "OTHER_VIDEO", 1.1, 1.5,
+                InterchangeOntology.VideoJustificationChannelBoth, dwdSystem, .93));
+
+            // also we can link this entity to something in an external KB
+            linkToExternalKB(dwdModel, someEntityMention, "freebase:FOO", dwdSystem, .398);
+
+            // let's mark our entity with some arbitrary system-private data. You can attach such data
+            // to nearly anything
+            markPrivateData(dwdModel, someEntityMention, "{ 'privateKey' : 'privateValue' }", dwdSystem);
+
+            dwdUtils.testValid("create an DWD entity of type person with textual justification and confidence");
+        }
+
+        @Test
+        void createDWDEvent() {
+            // we make a resource for the event itself
+            // mark the event as a Personnel.Elect event; type is encoded separately so we can express
+            // uncertainty about type
+            final Resource event = makeEvent(model, dwdUtils.getEventUri(), system);
+            markType(model, utils.getAssertionUri(), event, "Q40231", system, 1.0);
+
+            // create the two entities involved in the event
+            final Resource putin = makeEntity(model, dwdUtils.getEntityUri(), system);
+            markType(model, utils.getAssertionUri(), putin, "Q5", system, 1.0);
+
+            final Resource russia = makeEntity(model, dwdUtils.getEntityUri(), system);
+            markType(model, utils.getAssertionUri(), russia, "Q1048835", system, 1.0);
+
+            // link those entities to the event
+            markAsArgument(model, event, "A1_ppt_theme_candidate", putin, system, 0.785);
+            markAsArgument(model, event, "AM_loc__location", russia, system, 0.589);
+
+            dwdUtils.testValid("create a DWD event");
+        }
     }
 
     private Path writeModelToDisk(Model model) {

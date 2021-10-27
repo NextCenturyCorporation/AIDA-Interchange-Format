@@ -88,6 +88,10 @@ public class ValidateCLITest {
                     "src/main/resources/com/ncc/aif/ontologies/LDCOntology",
                     "-f", "tmp.ttl");
         }
+        @Test
+        void correctDWD() {
+            expectCorrect("--dwd", "-f", "tmp.ttl");
+        }
     }
 
     @Nested

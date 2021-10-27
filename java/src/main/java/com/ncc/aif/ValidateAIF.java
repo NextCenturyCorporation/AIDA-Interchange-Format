@@ -1,12 +1,35 @@
 package com.ncc.aif;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
+import java.io.PrintStream;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
+
+import javax.annotation.Nonnull;
+
 import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
-import org.apache.jena.rdf.model.*;
+
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.util.FileUtils;
 import org.topbraid.jenax.progress.ProgressMonitor;
 import org.topbraid.shacl.validation.ValidationEngine;
@@ -14,10 +37,8 @@ import org.topbraid.shacl.validation.ValidationEngineConfiguration;
 import org.topbraid.shacl.validation.ValidationUtil;
 import org.topbraid.shacl.vocabulary.SH;
 
-import java.io.PrintStream;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.function.BiConsumer;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 /**
  * An AIF Validator.  These are not instantiated directly; instead invoke {@link #createForDomainOntologySource} statically,
@@ -70,8 +91,8 @@ public final class ValidateAIF {
         }
     }
 
-    private Model domainModel;
-    private Restriction restriction;
+    private final Model domainModel;
+    private final Model restrictionModel;
     private int abortThreshold = -1; // by default, do not abort on SHACL violation
     private boolean debugging = false;
     private int depth = 0; // by default, do not perform shallow validation
@@ -81,9 +102,26 @@ public final class ValidateAIF {
     private long lastDuration;
 
     private ValidateAIF(Model domainModel, Restriction restriction) {
-        initializeSHACLModels();
+        this(domainModel, getRestrictionModel(restriction));
+    }
+
+    private ValidateAIF(Model domainModel, @Nonnull Model restriction) {
         this.domainModel = domainModel;
-        this.restriction = restriction;
+        this.restrictionModel = restriction;
+    }
+
+    private static Model getRestrictionModel(Restriction restriction) {
+        initializeSHACLModels();
+        // Apply appropriate SHACL restrictions
+        switch (restriction) {
+            case NIST:
+                return nistModel;
+            case NIST_TA3:
+                return nistHypoModel;
+            case NONE: // fall-through on purpose
+            default:
+                return shaclModel;
+        }
     }
 
     @Override
@@ -110,8 +148,8 @@ public final class ValidateAIF {
      * @param domainOntologySource A domain ontology
      * @return An AIF validator for the specified ontology
      */
-    public static ValidateAIF createForDomainOntologySource(CharSource domainOntologySource) {
-        return create(ImmutableSet.of(domainOntologySource), Restriction.NONE);
+    public static ValidateAIF createForDomainOntologySource(String domainOntologySource) {
+        return create(Set.of(domainOntologySource), Restriction.NONE);
     }
 
     /**
@@ -121,8 +159,7 @@ public final class ValidateAIF {
      * @return An AIF validator for the LDC ontology
      */
     public static ValidateAIF createForLDCOntology(Restriction restriction) {
-        return create(ImmutableSet.of(Resources.asCharSource(Resources.getResource(LDC_RESNAME), Charsets.UTF_8)),
-                restriction);
+        return create(Set.of(LDC_RESNAME), restriction);
     }
 
     /**
@@ -132,11 +169,42 @@ public final class ValidateAIF {
      * @return An AIF validator for the Program ontology
      */
     public static ValidateAIF createForProgramOntology(Restriction restriction) {
-        return create(ImmutableSet.of(
-                Resources.asCharSource(Resources.getResource(AO_ENTITIES_RESNAME), Charsets.UTF_8),
-                Resources.asCharSource(Resources.getResource(AO_EVENTS_RESNAME), Charsets.UTF_8),
-                Resources.asCharSource(Resources.getResource(AO_RELATIONS_RESNAME), Charsets.UTF_8)),
-                restriction);
+        return create(Set.of(AO_ENTITIES_RESNAME, AO_EVENTS_RESNAME, AO_RELATIONS_RESNAME), restriction);
+    }
+
+    /**
+     * Create an AIF validator for the DWD.
+     *
+     * @param restriction Type of restriction (if any) that should be applied during validation
+     * @return An AIF validator for the DWD
+     */
+    public static ValidateAIF createForDWD(Restriction restriction) {
+        Set<String> restrictions = new HashSet<>();
+        restrictions.add("com/ncc/aif/dwd_aif.shacl");
+        switch (restriction) {
+            case NIST_TA3:
+                restrictions.add(NIST_HYPOTHESIS_SHACL_RESNAME);
+            case NIST:
+                restrictions.add(NIST_SHACL_RESNAME);
+            default:
+                // do nothing
+        }
+        // DWD is domain, but there's no way to validate against it
+        return create(Set.of(), ValidateAIF.getDomainModel(restrictions));
+    }
+
+    static Model getDomainModel(Set<String> filenames) {
+        if (filenames == null || filenames.isEmpty()) {
+            throw new IllegalArgumentException("Must validate against at least one domain ontology.");
+        }
+
+        final Model model = ModelFactory.createDefaultModel();
+
+        filenames.stream()
+            .map(domain -> Resources.asCharSource(Resources.getResource(domain), Charsets.UTF_8))
+            .forEach(source -> loadModel(model, source));
+
+        return model;
     }
 
     /**
@@ -146,27 +214,23 @@ public final class ValidateAIF {
      * @param domainOntologySources User-supplied domain ontologies
      * @return An AIF validator for the specified ontologies and requirements
      */
-    public static ValidateAIF create(ImmutableSet<CharSource> domainOntologySources, Restriction restriction) {
+    public static ValidateAIF create(Set<String> domainOntologySources, Restriction restriction) {
+        return create(domainOntologySources, getRestrictionModel(restriction));
+    }
 
-        if (domainOntologySources == null || domainOntologySources.isEmpty()) {
-            throw new IllegalArgumentException("Must validate against at least one domain ontology.");
-        }
+    /**
+     * Create an AIF validator for specified domain ontologies and requirements.
+     *
+     * @param restrictionModel      Type of restriction (if any) that should be applied during validation
+     * @param domainOntologySources User-supplied domain ontologies
+     * @return An AIF validator for the specified ontologies and requirements
+     */
+    public static ValidateAIF create(Set<String> domainOntologySources, Model restrictionModel) {
 
-        final Model model = ModelFactory.createDefaultModel();
+        Set<String> domainOntologies = new HashSet<>(Set.of(INTERCHANGE_RESNAME, AIDA_DOMAIN_COMMON_RESNAME));
+        domainOntologies.addAll(domainOntologySources);
 
-        // Data will always be interpreted in the context of these two ontology files.
-        final ImmutableSet<CharSource> aidaModels = ImmutableSet.of(
-                Resources.asCharSource(Resources.getResource(INTERCHANGE_RESNAME), Charsets.UTF_8),
-                Resources.asCharSource(Resources.getResource(AIDA_DOMAIN_COMMON_RESNAME), Charsets.UTF_8)
-        );
-
-        final HashSet<CharSource> models = new HashSet<>(aidaModels);
-        models.addAll(domainOntologySources);
-        for (CharSource source : models) {
-            loadModel(model, source);
-        }
-
-        return new ValidateAIF(model, restriction == null ? Restriction.NONE : restriction);
+        return new ValidateAIF(getDomainModel(domainOntologies), restrictionModel);
     }
 
     /**
@@ -374,20 +438,6 @@ public final class ValidateAIF {
         unionModel.setNsPrefix("aida", InterchangeOntology.NAMESPACE);
         unionModel.setNsPrefix("aidaDomainCommon", AidaDomainOntologiesCommon.CanHaveName.getNameSpace());
 
-        // Apply appropriate SHACL restrictions
-        Model shacl;
-        switch (restriction) {
-            case NIST:
-                shacl = nistModel;
-                break;
-            case NIST_TA3:
-                shacl = nistHypoModel;
-                break;
-            case NONE: // fall-through on purpose
-            default:
-                shacl = shaclModel;
-        }
-
         // Validates against the SHACL file to ensure that resources have the required properties
         // (and in some cases, only the required properties) of the proper types.
         ValidationEngineConfiguration config = new ValidationEngineConfiguration()
@@ -397,7 +447,7 @@ public final class ValidateAIF {
             if (debugging) {
                 ((Logger) (org.slf4j.LoggerFactory.getLogger(ThreadedValidationEngine.class))).setLevel(Level.DEBUG);
             }
-            ThreadedValidationEngine engine = ThreadedValidationEngine.createValidationEngine(unionModel, shacl, config);
+            ThreadedValidationEngine engine = ThreadedValidationEngine.createValidationEngine(unionModel, restrictionModel, config);
             engine.setProgressMonitor(progressMonitor);
             engine.setMaxDepth(depth);
             try {
@@ -415,8 +465,8 @@ public final class ValidateAIF {
                 ((Logger) (org.slf4j.LoggerFactory.getLogger(ValidationEngine.class))).setLevel(Level.DEBUG);
             }
             ValidationEngine engine = debugging ?
-                InstrumentedValidationEngine.createValidationEngine(unionModel, shacl, config) :
-                ValidationUtil.createValidationEngine(unionModel, shacl, config);
+                InstrumentedValidationEngine.createValidationEngine(unionModel, restrictionModel, config) :
+                ValidationUtil.createValidationEngine(unionModel, restrictionModel, config);
             engine.setProgressMonitor(progressMonitor);
             try {
                 engine.applyEntailments();
