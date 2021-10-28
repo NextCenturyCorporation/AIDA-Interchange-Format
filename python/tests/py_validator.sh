@@ -23,6 +23,9 @@ docker run --rm -it \
 # if all files are valid, delete the test file directory
 rm -r $test_directory
 
+# re-create test directory
+mkdir $test_directory
+
 # run dwd examples.py
 DIR_PATH=$test_directory python3 dwd_examples.py
 
