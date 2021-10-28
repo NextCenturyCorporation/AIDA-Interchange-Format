@@ -23,9 +23,10 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.common.base.Charsets;
+import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
 
 import org.apache.jena.query.Dataset;
@@ -324,11 +325,11 @@ public class ValidateAIFCli implements Callable<Integer> {
             } else {
                 StringBuilder builder = new StringBuilder();
                 // Convert the specified domain ontologies to String objects.
-                Set<String> domainOntologySources = customOntologies.stream().map(file -> file.toString()).collect(Collectors.toSet());
                 for (File file : customOntologies) {
                     builder.append(file.getName()).append(" ");
                 }
-                validator = ValidateAIF.create(domainOntologySources, restriction);
+                Stream<CharSource> sources = customOntologies.stream().map(file -> com.google.common.io.Files.asCharSource(file, Charsets.UTF_8));
+                validator = ValidateAIF.create(sources, restriction);
                 builder.setLength(builder.length() - 1);
                 ontologyStr = builder.toString();
             }

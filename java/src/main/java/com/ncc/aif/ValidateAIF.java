@@ -17,6 +17,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
@@ -190,47 +191,57 @@ public final class ValidateAIF {
                 // do nothing
         }
         // DWD is domain, but there's no way to validate against it
-        return create(Set.of(), ValidateAIF.getDomainModel(restrictions));
+        Model model = getModelFromSources(getSourcesFromResources(restrictions.stream()));
+        return create(Stream.of(), model);
     }
 
-    static Model getDomainModel(Set<String> filenames) {
-        if (filenames == null || filenames.isEmpty()) {
-            throw new IllegalArgumentException("Must validate against at least one domain ontology.");
-        }
-
+    static Model getModelFromSources(Stream<CharSource> sources) {
         final Model model = ModelFactory.createDefaultModel();
-
-        filenames.stream()
-            .map(domain -> Resources.asCharSource(Resources.getResource(domain), Charsets.UTF_8))
-            .forEach(source -> loadModel(model, source));
-
+        sources.forEach(source -> loadModel(model, source));
         return model;
+    }
+
+    static Stream<CharSource> getSourcesFromResources(Stream<String> resources) {
+        return resources.map(resource ->
+            Resources.asCharSource(Resources.getResource(resource), Charsets.UTF_8)
+        );
     }
 
     /**
      * Create an AIF validator for specified domain ontologies and requirements.
      *
      * @param restriction           Type of restriction (if any) that should be applied during validation
-     * @param domainOntologySources User-supplied domain ontologies
+     * @param domainOntologySources User-supplied domain ontologies as {@link CharSource}
      * @return An AIF validator for the specified ontologies and requirements
      */
-    public static ValidateAIF create(Set<String> domainOntologySources, Restriction restriction) {
+    public static ValidateAIF create(Stream<CharSource> domainOntologySources, Restriction restriction) {
         return create(domainOntologySources, getRestrictionModel(restriction));
     }
 
     /**
      * Create an AIF validator for specified domain ontologies and requirements.
      *
-     * @param restrictionModel      Type of restriction (if any) that should be applied during validation
-     * @param domainOntologySources User-supplied domain ontologies
+     * @param restriction           Type of restriction (if any) that should be applied during validation
+     * @param domainOntologySources User-supplied domain ontologies as {@link String}
      * @return An AIF validator for the specified ontologies and requirements
      */
-    public static ValidateAIF create(Set<String> domainOntologySources, Model restrictionModel) {
+    public static ValidateAIF create(Set<String> domainOntologySources, Restriction restriction) {
+        Stream<CharSource> external = getSourcesFromResources(domainOntologySources.stream().map(source -> (String)source));
+        return create(external, restriction);
+    }
 
-        Set<String> domainOntologies = new HashSet<>(Set.of(INTERCHANGE_RESNAME, AIDA_DOMAIN_COMMON_RESNAME));
-        domainOntologies.addAll(domainOntologySources);
-
-        return new ValidateAIF(getDomainModel(domainOntologies), restrictionModel);
+    /**
+     * Create an AIF validator for specified domain ontologies and requirements.
+     *
+     * @param restrictionModel      Model containing restriction rules that should be applied during validation
+     * @param domainOntologySources User-supplied domain ontologies as {@link CharSource}
+     * @return An AIF validator for the specified ontologies and requirements
+     */
+    public static ValidateAIF create(Stream<CharSource> domainOntologySources, Model restrictionModel) {
+        // always add AIF definition sources
+        Stream<CharSource> internal = getSourcesFromResources(Stream.of(INTERCHANGE_RESNAME, AIDA_DOMAIN_COMMON_RESNAME));
+        Stream<CharSource> all = Stream.concat(internal, domainOntologySources);
+        return new ValidateAIF(getModelFromSources(all), restrictionModel);
     }
 
     /**

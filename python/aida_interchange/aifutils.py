@@ -4,6 +4,7 @@ from rdflib import RDF, XSD, BNode, Graph, Literal, URIRef
 from rdflib.plugins.sparql import prepareQuery
 
 from aida_interchange.rdf_ontologies import interchange_ontology
+from rdflib.term import Node
 
 
 """
@@ -145,17 +146,14 @@ def mark_type(g, type_assertion_uri, entity_or_event, _type, system, confidence)
         resource with which to mark the entity or event
     :param rdflib.term.URIRef entity_or_event: The entity, event, or relation to mark
         as having the specified type
-    :param rdflib.term.URIRef _type: The type of the entity, event, or relation being asserted
+    :param rdflib.term.URIRef | str _type: The type of the entity, event, or relation being asserted
     :param rdflib.term.URIRef system: The system object for the system which created this entity
     :param float confidence: If not None, the confidence with which to mark the specified type
     :returns: The created type assertion resource
     :rtype: rdflib.term.URIRef
     """
-    type_assertion = _make_aif_resource(g, type_assertion_uri, RDF.Statement, system)
-    g.add((type_assertion, RDF.subject, entity_or_event))
-    g.add((type_assertion, RDF.predicate, RDF.type))
-    g.add((type_assertion, RDF['object'], _type))
-    mark_confidence(g, type_assertion, confidence, system)
+    type_assertion = _make_aif_statement(g, type_assertion_uri, entity_or_event, RDF.type, _type, system, confidence)
+    g.add((type_assertion, RDF.type, interchange_ontology.TypeStatement))
     return type_assertion
 
 
@@ -265,7 +263,7 @@ def make_relation(g, relation_uri, system):
 
 def mark_attribute(g, to_mark_on, attribute):
     """
-    Add Semantic Attrobute to Event. TEST 
+    Add Semantic Attrobute to Event. TEST
 
     :param rdflib.graph.Graph g: The underlying RDF model
     :param to_mark_on: The resource to mark with the specified confidence
@@ -319,7 +317,7 @@ def mark_as_argument(g, event_or_relation, argument_type, argument_filler, syste
     :param rdflib.graph.Graph g: The underlying RDF model
     :param rdflib.term.URIRef event_or_relation: The event or relation for which to mark
         the specified argument role
-    :param rdflib.term.URIRef argument_type: The type (predicate) of the argument
+    :param rdflib.term.URIRef | str argument_type: The type (predicate) of the argument
     :param rdflib.term.URIRef argument_filler: The filler (object) of the argument
     :param rdflib.term.URIRef system: The system object for the system which created this
         argument
@@ -330,12 +328,8 @@ def mark_as_argument(g, event_or_relation, argument_type, argument_filler, syste
     :rtype: rdflib.term.BNode
 
     """
-    arg_assertion = _make_aif_resource(g, uri, RDF.Statement, system)
-    g.add((arg_assertion, RDF.subject, event_or_relation))
-    g.add((arg_assertion, RDF.predicate, argument_type))
-    g.add((arg_assertion, RDF['object'], argument_filler))
-    if confidence is not None:
-        mark_confidence(g, arg_assertion, confidence, system)
+    arg_assertion = _make_aif_statement(g, uri, event_or_relation, argument_type, argument_filler, system, confidence)
+    g.add((arg_assertion, RDF.type, interchange_ontology.ArgumentStatement))
     return arg_assertion
 
 
@@ -937,6 +931,31 @@ def _make_aif_resource(g, uri, class_type, system):
         mark_system(g, resource, system)
     return resource
 
+def _get_node(value):
+    return value if isinstance(value, Node) else Literal(str(value), datatype=XSD.string)
+
+def _make_aif_statement(g, uri, subject, predicate, _object, system, confidence):
+    """
+    Helper function to create a statement (argument statement, type statement) in the system.
+
+    :param rdflib.graph.Graph g: The underlying RDF model
+    :param str uri: The string URI of the resource
+    :param rdflib.term.URIRef subject: The subject of the statement
+    :param rdflib.term.URIRef | str predicate: The predicate of the statement
+    :param rdflib.term.URIRef | str _object: The object of the statement
+    :param rdflib.term.URIRef system: The system object for the system which marks the
+        justification
+    :param float confidence: If not None, the confidence with which to mark the linkage
+    :returns: The created statement
+    :rtype: rdflib.term.URIRef
+    """
+    statement = _make_aif_resource(g, uri, RDF.Statement, system)
+    g.add((statement, RDF.subject, subject))
+    g.add((statement, RDF.predicate, _get_node(predicate)))
+    g.add((statement, RDF['object'], _get_node(_object)))
+    if confidence is not None:
+        mark_confidence(g, statement, confidence, system)
+    return statement
 
 def _make_aif_justification(g, doc_id, class_type, system, confidence,
                             uri_ref=None):

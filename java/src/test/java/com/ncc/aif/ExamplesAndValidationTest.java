@@ -1890,7 +1890,7 @@ public class ExamplesAndValidationTest {
         @Test
         void createDWDEvent() {
             // we make a resource for the event itself
-            // mark the event as a Personnel.Elect event; type is encoded separately so we can express
+            // mark the event as an election event; type is encoded separately so we can express
             // uncertainty about type
             final Resource event = makeEvent(model, dwdUtils.getEventUri(), system);
             markType(model, utils.getAssertionUri(), event, "Q40231", system, 1.0);

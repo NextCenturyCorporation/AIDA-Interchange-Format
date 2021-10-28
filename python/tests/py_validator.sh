@@ -22,3 +22,18 @@ docker run --rm -it \
 
 # if all files are valid, delete the test file directory
 rm -r $test_directory
+
+# run dwd examples.py
+DIR_PATH=$test_directory python3 dwd_examples.py
+
+# validate test file directory
+# if any files are invalid, the script will end (see above)
+docker run --rm -it \
+       --user $(id -u):$(id -g) \
+       -v $(pwd)/$test_directory:/v \
+       --entrypoint /opt/aif-validator/java/target/appassembler/bin/validateAIF \
+       nextcenturycorp/aif_validator:latest \
+       -o --dwd -d /v
+
+# if all files are valid, delete the test file directory
+rm -r $test_directory
