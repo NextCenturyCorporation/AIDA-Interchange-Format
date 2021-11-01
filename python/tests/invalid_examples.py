@@ -33,7 +33,7 @@ class InvalidExamples(unittest.TestCase):
                            entity, ldc_ontology.PER, system, 100.0)
 
 
-                           
+
 
         self.dump_graph(g, "Invalid: Confidence outside of zero to one")
 
@@ -199,7 +199,7 @@ class InvalidExamples(unittest.TestCase):
         aifutils.mark_attribute(g, argument1, interchange_ontology.Generic)
 
         self.new_file(g, "test_create_a_relation_argument_add_attribute.ttl")
-        self.dump_graph(g, "Invalid: Relation Argument cannot have aida:Attribute")     
+        self.dump_graph(g, "Invalid: Relation Argument cannot have aida:Attribute")
 
     def dump_graph(self, g, description):
         print("\n\n======================================\n"

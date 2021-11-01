@@ -2,7 +2,7 @@ from rdflib import URIRef
 
 # WARNING. This is a Generated File. Please do not edit.
 # Please refer to the README at java/src/main/java/com/ncc/aif/ont2javagen for more information
-# Last generated on: 10/08/2021 15:33:21
+# Last generated on: 10/25/2021 15:29:05
 NAMESPACE = 'https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#'
 
 # Classes
@@ -30,6 +30,7 @@ MutualExclusionAlternative = URIRef(NAMESPACE + 'MutualExclusionAlternative')
 PrivateData = URIRef(NAMESPACE + 'PrivateData')
 Relation = URIRef(NAMESPACE + 'Relation')
 SameAsCluster = URIRef(NAMESPACE + 'SameAsCluster')
+Sentiment = URIRef(NAMESPACE + 'Sentiment')
 ShotVideoJustification = URIRef(NAMESPACE + 'ShotVideoJustification')
 Subgraph = URIRef(NAMESPACE + 'Subgraph')
 System = URIRef(NAMESPACE + 'System')
@@ -38,10 +39,19 @@ VideoJustification = URIRef(NAMESPACE + 'VideoJustification')
 VideoJustificationChannel = URIRef(NAMESPACE + 'VideoJustificationChannel')
 
 # Individuals
+EpistemicFalseCertain = URIRef(NAMESPACE + 'EpistemicFalseCertain')
+EpistemicFalseUncertain = URIRef(NAMESPACE + 'EpistemicFalseUncertain')
+EpistemicTrueCertain = URIRef(NAMESPACE + 'EpistemicTrueCertain')
+EpistemicTrueUncertain = URIRef(NAMESPACE + 'EpistemicTrueUncertain')
+EpistemicUnknown = URIRef(NAMESPACE + 'EpistemicUnknown')
 Generic = URIRef(NAMESPACE + 'Generic')
 Hedged = URIRef(NAMESPACE + 'Hedged')
 Irrealis = URIRef(NAMESPACE + 'Irrealis')
 Negated = URIRef(NAMESPACE + 'Negated')
+SentimentMixed = URIRef(NAMESPACE + 'SentimentMixed')
+SentimentNegative = URIRef(NAMESPACE + 'SentimentNegative')
+SentimentNeutralUnknown = URIRef(NAMESPACE + 'SentimentNeutralUnknown')
+SentimentPositive = URIRef(NAMESPACE + 'SentimentPositive')
 VideoJustificationChannelBoth = URIRef(NAMESPACE + 'VideoJustificationChannelBoth')
 VideoJustificationChannelPicture = URIRef(NAMESPACE + 'VideoJustificationChannelPicture')
 VideoJustificationChannelSound = URIRef(NAMESPACE + 'VideoJustificationChannelSound')
@@ -67,6 +77,7 @@ claimerAffiliation = URIRef(NAMESPACE + 'claimerAffiliation')
 cluster = URIRef(NAMESPACE + 'cluster')
 clusterMember = URIRef(NAMESPACE + 'clusterMember')
 componentIdentity = URIRef(NAMESPACE + 'componentIdentity')
+componentKE = URIRef(NAMESPACE + 'componentKE')
 componentName = URIRef(NAMESPACE + 'componentName')
 componentProvenance = URIRef(NAMESPACE + 'componentProvenance')
 componentType = URIRef(NAMESPACE + 'componentType')
@@ -114,5 +125,5 @@ system = URIRef(NAMESPACE + 'system')
 textValue = URIRef(NAMESPACE + 'textValue')
 timeType = URIRef(NAMESPACE + 'timeType')
 topic = URIRef(NAMESPACE + 'topic')
-xvariable = URIRef(NAMESPACE + 'xvariable')
+xVariable = URIRef(NAMESPACE + 'xVariable')
 year = URIRef(NAMESPACE + 'year')

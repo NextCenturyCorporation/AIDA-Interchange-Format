@@ -1,13 +1,66 @@
 package com.ncc.aif;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
+import static com.ncc.aif.AIFUtils.addSourceDocumentToJustification;
+import static com.ncc.aif.AIFUtils.linkToExternalKB;
+import static com.ncc.aif.AIFUtils.makeAudioJustification;
+import static com.ncc.aif.AIFUtils.makeClusterWithPrototype;
+import static com.ncc.aif.AIFUtils.makeEntity;
+import static com.ncc.aif.AIFUtils.makeEvent;
+import static com.ncc.aif.AIFUtils.makeHypothesis;
+import static com.ncc.aif.AIFUtils.makeImageJustification;
+import static com.ncc.aif.AIFUtils.makeKeyFrameVideoJustification;
+import static com.ncc.aif.AIFUtils.makeRelation;
+import static com.ncc.aif.AIFUtils.makeShotVideoJustification;
+import static com.ncc.aif.AIFUtils.makeSystemWithURI;
+import static com.ncc.aif.AIFUtils.makeTextJustification;
+import static com.ncc.aif.AIFUtils.makeVideoJustification;
+import static com.ncc.aif.AIFUtils.markAsArgument;
+import static com.ncc.aif.AIFUtils.markAsMutuallyExclusive;
+import static com.ncc.aif.AIFUtils.markAsPossibleClusterMember;
+import static com.ncc.aif.AIFUtils.markAttribute;
+import static com.ncc.aif.AIFUtils.markAudioJustification;
+import static com.ncc.aif.AIFUtils.markCompoundJustification;
+import static com.ncc.aif.AIFUtils.markConfidence;
+import static com.ncc.aif.AIFUtils.markDependsOnHypothesis;
+import static com.ncc.aif.AIFUtils.markEdgesAsMutuallyExclusive;
+import static com.ncc.aif.AIFUtils.markImageJustification;
+import static com.ncc.aif.AIFUtils.markImportance;
+import static com.ncc.aif.AIFUtils.markInformativeJustification;
+import static com.ncc.aif.AIFUtils.markJustification;
+import static com.ncc.aif.AIFUtils.markKeyFrameVideoJustification;
+import static com.ncc.aif.AIFUtils.markLDCTime;
+import static com.ncc.aif.AIFUtils.markLDCTimeRange;
+import static com.ncc.aif.AIFUtils.markName;
+import static com.ncc.aif.AIFUtils.markNumericValueAsDouble;
+import static com.ncc.aif.AIFUtils.markNumericValueAsLong;
+import static com.ncc.aif.AIFUtils.markNumericValueAsString;
+import static com.ncc.aif.AIFUtils.markPrivateData;
+import static com.ncc.aif.AIFUtils.markShotVideoJustification;
+import static com.ncc.aif.AIFUtils.markTextJustification;
+import static com.ncc.aif.AIFUtils.markTextValue;
+import static com.ncc.aif.AIFUtils.markType;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
+import com.ncc.aif.AIFUtils.BoundingBox;
+import com.ncc.aif.AIFUtils.LDCTimeComponent;
+import com.ncc.aif.AIFUtils.Point;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
@@ -18,21 +71,17 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.vocabulary.RDF;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.topbraid.shacl.vocabulary.SH;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Comparator;
-
-import static com.ncc.aif.AIFUtils.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class ExamplesAndValidationTest {
@@ -142,7 +191,7 @@ public class ExamplesAndValidationTest {
                 final Resource testGeoLocationEntity = makeEntity(model, "https://www.nextcentury.com/entites/test/testLocation", system);
                 markAttribute(testGeoLocationEntity,  InterchangeOntology.Generic);
                 utils.testValid("Create Entity and add a valid semantic attribute: aida:Generic");
-        }        
+        }
 
         /**
          * END - Test Valid Attributes
@@ -183,9 +232,9 @@ public class ExamplesAndValidationTest {
 
             // and even audio!
             markAudioJustification(model, toMark, "NYT_ENG_201181231", 4.566, 9.876, system, 0.789);
-            
+
             // time-bounded video
-            markJustification(toMark, makeVideoJustification(model, "OTHER_VIDEO", 1.1, 1.5, 
+            markJustification(toMark, makeVideoJustification(model, "OTHER_VIDEO", 1.1, 1.5,
                 InterchangeOntology.VideoJustificationChannelBoth, system, .93));
 
             // also we can link this entity to something in an external KB
@@ -1370,7 +1419,7 @@ public class ExamplesAndValidationTest {
 
                 utils.testValid("audioJustification with and without optional URI argument");
             }
-            
+
             /**
              * Create video justifications with and without optional URIs.  Without a URI, a blank node is created.
              */
@@ -1411,8 +1460,105 @@ public class ExamplesAndValidationTest {
                 utils.testValid("possibleClusterMember with and without optional URI argument");
             }
         }
-    }
 
+        /**
+         * Create ClaimComponent objects
+         */
+        @Nested
+        class ClaimComponentTest {
+            ClaimComponent validComponent = new ClaimComponent()
+                .setName("Hugo Chávez")
+                .setIdentity("Q8440")
+                .addType("Q82955"); // Politician
+
+            @Test
+            void validMininmal() {
+                validComponent.addToModel(model, "https://www.wikidata.org/wiki/Q8440", system);
+                utils.testValid("Create minimal valid ClaimComponent");
+            }
+
+            @Test
+            void validFull() {
+                validComponent
+                    .setProvenance("Hugo Chavez")
+                    .setKE(utils.makeValidAIFEntity(SeedlingOntology.Person, utils.getUri("Chavez")))
+                    .addToModel(model, "https://www.wikidata.org/wiki/Q8440", system);
+                utils.testValid("Create full valid ClaimComponent");
+            }
+
+            @Test
+            void invalidMissingType() {
+                validComponent
+                    .setTypes(Collections.emptySet()) // remove types
+                    .addToModel(model, "https://www.wikidata.org/wiki/Q8440", system);
+                utils.expect(null, SH.MinCountConstraintComponent, null);
+                utils.testInvalid("ClaimComponent.invalid (missing type): ClaimComponent must have a type");
+            }
+        }
+
+        /**
+         * Create ClaimComponent objects
+         */
+        @Nested
+        class ClaimTest {
+            Resource validXComponent;
+            Resource validKE;
+            Claim validClaim;
+
+            @BeforeEach
+            void setup() {
+                validXComponent = new ClaimComponent()
+                    .setName("Hugo Chávez")
+                    .setIdentity("Q8440")
+                    .addType("Q82955") // Politician
+                    .addToModel(model, "https://www.wikidata.org/wiki/Q8440", system);
+
+                 validKE = utils.makeValidAIFEntity(SeedlingOntology.Person, utils.getUri("Chavez"));
+                 validClaim = new Claim()
+                    .setSourceDocument("Some source")
+                    .setTopic("topic")
+                    .setSubtopic("subTopic")
+                    .setClaimTemplate("X caused something")
+                    .addXVariable(validXComponent)
+                    .setNaturalLanguageDescription("Hugo caused something")
+                    .addClaimSementics(validKE)
+                    .setClaimer(validXComponent)
+                    .addAssociatedKE(validKE);
+            }
+
+            @Test
+            void validMinimal() {
+                validClaim.addToModel(model, utils.getUri("claim"), system);
+                utils.testValid("Create minimal valid Claim");
+            }
+
+            @Test
+            void validFull() {
+				Resource identical = validClaim.addToModel(model, utils.getUri("claim2"), system);
+                validClaim
+                	.setImportance(1d)
+					.setClaimId("claimId")
+					.setQueryId("queryId")
+					.setClaimLocation(validXComponent)
+					.addClaimerAfilliation(validXComponent)
+					.addIdenticalClaim(identical)
+					.addRelatedClaim(identical)
+					.addSupportingClaim(identical)
+					.addRefutingClaim(identical);
+				validClaim.setClaimDateTime(AIFUtils.makeLDCTimeRange(model,
+					"2013-01-xx", "2013-12-xx", "2014-01-xx", "2014-12-xx", system));
+				utils.testValid("Create full valid claim");
+            }
+
+			@Test
+			void invalidMissingXVariable() {
+				validClaim.setXVariable(Collections.emptySet())
+					.addToModel(model, utils.getUri("claim"), system);
+				utils.expect(null, SH.MinCountConstraintComponent, null);
+				utils.testInvalid("ClaimTest.invalid (missing x variable): Claim must have X Variable");
+			}
+        }
+    }
 
     /**
      * Don't do what these do!
@@ -1498,7 +1644,7 @@ public class ExamplesAndValidationTest {
             entity.addProperty(InterchangeOntology.system, system);
             utils.testInvalid("Invalid: missing rdf type");
         }
-        
+
         @Test
         void confidenceIsNotObject() {
             final Resource person = utils.makeValidAIFEntity(SeedlingOntology.Person);
@@ -1515,7 +1661,7 @@ public class ExamplesAndValidationTest {
 
             utils.expect(null, SH.InConstraintComponent, null);
             utils.testInvalid("Invalid Semantic Attribute for Event mention - aida:attribute must be : aida:Negated, aida:Hedged, aida:Irrealis, or aida:Generic");
-        }        
+        }
 
         //test for invalid semantic attribute for Relation Mention
         @Test
@@ -1574,7 +1720,7 @@ public class ExamplesAndValidationTest {
                 final Resource testGeopoliticalEntity = makeEntity(model, "https://www.nextcentury.com/entites/test/testLocation", system);
                 markType(model, "https://www.nextcentury.com/assertions/Location_type", testGeopoliticalEntity, SeedlingOntology.GeopoliticalEntity, system, 1.0);
                 markAttribute(testGeopoliticalEntity,  InterchangeOntology.Negated);
-        
+
                 utils.expect(null, SH.InConstraintComponent, null);
                 utils.testInvalid("Invalid Semantic Attribute for Entity: aida:Negated; can only be aida:Generic");
         }
@@ -1584,17 +1730,17 @@ public class ExamplesAndValidationTest {
                 final Resource testGeopoliticalEntity = makeEntity(model, "https://www.nextcentury.com/entites/test/testLocation", system);
                 markType(model, "https://www.nextcentury.com/assertions/Location_type", testGeopoliticalEntity, SeedlingOntology.GeopoliticalEntity, system, 1.0);
                 markAttribute(testGeopoliticalEntity,  InterchangeOntology.Hedged);
-        
+
                 utils.expect(null, SH.InConstraintComponent, null);
                 utils.testInvalid("Invalid Semantic Attribute for Entity: aida:Hedged; can only be aida:Generic");
-        }        
+        }
 
         @Test
         void invalidAttributeForEntityIrrealis() {
                 final Resource testGeopoliticalEntity = makeEntity(model, "https://www.nextcentury.com/entites/test/testLocation", system);
                 markType(model, "https://www.nextcentury.com/assertions/Location_type", testGeopoliticalEntity, SeedlingOntology.GeopoliticalEntity, system, 1.0);
                 markAttribute(testGeopoliticalEntity,  InterchangeOntology.Irrealis);
-        
+
                 utils.expect(null, SH.InConstraintComponent, null);
                 utils.testInvalid("Invalid Semantic Attribute for Entity: aida:Irrealis; can only be aida:Generic");
         }
@@ -1665,9 +1811,9 @@ public class ExamplesAndValidationTest {
 
             // and even audio!
             markAudioJustification(m36Model, toMark, "NYT_ENG_201181231", 4.566, 9.876, m36System, 0.789);
-            
+
             // time-bounded video
-            markJustification(toMark, makeVideoJustification(m36Model, "OTHER_VIDEO", 1.1, 1.5, 
+            markJustification(toMark, makeVideoJustification(m36Model, "OTHER_VIDEO", 1.1, 1.5,
                 InterchangeOntology.VideoJustificationChannelBoth, m36System, .93));
 
             // also we can link this entity to something in an external KB
@@ -1679,7 +1825,7 @@ public class ExamplesAndValidationTest {
 
             m36Utils.testValid("create an M36 entity of type person with textual justification and confidence");
         }
-        
+
     }
 
     private Path writeModelToDisk(Model model) {

@@ -6,7 +6,7 @@ import org.apache.jena.rdf.model.ResourceFactory;
 // WARNING. This is a Generated File. Please do not edit.
 // This class contains variables generated from ontologies using the OntologyGeneration class
 // Please refer to the README at java/src/main/java/com/ncc/aif/ont2javagen for more information
-// Last generated on: 10/08/2021 15:33:21
+// Last generated on: 10/25/2021 15:29:05
 public final class InterchangeOntology {
     public static final String NAMESPACE = "https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#";
     // Classes
@@ -34,6 +34,7 @@ public final class InterchangeOntology {
     public static final Resource PrivateData = ResourceFactory.createResource(NAMESPACE + "PrivateData");
     public static final Resource Relation = ResourceFactory.createResource(NAMESPACE + "Relation");
     public static final Resource SameAsCluster = ResourceFactory.createResource(NAMESPACE + "SameAsCluster");
+    public static final Resource Sentiment = ResourceFactory.createResource(NAMESPACE + "Sentiment");
     public static final Resource ShotVideoJustification = ResourceFactory.createResource(NAMESPACE + "ShotVideoJustification");
     public static final Resource Subgraph = ResourceFactory.createResource(NAMESPACE + "Subgraph");
     public static final Resource System = ResourceFactory.createResource(NAMESPACE + "System");
@@ -42,10 +43,19 @@ public final class InterchangeOntology {
     public static final Resource VideoJustificationChannel = ResourceFactory.createResource(NAMESPACE + "VideoJustificationChannel");
 
     // Individuals
+    public static final Resource EpistemicFalseCertain = ResourceFactory.createResource(NAMESPACE + "EpistemicFalseCertain");
+    public static final Resource EpistemicFalseUncertain = ResourceFactory.createResource(NAMESPACE + "EpistemicFalseUncertain");
+    public static final Resource EpistemicTrueCertain = ResourceFactory.createResource(NAMESPACE + "EpistemicTrueCertain");
+    public static final Resource EpistemicTrueUncertain = ResourceFactory.createResource(NAMESPACE + "EpistemicTrueUncertain");
+    public static final Resource EpistemicUnknown = ResourceFactory.createResource(NAMESPACE + "EpistemicUnknown");
     public static final Resource Generic = ResourceFactory.createResource(NAMESPACE + "Generic");
     public static final Resource Hedged = ResourceFactory.createResource(NAMESPACE + "Hedged");
     public static final Resource Irrealis = ResourceFactory.createResource(NAMESPACE + "Irrealis");
     public static final Resource Negated = ResourceFactory.createResource(NAMESPACE + "Negated");
+    public static final Resource SentimentMixed = ResourceFactory.createResource(NAMESPACE + "SentimentMixed");
+    public static final Resource SentimentNegative = ResourceFactory.createResource(NAMESPACE + "SentimentNegative");
+    public static final Resource SentimentNeutralUnknown = ResourceFactory.createResource(NAMESPACE + "SentimentNeutralUnknown");
+    public static final Resource SentimentPositive = ResourceFactory.createResource(NAMESPACE + "SentimentPositive");
     public static final Resource VideoJustificationChannelBoth = ResourceFactory.createResource(NAMESPACE + "VideoJustificationChannelBoth");
     public static final Resource VideoJustificationChannelPicture = ResourceFactory.createResource(NAMESPACE + "VideoJustificationChannelPicture");
     public static final Resource VideoJustificationChannelSound = ResourceFactory.createResource(NAMESPACE + "VideoJustificationChannelSound");
@@ -71,6 +81,7 @@ public final class InterchangeOntology {
     public static final Property cluster = ResourceFactory.createProperty(NAMESPACE + "cluster");
     public static final Property clusterMember = ResourceFactory.createProperty(NAMESPACE + "clusterMember");
     public static final Property componentIdentity = ResourceFactory.createProperty(NAMESPACE + "componentIdentity");
+    public static final Property componentKE = ResourceFactory.createProperty(NAMESPACE + "componentKE");
     public static final Property componentName = ResourceFactory.createProperty(NAMESPACE + "componentName");
     public static final Property componentProvenance = ResourceFactory.createProperty(NAMESPACE + "componentProvenance");
     public static final Property componentType = ResourceFactory.createProperty(NAMESPACE + "componentType");
@@ -118,6 +129,6 @@ public final class InterchangeOntology {
     public static final Property textValue = ResourceFactory.createProperty(NAMESPACE + "textValue");
     public static final Property timeType = ResourceFactory.createProperty(NAMESPACE + "timeType");
     public static final Property topic = ResourceFactory.createProperty(NAMESPACE + "topic");
-    public static final Property xvariable = ResourceFactory.createProperty(NAMESPACE + "xvariable");
+    public static final Property xVariable = ResourceFactory.createProperty(NAMESPACE + "xVariable");
     public static final Property year = ResourceFactory.createProperty(NAMESPACE + "year");
 }
