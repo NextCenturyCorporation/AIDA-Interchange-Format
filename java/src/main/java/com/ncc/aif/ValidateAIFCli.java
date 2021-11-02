@@ -1,11 +1,34 @@
 package com.ncc.aif;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.concurrent.Callable;
+import java.util.stream.Stream;
+
 import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
+
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -19,20 +42,12 @@ import org.topbraid.jenax.statistics.ExecStatistics;
 import org.topbraid.jenax.statistics.ExecStatisticsListener;
 import org.topbraid.jenax.statistics.ExecStatisticsManager;
 import org.topbraid.shacl.vocabulary.SH;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import picocli.CommandLine;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.Callable;
 
 /**
  * A command-line AIF validator.  For details, see <a href="https://github.com/NextCenturyCorporation/AIDA-Interchange-Format">the AIF README</a>
@@ -104,6 +119,9 @@ public class ValidateAIFCli implements Callable<Integer> {
 
     @Option(names = "--program", description = "Validate against the program ontology")
     private boolean useProgramOntology;
+
+    @Option(names = "--dwd", description = "Validate against the DWD. Ontology is not validated")
+    private boolean useDWD;
 
     @Option(names = "--ont", description = "Validate against the OWL-formatted ontolog(ies) at the specified filename(s)",
             paramLabel = "FILE", arity = "1..*")
@@ -301,15 +319,17 @@ public class ValidateAIFCli implements Callable<Integer> {
             } else if (useProgramOntology) {
                 validator = ValidateAIF.createForProgramOntology(restriction);
                 ontologyStr = "Program (AO)";
+            } else if (useDWD) {
+                validator = ValidateAIF.createForDWD(restriction);
+                ontologyStr = "DWD";
             } else {
                 StringBuilder builder = new StringBuilder();
-                // Convert the specified domain ontologies to CharSources.
-                Set<CharSource> domainOntologySources = new HashSet<>();
+                // Convert the specified domain ontologies to String objects.
                 for (File file : customOntologies) {
-                    domainOntologySources.add(com.google.common.io.Files.asCharSource(file, Charsets.UTF_8));
                     builder.append(file.getName()).append(" ");
                 }
-                validator = ValidateAIF.create(ImmutableSet.copyOf(domainOntologySources), restriction);
+                Stream<CharSource> sources = customOntologies.stream().map(file -> com.google.common.io.Files.asCharSource(file, Charsets.UTF_8));
+                validator = ValidateAIF.create(sources, restriction);
                 builder.setLength(builder.length() - 1);
                 ontologyStr = builder.toString();
             }
@@ -485,11 +505,11 @@ public class ValidateAIFCli implements Callable<Integer> {
     private void checkOntMutex() {
         // Enforce mutual exclusion for domain ontologies
         boolean hasCustom = customOntologies != null;
-        if (!(useProgramOntology || useLDCOntology || hasCustom)) {
+        if (!(useProgramOntology || useLDCOntology || hasCustom || useDWD)) {
             throw new CommandLine.ParameterException(spec.commandLine(),
                     ERR_MISSING_ONT_FLAG);
         }
-        if (!(useProgramOntology ^ useLDCOntology ^ hasCustom)) {
+        if (!(useProgramOntology ^ useLDCOntology ^ hasCustom ^ useDWD)) {
             throw new CommandLine.ParameterException(spec.commandLine(),
                     ERR_TOO_MANY_ONT_FLAGS);
         }

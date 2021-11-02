@@ -205,6 +205,27 @@ public class AIFUtils {
         return makeAIFResource(model, eventUri, InterchangeOntology.Event, system);
     }
 
+    private static <T> Resource makeAIFStatement(Model model, Resource subject, T predicate, T object,
+                                                Resource system, Double confidence, String uri) {
+        final Resource statement = makeAIFResource(model, uri, RDF.Statement, system);
+
+        statement.addProperty(RDF.subject, subject);
+        if (predicate instanceof Resource) {
+            statement.addProperty(RDF.predicate, (Resource)predicate);
+        } else {
+            statement.addProperty(RDF.predicate, predicate.toString());
+        }
+        if (object instanceof Resource) {
+            statement.addProperty(RDF.object, (Resource)object);
+        } else {
+            statement.addProperty(RDF.object, object.toString());
+        }
+        if (confidence != null) {
+            markConfidence(model, statement, confidence, system);
+        }
+        return statement;
+    }
+
     /**
      * Mark an entity as filling an argument role for an event or relation.
      * The argument assertion will be a blank node.
@@ -241,18 +262,51 @@ public class AIFUtils {
                                           Resource argumentFiller, Resource system,
                                           Double confidence, String uri) {
 
-        final Resource argAssertion = makeAIFResource(model, uri, RDF.Statement, system);
-
-        argAssertion.addProperty(RDF.subject, eventOrRelation);
-        argAssertion.addProperty(RDF.predicate, argumentType);
-        argAssertion.addProperty(RDF.object, argumentFiller);
-        if (confidence != null) {
-            markConfidence(model, argAssertion, confidence, system);
-        }
-        return argAssertion;
+        return makeAIFStatement(model, eventOrRelation, argumentType, argumentFiller, system, confidence, uri)
+            .addProperty(RDF.type, InterchangeOntology.ArgumentStatement);
     }
 
-     /**
+    /**
+     * Mark an entity as filling a DWD (string) argument role for an event or relation.
+     * The argument assertion will be a blank node.
+     *
+     * @param model           The underlying RDF model for the operation
+     * @param eventOrRelation The event or relation for which to mark the specified argument role
+     * @param argumentType    The type (predicate) of the argument
+     * @param argumentFiller  The filler (object) of the argument
+     * @param system          The system object for the system which created this argument
+     * @param confidence      If non-null, the confidence with which to mark the specified argument
+     * @return The created event or relation argument assertion
+     */
+    public static Resource markAsArgument(Model model, Resource eventOrRelation, String argumentType,
+                                          Resource argumentFiller, Resource system,
+                                          Double confidence) {
+
+        return markAsArgument(model, eventOrRelation, argumentType, argumentFiller, system, confidence, null);
+    }
+
+    /**
+     * Mark an entity as filling a DWD (string) argument role for an event or relation.
+     * The argument assertion will be identified by the specified URI.
+     *
+     * @param model           The underlying RDF model for the operation
+     * @param eventOrRelation The event or relation for which to mark the specified argument role
+     * @param argumentType    The type (predicate) of the argument
+     * @param argumentFiller  The filler (object) of the argument
+     * @param system          The system object for the system which created this argument
+     * @param confidence      If non-null, the confidence with which to mark the specified argument
+     * @param uri             A String URI for the argument assertion
+     * @return The created event or relation argument assertion with uri
+     */
+    public static Resource markAsArgument(Model model, Resource eventOrRelation, String argumentType,
+                                          Resource argumentFiller, Resource system,
+                                          Double confidence, String uri) {
+
+        return makeAIFStatement(model, eventOrRelation, argumentType, argumentFiller, system, confidence, uri)
+            .addProperty(RDF.type, InterchangeOntology.ArgumentStatement);
+    }
+
+    /**
      * Mark an entity, event, or relation as having a specified type.
      * <p>
      * This is marked with a separate assertion so that uncertainty about type can be expressed.
@@ -269,16 +323,29 @@ public class AIFUtils {
      */
     public static Resource markType(Model model, String typeAssertionUri, Resource entityOrEventOrRelation,
                                     Resource type, Resource system, Double confidence) {
-        final Resource typeAssertion = model.createResource(typeAssertionUri);
-        typeAssertion.addProperty(RDF.type, RDF.Statement);
-        typeAssertion.addProperty(RDF.subject, entityOrEventOrRelation);
-        typeAssertion.addProperty(RDF.predicate, RDF.type);
-        typeAssertion.addProperty(RDF.object, type);
-        typeAssertion.addProperty(InterchangeOntology.system, system);
-        if (confidence != null) {
-            markConfidence(model, typeAssertion, confidence, system);
-        }
-        return typeAssertion;
+        return makeAIFStatement(model, entityOrEventOrRelation, RDF.type, type, system, confidence, typeAssertionUri)
+            .addProperty(RDF.type, InterchangeOntology.TypeStatement);
+    }
+
+    /**
+     * Mark an entity, event, or relation as having a specified DWD (String) type.
+     * <p>
+     * This is marked with a separate assertion so that uncertainty about type can be expressed.
+     * In such a case, bundle together the type assertion resources returned by this method with
+     * [markAsMutuallyExclusive].
+     *
+     * @param model                   The underlying RDF model for the operation
+     * @param typeAssertionUri        The String URI of a type assertion resource with which to mark the entity or event
+     * @param entityOrEventOrRelation The entity, event, or relation to mark as having the specified type
+     * @param type                    The type of the entity, event, or relation being asserted
+     * @param system                  The system object for the system which created this entity
+     * @param confidence              If non-null, the confidence with which to mark the specified type
+     * @return The created type assertion resource
+     */
+    public static Resource markType(Model model, String typeAssertionUri, Resource entityOrEventOrRelation,
+                                    String type, Resource system, Double confidence) {
+        return makeAIFStatement(model, entityOrEventOrRelation, RDF.type, type, system, confidence, typeAssertionUri)
+            .addProperty(RDF.type, InterchangeOntology.TypeStatement);
     }
 
     // Helper function to create a justification (text, image, audio, etc.) in the system.

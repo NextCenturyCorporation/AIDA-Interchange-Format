@@ -154,6 +154,14 @@
     rdfs:label "Sentiment" ;
     rdfs:comment "Class of individuals to denote how a claimer feels about the inner claim" .
 
+:ArgumentStatement a owl:Class ;
+    rdfs:label "Argument Statement" ;
+    rdfs:comment "Node to show relation between an Event or Relation and its argument" .
+
+:TypeStatement a owl:Class ;
+    rdfs:label "Type Statement" ;
+    rdfs:comment "Node to identify type of an Event, Relation, or Entity" .
+
 #################################################################
 # Properties
 #################################################################

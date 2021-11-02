@@ -2,10 +2,11 @@ from rdflib import URIRef
 
 # WARNING. This is a Generated File. Please do not edit.
 # Please refer to the README at java/src/main/java/com/ncc/aif/ont2javagen for more information
-# Last generated on: 10/25/2021 15:29:05
+# Last generated on: 10/26/2021 14:42:48
 NAMESPACE = 'https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#'
 
 # Classes
+ArgumentStatement = URIRef(NAMESPACE + 'ArgumentStatement')
 Attribute = URIRef(NAMESPACE + 'Attribute')
 AudioJustification = URIRef(NAMESPACE + 'AudioJustification')
 BoundingBox = URIRef(NAMESPACE + 'BoundingBox')
@@ -35,6 +36,7 @@ ShotVideoJustification = URIRef(NAMESPACE + 'ShotVideoJustification')
 Subgraph = URIRef(NAMESPACE + 'Subgraph')
 System = URIRef(NAMESPACE + 'System')
 TextJustification = URIRef(NAMESPACE + 'TextJustification')
+TypeStatement = URIRef(NAMESPACE + 'TypeStatement')
 VideoJustification = URIRef(NAMESPACE + 'VideoJustification')
 VideoJustificationChannel = URIRef(NAMESPACE + 'VideoJustificationChannel')
 

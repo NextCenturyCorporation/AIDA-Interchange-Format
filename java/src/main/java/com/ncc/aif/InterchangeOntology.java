@@ -6,10 +6,11 @@ import org.apache.jena.rdf.model.ResourceFactory;
 // WARNING. This is a Generated File. Please do not edit.
 // This class contains variables generated from ontologies using the OntologyGeneration class
 // Please refer to the README at java/src/main/java/com/ncc/aif/ont2javagen for more information
-// Last generated on: 10/25/2021 15:29:05
+// Last generated on: 10/26/2021 14:42:48
 public final class InterchangeOntology {
     public static final String NAMESPACE = "https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#";
     // Classes
+    public static final Resource ArgumentStatement = ResourceFactory.createResource(NAMESPACE + "ArgumentStatement");
     public static final Resource Attribute = ResourceFactory.createResource(NAMESPACE + "Attribute");
     public static final Resource AudioJustification = ResourceFactory.createResource(NAMESPACE + "AudioJustification");
     public static final Resource BoundingBox = ResourceFactory.createResource(NAMESPACE + "BoundingBox");
@@ -39,6 +40,7 @@ public final class InterchangeOntology {
     public static final Resource Subgraph = ResourceFactory.createResource(NAMESPACE + "Subgraph");
     public static final Resource System = ResourceFactory.createResource(NAMESPACE + "System");
     public static final Resource TextJustification = ResourceFactory.createResource(NAMESPACE + "TextJustification");
+    public static final Resource TypeStatement = ResourceFactory.createResource(NAMESPACE + "TypeStatement");
     public static final Resource VideoJustification = ResourceFactory.createResource(NAMESPACE + "VideoJustification");
     public static final Resource VideoJustificationChannel = ResourceFactory.createResource(NAMESPACE + "VideoJustificationChannel");
 
