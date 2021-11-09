@@ -1725,7 +1725,7 @@ public class ExamplesAndValidationTest {
                                                 .addXVariable(validXComponent)
                                                 .setNaturalLanguageDescription("Claimer Y claims X killed Hugo Chavez")
                                                 .addClaimSementics(validEventRelationKE)
-                                                .setClaimer(validClaimerComponent)
+                                                //.setClaimer(validClaimerComponent) -> PLE this should be optional
                                                 .setClaimLocation(validXComponent)
                                                 .addAssociatedKE(validKE);
                         }

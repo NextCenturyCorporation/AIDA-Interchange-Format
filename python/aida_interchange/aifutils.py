@@ -1066,3 +1066,47 @@ def mark_ldc_time_range(g, to_mark, startEarliest, startLatest, endEarliest, end
     g.add((to_mark, interchange_ontology.ldcTime, ldc_time))
 
     return ldc_time
+
+def make_claim_component(g, claimComponent_uri, claimComponent_object, system):
+    """
+    Create a claim
+
+    You can then indicate that some other object depends on this hypothesis using mark_depends_on_hypothesis
+
+    :param rdflib.graph.Graph g: The underlying RDF model
+    :param str hypothesis_uri: A unique String URI for the hypothesis
+    :param list hypothesis_content: A list of entities, relations, and arguments that contribute
+        to the hypothesis
+    :param rdflib.term.URIRef system: The system object for the system which made the hypothesis
+    :return: The hypothesis resource
+    :rtype: rdflib.term.URIRef
+    """
+
+    claim_component = _make_aif_resource(g, claimComponent_uri, interchange_ontology.ClaimComponent, system)
+
+    claimComponent_object.make_aif_claim_component(g, claim_component)
+
+    return claim_component
+
+def make_claim(g, claim_uri, claim_object, system):
+    """
+    Create a claim
+
+    You can then indicate that some other object depends on this hypothesis using mark_depends_on_hypothesis
+
+    :param rdflib.graph.Graph g: The underlying RDF model
+    :param str hypothesis_uri: A unique String URI for the hypothesis
+    :param list hypothesis_content: A list of entities, relations, and arguments that contribute
+        to the hypothesis
+    :param rdflib.term.URIRef system: The system object for the system which made the hypothesis
+    :return: The hypothesis resource
+    :rtype: rdflib.term.URIRef
+    """
+    if not claim_object:
+        raise RuntimeError("claim_object cannot be empty")
+
+    claim = _make_aif_resource(g, claim_uri, interchange_ontology.Claim, system)
+    claim_object.make_aif_claim(g, claim, system)
+
+    return claim
+
