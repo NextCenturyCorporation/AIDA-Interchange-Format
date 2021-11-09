@@ -234,12 +234,16 @@ class Claim:
             g.add((claim, interchange_ontology.claimerAffiliation, claimerAffiliation_claimcomponent))  
 
         if (self.identicalClaims != None):
-            g.add((claim, interchange_ontology.identicalClaims, self.identicalClaims))  
+            for item in self.identicalClaims:
+                g.add((claim, interchange_ontology.identicalClaims, item))  
         if (self.relatedClaims != None):
-            g.add((claim, interchange_ontology.relatedClaims, self.relatedClaims))  
+            for item in self.relatedClaims:
+                g.add((claim, interchange_ontology.relatedClaims, item))  
         if (self.supportingClaims != None):
-            g.add((claim, interchange_ontology.supportingClaims, self.supportingClaims))  
+            for item in self.supportingClaims:
+                g.add((claim, interchange_ontology.supportingClaims, item))  
         if (self.refutingClaims != None):
-            g.add((claim, interchange_ontology.refutingClaims, self.refutingClaims))  
+            for item in self.refutingClaims:
+                g.add((claim, interchange_ontology.refutingClaims, item))  
 
         return claim
