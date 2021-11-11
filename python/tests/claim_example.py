@@ -24,7 +24,6 @@ def get_initialized_graph_and_system():
     system = aifutils.make_system_with_uri(graph, "http://www.test.edu/testSystem")
     return graph, system
 
-
 # Running these tests will output the examples to the console
 class ClaimExample(unittest.TestCase):
     test_dir_path = "C:/dev/AIDA-Interchange-Format/python/tests/output"
@@ -48,22 +47,52 @@ class ClaimExample(unittest.TestCase):
         g, system = get_initialized_graph_and_system()
         claimObject = Claim()
 
-        validComponentKE = aifutils.make_entity(g, "http://www.test.edu/entities/SomeComponentKE", system)
-        validKE = aifutils.make_entity(g, "https://www.wikidata.org/wiki/Q8440", system)
-        validEventRelationKE = aifutils.make_entity(g, "https://www.wikidata.org/wiki/Q210392", system)
+        validComponentKE = aifutils.make_entity(g, "http://www.caci.com/entities/validComponentKE", system)
 
-        validXClaimComponent = ClaimComponent("https://www.caci.com/SomeAgency", "Some Agency", "Q37230", "Q47913", "Some Text from Document as Provenance", validComponentKE)
-        validClaimerClaimComponent = ClaimComponent("https://www.caci.com/SomeNewsOutlet", "Some News Outlet", "Q48340", "Q7892363", "Some Text from Document as Provenance",validComponentKE)
+        validProtoType = aifutils.make_entity(g, "http://www.caci.com/entities/validID1", system)
+        
+        validSameAsCluster1 = aifutils.make_cluster_with_prototype(g, "http://www.caci.com/cluster/clusterA/SameAsCluster/ClusterID1", validProtoType, system)
+        validSameAsCluster2 = aifutils.make_cluster_with_prototype(g, "http://www.caci.com/cluster/clusterB/SameAsCluster/ClusterID2", validProtoType, system)
+        validSameAsCluster3 = aifutils.make_cluster_with_prototype(g, "http://www.caci.com/cluster/clusterC/SameAsCluster/ClusterID3", validProtoType, system)
 
-        claimObject.sourceDocument = "Some source Doc"
-        claimObject.topic = "Some Main Topic: Death of Hugo Chavez"
-        claimObject.subtopic = "Some Sub TubTopic: Who killed Hugo Chavez"
-        claimObject.claimTemplate = "X killed Hugo Chavez"
-        claimObject.xVariable = validXClaimComponent
-        claimObject.naturalLanguageDescription = "Claimer Y claims X killed Hugo Chavez"
-        claimObject.claimSemantics = validEventRelationKE
+        validClaimComponent                = ClaimComponent()
+        validClaimComponent.setName        = "Some Agency"
+        validClaimComponent.setIdentity    = "Q37230"
+        validClaimComponent.addType        = "Q47913"
+        validClaimComponent.setProvenance  = "Some Text from Document as Provenance"
+        validClaimComponent.setKe          = validComponentKE
+        validXClaimComponent = aifutils.make_claim_component(g, "https://www.caci.com/SomeAgency", validClaimComponent, system)
+        
+        validClaimComponent                = ClaimComponent()
+        validClaimComponent.setName        = "Some Agency2"
+        validClaimComponent.setIdentity    = "Q8333"
+        validClaimComponent.addType        = "Q47913"
+        validClaimComponent.addType        = "Q6"
+        validClaimComponent.setProvenance  = "Some Text from Document as Provenance"
+        validClaimComponent.setKe          = validComponentKE
+        validX2ClaimComponent = aifutils.make_claim_component(g, "https://www.caci.com/SomeAgency2", validClaimComponent, system)
+
+        validClaimComponent                = ClaimComponent()
+        validClaimComponent.setName        = "Some News Anchor"
+        validClaimComponent.setIdentity    = "Q2096683"
+        validClaimComponent.addType        = "Q1930187"
+        validClaimComponent.addType        = "Q5"
+        validClaimComponent.setProvenance  = "Some Text from Document as Provenance"
+        validClaimComponent.setKe          = validComponentKE
+        validClaimerClaimComponent = aifutils.make_claim_component(g, "https://www.caci.com/SomeNewsAnchor", validClaimComponent, system)
+
+        claimObject.addAssociatedKE = validSameAsCluster1
+        claimObject.addAssociatedKE = validSameAsCluster2
         claimObject.claimer = validClaimerClaimComponent
-        claimObject.associatedKE = validKE
+        claimObject.addClaimSemantics = validSameAsCluster2
+        claimObject.addClaimSemantics = validSameAsCluster3
+        claimObject.claimTemplate = "X killed Hugo Chavez"
+        claimObject.naturalLanguageDescription = "Claimer Y claims X killed Hugo Chavez"
+        claimObject.subtopic = "Some Sub TubTopic: Who killed Hugo Chavez"
+        claimObject.sourceDocument = "Some source Doc"
+        claimObject.topic = "Some Main Topic: Hugo Chavez"
+        claimObject.addXVariable = validXClaimComponent
+        claimObject.addXVariable = validX2ClaimComponent
         
         return g, system, claimObject
         
@@ -71,44 +100,79 @@ class ClaimExample(unittest.TestCase):
     
         g, system, claimObject = self.create_base_claim()
         
-        baseClaim = aifutils.make_claim(g, "https://www.caci.com/myFirstClaim", claimObject, system)
+        aifutils.make_claim(g, "https://www.caci.com/myFirstClaim", claimObject, system)
 
         self.new_file(g, "test_create_minimal_claim.ttl")
         self.dump_graph(g, "Example of a minimal Claim")        
 
     def test_create_full_claim(self):
-
         g, system, claimObject = self.create_base_claim()
 
-        someOtherClaim1 = aifutils.make_claim(g, "https://www.caci.com/someOtherClaim1", claimObject, system)
-        someOtherClaim2 = aifutils.make_claim(g, "https://www.caci.com/someOtherClaim2", claimObject, system)
-        someOtherClaim3 = aifutils.make_claim(g, "https://www.caci.com/someOtherClaim3", claimObject, system)
         validComponentKE = aifutils.make_entity(g, "http://www.test.edu/entities/SomeComponentKE", system)
 
-        
-        # OPTIONAL FULL
-        validLocationClaimComponent = ClaimComponent("https://www.caci.com/SomeCountry", "Some Country", "Q717", "Q3624078", "Some Text from Document as Provenance",validComponentKE)
+        validClaimComponent                = ClaimComponent()
+        validClaimComponent.setName        = "Some Country"
+        validClaimComponent.setIdentity    = "Q717"
+        validClaimComponent.addType        = "Q3624078"
+        validClaimComponent.setProvenance  = "Some Text from Document as Provenance"
+        validClaimComponent.setKe          = validComponentKE
+        validLocationClaimComponent = aifutils.make_claim_component(g, "https://www.caci.com/SomeCountry", validClaimComponent, system)        
+
+        validClaimComponent                = ClaimComponent()
+        validClaimComponent.setName        = "Some News Outlet"
+        validClaimComponent.setIdentity    = "Q48340"
+        validClaimComponent.addType        = "Q7892363"
+        validClaimComponent.setProvenance  = "Some Text from Document as Provenance"
+        validClaimComponent.setKe          = validComponentKE
+        validclaimerAffiliationClaimComponent1 = aifutils.make_claim_component(g, "https://www.caci.com/SomeNewsOutlet", validClaimComponent, system)        
+
+        validClaimComponent                = ClaimComponent()
+        validClaimComponent.setName        = "Some News Outlet2"
+        validClaimComponent.setIdentity    = "Q48340"
+        validClaimComponent.addType        = "Q7892363"
+        validClaimComponent.setProvenance  = "Some Text from Document as Provenance"
+        validClaimComponent.setKe          = validComponentKE
+        validclaimerAffiliationClaimComponent2 = aifutils.make_claim_component(g, "https://www.caci.com/SomeNewsOutlet2", validClaimComponent, system)        
+
         claimObject.importance = .8679
-        claimObject.claimId = "ClaimID:1467"
-        claimObject.queryId = "QueryId:12"
+        claimObject.claimId = "ClaimID:1492"
+        claimObject.queryId = "QueryId:1776"
         claimObject.claimLocation = validLocationClaimComponent
 
-        validclaimerAffiliationClaimComponent = ClaimComponent("https://www.caci.com/SomeClaimerAffilication", "Some Agency", "Q37230", "Q47913", "Some Text from Document as Provenance", validComponentKE)
-        claimObject.claimerAffiliation = validclaimerAffiliationClaimComponent
+        claimObject.addClaimerAffiliation = validclaimerAffiliationClaimComponent1
+        claimObject.addClaimerAffiliation = validclaimerAffiliationClaimComponent2
         
-        claimObject.identicalClaims = [someOtherClaim1]
-        claimObject.relatedClaims = [someOtherClaim1, someOtherClaim2]
-        claimObject.supportingClaims = [someOtherClaim2, someOtherClaim3]
-        claimObject.refutingClaims = [someOtherClaim1, someOtherClaim2, someOtherClaim3]
+        
+        someOtherClaim1 = URIRef("https://www.caci.com/claim/someOtherClaimID1")
+        someOtherClaim2 = URIRef("https://www.caci.com/claim/someOtherClaimID2")
+        someOtherClaim3 = URIRef("https://www.caci.com/claim/someOtherClaimID3")
+        
+        claimObject.addIdenticalClaims = someOtherClaim1
+        claimObject.addRelatedClaims = someOtherClaim1
+        claimObject.addRelatedClaims = someOtherClaim2
+        claimObject.addSupportingClaims = someOtherClaim2
+        claimObject.addSupportingClaims = someOtherClaim3
+        claimObject.addRefutingClaims = someOtherClaim1
+        claimObject.addRefutingClaims = someOtherClaim2
+        claimObject.addRefutingClaims = someOtherClaim3
+        
+        claimObject.sentiment = interchange_ontology.SentimentNeutralUnknown
+        claimObject.epistemic =  interchange_ontology.EpistemicUnknown
 
-        baseClaim = aifutils.make_claim(g, "https://www.caci.com/myFirstClaim", claimObject, system)
+        #LDCTimeComponent
+        startE = LDCTimeComponent(LDCTimeType.AFTER, "2014", "--02", None)
+        startL = LDCTimeComponent(LDCTimeType.BEFORE, "2014", "--03", None)
+        endE = LDCTimeComponent(LDCTimeType.AFTER, "2015", "--02", "---21")
+        endL = LDCTimeComponent(LDCTimeType.BEFORE, "2015", "--02", "---26")
+        claimObject.claimDateTime = aifutils.make_ldc_time_range(g, startE, startL, endE, endL, system)
+
+        aifutils.make_claim(g, "https://www.caci.com/myFirstClaim", claimObject, system)
 
         self.new_file(g, "test_create_full_claim.ttl")
         self.dump_graph(g, "Example of a full Claim")
 
 if __name__ == '__main__':
     # get directory path
-    # ClaimExample.test_dir_path = os.environ.get("DIR_PATH", None)
     if ClaimExample.test_dir_path is not None:
         if not os.path.exists(ClaimExample.test_dir_path):
             ClaimExample.test_dir_path = None

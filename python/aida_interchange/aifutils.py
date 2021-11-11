@@ -1067,6 +1067,31 @@ def mark_ldc_time_range(g, to_mark, startEarliest, startLatest, endEarliest, end
 
     return ldc_time
 
+def make_ldc_time_range(g, startEarliest, startLatest, endEarliest, endLatest, system):
+    """
+    Add LDC start and end time representation to an Event or Relation
+
+    :param rdflib.graph.Graph g: The underlying RDF model
+    :param LDCTimeComponent startEarliest: containing the earliest start time information
+    :param LDCTimeComponent startLatest: containing the latest start time information
+    :param LDCTimeComponent endEarliest: containing the earliest end time information
+    :param LDCTimeComponent endLatest: containing the latest end time information
+    :param rdflib.term.URIRef  system: The system object for the system which marks the time
+    :returns: The LDCTimeComponent resource
+    :rtype: rdflib.term.BNode
+    """
+    ldc_time = _make_aif_resource(g, None, interchange_ontology.LDCTime, system)
+    if startEarliest:
+        g.add((ldc_time, interchange_ontology.start, startEarliest.make_aif_time_component(g)))
+    if startLatest:
+        g.add((ldc_time, interchange_ontology.start, startLatest.make_aif_time_component(g)))
+    if endEarliest:
+        g.add((ldc_time, interchange_ontology.end, endEarliest.make_aif_time_component(g)))
+    if endLatest:
+        g.add((ldc_time, interchange_ontology.end, endLatest.make_aif_time_component(g)))
+
+    return ldc_time
+
 def make_claim_component(g, claimComponent_uri, claimComponent_object, system):
     """
     Create a claim

@@ -1500,15 +1500,25 @@ aida:ClaimShape
     ] ;
 
     # one or more event/relation KE IDs
+    #PER NIST
+    # sh:property [
+    #     sh:path aida:claimSemantics ;
+    #     sh:xone (
+    #         [sh:class aida:Entity]
+    #         [sh:class aida:Event]
+    #         [sh:class aida:Relation] ) ;
+    #     sh:minCount 1 ;
+    #     sh:message "Claim requires at least 1 KE in claim semantics" ;
+    # ] ;
+    
     sh:property [
         sh:path aida:claimSemantics ;
         sh:xone (
-            [sh:class aida:Entity]
-            [sh:class aida:Event]
-            [sh:class aida:Relation] ) ;
+            [sh:class aida:SameAsCluster] ) ;
         sh:minCount 1 ;
         sh:message "Claim requires at least 1 KE in claim semantics" ;
     ] ;
+
 
     # Who/What made the claim
     sh:property [
@@ -1560,12 +1570,21 @@ aida:ClaimShape
     ] ;
 
     # KEs involved in the claim
+    # PER NIST: this should be a SameAsCluster
+    # sh:property [
+    #     sh:path aida:associatedKEs ;
+    #     sh:xone (
+    #         [sh:class aida:Entity]
+    #         [sh:class aida:Event]
+    #         [sh:class aida:Relation] ) ;
+    #     sh:minCount 1 ;
+    #     sh:message "Claim requires at least 1 instance of associatedKEs" ;
+    # ] ;
+
     sh:property [
         sh:path aida:associatedKEs ;
         sh:xone (
-            [sh:class aida:Entity]
-            [sh:class aida:Event]
-            [sh:class aida:Relation] ) ;
+            [sh:class aida:SameAsCluster]) ;
         sh:minCount 1 ;
         sh:message "Claim requires at least 1 instance of associatedKEs" ;
     ] ;
@@ -1573,25 +1592,25 @@ aida:ClaimShape
     # Optional
     sh:property [
         sh:path aida:identicalClaims ;
-        sh:class aida:Claim ;
+        # sh:class aida:Claim ;
     ] ;
 
     # Optional
     sh:property [
         sh:path aida:relatedClaims ;
-        sh:class aida:Claim ;
+        # sh:class aida:Claim ;
     ] ;
 
     # Optional
     sh:property [
         sh:path aida:supportingClaims ;
-        sh:class aida:Claim ;
+        # sh:class aida:Claim ;
     ] ;
 
     # Optional
     sh:property [
         sh:path aida:refutingClaims ;
-        sh:class aida:Claim ;
+        # sh:class aida:Claim ;
     ] ;
 
     sh:property aida:SystemPropertyShape ;

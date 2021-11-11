@@ -68,6 +68,7 @@ import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.tdb.TDBFactory;
+import org.apache.jena.util.URIref;
 import org.apache.jena.vocabulary.RDF;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -1680,11 +1681,13 @@ public class ExamplesAndValidationTest {
                 @Nested
                 class ClaimTest {
                         Resource validXComponent;
-                        Resource validKE;
                         Resource validComponentKE;
                         Resource validClaimerComponent;
-                        Resource validEventRelationKE;
                         Resource validClaimLocationComponent;
+                        Resource validProtoType;
+                        Resource validSameAsCluster1;
+                        Resource validSameAsCluster2;
+                        Resource validSameAsCluster3;
                         Claim validClaim;
 
                         @BeforeEach
@@ -1712,10 +1715,14 @@ public class ExamplesAndValidationTest {
                                                 .setKE(validComponentKE)
                                                 .addToModel(model, "https://www.wikidata.org/wiki/Q717", system);                 
 
-                                validKE = utils.makeValidAIFEntity(SeedlingOntology.Person, utils.getUri("Chavez"));
+                                validProtoType = makeEntity(model, utils.getUri("someTestURI"), system);
 
-                                validEventRelationKE = utils.makeValidAIFEntity(SeedlingOntology.Person, utils.getUri("SomeEventRelationKE"));
-
+                                validSameAsCluster1 = AIFUtils.makeAIFResource(model, "http://www.caci.com/cluster/SameAsCluster/ClusterID1", InterchangeOntology.SameAsCluster, system)
+                                        .addProperty(InterchangeOntology.prototype, validProtoType);
+                                validSameAsCluster2 = AIFUtils.makeAIFResource(model, "http://www.caci.com/cluster/SameAsCluster/ClusterID2", InterchangeOntology.SameAsCluster, system)
+                                        .addProperty(InterchangeOntology.prototype, validProtoType);
+                                validSameAsCluster3 = AIFUtils.makeAIFResource(model, "http://www.caci.com/cluster/SameAsCluster/ClusterID3", InterchangeOntology.SameAsCluster, system)
+                                        .addProperty(InterchangeOntology.prototype, validProtoType);
 
                                 validClaim = new Claim()
                                                 .setSourceDocument("Some source")
@@ -1724,37 +1731,43 @@ public class ExamplesAndValidationTest {
                                                 .setClaimTemplate("X killed Hugo Chavez")
                                                 .addXVariable(validXComponent)
                                                 .setNaturalLanguageDescription("Claimer Y claims X killed Hugo Chavez")
-                                                .addClaimSementics(validEventRelationKE)
-                                                //.setClaimer(validClaimerComponent) -> PLE this should be optional
-                                                .setClaimLocation(validXComponent)
-                                                .addAssociatedKE(validKE);
+                                                .addClaimSementics(validSameAsCluster1)
+                                                .setClaimer(validClaimerComponent)
+                                                .addAssociatedKE(validSameAsCluster2)
+                                                .addAssociatedKE(validSameAsCluster3);
                         }
 
                         @Test
                         void validMinimal() {
-                                validClaim.addToModel(model, utils.getUri("claim"), system);
-                                utils.testValid("Create minimal valid Claim");
+                                validClaim.addToModel(model, utils.getUri("a_minimal_claimframe"), system);
+                                utils.testValid("Create minimal valid claim frame");
                         }
 
                         @Test
                         void validFull() {
-				Resource identical = validClaim.addToModel(model, utils.getUri("some_other_cf"), system);
+                                Resource someOtherClaimFrame1 = model.createResource("https://www.caci.com/claim/someOtherClaimID1");
+                                Resource someOtherClaimFrame2 = model.createResource("https://www.caci.com/claim/someOtherClaimID2");
+                                Resource someOtherClaimFrame3 = model.createResource("https://www.caci.com/claim/someOtherClaimID3");
+
                                 validClaim
                 	                .setImportance(1d)
 					.setClaimId("claimId")
 					.setQueryId("queryId")
 					.setClaimLocation(validXComponent)
 					.addClaimerAfilliation(validXComponent)
-					.addIdenticalClaim(identical)
-					.addRelatedClaim(identical)
-					.addSupportingClaim(identical)
-					.addRefutingClaim(identical);
+					.addIdenticalClaim(someOtherClaimFrame1)
+					.addRelatedClaim(someOtherClaimFrame2)
+					.addSupportingClaim(someOtherClaimFrame1)
+					.addSupportingClaim(someOtherClaimFrame2)
+					.addRefutingClaim(someOtherClaimFrame1)
+					.addRefutingClaim(someOtherClaimFrame2)
+					.addRefutingClaim(someOtherClaimFrame3);
 				validClaim.setClaimDateTime(AIFUtils.makeLDCTimeRange(model,
 					"2013-01-xx", "2013-12-xx", "2014-01-xx", "2014-12-xx", system));
 
-                                validClaim.addToModel(model, utils.getUri("a_full_cf"), system);
+                                validClaim.addToModel(model, utils.getUri("a_full_claimframe"), system);
 
-				utils.testValid("Create full valid claim");
+				utils.testValid("Create full valid claim frame");
                         }
 
                         @Test
