@@ -1,5 +1,3 @@
-# Remove the below comment once we update to python3
-# -*- coding: utf-8 -*-
 import os
 import sys
 import unittest
@@ -26,7 +24,7 @@ def get_initialized_graph_and_system():
 
 # Running these tests will output the examples to the console
 class ClaimExample(unittest.TestCase):
-    test_dir_path = "C:/dev/AIDA-Interchange-Format/python/tests/output"
+    test_dir_path = "./output"
     
     def new_file(self, g, test_name):
         if self.test_dir_path:
@@ -181,3 +179,4 @@ if __name__ == '__main__':
         print("Test output directory was not provided. Example turtle files will not be saved")
 
     unittest.main()
+    
