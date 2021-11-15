@@ -179,4 +179,3 @@ if __name__ == '__main__':
         print("Test output directory was not provided. Example turtle files will not be saved")
 
     unittest.main()
-    
