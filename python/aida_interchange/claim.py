@@ -252,6 +252,7 @@ class Claim:
             self.add_literal(g, claim, interchange_ontology.queryId, self.queryId, XSD.string)
         if (self.claimId != None):
             self.add_literal(g, claim, interchange_ontology.claimId, self.claimId, XSD.string)
+            # g.add((claim, interchange_ontology.claimId, self.claimId))  
         if (self.importance != None):
             self.add_literal(g, claim, interchange_ontology.importance, self.importance, XSD.double)
 
@@ -266,17 +267,21 @@ class Claim:
                 g.add((claim, interchange_ontology.claimerAffiliation, item))               
         if (self.identicalClaims != None):
             for item in self.identicalClaims:
-                g.add((claim, interchange_ontology.identicalClaims, item))
+                self.add_literal(g, claim, interchange_ontology.identicalClaims, item, XSD.string)
+                #g.add((claim, interchange_ontology.identicalClaims, item))
         if (self.relatedClaims != None):
             for item in self.relatedClaims:
-                g.add((claim, interchange_ontology.relatedClaims, item))
+                self.add_literal(g, claim, interchange_ontology.relatedClaims, item, XSD.string)
+                #g.add((claim, interchange_ontology.relatedClaims, item))
         if (self.supportingClaims != None):
             for item in self.supportingClaims:
-                g.add((claim, interchange_ontology.supportingClaims, item))
+                self.add_literal(g, claim, interchange_ontology.supportingClaims, item, XSD.string)
+                #g.add((claim, interchange_ontology.supportingClaims, item))
 
         if (self.refutingClaims != None):
             for item in self.refutingClaims:
-                g.add((claim, interchange_ontology.refutingClaims, item))
+                self.add_literal(g, claim, interchange_ontology.refutingClaims, item, XSD.string)
+                #g.add((claim, interchange_ontology.refutingClaims, item))
 
         if (self.epistemic != None):
             g.add((claim, interchange_ontology.epistemic, self.epistemic))
