@@ -9,7 +9,7 @@ py_validator.sh does the following:
 Prerequisites:
 * The python version of AIF must be installed. It is recommended that this is installed in a virtual environment:
 
-      pip install -e ..
+      pip install aida-interchange
 * Docker must be installed to access the executable docker image in dockerhub.
 
 To execute the script, run: `./py_validator.sh`

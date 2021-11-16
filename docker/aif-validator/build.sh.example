@@ -1,9 +1,15 @@
 #!/bin/bash
 
-docker build --no-cache \
-`# Default arguments defined in Dockerfile. Uncomment to override.` \
-`#	--build-arg GIT_REPO=github.com `\
-`#	--build-arg VALIDATOR_REPO=NextCenturyCorporation/AIDA-Interchange-Format.git `\
-`#	--build-arg VALIDATOR_BRANCH=master `\
-	--squash \
-	-t aif-validator .
+# Populate base image if it does not exist
+if [ "$(docker images -q amazonlinux-java)" = "" ]
+then
+    echo "Building base image..."
+    bash amazonlinux-java.build.sh.example
+fi
+
+# Default arguments defined in Dockerfile. Uncomment to override.
+# git="--build-arg GIT_REPO=github.com"
+# repo="--build-arg VALIDATOR_REPO=NextCenturyCorporation/AIDA-Interchange-Format.git"
+branch="--build-arg VALIDATOR_BRANCH=develop"
+
+docker build --no-cache $git $repo $branch -t nextcenturycorp/aif_validator:1.2.2-SNAPSHOT .

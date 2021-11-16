@@ -4,6 +4,7 @@ from rdflib import RDF, XSD, BNode, Graph, Literal, URIRef
 from rdflib.plugins.sparql import prepareQuery
 
 from aida_interchange.rdf_ontologies import interchange_ontology
+from rdflib.term import Node
 
 
 """
@@ -145,17 +146,14 @@ def mark_type(g, type_assertion_uri, entity_or_event, _type, system, confidence)
         resource with which to mark the entity or event
     :param rdflib.term.URIRef entity_or_event: The entity, event, or relation to mark
         as having the specified type
-    :param rdflib.term.URIRef _type: The type of the entity, event, or relation being asserted
+    :param rdflib.term.URIRef | str _type: The type of the entity, event, or relation being asserted
     :param rdflib.term.URIRef system: The system object for the system which created this entity
     :param float confidence: If not None, the confidence with which to mark the specified type
     :returns: The created type assertion resource
     :rtype: rdflib.term.URIRef
     """
-    type_assertion = _make_aif_resource(g, type_assertion_uri, RDF.Statement, system)
-    g.add((type_assertion, RDF.subject, entity_or_event))
-    g.add((type_assertion, RDF.predicate, RDF.type))
-    g.add((type_assertion, RDF['object'], _type))
-    mark_confidence(g, type_assertion, confidence, system)
+    type_assertion = _make_aif_statement(g, type_assertion_uri, entity_or_event, RDF.type, _type, system, confidence)
+    g.add((type_assertion, RDF.type, interchange_ontology.TypeStatement))
     return type_assertion
 
 
@@ -263,6 +261,17 @@ def make_relation(g, relation_uri, system):
     """
     return _make_aif_resource(g, relation_uri, interchange_ontology.Relation, system)
 
+def mark_attribute(g, to_mark_on, attribute):
+    """
+    Add Semantic Attrobute to Event. TEST
+
+    :param rdflib.graph.Graph g: The underlying RDF model
+    :param to_mark_on: The resource to mark with the specified confidence
+    :param attribute: Attribute resource from interchange_ontology (Negated, Hedged, Irrealis, Generic)
+
+    """
+    g.add((to_mark_on, interchange_ontology.attribute, attribute))
+
 
 def make_relation_in_event_form(g, relation_uri, relation_type, subject_role, subject_resource, object_role,
                                 object_resource, type_assertion_uri, system, confidence):
@@ -308,7 +317,7 @@ def mark_as_argument(g, event_or_relation, argument_type, argument_filler, syste
     :param rdflib.graph.Graph g: The underlying RDF model
     :param rdflib.term.URIRef event_or_relation: The event or relation for which to mark
         the specified argument role
-    :param rdflib.term.URIRef argument_type: The type (predicate) of the argument
+    :param rdflib.term.URIRef | str argument_type: The type (predicate) of the argument
     :param rdflib.term.URIRef argument_filler: The filler (object) of the argument
     :param rdflib.term.URIRef system: The system object for the system which created this
         argument
@@ -319,12 +328,8 @@ def mark_as_argument(g, event_or_relation, argument_type, argument_filler, syste
     :rtype: rdflib.term.BNode
 
     """
-    arg_assertion = _make_aif_resource(g, uri, RDF.Statement, system)
-    g.add((arg_assertion, RDF.subject, event_or_relation))
-    g.add((arg_assertion, RDF.predicate, argument_type))
-    g.add((arg_assertion, RDF['object'], argument_filler))
-    if confidence is not None:
-        mark_confidence(g, arg_assertion, confidence, system)
+    arg_assertion = _make_aif_statement(g, uri, event_or_relation, argument_type, argument_filler, system, confidence)
+    g.add((arg_assertion, RDF.type, interchange_ontology.ArgumentStatement))
     return arg_assertion
 
 
@@ -926,6 +931,31 @@ def _make_aif_resource(g, uri, class_type, system):
         mark_system(g, resource, system)
     return resource
 
+def _get_node(value):
+    return value if isinstance(value, Node) else Literal(str(value), datatype=XSD.string)
+
+def _make_aif_statement(g, uri, subject, predicate, _object, system, confidence):
+    """
+    Helper function to create a statement (argument statement, type statement) in the system.
+
+    :param rdflib.graph.Graph g: The underlying RDF model
+    :param str uri: The string URI of the resource
+    :param rdflib.term.URIRef subject: The subject of the statement
+    :param rdflib.term.URIRef | str predicate: The predicate of the statement
+    :param rdflib.term.URIRef | str _object: The object of the statement
+    :param rdflib.term.URIRef system: The system object for the system which marks the
+        justification
+    :param float confidence: If not None, the confidence with which to mark the linkage
+    :returns: The created statement
+    :rtype: rdflib.term.URIRef
+    """
+    statement = _make_aif_resource(g, uri, RDF.Statement, system)
+    g.add((statement, RDF.subject, subject))
+    g.add((statement, RDF.predicate, _get_node(predicate)))
+    g.add((statement, RDF['object'], _get_node(_object)))
+    if confidence is not None:
+        mark_confidence(g, statement, confidence, system)
+    return statement
 
 def _make_aif_justification(g, doc_id, class_type, system, confidence,
                             uri_ref=None):
@@ -1036,3 +1066,72 @@ def mark_ldc_time_range(g, to_mark, startEarliest, startLatest, endEarliest, end
     g.add((to_mark, interchange_ontology.ldcTime, ldc_time))
 
     return ldc_time
+
+def make_ldc_time_range(g, startEarliest, startLatest, endEarliest, endLatest, system):
+    """
+    Add LDC start and end time representation to an Event or Relation
+
+    :param rdflib.graph.Graph g: The underlying RDF model
+    :param LDCTimeComponent startEarliest: containing the earliest start time information
+    :param LDCTimeComponent startLatest: containing the latest start time information
+    :param LDCTimeComponent endEarliest: containing the earliest end time information
+    :param LDCTimeComponent endLatest: containing the latest end time information
+    :param rdflib.term.URIRef  system: The system object for the system which marks the time
+    :returns: The LDCTimeComponent resource
+    :rtype: rdflib.term.BNode
+    """
+    ldc_time = _make_aif_resource(g, None, interchange_ontology.LDCTime, system)
+    if startEarliest:
+        g.add((ldc_time, interchange_ontology.start, startEarliest.make_aif_time_component(g)))
+    if startLatest:
+        g.add((ldc_time, interchange_ontology.start, startLatest.make_aif_time_component(g)))
+    if endEarliest:
+        g.add((ldc_time, interchange_ontology.end, endEarliest.make_aif_time_component(g)))
+    if endLatest:
+        g.add((ldc_time, interchange_ontology.end, endLatest.make_aif_time_component(g)))
+
+    return ldc_time
+
+def make_claim_component(g, claimComponent_uri, claimComponent_object, system):
+    """
+    Create a claim
+
+    You can then indicate that some other object depends on this hypothesis using mark_depends_on_hypothesis
+
+    :param rdflib.graph.Graph g: The underlying RDF model
+    :param str hypothesis_uri: A unique String URI for the hypothesis
+    :param list hypothesis_content: A list of entities, relations, and arguments that contribute
+        to the hypothesis
+    :param rdflib.term.URIRef system: The system object for the system which made the hypothesis
+    :return: The hypothesis resource
+    :rtype: rdflib.term.URIRef
+    """
+
+    claim_component = _make_aif_resource(g, claimComponent_uri, interchange_ontology.ClaimComponent, system)
+
+    claimComponent_object.make_aif_claim_component(g, claim_component)
+
+    return claim_component
+
+def make_claim(g, claim_uri, claim_object, system):
+    """
+    Create a claim
+
+    You can then indicate that some other object depends on this hypothesis using mark_depends_on_hypothesis
+
+    :param rdflib.graph.Graph g: The underlying RDF model
+    :param str hypothesis_uri: A unique String URI for the hypothesis
+    :param list hypothesis_content: A list of entities, relations, and arguments that contribute
+        to the hypothesis
+    :param rdflib.term.URIRef system: The system object for the system which made the hypothesis
+    :return: The hypothesis resource
+    :rtype: rdflib.term.URIRef
+    """
+    if not claim_object:
+        raise RuntimeError("claim_object cannot be empty")
+
+    claim = _make_aif_resource(g, claim_uri, interchange_ontology.Claim, system)
+    claim_object.make_aif_claim(g, claim, system)
+
+    return claim
+

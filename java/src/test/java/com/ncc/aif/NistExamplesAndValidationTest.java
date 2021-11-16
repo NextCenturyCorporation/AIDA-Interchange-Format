@@ -1,13 +1,34 @@
 package com.ncc.aif;
 
-import static com.ncc.aif.AIFUtils.*;
+import static com.ncc.aif.AIFUtils.addSourceDocumentToJustification;
+import static com.ncc.aif.AIFUtils.makeClusterWithPrototype;
+import static com.ncc.aif.AIFUtils.makeEntity;
+import static com.ncc.aif.AIFUtils.makeEvent;
+import static com.ncc.aif.AIFUtils.makeRelation;
+import static com.ncc.aif.AIFUtils.makeSystemWithURI;
+import static com.ncc.aif.AIFUtils.makeTextJustification;
+import static com.ncc.aif.AIFUtils.markAsArgument;
+import static com.ncc.aif.AIFUtils.markAsPossibleClusterMember;
+import static com.ncc.aif.AIFUtils.markCompoundJustification;
+import static com.ncc.aif.AIFUtils.markConfidence;
+import static com.ncc.aif.AIFUtils.markHandle;
+import static com.ncc.aif.AIFUtils.markInformativeJustification;
+import static com.ncc.aif.AIFUtils.markJustification;
+import static com.ncc.aif.AIFUtils.markKeyFrameVideoJustification;
+import static com.ncc.aif.AIFUtils.markLDCTime;
+import static com.ncc.aif.AIFUtils.markLDCTimeRange;
+import static com.ncc.aif.AIFUtils.markName;
+import static com.ncc.aif.AIFUtils.markNumericValueAsString;
+import static com.ncc.aif.AIFUtils.markShotVideoJustification;
+import static com.ncc.aif.AIFUtils.markSystem;
+import static com.ncc.aif.AIFUtils.markTextJustification;
+import static com.ncc.aif.AIFUtils.markTextValue;
 
-import java.nio.charset.StandardCharsets;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.CharSource;
-import com.google.common.io.Resources;
 import com.ncc.aif.AIFUtils.BoundingBox;
+import com.ncc.aif.AIFUtils.LDCTimeComponent;
 import com.ncc.aif.AIFUtils.Point;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -45,8 +66,7 @@ public class NistExamplesAndValidationTest {
     static void initTest() {
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
-        ImmutableSet<CharSource> ont = ImmutableSet.of(Resources.asCharSource(
-                Resources.getResource("com/ncc/aif/ontologies/LDCOntology"),StandardCharsets.UTF_8));
+        Set<String> ont = Set.of("com/ncc/aif/ontologies/LDCOntology");
         utils = new NistTestUtils(LDC_NS, ValidateAIF.create(ont, ValidateAIF.Restriction.NIST), DUMP_ALWAYS, DUMP_TO_FILE);
     }
 
@@ -433,7 +453,7 @@ public class NistExamplesAndValidationTest {
                 Resource entity1 = makeEntity(model, utils.getEntityUri(), system);
                 markJustification(utils.addType(entity1, LDCOntology.PER), utils.makeValidJustification());
                 makeClusterWithPrototype(model, null, entity1, false, system);
-                
+
                 utils.expect(ShaclShapes.ClusterShape, SH.NodeKindConstraintComponent, null);
                 utils.testInvalid("NIST.invalid: Cluster has IRI");
             }
@@ -776,7 +796,7 @@ public class NistExamplesAndValidationTest {
                 utils.testValid("LinkAssertion.valid");
             }
         }
-         
+
         @Nested
         class Prototype {
             @Test
@@ -786,22 +806,21 @@ public class NistExamplesAndValidationTest {
                 markJustification(utils.addType(entity1, LDCOntology.PER), utils.makeValidJustification());
                 makeClusterWithPrototype(model, utils.getClusterUri(), entity1, false, system);
                 makeClusterWithPrototype(model, utils.getClusterUri(), entity1, false, system);
-    
+
                 utils.expect(ShaclShapes.PreventMultiClusterPrototypeShape, SH.MaxCountConstraintComponent, null);
                 utils.testInvalid("Prototype.invalid: prototype of multiple clusters");
             }
-            
+
             @Test
-            @Disabled("NIST has stated that this is not a requirement")
             void invalidPrototypeMemberOfOther() {
                 // create sample entities
                 ImmutablePair<Resource, Resource> aPair = utils.makeValidNistEntity(
                     LDCOntology.PER);
                 final Resource entity2 = aPair.getKey();
-                
+
                 // create two clusters with different prototypes
                 markAsPossibleClusterMember(model, entity2, entityCluster, 1d, system);
-                
+
                 utils.expect(ShaclShapes.PrototypeShape, SH.SPARQLConstraintComponent, ShaclShapes.PreventNonClusterPrototypeMemberShape);
                 utils.testInvalid("Prototype.invalid: prototype member of other cluster");
             }
@@ -815,7 +834,7 @@ public class NistExamplesAndValidationTest {
                 utils.expect(ShaclShapes.PreventHandleOnCluster, SH.NotConstraintComponent, null);
                 utils.testInvalid("Handle.invalid: handle not allowed on cluster");
             }
-            
+
             @Test
             void valid() {
                 markHandle(entity, "handle");
@@ -838,7 +857,7 @@ public class NistExamplesAndValidationTest {
 
             @Test
             void invalidTimeInsufficient() {
-                markLDCTime(model, event, 
+                markLDCTime(model, event,
                     LDCTimeComponent.createTime("AFTER", "1901-01-01"),
                     LDCTimeComponent.createTime("BEFORE", "1901-02-xx"), system);
                 utils.expect(null, SH.MinCountConstraintComponent, null, 2);
@@ -851,7 +870,7 @@ public class NistExamplesAndValidationTest {
                 addCorrectTime();
                 utils.testValid("Time.valid");
             }
-            
+
             private Resource addCorrectTime() {
                 return markLDCTimeRange(model, event, "1901-01-01", "1901-02-xx", "1902-01-01", "1902-xx-xx", system);
             }

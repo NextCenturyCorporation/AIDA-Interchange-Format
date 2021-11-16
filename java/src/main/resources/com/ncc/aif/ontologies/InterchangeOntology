@@ -107,7 +107,7 @@
 
 :LinkAssertion a owl:Class ;
    rdfs:label "Link Assertion" ;
-   rdfs:comment "Represents the claim that an entity or event is the same as the prototype of a cluster".
+   rdfs:comment "Represents the claim that an entity or event is the same as the prototype of a cluster" .
 
 :CompoundJustification a owl:Class ;
     rdfs:label "Compound Justification" ;
@@ -135,6 +135,32 @@
 :LDCTimeComponent a owl:Class ;
     rdfs:label "LDC Time Component" ;
     rdfs:comment "Components that make up a single LDC Time" .
+
+:Claim a owl:Class ;
+    rdfs:label "Claim" ;
+    rdfs:comment "Object to contain claim, underlying KEs, and claimer" .
+
+:ClaimComponent a owl:Class ;
+    rdfs:label "Claim Component" ;
+    rdfs:comment "Entity involved in claim" .
+
+:EpistemicStatus a owl:Class ;
+    owl:oneOf (:EpistemicTrueCertain :EpistemicTrueUncertain :EpistemicFalseCertain :EpistemicFalseUncertain :EpistemicUnknown) ;
+    rdfs:label "Epistemic Status" ;
+    rdfs:comment "Class of individuals to denote how a claimer interprets inner claim" .
+
+:Sentiment a owl:Class ;
+    owl:oneOf (:SentimentPositive :SentimentNegative :SentimentMixed :SentimentNeutralUnknown) ;
+    rdfs:label "Sentiment" ;
+    rdfs:comment "Class of individuals to denote how a claimer feels about the inner claim" .
+
+:ArgumentStatement a owl:Class ;
+    rdfs:label "Argument Statement" ;
+    rdfs:comment "Node to show relation between an Event or Relation and its argument" .
+
+:TypeStatement a owl:Class ;
+    rdfs:label "Type Statement" ;
+    rdfs:comment "Node to identify type of an Event, Relation, or Entity" .
 
 #################################################################
 # Properties
@@ -295,7 +321,11 @@
 :sourceDocument rdf:type owl:DatatypeProperty ;
   rdfs:label "source document" ;
   rdfs:comment "Specify xsd:string identifier for document (parent) of justification" ;
-  rdfs:domain :JustificationTypes ;
+  rdfs:domain [
+    rdf:type owl:Class ;
+    owl:unionOf (
+        :JustificationTypes
+        :Claim ) ] ;
   rdfs:range xsd:string ;
   rdfs:subPropertyOf owl:topDataProperty .
 
@@ -500,6 +530,182 @@
   rdfs:range xsd:gDay ;
   rdfs:subPropertyOf owl:topDataProperty .
 
+:claimId rdf:type owl:DatatypeProperty ;
+    rdfs:label "claim Identifier" ;
+    rdfs:comment: "Human readable claim ID" ;
+    rdfs:domain :Claim ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf owl:topDataProperty .
+
+:queryId rdf:type owl:DatatypeProperty ;
+    rdfs:label "query Identifier" ;
+    rdfs:comment: "ID of query claim is in response to" ;
+    rdfs:domain :Claim ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf owl:topDataProperty .
+
+:topic rdf:type owl:DatatypeProperty ;
+    rdfs:label "topic" ;
+    rdfs:comment: "Topic of claim" ;
+    rdfs:domain :Claim ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf owl:topDataProperty .
+
+:subtopic rdf:type owl:DatatypeProperty ;
+    rdfs:label "subtopic" ;
+    rdfs:comment: "Subtopic of claim" ;
+    rdfs:domain :Claim ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf owl:topDataProperty .
+
+:claimTemplate rdf:type owl:DatatypeProperty ;
+    rdfs:label "claim template" ;
+    rdfs:comment: "Template of claim" ;
+    rdfs:domain :Claim ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf owl:topDataProperty .
+
+:xVariable rdf:type owl:ObjectProperty ;
+    rdfs:label "x variable" ;
+    rdfs:comment "Object to replace X in template with" ;
+    rdfs:domain :Claim ;
+    rdfs:range :ClaimComponent ;
+    rdfs:subPropertyOf owl:topObjectProperty .
+
+:naturalLanguageDescription rdf:type owl:DatatypeProperty ;
+    rdfs:label "natural language description" ;
+    rdfs:comment: "Brief text summary of claim, in English" ;
+    rdfs:domain :Claim ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf owl:topDataProperty .
+
+:claimSemantics rdf:type owl:ObjectProperty ;
+    rdfs:label "claim semantics" ;
+    rdfs:comment "Event/Relation KEs that describe inner claim" ;
+    rdfs:domain :Claim ;
+    rdfs:range [ owl:unionOf (
+        :Event
+        :Relation ) ] ;
+    rdfs:subPropertyOf owl:topObjectProperty .
+
+:claimer rdf:type owl:ObjectProperty ;
+    rdfs:label "claimer" ;
+    rdfs:comment "Entity that made the claim" ;
+    rdfs:domain :Claim ;
+    rdfs:range :ClaimComponent ;
+    rdfs:subPropertyOf owl:topObjectProperty .
+
+:claimerAffiliation rdf:type owl:ObjectProperty ;
+    rdfs:label "claimer affiliation" ;
+    rdfs:comment "Entity claimer is affiliated with" ;
+    rdfs:domain :Claim ;
+    rdfs:range :ClaimComponent ;
+    rdfs:subPropertyOf owl:topObjectProperty .
+
+:epistemic rdf:type owl:ObjectProperty ;
+    rdfs:label "epistemic" ;
+    rdfs:comment "Whether claimer believes the inner claim is true or false" ;
+    rdfs:domain :Claim ;
+    rdfs:range :EpistemicStatus ;
+    rdfs:subPropertyOf owl:topObjectProperty .
+
+:sentiment rdf:type owl:ObjectProperty ;
+    rdfs:label "sentiment" ;
+    rdfs:comment "What sentiment the claimer has regarding the claim" ;
+    rdfs:domain :Claim ;
+    rdfs:range :Sentiment ;
+    rdfs:subPropertyOf owl:topObjectProperty .
+
+:claimDateTime rdf:type owl:ObjectProperty ;
+    rdfs:label "claim date time" ;
+    rdfs:comment "Date when claimer made the claim" ;
+    rdfs:domain :Claim ;
+    rdfs:range :LDCTime ;
+    rdfs:subPropertyOf owl:topObjectProperty .
+
+:claimLocation rdf:type owl:ObjectProperty ;
+    rdfs:label "claim location" ;
+    rdfs:comment "Location claimer made claim" ;
+    rdfs:domain :Claim ;
+    rdfs:range :ClaimComponent ;
+    rdfs:subPropertyOf owl:topObjectProperty .
+
+:associatedKEs rdf:type owl:ObjectProperty ;
+    rdfs:label "associated KEs" ;
+    rdfs:comment "Event/Relation/Entity KEs that support claim" ;
+    rdfs:domain :Claim ;
+    rdfs:range [ owl:unionOf (
+        :Event
+        :Relation
+        :Entity ) ];
+    rdfs:subPropertyOf owl:topObjectProperty .
+
+:identicalClaims rdf:type owl:ObjectProperty ;
+    rdfs:label "identical claims" ;
+    rdfs:comment "Other claims that are the same as this one" ;
+    rdfs:domain :Claim ;
+    rdfs:range :Claim ;
+    rdfs:subPropertyOf owl:topObjectProperty .
+
+:relatedClaims rdf:type owl:ObjectProperty ;
+    rdfs:label "related claims" ;
+    rdfs:comment "Other claims that are related to this one" ;
+    rdfs:domain :Claim ;
+    rdfs:range :Claim ;
+    rdfs:subPropertyOf owl:topObjectProperty .
+
+:supportingClaims rdf:type owl:ObjectProperty ;
+    rdfs:label "supporting claims" ;
+    rdfs:comment "Other claims that support this one" ;
+    rdfs:domain :Claim ;
+    rdfs:range :Claim ;
+    rdfs:subPropertyOf owl:topObjectProperty .
+
+:refutingClaims rdf:type owl:ObjectProperty ;
+    rdfs:label "refuting claims" ;
+    rdfs:comment "Other claims that refute this one" ;
+    rdfs:domain :Claim ;
+    rdfs:range :Claim ;
+    rdfs:subPropertyOf owl:topObjectProperty .
+
+:componentName rdf:type owl:DatatypeProperty ;
+    rdfs:label "claim component name" ;
+    rdfs:comment: "Name or short descriptive phrase in English of entity/event the component is representing" ;
+    rdfs:domain :ClaimComponent ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf owl:topDataProperty .
+
+:componentIdentity rdf:type owl:DatatypeProperty ;
+    rdfs:label "claim component identity" ;
+    rdfs:comment: "QNode idenity of entity/event the component is representing" ;
+    rdfs:domain :ClaimComponent ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf owl:topDataProperty .
+
+:componentType rdf:type owl:DatatypeProperty ;
+    rdfs:label "claim component type" ;
+    rdfs:comment: "Type of entity/event the component is representing" ;
+    rdfs:domain :ClaimComponent ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf owl:topDataProperty .
+
+:componentProvenance rdf:type owl:DatatypeProperty ;
+    rdfs:label "claim component provenance" ;
+    rdfs:comment: "Text or string from document about entity/event the component is representing" ;
+    rdfs:domain :ClaimComponent ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf owl:topDataProperty .
+
+:componentKE rdf:type owl:DatatypeProperty ;
+    rdfs:label "claim component knowledge element" ;
+    rdfs:comment: "Event/Relation/Entity KE representing component" ;
+    rdfs:domain :ClaimComponent ;
+    rdfs:range [ owl:unionOf (
+        :Event
+        :Relation
+        :Entity ) ];
+    rdfs:subPropertyOf owl:topObjectProperty .
+
 #################################################################
 # Constants
 #################################################################
@@ -515,3 +721,72 @@
 :VideoJustificationChannelBoth a owl:NamedIndividual, :VideoJustificationChannel ;
   rdfs:label "Both Video Channels" ;
   rdfs:comment "Constant used to indicate both (sound and picture) channels of a VideoJustification" .
+
+:EpistemicTrueCertain a owl:NamedIndividual, :EpistemicStatus ;
+    rdfs:label "Epistemic Status True Certain" ;
+    rdfs:comment "Holder is certain object is true" .
+:EpistemicTrueUncertain a owl:NamedIndividual, :EpistemicStatus ;
+    rdfs:label "Epistemic Status True Uncertain" ;
+    rdfs:comment "Holder thinks object is true" .
+:EpistemicFalseCertain a owl:NamedIndividual, :EpistemicStatus ;
+    rdfs:label "Epistemic Status False Certain" ;
+    rdfs:comment "Holder is certain object is false" .
+:EpistemicFalseUncertain a owl:NamedIndividual, :EpistemicStatus ;
+    rdfs:label "Epistemic Status False Uncertain" ;
+    rdfs:comment "Holder thinks object is false" .
+:EpistemicUnknown a owl:NamedIndividual, :EpistemicStatus ;
+    rdfs:label "Epistemic Status Uknown" ;
+    rdfs:comment "Holder does not know whether object is true or false" .
+
+:SentimentPositive a owl:NamedIndividual, :Sentiment ;
+    rdfs:label "Sentiment Positive" ;
+    rdfs:comment "Holder has positive sentiment about object" .
+:SentimentNegative a owl:NamedIndividual, :Sentiment ;
+    rdfs:label "Sentiment Negative" ;
+    rdfs:comment "Holder has negative sentiment about object" .
+:SentimentMixed a owl:NamedIndividual, :Sentiment ;
+    rdfs:label "Sentiment Mixed" ;
+    rdfs:comment "Holder has mixed sentiment about object" .
+:SentimentNeutralUnknown a owl:NamedIndividual, :Sentiment ;
+    rdfs:label "Sentiment Neutral Unknown" ;
+    rdfs:comment "Holder has sentiment neutral or unknown sentiment towards object" .
+#################################################################
+# Attributes
+#################################################################
+
+# Annotation Class
+:Attribute a owl:Class ;
+  owl:oneOf (:Negated :Hedged :Irrealis :Generic) ;
+  rdfs:label "Attribute" ;
+  rdfs:comment "Class of individuals to denote how a claimer interprets the semantic attribute of a mention" .
+
+# Properties
+:attribute rdf:type owl:ObjectProperty ;
+    rdfs:label "attribute" ;
+    rdfs:comment "The sematic attribute the claimer has for the mention" ;
+    rdfs:domain [
+          rdf:type owl:Class ;
+          owl:unionOf (
+            rdf:Statement
+            :Entity
+            :Event
+            :Relation) ] ;
+    rdfs:range :Attribute ;
+    rdfs:subPropertyOf owl:topObjectProperty .
+
+#Constants
+:Negated a owl:NamedIndividual, :Attribute ;
+    rdfs:label "Negated" ;
+    rdfs:comment "The negation attribute identifies a part of a sentence as expressing negation. Can apply to whole event or relation mentions, or to an individual event argument within an event mention (cannot apply to an individual relation argument)" .
+
+:Hedged a owl:NamedIndividual, :Attribute ;
+    rdfs:label "Hedged" ;
+    rdfs:comment "The hedged attribute indicates the the sentence is expressing ambiguity, probability, caution, or indecisiveness. Can apply to whole event or relation mentions, or to an individual event argument within an event mention (cannot apply to an individual relation argument)" .
+
+:Irrealis a owl:NamedIndividual, :Attribute ;
+    rdfs:label "Irrealis" ;
+    rdfs:comment "The Irrealis attribute indicates that a certain situation or action is not known to have happened at the moment the speaker is talking. Can apply to whole event or relation mentions" .
+
+:Generic a owl:NamedIndividual, :Attribute ;
+    rdfs:label "Generic" ;
+    rdfs:comment "The generic attribute express unquantified/unqualified statements. Can apply to a whole event or relation mentions, or to an entity (applied to clusters of coreferential entity mentions, could be represented as a property of each mention in the cluster or the cluster as a whole)" .

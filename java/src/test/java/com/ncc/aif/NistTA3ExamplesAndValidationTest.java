@@ -1,22 +1,29 @@
 package com.ncc.aif;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
+import static com.ncc.aif.AIFUtils.makeHypothesis;
+import static com.ncc.aif.AIFUtils.markAsArgument;
+import static com.ncc.aif.AIFUtils.markImportance;
+
+import java.util.Set;
+
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.CharSource;
-import com.google.common.io.Resources;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.topbraid.shacl.vocabulary.SH;
 
-import static com.ncc.aif.AIFUtils.*;
-
-import java.nio.charset.StandardCharsets;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class NistTA3ExamplesAndValidationTest {
@@ -37,8 +44,7 @@ public class NistTA3ExamplesAndValidationTest {
     static void initTest() {
         // prevent too much logging from obscuring the Turtle examples which will be printed
         ((Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
-        ImmutableSet<CharSource> ont = ImmutableSet.of(Resources.asCharSource(
-                Resources.getResource("com/ncc/aif/ontologies/LDCOntology"), StandardCharsets.UTF_8));
+        Set<String> ont = Set.of("com/ncc/aif/ontologies/LDCOntology");
         utils = new NistTA3TestUtils(LDC_NS, ValidateAIF.create(ont, ValidateAIF.Restriction.NIST_TA3), DUMP_ALWAYS, DUMP_TO_FILE);
     }
 
