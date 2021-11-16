@@ -14,17 +14,18 @@ from aida_interchange.claim_component import ClaimComponent
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
-prefix = "http://www.test.edu/"
+prefix = "https://www.caci.com/"
 
 def get_initialized_graph_and_system():
     graph = aifutils.make_graph()
     graph.bind('test', prefix)
-    system = aifutils.make_system_with_uri(graph, "http://www.test.edu/testSystem")
+    system = aifutils.make_system_with_uri(graph, prefix + "testSystem")
     return graph, system
 
 # Running these tests will output the examples to the console
 class ClaimExample(unittest.TestCase):
     test_dir_path = "./output"
+
     
     def new_file(self, g, test_name):
         if self.test_dir_path:
@@ -45,13 +46,13 @@ class ClaimExample(unittest.TestCase):
         g, system = get_initialized_graph_and_system()
         claimObject = Claim()
 
-        validComponentKE = aifutils.make_entity(g, "http://www.caci.com/entities/validComponentKE", system)
+        validComponentKE = aifutils.make_entity(g, prefix + "entities/validComponentKE", system)
 
-        validProtoType = aifutils.make_entity(g, "http://www.caci.com/entities/validID1", system)
+        validProtoType = aifutils.make_entity(g, prefix + "entities/validID1", system)
         
-        validSameAsCluster1 = aifutils.make_cluster_with_prototype(g, "http://www.caci.com/cluster/clusterA/SameAsCluster/ClusterID1", validProtoType, system)
-        validSameAsCluster2 = aifutils.make_cluster_with_prototype(g, "http://www.caci.com/cluster/clusterB/SameAsCluster/ClusterID2", validProtoType, system)
-        validSameAsCluster3 = aifutils.make_cluster_with_prototype(g, "http://www.caci.com/cluster/clusterC/SameAsCluster/ClusterID3", validProtoType, system)
+        validSameAsCluster1 = aifutils.make_cluster_with_prototype(g, prefix + "cluster/clusterA/SameAsCluster/ClusterID1", validProtoType, system)
+        validSameAsCluster2 = aifutils.make_cluster_with_prototype(g, prefix + "cluster/clusterB/SameAsCluster/ClusterID2", validProtoType, system)
+        validSameAsCluster3 = aifutils.make_cluster_with_prototype(g, prefix + "cluster/clusterC/SameAsCluster/ClusterID3", validProtoType, system)
 
         validClaimComponent                = ClaimComponent()
         validClaimComponent.setName        = "Some Agency"
@@ -59,7 +60,7 @@ class ClaimExample(unittest.TestCase):
         validClaimComponent.addType        = "Q47913"
         validClaimComponent.setProvenance  = "Some Text from Document as Provenance"
         validClaimComponent.setKe          = validComponentKE
-        validXClaimComponent = aifutils.make_claim_component(g, "https://www.caci.com/SomeAgency", validClaimComponent, system)
+        validXClaimComponent = aifutils.make_claim_component(g, prefix + "SomeAgency", validClaimComponent, system)
         
         validClaimComponent                = ClaimComponent()
         validClaimComponent.setName        = "Some Agency2"
@@ -68,7 +69,7 @@ class ClaimExample(unittest.TestCase):
         validClaimComponent.addType        = "Q6"
         validClaimComponent.setProvenance  = "Some Text from Document as Provenance"
         validClaimComponent.setKe          = validComponentKE
-        validX2ClaimComponent = aifutils.make_claim_component(g, "https://www.caci.com/SomeAgency2", validClaimComponent, system)
+        validX2ClaimComponent = aifutils.make_claim_component(g, prefix + "SomeAgency2", validClaimComponent, system)
 
         validClaimComponent                = ClaimComponent()
         validClaimComponent.setName        = "Some News Anchor"
@@ -77,7 +78,7 @@ class ClaimExample(unittest.TestCase):
         validClaimComponent.addType        = "Q5"
         validClaimComponent.setProvenance  = "Some Text from Document as Provenance"
         validClaimComponent.setKe          = validComponentKE
-        validClaimerClaimComponent = aifutils.make_claim_component(g, "https://www.caci.com/SomeNewsAnchor", validClaimComponent, system)
+        validClaimerClaimComponent = aifutils.make_claim_component(g, prefix + "SomeNewsAnchor", validClaimComponent, system)
 
         claimObject.addAssociatedKE = validSameAsCluster1
         claimObject.addAssociatedKE = validSameAsCluster2
@@ -98,7 +99,7 @@ class ClaimExample(unittest.TestCase):
     
         g, system, claimObject = self.create_base_claim()
         
-        aifutils.make_claim(g, "https://www.caci.com/myFirstClaim", claimObject, system)
+        aifutils.make_claim(g, prefix + "myFirstMinClaim", claimObject, system)
 
         self.new_file(g, "test_create_minimal_claim.ttl")
         self.dump_graph(g, "Example of a minimal Claim")        
@@ -106,7 +107,7 @@ class ClaimExample(unittest.TestCase):
     def test_create_full_claim(self):
         g, system, claimObject = self.create_base_claim()
 
-        validComponentKE = aifutils.make_entity(g, "http://www.test.edu/entities/SomeComponentKE", system)
+        validComponentKE = aifutils.make_entity(g, prefix + "entities/SomeComponentKE", system)
 
         validClaimComponent                = ClaimComponent()
         validClaimComponent.setName        = "Some Country"
@@ -114,7 +115,7 @@ class ClaimExample(unittest.TestCase):
         validClaimComponent.addType        = "Q3624078"
         validClaimComponent.setProvenance  = "Some Text from Document as Provenance"
         validClaimComponent.setKe          = validComponentKE
-        validLocationClaimComponent = aifutils.make_claim_component(g, "https://www.caci.com/SomeCountry", validClaimComponent, system)        
+        validLocationClaimComponent = aifutils.make_claim_component(g, prefix + "SomeCountry", validClaimComponent, system)        
 
         validClaimComponent                = ClaimComponent()
         validClaimComponent.setName        = "Some News Outlet"
@@ -122,7 +123,7 @@ class ClaimExample(unittest.TestCase):
         validClaimComponent.addType        = "Q7892363"
         validClaimComponent.setProvenance  = "Some Text from Document as Provenance"
         validClaimComponent.setKe          = validComponentKE
-        validclaimerAffiliationClaimComponent1 = aifutils.make_claim_component(g, "https://www.caci.com/SomeNewsOutlet", validClaimComponent, system)        
+        validclaimerAffiliationClaimComponent1 = aifutils.make_claim_component(g, prefix + "SomeNewsOutlet", validClaimComponent, system)        
 
         validClaimComponent                = ClaimComponent()
         validClaimComponent.setName        = "Some News Outlet2"
@@ -130,10 +131,10 @@ class ClaimExample(unittest.TestCase):
         validClaimComponent.addType        = "Q7892363"
         validClaimComponent.setProvenance  = "Some Text from Document as Provenance"
         validClaimComponent.setKe          = validComponentKE
-        validclaimerAffiliationClaimComponent2 = aifutils.make_claim_component(g, "https://www.caci.com/SomeNewsOutlet2", validClaimComponent, system)        
+        validclaimerAffiliationClaimComponent2 = aifutils.make_claim_component(g, prefix + "SomeNewsOutlet2", validClaimComponent, system)        
 
         claimObject.importance = .8679
-        claimObject.claimId = "ClaimID:1492"
+        claimObject.claimId = "thisClaimID1"
         claimObject.queryId = "QueryId:1776"
         claimObject.claimLocation = validLocationClaimComponent
 
@@ -141,10 +142,14 @@ class ClaimExample(unittest.TestCase):
         claimObject.addClaimerAffiliation = validclaimerAffiliationClaimComponent2
         
         
-        someOtherClaim1 = URIRef("https://www.caci.com/claim/someOtherClaimID1")
-        someOtherClaim2 = URIRef("https://www.caci.com/claim/someOtherClaimID2")
-        someOtherClaim3 = URIRef("https://www.caci.com/claim/someOtherClaimID3")
-        
+        # someOtherClaim1 = URIRef(prefix + "claim/someOtherClaimID1")
+        # someOtherClaim2 = URIRef(prefix + "claim/someOtherClaimID2")
+        # someOtherClaim3 = URIRef(prefix + "claim/someOtherClaimID3")
+
+        someOtherClaim1 = "someOtherClaimID1"
+        someOtherClaim2 = "someOtherClaimID2"
+        someOtherClaim3 = "someOtherClaimID3"
+
         claimObject.addIdenticalClaims = someOtherClaim1
         claimObject.addRelatedClaims = someOtherClaim1
         claimObject.addRelatedClaims = someOtherClaim2
@@ -164,7 +169,7 @@ class ClaimExample(unittest.TestCase):
         endL = LDCTimeComponent(LDCTimeType.BEFORE, "2015", "--02", "---26")
         claimObject.claimDateTime = aifutils.make_ldc_time_range(g, startE, startL, endE, endL, system)
 
-        aifutils.make_claim(g, "https://www.caci.com/myFirstClaim", claimObject, system)
+        aifutils.make_claim(g, prefix + "myFirstFullClaim", claimObject, system)
 
         self.new_file(g, "test_create_full_claim.ttl")
         self.dump_graph(g, "Example of a full Claim")
