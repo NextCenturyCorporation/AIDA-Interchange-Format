@@ -15,7 +15,7 @@ RUN mkdir $VALIDATION_HOME
 # Define default arguments if nothing is supplied using --build-args
 ARG GIT_REPO=github.com
 ARG VALIDATOR_REPO=NextCenturyCorporation/AIDA-Interchange-Format.git
-ARG VALIDATOR_BRANCH=develop
+ARG VALIDATOR_BRANCH=AIDA-1977
 
 # Pull Git Repository
 WORKDIR $VALIDATION_HOME

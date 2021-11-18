@@ -1513,8 +1513,7 @@ aida:ClaimShape
     
     sh:property [
         sh:path aida:claimSemantics ;
-        sh:xone (
-            [sh:class aida:SameAsCluster] ) ;
+        sh:class aida:SameAsCluster ;
         sh:minCount 1 ;
         sh:message "Claim requires at least 1 KE in claim semantics" ;
     ] ;
@@ -1583,8 +1582,7 @@ aida:ClaimShape
 
     sh:property [
         sh:path aida:associatedKEs ;
-        sh:xone (
-            [sh:class aida:SameAsCluster]) ;
+        sh:class aida:SameAsCluster ;
         sh:minCount 1 ;
         sh:message "Claim requires at least 1 instance of associatedKEs" ;
     ] ;
