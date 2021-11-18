@@ -1,4 +1,9 @@
-FROM amazonlinux-java:latest
+FROM maven:3.8.3-jdk-11
+
+# Build
+# docker build --build-arg GIT_REPO=github.com --build-arg VALIDATOR_REPO=NextCenturyCorporation/AIDA-Interchange-Format.git --build-arg VALIDATOR_BRANCH=develop -t nextcenturycorp/aif_validator:{version} .
+# Push
+# docker push nextcenturycorp/aif_validator:{version}
 
 #-------------------------------------------------------------
 # Install AIF Interchange Format
@@ -10,7 +15,7 @@ RUN mkdir $VALIDATION_HOME
 # Define default arguments if nothing is supplied using --build-args
 ARG GIT_REPO=github.com
 ARG VALIDATOR_REPO=NextCenturyCorporation/AIDA-Interchange-Format.git
-ARG VALIDATOR_BRANCH=master
+ARG VALIDATOR_BRANCH=develop
 
 # Pull Git Repository
 WORKDIR $VALIDATION_HOME
@@ -19,6 +24,7 @@ RUN git clone https://$GIT_REPO/$VALIDATOR_REPO -b $VALIDATOR_BRANCH .
 # Run Maven Build
 WORKDIR $VALIDATION_HOME/java
 RUN mvn clean -Dmaven.test.skip=true package
+
 
 WORKDIR $HOME
 
