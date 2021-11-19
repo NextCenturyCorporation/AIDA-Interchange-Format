@@ -659,28 +659,28 @@
 :identicalClaims rdf:type owl:ObjectProperty ;
     rdfs:label "identical claims" ;
     rdfs:comment "Other claims that are the same as this one" ;
-    rdfs:domain :Claim ;
+    #rdfs:domain :Claim ;
     #rdfs:range :Claim ;
     rdfs:subPropertyOf owl:topObjectProperty .
 
 :relatedClaims rdf:type owl:ObjectProperty ;
     rdfs:label "related claims" ;
     rdfs:comment "Other claims that are related to this one" ;
-    rdfs:domain :Claim ;
+    #rdfs:domain :Claim ;
     #rdfs:range :Claim ;
     rdfs:subPropertyOf owl:topObjectProperty .
 
 :supportingClaims rdf:type owl:ObjectProperty ;
     rdfs:label "supporting claims" ;
     rdfs:comment "Other claims that support this one" ;
-    rdfs:domain :Claim ;
+    #rdfs:domain :Claim ;
     #rdfs:range :Claim ;
     rdfs:subPropertyOf owl:topObjectProperty .
 
 :refutingClaims rdf:type owl:ObjectProperty ;
     rdfs:label "refuting claims" ;
     rdfs:comment "Other claims that refute this one" ;
-    rdfs:domain :Claim ;
+    #rdfs:domain :Claim ;
     #rdfs:range :Claim ;
     rdfs:subPropertyOf owl:topObjectProperty .
 
