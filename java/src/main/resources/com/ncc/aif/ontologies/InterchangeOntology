@@ -591,7 +591,7 @@
 :claimSemantics rdf:type owl:ObjectProperty ;
     rdfs:label "claim semantics" ;
     rdfs:comment "Event/Relation KEs that describe inner claim" ;
-    rdfs:domain :Claim ;
+    #rdfs:domain :Claim ;
     rdfs:range [ owl:unionOf (
         :SameAsCluster ) ] ;
     rdfs:subPropertyOf owl:topObjectProperty .
@@ -651,10 +651,9 @@
 :associatedKEs rdf:type owl:ObjectProperty ;
     rdfs:label "associated KEs" ;
     rdfs:comment "Event/Relation/Entity KEs that support claim" ;
-    rdfs:domain :Claim ;
+    #rdfs:domain :Claim ;
     rdfs:range [ owl:unionOf (
-        :SameAsCluster
-        :Relation) ];
+        :SameAsCluster) ];
     rdfs:subPropertyOf owl:topObjectProperty .    
 
 :identicalClaims rdf:type owl:ObjectProperty ;
