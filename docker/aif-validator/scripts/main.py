@@ -16,7 +16,8 @@ class Main:
         self.use_m18_ont = os.environ.get('USE_M18_ONTOLOGY', False)
 
     def run(self):
-        ont = '--ldc' if not self.use_m18_ont else '--ont ' + self.validation_home + '/java/src/main/resources/com/ncc/aif/ontologies/LDCOntology'
+        #ont = '--ldc' if not self.use_m18_ont else '--ont ' + self.validation_home + '/java/src/main/resources/com/ncc/aif/ontologies/LDCOntology'
+        ont = "--dwd"
 
         # If validation flags contains one of TA1, TA2, or TA3, then expand the flags to the optimal set of flags 
         # for that use case.  Only one of these will run since the environment variables were validated 
