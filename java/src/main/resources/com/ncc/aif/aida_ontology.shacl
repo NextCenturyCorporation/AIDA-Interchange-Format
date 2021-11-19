@@ -1590,24 +1590,28 @@ aida:ClaimShape
     # Optional
     sh:property [
         sh:path aida:identicalClaims ;
+        sh:datatype xsd:string ;
         # sh:class aida:Claim ;
     ] ;
 
     # Optional
     sh:property [
         sh:path aida:relatedClaims ;
+        sh:datatype xsd:string ;
         # sh:class aida:Claim ;
     ] ;
 
     # Optional
     sh:property [
         sh:path aida:supportingClaims ;
+        sh:datatype xsd:string ;
         # sh:class aida:Claim ;
     ] ;
 
     # Optional
     sh:property [
         sh:path aida:refutingClaims ;
+        sh:datatype xsd:string ;
         # sh:class aida:Claim ;
     ] ;
 
