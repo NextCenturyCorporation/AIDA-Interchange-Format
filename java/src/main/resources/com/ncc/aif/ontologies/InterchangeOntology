@@ -590,7 +590,7 @@
 
 :claimSemantics rdf:type owl:ObjectProperty ;
     rdfs:label "claim semantics" ;
-    rdfs:comment "Event/Relation KEs that describe inner claim" ;
+    rdfs:comment "SameAsCluster's that describe inner claim" ;
     #rdfs:domain :Claim ;
     rdfs:range [ owl:unionOf (
         :SameAsCluster ) ] ;
@@ -650,7 +650,7 @@
 
 :associatedKEs rdf:type owl:ObjectProperty ;
     rdfs:label "associated KEs" ;
-    rdfs:comment "Event/Relation/Entity KEs that support claim" ;
+    rdfs:comment "SameAsCluster's that support the claim" ;
     #rdfs:domain :Claim ;
     rdfs:range [ owl:unionOf (
         :SameAsCluster) ];
