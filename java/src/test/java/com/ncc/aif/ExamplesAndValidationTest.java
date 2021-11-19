@@ -1745,16 +1745,21 @@ public class ExamplesAndValidationTest {
 
                         @Test
                         void validFull() {
-                                Resource someOtherClaimFrame1 = model.createResource("https://www.caci.com/claim/someOtherClaimID1");
-                                Resource someOtherClaimFrame2 = model.createResource("https://www.caci.com/claim/someOtherClaimID2");
-                                Resource someOtherClaimFrame3 = model.createResource("https://www.caci.com/claim/someOtherClaimID3");
+                                // Resource someOtherClaimFrame1 = model.createResource("https://www.caci.com/claim/someOtherClaimID1");
+                                // Resource someOtherClaimFrame2 = model.createResource("https://www.caci.com/claim/someOtherClaimID2");
+                                // Resource someOtherClaimFrame3 = model.createResource("https://www.caci.com/claim/someOtherClaimID3");
+
+                                String someOtherClaimFrame1 = "someOtherClaimID1";
+                                String someOtherClaimFrame2 = "someOtherClaimID2";
+                                String someOtherClaimFrame3 = "someOtherClaimID3";
 
                                 validClaim
                 	                .setImportance(1d)
 					.setClaimId("claimId")
 					.setQueryId("queryId")
-					.setClaimLocation(validXComponent)
-					.addClaimerAfilliation(validXComponent)
+					.setClaimLocation(validClaimLocationComponent)
+					.setClaimMedium(validClaimLocationComponent)
+					.addClaimerAfilliation(validClaimerComponent)
 					.addIdenticalClaim(someOtherClaimFrame1)
 					.addRelatedClaim(someOtherClaimFrame2)
 					.addSupportingClaim(someOtherClaimFrame1)

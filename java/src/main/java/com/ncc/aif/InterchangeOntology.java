@@ -6,7 +6,7 @@ import org.apache.jena.rdf.model.ResourceFactory;
 // WARNING. This is a Generated File. Please do not edit.
 // This class contains variables generated from ontologies using the OntologyGeneration class
 // Please refer to the README at java/src/main/java/com/ncc/aif/ont2javagen for more information
-// Last generated on: 10/26/2021 14:42:48
+// Last generated on: 11/19/2021 16:47:46
 public final class InterchangeOntology {
     public static final String NAMESPACE = "https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#";
     // Classes
@@ -76,6 +76,7 @@ public final class InterchangeOntology {
     public static final Property claimDateTime = ResourceFactory.createProperty(NAMESPACE + "claimDateTime");
     public static final Property claimId = ResourceFactory.createProperty(NAMESPACE + "claimId");
     public static final Property claimLocation = ResourceFactory.createProperty(NAMESPACE + "claimLocation");
+    public static final Property claimMedium = ResourceFactory.createProperty(NAMESPACE + "claimMedium");
     public static final Property claimSemantics = ResourceFactory.createProperty(NAMESPACE + "claimSemantics");
     public static final Property claimTemplate = ResourceFactory.createProperty(NAMESPACE + "claimTemplate");
     public static final Property claimer = ResourceFactory.createProperty(NAMESPACE + "claimer");

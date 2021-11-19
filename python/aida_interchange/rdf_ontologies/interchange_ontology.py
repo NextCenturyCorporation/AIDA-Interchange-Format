@@ -2,7 +2,7 @@ from rdflib import URIRef
 
 # WARNING. This is a Generated File. Please do not edit.
 # Please refer to the README at java/src/main/java/com/ncc/aif/ont2javagen for more information
-# Last generated on: 10/26/2021 14:42:48
+# Last generated on: 11/19/2021 16:47:47
 NAMESPACE = 'https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#'
 
 # Classes
@@ -72,6 +72,7 @@ channel = URIRef(NAMESPACE + 'channel')
 claimDateTime = URIRef(NAMESPACE + 'claimDateTime')
 claimId = URIRef(NAMESPACE + 'claimId')
 claimLocation = URIRef(NAMESPACE + 'claimLocation')
+claimMedium = URIRef(NAMESPACE + 'claimMedium')
 claimSemantics = URIRef(NAMESPACE + 'claimSemantics')
 claimTemplate = URIRef(NAMESPACE + 'claimTemplate')
 claimer = URIRef(NAMESPACE + 'claimer')

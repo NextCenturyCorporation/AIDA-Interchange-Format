@@ -1284,17 +1284,6 @@ aida:ClaimShape
         sh:message "Claim requires exactly 1 natural language description" ;
     ] ;
 
-    # one or more event/relation KE IDs
-    # sh:property [
-    #     sh:path aida:claimSemantics ;
-    #     sh:xone (
-    #         [sh:class aida:Entity]
-    #         [sh:class aida:Event]
-    #         [sh:class aida:Relation] ) ;
-    #     sh:minCount 1 ;
-    #     sh:message "Claim requires at least 1 KE in claim semantics" ;
-    # ] ;
-
     sh:property [
         sh:path aida:claimSemantics ;
         sh:class aida:SameAsCluster ;
@@ -1351,16 +1340,13 @@ aida:ClaimShape
         sh:message "Claim can have at most 1 claimLocation" ;
     ] ;
 
-    # KEs involved in the claim
-    # sh:property [
-    #     sh:path aida:associatedKEs ;
-    #     sh:xone (
-    #         [sh:class aida:Entity]
-    #         [sh:class aida:Event]
-    #         [sh:class aida:Relation] ) ;
-    #     sh:minCount 1 ;
-    #     sh:message "Claim requires at least 1 instance of associatedKEs" ;
-    # ] ;
+    # Optional
+    sh:property [
+        sh:path aida:claimMedium;
+        sh:class aida:ClaimComponent ;
+        sh:maxCount 1 ;
+        sh:message "Claim can have at most 1 claimMedium" ;
+    ] ;
 
     sh:property [
         sh:path aida:associatedKEs ;
@@ -1373,28 +1359,24 @@ aida:ClaimShape
     sh:property [
         sh:path aida:identicalClaims ;
         sh:datatype xsd:string ;
-        # sh:class aida:Claim ;
     ] ;
 
     # Optional
     sh:property [
         sh:path aida:relatedClaims ;
         sh:datatype xsd:string ;
-        # sh:class aida:Claim ;
     ] ;
 
     # Optional
     sh:property [
         sh:path aida:supportingClaims ;
         sh:datatype xsd:string ;
-        # sh:class aida:Claim ;
     ] ;
 
     # Optional
     sh:property [
         sh:path aida:refutingClaims ;
         sh:datatype xsd:string ;
-        # sh:class aida:Claim ;
     ] ;
 
     sh:property aida:SystemPropertyShape ;
