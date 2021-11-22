@@ -80,6 +80,7 @@ class ClaimExample(unittest.TestCase):
         validClaimComponent.setKe          = validComponentKE
         validClaimerClaimComponent = aifutils.make_claim_component(g, prefix + "SomeNewsAnchor", validClaimComponent, system)
 
+
         claimObject.addAssociatedKE = validSameAsCluster1
         claimObject.addAssociatedKE = validSameAsCluster2
         claimObject.claimer = validClaimerClaimComponent
@@ -116,6 +117,14 @@ class ClaimExample(unittest.TestCase):
         validClaimComponent.setProvenance  = "Some Text from Document as Provenance"
         validClaimComponent.setKe          = validComponentKE
         validLocationClaimComponent = aifutils.make_claim_component(g, prefix + "SomeCountry", validClaimComponent, system)        
+
+        validClaimComponent                = ClaimComponent()
+        validClaimComponent.setName        = "YouTube"
+        validClaimComponent.setIdentity    = "Q866"
+        validClaimComponent.addType        = "Q59152282"
+        validClaimComponent.setProvenance  = "Some Text from Medium as Provenance"
+        validClaimComponent.setKe          = validComponentKE
+        validMediumClaimComponent = aifutils.make_claim_component(g, prefix + "Youtube", validClaimComponent, system)
 
         validClaimComponent                = ClaimComponent()
         validClaimComponent.setName        = "Some News Outlet"
@@ -161,6 +170,8 @@ class ClaimExample(unittest.TestCase):
         
         claimObject.sentiment = interchange_ontology.SentimentNeutralUnknown
         claimObject.epistemic =  interchange_ontology.EpistemicUnknown
+        
+        claimObject.claimMedium = validMediumClaimComponent
 
         #LDCTimeComponent
         startE = LDCTimeComponent(LDCTimeType.AFTER, "2014", "--02", None)

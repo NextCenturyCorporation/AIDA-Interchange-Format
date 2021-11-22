@@ -26,11 +26,12 @@ public class Claim {
     private Resource sentiment = InterchangeOntology.SentimentNeutralUnknown;
     private Resource claimDateTime;
     private Resource claimLocation;
+    private Resource claimMedium;
     private Set<Resource> associatedKEs = new HashSet<>();
-    private Set<Resource> identicalClaims = new HashSet<>();
-    private Set<Resource> relatedClaims = new HashSet<>();
-    private Set<Resource> supportingClaims = new HashSet<>();
-    private Set<Resource> refutingClaims = new HashSet<>();
+    private Set<String> identicalClaims = new HashSet<>();
+    private Set<String> relatedClaims = new HashSet<>();
+    private Set<String> supportingClaims = new HashSet<>();
+    private Set<String> refutingClaims = new HashSet<>();
     private Resource resource;
 
     public Claim setSourceDocument(String sourceDocument) {
@@ -113,27 +114,31 @@ public class Claim {
         return this;
     }
 
+    public Claim setClaimMedium(Resource claimMedium) {
+        this.claimMedium = claimMedium;
+        return this;
+    }    
     public Claim setAssociatedKEs(Set<Resource> associatedKEs) {
         this.associatedKEs = associatedKEs;
         return this;
     }
 
-    public Claim setIdenticalClaims(Set<Resource> identicalClaims) {
+    public Claim setIdenticalClaims(Set<String> identicalClaims) {
         this.identicalClaims = identicalClaims;
         return this;
     }
 
-    public Claim setRelatedClaims(Set<Resource> relatedClaims) {
+    public Claim setRelatedClaims(Set<String> relatedClaims) {
         this.relatedClaims = relatedClaims;
         return this;
     }
 
-    public Claim setSupportingClaims(Set<Resource> supportingClaims) {
+    public Claim setSupportingClaims(Set<String> supportingClaims) {
         this.supportingClaims = supportingClaims;
         return this;
     }
 
-    public Claim setRefutingClaims(Set<Resource> refutingClaims) {
+    public Claim setRefutingClaims(Set<String> refutingClaims) {
         this.refutingClaims = refutingClaims;
         return this;
     }
@@ -162,7 +167,7 @@ public class Claim {
         return this;
     }
 
-    public Claim addIdenticalClaim(Resource claim) {
+    public Claim addIdenticalClaim(String claim) {
         if (identicalClaims == null) {
             identicalClaims = new HashSet<>();
         }
@@ -170,7 +175,7 @@ public class Claim {
         return this;
     }
 
-    public Claim addRelatedClaim(Resource claim) {
+    public Claim addRelatedClaim(String claim) {
         if (relatedClaims == null) {
             relatedClaims = new HashSet<>();
         }
@@ -178,7 +183,7 @@ public class Claim {
         return this;
     }
 
-    public Claim addSupportingClaim(Resource claim) {
+    public Claim addSupportingClaim(String claim) {
         if (supportingClaims == null) {
             supportingClaims = new HashSet<>();
         }
@@ -186,7 +191,7 @@ public class Claim {
         return this;
     }
 
-    public Claim addRefutingClaim(Resource claim) {
+    public Claim addRefutingClaim(String claim) {
         if (refutingClaims == null) {
             refutingClaims = new HashSet<>();
         }
@@ -266,23 +271,26 @@ public class Claim {
         return this.claimLocation;
     }
 
+    public Resource getClaimMedium() {
+        return this.claimMedium;
+    }    
     public Set<Resource> getAssociatedKEs() {
         return this.associatedKEs;
     }
 
-    public Set<Resource> getIdenticalClaims() {
+    public Set<String> getIdenticalClaims() {
         return this.identicalClaims;
     }
 
-    public Set<Resource> getRelatedClaims() {
+    public Set<String> getRelatedClaims() {
         return this.relatedClaims;
     }
 
-    public Set<Resource> getSupportingClaims() {
+    public Set<String> getSupportingClaims() {
         return this.supportingClaims;
     }
 
-    public Set<Resource> getRefutingClaims() {
+    public Set<String> getRefutingClaims() {
         return this.refutingClaims;
     }
 
@@ -311,6 +319,7 @@ public class Claim {
         AIFUtils.addOptionalProperty(resource, InterchangeOntology.queryId, queryId);
         AIFUtils.addOptionalProperty(resource, InterchangeOntology.claimDateTime, claimDateTime);
         AIFUtils.addOptionalProperty(resource, InterchangeOntology.claimLocation, claimLocation);
+        AIFUtils.addOptionalProperty(resource, InterchangeOntology.claimMedium, claimMedium);
 
         // required collections
         AIFUtils.addProperties(resource, InterchangeOntology.xVariable, xVariables);

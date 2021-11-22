@@ -23,6 +23,7 @@ class Claim:
         self._claimSemantics = set(())
         self._claimer = None
         self._claimLocation = None
+        self._claimMedium = None
         self._associatedKE = set(())
         self._queryId = None
         self._importance = None
@@ -104,6 +105,13 @@ class Claim:
     @claimLocation.setter
     def claimLocation(self, x):
         self._claimLocation = x
+
+    @property
+    def claimMedium(self):
+        return self._claimMedium
+    @claimMedium.setter
+    def claimMedium(self, x):
+        self._claimMedium = x
 
     @property
     def claimSemantics(self):
@@ -252,43 +260,33 @@ class Claim:
             self.add_literal(g, claim, interchange_ontology.queryId, self.queryId, XSD.string)
         if (self.claimId != None):
             self.add_literal(g, claim, interchange_ontology.claimId, self.claimId, XSD.string)
-            # g.add((claim, interchange_ontology.claimId, self.claimId))  
         if (self.importance != None):
             self.add_literal(g, claim, interchange_ontology.importance, self.importance, XSD.double)
-
         if (self.claimLocation != None):
-            #claimLocation_claimcomponent = aifutils.make_claim_component(g, self.claimLocation.uri, self.claimLocation, system)
             g.add((claim, interchange_ontology.claimLocation, self.claimLocation))  
+        if (self.claimMedium != None):
+            g.add((claim, interchange_ontology.claimMedium, self.claimMedium))  
 
         #Can be more than 1            
         if (self.claimerAffiliation != None):
             for item in self.claimerAffiliation:
-                #claimerAffiliation_claimcomponent = aifutils.make_claim_component(g, item.uri, item, system)
                 g.add((claim, interchange_ontology.claimerAffiliation, item))               
         if (self.identicalClaims != None):
             for item in self.identicalClaims:
                 self.add_literal(g, claim, interchange_ontology.identicalClaims, item, XSD.string)
-                #g.add((claim, interchange_ontology.identicalClaims, item))
         if (self.relatedClaims != None):
             for item in self.relatedClaims:
                 self.add_literal(g, claim, interchange_ontology.relatedClaims, item, XSD.string)
-                #g.add((claim, interchange_ontology.relatedClaims, item))
         if (self.supportingClaims != None):
             for item in self.supportingClaims:
                 self.add_literal(g, claim, interchange_ontology.supportingClaims, item, XSD.string)
-                #g.add((claim, interchange_ontology.supportingClaims, item))
-
         if (self.refutingClaims != None):
             for item in self.refutingClaims:
                 self.add_literal(g, claim, interchange_ontology.refutingClaims, item, XSD.string)
-                #g.add((claim, interchange_ontology.refutingClaims, item))
-
         if (self.epistemic != None):
             g.add((claim, interchange_ontology.epistemic, self.epistemic))
-        
         if (self.sentiment != None):
             g.add((claim, interchange_ontology.sentiment, self.sentiment))
-
         if (self.claimDateTime != None):
             g.add((claim, interchange_ontology.claimDateTime, self.claimDateTime))
 

@@ -579,15 +579,6 @@
     rdfs:range xsd:string ;
     rdfs:subPropertyOf owl:topDataProperty .
 
-#:claimSemantics rdf:type owl:ObjectProperty ;
-#    rdfs:label "claim semantics" ;
-#    rdfs:comment "Event/Relation KEs that describe inner claim" ;
-#    rdfs:domain :Claim ;
-#    rdfs:range [ owl:unionOf (
-#        :Event
-#        :Relation ) ] ;
-#    rdfs:subPropertyOf owl:topObjectProperty .
-
 :claimSemantics rdf:type owl:ObjectProperty ;
     rdfs:label "claim semantics" ;
     rdfs:comment "SameAsCluster's that describe inner claim" ;
@@ -638,15 +629,12 @@
     rdfs:range :ClaimComponent ;
     rdfs:subPropertyOf owl:topObjectProperty .
 
-#:associatedKEs rdf:type owl:ObjectProperty ;
-#    rdfs:label "associated KEs" ;
-#    rdfs:comment "Event/Relation/Entity KEs that support claim" ;
-#    rdfs:domain :Claim ;
-#    rdfs:range [ owl:unionOf (
-#        :Event
-#        :Relation
-#        :Entity ) ];
-#    rdfs:subPropertyOf owl:topObjectProperty .
+:claimMedium rdf:type owl:ObjectProperty ;
+    rdfs:label "claim medium" ;
+    rdfs:comment "Medium claimer made claim" ;
+    rdfs:domain :Claim ;
+    rdfs:range :ClaimComponent ;
+    rdfs:subPropertyOf owl:topObjectProperty .
 
 :associatedKEs rdf:type owl:ObjectProperty ;
     rdfs:label "associated KEs" ;
