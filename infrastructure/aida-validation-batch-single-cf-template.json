@@ -220,7 +220,7 @@
     	"EnvValidationFlags": {
     	    "Type": "String",
             "Description": "A single string that contains the flags to pass to the AIF Validator upon execution",
-            "Default": "--ldc --nist -o"
+            "Default": "--dwd --nist -o"
     	},
         "EnvJavaOpts": {
             "Type": "String",
