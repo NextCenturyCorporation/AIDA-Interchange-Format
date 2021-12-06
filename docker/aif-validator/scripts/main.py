@@ -22,9 +22,9 @@ class Main:
         # If validation flags contains one of TA1, TA2, or TA3, then expand the flags to the optimal set of flags 
         # for that use case.  Only one of these will run since the environment variables were validated 
         # before they get here
-        self.validation_flags = self.validation_flags.replace("--TA1", ont + " --nist --disk -o")
-        self.validation_flags = self.validation_flags.replace("--TA2", ont + " --nist --disk -o")
-        self.validation_flags = self.validation_flags.replace("--TA3", ont + " --nist-ta3 --disk -o")
+        self.validation_flags = self.validation_flags.replace("--TA1", ont + " --nist -o")
+        self.validation_flags = self.validation_flags.replace("--TA2", ont + " --nist -o")
+        self.validation_flags = self.validation_flags.replace("--TA3", ont + " --nist-ta3 -o")
 
         logging.info("Validation flags = [%s]", self.validation_flags)
         logging.info("Validation home = [%s]", self.validation_home)

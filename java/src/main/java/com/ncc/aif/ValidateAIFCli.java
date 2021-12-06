@@ -190,8 +190,11 @@ public class ValidateAIFCli implements Callable<Integer> {
             + " specified, then thread metrics are provided post-validation instead.")
     private boolean useProgressMonitor;
 
-    @Option(names = "--disk", description = "Use disk-based model for validating very large files")
-    private boolean useDiskModel;
+    // @Option(names = "--disk", description = "Use disk-based model for validating very large files")
+    // private boolean useDiskModel;
+
+    @Option(names = "--mem", description = "Use memory model for validating files")
+    private boolean useMemModel;
 
     @Option(names = "--debug", description = "Enable debugging", hidden = true)
     private boolean debugOutput;
@@ -369,7 +372,7 @@ public class ValidateAIFCli implements Callable<Integer> {
             logger.info("-> Performing shallow validation on " + depth + " target node(s) per rule.");
             validator.setDepth(depth);
         }
-        if (useDiskModel) {
+        if (!useMemModel) {
             logger.info("-> Using disk-based model for validation.");
         }
         if (outputToFile) {
@@ -405,7 +408,7 @@ public class ValidateAIFCli implements Callable<Integer> {
                     " (" + ++fileNum + " of " + filesToValidate.size() + ").");
             Model dataToBeValidated;
             Dataset dataset = null;
-            if (useDiskModel) {
+            if (!useMemModel) {
                 try {
                     dataModelDir = Paths.get(DATA_MODEL_PATH, fileToValidate.getName().replace(".ttl", ""));
                     deleteDir(dataModelDir);  // Delete the directory if it exists
@@ -473,7 +476,7 @@ public class ValidateAIFCli implements Callable<Integer> {
                 skipCount++;
 
             dataToBeValidated.close();
-            if (useDiskModel) {
+            if (!useMemModel) {
                 if (dataset != null) {
                     dataset.close();
                 }
@@ -481,7 +484,7 @@ public class ValidateAIFCli implements Callable<Integer> {
         }
 
         final ReturnCode returnCode = displaySummary(fileNum + nonTTLcount, invalidCount, skipCount + nonTTLcount, abortCount);
-        if (useDiskModel) {
+        if (!useMemModel) {
             deleteDir(Paths.get(DATA_MODEL_PATH)); // Try to clean up after ourselves
         }
         if (threadSet) {

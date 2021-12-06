@@ -71,8 +71,8 @@ Or you can use a shortcut specifying a combination of flags that we've found wor
 
 | VALIDATION_FLAG option | Expanded VALIDATION_FLAGs |
 | :--------------------- | :------------------------ |
-| `--TA1`                | `--dwd --nist --disk -o`         |
-| `--TA2`                | `--dwd --nist --disk -o`  |
-| `--TA3`                | `--dwd --nist-ta3 --disk -o`     |
+| `--TA1`                | `--dwd --nist  -o`         |
+| `--TA2`                | `--dwd --nist  -o`  |
+| `--TA3`                | `--dwd --nist-ta3  -o`     |
 
 You cannot use more than one of these shortcut options in a single invocation.

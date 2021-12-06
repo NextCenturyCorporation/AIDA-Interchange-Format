@@ -64,7 +64,7 @@ To run the Batch Initializer Docker container, copy the `run.sh.example` script 
 | `BATCH_JOB_QUEUE`     		 | The AWS Batch job queue to use when executing the validation job |
 | `AWS_SNS_TOPIC_ARN`     	 | The AWS SNS topic to push notifications to during the AWS Batch validation job |
 | `AWS_DEFAULT_REGION`       | The default AWS region to use during the AWS Batch validation job |
-| `NIST_VALIDATION_FLAG`     | The validation flags to pass to the validator, e.g., `--dwd --nist -o --disk` |
+| `NIST_VALIDATION_FLAG`     | The validation flags to pass to the validator, e.g., `--dwd --nist -o` |
 | `JAVA_OPTS`                | The Java options to pass to the AWS Batch validation job, e.g, `-Xmx10G'` |
 
 Execute the run script with:
@@ -104,7 +104,7 @@ To run the Batch Scheduler Docker container, copy the `run-scheduler.sh.example`
 | `BATCH_JOB_QUEUE`     		 | The AWS Batch job queue to use when executing the validation job |  
 | `AWS_SNS_TOPIC_ARN`     	 | The AWS SNS topic to push notifications to during the AWS Batch validation job |
 | `AWS_DEFAULT_REGION`       | The default AWS region to use during the AWS Batch validation job |
-| `NIST_VALIDATION_FLAG`     | The validation flags to pass to the validator, e.g., `--dwd --nist -o --disk` |
+| `NIST_VALIDATION_FLAG`     | The validation flags to pass to the validator, e.g., `--dwd --nist -o` |
 | `JAVA_OPTS`                | The Java options to pass to the AWS Batch validation job, e.g, `-Xmx10G'` |
 
 Execute the run script with:
