@@ -53,7 +53,7 @@ Usage:  <br>
 |`--abort[=num]` | Abort validation after `[num]` SHACL violations (num > 2), or three violations if `[num]` is omitted. |
 |`--depth[=num]` | Perform shallow validation in which each SHACL rule (shape) is only applied to `[num]` target nodes, or 50 nodes if `[num]` is omitted (requires -t). |
 |`--pm` | Enable progress monitor that shows ongoing validation progress.  If `-t` is specified, then thread metrics are provided post-validation instead. |
-|`--disk` | Use disk-based model for validating very large files |
+|`--mem` | Use memory model for validating files (default is file-based model) |
 |`-o` | Save validation report model to a file. `KB.ttl` results will be saved to KB-report*.txt, up to 1 report per thread. Output defaults to stderr. |
 |`-t=num` | Specify the number of threads to use during validation. If the `--pm` option is specified, thread metrics are provided post-validation instead. |
 |`-d=DIRNAME` | validate all `.ttl` files in the specified directory |

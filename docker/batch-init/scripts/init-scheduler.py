@@ -99,9 +99,9 @@ def read_envs():
     envs['BATCH_JOB_QUEUE'] = os.environ.get('BATCH_JOB_QUEUE')
     envs['AWS_SNS_TOPIC_ARN'] = os.environ.get('AWS_SNS_TOPIC_ARN')
     envs['AWS_DEFAULT_REGION'] = os.environ.get('AWS_DEFAULT_REGION')
-    envs['NIST_VALIDATION_FLAGS'] = os.environ.get('NIST_VALIDATION_FLAGS', '--ldc --nist -o')
-    envs['UNRESTRICTED_VALIDATION_FLAGS'] = os.environ.get('UNRESTRICTED_VALIDATION_FLAGS', '--ldc -o')
-    envs['NIST_TA3_VALIDATION_FLAGS'] = os.environ.get('NIST_TA3_VALIDATION_FLAGS', '--ldc --nist-ta3 -o')
+    envs['NIST_VALIDATION_FLAGS'] = os.environ.get('NIST_VALIDATION_FLAGS', '--dwd --nist -o')
+    envs['UNRESTRICTED_VALIDATION_FLAGS'] = os.environ.get('UNRESTRICTED_VALIDATION_FLAGS', '--dwd -o')
+    envs['NIST_TA3_VALIDATION_FLAGS'] = os.environ.get('NIST_TA3_VALIDATION_FLAGS', '--dwd --nist-ta3 -o')
     envs['JAVA_OPTS'] = os.environ.get('JAVA_OPTS')
 
     return envs
