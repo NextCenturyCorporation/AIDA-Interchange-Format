@@ -8,10 +8,212 @@
 # Requires aida_ontology.shacl to be loaded
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
+
 #########################
-# Each edge justification is limited to one or two spans
+# 2.4.1 
+# 1. An entity, event, or relation KE node must be represented by an AIF cluster (aida:SameAsCluster), even if there is only one member of the cluster.
+aida:ObjectMustBeClustered
+    a sh:SPARQLConstraint ;
+    sh:message "Object must be clustered" ;
+    sh:select """
+        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
+        SELECT $this
+        WHERE {
+            FILTER ( NOT EXISTS { $this ^aida:clusterMember ?clusterMembership } &&
+                NOT EXISTS { $this ^aida:prototype ?cluster } ) .
+        }
+    """ .
+
+aida:EntityShape
+    sh:sparql aida:ObjectMustBeClustered .
+
+aida:EventRelationShape
+    sh:sparql aida:ObjectMustBeClustered .
 #------------------------
-# Can have 1 or 2 containedJustification properties
+
+#########################
+# 2.4.1 
+# 2. Each entity/relation/event AIF cluster must have an IRI, which NIST will interpret to be a unique ID for the entity, relation, or event KE.
+aida:ClusterShape sh:nodeKind sh:IRI .
+#------------------------
+
+#########################
+# 2.4.1 
+# 3. An entity/relation/event AIF cluster must not be hierarchical; rather, the KE node must be represented as a single-level AIF cluster whose members are not clusters themselves
+# Members of clusters are entity objects, relation objects, and event objects (not clusters)
+# TODO: make this sh:not
+aida:ClusterMembershipShape
+    sh:property [
+        a sh:PropertyShape ;
+        sh:path aida:clusterMember ;
+        sh:xone (
+            [sh:class aida:Entity]
+            [sh:class aida:Event]
+            [sh:class aida:Relation]
+        ) ;
+        sh:message "Cluster member type not allowed to be part of cluster"
+    ] .
+#------------------------
+
+#########################
+# 2.4.1
+# 4. Each entity/relation/event AIF cluster must have exactly one prototype, which must be the prototype of only one aida:SameAsCluster.
+## Defined in \AIDA-Interchange-Format\java\src\main\resources\com\ncc\aif\aida_ontology.shacl
+## aida:ClusterShape
+
+### Prevent prototype from being member of a cluster it is not the prototype of and 
+### prevent it from being prototype of mulitple clusters
+aida:PrototypeShape
+    a sh:NodeShape ;
+    sh:targetObjectsOf aida:prototype ;
+    sh:property aida:PreventMultiClusterPrototypeShape ;
+    sh:sparql aida:PreventNonClusterPrototypeMemberShape .
+
+### Prototype can't be prototype of multiple clusters
+aida:PreventMultiClusterPrototypeShape
+    a sh:PropertyShape ;
+    sh:path [ sh:inversePath aida:prototype ] ;
+    sh:maxCount 1 ;
+    sh:message "Prototype can't be prototype of multiple clusters" .
+
+### Prototype can't be member of different cluster
+aida:PreventNonClusterPrototypeMemberShape
+    # Using SPARQL because unable to use sh:inversePath in sh:equals
+    a sh:SPARQLConstraint ;
+    sh:select """
+        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
+      	SELECT $this $value
+      	WHERE {
+      	    $this ^aida:clusterMember / aida:cluster $value .
+            $this ^aida:prototype ?cluster .
+            FILTER ($value != ?cluster) .
+      	}
+    """ ;
+
+    sh:message "Prototype can't be member of cluster it's not prototype of" .
+
+#------------------------
+
+
+
+#########################
+# 2.4.1
+# 5. Each KE node has one metatype (entity, or relation, or event), which is determined by the prototype of the aida:SameAsCluster.  
+# The KE node is interpreted to be an entity if the prototype is an aida:Entity; an event if the prototype is an aida:Event; 
+# and a relation if the prototype is an aida:Relation
+## Defined in \AIDA-Interchange-Format\java\src\main\resources\com\ncc\aif\aida_ontology.shacl
+## aida:EntityShape
+## aida:EventRelationShape
+
+aida:ClusterMembersSameAsBaseClass
+    a sh:SPARQLConstraint ;
+    sh:message "All Clusters must have homogeneous members by base class (Entity, Event, or Relation)" ;
+    sh:select """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
+        SELECT $this $value
+        WHERE {
+      	    $this ^aida:cluster / aida:clusterMember $value .
+            $value rdf:type ?memberType .
+            $this aida:prototype / rdf:type ?prototypeType .
+            FILTER ( ?memberType != ?prototypeType )
+        }
+    """
+    .
+
+aida:ClusterMembersShape
+    a sh:NodeShape ;
+    sh:targetClass aida:SameAsCluster;
+    sh:sparql aida:ClusterMembersSameAsBaseClass .
+
+
+
+
+#------------------------
+
+#########################
+# 2.4.1
+# 6. Each member of a single aida:SameAsCluster must be an aida:Entity if the prototype is an aida:Entity, 
+# an aida:Relation if the prototype is an aida:Relation, and an aida:Event if the prototype is an aida:Event.  
+## Defined in \AIDA-Interchange-Format\java\src\main\resources\com\ncc\aif\aida_ontology.shacl
+## aida:ClusterShape
+#------------------------
+
+
+#########################
+# 2.4.1
+# 7. In order to represent a richer set of mention-level properties, NIST recommends that each mention 
+# of an entity KE (or relation KE or event KE) be represented with exactly one aida:Entity 
+# (or aida:Relation or aida:Event) that is a member of the aida:SameAsCluster representing the KE.
+#------------------------
+## recommends??
+
+#########################
+# 2.4.1
+# 8. For purposes of evaluation, the mentions of an entity, relation, or event shall be the 
+# union of the set of justifications for the type assertions for members of the 
+# aida:SameAsCluster cluster representing the entity, relation, or event.
+#------------------------
+## Nothing to do here?
+
+#########################
+# 2.4.1
+# 9. For purposes of TA1 evaluation, the set of negated mentions of a relation or 
+# event shall be the union of the set of justifications for the type assertions 
+# for each aida:Relation or aida:Event that has the Negated attribute and that 
+# is a member of the aida:SameAsCluster representing the relation or event.
+#------------------------
+## Nothing to do here?
+
+#########################
+# 2.4.1
+# 10. For purposes of TA3 evaluation, an event or relation is negated if and
+# only if the prototype of the aida:SameAsCluster representing the event
+# (or relation) has the Negated attribute. 
+#------------------------
+## Nothing to do here?
+
+
+#########################
+# 2.4.1
+# 11. A type assertion is a statement whose rdf:predicate is rdf:type. 
+# a. For purposes of TA1 and TA2 evaluation, the type(s) of an entity, relation, or
+#   event is the union of the set of types asserted on the members of the aida:SameAsCluster representing the entity, relation, or event. 
+# b. For purposes of TA3 evaluation, the type(s) of an entity, relation, or event
+#   is the union of the set of types asserted on the prototype of the aida:SameAsCluster representing the entity, relation, or event. 
+#------------------------
+## Nothing to do here?
+
+
+#########################
+# 2.4.1
+# 11. A type assertion is a statement whose rdf:predicate is rdf:type. 
+# a. For purposes of TA1 and TA2 evaluation, the type(s) of an entity, relation, or
+#   event is the union of the set of types asserted on the members of the aida:SameAsCluster representing the entity, relation, or event. 
+# b. For purposes of TA3 evaluation, the type(s) of an entity, relation, or event
+#   is the union of the set of types asserted on the prototype of the aida:SameAsCluster representing the entity, relation, or event. 
+#------------------------
+## Nothing to do here?
+
+
+
+#########################
+# 2.4.1
+# 12. A KE edge must be represented by one or more argument assertions. 
+#   An argument assertion has an rdf:predicate that is an event argument
+#   role or relation argument role (e.g., ”A0_pag_causer_doctor”^^xsd:string); 
+#   the rdf:subject of an argument assertion should be an aida:Event or aida:Relation, 
+#   while the rdf:object should be an aida:Entity, aida:Event, or aida:Relation.
+#   The labeled edge is a triple consisting of the rdf:subject, rdf:predicate, and rdf:object of the argument assertion. 
+# a. For purposes of evaluation, NIST will ignore an argument assertion unless both the rdf:subject and rdf:object is a prototype of an aida:SameAsCluster.
+# b. For purposes of evaluation, a labeled edge between an event (or relation) and an argument is negated if and only if the argument assertion between the prototype of the aida:SameAsCluster representing the event (or relation) and the prototype of the aida:SameAsCluster representing the argument has the Negated attribute.
+## Nothing to do here?
+#------------------------
+
+#########################
+# 2.4.1
+# 13. A justification for an AIF argument assertion must have either one or two justification spans and must be represented by aida:CompoundJustification, even if only one span is provided.  (If an argument assertion in a TA1 or TA2 AIF graph does not have any justification spans, it will be ignored by NIST for the purposes of the TA1 and TA2 evaluation.)
+## a. No more than two spans are allowed for a single aida:CompoundJustification 
 aida:EdgeJustificationCount
     a sh:SPARQLConstraint ;
     sh:message "Exactly 1 or 2 contained justifications required for an edge" ;
@@ -28,19 +230,14 @@ aida:EdgeJustificationCount
     """
     .
 
-#########################
-# Each edge justification must be represented uniformly in AIF by
-# aida:CompoundJustification, even if only one span is provided
-# Edges are assumed to be relation and event arguments
-#------------------------
-# Define restriction where justification can only be compound justification
+## b. The spans in an aida:CompoundJustification must come from the same (parent) document, and aida:CompoundJustification must contain at least one span.  
+### Define restriction where justification can only be compound justification
 aida:EdgeJustificationCompound
     a sh:PropertyShape ;
     sh:path aida:justifiedBy ;
     sh:class aida:CompoundJustification ;
     sh:message "Edge justification must be of type aida:CompoundJustification" .
-
-# Enforce edge justification restrictions on event and relation arguments
+### Enforce edge justification restrictions on event and relation arguments
 aida:EventArgumentShape
     sh:property aida:EdgeJustificationCompound ;
     sh:sparql aida:EdgeJustificationCount
@@ -50,10 +247,7 @@ aida:RelationArgumentShape
     sh:sparql aida:EdgeJustificationCount
     .
 
-#########################
-# CompoundJustification must be used only for justifications of argument assertions,
-# and not for justifications for entities, events, or relation KEs
-#------------------------
+## c. The aida:CompoundJustification must be used only for justifications of argument assertions, and not for justifications for entities, events, or relation KEs. -
 aida:RestrictCompoundJustificationPropertyShape
    a sh:PropertyShape ;
    sh:path aida:justifiedBy ;
@@ -87,64 +281,18 @@ aida:ClusterMembershipShape
 aida:MutualExclusionConstraintShape
     # may not provide compound justification
     sh:property aida:RestrictCompoundJustificationPropertyShape .
+#------------------------
 
 #########################
-# Video must use aida:KeyFrameVideoJustification. Remove ShotVideoJustification
+# 2.4.1
+# 14. Each image justification must include an explicit bounding box.
+## Defined in \AIDA-Interchange-Format\java\src\main\resources\com\ncc\aif\aida_ontology.shacl
+## aida:ImageJustificationShape
 #------------------------
-# Restrict normal Justification types globally
-aida:JustificationPropertyShape
-    sh:not [sh:class aida:ShotVideoJustification] .
-
-# Restrict CompoundJustificationTypes globally
-aida:CompoundJustificationTypes
-    sh:not [sh:class aida:ShotVideoJustification] .
 
 #########################
-# 4.3 #2 Each cluster must have an IRI
-#------------------------
-aida:ClusterShape sh:nodeKind sh:IRI .
-
-#########################
-# Members of clusters are entity objects, relation objects, and event objects (not clusters)
-#------------------------
-# TODO: make this sh:not
-aida:ClusterMembershipShape
-    sh:property [
-        a sh:PropertyShape ;
-        sh:path aida:clusterMember ;
-        sh:xone (
-            [sh:class aida:Entity]
-            [sh:class aida:Event]
-            [sh:class aida:Relation]
-        ) ;
-        sh:message "Cluster member type not allowed to be part of cluster"
-    ] .
-
-#########################
-# Entity, Relation, and Event object is required to be part of at least one cluster.
-# This is true even if there is nothing else in the cluster
-#------------------------
-aida:ObjectMustBeClustered
-    a sh:SPARQLConstraint ;
-    sh:message "Object must be clustered" ;
-    sh:select """
-        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
-        SELECT $this
-        WHERE {
-            FILTER ( NOT EXISTS { $this ^aida:clusterMember ?clusterMembership } &&
-                NOT EXISTS { $this ^aida:prototype ?cluster } ) .
-        }
-    """ .
-
-aida:EntityShape
-    sh:sparql aida:ObjectMustBeClustered .
-
-aida:EventRelationShape
-    sh:sparql aida:ObjectMustBeClustered .
-
-#########################
-# Each confidence value must be between 0 and 1
-#------------------------
+# 2.4.1
+# 15. Each confidence value must be greater than 0 and less than or equal to 1.
 aida:ConfidenceValueRange
     a sh:NodeShape ;
     sh:targetClass aida:Confidence ;
@@ -154,52 +302,29 @@ aida:ConfidenceValueRange
         sh:maxInclusive 1;
         sh:message "Confidence value must be between 0 and 1 (0 < c <= 1)"]
     .
+#------------------------
 
 #########################
-# Each entity/relation/event type statement must have at least one justification
-# Removed for M36
-#------------------------
-#aida:SharedTypeShape
-#	sh:property aida:RequiredJustificationPropertyShape .
-
-# Use this instead of aida:JustificationPropertyShape when you wish to force justifications to be present
-aida:RequiredJustificationPropertyShape
-   a sh:PropertyShape ;
-   sh:path aida:justifiedBy ;
-   sh:propertyShape aida:JustificationPropertyShape ;
-   sh:minCount 1 ;
-   sh:message "Type assertions must have at least one justification" .
-
-#########################
-# Justifications require a source document and a source
-# The source restriction is defined on the aida:SharedJustificationShape in the aida_ontology.shacl
-#------------------------
-aida:JustificationSourceDocumentShape
-    a sh:NodeShape ;
-    sh:targetClass aida:Justification ;
+# 2.4.1
+# 16. TA2 must link entities to the evaluation reference KB; aida:link with confidence must be used to assert that an aida:Entity can be coreferenced with an entity in the evaluation reference KB. 
+## a. aida:link must have one or more aida:linkAssertion; each aida:linkAssertion must have exactly one aida:linkTarget and exactly one aida:confidence 
+### Defined in \AIDA-Interchange-Format\java\src\main\resources\com\ncc\aif\aida_ontology.shacl
+### aida:LinkAssertionShape
+### Each aida:linkAssertion must have exactly one aida:confidence
+aida:LinkAssertionShape
     sh:property [
-        sh:path aida:sourceDocument ;
+        sh:path aida:confidence ;
         sh:minCount 1 ;
-        sh:message "Justifications require a sourceDocument" ;
-    ]
-    .
+        sh:maxCount 1
+    ] .
+
+## b. TA2 queries will look at the aida:link on the prototype of the aida:SameAsCluster to determine which cluster (entity KE) is asserted to be the same as the query entry point. 
+#------------------------
 
 #########################
-# Each entity/filler name, text value, and numeric value is limited to 256 UTF-8 characters
-#------------------------
-aida:NamePropertyShape
-  sh:maxLength 256 .
-
-aida:TextPropertyShape
-  sh:maxLength 256 .
-
-aida:NumericPropertyShape
-  sh:maxLength 256 .
-
-#########################
-# Each Cluster, Entity, Event, or Relation can specify up to one informative mention per document as long as each
-# informative mention points to a different sourceDocument
-#------------------------
+# 2.4.1
+# 17. AIF will allow each aida:Entity, aida:Event, or aida:Relation to specify up to one informative mention per document.
+## a. For TA1 and TA2, the prototype of each entity KE (cluster) must have exactly one informative mention per document if and only if the entity is mentioned in the document. 
 aida:InformativeJustificationMembersUniqueParentDoc
     a sh:SPARQLConstraint ;
     sh:message "Each Cluster, Entity, Event, or Relation can specify up to one informative mention per document as long as each informative mention points to a different sourceDocument" ;
@@ -220,49 +345,121 @@ aida:InformativeJustificationMembersShape
     sh:targetSubjectsOf aida:informativeJustification ;
     sh:sparql aida:InformativeJustificationMembersUniqueParentDoc .
 
-#########################
-# 4.3 #10: Each aida:linkAssertion must have exactly one aida:confidence
+## b. TA1, TA2, and TA3 must have exactly one informative mention for each aida:Entity, aida:Event, and aida:Relation
+##  prototype that is an object of an AIF argument assertion, for each document that provides a justification for
+##  the argument assertion.  For a given justification for an AIF argument assertion in a particular document, 
+##  assessors will look at both the justification and the informative mention of the object in that document, to determine
+##  whether the AIF argument assertion is correct.  If no informative mention is provided for the object for the document then,
+##  for the purposes of evaluation, it will be as if the justification for the argument assertion from that document did not exist in the knowledge graph. 
+
+### Defined in \AIDA-Interchange-Format\java\src\main\resources\com\ncc\aif\aida_ontology.shacl
+### aida:InformativeJustificationPropertyShape
 #------------------------
-# Add to pre-existing LinkAssertionShape
-aida:LinkAssertionShape
-    sh:property [
-        sh:path aida:confidence ;
-        sh:minCount 1 ;
-        sh:maxCount 1
-    ] .
+
+
 
 #########################
-# Prevent prototype from being member of a cluster it is not the prototype of and 
-# prevent it from being prototype of mulitple clusters
-#------------------------
-aida:PrototypeShape
+# 2.4.1
+# 18. Each justification span must have exactly one aida:source (containing the document element ID) and one aida:sourceDocument (containing the document ID).  
+### Defined in \AIDA-Interchange-Format\java\src\main\resources\com\ncc\aif\aida_ontology.shacl
+### aida:SharedJustificationShape
+
+aida:JustificationSourceDocumentShape
     a sh:NodeShape ;
-    sh:targetObjectsOf aida:prototype ;
-    sh:property aida:PreventMultiClusterPrototypeShape ;
-    sh:sparql aida:PreventNonClusterPrototypeMemberShape .
+    sh:targetClass aida:Justification ;
+    sh:property [
+        sh:path aida:sourceDocument ;
+        sh:minCount 1 ;
+        sh:message "Justifications require a sourceDocument" ;
+    ]
+    .
 
-# Prototype can't be prototype of multiple clusters
-aida:PreventMultiClusterPrototypeShape
-    a sh:PropertyShape ;
-    sh:path [ sh:inversePath aida:prototype ] ;
-    sh:maxCount 1 ;
-    sh:message "Prototype can't be prototype of multiple clusters" .
+#------------------------
 
-# Prototype can't be member of different cluster
-aida:PreventNonClusterPrototypeMemberShape
-    # Using SPARQL because unable to use sh:inversePath in sh:equals
-    a sh:SPARQLConstraint ;
-    sh:select """
-        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
-      	SELECT $this $value
-      	WHERE {
-      	    $this ^aida:clusterMember / aida:cluster $value .
-            $this ^aida:prototype ?cluster .
-            FILTER ($value != ?cluster) .
-      	}
-    """ ;
 
-    sh:message "Prototype can't be member of cluster it's not prototype of" .
+
+#########################
+# 2.4.1
+# 19. Each aida:hasName, aida:textValue, and aida:numericValue string is limited to 256 UTF-8 characters 
+# Each entity/filler name, text value, and numeric value is limited to 256 UTF-8 characters
+aida:NamePropertyShape
+  sh:maxLength 256 .
+
+aida:TextPropertyShape
+  sh:maxLength 256 .
+
+aida:NumericPropertyShape
+  sh:maxLength 256 .
+#------------------------
+
+
+# 2.4.1
+# 20. Each aida:Event, and aida:Relation prototype can have any number of aida:LDCTime structures.
+### Defined in \AIDA-Interchange-Format\java\src\main\resources\com\ncc\aif\aida_ontology.shacl
+### aida:EventRelationShape
+#------------------------
+
+#########################
+# 2.4.1
+# 21. Requirements for aida:LDCTime:
+# LDC time restrictions. Extends aida_ontology aida:LDCTimeShape
+# LDCTime must have 1 "AFTER" and 1 "BEFORE" aida:start
+# LDCTime must have 1 "AFTER" and 1 "BEFORE" aida:end
+aida:LDCTimeShape
+    sh:property [
+        sh:path ( aida:start aida:timeType );
+        sh:minCount 2;
+        sh:maxCount 2;
+        sh:hasValue "AFTER", "BEFORE" ;
+        sh:message "LDCTime must have 1 BEFORE and 1 AFTER for aida:start"
+    ] ;
+    sh:property [
+        sh:path ( aida:end aida:timeType );
+        sh:minCount 2;
+        sh:maxCount 2;
+        sh:hasValue "AFTER", "BEFORE" ;
+        sh:message "LDCTime must have 1 BEFORE and 1 AFTER for aida:end"
+    ] .
+#------------------------
+
+#########################
+# 2.4.1
+# 22. Each justification for an entity, event, or relation that will be examined by NIST SPARQL queries must be part of a type statement;
+#    if a mention is not a justification for a type statement, NIST will ignore that mention.
+### Defined in \AIDA-Interchange-Format\java\src\main\resources\com\ncc\aif\aida_ontology.shacl
+### aida:EntityShape & aida:EventRelationShape -> aida:JustificationPropertyShape-> aida:RdfStatementShape -> aida:justifiedBy
+
+#aida:SharedTypeShape
+#	sh:property aida:RequiredJustificationPropertyShape .
+
+# Use this instead of aida:JustificationPropertyShape when you wish to force justifications to be present
+aida:RequiredJustificationPropertyShape
+   a sh:PropertyShape ;
+   sh:path aida:justifiedBy ;
+   sh:propertyShape aida:JustificationPropertyShape ;
+   sh:minCount 1 ;
+   sh:message "Type assertions must have at least one justification" .
+
+#------------------------
+
+
+
+
+
+
+
+
+
+#########################
+# Video must use aida:KeyFrameVideoJustification. Remove ShotVideoJustification
+#------------------------
+# Restrict normal Justification types globally
+aida:JustificationPropertyShape
+    sh:not [sh:class aida:ShotVideoJustification] .
+
+# Restrict CompoundJustificationTypes globally
+aida:CompoundJustificationTypes
+    sh:not [sh:class aida:ShotVideoJustification] .
 
 #########################
 # Prevent handle on cluster
@@ -288,48 +485,9 @@ aida:PreventInformativeJustificationCluster
     ] ;
     sh:message "Informative justification is not allowed on cluster" .
 
-#########################
-# LDC time restrictions. Extends aida_ontology aida:LDCTimeShape
-# LDCTime must have 1 "AFTER" and 1 "BEFORE" aida:start
-# LDCTime must have 1 "AFTER" and 1 "BEFORE" aida:end
-#------------------------
-aida:LDCTimeShape
-    sh:property [
-        sh:path ( aida:start aida:timeType );
-        sh:minCount 2;
-        sh:maxCount 2;
-        sh:hasValue "AFTER", "BEFORE" ;
-        sh:message "LDCTime must have 1 BEFORE and 1 AFTER for aida:start"
-    ] ;
-    sh:property [
-        sh:path ( aida:end aida:timeType );
-        sh:minCount 2;
-        sh:maxCount 2;
-        sh:hasValue "AFTER", "BEFORE" ;
-        sh:message "LDCTime must have 1 BEFORE and 1 AFTER for aida:end"
-    ] .
+
 
 ########################
 # 4.3 TA3 #7  Clusters must be homogeneous by base class (Entity, Event, or Relation)
-# Moved from hypotheses
 #------------------------
-aida:ClusterMembersSameAsBaseClass
-    a sh:SPARQLConstraint ;
-    sh:message "All Clusters must have homogeneous members by base class (Entity, Event, or Relation)" ;
-    sh:select """
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
-        SELECT $this $value
-        WHERE {
-      	    $this ^aida:cluster / aida:clusterMember $value .
-            $value rdf:type ?memberType .
-            $this aida:prototype / rdf:type ?prototypeType .
-            FILTER ( ?memberType != ?prototypeType )
-        }
-    """
-    .
 
-aida:ClusterMembersShape
-    a sh:NodeShape ;
-    sh:targetClass aida:SameAsCluster;
-    sh:sparql aida:ClusterMembersSameAsBaseClass .
