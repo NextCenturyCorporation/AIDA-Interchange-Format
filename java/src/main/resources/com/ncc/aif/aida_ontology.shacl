@@ -1567,7 +1567,7 @@ aida:ClaimShape
         sh:path aida:associatedKEs ;
         sh:class aida:SameAsCluster ;
         sh:minCount 1 ;
-        sh:message "Claim requires at least 1 instance of associatedKEs" ;
+        sh:message "Claim requires at least 1 instance of associatedKEs and must be the IRI of an aida:SameAsCluster representing the event (or relation) KE" ;
     ] ;
 
     # Optional
