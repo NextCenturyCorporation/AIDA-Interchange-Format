@@ -86,7 +86,8 @@ public class OntologyGeneration {
             getStream.get().forEach(OntologyGeneration::writePythonFile);
             writeShaclJavaFile(aifRoot + "aida_ontology.shacl",
                     aifRoot + "restricted_aif.shacl",
-                    aifRoot + "restricted_hypothesis_aif.shacl");
+                    aifRoot + "restricted_hypothesis_aif.shacl",
+                    aifRoot + "restricted_claimframe_aif.shacl");          
         } else {
             for (String arg : args) {
                 writeJavaFile(arg);

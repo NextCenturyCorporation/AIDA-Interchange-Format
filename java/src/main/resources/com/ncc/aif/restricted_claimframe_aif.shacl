@@ -1,6 +1,6 @@
 @prefix sh:   <http://www.w3.org/ns/shacl#> .
 @prefix aida: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#> .
-
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # restricted_claimframe_aif.shacl
 #
@@ -46,12 +46,40 @@ aida:ClaimShape
         sh:message "Claim requires exactly 1 claimId" ;
     ] ;
 
+    # claim template name taken from designated list
+    sh:property [
+        sh:path aida:claimTemplate;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Claim requires exactly 1 claim template" ;
+    ] ;
+
+    # Component that replaces X in template
     sh:property [
         sh:path aida:xVariable ;
         sh:class aida:ClaimComponent ;
         sh:minCount 1 ;
         sh:message "Claim requires at least 1 X Variable" ;
     ] ;
+
+    # The epistemic value the claimer places on the claim
+    sh:property [
+        sh:path aida:epistemic;
+        sh:in (aida:EpistemicTrueCertain aida:EpistemicTrueUncertain aida:EpistemicFalseCertain aida:EpistemicFalseUncertain aida:EpistemicUnknown) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Claim requires exactly 1 valid epistemic status (aida:EpistemicTrueCertain aida:EpistemicTrueUncertain aida:EpistemicFalseCertain aida:EpistemicFalseUncertain aida:EpistemicUnknown)" ;
+    ] ;
+
+    # How the claimer feels about the claim
+    # max is inhereited from aida_ontology and dwd_aif
+    sh:property [
+        sh:path aida:sentiment;
+        sh:in (aida:SentimentPositive aida:SentimentNegative aida:SentimentMixed aida:SentimentNeutralUnknown) ;
+        sh:minCount 1 ;
+        sh:message "Claim requires exactly 1 sentiment status" ;
+    ] ;    
 #------------------------
 
 #########################
@@ -61,7 +89,12 @@ aida:ClaimShape
 
 #########################
 # 2.4 #4. Each aida:Claim must have one or more aida:associatedKEs.
-# defined in aida_ontology.shacl
+    sh:property [
+        sh:path aida:associatedKEs ;
+        sh:class aida:SameAsCluster ;
+        sh:minCount 1 ;
+        sh:message "Claim requires at least 1 instance of associatedKEs and must be the IRI of an aida:SameAsCluster representing the event (or relation) KE" ;
+    ] ;
 #------------------------
 
 #########################
@@ -71,12 +104,13 @@ aida:ClaimShape
 
 #########################
 # 2.4 #6. Each aida:Claim may have zero or more aida:claimerAffiliation.
-# defined in aida_ontology.shacl
-#------------------------
 
-#########################
-# 2.4 #6. Each aida:Claim may have zero or more aida:claimerAffiliation.
-# defined in aida_ontology.shacl
+    sh:property [
+        sh:path aida:claimerAffiliation ;
+        sh:class aida:ClaimComponent ;
+        sh:maxCount 3 ;
+        sh:message "Claim can have at most 3 aida:claimerAffiliation" ;
+    ] ;
 #------------------------
 
 #########################
@@ -127,7 +161,7 @@ aida:ClaimShape
                 )
             }
         """ ;
-    ] ;
+    ] .
 #------------------------
 
 #########################
@@ -191,10 +225,6 @@ aida:AssociatedKEsEntityPrototypeRequireHandle
 #------------------------
 
 
-
-
-    .
-
 aida:ClaimComponentShape
 
 #########################
@@ -218,9 +248,7 @@ aida:ClaimComponentShape
         sh:minCount 1 ;
         sh:maxCount 5 ;
         sh:message "Each aida:ClaimComponent must have at least one and at most 5 aida:componentType" ;
-    ] ;
-
-    .
+    ]  .
 
 
 
