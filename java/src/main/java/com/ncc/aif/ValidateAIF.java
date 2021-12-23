@@ -58,7 +58,6 @@ public final class ValidateAIF {
     private static final String AIF_ROOT = "com/ncc/aif/";
     private static final String AIDA_SHACL_RESNAME = AIF_ROOT + "aida_ontology.shacl";
     private static final String NIST_SHACL_RESNAME = AIF_ROOT + "restricted_aif.shacl";
-    private static final String NIST_HYPOTHESIS_SHACL_RESNAME = AIF_ROOT + "restricted_hypothesis_aif.shacl";
     private static final String NIST_CLAIMFRAME_SHACL_RESNAME = AIF_ROOT + "restricted_claimframe_aif.shacl";
 
     private static final String ONT_ROOT = AIF_ROOT + "ontologies/";
@@ -71,7 +70,6 @@ public final class ValidateAIF {
 
     private static Model shaclModel;
     private static Model nistModel;
-    private static Model nistHypoModel;
     private static Model nistClaimModel;
     private static boolean initialized = false;
     private static final Property CONFORMS = ResourceFactory.createProperty("http://www.w3.org/ns/shacl#conforms");
@@ -84,11 +82,6 @@ public final class ValidateAIF {
             nistModel = ModelFactory.createDefaultModel();
             nistModel.add(shaclModel);
             loadModel(nistModel, Resources.asCharSource(Resources.getResource(NIST_SHACL_RESNAME), Charsets.UTF_8));
-
-            nistHypoModel = ModelFactory.createDefaultModel();
-            nistHypoModel.add(nistModel);
-            loadModel(nistHypoModel,
-                    Resources.asCharSource(Resources.getResource(NIST_HYPOTHESIS_SHACL_RESNAME), Charsets.UTF_8));
 
             nistClaimModel = ModelFactory.createDefaultModel();
             nistClaimModel.add(nistModel);
@@ -193,7 +186,6 @@ public final class ValidateAIF {
         switch (restriction) {
             case NIST_TA3:
                 restrictions.add(NIST_CLAIMFRAME_SHACL_RESNAME);
-                //restrictions.add(NIST_HYPOTHESIS_SHACL_RESNAME);
             case NIST:
                 restrictions.add(NIST_SHACL_RESNAME);
             default:

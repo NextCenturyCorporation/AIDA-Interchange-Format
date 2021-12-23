@@ -361,9 +361,9 @@ class TestUtils {
      */
 
 
-    void testValidWithHypothesis(String testDescription, @Nullable Model hypothesisModel) {
-        assertAndDumpWithHypothesis(testDescription, true, hypothesisModel);
-    }
+    // void testValidWithHypothesis(String testDescription, @Nullable Model hypothesisModel) {
+    //     assertAndDumpWithHypothesis(testDescription, true, hypothesisModel);
+    // }
 
     /**
      * Return calling method name from test class.

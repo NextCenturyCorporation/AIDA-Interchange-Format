@@ -84,26 +84,5 @@ class NistTA3TestUtils extends NistTestUtils {
         return edge;
     }
 
-    /**
-     * Makes and returns a valid TA3 NIST-restricted hypothesis involving the specified resource(s).
-     *
-     * @param resources A set of entities, relations, and arguments that contribute to the hypothesis
-     */
-    Resource makeValidTA3Hypothesis(Resource... resources) {
-        Resource hypothesis = makeValidAIFHypothesis(resources);
-        markImportance(hypothesis, 100.0);
-        return hypothesis;
-    }
 
-    /**
-     * Makes and returns a valid TA3 NIST-restricted hypothesis involving the specified resource(s) and importance.
-     *
-     * @param importance the importance with which to make the hypothesis
-     * @param resources  A set of entities, relations, and arguments that contribute to the hypothesis
-     */
-    Resource makeValidTA3Hypothesis(double importance, Resource... resources) {
-        Resource hypothesis = makeValidAIFHypothesis(resources);
-        markImportance(hypothesis, importance);
-        return hypothesis;
-    }
 }
