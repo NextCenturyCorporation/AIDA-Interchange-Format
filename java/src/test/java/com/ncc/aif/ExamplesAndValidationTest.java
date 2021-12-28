@@ -6,7 +6,7 @@ import static com.ncc.aif.AIFUtils.makeAudioJustification;
 import static com.ncc.aif.AIFUtils.makeClusterWithPrototype;
 import static com.ncc.aif.AIFUtils.makeEntity;
 import static com.ncc.aif.AIFUtils.makeEvent;
-import static com.ncc.aif.AIFUtils.makeHypothesis;
+// import static com.ncc.aif.AIFUtils.makeHypothesis;
 import static com.ncc.aif.AIFUtils.makeImageJustification;
 import static com.ncc.aif.AIFUtils.makeKeyFrameVideoJustification;
 import static com.ncc.aif.AIFUtils.makeRelation;
@@ -431,266 +431,7 @@ public class ExamplesAndValidationTest {
                         utils.testValid("seedling sub-graph confidences");
                 }
 
-                private Resource addBobLivesInCaliforniaHypothesisToModel(Model model, String bobUri) {
-                        // assume model already has bob
-                        final Resource bob = model.createResource(bobUri);
-                        final Resource california = makeEntity(model, "http://www.test.edu/entites/California", system);
-                        markType(model, "http://www.test.org/assertions/California_type", california,
-                                        SeedlingOntology.GeopoliticalEntity, system, 1.0);
-                        final Resource boblLivesInCalifornia = makeRelation(model,
-                                        "http://www.test.org/relations/Bob_lives_in_California", system);
-                        markType(model, "http://www.test.edu/assertions/bob_california_relation_type",
-                                        boblLivesInCalifornia, SeedlingOntology.Physical_Resident, system, 1.0);
-                        markAsArgument(model, boblLivesInCalifornia, SeedlingOntology.Physical_Resident_Resident, bob,
-                                        system, 1.0, "http://www.test.org/arguments/resident_Bob");
-                        markAsArgument(model, boblLivesInCalifornia, SeedlingOntology.Physical_Resident_Place,
-                                        california, system, 1.0, "http://www.test.org/arguments/place_California");
-                        return makeHypothesis(model, "http://www.test.edu/hypotheses/Bob_lives_in_California",
-                                        ImmutableSet.of(boblLivesInCalifornia), system);
-                }
 
-                @Test
-                void relationBasedOnPreexistingHypothesis() {
-                        // bob is required for the relation model and hypothesis model
-                        String bobUri = "http://www.test.edu/entites/Bob";
-                        final Resource bob = makeEntity(model, bobUri, system);
-                        markType(model, "http://www.test.org/assertions/bob_type", bob, SeedlingOntology.Person, system,
-                                        1.0);
-
-                        // add hypothesis to another model to simulate pre-existence
-                        Model hypoModel = ModelFactory.createDefaultModel().add(model);
-                        final Resource bobLivesInCaliforniaHypothesis = addBobLivesInCaliforniaHypothesisToModel(
-                                        hypoModel, bobUri);
-
-                        // create Google resource
-                        final Resource google = makeEntity(model, "http://www.test.edu/entites/Google", system);
-                        markType(model, "http://www.test.org/assertions/google_type", google,
-                                        SeedlingOntology.Organization, system, 1.0);
-
-                        // create a relation stating tha bob works for google
-                        final Resource bobWorksForGoogle = makeRelation(model,
-                                        "http://www.test.edu/relations/bob_works_for_google", system);
-                        markType(model, "http://www.test.edu/assertions/bob_google_relation_type", bobWorksForGoogle,
-                                        SeedlingOntology.OrganizationAffiliation_EmploymentMembership, system, 1.0);
-
-                        // add bob and google as arguments to the relation
-                        markAsArgument(model, bobWorksForGoogle,
-                                        SeedlingOntology.OrganizationAffiliation_EmploymentMembership_Employee, bob,
-                                        system, 1.0, "http://www.test.org/arguments/employee_Bob");
-                        markAsArgument(model, bobWorksForGoogle,
-                                        SeedlingOntology.OrganizationAffiliation_EmploymentMembership_Organization,
-                                        google, system, 1.0, "http://www.test.org/arguments/organization_Google");
-
-                        // mark the relation as dependent on the hypothesis that bob lives in california
-                        markDependsOnHypothesis(bobWorksForGoogle, bobLivesInCaliforniaHypothesis);
-
-                        // As model is now not valid AIF, must validate using both model and hypoModel
-                        utils.testValidWithHypothesis("relation based on pre-existing hypothesis", hypoModel);
-                }
-
-                private Resource addBukIsRussianHypothesisToModel(Model model, String bukUri, String russiaUri) {
-                        // assume model already has buk and russia
-                        final Resource buk = model.createResource(bukUri);
-                        final Resource russia = model.createResource(russiaUri);
-                        final Resource bukIsRussian = makeRelation(model, russiaOwnsBukDocumentRelationUri, system);
-                        markType(model, utils.getAssertionUri(), bukIsRussian,
-                                        SeedlingOntology.GeneralAffiliation_APORA, system, 1.0);
-                        markAsArgument(model, bukIsRussian, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, buk,
-                                        system, 1.0);
-                        markAsArgument(model, bukIsRussian, SeedlingOntology.GeneralAffiliation_APORA_Affiliation,
-                                        russia, system, 1.0);
-                        return makeHypothesis(model, utils.getHypothesisUri(), ImmutableSet.of(bukIsRussian), system);
-                }
-
-                @Test
-                void eventArgumentBasedOnPreexistingHypothesis() {
-                        // Both the BUK and Russia are required for both hypothesis and event
-                        final Resource buk = makeEntity(model, bukDocumentEntityUri, system);
-                        markType(model, utils.getAssertionUri(), buk, SeedlingOntology.Weapon, system, 1.0);
-
-                        final Resource russia = makeEntity(model, russiaDocumentEntityUri, system);
-                        markType(model, utils.getAssertionUri(), russia, SeedlingOntology.GeopoliticalEntity, system,
-                                        1.0);
-
-                        // Add hypothesis to another model to simulate pre-existence
-                        Model hypoModel = ModelFactory.createDefaultModel().add(model);
-                        final Resource bukIsRussianHypothesis = addBukIsRussianHypothesisToModel(hypoModel,
-                                        bukDocumentEntityUri, russiaDocumentEntityUri);
-
-                        // Create event and event arguments
-                        final Resource mh17 = makeEntity(model, mh17DocumentEntityUri, system);
-                        markType(model, utils.getAssertionUri(), mh17, SeedlingOntology.Vehicle, system, 1.0);
-
-                        final Resource attackOnMH17 = makeEvent(model, mh17AttackDocumentEventUri, system);
-                        markType(model, utils.getAssertionUri(), attackOnMH17, SeedlingOntology.Conflict_Attack, system,
-                                        1.0);
-                        markAsArgument(model, attackOnMH17, SeedlingOntology.Conflict_Attack_Target, mh17, system,
-                                        null);
-                        markAsArgument(model, attackOnMH17, SeedlingOntology.Conflict_Attack_Instrument, buk, system,
-                                        null);
-
-                        // Mark attacker argument as dependent on hypothesis
-                        final Resource russiaShotMH17 = markAsArgument(model, attackOnMH17,
-                                        SeedlingOntology.Conflict_Attack_Attacker, russia, system, 1.0);
-                        markDependsOnHypothesis(russiaShotMH17, bukIsRussianHypothesis);
-                        markConfidence(model, bukIsRussianHypothesis, 0.75, system);
-
-                        // As model is now not valid AIF, must validate using both model and hypoModel
-                        utils.testValidWithHypothesis("event argument based on pre-existing hypothesis", hypoModel);
-                }
-
-                @Test
-                void twoSeedlingHypotheses() {
-                        // we want to represent that we know, regardless of hypothesis, that there is a
-                        // BUK missile launcher,
-                        // a plane MH17, two countries (Russia and Ukraine), and the BUK missile
-                        // launcher was used to attack MH17
-                        final Resource buk = makeEntity(model, bukDocumentEntityUri, system);
-                        markType(model, utils.getAssertionUri(), buk, SeedlingOntology.Weapon, system, 1.0);
-
-                        final Resource mh17 = makeEntity(model, mh17DocumentEntityUri, system);
-                        markType(model, utils.getAssertionUri(), mh17, SeedlingOntology.Vehicle, system, 1.0);
-
-                        final Resource russia = makeEntity(model, russiaDocumentEntityUri, system);
-                        markType(model, utils.getAssertionUri(), russia, SeedlingOntology.GeopoliticalEntity, system,
-                                        1.0);
-
-                        final Resource ukraine = makeEntity(model, ukraineDocumentEntityUri, system);
-                        markType(model, utils.getAssertionUri(), ukraine, SeedlingOntology.GeopoliticalEntity, system,
-                                        1.0);
-
-                        final Resource attackOnMH17 = makeEvent(model, mh17AttackDocumentEventUri, system);
-                        markType(model, utils.getAssertionUri(), attackOnMH17, SeedlingOntology.Conflict_Attack, system,
-                                        1.0);
-                        markAsArgument(model, attackOnMH17, SeedlingOntology.Conflict_Attack_Target, mh17, system,
-                                        null);
-                        markAsArgument(model, attackOnMH17, SeedlingOntology.Conflict_Attack_Instrument, buk, system,
-                                        null);
-
-                        final Resource isAttacker = SeedlingOntology.Conflict_Attack_Attacker;
-
-                        // under the background hypothesis that the BUK is Russian, we believe Russia
-                        // attacked MH17
-                        final Resource bukIsRussianHypothesis = addBukIsRussianHypothesisToModel(model,
-                                        bukDocumentEntityUri, russiaDocumentEntityUri);
-                        final Resource russiaShotMH17 = markAsArgument(model, attackOnMH17, isAttacker, russia, system,
-                                        1.0);
-                        markDependsOnHypothesis(russiaShotMH17, bukIsRussianHypothesis);
-                        markConfidence(model, bukIsRussianHypothesis, 0.75, system);
-
-                        // under the background hypothesis that BUK is Ukrainian, we believe Ukraine
-                        // attacked MH17
-                        final Resource bukIsUkrainian = makeRelation(model, ukraineOwnsBukDocumentRelationUri, system);
-                        markType(model, utils.getAssertionUri(), bukIsUkrainian,
-                                        SeedlingOntology.GeneralAffiliation_APORA, system, 1.0);
-                        markAsArgument(model, bukIsUkrainian, SeedlingOntology.GeneralAffiliation_APORA_Affiliate, buk,
-                                        system, 1.0);
-                        markAsArgument(model, bukIsUkrainian, SeedlingOntology.GeneralAffiliation_APORA_Affiliation,
-                                        ukraine, system, 1.0);
-
-                        final Resource bukIsUkranianHypothesis = makeHypothesis(model, utils.getHypothesisUri(),
-                                        ImmutableSet.of(bukIsUkrainian), 0.25, system);
-                        final Resource ukraineShotMH17 = markAsArgument(model, attackOnMH17, isAttacker, russia, system,
-                                        1.0);
-                        markDependsOnHypothesis(ukraineShotMH17, bukIsUkranianHypothesis);
-
-                        utils.testValid("two seedling hypotheses");
-                }
-
-                // Create simple hypothesis that the BUK weapon system was owned by Russia
-                @Test
-                void simpleHypothesisWithCluster() {
-                        // buk document entity
-                        final Resource buk = makeEntity(model, bukDocumentEntityUri, system);
-                        final Resource bukIsWeapon = markType(model, utils.getAssertionUri(), buk,
-                                        SeedlingOntology.Weapon, system, 1.0);
-
-                        // buk cross-document entity
-                        final Resource bukKBEntity = makeEntity(model, bukKBEntityUri, system);
-                        final Resource bukKBIsWeapon = markType(model, utils.getAssertionUri(), bukKBEntity,
-                                        SeedlingOntology.Weapon, system, 1.0);
-
-                        // russia document entity
-                        final Resource russia = makeEntity(model, russiaDocumentEntityUri, system);
-                        final Resource russiaIsGPE = markType(model, utils.getAssertionUri(), russia,
-                                        SeedlingOntology.GeopoliticalEntity, system, 1.0);
-
-                        // cluster buk
-                        final Resource bukCluster = makeClusterWithPrototype(model, utils.getClusterUri(), bukKBEntity,
-                                        system);
-                        final Resource bukIsClustered = markAsPossibleClusterMember(model, buk, bukCluster, .9, system);
-
-                        // Russia owns buk relation
-                        final Resource bukIsRussian = makeRelation(model, russiaOwnsBukDocumentRelationUri, system);
-                        markType(model, utils.getAssertionUri(), bukIsRussian,
-                                        SeedlingOntology.GeneralAffiliation_APORA, system, 1.0);
-                        final Resource bukArgument = markAsArgument(model, bukIsRussian,
-                                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, buk, system, 1.0);
-                        final Resource russiaArgument = markAsArgument(model, bukIsRussian,
-                                        SeedlingOntology.GeneralAffiliation_APORA_Affiliation, russia, system, 1.0);
-
-                        // Russia owns buk hypothesis
-                        final Resource bukIsRussianHypothesis = makeHypothesis(model, utils.getHypothesisUri(),
-                                        ImmutableSet.of(buk, bukIsWeapon, bukIsClustered, russia, russiaIsGPE,
-                                                        bukIsRussian, bukArgument, russiaArgument),
-                                        system);
-
-                        utils.testValid("simple hypothesis with cluster");
-                }
-
-                // Create simple hypothesis with an importance value where the BUK weapon system
-                // was owned by Russia
-                @Test
-                void simpleHypothesisWithImportanceWithCluster() {
-                        // buk document entity
-                        final Resource buk = makeEntity(model, bukDocumentEntityUri, system);
-                        final Resource bukIsWeapon = markType(model, utils.getAssertionUri(), buk,
-                                        SeedlingOntology.Weapon, system, 1.0);
-
-                        // buk cross-document entity
-                        final Resource bukKBEntity = makeEntity(model, bukKBEntityUri, system);
-                        final Resource bukKBIsWeapon = markType(model, utils.getAssertionUri(), bukKBEntity,
-                                        SeedlingOntology.Weapon, system, 1.0);
-
-                        // russia document entity
-                        final Resource russia = makeEntity(model, russiaDocumentEntityUri, system);
-                        final Resource russiaIsGPE = markType(model, utils.getAssertionUri(), russia,
-                                        SeedlingOntology.GeopoliticalEntity, system, 1.0);
-
-                        // cluster buk
-                        final Resource bukCluster = makeClusterWithPrototype(model, utils.getClusterUri(), bukKBEntity,
-                                        system);
-                        final Resource bukIsClustered = markAsPossibleClusterMember(model, buk, bukCluster, .9, system);
-
-                        // add importance to the cluster - test negative importance
-                        markImportance(bukKBEntity, -70.234);
-
-                        // Russia owns buk relation
-                        final Resource bukIsRussian = makeRelation(model, russiaOwnsBukDocumentRelationUri, system);
-                        markType(model, utils.getAssertionUri(), bukIsRussian,
-                                        SeedlingOntology.GeneralAffiliation_APORA, system, 1.0);
-                        final Resource bukArgument = markAsArgument(model, bukIsRussian,
-                                        SeedlingOntology.GeneralAffiliation_APORA_Affiliate, buk, system, 1.0);
-                        final Resource russiaArgument = markAsArgument(model, bukIsRussian,
-                                        SeedlingOntology.GeneralAffiliation_APORA_Affiliation, russia, system, 1.0);
-
-                        // add importance to the statements
-                        markImportance(bukArgument, 100.0);
-
-                        // add large importance
-                        markImportance(russiaArgument, 9.999999e6);
-
-                        // Russia owns buk hypothesis
-                        final Resource bukIsRussianHypothesis = makeHypothesis(model, utils.getHypothesisUri(),
-                                        ImmutableSet.of(buk, bukIsWeapon, bukIsClustered, russia, russiaIsGPE,
-                                                        bukIsRussian, bukArgument, russiaArgument),
-                                        system);
-
-                        // test highest possible importance value
-                        markImportance(bukIsRussianHypothesis, Double.MAX_VALUE);
-
-                        utils.testValid("simple hypothesis with importance with cluster");
-                }
 
                 @Test
                 void createSeedlingEntityOfTypePersonWithImageJustificationAndVector() {
@@ -1775,13 +1516,13 @@ public class ExamplesAndValidationTest {
 				utils.testValid("Create full valid claim frame");
                         }
 
-                        @Test
-                        void invalidMissingXVariable() {
-                                validClaim.setXVariable(Collections.emptySet()).addToModel(model, utils.getUri("claim"),
-                                                system);
-                                utils.expect(null, SH.MinCountConstraintComponent, null);
-                                utils.testInvalid("ClaimTest.invalid (missing x variable): Claim must have X Variable");
-                        }
+                        // @Test (this is now valid outside of restricted set)
+                        // void invalidMissingXVariable() {
+                        //         validClaim.setXVariable(Collections.emptySet()).addToModel(model, utils.getUri("claim"),
+                        //                         system);
+                        //         utils.expect(null, SH.MinCountConstraintComponent, null);
+                        //         utils.testInvalid("ClaimTest.invalid (missing x variable): Claim must have X Variable");
+                        // }
                 }
         }
 

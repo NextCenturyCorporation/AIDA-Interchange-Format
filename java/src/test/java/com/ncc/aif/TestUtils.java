@@ -359,9 +359,11 @@ class TestUtils {
      * Assert that the test with the specified description is valid based on the current model, the supplied hypothesis,
      * and the current validator.
      */
-    void testValidWithHypothesis(String testDescription, @Nullable Model hypothesisModel) {
-        assertAndDumpWithHypothesis(testDescription, true, hypothesisModel);
-    }
+
+
+    // void testValidWithHypothesis(String testDescription, @Nullable Model hypothesisModel) {
+    //     assertAndDumpWithHypothesis(testDescription, true, hypothesisModel);
+    // }
 
     /**
      * Return calling method name from test class.

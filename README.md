@@ -44,7 +44,7 @@ Usage:  <br>
 
 | Switch | Description |
 | ----------- | ----------- |
-|`--ldc`    | validate against the LDC ontology |
+|`--ldc` or `--dwd`    | validate against the LDC or DWD ontology |
 |`--program`| validate against the program ontology |
 |`--ont=FILE ...` | validate against the OWL-formatted ontolog(ies) at the specified filename(s) |
 |`--nist` | validate against the NIST restrictions |

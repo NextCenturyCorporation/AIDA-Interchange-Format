@@ -1418,6 +1418,9 @@ aida:ClaimComponentShape
         sh:message "ClaimComponent can have at most 1 componentKE" ;
     ] ;
 
+    # may bear system-private data
+    sh:property aida:PrivateDataPropertyShape ;
+
     sh:property aida:SystemPropertyShape ;
 
     sh:closed true ;
@@ -1429,6 +1432,13 @@ aida:ClaimComponentShape
 aida:ClaimShape
     a sh:NodeShape ;
     sh:targetClass aida:Claim ;
+
+
+    sh:property [
+        sh:path aida:associatedKEs ;
+        sh:class aida:SameAsCluster ;
+        sh:message "Claim associatedKEs must be the IRI of an aida:SameAsCluster representing the event (or relation) KE" ;
+    ] ;
 
     # root UID matching name in associated source data package parent_children.tab file
     sh:property [
@@ -1477,17 +1487,14 @@ aida:ClaimShape
     sh:property [
         sh:path aida:claimTemplate;
         sh:datatype xsd:string ;
-        sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:message "Claim requires exactly 1 claim template" ;
+        sh:message "Claim only allows 1 aida:claimTeamplate " ;
     ] ;
 
     # Component that replaces X in template
     sh:property [
         sh:path aida:xVariable ;
         sh:class aida:ClaimComponent ;
-        sh:minCount 1 ;
-        sh:message "Claim requires at least 1 X Variable" ;
     ] ;
 
     # brief text summary, in English
@@ -1525,18 +1532,17 @@ aida:ClaimShape
     sh:property [
         sh:path aida:epistemic;
         sh:in (aida:EpistemicTrueCertain aida:EpistemicTrueUncertain aida:EpistemicFalseCertain aida:EpistemicFalseUncertain aida:EpistemicUnknown) ;
-        sh:minCount 1 ;
-        sh:maxCount 1 ;
-        sh:message "Claim requires exactly 1 epistemic status" ;
+        sh:maxCount 1 ;        
+        sh:message "Claim epistemic status must a have 1 valid value (aida:EpistemicTrueCertain aida:EpistemicTrueUncertain aida:EpistemicFalseCertain aida:EpistemicFalseUncertain aida:EpistemicUnknown)" ;
     ] ;
+
 
     # How the claimer feels about the claim
     sh:property [
         sh:path aida:sentiment;
         sh:in (aida:SentimentPositive aida:SentimentNegative aida:SentimentMixed aida:SentimentNeutralUnknown) ;
-        sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:message "Claim requires exactly 1 sentiment status" ;
+        sh:message "Claim can have at most 1 sentiment status" ;
     ] ;
 
     # Optional
@@ -1563,12 +1569,6 @@ aida:ClaimShape
         sh:message "Claim can have at most 1 claimMedium" ;
     ] ;    
 
-    sh:property [
-        sh:path aida:associatedKEs ;
-        sh:class aida:SameAsCluster ;
-        sh:minCount 1 ;
-        sh:message "Claim requires at least 1 instance of associatedKEs" ;
-    ] ;
 
     # Optional
     sh:property [
@@ -1592,6 +1592,12 @@ aida:ClaimShape
     sh:property [
         sh:path aida:refutingClaims ;
         sh:datatype xsd:string ;
+    ] ;
+
+    sh:property [
+        sh:path aida:justifiedBy;
+        sh:maxCount 1 ;
+        sh:message "Claim can have at most 1 aida:justifiedBy" ;
     ] ;
 
     sh:property aida:SystemPropertyShape ;

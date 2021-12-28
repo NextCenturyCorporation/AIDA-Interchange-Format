@@ -1,0 +1,256 @@
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix aida: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# restricted_claimframe_aif.shacl
+#
+# Add-on to restricted_aif.shacl used to enforce NIST-restricted-AIF for claimframe (TA3) output.
+# Requires aida_ontology.shacl and restricted_aif.shacl to be loaded.
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+
+#########################
+# 2.4 #1: Each claim frame must be submitted as a single, standalone file to NIST for evaluation, containing exactly one aida:Claim and the entity, relation, and event KEs and edges that comprise the graph of Associated KEs for that claim frame.
+# Use SystemShape because we want this to always trigger and there should only be one
+aida:SystemShape
+    sh:sparql [
+        sh:message "Exactly 1 Claim per TTL should exist. Found {$this}" ;
+        sh:select """
+            PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
+            SELECT (COUNT(?x) AS $this)
+            WHERE {
+                ?x a aida:Claim .
+            }
+            HAVING ((COUNT(?x)) != 1)
+        """ ;
+    ] .
+#------------------------
+
+#########################
+# 2.4 #2. Each aida:Claim must have exactly one of each of the following (otherwise, the entire aida:Claim is ignored):
+# a. aida:sourceDocument - defined in aida_ontology.shacl
+# b. aida:claimID - defined below
+# c. aida:topic - defined in aida_ontology.shacl
+# d. aida:subtopic - defined in aida_ontology.shacl
+# e. aida:claimTemplate (except for Condition 7, which has no aida:claimTemplate) - defined in aida_ontology.shacl
+# f. aida:xVariable (except for Condition 7, which has no aida:xVariable)  - defined below
+# g. aida:claimer - defined in aida_ontology.shacl
+# h. aida:epistemic - defined in aida_ontology.shacl
+# i. aida:sentiment - defined in aida_ontology.shacl
+
+aida:ClaimShape
+    sh:property [
+        sh:path aida:claimId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Claim requires exactly 1 claimId" ;
+    ] ;
+
+    # claim template name taken from designated list
+    sh:property [
+        sh:path aida:claimTemplate;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Claim requires exactly 1 claim template" ;
+    ] ;
+
+    # Component that replaces X in template
+    sh:property [
+        sh:path aida:xVariable ;
+        sh:class aida:ClaimComponent ;
+        sh:minCount 1 ;
+        sh:message "Claim requires at least 1 X Variable" ;
+    ] ;
+
+    # The epistemic value the claimer places on the claim
+    sh:property [
+        sh:path aida:epistemic;
+        sh:in (aida:EpistemicTrueCertain aida:EpistemicTrueUncertain aida:EpistemicFalseCertain aida:EpistemicFalseUncertain aida:EpistemicUnknown) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Claim requires exactly 1 valid epistemic status (aida:EpistemicTrueCertain aida:EpistemicTrueUncertain aida:EpistemicFalseCertain aida:EpistemicFalseUncertain aida:EpistemicUnknown)" ;
+    ] ;
+
+    # How the claimer feels about the claim
+    # max is inhereited from aida_ontology and dwd_aif
+    sh:property [
+        sh:path aida:sentiment;
+        sh:in (aida:SentimentPositive aida:SentimentNegative aida:SentimentMixed aida:SentimentNeutralUnknown) ;
+        sh:minCount 1 ;
+        sh:message "Claim requires exactly 1 sentiment status" ;
+    ] ;    
+#------------------------
+
+#########################
+# 2.4 #3. Each aida:Claim must have one or more aida:claimSemantics.
+# defined in aida_ontology.shacl
+#------------------------
+
+#########################
+# 2.4 #4. Each aida:Claim must have one or more aida:associatedKEs.
+    sh:property [
+        sh:path aida:associatedKEs ;
+        sh:class aida:SameAsCluster ;
+        sh:minCount 1 ;
+        sh:message "Claim requires at least 1 instance of associatedKEs and must be the IRI of an aida:SameAsCluster representing the event (or relation) KE" ;
+    ] ;
+#------------------------
+
+#########################
+# 2.4 #5. Each aida:associatedKEs or aida:claimSemantics is the IRI of an aida:SameAsCluster representing the event (or relation) KE
+# defined in aida_ontology.shacl
+#------------------------
+
+#########################
+# 2.4 #6. Each aida:Claim may have zero or more aida:claimerAffiliation.
+
+    sh:property [
+        sh:path aida:claimerAffiliation ;
+        sh:class aida:ClaimComponent ;
+        sh:maxCount 3 ;
+        sh:message "Claim can have at most 3 aida:claimerAffiliation" ;
+    ] ;
+#------------------------
+
+#########################
+# 2.4 #7. Each aida:Claim must have at most one aida:naturalLanguageDescription
+# defined in aida_ontology.shacl
+#------------------------
+
+#########################
+# 2.4 #8. Each aida:Claim must have at most one aida:claimDateTime.
+# defined in aida_ontology.shacl
+#------------------------
+
+#########################
+# 2.4 #9. Each aida:Claim must have at most one aida:claimLocation.
+# defined in aida_ontology.shacl
+#------------------------
+
+#########################
+# 2.4 #10. Each aida:Claim must have at most one aida:claimMedium.
+# defined in aida_ontology.shacl
+#------------------------
+
+
+#########################
+# 2.4 #14. Justifications must be included for all entity, relation, and event KEs and edges that comprise the graph of Associated KEs.
+##a. Each edge KE should have no more than 2 justifications (only two will be assessed; if more than two are provided, NIST will arbitrarily select two to assess and ignore the other justifications).
+##b. Extraneous mentions should not be included for node KEs; ideally, include only informative mentions.
+### restricted_aif.shacl -> aida:EdgeJustificationCount
+#------------------------
+
+
+#########################
+# 2.4 #15. The graph of Associated KEs must have no disjunctions or alternative interpretations. In particular, [the prototype of] each event or relation cluster must have exactly one type assertion. 
+# aida:EventRelationShape
+
+    # Ensure that event/relation has type
+    sh:sparql [
+        sh:message "Events and Relations must have type assertion or be non-prototype member of cluster" ;
+        sh:select """
+            PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
+            SELECT $this
+            WHERE {
+                FILTER ( NOT EXISTS {
+                        $this ^rdf:subject / rdf:predicate rdf:type .
+                    } && ( NOT EXISTS { $this ^aida:clusterMember ?membership . } ||
+                           EXISTS { $this ^aida:prototype ?cluster . } )
+                )
+            }
+        """ ;
+    ] .
+#------------------------
+
+#########################
+# 2.4 #16. The graph of Associated KEs must have at least one event cluster or relation cluster with at least one edge.
+aida:SystemShape
+    sh:sparql[
+        sh:message "Each Associated KEs graph must have at least one event or relation with at least one edge. Found {$this}" ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX aidaDomainCommon: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/AidaDomainOntologiesCommon#>
+            SELECT (COUNT(?pred) AS $this)
+            WHERE {
+                ?argumentAssertion a rdf:Statement .
+                ?argumentAssertion rdf:predicate ?pred .
+                {
+                    ?pred rdfs:subClassOf+ aidaDomainCommon:RelationArgumentType
+                }
+                UNION
+                {
+                    ?pred rdfs:subClassOf+ aidaDomainCommon:EventArgumentType
+                }
+            }
+            HAVING (COUNT(?pred) < 1)
+        """ ;
+    ] .
+#------------------------
+
+
+#########################
+# 2.4 17. The prototype of each entity (cluster) in the graph of Associated KEs must have exactly one text description (called a "handle"), which will be displayed to the assessor to represent the entity when the claim frame is being assessed.  
+#a. The handle may be a name string or a string specifying offsets of a particular text mention in the corpus.
+#a.i. If the handle is a string in the format <aida:sourceDocument>:<aida:source>:(<aida:startOffset>,0)-(< aida:endOffsetInclusive>,0) (e.g., “IC0015L91:HC00002ZO:(4551,0)-(4570,0)”), NIST will extract the string in that location in that source document and source document element (assuming that the modality of the document element is text) and display it as the handle for assessment.
+#a.ii. All other handle strings will be displayed as-is for assessment.
+#b. The handle can be a generated string rather than a text span that is extracted from the corpus, and can be used to represent, for example, an entity that only appears in images. 
+#c. TA3 must coordinate with TA2 and TA1 to be able to get whatever information TA3 needs to provide NIST with a cluster-level textual “handle” for each entity for the TA3 evaluation.
+
+aida:AssociatedKEsEntityPrototypeRequireHandle
+    a sh:NodeShape ;
+
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
+            SELECT ?entity
+            WHERE {
+                ?entity a aida:Entity .
+                ?entity ^aida:prototype / a aida:SameAsCluster .
+            }
+        """ ;
+    ];
+
+    # sh:maxCount 1 is inherited from aida_ontology.shacl
+    sh:property [
+        a sh:PropertyShape ;
+        sh:path aida:handle ;
+        sh:minCount 1 ;
+        sh:message "Entity prototype requires handle"
+    ] .
+
+#------------------------
+
+
+aida:ClaimComponentShape
+
+#########################
+# 2.4 #11. Each aida:claimComponent must have exactly one aida:componentName.
+# defined in aida_ontology.shacl
+#------------------------
+
+#########################
+# 2.4 #12. Each aida:claimComponent must have exactly one aida:componentIdentity.
+# defined in aida_ontology.shacl
+#------------------------
+
+#########################
+# 2.4 #13. Each aida:ClaimComponent must have at least one and at most 5 aida:componentType.
+# defined in aida_ontology.shacl
+#------------------------
+
+    sh:property [
+        sh:path aida:componentType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 5 ;
+        sh:message "Each aida:ClaimComponent must have at least one and at most 5 aida:componentType" ;
+    ]  .
+
+
+
+
+
