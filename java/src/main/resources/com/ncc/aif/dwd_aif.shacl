@@ -1203,6 +1203,9 @@ aida:ClaimComponentShape
         sh:message "ClaimComponent can have at most 1 componentKE" ;
     ] ;
 
+    # may bear system-private data
+    sh:property aida:PrivateDataPropertyShape ;
+
     sh:property aida:SystemPropertyShape ;
 
     sh:closed true ;
@@ -1372,6 +1375,13 @@ aida:ClaimShape
     sh:property [
         sh:path aida:refutingClaims ;
         sh:datatype xsd:string ;
+    ] ;
+
+
+    sh:property [
+        sh:path aida:justifiedBy;
+        sh:maxCount 1 ;
+        sh:message "Claim can have at most 1 aida:justifiedBy" ;
     ] ;
 
     sh:property aida:SystemPropertyShape ;
