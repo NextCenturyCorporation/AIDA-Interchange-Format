@@ -88,6 +88,9 @@ aida:EntityShape
 
     # may provide a confidence
     sh:property aida:ConfidencePropertyShape ;
+    
+    # may provide an importance
+    sh:property aida:ImportancePropertyShape ;
 
     # may provide an importance
     sh:property aida:ImportancePropertyShape ;
@@ -155,6 +158,9 @@ aida:EventRelationShape
 
     # may provide a confidence
     sh:property aida:ConfidencePropertyShape ;
+    
+    # may provide an importance
+    sh:property aida:ImportancePropertyShape ;
 
     # may provide an importance
     sh:property aida:ImportancePropertyShape ;
@@ -706,7 +712,6 @@ aida:VideoJustificationShape
         sh:datatype xsd:double ;
         sh:minCount 1;
         sh:maxCount 1 ] ;
-
     # and one optional channel
     sh:property [
         sh:path aida:channel ;
@@ -1112,6 +1117,14 @@ aida:RdfStatementShape
     ] ;
 
     .
+
+# Handle
+aida:HandlePropertyShape
+    a sh:PropertyShape ;
+    sh:path aida:handle ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:message "Objects may have at most a single handle" .
 
 # Handle
 aida:HandlePropertyShape

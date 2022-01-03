@@ -1105,7 +1105,6 @@ public class AIFUtils {
 
         return justification;
     }
-
     /**
      * Make an video justification.
      *
@@ -1305,7 +1304,6 @@ public class AIFUtils {
                                                     Resource system) {
         final Resource cluster = makeAIFResource(model, clusterUri, InterchangeOntology.SameAsCluster, system);
         cluster.addProperty(InterchangeOntology.prototype, prototype);
-
         if (isMember) {
             markAsPossibleClusterMember(model, prototype, cluster, 1.0, system);
         }
@@ -1753,6 +1751,29 @@ public class AIFUtils {
         ldcTime.addProperty(InterchangeOntology.start,
             LDCTimeComponent.createTime("AFTER", startEarliest).makeAIFTimeComponent(model));
         return ldcTime;
+    }
+    
+    /**
+     * Add LDC start and end time ranges representation to an Event or Relation
+     *
+     * @param model  The underlying RDF model for the operation
+     * @param toMark The Event or Relation to add the LDC time data to
+     * @param startEarliest  {@link String} containing the earliest start time in the range
+     * @param startLatest    {@link String} containing the latest start time in the range
+     * @param endEarliest    {@link String} containing the earliest end time in the range
+     * @param endLatest      {@link String} containing the latest end time in the range
+     * @param system The system object for the system which marks the time
+     * @return
+     */
+    public static Resource markLDCTimeRange(Model model, Resource toMark,
+                                            String startEarliest, String startLatest,
+                                            String endEarliest, String endLatest,
+                                            Resource system) {
+        return markLDCTimeRange(model, toMark, 
+            LDCTimeComponent.createTime("AFTER", startEarliest), 
+            LDCTimeComponent.createTime("BEFORE", startLatest), 
+            LDCTimeComponent.createTime("AFTER", endEarliest), 
+            LDCTimeComponent.createTime("BEFORE", endLatest), system);
     }
 
     // Helper function to create an event, relation, justification, etc. in the system.

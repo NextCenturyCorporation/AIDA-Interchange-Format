@@ -453,7 +453,6 @@ public class NistExamplesAndValidationTest {
                 Resource entity1 = makeEntity(model, utils.getEntityUri(), system);
                 markJustification(utils.addType(entity1, LDCOntology.PER), utils.makeValidJustification());
                 makeClusterWithPrototype(model, null, entity1, false, system);
-
                 utils.expect(ShaclShapes.ClusterShape, SH.NodeKindConstraintComponent, null);
                 utils.testInvalid("NIST.invalid: Cluster has IRI");
             }
@@ -796,7 +795,6 @@ public class NistExamplesAndValidationTest {
                 utils.testValid("LinkAssertion.valid");
             }
         }
-
         @Nested
         class Prototype {
             @Test
@@ -834,7 +832,6 @@ public class NistExamplesAndValidationTest {
                 utils.expect(ShaclShapes.PreventHandleOnCluster, SH.NotConstraintComponent, null);
                 utils.testInvalid("Handle.invalid: handle not allowed on cluster");
             }
-
             @Test
             void valid() {
                 markHandle(entity, "handle");
@@ -870,7 +867,6 @@ public class NistExamplesAndValidationTest {
                 addCorrectTime();
                 utils.testValid("Time.valid");
             }
-
             private Resource addCorrectTime() {
                 return markLDCTimeRange(model, event, "1901-01-01", "1901-02-xx", "1902-01-01", "1902-xx-xx", system);
             }
