@@ -158,12 +158,6 @@ aida:EventArgumentShape
 
     # this shape only applies when the subject is an event and the statement is not a type statement
 
-                # { ?this a rdf:Statement . }
-                # UNION
-                # { ?this a aida:ArgumentStatement . }
-
-
-
     sh:target [
         a sh:SPARQLTarget ;
         sh:select """
@@ -171,7 +165,9 @@ aida:EventArgumentShape
             PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
             SELECT ?this
             WHERE {
-                ?this a aida:ArgumentStatement .
+                { ?this a rdf:Statement . }
+                UNION
+                { ?this a aida:ArgumentStatement . }
 
                 ?this rdf:subject / a aida:Event .
                 FILTER NOT EXISTS { ?this rdf:predicate rdf:type . }
@@ -233,11 +229,6 @@ aida:RelationArgumentShape
 
     # this shape only applies when the subject is a relation and the statement is not a type statement
 
-                # { ?this a rdf:Statement . }
-                # UNION
-                # { ?this a aida:ArgumentStatement . }
-
-
     sh:target [
         a sh:SPARQLTarget ;
         sh:select """
@@ -245,7 +236,9 @@ aida:RelationArgumentShape
             PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
             SELECT ?this
             WHERE {
-                ?this a aida:ArgumentStatement .
+                { ?this a rdf:Statement . }
+                UNION
+                { ?this a aida:ArgumentStatement . }
 
                 ?this rdf:subject / a aida:Relation .
                 FILTER NOT EXISTS { ?this rdf:predicate rdf:type . }
