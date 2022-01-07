@@ -199,9 +199,6 @@ public class ValidateAIFCli implements Callable<Integer> {
     @Option(names = "--debug", description = "Enable debugging", hidden = true)
     private boolean debugOutput;
 
-    @Option(names = "--debug", description = "Enable debugging", hidden = true)
-    private boolean debugOutput;
-
     @Option(names = "-p", description = "Enable profiling", hidden = true)
     private boolean useProfiling;
 

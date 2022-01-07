@@ -1753,29 +1753,6 @@ public class AIFUtils {
         return ldcTime;
     }
     
-    /**
-     * Add LDC start and end time ranges representation to an Event or Relation
-     *
-     * @param model  The underlying RDF model for the operation
-     * @param toMark The Event or Relation to add the LDC time data to
-     * @param startEarliest  {@link String} containing the earliest start time in the range
-     * @param startLatest    {@link String} containing the latest start time in the range
-     * @param endEarliest    {@link String} containing the earliest end time in the range
-     * @param endLatest      {@link String} containing the latest end time in the range
-     * @param system The system object for the system which marks the time
-     * @return
-     */
-    public static Resource markLDCTimeRange(Model model, Resource toMark,
-                                            String startEarliest, String startLatest,
-                                            String endEarliest, String endLatest,
-                                            Resource system) {
-        return markLDCTimeRange(model, toMark, 
-            LDCTimeComponent.createTime("AFTER", startEarliest), 
-            LDCTimeComponent.createTime("BEFORE", startLatest), 
-            LDCTimeComponent.createTime("AFTER", endEarliest), 
-            LDCTimeComponent.createTime("BEFORE", endLatest), system);
-    }
-
     // Helper function to create an event, relation, justification, etc. in the system.
     static Resource makeAIFResource(@Nonnull Model model, @Nullable String uri, @Nonnull Resource classType, @Nullable Resource system) {
         // Model automatically creates blank node if uri is null
