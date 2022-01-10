@@ -270,7 +270,7 @@ def mark_attribute(g, to_mark_on, attribute):
     :param attribute: Attribute resource from interchange_ontology (Negated, Hedged, Irrealis, Generic)
 
     """
-    g.add((to_mark_on, interchange_ontology.attribute, attribute))
+    g.add((to_mark_on, interchange_ontology.attributes, attribute))
 
 
 def make_relation_in_event_form(g, relation_uri, relation_type, subject_role, subject_resource, object_role,

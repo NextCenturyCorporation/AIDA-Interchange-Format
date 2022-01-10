@@ -765,7 +765,7 @@
   rdfs:comment "Class of individuals to denote how a claimer interprets the semantic attribute of a mention" .
 
 # Properties
-:attribute rdf:type owl:ObjectProperty ;
+:attributes rdf:type owl:ObjectProperty ;
     rdfs:label "attribute" ;
     rdfs:comment "The sematic attribute the claimer has for the mention" ;
     rdfs:domain [

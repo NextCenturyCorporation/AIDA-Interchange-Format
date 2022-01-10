@@ -1166,7 +1166,7 @@ public class AIFUtils {
      * @param attribute The semantic attribute with which to mark the resource
      */
     public static void markAttribute(Resource toMarkOn, Resource attribute) {
-        toMarkOn.addProperty(InterchangeOntology.attribute, attribute);
+        toMarkOn.addProperty(InterchangeOntology.attributes, attribute);
     }
 
     /**

@@ -1632,7 +1632,7 @@ public class ExamplesAndValidationTest {
 
                         utils.expect(null, SH.InConstraintComponent, null);
                         utils.testInvalid(
-                                        "Invalid Semantic Attribute for Event mention - aida:attribute must be : aida:Negated, aida:Hedged, aida:Irrealis, or aida:Generic");
+                                        "Invalid Semantic Attribute for Event mention -  must be : aida:Negated, aida:Hedged, aida:Irrealis, or aida:Generic");
                 }
 
                 // test for invalid semantic attribute for Relation Mention
@@ -1643,7 +1643,7 @@ public class ExamplesAndValidationTest {
 
                         utils.expect(null, SH.InConstraintComponent, null);
                         utils.testInvalid(
-                                        "Invalid Semantic Attribute for Relation mention - aida:attribute must be : aida:Negated, aida:Hedged, aida:Irrealis, or aida:Generic");
+                                        "Invalid Semantic Attribute for Relation mention -  must be : aida:Negated, aida:Hedged, aida:Irrealis, or aida:Generic");
                 }
 
                 // test for invalid semantic attribute for Event Argument
@@ -1688,7 +1688,7 @@ public class ExamplesAndValidationTest {
 
                         utils.expect(null, SH.InConstraintComponent, null);
                         utils.testInvalid(
-                                        "Invalid Semantic Attribute for an Event argument: aida:Generic ;  aida:attribute can only be aida:Negated and/or aida:Hedged");
+                                        "Invalid Semantic Attribute for an Event argument: aida:Generic ;  aida:attributes can only be aida:Negated and/or aida:Hedged");
                 }
 
                 // test for invalid semantic attribute for Entity

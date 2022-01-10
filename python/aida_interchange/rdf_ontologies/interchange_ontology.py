@@ -2,7 +2,7 @@ from rdflib import URIRef
 
 # WARNING. This is a Generated File. Please do not edit.
 # Please refer to the README at java/src/main/java/com/ncc/aif/ont2javagen for more information
-# Last generated on: 11/19/2021 16:47:47
+# Last generated on: 01/10/2022 14:08:52
 NAMESPACE = 'https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#'
 
 # Classes
@@ -62,7 +62,7 @@ VideoJustificationChannelSound = URIRef(NAMESPACE + 'VideoJustificationChannelSo
 alternative = URIRef(NAMESPACE + 'alternative')
 alternativeGraph = URIRef(NAMESPACE + 'alternativeGraph')
 associatedKEs = URIRef(NAMESPACE + 'associatedKEs')
-attribute = URIRef(NAMESPACE + 'attribute')
+attributes = URIRef(NAMESPACE + 'attributes')
 boundingBox = URIRef(NAMESPACE + 'boundingBox')
 boundingBoxLowerRightX = URIRef(NAMESPACE + 'boundingBoxLowerRightX')
 boundingBoxLowerRightY = URIRef(NAMESPACE + 'boundingBoxLowerRightY')
