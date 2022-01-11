@@ -88,7 +88,7 @@ aida:EntityShape
 
     # may bear Semantic Attribute
     sh:property [
-        sh:path aida:attribute ;
+        sh:path aida:attributes ;
         sh:in ( aida:Generic ) ;
                 sh:message "Semantic Attribute for Entity can only be aida:Generic"
     ] ;
@@ -140,7 +140,7 @@ aida:EventRelationShape
 
     # may bear Semantic Attribute
     sh:property [
-        sh:path aida:attribute ;
+        sh:path aida:attributes ;
         sh:in ( aida:Negated aida:Hedged aida:Irrealis aida:Generic ) ;
                 sh:message "Semantic Attribute for Event Relation can only be aida:Negated, aida:Hedged, aida:Irrealis, aida:Generic"
     ] ;
@@ -157,6 +157,7 @@ aida:EventArgumentShape
     a sh:NodeShape ;
 
     # this shape only applies when the subject is an event and the statement is not a type statement
+
     sh:target [
         a sh:SPARQLTarget ;
         sh:select """
@@ -210,7 +211,7 @@ aida:EventArgumentShape
 
     # may bear Semantic Attribute
     sh:property [
-        sh:path aida:attribute ;
+        sh:path aida:attributes ;
         sh:in ( aida:Negated aida:Hedged  ) ;
         sh:message "Semantic Attribute for Event argument can only be aida:Negated or aida:Hedged"
     ] ;
@@ -227,6 +228,7 @@ aida:RelationArgumentShape
     a sh:NodeShape ;
 
     # this shape only applies when the subject is a relation and the statement is not a type statement
+
     sh:target [
         a sh:SPARQLTarget ;
         sh:select """
@@ -893,7 +895,7 @@ aida:RdfStatementShape
 
     # may bear Semantic Attribute
     sh:property [
-        sh:path aida:attribute ;
+        sh:path aida:attributes ;
     ] ;
 
     .

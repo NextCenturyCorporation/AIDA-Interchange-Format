@@ -1105,7 +1105,6 @@ public class AIFUtils {
 
         return justification;
     }
-
     /**
      * Make an video justification.
      *
@@ -1167,7 +1166,7 @@ public class AIFUtils {
      * @param attribute The semantic attribute with which to mark the resource
      */
     public static void markAttribute(Resource toMarkOn, Resource attribute) {
-        toMarkOn.addProperty(InterchangeOntology.attribute, attribute);
+        toMarkOn.addProperty(InterchangeOntology.attributes, attribute);
     }
 
     /**
@@ -1305,7 +1304,6 @@ public class AIFUtils {
                                                     Resource system) {
         final Resource cluster = makeAIFResource(model, clusterUri, InterchangeOntology.SameAsCluster, system);
         cluster.addProperty(InterchangeOntology.prototype, prototype);
-
         if (isMember) {
             markAsPossibleClusterMember(model, prototype, cluster, 1.0, system);
         }
@@ -1754,7 +1752,7 @@ public class AIFUtils {
             LDCTimeComponent.createTime("AFTER", startEarliest).makeAIFTimeComponent(model));
         return ldcTime;
     }
-
+    
     // Helper function to create an event, relation, justification, etc. in the system.
     static Resource makeAIFResource(@Nonnull Model model, @Nullable String uri, @Nonnull Resource classType, @Nullable Resource system) {
         // Model automatically creates blank node if uri is null

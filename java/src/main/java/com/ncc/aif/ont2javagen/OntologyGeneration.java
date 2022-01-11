@@ -107,6 +107,7 @@ public class OntologyGeneration {
 
         String className = "ShaclShapes";
         String outFilename = "src/test/java/com/ncc/aif/" + className + ".java";
+        
         try {
             OutputStream stream = Files.newOutputStream(Paths.get(outFilename),
                     StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
