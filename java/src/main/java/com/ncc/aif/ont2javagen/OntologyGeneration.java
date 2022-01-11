@@ -76,8 +76,7 @@ public class OntologyGeneration {
     public static void main(String[] args) {
 
         if (args.length == 0) {
-            //String aifRoot = "src/main/resources/com/ncc/aif/";
-            String aifRoot = "C:/dev/AIDA-Interchange-Format/java/src/main/resources/com/ncc/aif/";
+            String aifRoot = "src/main/resources/com/ncc/aif/";
             String ontRoot = aifRoot + "ontologies/";
             Supplier<Stream<String>> getStream = () -> Stream
                     .of("AidaDomainOntologiesCommon", "EntityOntology", "EventOntology", "InterchangeOntology",
@@ -107,8 +106,7 @@ public class OntologyGeneration {
         addShapesOfType(model, shapes, SH.SPARQLConstraint);
 
         String className = "ShaclShapes";
-        // String outFilename = "src/test/java/com/ncc/aif/" + className + ".java";
-        String outFilename = "C:/dev/AIDA-Interchange-Format/java/src/test/java/com/ncc/aif/" + className + ".java";
+        String outFilename = "src/test/java/com/ncc/aif/" + className + ".java";
         
         try {
             OutputStream stream = Files.newOutputStream(Paths.get(outFilename),
@@ -160,8 +158,7 @@ public class OntologyGeneration {
         try {
             System.out.println("Generating for ontology located at " + ontologyLocation);
             OntologyGeneration ctx = new OntologyGeneration(new FileInputStream(ontologyLocation));
-            // Path file = Paths.get("../python/aida_interchange/rdf_ontologies/" + camelToSnake(ctx.ontology.getLocalName()) + ".py");
-            Path file = Paths.get("C:/dev/AIDA-Interchange-Format/python/aida_interchange/rdf_ontologies/" + camelToSnake(ctx.ontology.getLocalName()) + ".py");
+            Path file = Paths.get("../python/aida_interchange/rdf_ontologies/" + camelToSnake(ctx.ontology.getLocalName()) + ".py");
             Files.write(file, ctx.getPythonLines(), Charset.forName("UTF-8"));
         } catch (IOException e) {
             System.err.println("Unable to process file " + ontologyLocation);
@@ -177,8 +174,7 @@ public class OntologyGeneration {
 
             String ontologyName = ctx.ontology.getLocalName();
             List<String> lines = ctx.owgMapperInfo(ontologyName);
-            //Path file = Paths.get("src/main/java/com/ncc/aif/" + ontologyName + ".java");
-            Path file = Paths.get("C:/dev/AIDA-Interchange-Format/java/src/main/java/com/ncc/aif/" + ontologyName + ".java");
+            Path file = Paths.get("src/main/java/com/ncc/aif/" + ontologyName + ".java");
             Files.write(file, lines, Charset.forName("UTF-8"));
         } catch (IOException e) {
             System.err.println("Unable to process file " + ontologyLocation);
