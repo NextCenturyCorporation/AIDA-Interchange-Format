@@ -1421,14 +1421,20 @@ aida:ClaimComponentShape
     ] ;
 
     # Optional KE this component represents
+    # sh:property [
+    #     sh:path aida:componentKE ;
+    #     sh:xone (
+    #         [sh:class aida:Entity]
+    #         [sh:class aida:Event]
+    #         [sh:class aida:Relation] ) ;
+    #     sh:maxCount 1 ;
+    #     sh:message "ClaimComponent can have at most 1 componentKE" ;
+    # ] ;
+    # may bear componentKE data
     sh:property [
         sh:path aida:componentKE ;
-        sh:xone (
-            [sh:class aida:Entity]
-            [sh:class aida:Event]
-            [sh:class aida:Relation] ) ;
-        sh:maxCount 1 ;
-        sh:message "ClaimComponent can have at most 1 componentKE" ;
+        sh:class aida:SameAsCluster ;
+        sh:message "Claim Component componentKE must be the IRI of an aida:SameAsCluster representing the event (or relation) KE" ;
     ] ;
 
     # may bear system-private data

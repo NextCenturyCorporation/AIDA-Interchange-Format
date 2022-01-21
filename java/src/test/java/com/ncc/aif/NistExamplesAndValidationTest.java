@@ -932,43 +932,46 @@ public class NistExamplesAndValidationTest {
 
                 /**
                  * Create ClaimComponent objects
-                 */
-/*                
+                 */       
                 @Nested
                 class ClaimComponentTest {
-                        ClaimComponent validComponent = new ClaimComponent().setName("Hugo Chávez").setIdentity("Q8440")
-                                        .addType("Q82955"); // Politician
+                    String claimComponentURI = "https://www.wikidata.org/wiki/Q8440";
 
-                        @Test
-                        void validMininmal() {
-                                validComponent.addToModel(model, "https://www.wikidata.org/wiki/Q8440", system);
-                                utils.testValid("Create minimal valid ClaimComponent");
-                        }
+                    ClaimComponent validComponent = new ClaimComponent()
+                                    .setName("Hugo Chávez")
+                                    .setIdentity("Q8440")
+                                    .addType("Q82955"); // Politician
 
-                        @Test
-                        void validFull() {
 
-                                validProtoType = makeEntity(model, utils.getUri("someTestURI1"), system);
-                                validSameAsCluster = AIFUtils.makeAIFResource(model, "http://www.caci1.com/cluster/SameAsCluster/ClusterID1", InterchangeOntology.SameAsCluster, system)
-                                        .addProperty(InterchangeOntology.prototype, validProtoType);     
+                    @Test
+                    void validMininmal() {
+                            validComponent.addToModel(model, claimComponentURI, system);
+                            utils.testValid("Create minimal valid ClaimComponent");
+                    }
 
-                                validComponent.setProvenance("Hugo Chavez")
-                                                .setKE(validSameAsCluster)
-                                                .addToModel(model, "https://www.wikidata.org/wiki/Q844", system);
-                                utils.testValid("Create full valid ClaimComponent");
-                                
-                        }
+                    @Test
+                    void validFull() {
+                            
+                            Resource validProtoType1 = makeEntity(model, utils.getUri("someTestURI1"), system);                                        
+                            Resource validSameAsCluster1 = AIFUtils.makeAIFResource(model, "http://www.caci.com/cluster/SameAsCluster/ClusterID1", InterchangeOntology.SameAsCluster, system)
+                                    .addProperty(InterchangeOntology.prototype, validProtoType1);
+                                    
+                            validComponent.setProvenance("Hugo Chavez")
+                                    .setKE(validSameAsCluster1)
+                                    .addToModel(model, claimComponentURI, system);
+                            utils.testValid("Create full valid ClaimComponent");
+                    }
 
-                        @Test
-                        void invalidMissingType() {
-                                validComponent.setTypes(Collections.emptySet()) // remove types
-                                                .addToModel(model, "https://www.wikidata.org/wiki/Q8440", system);
-                                utils.expect(null, SH.MinCountConstraintComponent, null);
-                                utils.testInvalid(
-                                                "ClaimComponent.invalid (missing type): ClaimComponent must have a type");
-                        }
-                }
-*/
+                    @Test
+                    void invalidMissingType() {
+                            validComponent.setTypes(Collections.emptySet()) // remove types
+                                    .addToModel(model, "https://www.wikidata.org/wiki/Q8440", system);
+                            utils.expect(null, SH.MinCountConstraintComponent, null);
+                            utils.testInvalid(
+                                            "ClaimComponent.invalid (missing type): ClaimComponent must have a type");
+                    }
+            }
+
                 /**
                  * Create ClaimComponent objects
                  */
@@ -1073,7 +1076,7 @@ public class NistExamplesAndValidationTest {
                                 validClaim.setClaimDateTime(AIFUtils.makeLDCTimeRange(model,
                                     "2013-01-xx", "2013-12-xx", "2014-01-xx", "2014-12-xx", system));
 
-                                                validClaim.addToModel(model, utils.getUri("a_full_claimframe"), system);
+                                validClaim.addToModel(model, utils.getUri("a_full_claimframe"), system);
 
                                 utils.testValid("Create full valid claim frame");
                         }

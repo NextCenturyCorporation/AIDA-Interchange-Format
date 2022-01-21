@@ -1388,28 +1388,37 @@ public class ExamplesAndValidationTest {
                  */
                 @Nested
                 class ClaimComponentTest {
-                        ClaimComponent validComponent = new ClaimComponent().setName("Hugo Chávez").setIdentity("Q8440")
+                        String claimComponentURI = "https://www.wikidata.org/wiki/Q8440";
+
+                        ClaimComponent validComponent = new ClaimComponent()
+                                        .setName("Hugo Chávez")
+                                        .setIdentity("Q8440")
                                         .addType("Q82955"); // Politician
+
 
                         @Test
                         void validMininmal() {
-                                validComponent.addToModel(model, "https://www.wikidata.org/wiki/Q8440", system);
+                                validComponent.addToModel(model, claimComponentURI, system);
                                 utils.testValid("Create minimal valid ClaimComponent");
                         }
 
                         @Test
                         void validFull() {
+                                
+                                Resource validProtoType1 = makeEntity(model, utils.getUri("someTestURI1"), system);                                        
+                                Resource validSameAsCluster1 = AIFUtils.makeAIFResource(model, "http://www.caci.com/cluster/SameAsCluster/ClusterID1", InterchangeOntology.SameAsCluster, system)
+                                        .addProperty(InterchangeOntology.prototype, validProtoType1);
+                                        
                                 validComponent.setProvenance("Hugo Chavez")
-                                                .setKE(utils.makeValidAIFEntity(SeedlingOntology.Person,
-                                                                utils.getUri("Chavez")))
-                                                .addToModel(model, "https://www.wikidata.org/wiki/Q8440", system);
+                                        .setKE(validSameAsCluster1)
+                                        .addToModel(model, claimComponentURI, system);
                                 utils.testValid("Create full valid ClaimComponent");
                         }
 
                         @Test
                         void invalidMissingType() {
                                 validComponent.setTypes(Collections.emptySet()) // remove types
-                                                .addToModel(model, "https://www.wikidata.org/wiki/Q8440", system);
+                                        .addToModel(model, "https://www.wikidata.org/wiki/Q8440", system);
                                 utils.expect(null, SH.MinCountConstraintComponent, null);
                                 utils.testInvalid(
                                                 "ClaimComponent.invalid (missing type): ClaimComponent must have a type");
@@ -1425,15 +1434,29 @@ public class ExamplesAndValidationTest {
                         Resource validComponentKE;
                         Resource validClaimerComponent;
                         Resource validClaimLocationComponent;
-                        Resource validProtoType;
+                        Resource validProtoType1;
+                        Resource validProtoType2;
+                        Resource validProtoType3;
                         Resource validSameAsCluster1;
                         Resource validSameAsCluster2;
-                        Resource validSameAsCluster3;
+                        Resource validSameAsCluster3;                        
                         Claim validClaim;
 
                         @BeforeEach
                         void setup() {
-                                validComponentKE = utils.makeValidAIFEntity(SeedlingOntology.Person, utils.getUri("pointer_to_some_ke_arg"));
+                                validProtoType1 = makeEntity(model, utils.getUri("someTestURI1"), system);
+                                validProtoType2 = makeEntity(model, utils.getUri("someTestURI2"), system);
+                                validProtoType3 = makeEntity(model, utils.getUri("someTestURI3"), system);                            
+    
+                                validSameAsCluster1 = AIFUtils.makeAIFResource(model, "http://www.caci.com/cluster/SameAsCluster/ClusterID1", InterchangeOntology.SameAsCluster, system)
+                                .addProperty(InterchangeOntology.prototype, validProtoType1);
+                                validSameAsCluster2 = AIFUtils.makeAIFResource(model, "http://www.caci.com/cluster/SameAsCluster/ClusterID2", InterchangeOntology.SameAsCluster, system)
+                                        .addProperty(InterchangeOntology.prototype, validProtoType2);
+                                validSameAsCluster3 = AIFUtils.makeAIFResource(model, "http://www.caci.com/cluster/SameAsCluster/ClusterID3", InterchangeOntology.SameAsCluster, system)
+                                        .addProperty(InterchangeOntology.prototype, validProtoType3);
+    
+                                //validComponentKE = utils.makeValidAIFEntity(LDCOntology.PER, utils.getUri("pointer_to_some_ke_arg"));
+                                validComponentKE = validSameAsCluster1;   
 
                                 validXComponent = new ClaimComponent()
                                                 .setName("Some Agency")
@@ -1456,14 +1479,6 @@ public class ExamplesAndValidationTest {
                                                 .setKE(validComponentKE)
                                                 .addToModel(model, "https://www.wikidata.org/wiki/Q717", system);                 
 
-                                validProtoType = makeEntity(model, utils.getUri("someTestURI"), system);
-
-                                validSameAsCluster1 = AIFUtils.makeAIFResource(model, "http://www.caci.com/cluster/SameAsCluster/ClusterID1", InterchangeOntology.SameAsCluster, system)
-                                        .addProperty(InterchangeOntology.prototype, validProtoType);
-                                validSameAsCluster2 = AIFUtils.makeAIFResource(model, "http://www.caci.com/cluster/SameAsCluster/ClusterID2", InterchangeOntology.SameAsCluster, system)
-                                        .addProperty(InterchangeOntology.prototype, validProtoType);
-                                validSameAsCluster3 = AIFUtils.makeAIFResource(model, "http://www.caci.com/cluster/SameAsCluster/ClusterID3", InterchangeOntology.SameAsCluster, system)
-                                        .addProperty(InterchangeOntology.prototype, validProtoType);
 
                                 validClaim = new Claim()
                                                 .setSourceDocument("Some source")
