@@ -702,15 +702,12 @@
 
 :componentKE rdf:type owl:DatatypeProperty ;
     rdfs:label "claim component knowledge element" ;
-    #rdfs:comment: "Event/Relation/Entity KE representing component" ;
-    rdfs:comment: "SameAsCluster's that support the claim component" ;
+    rdfs:comment: "Event/Relation/Entity KE representing component" ;
     rdfs:domain :ClaimComponent ;
     rdfs:range [ owl:unionOf (
-        :SameAsCluster) ];    
-    #rdfs:range [ owl:unionOf (
-    #    :Event
-    #    :Relation
-    #    :Entity ) ];
+        :Event
+        :Relation
+        :Entity ) ];
     rdfs:subPropertyOf owl:topObjectProperty .
 
 #################################################################

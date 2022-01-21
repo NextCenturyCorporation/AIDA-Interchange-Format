@@ -1388,7 +1388,7 @@ public class ExamplesAndValidationTest {
                  */
                 @Nested
                 class ClaimComponentTest {
-                        String claimComponentURI = "https://www.wikidata.org/wiki/Q8440";
+                        //String claimComponentURI = "https://www.wikidata.org/wiki/Q8440";
 
                         ClaimComponent validComponent = new ClaimComponent()
                                         .setName("Hugo Chávez")
@@ -1398,20 +1398,20 @@ public class ExamplesAndValidationTest {
 
                         @Test
                         void validMininmal() {
-                                validComponent.addToModel(model, claimComponentURI, system);
+                                validComponent.addToModel(model, utils.getUri("a_valid_minimal_claimcomponent"), system);
                                 utils.testValid("Create minimal valid ClaimComponent");
                         }
 
                         @Test
                         void validFull() {
                                 
-                                Resource validProtoType1 = makeEntity(model, utils.getUri("someTestURI1"), system);                                        
-                                Resource validSameAsCluster1 = AIFUtils.makeAIFResource(model, "http://www.caci.com/cluster/SameAsCluster/ClusterID1", InterchangeOntology.SameAsCluster, system)
-                                        .addProperty(InterchangeOntology.prototype, validProtoType1);
+                                // Resource validProtoType1 = makeEntity(model, utils.getUri("someTestURI1"), system);                                        
+                                // Resource validSameAsCluster1 = AIFUtils.makeAIFResource(model, "http://www.caci.com/cluster/SameAsCluster/ClusterID1", InterchangeOntology.SameAsCluster, system)
+                                //         .addProperty(InterchangeOntology.prototype, validProtoType1);
                                         
                                 validComponent.setProvenance("Hugo Chavez")
-                                        .setKE(validSameAsCluster1)
-                                        .addToModel(model, claimComponentURI, system);
+                                        //.setKE(validSameAsCluster1)
+                                        .addToModel(model, utils.getUri("a_valid_full_claimcomponent"), system);
                                 utils.testValid("Create full valid ClaimComponent");
                         }
 
@@ -1462,21 +1462,21 @@ public class ExamplesAndValidationTest {
                                                 .setName("Some Agency")
                                                 .setIdentity("Q37230")
                                                 .addType("Q47913") // Politician
-                                                .setKE(validComponentKE)
+                                                //.setKE(validComponentKE)
                                                 .addToModel(model, "https://www.wikidata.org/wiki/Q37230", system);
 
                                 validClaimerComponent = new ClaimComponent()
                                                 .setName("Some News Outlet")
                                                 .setIdentity("Q48340")
                                                 .addType("Q7892363") // Politician
-                                                .setKE(validComponentKE)
+                                                //.setKE(validComponentKE)
                                                 .addToModel(model, "https://www.wikidata.org/wiki/Q48340", system);
         
                                 validClaimLocationComponent = new ClaimComponent()
                                                 .setName("Some Country")
                                                 .setIdentity("Q717")
                                                 .addType("Q3624078") // Politician
-                                                .setKE(validComponentKE)
+                                                //.setKE(validComponentKE)
                                                 .addToModel(model, "https://www.wikidata.org/wiki/Q717", system);                 
 
 

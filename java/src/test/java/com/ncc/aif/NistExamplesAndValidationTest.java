@@ -945,27 +945,27 @@ public class NistExamplesAndValidationTest {
 
                     @Test
                     void validMininmal() {
-                            validComponent.addToModel(model, claimComponentURI, system);
+                            validComponent.addToModel(model, utils.getUri("a_valid_minimal_claimcomponent"), system);
                             utils.testValid("Create minimal valid ClaimComponent");
                     }
 
                     @Test
                     void validFull() {
                             
-                            Resource validProtoType1 = makeEntity(model, utils.getUri("someTestURI1"), system);                                        
-                            Resource validSameAsCluster1 = AIFUtils.makeAIFResource(model, "http://www.caci.com/cluster/SameAsCluster/ClusterID1", InterchangeOntology.SameAsCluster, system)
-                                    .addProperty(InterchangeOntology.prototype, validProtoType1);
+                            // Resource validProtoType1 = makeEntity(model, utils.getUri("someTestURI1"), system);                                        
+                            // Resource validSameAsCluster1 = AIFUtils.makeAIFResource(model, "http://www.caci.com/cluster/SameAsCluster/ClusterID1", InterchangeOntology.SameAsCluster, system)
+                            //         .addProperty(InterchangeOntology.prototype, validProtoType1);
                                     
                             validComponent.setProvenance("Hugo Chavez")
-                                    .setKE(validSameAsCluster1)
-                                    .addToModel(model, claimComponentURI, system);
+                                    //.setKE(validSameAsCluster1)
+                                    .addToModel(model, utils.getUri("a_valid_full_claimcomponent"), system);
                             utils.testValid("Create full valid ClaimComponent");
                     }
 
                     @Test
                     void invalidMissingType() {
                             validComponent.setTypes(Collections.emptySet()) // remove types
-                                    .addToModel(model, "https://www.wikidata.org/wiki/Q8440", system);
+                                    .addToModel(model, utils.getUri("an_invalid_missing_type"), system);
                             utils.expect(null, SH.MinCountConstraintComponent, null);
                             utils.testInvalid(
                                             "ClaimComponent.invalid (missing type): ClaimComponent must have a type");
@@ -1010,21 +1010,21 @@ public class NistExamplesAndValidationTest {
                                                 .setName("Some Agency")
                                                 .setIdentity("Q37230")
                                                 .addType("Q47913") // Politician
-                                                .setKE(validComponentKE)
+                                                //.setKE(validComponentKE)
                                                 .addToModel(model, "https://www.wikidata.org/wiki/Q37230", system);
 
                                 validClaimerComponent = new ClaimComponent()
                                                 .setName("Some News Outlet")
                                                 .setIdentity("Q48340")
                                                 .addType("Q7892363") // Politician
-                                                .setKE(validComponentKE)
+                                                //.setKE(validComponentKE)
                                                 .addToModel(model, "https://www.wikidata.org/wiki/Q48340", system);
         
                                 validClaimLocationComponent = new ClaimComponent()
                                                 .setName("Some Country")
                                                 .setIdentity("Q717")
                                                 .addType("Q3624078") // Politician
-                                                .setKE(validComponentKE)
+                                                //.setKE(validComponentKE)
                                                 .addToModel(model, "https://www.wikidata.org/wiki/Q717", system);                 
                             
 

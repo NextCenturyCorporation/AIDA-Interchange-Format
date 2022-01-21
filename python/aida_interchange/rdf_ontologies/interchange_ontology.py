@@ -2,7 +2,7 @@ from rdflib import URIRef
 
 # WARNING. This is a Generated File. Please do not edit.
 # Please refer to the README at java/src/main/java/com/ncc/aif/ont2javagen for more information
-# Last generated on: 01/21/2022 09:24:14
+# Last generated on: 01/21/2022 11:28:49
 NAMESPACE = 'https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#'
 
 # Classes
