@@ -103,7 +103,7 @@ aida:ClaimShape
 #------------------------
 
 #########################
-# 2.4 #6. Each aida:Claim may have 0 to 3 aida:claimerAffiliation.
+# 2.4 #6. Each aida:Claim may have zero or more aida:claimerAffiliation.
 
     sh:property [
         sh:path aida:claimerAffiliation ;
@@ -143,26 +143,27 @@ aida:ClaimShape
 
 
 #########################
-# 2.4 #15. The graph of Associated KEs must have no disjunctions or alternative interpretations. In particular, [the prototype of] each event or relation cluster must have exactly one type assertion. 
+# 2.4 #15. The graph of Associated KEs must have no disjunctions or alternative interpretations. In particular, [the prototype of] each 
+# event or relation cluster must have exactly one type assertion. 
 # aida:EventRelationShape
 
-    # TODO: Verify with NIST?? - mentions no longer require types, thus this is being removed.
-    # Ensure that event/relation has type
-    # sh:sparql [
-    #     sh:message "Events and Relations must have type assertion or be non-prototype member of cluster" ;
-    #     sh:select """
-    #         PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    #         PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
-    #         SELECT $this
-    #         WHERE {
-    #             FILTER ( NOT EXISTS {
-    #                     $this ^rdf:subject / rdf:predicate rdf:type .
-    #                 } && ( NOT EXISTS { $this ^aida:clusterMember ?membership . } ||
-    #                        EXISTS { $this ^aida:prototype ?cluster . } )
-    #             )
-    #         }
-    #     """ ;
-    # ]
+    sh:sparql [
+        sh:message "Events and Relations must have type assertion or be non-prototype member of cluster" ;
+        sh:select """
+            PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
+            SELECT $this
+            WHERE {
+                $claimId aida:associatedKEs ?this .
+                FILTER ( NOT EXISTS {
+  	                ?this ^rdf:subject / rdf:predicate rdf:type .
+                } && ( 	NOT EXISTS { $this ^aida:clusterMember ?membership . } ||
+        	    EXISTS { $this ^aida:prototype ?cluster . } )
+                )
+            }
+        """ ;
+    ]
+    
     .
 #------------------------
 
@@ -253,7 +254,9 @@ aida:ClaimComponentShape
         sh:minCount 1 ;
         sh:maxCount 5 ;
         sh:message "Each aida:ClaimComponent must have at least one and at most 5 aida:componentType" ;
-    ]  .
+    ]
+    
+    .
 
 
 
