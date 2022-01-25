@@ -103,7 +103,7 @@ aida:ClaimShape
 #------------------------
 
 #########################
-# 2.4 #6. Each aida:Claim may have zero or more aida:claimerAffiliation.
+# 2.4 #6. Each aida:Claim may have 0 to 3 aida:claimerAffiliation.
 
     sh:property [
         sh:path aida:claimerAffiliation ;
