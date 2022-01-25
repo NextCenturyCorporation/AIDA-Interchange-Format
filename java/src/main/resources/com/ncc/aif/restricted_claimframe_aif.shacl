@@ -146,48 +146,52 @@ aida:ClaimShape
 # 2.4 #15. The graph of Associated KEs must have no disjunctions or alternative interpretations. In particular, [the prototype of] each event or relation cluster must have exactly one type assertion. 
 # aida:EventRelationShape
 
+    # TODO: Verify with NIST?? - mentions no longer require types, thus this is being removed.
     # Ensure that event/relation has type
-    sh:sparql [
-        sh:message "Events and Relations must have type assertion or be non-prototype member of cluster" ;
-        sh:select """
-            PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
-            SELECT $this
-            WHERE {
-                FILTER ( NOT EXISTS {
-                        $this ^rdf:subject / rdf:predicate rdf:type .
-                    } && ( NOT EXISTS { $this ^aida:clusterMember ?membership . } ||
-                           EXISTS { $this ^aida:prototype ?cluster . } )
-                )
-            }
-        """ ;
-    ] .
+    # sh:sparql [
+    #     sh:message "Events and Relations must have type assertion or be non-prototype member of cluster" ;
+    #     sh:select """
+    #         PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    #         PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
+    #         SELECT $this
+    #         WHERE {
+    #             FILTER ( NOT EXISTS {
+    #                     $this ^rdf:subject / rdf:predicate rdf:type .
+    #                 } && ( NOT EXISTS { $this ^aida:clusterMember ?membership . } ||
+    #                        EXISTS { $this ^aida:prototype ?cluster . } )
+    #             )
+    #         }
+    #     """ ;
+    # ]
+    .
 #------------------------
 
 #########################
 # 2.4 #16. The graph of Associated KEs must have at least one event cluster or relation cluster with at least one edge.
-aida:SystemShape
-    sh:sparql[
-        sh:message "Each Associated KEs graph must have at least one event or relation with at least one edge. Found {$this}" ;
-        sh:select """
-            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX aidaDomainCommon: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/AidaDomainOntologiesCommon#>
-            SELECT (COUNT(?pred) AS $this)
-            WHERE {
-                ?argumentAssertion a rdf:Statement .
-                ?argumentAssertion rdf:predicate ?pred .
-                {
-                    ?pred rdfs:subClassOf+ aidaDomainCommon:RelationArgumentType
-                }
-                UNION
-                {
-                    ?pred rdfs:subClassOf+ aidaDomainCommon:EventArgumentType
-                }
-            }
-            HAVING (COUNT(?pred) < 1)
-        """ ;
-    ] .
+# TODO: Checkwith NIST
+# aida:SystemShape
+#     sh:sparql[
+#         sh:message "Each Associated KEs graph must have at least one event or relation with at least one edge. Found {$this}" ;
+#         sh:select """
+#             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+#             PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+#             PREFIX aidaDomainCommon: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/AidaDomainOntologiesCommon#>
+#             SELECT (COUNT(?pred) AS $this)
+#             WHERE {
+#                 ?argumentAssertion a rdf:Statement .
+#                 ?argumentAssertion rdf:predicate ?pred .
+#                 {
+#                     ?pred rdfs:subClassOf+ aidaDomainCommon:RelationArgumentType
+#                 }
+#                 UNION
+#                 {
+#                     ?pred rdfs:subClassOf+ aidaDomainCommon:EventArgumentType
+#                 }
+#             }
+#             HAVING (COUNT(?pred) < 1)
+#         """ ;
+
+#     ] .
 #------------------------
 
 
@@ -219,6 +223,7 @@ aida:AssociatedKEsEntityPrototypeRequireHandle
         a sh:PropertyShape ;
         sh:path aida:handle ;
         sh:minCount 1 ;
+        sh:maxCount 1 ;
         sh:message "Entity prototype requires handle"
     ] .
 
