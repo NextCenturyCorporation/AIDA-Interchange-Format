@@ -287,9 +287,12 @@ public class NistTA3ExamplesAndValidationTest {
                 @Test
                 void invalidMissingClaimID() {
                     validClaim
-                            .setImportance(1d)
-                            .setClaimId("claimId")
-                            .setClaimTemplate(null);
+                            .setClaimId(null);                
+                
+                    validClaim.addToModel(model, utils.getUri("a_missing_Claim_ID"), system);
+                    utils.expect(null, SH.MinCountConstraintComponent, null);
+
+                    utils.testInvalid("Missing claimId");
 
                 }
 
