@@ -66,7 +66,7 @@ public class NistTA3ExamplesAndValidationTest {
 
     private static final String NIST_ROOT = "https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/";
     private static final String LDC_NS = NIST_ROOT + "LdcAnnotations#";
-    private static final String ONTOLOGY_NS = NIST_ROOT + "ontologies/LDCOntology#";
+    //private static final String ONTOLOGY_NS = NIST_ROOT + "ontologies/LDCOntology#";
     private static NistTestUtils utils;
 
     @BeforeAll
@@ -307,7 +307,7 @@ public class NistTA3ExamplesAndValidationTest {
 
     private void addNamespacesToModel(Model model) {
         // adding namespace prefixes makes the Turtle output more readable
-        model.setNsPrefix("ldcOnt", ONTOLOGY_NS);
+        // model.setNsPrefix("ldcOnt", ONTOLOGY_NS);
         model.setNsPrefix("ldc", LDC_NS);
     }
 }
