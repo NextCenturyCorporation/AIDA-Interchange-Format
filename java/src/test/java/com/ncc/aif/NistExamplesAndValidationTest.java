@@ -946,7 +946,8 @@ public class NistExamplesAndValidationTest {
                     @Test
                     void validMininmal() {
                             validComponent.addToModel(model, utils.getUri("a_valid_minimal_claimcomponent"), system);
-                            utils.testValid("Create minimal valid ClaimComponent");
+                            //utils.testValid("Create minimal valid ClaimComponent");
+                            utils.testValid("Create minimal valid");                            
                     }
 
                     @Test
@@ -969,6 +970,24 @@ public class NistExamplesAndValidationTest {
                             utils.expect(null, SH.MinCountConstraintComponent, null);
                             utils.testInvalid(
                                             "ClaimComponent.invalid (missing type): ClaimComponent must have a type");
+                    }
+
+                    @Test
+                    void invalidTypeCount(){
+
+                        //Test max type count of 5    
+                        validComponent.addType("Q829551") 
+                                      .addType("Q829552") 
+                                      .addType("Q829553") 
+                                      .addType("Q829554") 
+                                      .addType("Q829554") 
+                                      .addType("Q829554")                                       
+                                      .addType("Q829556"); 
+
+                        utils.expect(null, SH.MaxCountConstraintComponent, null);
+                        utils.testInvalid(
+                                "ClaimComponent.invalid (Too many type): ClaimComponent must max 5 types");
+          
                     }
             }
 
