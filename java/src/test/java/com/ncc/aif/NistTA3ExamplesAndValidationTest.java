@@ -193,51 +193,12 @@ public class NistTA3ExamplesAndValidationTest {
 
                     validProtoType1 = makeEntity(model, utils.getUri("someTestURI1"), system);
                     markHandle(validProtoType1, "ClusterID1");
-                    // markType(model, utils.getAssertionUri(), validProtoType1,LDCOntologyM36.PER,
-                    // system, 1.0);
-                    // final Resource relation1 = makeRelation(model, utils.getRelationUri(),
-                    // system);
-                    // markType(model, utils.getAssertionUri(), relation1,
-                    // SeedlingOntology.PersonalSocial_Business,
-                    // system, 0.75);
-                    // markAsArgument(model, relation1,
-                    // SeedlingOntology.PersonalSocial_Business_Person, validProtoType1,
-                    // system, 0.75);
-                    // validSameAsCluster1 = makeClusterWithPrototype(model, utils.getClusterUri(),
-                    // validProtoType1, null, system);
 
                     validProtoType2 = makeEntity(model, utils.getUri("someTestURI2"), system);
                     markHandle(validProtoType2, "ClusterID2");
-                    // markType(model, utils.getAssertionUri(), validProtoType2, LDCOntologyM36.PER,
-                    // system, 1.0);
-
-                    // final Resource relation2 = makeRelation(model, utils.getRelationUri(),
-                    // system);
-                    // markType(model, utils.getAssertionUri(), relation2,
-                    // SeedlingOntology.PersonalSocial_Business,
-                    // system, 0.75);
-                    // markAsArgument(model, relation2,
-                    // SeedlingOntology.PersonalSocial_Business_Person, validProtoType2,
-                    // system, 0.75);
-
-                    // validSameAsCluster2 = makeClusterWithPrototype(model, utils.getClusterUri(),
-                    // validProtoType2, null, system);
 
                     validProtoType3 = makeEntity(model, utils.getUri("someTestURI3"), system);
                     markHandle(validProtoType3, "ClusterID3");
-                    // markType(model, utils.getAssertionUri(), validProtoType3, LDCOntologyM36.PER,
-                    // system, 1.0);
-
-                    // final Resource relation3 = makeRelation(model, utils.getRelationUri(),
-                    // system);
-                    // markType(model, utils.getAssertionUri(), relation3,
-                    // SeedlingOntology.PersonalSocial_Business,
-                    // system, 0.75);
-                    // markAsArgument(model, relation3,
-                    // SeedlingOntology.PersonalSocial_Business_Person, validProtoType3,
-                    // system, 0.75);
-                    // validSameAsCluster3 = makeClusterWithPrototype(model, utils.getClusterUri(),
-                    // validProtoType3, null, system);
 
                     validSameAsCluster1 = AIFUtils
                             .makeAIFResource(model, "http://www.caci.com/cluster/SameAsCluster/ClusterID1",
@@ -252,29 +213,24 @@ public class NistTA3ExamplesAndValidationTest {
                                     InterchangeOntology.SameAsCluster, system)
                             .addProperty(InterchangeOntology.prototype, validProtoType3);
 
-                    // validComponentKE = utils.makeValidAIFEntity(LDCOntology.PER,
-                    // utils.getUri("pointer_to_some_ke_arg"));
                     validComponentKE = validSameAsCluster1;
 
                     validXComponent = new ClaimComponent()
                             .setName("Some Agency")
                             .setIdentity("Q37230")
                             .addType("Q47913") // Politician
-                            // .setKE(validComponentKE)
                             .addToModel(model, "https://www.wikidata.org/wiki/Q37230", system);
 
                     validClaimerComponent = new ClaimComponent()
                             .setName("Some News Outlet")
                             .setIdentity("Q48340")
                             .addType("Q7892363") // Politician
-                            // .setKE(validComponentKE)
                             .addToModel(model, "https://www.wikidata.org/wiki/Q48340", system);
 
                     validClaimLocationComponent = new ClaimComponent()
                             .setName("Some Country")
                             .setIdentity("Q717")
                             .addType("Q3624078") // Politician
-                            // .setKE(validComponentKE)
                             .addToModel(model, "https://www.wikidata.org/wiki/Q717", system);
 
                     validClaim = new Claim()
@@ -300,12 +256,6 @@ public class NistTA3ExamplesAndValidationTest {
 
                 @Test
                 void validFull() {
-                    // Resource someOtherClaimFrame1 =
-                    // model.createResource("https://www.caci.com/claim/someOtherClaimID1");
-                    // Resource someOtherClaimFrame2 =
-                    // model.createResource("https://www.caci.com/claim/someOtherClaimID2");
-                    // Resource someOtherClaimFrame3 =
-                    // model.createResource("https://www.caci.com/claim/someOtherClaimID3");
 
                     String someOtherClaimFrame1 = "someOtherClaimID1";
                     String someOtherClaimFrame2 = "someOtherClaimID2";
@@ -343,15 +293,13 @@ public class NistTA3ExamplesAndValidationTest {
 
                 }
 
-                // @Test (this is now valid outside of restricted set)
-                // void invalidMissingXVariable() {
-                // validClaim.setXVariable(Collections.emptySet()).addToModel(model,
-                // utils.getUri("claim"),
-                // system);
-                // utils.expect(null, SH.MinCountConstraintComponent, null);
-                // utils.testInvalid("ClaimTest.invalid (missing x variable): Claim must have X
-                // Variable");
-                // }
+                @Test
+                void invalidMissingXVariable() {
+                    validClaim.setXVariable(Collections.emptySet()).addToModel(model,
+                            utils.getUri("claim"), system);
+                    utils.expect(null, SH.MinCountConstraintComponent, null);
+                    utils.testInvalid("ClaimTest.invalid (missing x variable): Claim must have X Variable");
+                }
             }
 
         }
