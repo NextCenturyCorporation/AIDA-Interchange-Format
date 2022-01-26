@@ -289,10 +289,10 @@ public class NistTA3ExamplesAndValidationTest {
                     validClaim
                             .setClaimId(null);                
                 
-                    validClaim.addToModel(model, utils.getUri("a_missing_Claim_ID"), system);
+                    validClaim.addToModel(model, utils.getUri("a_missing_claim_id"), system);
                     utils.expect(null, SH.MinCountConstraintComponent, null);
 
-                    utils.testInvalid("Missing claimId");
+                    utils.testInvalid("ClaimTest.invalid (missing id): Claim must have an id");
 
                 }
 
@@ -303,6 +303,7 @@ public class NistTA3ExamplesAndValidationTest {
                     utils.expect(null, SH.MinCountConstraintComponent, null);
                     utils.testInvalid("ClaimTest.invalid (missing x variable): Claim must have X Variable");
                 }
+          
             }
 
         }
