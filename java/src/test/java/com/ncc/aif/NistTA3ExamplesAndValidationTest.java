@@ -232,6 +232,7 @@ public class NistTA3ExamplesAndValidationTest {
                                         utils.testValid("Create full valid claim frame");
                                 }
 
+                                //Test Claim requires exactly 1 claimId
                                 @Test
                                 void invalidMissingClaimID() {
                                         // Set claim id to null
@@ -243,6 +244,19 @@ public class NistTA3ExamplesAndValidationTest {
 
                                 }
 
+                                //Test Claim requires exactly 1 claim template
+                                @Test
+                                void invalidMissingClaimTemplate() {
+                                        // Set claim template to null
+                                        validClaim.setClaimTemplate(null);
+                                        validClaim.addToModel(model, utils.getUri("a_missing_claim_template"), system);
+                                        utils.expect(null, SH.MinCountConstraintComponent, null);
+
+                                        utils.testInvalid("ClaimTest.invalid (missing template): Claim must have an template");
+
+                                }                                
+
+                                //Test Claim missing X variable
                                 @Test
                                 void invalidMissingXVariable() {
                                         // Set the xvariable to empty set
@@ -253,8 +267,12 @@ public class NistTA3ExamplesAndValidationTest {
                                                         "ClaimTest.invalid (missing x variable): Claim must have X Variable");
                                 }
 
+
+
+
+                                //Test ClaimComponent too many types
                                 @Test
-                                void invalidTooManyClaimTypes() {
+                                void invalidTooManyClaimComponentTypes() {
 
                                         String someOtherClaimFrame1 = "someOtherClaimID1";
                                         String someOtherClaimFrame2 = "someOtherClaimID2";
@@ -262,6 +280,11 @@ public class NistTA3ExamplesAndValidationTest {
 
                                         // Test max type count of 5 - as defined in the restricted_claimframe_aif.shacl
                                         // We are adding more than 5 types.
+
+                                        //#########################
+                                        //# 2.4 #13. Each aida:ClaimComponent must have at least one and at most 5 aida:componentType.
+                                        //# defined in aida_ontology.shacl
+                                        //#------------------------                                        
                                         Resource test = validComponentTest.setName("Hugo Chávez")
                                                         .setIdentity("Q8440")
                                                         .addType("Q82955")
@@ -305,6 +328,7 @@ public class NistTA3ExamplesAndValidationTest {
                                                         "ClaimComponent.invalid (Too many type): ClaimComponent must max 5 types");
 
                                 }
+
 
                         }
 
