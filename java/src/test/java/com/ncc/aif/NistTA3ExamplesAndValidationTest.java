@@ -111,9 +111,15 @@ public class NistTA3ExamplesAndValidationTest {
                          */
                         @Nested
                         class ClaimTest {
+                                String someOtherClaimFrame1;
+                                String someOtherClaimFrame2;
+                                String someOtherClaimFrame3;
                                 Resource validXComponent;
                                 Resource validComponentKE;
                                 Resource validClaimerComponent;
+                                Resource validClaimerComponent2;
+                                Resource validClaimerComponent3;
+                                Resource validClaimerComponent4;
                                 Resource validClaimLocationComponent;
                                 Resource validProtoType1;
                                 Resource validProtoType2;
@@ -173,6 +179,26 @@ public class NistTA3ExamplesAndValidationTest {
                                                         .addToModel(model, "https://www.wikidata.org/wiki/Q48340",
                                                                         system);
 
+                                        validClaimerComponent2 = new ClaimComponent()
+                                                        .setName("Some News Outlet")
+                                                        .setIdentity("Q483402")
+                                                        .addType("Q78923632") // Politician
+                                                        .addToModel(model, "https://www.wikidata.org/wiki/Q483402",
+                                                                        system);
+                                        validClaimerComponent3 = new ClaimComponent()
+                                                        .setName("Some News Outlet")
+                                                        .setIdentity("Q483403")
+                                                        .addType("Q78923633") // Politician
+                                                        .addToModel(model, "https://www.wikidata.org/wiki/Q483403",
+                                                                        system);
+
+                                        validClaimerComponent4 = new ClaimComponent()
+                                                        .setName("Some News Outlet")
+                                                        .setIdentity("Q483404")
+                                                        .addType("Q78923634") // Politician
+                                                        .addToModel(model, "https://www.wikidata.org/wiki/Q483404",
+                                                                        system);
+
                                         validClaimLocationComponent = new ClaimComponent()
                                                         .setName("Some Country")
                                                         .setIdentity("Q717")
@@ -205,9 +231,9 @@ public class NistTA3ExamplesAndValidationTest {
                                 @Test
                                 void validFull() {
 
-                                        String someOtherClaimFrame1 = "someOtherClaimID1";
-                                        String someOtherClaimFrame2 = "someOtherClaimID2";
-                                        String someOtherClaimFrame3 = "someOtherClaimID3";
+                                        someOtherClaimFrame1 = "someOtherClaimID1";
+                                        someOtherClaimFrame2 = "someOtherClaimID2";
+                                        someOtherClaimFrame3 = "someOtherClaimID3";
 
                                         validClaim.setImportance(1d)
                                                         .setClaimId("claimId")
@@ -232,7 +258,7 @@ public class NistTA3ExamplesAndValidationTest {
                                         utils.testValid("Create full valid claim frame");
                                 }
 
-                                //Test Claim requires exactly 1 claimId
+                                // Test Claim requires exactly 1 claimId
                                 @Test
                                 void invalidMissingClaimID() {
                                         // Set claim id to null
@@ -244,19 +270,7 @@ public class NistTA3ExamplesAndValidationTest {
 
                                 }
 
-                                //Test Claim requires exactly 1 claim template
-                                @Test
-                                void invalidMissingClaimTemplate() {
-                                        // Set claim template to null
-                                        validClaim.setClaimTemplate(null);
-                                        validClaim.addToModel(model, utils.getUri("a_missing_claim_template"), system);
-                                        utils.expect(null, SH.MinCountConstraintComponent, null);
-
-                                        utils.testInvalid("ClaimTest.invalid (missing template): Claim must have an template");
-
-                                }                                
-
-                                //Test Claim missing X variable
+                                // Test Claim missing X variable
                                 @Test
                                 void invalidMissingXVariable() {
                                         // Set the xvariable to empty set
@@ -267,24 +281,31 @@ public class NistTA3ExamplesAndValidationTest {
                                                         "ClaimTest.invalid (missing x variable): Claim must have X Variable");
                                 }
 
+                                @Test
+                                void invalidTooManyClaimerAffiliation() {
+                                        validClaim.addClaimerAfilliation(validClaimerComponent);
+                                        validClaim.addClaimerAfilliation(validClaimerComponent2);
+                                        validClaim.addClaimerAfilliation(validClaimerComponent3);
+                                        validClaim.addClaimerAfilliation(validClaimerComponent4);
+                                        validClaim.addToModel(model, utils.getUri("too_many_claimer_affiliation"),
+                                                        system);
+                                        utils.expect(null, SH.MaxCountConstraintComponent, null);
+                                        utils.testInvalid(
+                                                        "ClaimTest.invalid (too many claimer affiliation): Claim must have X Variable");
+                                }
 
-
-
-                                //Test ClaimComponent too many types
+                                // Test ClaimComponent too many types
                                 @Test
                                 void invalidTooManyClaimComponentTypes() {
-
-                                        String someOtherClaimFrame1 = "someOtherClaimID1";
-                                        String someOtherClaimFrame2 = "someOtherClaimID2";
-                                        String someOtherClaimFrame3 = "someOtherClaimID3";
 
                                         // Test max type count of 5 - as defined in the restricted_claimframe_aif.shacl
                                         // We are adding more than 5 types.
 
-                                        //#########################
-                                        //# 2.4 #13. Each aida:ClaimComponent must have at least one and at most 5 aida:componentType.
-                                        //# defined in aida_ontology.shacl
-                                        //#------------------------                                        
+                                        // #########################
+                                        // # 2.4 #13. Each aida:ClaimComponent must have at least one and at most 5
+                                        // aida:componentType.
+                                        // # defined in aida_ontology.shacl
+                                        // #------------------------
                                         Resource test = validComponentTest.setName("Hugo Chávez")
                                                         .setIdentity("Q8440")
                                                         .addType("Q82955")
@@ -297,38 +318,14 @@ public class NistTA3ExamplesAndValidationTest {
                                                         .addType("Q829557")
                                                         .addToModel(model, "https://www.wikidata.org/wiki/Q90000",
                                                                         system);
-
-                                        // Check if it failed.
+                                        validClaim.setClaimLocation(test);
+                                        validClaim.addToModel(model, utils.getUri("too_many_claimcomponents"), system);
                                         utils.expect(null, SH.MaxCountConstraintComponent, null);
-
-                                        //We need to add claim to make this work. 
-                                        validClaim.setImportance(1d)
-                                                        .setClaimId("claimId")
-                                                        .setQueryId("queryId")
-                                                        .setClaimLocation(test)
-                                                        .setClaimMedium(validClaimLocationComponent)
-                                                        .addClaimerAfilliation(validClaimerComponent)
-                                                        .addIdenticalClaim(someOtherClaimFrame1)
-                                                        .addRelatedClaim(someOtherClaimFrame2)
-                                                        .addSupportingClaim(someOtherClaimFrame1)
-                                                        .addSupportingClaim(someOtherClaimFrame2)
-                                                        .addRefutingClaim(someOtherClaimFrame1)
-                                                        .addRefutingClaim(someOtherClaimFrame2)
-                                                        .addRefutingClaim(someOtherClaimFrame3);
-
-                                        validClaim.setClaimDateTime(AIFUtils.makeLDCTimeRange(model,
-                                                        "2013-01-xx", "2013-12-xx", "2014-01-xx", "2014-12-xx",
-                                                        system));
-
-                                        validClaim.addToModel(model,
-                                                        utils.getUri("an_invalid_claimcomponent_too_many_types"),
-                                                        system);
 
                                         utils.testInvalid(
                                                         "ClaimComponent.invalid (Too many type): ClaimComponent must max 5 types");
 
                                 }
-
 
                         }
 
