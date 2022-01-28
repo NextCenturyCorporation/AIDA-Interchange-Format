@@ -85,8 +85,7 @@ public final class ValidateAIF {
 
             nistClaimModel = ModelFactory.createDefaultModel();
             nistClaimModel.add(nistModel);
-            loadModel(nistClaimModel,
-                    Resources.asCharSource(Resources.getResource(NIST_CLAIMFRAME_SHACL_RESNAME), Charsets.UTF_8));
+            loadModel(nistClaimModel, Resources.asCharSource(Resources.getResource(NIST_CLAIMFRAME_SHACL_RESNAME), Charsets.UTF_8));
 
 
             initialized = true;
@@ -185,9 +184,11 @@ public final class ValidateAIF {
         restrictions.add("com/ncc/aif/dwd_aif.shacl");
         switch (restriction) {
             case NIST_TA3:
+                restrictions.add(NIST_SHACL_RESNAME);
                 restrictions.add(NIST_CLAIMFRAME_SHACL_RESNAME);
             case NIST:
                 restrictions.add(NIST_SHACL_RESNAME);
+                restrictions.add(NIST_CLAIMFRAME_SHACL_RESNAME);
             default:
                 // do nothing
         }
