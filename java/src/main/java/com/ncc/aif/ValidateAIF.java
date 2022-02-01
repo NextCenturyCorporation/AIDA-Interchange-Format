@@ -81,9 +81,9 @@ public final class ValidateAIF {
     private static void initializeSHACLModels() {
         if (!initialized) {
             //Phi
-            xpoPredicatesModel = ModelFactory.createDefaultModel();
+            //xpoPredicatesModel = ModelFactory.createDefaultModel();
             //loadModel(xpoPredicatesModel,  Resources.asCharSource(Resources.getResource(XPO_PREDICATES), Charsets.UTF_8));
-            xpoPredicatesModel.read(XPO_PREDICATES);
+            //xpoPredicatesModel.read(XPO_PREDICATES);
 
 
             shaclModel = ModelFactory.createDefaultModel();
@@ -198,7 +198,7 @@ public final class ValidateAIF {
                 restrictions.add(NIST_CLAIMFRAME_SHACL_RESNAME);
             case NIST:
                 restrictions.add(NIST_SHACL_RESNAME);
-                restrictions.add(NIST_CLAIMFRAME_SHACL_RESNAME);
+                //restrictions.add(NIST_CLAIMFRAME_SHACL_RESNAME);
             default:
                 // do nothing
         }
