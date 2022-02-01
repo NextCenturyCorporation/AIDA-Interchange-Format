@@ -36,10 +36,11 @@ for dwd_q in xpojson['relations']:
         # print(dwd_q_object + "==" )
         # print(xpojson['relations'][dwd_q][dwd_q_object])
         for dwd_q_object_args in xpojson['relations'][dwd_q]["arguments"]:
-            try:
-                print("dwdOnt:" + xpojson['relations'][dwd_q]["wd_qnode"]  + '.' + xpojson['relations'][dwd_q]["dwd_q_object_args"]["name"])
-            except:
-                print("dwdOnt:" + xpojson['relations'][dwd_q]["wd_pnode"]  + '.' + xpojson['relations'][dwd_q]["dwd_q_object_args"]["name"])
+            print(dwd_q_object_args["name"])
+            # try:
+            #     print("dwdOnt:" + xpojson['relations'][dwd_q]["wd_qnode"]  + '.' + xpojson['relations'][dwd_q][dwd_q_object_args]["name"])
+            # except:
+            #     print("dwdOnt:" + xpojson['relations'][dwd_q]["wd_pnode"]  + '.' + xpojson['relations'][dwd_q][dwd_q_object_args]["name"])
             
         
         
