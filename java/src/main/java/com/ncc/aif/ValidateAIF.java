@@ -68,23 +68,14 @@ public final class ValidateAIF {
     private static final String AO_EVENTS_RESNAME = ONT_ROOT + "EventOntology";
     private static final String AO_RELATIONS_RESNAME = ONT_ROOT + "RelationOntology";
 
-    private static final String XPO_PREDICATES = ONT_ROOT + "xpo_v4_to_be_checked4.json";
-
-
     private static Model shaclModel;
     private static Model nistModel;
     private static Model nistClaimModel;
-    private static Model xpoPredicatesModel;
     private static boolean initialized = false;
     private static final Property CONFORMS = ResourceFactory.createProperty("http://www.w3.org/ns/shacl#conforms");
 
     private static void initializeSHACLModels() {
         if (!initialized) {
-            //Phi
-            //xpoPredicatesModel = ModelFactory.createDefaultModel();
-            //loadModel(xpoPredicatesModel,  Resources.asCharSource(Resources.getResource(XPO_PREDICATES), Charsets.UTF_8));
-            //xpoPredicatesModel.read(XPO_PREDICATES);
-
 
             shaclModel = ModelFactory.createDefaultModel();
             loadModel(shaclModel, Resources.asCharSource(Resources.getResource(AIDA_SHACL_RESNAME), Charsets.UTF_8));
