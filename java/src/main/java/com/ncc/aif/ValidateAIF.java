@@ -189,7 +189,6 @@ public final class ValidateAIF {
                 restrictions.add(NIST_CLAIMFRAME_SHACL_RESNAME);
             case NIST:
                 restrictions.add(NIST_SHACL_RESNAME);
-                //restrictions.add(NIST_CLAIMFRAME_SHACL_RESNAME);
             default:
                 // do nothing
         }
