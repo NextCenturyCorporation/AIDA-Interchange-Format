@@ -76,6 +76,7 @@ public final class ValidateAIF {
 
     private static void initializeSHACLModels() {
         if (!initialized) {
+
             shaclModel = ModelFactory.createDefaultModel();
             loadModel(shaclModel, Resources.asCharSource(Resources.getResource(AIDA_SHACL_RESNAME), Charsets.UTF_8));
 
@@ -188,7 +189,6 @@ public final class ValidateAIF {
                 restrictions.add(NIST_CLAIMFRAME_SHACL_RESNAME);
             case NIST:
                 restrictions.add(NIST_SHACL_RESNAME);
-                restrictions.add(NIST_CLAIMFRAME_SHACL_RESNAME);
             default:
                 // do nothing
         }
