@@ -1,4 +1,4 @@
-FROM maven:3.8.3-jdk-11
+FROM maven:3.8.1-jdk-11
 
 # Build
 # docker build --build-arg GIT_REPO=github.com --build-arg VALIDATOR_REPO=NextCenturyCorporation/AIDA-Interchange-Format.git --build-arg VALIDATOR_BRANCH=develop -t nextcenturycorp/aif_validator:{version} .
@@ -24,9 +24,6 @@ RUN git clone https://$GIT_REPO/$VALIDATOR_REPO -b $VALIDATOR_BRANCH .
 # Run Maven Build
 WORKDIR $VALIDATION_HOME/java
 RUN mvn clean -Dmaven.test.skip=true package
-
-
-WORKDIR $HOME
 
 COPY ["scripts/main.py", "/usr/local/"]
 
