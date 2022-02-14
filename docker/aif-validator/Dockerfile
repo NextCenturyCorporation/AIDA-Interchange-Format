@@ -25,9 +25,6 @@ RUN git clone https://$GIT_REPO/$VALIDATOR_REPO -b $VALIDATOR_BRANCH .
 WORKDIR $VALIDATION_HOME/java
 RUN mvn clean -Dmaven.test.skip=true package
 
-
-WORKDIR $HOME
-
 COPY ["scripts/main.py", "/usr/local/"]
 
 ENTRYPOINT ["python3", "/usr/local/main.py"]
