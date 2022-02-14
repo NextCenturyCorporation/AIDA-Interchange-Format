@@ -86,6 +86,7 @@ public final class ValidateAIF {
 
             nistClaimModel = ModelFactory.createDefaultModel();
             nistClaimModel.add(nistModel);
+            nistClaimModel.add(shaclModel);
             loadModel(nistClaimModel, Resources.asCharSource(Resources.getResource(NIST_CLAIMFRAME_SHACL_RESNAME), Charsets.UTF_8));
 
 
