@@ -77,20 +77,22 @@ aida:PreventMultiClusterPrototypeShape
     sh:message "Prototype can't be prototype of multiple clusters" .
 
 ### Prototype can't be member of different cluster
-aida:PreventNonClusterPrototypeMemberShape
-    # Using SPARQL because unable to use sh:inversePath in sh:equals
-    a sh:SPARQLConstraint ;
-    sh:select """
-        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
-      	SELECT $this $value
-      	WHERE {
-      	    $this ^aida:clusterMember / aida:cluster $value .
-            $this ^aida:prototype ?cluster .
-            FILTER ($value != ?cluster) .
-      	}
-    """ ;
+###Removed per Hoa 2/16/2022
+#####NIST does not prohibit a prototype E/R/E from being a member of two clusters (but the E/R/E must be the prototype of only one cluster). Uncertainty in cluster membership is allowed, and an E/R/E that is the prototype of cluster1 can be a member of cluster1 (with very high membership confidence) while also being a member of cluster2 (with very low membership confidence).
+# aida:PreventNonClusterPrototypeMemberShape
+#     # Using SPARQL because unable to use sh:inversePath in sh:equals
+#     a sh:SPARQLConstraint ;
+#     sh:select """
+#         PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
+#       	SELECT $this $value
+#       	WHERE {
+#       	    $this ^aida:clusterMember / aida:cluster $value .
+#             $this ^aida:prototype ?cluster .
+#             FILTER ($value != ?cluster) .
+#       	}
+#     """ ;
 
-    sh:message "Prototype can't be member of cluster it's not prototype of" .
+#     sh:message "Prototype can't be member of cluster it's not prototype of" .
 
 #------------------------
 
