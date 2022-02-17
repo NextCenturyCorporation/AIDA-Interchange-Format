@@ -63,11 +63,18 @@ aida:ClusterMembershipShape
 
 ### Prevent prototype from being member of a cluster it is not the prototype of and 
 ### prevent it from being prototype of mulitple clusters
+
+###Removed per Hoa 2/16/2022
+#aida:PrototypeShape
+#    a sh:NodeShape ;
+#    sh:targetObjectsOf aida:prototype ;
+#    sh:property aida:PreventMultiClusterPrototypeShape ;
+#    sh:sparql aida:PreventNonClusterPrototypeMemberShape .
+
 aida:PrototypeShape
     a sh:NodeShape ;
     sh:targetObjectsOf aida:prototype ;
-    sh:property aida:PreventMultiClusterPrototypeShape ;
-    sh:sparql aida:PreventNonClusterPrototypeMemberShape .
+    sh:property aida:PreventMultiClusterPrototypeShape .
 
 ### Prototype can't be prototype of multiple clusters
 aida:PreventMultiClusterPrototypeShape
