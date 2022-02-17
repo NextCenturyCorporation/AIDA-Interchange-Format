@@ -812,20 +812,21 @@ public class NistExamplesAndValidationTest {
                utils.expect(ShaclShapes.PreventMultiClusterPrototypeShape, SH.MaxCountConstraintComponent, null);
                utils.testInvalid("Prototype.invalid: prototype of multiple clusters");
            }
+
+           //Removed per Hoa 2/16/2022
+        //    @Test
+        //    void invalidPrototypeMemberOfOther() {
+        //        // create sample entities
+        //        ImmutablePair<Resource, Resource> aPair = utils.makeValidNistEntity(
+        //            LDCOntology.PER);
+        //        final Resource entity2 = aPair.getKey();
  
-           @Test
-           void invalidPrototypeMemberOfOther() {
-               // create sample entities
-               ImmutablePair<Resource, Resource> aPair = utils.makeValidNistEntity(
-                   LDCOntology.PER);
-               final Resource entity2 = aPair.getKey();
+        //        // create two clusters with different prototypes
+        //        markAsPossibleClusterMember(model, entity2, entityCluster, 1d, system);
  
-               // create two clusters with different prototypes
-               markAsPossibleClusterMember(model, entity2, entityCluster, 1d, system);
- 
-               utils.expect(ShaclShapes.PrototypeShape, SH.SPARQLConstraintComponent, ShaclShapes.PreventNonClusterPrototypeMemberShape);
-               utils.testInvalid("Prototype.invalid: prototype member of other cluster");
-           }
+        //        utils.expect(ShaclShapes.PrototypeShape, SH.SPARQLConstraintComponent, ShaclShapes.PreventNonClusterPrototypeMemberShape);
+        //        utils.testInvalid("Prototype.invalid: prototype member of other cluster");
+        //    }
        }
  
        @Nested
