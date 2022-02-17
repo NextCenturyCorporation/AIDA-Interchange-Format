@@ -1,4 +1,5 @@
-FROM maven:3.8.1-jdk-11
+#FROM maven:3.8.1-jdk-11
+FROM openkbs/jdk11-mvn-py3
 
 # Build
 # docker build --build-arg GIT_REPO=github.com --build-arg VALIDATOR_REPO=NextCenturyCorporation/AIDA-Interchange-Format.git --build-arg VALIDATOR_BRANCH=develop -t nextcenturycorp/aif_validator:{version} .
