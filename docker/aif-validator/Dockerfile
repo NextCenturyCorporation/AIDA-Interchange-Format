@@ -6,6 +6,11 @@ FROM maven:3.8.1-jdk-11
 # docker push nextcenturycorp/aif_validator:{version}
 
 #-------------------------------------------------------------
+# Install Python 3
+#------------------------------------------------------------- 
+RUN apt-get update -y ; apt-get install python3 -y
+
+#-------------------------------------------------------------
 # Install AIF Interchange Format
 #------------------------------------------------------------- 
 # Create directory structure
