@@ -8,7 +8,7 @@ FROM maven:3.8.1-jdk-11
 #-------------------------------------------------------------
 # Install Python 3
 #------------------------------------------------------------- 
-RUN apt-get update; apt-get install python3
+RUN apt-get update -y ; apt-get install python3 -y
 
 #-------------------------------------------------------------
 # Install AIF Interchange Format
