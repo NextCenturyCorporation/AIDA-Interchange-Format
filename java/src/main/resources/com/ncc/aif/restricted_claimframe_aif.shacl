@@ -201,7 +201,7 @@ aida:SystemShape
                         FILTER(?statement_type = rdf:Statement || ?statement_type = aida:ArgumentStatement)
                         FILTER(?subject_metatype = aida:Event || ?subject_metatype = aida:Relation)        
             }
-            HAVING (COUNT(?predicate) >= 1)
+            HAVING (COUNT(?predicate) < 1)
         """ ;
 
     ] .
