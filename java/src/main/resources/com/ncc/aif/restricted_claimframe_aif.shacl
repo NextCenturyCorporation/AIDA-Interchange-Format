@@ -179,7 +179,7 @@ aida:SystemShape
             PREFIX aidaDomainCommon: <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/AidaDomainOntologiesCommon#>
             PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
 
-            SELECT (COUNT(?pred) AS $this)
+            SELECT (COUNT(?predicate) AS $this)
             WHERE {
                         ?claimId aida:associatedKEs ?subject_cluster .
                         ?subject_cluster a aida:SameAsCluster .
@@ -201,7 +201,7 @@ aida:SystemShape
                         FILTER(?statement_type = rdf:Statement || ?statement_type = aida:ArgumentStatement)
                         FILTER(?subject_metatype = aida:Event || ?subject_metatype = aida:Relation)        
             }
-            HAVING (COUNT(?pred) >= 1)
+            HAVING (COUNT(?predicate) < 1)
         """ ;
 
     ] .
