@@ -247,7 +247,6 @@ public class ValidateAIFCli implements Callable<Integer> {
 
     @Override
     public Integer call() {
-        logger.info("!!!!!!!!@@@@#####$$$$$$$$$$$##Calling call()......"); 
         // Enforce mutual exclusion for domain ontologies
         checkOntMutex();
 
