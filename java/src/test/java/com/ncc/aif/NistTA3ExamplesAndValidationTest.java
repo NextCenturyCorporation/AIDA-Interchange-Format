@@ -121,12 +121,18 @@ public class NistTA3ExamplesAndValidationTest {
                                 Resource validClaimerComponent3;
                                 Resource validClaimerComponent4;
                                 Resource validClaimLocationComponent;
-                                Resource validProtoType1;
-                                Resource validProtoType2;
-                                Resource validProtoType3;
+                                // Resource validProtoType1;
+                                // Resource validProtoType2;
+                                // Resource validProtoType3;
                                 Resource validSameAsCluster1;
                                 Resource validSameAsCluster2;
                                 Resource validSameAsCluster3;
+                                Resource validSameAsClusterEntity1;
+                                Resource validSameAsClusterEntity2;
+                                Resource validSameAsClusterEntity3;
+                                Resource johnDoeCluster1;
+                                Resource johnDoeCluster2;
+                                Resource johnDoeCluster3;                                
                                 Claim validClaim;
 
                                 String claimComponentTestURI = "https://www.wikidata.org/wiki/Q8440";
@@ -137,31 +143,105 @@ public class NistTA3ExamplesAndValidationTest {
 
                                 @BeforeEach
                                 void setup() {
+                                        // Two people, probably the same person
+                                        // final String johnDoeName1 = "John Doe";
+                                        // final Resource johnDoeResource1 = makeEntity(model, utils.getUri("E780885.00311"), system);
+                                        // markType(model, utils.getAssertionUri(), johnDoeResource1, SeedlingOntology.Person, system, 1.0);
+                                        // markName(johnDoeResource1, johnDoeName1);
 
-                                        validProtoType1 = makeEntity(model, utils.getUri("someTestURI1"), system);
-                                        markHandle(validProtoType1, "ClusterID1");
+                                        // // final String putinDocumentEntityUri = utils.getUri("E781167.00398");
 
-                                        validProtoType2 = makeEntity(model, utils.getUri("someTestURI2"), system);
-                                        markHandle(validProtoType2, "ClusterID2");
+                                        // // final Resource john = makeEntity(model, putinDocumentEntityUri, system);
+                                        // // markType(model, utils.getAssertionUri(), john, SeedlingOntology.Person, system, 1.0);
+                                        // // markName(john, "John");
 
-                                        validProtoType3 = makeEntity(model, utils.getUri("someTestURI3"), system);
-                                        markHandle(validProtoType3, "ClusterID3");
+                                        // // create a cluster with prototype
+                                        // johnDoeCluster1 = makeClusterWithPrototype(model, utils.getClusterUri(),
+                                        // johnDoeResource1, johnDoeName1, system);
+                                        // johnDoeCluster2 = makeClusterWithPrototype(model, utils.getClusterUri(),
+                                        // johnDoeResource, johnDoeName, system);
+                                        // johnDoeCluster3 = makeClusterWithPrototype(model, utils.getClusterUri(),
+                                        // johnDoeResource, johnDoeName, system);
+
+
+                                        final Resource event_1 = makeEvent(model, utils.getUri("test_event_uri_1"), system);
+                                        markHandle(event_1, "Event1");
+                                        markType(model, utils.getAssertionUri(), event_1, SeedlingOntology.Personnel_Elect, system, 1.0);
+
+                                        final Resource person_1 = makeEntity(model, utils.getUri("test_entity_uri_1"), system);
+                                        markHandle(person_1, "Person1");
+                                        markType(model, utils.getAssertionUri(), person_1, SeedlingOntology.Person, system, 1.0);
+
+                                        final Resource event_1_edge = markAsArgument(model, event_1, "A0_Elect_Candidate",
+                                                person_1, system, 0.785, utils.getUri("A0_Elect_Candidate_URI"));
+                                        
+
+                                        final Resource event_2 = makeEvent(model, utils.getUri("test_event_uri_2"), system);
+                                        markHandle(event_2, "Event2");
+                                        markType(model, utils.getAssertionUri(), event_2, SeedlingOntology.Personnel_Elect, system, 1.0);
+
+                                        final Resource person_2 = makeEntity(model, utils.getUri("test_entity_uri_2"), system);
+                                        markHandle(person_2, "Person2");
+                                        markType(model, utils.getAssertionUri(), person_2, SeedlingOntology.Person, system, .66);
+
+                                        final Resource event_2_edge = markAsArgument(model, event_2, "A0_Elect_Candidate",
+                                                person_2, system, 0.785, utils.getUri("A0_Elect_Candidate_URI"));
+                                                        
+                                        final Resource event_3 = makeEvent(model, utils.getUri("test_event_uri_3"), system);
+                                        markHandle(event_3, "Event3");
+                                        markType(model, utils.getAssertionUri(), event_3, SeedlingOntology.Personnel_Elect, system, .8);
+
+                                        final Resource person_3 = makeEntity(model, utils.getUri("test_entity_uri_3"), system);
+                                        markHandle(person_3, "Person3");
+                                        markType(model, utils.getAssertionUri(), person_3, SeedlingOntology.Person, system, .7);
+
+                                        final Resource event_3_edge = markAsArgument(model, event_3, "A0_Elect_Candidate",
+                                                person_3, system, 0.785, utils.getUri("A0_Elect_Candidate_URI"));
+        
+                                        System.out.println("Phi was here");
+                                        System.out.println(event_1_edge.toString());
+                                        
+                                        // markAttribute(argument, InterchangeOntology.Negated);
+                                        // markAttribute(argument, InterchangeOntology.Hedged);                                        
+
+                                        // validProtoType1 = makeEntity(model, utils.getUri("someTestURI1"), system);
+                                        // markHandle(validProtoType1, "ClusterID1");
+                                        // validProtoType2 = makeEntity(model, utils.getUri("someTestURI2"), system);
+                                        // markHandle(validProtoType2, "ClusterID2");
+                                        // validProtoType3 = makeEntity(model, utils.getUri("someTestURI3"), system);
+                                        // markHandle(validProtoType3, "ClusterID3");
 
                                         validSameAsCluster1 = AIFUtils
-                                                        .makeAIFResource(model,
-                                                                        "http://www.caci.com/cluster/SameAsCluster/ClusterID1",
-                                                                        InterchangeOntology.SameAsCluster, system)
-                                                        .addProperty(InterchangeOntology.prototype, validProtoType1);
-                                        validSameAsCluster2 = AIFUtils
-                                                        .makeAIFResource(model,
-                                                                        "http://www.caci.com/cluster/SameAsCluster/ClusterID2",
-                                                                        InterchangeOntology.SameAsCluster, system)
-                                                        .addProperty(InterchangeOntology.prototype, validProtoType2);
+                                                .makeAIFResource(model,
+                                                                "http://www.caci.com/cluster/SameAsCluster/ClusterID1",
+                                                                InterchangeOntology.cluster, system)
+                                                .addProperty(InterchangeOntology.prototype, event_1);
+                                         validSameAsCluster2 = AIFUtils
+                                                .makeAIFResource(model,
+                                                                "http://www.caci.com/cluster/SameAsCluster/ClusterID2",
+                                                                InterchangeOntology.SameAsCluster, system)
+                                                .addProperty(InterchangeOntology.prototype, event_2);
                                         validSameAsCluster3 = AIFUtils
+                                                .makeAIFResource(model,
+                                                                "http://www.caci.com/cluster/SameAsCluster/ClusterID3",
+                                                                InterchangeOntology.SameAsCluster, system)
+                                                .addProperty(InterchangeOntology.prototype, event_3);
+
+                                        validSameAsClusterEntity1 = AIFUtils
                                                         .makeAIFResource(model,
-                                                                        "http://www.caci.com/cluster/SameAsCluster/ClusterID3",
+                                                                        "http://www.caci.com/cluster/SameAsCluster/ClusterIDEntity1",
                                                                         InterchangeOntology.SameAsCluster, system)
-                                                        .addProperty(InterchangeOntology.prototype, validProtoType3);
+                                                        .addProperty(InterchangeOntology.prototype, person_1);
+                                        validSameAsClusterEntity2 = AIFUtils
+                                                        .makeAIFResource(model,
+                                                                        "http://www.caci.com/cluster/SameAsCluster/ClusterIDEntity2",
+                                                                        InterchangeOntology.SameAsCluster, system)
+                                                        .addProperty(InterchangeOntology.prototype, person_2);
+                                        validSameAsClusterEntity3 = AIFUtils
+                                                        .makeAIFResource(model,
+                                                                        "http://www.caci.com/cluster/SameAsCluster/ClusterIDEntity3",
+                                                                        InterchangeOntology.SameAsCluster, system)
+                                                        .addProperty(InterchangeOntology.prototype, person_3);
 
                                         validComponentKE = validSameAsCluster1;
 
@@ -255,7 +335,7 @@ public class NistTA3ExamplesAndValidationTest {
 
                                         validClaim.addToModel(model, utils.getUri("a_full_claimframe"), system);
 
-                                        utils.testValid("Create full valid claim frame");
+                                        //utils.testValid("Create full valid claim frame");
                                 }
 
                                 // Test Claim requires exactly 1 claimId
@@ -266,8 +346,7 @@ public class NistTA3ExamplesAndValidationTest {
                                         validClaim.addToModel(model, utils.getUri("a_missing_claim_id"), system);
                                         utils.expect(null, SH.MinCountConstraintComponent, null);
 
-                                        utils.testInvalid("ClaimTest.invalid (missing id): Claim must have an id");
-
+                                        //utils.testInvalid("ClaimTest.invalid (missing id): Claim must have an id");
                                 }
 
                                 // Test Claim missing X variable

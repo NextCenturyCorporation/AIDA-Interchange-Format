@@ -303,6 +303,7 @@ class TestUtils {
                 .mapWith(RDFNode::asResource)
                 .mapWith(TestUtils::getTriple)
                 .forEachRemaining(triple -> {
+                    System.out.println(triple);
                     assertTrue(expectedCounts.containsKey(triple), "Encountered unexpected violation: " + triple);
                     realCounts.put(triple, realCounts.getOrDefault(triple, 0) + 1);
                 });
