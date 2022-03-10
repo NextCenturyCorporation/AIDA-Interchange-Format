@@ -257,7 +257,7 @@ public class NistTA3ExamplesAndValidationTest {
                                         validClaim.addToModel(model, utils.getUri("a_full_claimframe"), system);
 
                                         //TODO: FIX TestUtils.java (triples are typed to a resource)
-                                        //utils.testValid("Create full valid claim frame");
+                                        //utils.testValid("Create full valid claim frame"); 
                                 }
 
                                 // Test Claim requires exactly 1 claimId
