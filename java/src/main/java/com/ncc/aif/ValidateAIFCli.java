@@ -23,6 +23,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.base.Charsets;
@@ -275,6 +276,8 @@ public class ValidateAIFCli implements Callable<Integer> {
         logger.setLevel(Level.INFO);
         logger.info(START_MSG);
 
+
+
         // Collect the flags parsed from the arguments
         final ValidateAIF.Restriction restriction = useNISTTA3Rescriction ? ValidateAIF.Restriction.NIST_TA3 :
                 useNISTRestriction ? ValidateAIF.Restriction.NIST : ValidateAIF.Restriction.NONE;
@@ -295,13 +298,27 @@ public class ValidateAIFCli implements Callable<Integer> {
             }
         } else { // -d option
             File dir = directory;
+            List<Path> paths = null; 
             if (!dir.exists()) {
                 logger.warn("Skipping non-existent directory: " + dir.getName());
             } else if (dir.isDirectory()) {
-                File[] files = dir.listFiles(pathname -> pathname.toString().endsWith(".ttl"));
-                if (files != null) {
-                    filesToValidate.addAll(Arrays.asList(files));
+
+                try {
+                    Stream<Path> walk = Files.walk(Paths.get(dir.getPath()));
+                    paths = walk.filter(Files::isRegularFile)   // is a file
+                                    .filter(p -> p.getFileName().toString().endsWith(".ttl"))
+                                    .collect(Collectors.toList());                   
+
+                } catch (IOException e) {
+                    logger.warn("---> Could not walk directory: " + directory.toString());
                 }
+
+                if(paths != null){
+                    for (Path mypath : paths){
+                        filesToValidate.add(new File(mypath.toString())); 
+                    }
+                }
+
             } else {
                 logger.warn("Skipping non-directory: " + dir.getName());
             }
