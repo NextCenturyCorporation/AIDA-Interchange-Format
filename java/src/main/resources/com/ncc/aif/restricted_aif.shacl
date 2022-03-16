@@ -356,16 +356,67 @@ aida:InformativeJustificationMembersShape
 
 ## b. TA1, TA2, and TA3 must have exactly one informative mention for each aida:Entity, aida:Event, and aida:Relation
 ##  prototype that is an object of an AIF argument assertion, for each document that provides a justification for
-##  the argument assertion.  For a given justification for an AIF argument assertion in a particular document, 
-##  assessors will look at both the justification and the informative mention of the object in that document, to determine
-##  whether the AIF argument assertion is correct.  If no informative mention is provided for the object for the document then,
-##  for the purposes of evaluation, it will be as if the justification for the argument assertion from that document did not exist in the knowledge graph. 
+##  the argument assertion.
 
-### Defined in \AIDA-Interchange-Format\java\src\main\resources\com\ncc\aif\aida_ontology.shacl
-### aida:InformativeJustificationPropertyShape
 #------------------------
 
+# aida:SystemShape
+#     sh:sparql[
+#         sh:message "TA1, TA2, and TA3 must have exactly one informative mention for each aida:Entity, aida:Event, and aida:Relation prototype that is an object of an AIF argument assertion, for each document that provides a justification for the argument assertion.. See {$this}" ;
+#         sh:select """
+#         PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
+#         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+#         SELECT ?this #(COUNT(DISTINCT ?mention) AS $value)
+#       	WHERE {
+#             ?this a ?prototye_type .
+#             OPTIONAL { ?this aida:informativeJustification ?mention } .
+    
+#             ?statement a ?statement_type .
+#             ?statement rdf:object ?this .
+    
+#             FILTER(?statement_type = rdf:Statement || ?statement_type = aida:ArgumentStatement)
+#             FILTER(?prototye_type = aida:Entity || ?prototye_type = aida:Event || ?prototye_type = aida:Relation)
+#       	}
+# 		GROUP BY ?this
+#         #HAVING (COUNT(DISTINCT ?mention) != 1 )
+#         """ ;
+#     ] .
 
+aida:EREOneInformativeJustificationMembers
+    a sh:SPARQLConstraint ;
+    sh:message "TA1, TA2, and TA3 must have exactly one informative mention for each aida:Entity, aida:Event, and aida:Relation prototype that is an object of an AIF argument assertion, for each document that provides a justification for the argument assertion.. See {$this}" ;
+    sh:select """
+        PREFIX aida:  <https://raw.githubusercontent.com/NextCenturyCorporation/AIDA-Interchange-Format/master/java/src/main/resources/com/ncc/aif/ontologies/InterchangeOntology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        SELECT ?this (COUNT(DISTINCT ?mention) AS $value)
+      	WHERE {
+            ?this a ?prototye_type .
+            OPTIONAL { ?this aida:informativeJustification ?mention } .
+    
+            ?statement a ?statement_type .
+            ?statement rdf:object ?this .
+    
+            FILTER(?statement_type = rdf:Statement || ?statement_type = aida:ArgumentStatement)
+            FILTER(?prototye_type = aida:Entity || ?prototye_type = aida:Event || ?prototye_type = aida:Relation)
+      	}
+		GROUP BY ?this
+        HAVING (COUNT(DISTINCT ?mention) < 1 )
+    """ ;
+    .
+
+# aida:EREOneInformativeJustificationMembersShape
+#     a sh:NodeShape ;
+#     sh:targetSubjectsOf aida:informativeJustification ;
+#     sh:sparql aida:EREOneInformativeJustificationMembers .
+
+aida:EREOneInformativeJustificationMembersShape
+    a sh:NodeShape ;
+    sh:targetClass aida:Entity, aida:Event, aida:Relation ;
+    sh:property [
+        sh:path aida:informativeJustification ;
+        sh:sparql aida:EREOneInformativeJustificationMembers ;
+    ]
+    .
 
 #########################
 # 2.4.1
