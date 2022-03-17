@@ -195,7 +195,7 @@ public class ValidateAIFCli implements Callable<Integer> {
     // private boolean useDiskModel;
 
     @Option(names = "--mem", description = "Use memory model for validating files")
-    private boolean useMemModel = true;
+    private boolean useMemModel;
 
     @Option(names = "--debug", description = "Enable debugging", hidden = true)
     private boolean debugOutput;
