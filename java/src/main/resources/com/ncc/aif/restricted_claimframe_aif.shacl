@@ -188,15 +188,12 @@ aida:SystemShape
                         ?object_cluster a aida:SameAsCluster .
                         ?object_cluster aida:prototype ?object_prototype .
 
-
-
                         ?statement a ?statement_type .
                         ?statement rdf:object ?object_prototype .
                         ?statement rdf:predicate ?predicate .
                         ?statement rdf:subject ?subject_prototype .
-                        ?statement aida:confidence ?confidence .
 
-
+                        #?statement aida:confidence ?confidence .
 
                         FILTER(?statement_type = rdf:Statement || ?statement_type = aida:ArgumentStatement)
                         FILTER(?subject_metatype = aida:Event || ?subject_metatype = aida:Relation)        
