@@ -183,10 +183,12 @@ aida:SystemShape
             WHERE {
                         ?claimId aida:associatedKEs ?subject_cluster .
                         ?subject_cluster a aida:SameAsCluster .
-                        ?subject_cluster aida:prototype ?subject_prototype .
                         ?subject_prototype a ?subject_metatype .
                         ?object_cluster a aida:SameAsCluster .
-                        ?object_cluster aida:prototype ?object_prototype .
+                       
+                        {{ ?subject_cluster aida:prototype ?subject_prototype }
+                            UNION
+                        {?object_cluster aida:prototype ?object_prototype }}
 
                         ?statement a ?statement_type .
                         ?statement rdf:object ?object_prototype .
