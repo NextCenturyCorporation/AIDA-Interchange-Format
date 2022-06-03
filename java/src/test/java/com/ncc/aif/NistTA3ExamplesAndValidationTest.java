@@ -9,6 +9,7 @@ import static com.ncc.aif.AIFUtils.makeSystemWithURI;
 import static com.ncc.aif.AIFUtils.makeTextJustification;
 import static com.ncc.aif.AIFUtils.markAsArgument;
 import static com.ncc.aif.AIFUtils.markAsPossibleClusterMember;
+import static com.ncc.aif.AIFUtils.markAttribute;
 import static com.ncc.aif.AIFUtils.markCompoundJustification;
 import static com.ncc.aif.AIFUtils.markConfidence;
 import static com.ncc.aif.AIFUtils.markEdgesAsMutuallyExclusive;
@@ -138,30 +139,110 @@ public class NistTA3ExamplesAndValidationTest {
                                 @BeforeEach
                                 void setup() {
 
-                                        validProtoType1 = makeEntity(model, utils.getUri("someTestURI1"), system);
-                                        markHandle(validProtoType1, "ClusterID1");
 
-                                        validProtoType2 = makeEntity(model, utils.getUri("someTestURI2"), system);
-                                        markHandle(validProtoType2, "ClusterID2");
+                                        ////////////////////////////////////////////////////////////////////////////
+                                        String Entity1Uri = utils.getEntityUri();
+                                        String Event1Uri = utils.getEventUri();
 
-                                        validProtoType3 = makeEntity(model, utils.getUri("someTestURI3"), system);
-                                        markHandle(validProtoType3, "ClusterID3");
+                                        final Resource validProtoTypeEvent1 = makeEvent(model, Event1Uri, system);
+                                        markType(model, utils.getAssertionUri(), validProtoTypeEvent1, SeedlingOntology.Personnel_Elect, system, 1.0);
+                
+                                        final Resource validProtoTypeEntity1 = makeEntity(model, Entity1Uri, system);
+                                        markType(model, utils.getAssertionUri(), validProtoTypeEntity1, SeedlingOntology.Person, system, 1.0);
+                
+                                        final Resource argument1 = markAsArgument(model, validProtoTypeEvent1, "A1_ppt_thing_bought",
+                                                validProtoTypeEntity1, system, 0.785, utils.getUri("eventArgument-1"));
+                                        //PREDICATE AS URI
+                                        // final Resource argument1 = markAsArgument(model, validProtoTypeEvent1, SeedlingOntology.Personnel_Elect_Elect,
+                                        // validProtoTypeEntity1, system, 0.785, utils.getUri("eventArgument-1"));                                                 
+                
+                                        markAttribute(argument1, InterchangeOntology.Negated);
+                                        markAttribute(argument1, InterchangeOntology.Hedged);
+
+                                        ////////////////////////////////////////////////////////////////////////////
+                                        String Entity2Uri = utils.getEntityUri();
+                                        String Event2Uri = utils.getEventUri();
+
+                                        final Resource validProtoTypeEvent2 = makeEvent(model, Event2Uri, system);
+                                        markType(model, utils.getAssertionUri(), validProtoTypeEvent2, SeedlingOntology.Personnel_Elect, system, 1.0);
+                
+                                        final Resource validProtoTypeEntity2 = makeEntity(model, Entity2Uri, system);
+                                        markType(model, utils.getAssertionUri(), validProtoTypeEntity2, SeedlingOntology.Person, system, 1.0);
+                
+                                        final Resource argument2 = markAsArgument(model, validProtoTypeEvent2, "A1_ppt_thing_bought",
+                                                validProtoTypeEntity2, system, 0.785, utils.getUri("eventArgument-2"));
+                                        //PREDICATE AS URI
+                                        // final Resource argument2 = markAsArgument(model, validProtoTypeEvent2, SeedlingOntology.Personnel_Elect_Elect,
+                                        // validProtoTypeEntity2, system, 0.785, utils.getUri("eventArgument-2"));                                                
+                
+                                        markAttribute(argument2, InterchangeOntology.Negated);
+                                        markAttribute(argument2, InterchangeOntology.Hedged);
+
+                                        ////////////////////////////////////////////////////////////////////////////
+                                        String Entity3Uri = utils.getEntityUri();
+                                        String Event3Uri = utils.getEventUri();
+
+                                        final Resource validProtoTypeEvent3 = makeEvent(model, Event3Uri, system);
+                                        markType(model, utils.getAssertionUri(), validProtoTypeEvent3, SeedlingOntology.Personnel_Elect, system, 1.0);
+                
+                                        final Resource validProtoTypeEntity3 = makeEntity(model, Entity3Uri, system);
+                                        markType(model, utils.getAssertionUri(), validProtoTypeEntity3, SeedlingOntology.Person, system, 1.0);
+                                        
+                                        //PREDICATE AS URI
+                                        final Resource argument3 = markAsArgument(model, validProtoTypeEvent3, "A1_ppt_thing_bought",
+                                                validProtoTypeEntity3, system, 0.785, utils.getUri("eventArgument-3"));
+                                        //PREDICATE AS URI
+                                        // final Resource argument3 = markAsArgument(model, validProtoTypeEvent3, SeedlingOntology.Personnel_Elect_Elect,
+                                        // validProtoTypeEntity3, system, 0.785, utils.getUri("eventArgument-3"));
+
+                                        markAttribute(argument3, InterchangeOntology.Negated);
+                                        markAttribute(argument3, InterchangeOntology.Hedged);
+
+                                        ///
+                                        // final Resource validProtoType1 = makeEvent(model, utils.getEventUri(), system);
+                                        // markJustification(utils.addType(validProtoType1,
+                                        //         LDCOntology.Life_Die),
+                                        //         utils.makeValidJustification());
+
+                                        // final Resource validProtoType2 = makeEvent(model, utils.getEventUri(), system);
+                                        // markJustification(utils.addType(validProtoType2,
+                                        //         LDCOntology.Life_Die),
+                                        //         utils.makeValidJustification());
+
+                                        // final Resource validProtoType3 = makeEvent(model, utils.getEventUri(), system);
+                                        // markJustification(utils.addType(validProtoType3,
+                                        //         LDCOntology.Life_Die),
+                                        //         utils.makeValidJustification());                                                                                                        
+        
+                                        ///
+
+                                        // validProtoType1 = makeEntity(model, utils.getUri("someTestURI1"), system);
+                                        // markHandle(validProtoType1, "ClusterID1");
+
+                                        // validProtoType2 = makeEntity(model, utils.getUri("someTestURI2"), system);
+                                        // markHandle(validProtoType2, "ClusterID2");
+
+                                        // validProtoType3 = makeEntity(model, utils.getUri("someTestURI3"), system);
+                                        // markHandle(validProtoType3, "ClusterID3");
+
+
 
                                         validSameAsCluster1 = AIFUtils
                                                         .makeAIFResource(model,
                                                                         "http://www.caci.com/cluster/SameAsCluster/ClusterID1",
                                                                         InterchangeOntology.SameAsCluster, system)
-                                                        .addProperty(InterchangeOntology.prototype, validProtoType1);
+                                                        .addProperty(InterchangeOntology.prototype, validProtoTypeEvent1);
+                                        
                                         validSameAsCluster2 = AIFUtils
                                                         .makeAIFResource(model,
                                                                         "http://www.caci.com/cluster/SameAsCluster/ClusterID2",
                                                                         InterchangeOntology.SameAsCluster, system)
-                                                        .addProperty(InterchangeOntology.prototype, validProtoType2);
+                                                        .addProperty(InterchangeOntology.prototype, validProtoTypeEvent2);
                                         validSameAsCluster3 = AIFUtils
                                                         .makeAIFResource(model,
                                                                         "http://www.caci.com/cluster/SameAsCluster/ClusterID3",
                                                                         InterchangeOntology.SameAsCluster, system)
-                                                        .addProperty(InterchangeOntology.prototype, validProtoType3);
+                                                        .addProperty(InterchangeOntology.prototype, validProtoTypeEvent3);
 
                                         validComponentKE = validSameAsCluster1;
 
@@ -226,7 +307,7 @@ public class NistTA3ExamplesAndValidationTest {
                                 void validMinimal() {
                                         validClaim.addToModel(model, utils.getUri("a_minimal_claimframe"), system);
                                         //TODO: FIX TestUtils.java (triples are typed to a resource)
-                                        //utils.testValid("Create minimal valid claim frame");
+                                        utils.testValid("Create minimal valid claim frame");
                                 }
 
                                 @Test
@@ -257,7 +338,7 @@ public class NistTA3ExamplesAndValidationTest {
                                         validClaim.addToModel(model, utils.getUri("a_full_claimframe"), system);
 
                                         //TODO: FIX TestUtils.java (triples are typed to a resource)
-                                        //utils.testValid("Create full valid claim frame"); 
+                                        utils.testValid("Create full valid claim frame"); 
                                 }
 
                                 // Test Claim requires exactly 1 claimId
@@ -269,7 +350,7 @@ public class NistTA3ExamplesAndValidationTest {
                                         utils.expect(null, SH.MinCountConstraintComponent, null);
 
                                         //TODO: FIX TestUtils.java (triples are typed to a resource)
-                                        //utils.testInvalid("ClaimTest.invalid (missing id): Claim must have an id");
+                                        utils.testInvalid("ClaimTest.invalid (missing id): Claim must have an id");
 
                                 }
 
@@ -281,7 +362,7 @@ public class NistTA3ExamplesAndValidationTest {
                                                         utils.getUri("claim"), system);
                                         utils.expect(null, SH.MinCountConstraintComponent, null);
                                         //TODO: FIX TestUtils.java (triples are typed to a resource)
-                                        //utils.testInvalid("ClaimTest.invalid (missing x variable): Claim must have X Variable");
+                                        utils.testInvalid("ClaimTest.invalid (missing x variable): Claim must have X Variable");
                                 }
 
                                 @Test
