@@ -149,12 +149,13 @@ public class NistTA3ExamplesAndValidationTest {
                 
                                         final Resource validProtoTypeEntity1 = makeEntity(model, Entity1Uri, system);
                                         markType(model, utils.getAssertionUri(), validProtoTypeEntity1, SeedlingOntology.Person, system, 1.0);
-                
+
+                                        //PREDICATE AS String
                                         final Resource argument1 = markAsArgument(model, validProtoTypeEvent1, "A1_ppt_thing_bought",
                                                 validProtoTypeEntity1, system, 0.785, utils.getUri("eventArgument-1"));
                                         //PREDICATE AS URI
                                         // final Resource argument1 = markAsArgument(model, validProtoTypeEvent1, SeedlingOntology.Personnel_Elect_Elect,
-                                        // validProtoTypeEntity1, system, 0.785, utils.getUri("eventArgument-1"));                                                 
+                                        // validProtoTypeEntity1, system, 0.785, utils.getUri("eventArgument-1"));
                 
                                         markAttribute(argument1, InterchangeOntology.Negated);
                                         markAttribute(argument1, InterchangeOntology.Hedged);
@@ -168,7 +169,8 @@ public class NistTA3ExamplesAndValidationTest {
                 
                                         final Resource validProtoTypeEntity2 = makeEntity(model, Entity2Uri, system);
                                         markType(model, utils.getAssertionUri(), validProtoTypeEntity2, SeedlingOntology.Person, system, 1.0);
-                
+
+                                        //PREDICATE AS String
                                         final Resource argument2 = markAsArgument(model, validProtoTypeEvent2, "A1_ppt_thing_bought",
                                                 validProtoTypeEntity2, system, 0.785, utils.getUri("eventArgument-2"));
                                         //PREDICATE AS URI
@@ -188,7 +190,7 @@ public class NistTA3ExamplesAndValidationTest {
                                         final Resource validProtoTypeEntity3 = makeEntity(model, Entity3Uri, system);
                                         markType(model, utils.getAssertionUri(), validProtoTypeEntity3, SeedlingOntology.Person, system, 1.0);
                                         
-                                        //PREDICATE AS URI
+                                        //PREDICATE AS String
                                         final Resource argument3 = markAsArgument(model, validProtoTypeEvent3, "A1_ppt_thing_bought",
                                                 validProtoTypeEntity3, system, 0.785, utils.getUri("eventArgument-3"));
                                         //PREDICATE AS URI
