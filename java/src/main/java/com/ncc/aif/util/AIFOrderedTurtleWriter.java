@@ -80,7 +80,7 @@ public class AIFOrderedTurtleWriter extends AbstractTurtleWriter {
 
             // sort order by predicate and object
             private Comparator<Node> predicateSort = Comparator.comparing(node ->
-                    graph.find(node, RDF.predicate.asNode(), Node.ANY).next().getObject().getURI() +
+                    graph.find(node, RDF.predicate.asNode(), Node.ANY).next().getObject() +
                             AIFComparableNode.getComparableString(graph,
                                     graph.find(node, RDF.object.asNode(), Node.ANY).next().getObject())
             );
