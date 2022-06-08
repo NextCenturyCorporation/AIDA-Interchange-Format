@@ -139,6 +139,14 @@ public class NistTA3ExamplesAndValidationTest {
                                 @BeforeEach
                                 void setup() {
 
+                                        ImmutablePair<Resource, Resource> aPair = utils.makeValidNistEntity(
+                                                LDCOntology.PER);
+
+                                        markHandle(aPair.getKey(), "SomeBasicCluster1");
+
+                                        Resource entityCluster1 = aPair.getValue();
+                                        Resource entityCluster2 = aPair.getValue();
+                                        Resource entityCluster3 = aPair.getValue();
 
                                         ////////////////////////////////////////////////////////////////////////////
                                         String Entity1Uri = utils.getEntityUri();
@@ -149,6 +157,10 @@ public class NistTA3ExamplesAndValidationTest {
                 
                                         final Resource validProtoTypeEntity1 = makeEntity(model, Entity1Uri, system);
                                         markType(model, utils.getAssertionUri(), validProtoTypeEntity1, SeedlingOntology.Person, system, 1.0);
+                                        markHandle(validProtoTypeEntity1, "EntityClusterID1");
+
+
+                                        markAsPossibleClusterMember(model, validProtoTypeEntity1, entityCluster1, .75, system);
 
                                         //PREDICATE AS String
                                         final Resource argument1 = markAsArgument(model, validProtoTypeEvent1, "A1_ppt_thing_bought",
@@ -156,6 +168,16 @@ public class NistTA3ExamplesAndValidationTest {
                                         //PREDICATE AS URI
                                         // final Resource argument1 = markAsArgument(model, validProtoTypeEvent1, SeedlingOntology.Personnel_Elect_Elect,
                                         // validProtoTypeEntity1, system, 0.785, utils.getUri("eventArgument-1"));
+
+                                        final Resource typeAssertion1 = markType(model, utils.getAssertionUri(), validProtoTypeEvent1,
+                                        SeedlingOntology.Personnel_Elect_Elect, system, 1.0);
+                                        final Resource justification1 = markTextJustification(model, typeAssertion1, "HC00002Z0", 0, 10,
+                                        system, 1d);
+
+                                        markInformativeJustification(validProtoTypeEvent1, justification1);
+                                        markInformativeJustification(validProtoTypeEntity1, justification1);
+
+                                        addSourceDocumentToJustification(justification1, "HC00002Z0");
                 
                                         markAttribute(argument1, InterchangeOntology.Negated);
                                         markAttribute(argument1, InterchangeOntology.Hedged);
@@ -169,13 +191,27 @@ public class NistTA3ExamplesAndValidationTest {
                 
                                         final Resource validProtoTypeEntity2 = makeEntity(model, Entity2Uri, system);
                                         markType(model, utils.getAssertionUri(), validProtoTypeEntity2, SeedlingOntology.Person, system, 1.0);
+                                        markHandle(validProtoTypeEntity2, "EntityClusterID2");
+
+
+                                        markAsPossibleClusterMember(model, validProtoTypeEntity2, entityCluster2, .75, system);
 
                                         //PREDICATE AS String
                                         final Resource argument2 = markAsArgument(model, validProtoTypeEvent2, "A1_ppt_thing_bought",
                                                 validProtoTypeEntity2, system, 0.785, utils.getUri("eventArgument-2"));
                                         //PREDICATE AS URI
                                         // final Resource argument2 = markAsArgument(model, validProtoTypeEvent2, SeedlingOntology.Personnel_Elect_Elect,
-                                        // validProtoTypeEntity2, system, 0.785, utils.getUri("eventArgument-2"));                                                
+                                        // validProtoTypeEntity2, system, 0.785, utils.getUri("eventArgument-2"));
+
+                                        final Resource typeAssertion2 = markType(model, utils.getAssertionUri(), validProtoTypeEvent2,
+                                        SeedlingOntology.Personnel_Elect_Elect, system, 1.0);
+                                        final Resource justification2 = markTextJustification(model, typeAssertion2, "HC00002Z0", 0, 10,
+                                        system, 1d);
+
+                                        markInformativeJustification(validProtoTypeEvent2, justification2);
+                                        markInformativeJustification(validProtoTypeEntity2, justification2);
+
+                                        addSourceDocumentToJustification(justification2, "HC00002Z0");
                 
                                         markAttribute(argument2, InterchangeOntology.Negated);
                                         markAttribute(argument2, InterchangeOntology.Hedged);
@@ -189,7 +225,10 @@ public class NistTA3ExamplesAndValidationTest {
                 
                                         final Resource validProtoTypeEntity3 = makeEntity(model, Entity3Uri, system);
                                         markType(model, utils.getAssertionUri(), validProtoTypeEntity3, SeedlingOntology.Person, system, 1.0);
-                                        
+                                        markHandle(validProtoTypeEntity3, "EntityClusterID3");
+
+                                        markAsPossibleClusterMember(model, validProtoTypeEntity3, entityCluster3, .75, system);
+
                                         //PREDICATE AS String
                                         final Resource argument3 = markAsArgument(model, validProtoTypeEvent3, "A1_ppt_thing_bought",
                                                 validProtoTypeEntity3, system, 0.785, utils.getUri("eventArgument-3"));
@@ -197,36 +236,18 @@ public class NistTA3ExamplesAndValidationTest {
                                         // final Resource argument3 = markAsArgument(model, validProtoTypeEvent3, SeedlingOntology.Personnel_Elect_Elect,
                                         // validProtoTypeEntity3, system, 0.785, utils.getUri("eventArgument-3"));
 
+                                        final Resource typeAssertion3 = markType(model, utils.getAssertionUri(), validProtoTypeEvent3,
+                                        SeedlingOntology.Personnel_Elect_Elect, system, 1.0);
+                                        final Resource justification3 = markTextJustification(model, typeAssertion3, "YY00002Z0", 0, 10,
+                                        system, 1d);
+
+                                        markInformativeJustification(validProtoTypeEvent3, justification3);   
+                                        markInformativeJustification(validProtoTypeEntity3, justification3);
+
+                                        addSourceDocumentToJustification(justification3, "YY00002Z0");
+
                                         markAttribute(argument3, InterchangeOntology.Negated);
                                         markAttribute(argument3, InterchangeOntology.Hedged);
-
-                                        ///
-                                        // final Resource validProtoType1 = makeEvent(model, utils.getEventUri(), system);
-                                        // markJustification(utils.addType(validProtoType1,
-                                        //         LDCOntology.Life_Die),
-                                        //         utils.makeValidJustification());
-
-                                        // final Resource validProtoType2 = makeEvent(model, utils.getEventUri(), system);
-                                        // markJustification(utils.addType(validProtoType2,
-                                        //         LDCOntology.Life_Die),
-                                        //         utils.makeValidJustification());
-
-                                        // final Resource validProtoType3 = makeEvent(model, utils.getEventUri(), system);
-                                        // markJustification(utils.addType(validProtoType3,
-                                        //         LDCOntology.Life_Die),
-                                        //         utils.makeValidJustification());                                                                                                        
-        
-                                        ///
-
-                                        // validProtoType1 = makeEntity(model, utils.getUri("someTestURI1"), system);
-                                        // markHandle(validProtoType1, "ClusterID1");
-
-                                        // validProtoType2 = makeEntity(model, utils.getUri("someTestURI2"), system);
-                                        // markHandle(validProtoType2, "ClusterID2");
-
-                                        // validProtoType3 = makeEntity(model, utils.getUri("someTestURI3"), system);
-                                        // markHandle(validProtoType3, "ClusterID3");
-
 
 
                                         validSameAsCluster1 = AIFUtils
@@ -308,7 +329,6 @@ public class NistTA3ExamplesAndValidationTest {
                                 @Test
                                 void validMinimal() {
                                         validClaim.addToModel(model, utils.getUri("a_minimal_claimframe"), system);
-                                        //TODO: FIX TestUtils.java (triples are typed to a resource)
                                         utils.testValid("Create minimal valid claim frame");
                                 }
 
@@ -338,8 +358,6 @@ public class NistTA3ExamplesAndValidationTest {
                                                         system));
 
                                         validClaim.addToModel(model, utils.getUri("a_full_claimframe"), system);
-
-                                        //TODO: FIX TestUtils.java (triples are typed to a resource)
                                         utils.testValid("Create full valid claim frame"); 
                                 }
 
@@ -350,8 +368,6 @@ public class NistTA3ExamplesAndValidationTest {
                                         validClaim.setClaimId(null);
                                         validClaim.addToModel(model, utils.getUri("a_missing_claim_id"), system);
                                         utils.expect(null, SH.MinCountConstraintComponent, null);
-
-                                        //TODO: FIX TestUtils.java (triples are typed to a resource)
                                         utils.testInvalid("ClaimTest.invalid (missing id): Claim must have an id");
 
                                 }
@@ -363,7 +379,6 @@ public class NistTA3ExamplesAndValidationTest {
                                         validClaim.setXVariable(Collections.emptySet()).addToModel(model,
                                                         utils.getUri("claim"), system);
                                         utils.expect(null, SH.MinCountConstraintComponent, null);
-                                        //TODO: FIX TestUtils.java (triples are typed to a resource)
                                         utils.testInvalid("ClaimTest.invalid (missing x variable): Claim must have X Variable");
                                 }
 
@@ -376,8 +391,7 @@ public class NistTA3ExamplesAndValidationTest {
                                         validClaim.addToModel(model, utils.getUri("too_many_claimer_affiliation"),
                                                         system);
                                         utils.expect(null, SH.MaxCountConstraintComponent, null);
-                                        //TODO: FIX TestUtils.java (triples are typed to a resource)
-                                        //utils.testInvalid("ClaimTest.invalid (too many claimer affiliation): Claim must have X Variable");
+                                        utils.testInvalid("ClaimTest.invalid (too many claimer affiliation): Claim can have at most 3 aida:claimerAffiliation");
                                 }
 
                                 // Test ClaimComponent too many types
@@ -408,8 +422,7 @@ public class NistTA3ExamplesAndValidationTest {
                                         validClaim.addToModel(model, utils.getUri("too_many_claimcomponents"), system);
                                         utils.expect(null, SH.MaxCountConstraintComponent, null);
 
-                                        //TODO: FIX TestUtils.java (triples are typed to a resource)
-                                        //utils.testInvalid("ClaimComponent.invalid (Too many type): ClaimComponent must max 5 types");
+                                        utils.testInvalid("ClaimComponent.invalid (Too many type): ClaimComponent must max 5 types");
 
                                 }
 
