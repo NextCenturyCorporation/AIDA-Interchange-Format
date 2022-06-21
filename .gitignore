@@ -109,3 +109,4 @@ build/
 # Python documentation
 python/docs/build/
 python/docs/source/*.rst
+java/src/main/resources/com/ncc/.DS_Store

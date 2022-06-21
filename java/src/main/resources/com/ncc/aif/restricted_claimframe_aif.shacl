@@ -231,13 +231,14 @@ aida:AssociatedKEsEntityPrototypeRequireHandle
     ];
 
     # sh:maxCount 1 is inherited from aida_ontology.shacl
-    sh:property [
-        a sh:PropertyShape ;
-        sh:path aida:handle ;
-        sh:minCount 1 ;
-        sh:maxCount 1 ;
-        sh:message "Entity prototype requires handle"
-    ] .
+    # sh:property [
+    #     a sh:PropertyShape ;
+    #     sh:path aida:handle ;
+    #     sh:minCount 1 ;
+    #     sh:maxCount 1 ;
+    #     sh:message "Entity prototype requires handle"
+    # ] 
+    .
 
 #------------------------
 
